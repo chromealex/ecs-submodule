@@ -1,0 +1,7 @@
+﻿namespace #NAMESPACE# {
+
+    public class #STATENAME# : ME.ECS.State {
+
+    }
+
+}
