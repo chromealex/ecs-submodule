@@ -20,6 +20,12 @@ namespace ME.ECS.Pathfinding.Features {
         private ME.ECS.Pathfinding.Pathfinding pathfindingInstance;
         private Entity pathfindingEntity;
         
+        public void SetInstance(ME.ECS.Pathfinding.Pathfinding pathfinding) {
+
+            this.pathfindingInstance = pathfinding;
+            
+        }
+
         internal ME.ECS.Pathfinding.Pathfinding GetInstance() {
 
             return this.pathfindingInstance;
@@ -30,12 +36,6 @@ namespace ME.ECS.Pathfinding.Features {
 
             return this.pathfindingEntity;
 
-        }
-        
-        public void SetInstance(ME.ECS.Pathfinding.Pathfinding pathfinding) {
-
-            this.pathfindingInstance = pathfinding;
-            
         }
         
         protected override void OnConstruct() {

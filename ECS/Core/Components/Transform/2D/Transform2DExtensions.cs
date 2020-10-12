@@ -57,14 +57,14 @@
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static UnityEngine.Vector2 GetPosition2D(this in Entity child) {
 
-            var position = Worlds.currentWorld.GetData<Position2D>(in child).ToVector2();
+            var position = Worlds.currentWorld.GetData<Position2D>(in child, createIfNotExists: false).ToVector2();
             var current = Worlds.currentWorld.GetData<Container>(in child, createIfNotExists: false).entity;
             while (current.IsEmpty() == false) {
 
-                var angle = Worlds.currentWorld.GetData<Rotation2D>(in current).ToQuaternion2D();
+                var angle = Worlds.currentWorld.GetData<Rotation2D>(in current, createIfNotExists: false).ToQuaternion2D();
                 position = UnityEngine.Quaternion.Euler(0f, angle, 0f) * position;
                 //position = UnityEngine.Vector2.Rotate(position, angle);
-                position += Worlds.currentWorld.GetData<Position2D>(in current).ToVector2();
+                position += Worlds.currentWorld.GetData<Position2D>(in current, createIfNotExists: false).ToVector2();
                 current = Worlds.currentWorld.GetData<Container>(in current, createIfNotExists: false).entity;
 
             }
@@ -76,7 +76,7 @@
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static UnityEngine.Vector2 GetLocalPosition2D(this in Entity child) {
 
-            return Worlds.currentWorld.GetData<Position2D>(in child).ToVector2();
+            return Worlds.currentWorld.GetData<Position2D>(in child, createIfNotExists: false).ToVector2();
             
         }
 
@@ -90,18 +90,18 @@
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static float GetLocalRotation2D(this in Entity child) {
 
-            return Worlds.currentWorld.GetData<Rotation2D>(in child).ToQuaternion2D();
+            return Worlds.currentWorld.GetData<Rotation2D>(in child, createIfNotExists: false).ToQuaternion2D();
             
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static float GetRotation2D(this in Entity child) {
 
-            var worldRot = Worlds.currentWorld.GetData<Rotation2D>(in child).ToQuaternion2D();//child.GetLocalRotation2D();
+            var worldRot = Worlds.currentWorld.GetData<Rotation2D>(in child, createIfNotExists: false).ToQuaternion2D();//child.GetLocalRotation2D();
             var current = Worlds.currentWorld.GetData<Container>(in child, createIfNotExists: false).entity;
             while (current.IsEmpty() == false) {
                 
-                worldRot = Worlds.currentWorld.GetData<Rotation2D>(in current).ToQuaternion2D() * worldRot;
+                worldRot = Worlds.currentWorld.GetData<Rotation2D>(in current, createIfNotExists: false).ToQuaternion2D() * worldRot;
                 current = Worlds.currentWorld.GetData<Container>(in current, createIfNotExists: false).entity;
                 
             }
@@ -113,7 +113,7 @@
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static UnityEngine.Vector2 GetLocalScale2D(this in Entity child) {
 
-            return Worlds.currentWorld.GetData<Scale2D>(in child).ToVector2();
+            return Worlds.currentWorld.GetData<Scale2D>(in child, createIfNotExists: false).ToVector2();
 
         }
 

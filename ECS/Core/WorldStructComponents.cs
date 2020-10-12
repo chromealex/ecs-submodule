@@ -985,6 +985,13 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void SetSharedData<TComponent>(in TComponent data, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
+            
+            this.SetData(in this.sharedEntity, data, lifetime);
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void RemoveSharedData<TComponent>() where TComponent : struct, IStructComponent {
             
             this.RemoveData<TComponent>(in this.sharedEntity);

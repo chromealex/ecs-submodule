@@ -169,6 +169,8 @@ namespace ME.ECSEditor {
                 var asmNamePath = System.IO.Path.GetDirectoryName(asmPath);
                 if (System.IO.Directory.Exists(asmNamePath) == false) continue;
 
+                asmNameMain = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditorInternal.AssemblyDefinitionAsset>(asmPath).name;
+
                 var splitted = asmNamePath.Split(System.IO.Path.DirectorySeparatorChar);
                 var asmName  = splitted[splitted.Length - 1];
 
@@ -194,6 +196,13 @@ namespace ME.ECSEditor {
 
                 }
 
+                if (mainAsm == null) {
+                    
+                    //UnityEngine.Debug.LogWarning("Assembly with the name " + asmNameMain + " was not found in directory " + dir);
+                    return;
+
+                }
+                
                 foreach (var assembly in assemblies) {
 
                     if (allAsms.Contains(assembly.GetName().Name) == true && assembly.GetName().Name != "ECSAssembly") {

@@ -226,7 +226,7 @@ namespace ME.ECS.Pathfinding {
             var y = (int)((clamped.y + this.agentHeight * this.size.y * 0.5f) / this.agentHeight);
             var z = (int)((clamped.z + this.nodeSize * this.size.z * 0.5f) / this.nodeSize);
 
-            for (int idx = 0; idx < this.nodes.Count; ++idx) {
+            for (int idx = 0, cnt = this.nodes.Count; idx < cnt; ++idx) {
 
                 var p = ME.ECS.MathUtils.GetSpiralPointByIndex(new Vector2Int(x, z), idx);
                 var i = GridGraphUtilities.GetIndexByPosition(this, new Vector3Int(p.x, y, p.y));
