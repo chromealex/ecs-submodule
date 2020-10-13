@@ -51,11 +51,14 @@ namespace ME.ECS.DataConfigs {
                 if (asmType != null) {
 
                     var m = asmType.GetMethod("InitTypeId", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+                    if (m == null) continue;
+                    
                     m.Invoke(null, null);
                     
                     {
                         
                         this.structComponentsDataTypeIds = new int[this.structComponents.Length];
+                        this.structComponentsComponentTypeIds = new int[this.structComponents.Length];
                         for (int i = 0; i < this.structComponents.Length; ++i) {
 
                             var obj = this.structComponents[i];
@@ -69,9 +72,17 @@ namespace ME.ECS.DataConfigs {
                             var type = obj.GetType();
                             var allId = ComponentTypesRegistry.allTypeId[type];
                             this.structComponentsDataTypeIds[i] = allId;
-                            var id = ComponentTypesRegistry.typeId[type];
-                            this.structComponentsComponentTypeIds[i] = id;
 
+                            if (ComponentTypesRegistry.typeId.TryGetValue(type, out var componentIndex) == true) {
+
+                                this.structComponentsComponentTypeIds[i] = componentIndex;
+
+                            } else {
+
+                                this.structComponentsComponentTypeIds[i] = -1;
+
+                            }
+                            
                         }
                         
                     }
@@ -90,8 +101,15 @@ namespace ME.ECS.DataConfigs {
                             }
                             
                             var type = obj.GetType();
-                            var id = ComponentTypesRegistry.typeId[type];
-                            this.componentsTypeIds[i] = id;
+                            if (ComponentTypesRegistry.typeId.TryGetValue(type, out var componentIndex) == true) {
+
+                                this.componentsTypeIds[i] = componentIndex;
+
+                            } else {
+
+                                this.componentsTypeIds[i] = -1;
+
+                            }
 
                         }
                         

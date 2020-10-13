@@ -9,6 +9,18 @@ namespace ME.ECSEditor {
     
     using ME.ECS;
 
+    public interface ICustomFieldEditor : IGUIEditorBase {
+
+	    bool DrawGUI(string caption, System.Reflection.FieldInfo fieldInfo, ref object value, bool typeCheckOnly);
+
+    }
+
+    public class CustomFieldEditorAttribute : CustomEditorAttribute {
+
+	    public CustomFieldEditorAttribute(System.Type type) : base(type, 0) {}
+
+    }
+    
     public abstract class CustomEditorAttribute : System.Attribute {
 
         public System.Type type;
@@ -318,36 +330,54 @@ namespace ME.ECSEditor {
 		    });
 		    
         }
-        
-        public static void CollectEditors<TEditor, TAttribute>(ref System.Collections.Generic.Dictionary<System.Type, TEditor> dic, System.Reflection.Assembly searchAssembly = null) where TEditor : IGUIEditorBase where TAttribute : CustomEditorAttribute {
+
+	    public static void CollectEditors<TEditor, TAttribute>(ref System.Collections.Generic.Dictionary<System.Type, TEditor> dic,
+	                                                           System.Reflection.Assembly searchAssembly = null)
+		    where TEditor : IGUIEditorBase where TAttribute : CustomEditorAttribute {
+		    
+		    var assembly = (searchAssembly == null ? System.Reflection.Assembly.GetExecutingAssembly() : searchAssembly);
+		    CollectEditors<TEditor, TAttribute>(ref dic, new [] { assembly });
+		    
+	    }
+
+	    public static void CollectEditorsAll<TEditor, TAttribute>(ref System.Collections.Generic.Dictionary<System.Type, TEditor> dic) where TEditor : IGUIEditorBase where TAttribute : CustomEditorAttribute {
+		    
+		    CollectEditors<TEditor, TAttribute>(ref dic, System.AppDomain.CurrentDomain.GetAssemblies());
+		    
+	    }
+
+	    public static void CollectEditors<TEditor, TAttribute>(ref System.Collections.Generic.Dictionary<System.Type, TEditor> dic, System.Reflection.Assembly[] searchAssemblies) where TEditor : IGUIEditorBase where TAttribute : CustomEditorAttribute {
 
             if (dic == null) {
 
                 dic = new System.Collections.Generic.Dictionary<System.Type, TEditor>();
-                
-                var assembly = (searchAssembly == null ? System.Reflection.Assembly.GetExecutingAssembly() : searchAssembly);
-                var types = assembly.GetTypes();
-                foreach (var type in types) {
 
-                    var attrs = type.GetCustomAttributes(typeof(TAttribute), inherit: true);
-                    if (attrs.Length > 0) {
+                foreach (var asm in searchAssemblies) {
 
-                        if (attrs[0] is TAttribute attr) {
+	                var types = asm.GetTypes();
+	                foreach (var type in types) {
 
-                            if (typeof(TEditor).IsAssignableFrom(type) == true) {
-                            
-                                var editor = (TEditor)System.Activator.CreateInstance(type);
-                                if (dic.ContainsKey(attr.type) == false) {
-	                                
-	                                dic.Add(attr.type, editor);
-	                                
-                                }
+		                var attrs = type.GetCustomAttributes(typeof(TAttribute), inherit: true);
+		                if (attrs.Length > 0) {
 
-                            }
+			                if (attrs[0] is TAttribute attr) {
 
-                        }
+				                if (typeof(TEditor).IsAssignableFrom(type) == true) {
 
-                    }
+					                var editor = (TEditor)System.Activator.CreateInstance(type);
+					                if (dic.ContainsKey(attr.type) == false) {
+
+						                dic.Add(attr.type, editor);
+
+					                }
+
+				                }
+
+			                }
+
+		                }
+
+	                }
 
                 }
 
@@ -603,6 +633,13 @@ namespace ME.ECSEditor {
 	        
         }
 
+        public static string GetStringCamelCaseSpace(string caption) {
+
+	        return System.Text.RegularExpressions.Regex.Replace(caption, "[A-Z]", " $0").Trim();;
+
+        }
+        
+        private static System.Collections.Generic.Dictionary<System.Type, ICustomFieldEditor> customFieldEditors = null;
         public static bool PropertyField(WorldsViewerEditor.WorldEditor world, string caption, System.Reflection.FieldInfo fieldInfo, System.Type type, ref object value, bool typeCheckOnly) {
 
             if (typeCheckOnly == false && value == null && type.HasBaseType(typeof(UnityEngine.Object)) == false) {
@@ -612,7 +649,14 @@ namespace ME.ECSEditor {
 
             }
 
-            if (type.IsEnum == true) {
+            caption = GUILayoutExt.GetStringCamelCaseSpace(caption);
+
+            ME.ECSEditor.GUILayoutExt.CollectEditorsAll<ICustomFieldEditor, CustomFieldEditorAttribute>(ref GUILayoutExt.customFieldEditors);
+            if (GUILayoutExt.customFieldEditors.TryGetValue(type, out var editor) == true) {
+
+	            return editor.DrawGUI(caption, fieldInfo, ref value, typeCheckOnly);
+
+            } else if (type.IsEnum == true) {
 
 	            if (typeCheckOnly == false) {
 
