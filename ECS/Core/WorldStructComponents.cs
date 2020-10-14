@@ -240,7 +240,8 @@ namespace ME.ECS {
 
                 bucketState = 1;
 
-                this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
+                var componentIndex = WorldUtilities.GetComponentTypeId<TComponent>();
+                if (this.world.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
                 
             }
 
@@ -264,9 +265,10 @@ namespace ME.ECS {
             
                 if (this.isTag == false) this.components.arr[index] = default;
                 bucketState = 0;
-            
-                this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
-
+                
+                var componentIndex = WorldUtilities.GetComponentTypeId<TComponent>();
+                if (this.world.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
+                
             }
 
         }

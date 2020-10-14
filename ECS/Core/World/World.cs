@@ -169,6 +169,8 @@ namespace ME.ECS {
         private uint seed;
         private int cpf; // CPF = Calculations per frame
         internal int entitiesCapacity;
+        private bool isLoading;
+        private bool isLoaded;
 
         /// <summary>
         /// Returns last frame CPF
@@ -178,6 +180,78 @@ namespace ME.ECS {
 
             return this.cpf;
 
+        }
+
+        public bool IsLoaded() {
+
+            return this.isLoaded;
+
+        }
+        
+        public bool IsLoading() {
+
+            return this.isLoading;
+
+        }
+
+        public void Load(System.Action onComplete) {
+
+            this.isLoading = true;
+            this.isLoaded = false;
+            
+            var awatingCount = 0;
+            for (int i = 0; i < this.systemGroups.Length; ++i) {
+
+                var group = this.systemGroups.arr[i];
+                for (int j = 0; j < group.systems.Length; ++j) {
+
+                    var system = group.systems.arr[j];
+                    if (system is ILoadableSystem) {
+
+                        ++awatingCount;
+                        
+                    }
+
+                }
+
+            }
+
+            if (awatingCount == 0) {
+
+                this.isLoading = false;
+                this.isLoaded = true;
+                onComplete.Invoke();
+                return;
+
+            }
+            
+            for (int i = 0; i < this.systemGroups.Length; ++i) {
+
+                var group = this.systemGroups.arr[i];
+                for (int j = 0; j < group.systems.Length; ++j) {
+
+                    var system = group.systems.arr[j];
+                    if (system is ILoadableSystem loadableSystem) {
+
+                        loadableSystem.Load(() => {
+
+                            --awatingCount;
+                            if (awatingCount == 0) {
+                                
+                                this.isLoading = false;
+                                this.isLoaded = true;
+                                onComplete.Invoke();
+                                
+                            }
+
+                        });
+
+                    }
+
+                }
+
+            }
+            
         }
         
         internal void UpdateGroup(SystemGroup group) {
@@ -961,7 +1035,7 @@ namespace ME.ECS {
 
         }
         
-        public void UpdateFilters(Entity entity) {
+        public void UpdateFilters(in Entity entity) {
 
             ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];

@@ -419,7 +419,8 @@ namespace ME.ECSEditor {
         public static void ShowInstance() {
 
             var instance = EditorWindow.GetWindow(typeof(WorldsViewerEditor));
-            var icon = UnityEditor.Experimental.EditorResources.Load<Texture2D>("Assets/ECS/ECSEditor/EditorResources/icon-worldviewer.png");
+            var icon = UnityEditor.Experimental.EditorResources.Load<Texture2D>("Assets/ECS/ECSEditor/EditorResources/icon-worldviewer.png", false);
+            if (icon == null) icon = UnityEditor.Experimental.EditorResources.Load<Texture2D>("Assets/ECS-submodule/ECSEditor/EditorResources/icon-worldviewer.png", false);
             instance.titleContent = new GUIContent("Worlds Viewer", icon);
             instance.Show();
 

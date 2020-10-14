@@ -18,20 +18,39 @@ namespace ME.ECS.DataConfigs {
         
         public void Apply(in Entity entity) {
 
+            var world = Worlds.currentWorld;
             for (int i = 0; i < this.structComponents.Length; ++i) {
 
-                Worlds.currentWorld.SetData(in entity, in this.structComponents[i], in this.structComponentsDataTypeIds[i], in this.structComponentsComponentTypeIds[i]);
+                world.SetData(in entity, in this.structComponents[i], in this.structComponentsDataTypeIds[i], in this.structComponentsComponentTypeIds[i]);
 
             }
 
             for (int i = 0; i < this.components.Length; ++i) {
 
-                Worlds.currentWorld.AddComponent(entity, this.components[i], this.componentsTypeIds[i]);
+                world.AddComponent(entity, this.components[i], this.componentsTypeIds[i]);
 
+            }
+            
+            // Update filters
+            {
+                world.UpdateFilters(in entity);
             }
 
         }
 
+        public T Get<T>() where T : struct, IStructComponent {
+
+            var idx = System.Array.IndexOf(this.structComponentsDataTypeIds, AllComponentTypes<T>.typeId);
+            if (idx >= 0) {
+
+                return (T)this.structComponents[idx];
+
+            }
+
+            return default;
+
+        }
+        
         public void OnValidate() {
 
             if (Application.isPlaying == true) return;

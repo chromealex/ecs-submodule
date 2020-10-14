@@ -1,5 +1,11 @@
 namespace ME.ECS {
 
+    public interface ILoadableSystem {
+
+        void Load(System.Action onComplete);
+
+    }
+    
     public interface ISystemBase {
         
         World world { get; set; }

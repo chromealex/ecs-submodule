@@ -43,7 +43,7 @@ namespace ME.ECSEditor {
             }
 
             GUILayoutExt.Padding(8f, () => {
-                
+             
                 var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
 
                 var kz = 0;
@@ -98,6 +98,7 @@ namespace ME.ECSEditor {
 
                                 component = editor.GetTarget<IStructComponent>();
                                 dataConfig.structComponents[registry.index] = component;
+                                this.Save(dataConfig);
 
                             }
 
@@ -117,6 +118,7 @@ namespace ME.ECSEditor {
                                 if (changed == true) {
 
                                     dataConfig.structComponents[registry.index] = component;
+                                    this.Save(dataConfig);
 
                                 }
 
@@ -136,6 +138,7 @@ namespace ME.ECSEditor {
                                             if (changed == true) {
 
                                                 dataConfig.structComponents[registry.index] = component;
+                                                this.Save(dataConfig);
 
                                             }
 
@@ -170,6 +173,7 @@ namespace ME.ECSEditor {
                                 list.RemoveAt(i);
                                 dataConfig.structComponents = list.ToArray();
                                 dataConfig.OnScriptLoad();
+                                this.Save(dataConfig);
                                 break;
 
                             }
@@ -182,6 +186,7 @@ namespace ME.ECSEditor {
                         System.Array.Resize(ref dataConfig.structComponents, dataConfig.structComponents.Length + 1);
                         dataConfig.structComponents[dataConfig.structComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
                         dataConfig.OnScriptLoad();
+                        this.Save(dataConfig);
 
                     }
 
@@ -245,6 +250,7 @@ namespace ME.ECSEditor {
 
                                 component = editor.GetTarget<IComponent>();
                                 dataConfig.components[registry.index] = component;
+                                this.Save(dataConfig);
 
                             }
 
@@ -264,6 +270,7 @@ namespace ME.ECSEditor {
                                 if (changed == true) {
 
                                     dataConfig.components[registry.index] = component;
+                                    this.Save(dataConfig);
 
                                 }
 
@@ -283,6 +290,7 @@ namespace ME.ECSEditor {
                                             if (changed == true) {
 
                                                 dataConfig.components[registry.index] = component;
+                                                this.Save(dataConfig);
 
                                             }
 
@@ -317,6 +325,7 @@ namespace ME.ECSEditor {
                                 list.RemoveAt(i);
                                 dataConfig.components = list.ToArray();
                                 dataConfig.OnScriptLoad();
+                                this.Save(dataConfig);
                                 break;
 
                             }
@@ -329,6 +338,7 @@ namespace ME.ECSEditor {
                         System.Array.Resize(ref dataConfig.components, dataConfig.components.Length + 1);
                         dataConfig.components[dataConfig.components.Length - 1] = (IComponent)System.Activator.CreateInstance(addType);
                         dataConfig.OnScriptLoad();
+                        this.Save(dataConfig);
 
                     }
 
@@ -336,6 +346,12 @@ namespace ME.ECSEditor {
 
             });
 
+        }
+
+        private void Save(ME.ECS.DataConfigs.DataConfig dataConfig) {
+            
+            EditorUtility.SetDirty(dataConfig);
+            
         }
 
     }

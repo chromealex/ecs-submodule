@@ -73,7 +73,8 @@ namespace ME.ECS {
         public bool HasBit(in int bit) {
             
             if (bit < 0 || bit > BitMask.MAX_BIT_INDEX) {
-                throw new Exception($"Attempted to set bit #{bit}, but the maximum is {BitMask.MAX_BIT_INDEX}");
+                //throw new Exception($"Attempted to set bit #{bit}, but the maximum is {BitMask.MAX_BIT_INDEX}");
+                return false;
             }
 
             var dataIndex = bit / BitMask.BITS_PER_FIELD;

@@ -613,10 +613,18 @@ namespace ME.ECSEditor {
 
         }
 
-        public static void Icon(string path, float width = 32f, float height = 32f) {
+        public static void Icon(string[] paths, float width = 32f, float height = 32f) {
 
 	        var icon = new GUIStyle();
-	        icon.normal.background = UnityEditor.Experimental.EditorResources.Load<Texture2D>(path);
+	        for (int i = 0; i < paths.Length; ++i) {
+
+		        var path = paths[i];
+		        if (System.IO.File.Exists(path) == false) continue;
+		        
+		        icon.normal.background = UnityEditor.Experimental.EditorResources.Load<Texture2D>(path, false);
+
+	        }
+
 	        EditorGUILayout.LabelField(string.Empty, icon, GUILayout.Width(width), GUILayout.Height(height));
 
         }
@@ -642,7 +650,7 @@ namespace ME.ECSEditor {
         private static System.Collections.Generic.Dictionary<System.Type, ICustomFieldEditor> customFieldEditors = null;
         public static bool PropertyField(WorldsViewerEditor.WorldEditor world, string caption, System.Reflection.FieldInfo fieldInfo, System.Type type, ref object value, bool typeCheckOnly) {
 
-            if (typeCheckOnly == false && value == null && type.HasBaseType(typeof(UnityEngine.Object)) == false) {
+            if (typeCheckOnly == false && value == null && type.HasBaseType(typeof(UnityEngine.Object)) == false && type.HasBaseType(typeof(string)) == false) {
 
                 EditorGUILayout.LabelField("Null");
                 return false;
@@ -760,7 +768,7 @@ namespace ME.ECSEditor {
 		            GUILayout.BeginHorizontal();
 		            var buttonWidth = 50f;
 		            EditorGUILayout.LabelField(caption, GUILayout.Width(EditorGUIUtility.labelWidth));
-		            GUILayoutExt.Icon("Assets/ECS/ECSEditor/EditorResources/icon-link.png", 16f, 16f);
+		            GUILayoutExt.Icon(new [] { "Assets/ECS/ECSEditor/EditorResources/icon-link.png", "Assets/ECS-submodule/ECSEditor/EditorResources/icon-link.png" }, 16f, 16f);
 		            if (entity == Entity.Empty) {
 						GUILayout.Label("Empty");   
 		            } else {
@@ -941,6 +949,7 @@ namespace ME.ECSEditor {
 
 	            if (typeCheckOnly == false) {
 
+		            if (string.IsNullOrEmpty((string)value) == true) value = string.Empty;
 		            var str = value.ToString();
 		            if (str.Contains("\n") == true) {
 
@@ -953,8 +962,6 @@ namespace ME.ECSEditor {
 		            }
 
 	            }
-
-	            return false;
 
             } else {
 
