@@ -1174,7 +1174,7 @@ namespace ME.ECS {
             
             // Inline all manually
             ref var reg = ref this.currentState.structComponents.list.arr[dataIndex];
-            if (reg.IsTag() == false) reg.SetObject(entity, data);
+            reg.SetObject(entity, data);
             if (this.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.currentState.storage.archetypes.Set(in entity, in componentIndex);
             ++this.currentState.structComponents.count;
             this.AddComponentToFilter(entity);
