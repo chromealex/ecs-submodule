@@ -143,6 +143,31 @@ namespace ME.ECSEditor {
 
         }
 
+        [System.Serializable]
+        public struct AsmDefAsset {
+
+            public string name;
+            public string[] references;
+
+        }
+        
+        private static string[] GetReferences(UnityEditorInternal.AssemblyDefinitionAsset asset) {
+
+            var data = UnityEngine.JsonUtility.FromJson<AsmDefAsset>(asset.text);
+            if (data.references != null) {
+
+                for (int i = 0; i < data.references.Length; ++i) {
+
+                    data.references[i] = data.references[i].Replace("GUID:", string.Empty);
+
+                }
+
+            }
+
+            return data.references;
+
+        }
+        
         private static void CompileDirectory(string dir) {
 
             if (System.IO.Directory.Exists(dir) == false) return;
@@ -169,7 +194,8 @@ namespace ME.ECSEditor {
                 var asmNamePath = System.IO.Path.GetDirectoryName(asmPath);
                 if (System.IO.Directory.Exists(asmNamePath) == false) continue;
 
-                asmNameMain = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditorInternal.AssemblyDefinitionAsset>(asmPath).name;
+                var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditorInternal.AssemblyDefinitionAsset>(asmPath);
+                asmNameMain = asset.name;
 
                 var splitted = asmNamePath.Split(System.IO.Path.DirectorySeparatorChar);
                 var asmName  = splitted[splitted.Length - 1];
@@ -177,6 +203,32 @@ namespace ME.ECSEditor {
                 var assemblies = System.AppDomain.CurrentDomain.GetAssemblies();
                 var allAsms = new HashSet<string>();
                 System.Reflection.Assembly mainAsm = null;
+                
+                void Collect(UnityEditorInternal.AssemblyDefinitionAsset asmInner) {
+                    
+                    var refs = Generator.GetReferences(asmInner);
+                    if (refs != null) {
+
+                        foreach (var rGuid in refs) {
+
+                            if (string.IsNullOrEmpty(rGuid) == true) continue;
+
+                            var asmPathR = UnityEditor.AssetDatabase.GUIDToAssetPath(rGuid);
+                            var assetR = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditorInternal.AssemblyDefinitionAsset>(asmPathR);
+                            if (assetR == null) continue;
+
+                            if (allAsms.Contains(assetR.name) == false) {
+
+                                allAsms.Add(assetR.name);
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
                 foreach (var assembly in assemblies) {
 
                     if (assembly.GetName().Name == asmNameMain) {
@@ -184,12 +236,8 @@ namespace ME.ECSEditor {
                         mainAsm = assembly;
                         
                         allAsms.Add(mainAsm.GetName().Name);
-                        var refs = mainAsm.GetReferencedAssemblies();
-                        foreach (var r in refs) {
 
-                            allAsms.Add(r.Name);
-
-                        }
+                        Collect(asset);
                         break;
 
                     }

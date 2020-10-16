@@ -89,6 +89,12 @@ namespace ME.ECS.DataConfigs {
                             }
                             
                             var type = obj.GetType();
+                            if (ComponentTypesRegistry.allTypeId.ContainsKey(type) == false) {
+                                
+                                Debug.LogWarning("Type was not found: " + type + " on config " + this, this);
+                                continue;
+                                
+                            }
                             var allId = ComponentTypesRegistry.allTypeId[type];
                             this.structComponentsDataTypeIds[i] = allId;
 
