@@ -643,14 +643,28 @@ namespace ME.ECSEditor {
 
         public static string GetStringCamelCaseSpace(string caption) {
 
+	        if (string.IsNullOrEmpty(caption) == true) return string.Empty;
 	        return System.Text.RegularExpressions.Regex.Replace(caption, "[A-Z]", " $0").Trim();;
 
+        }
+        
+        public static System.Array ResizeArray(System.Array oldArray, int newSize, System.Type arrType) {
+	        
+	        int oldSize = (oldArray != null ? oldArray.Length : 0);
+	        System.Type elementType = arrType.GetElementType();
+	        System.Array newArray = System.Array.CreateInstance(elementType, newSize);
+	        int preserveLength = System.Math.Min(oldSize, newSize);
+	        if (preserveLength > 0) {
+		        System.Array.Copy (oldArray, newArray, preserveLength);
+	        }
+	        return newArray;
+	        
         }
         
         private static System.Collections.Generic.Dictionary<System.Type, ICustomFieldEditor> customFieldEditors = null;
         public static bool PropertyField(WorldsViewerEditor.WorldEditor world, string caption, System.Reflection.FieldInfo fieldInfo, System.Type type, ref object value, bool typeCheckOnly) {
 
-            if (typeCheckOnly == false && value == null && type.HasBaseType(typeof(UnityEngine.Object)) == false && type.HasBaseType(typeof(string)) == false) {
+            if (typeCheckOnly == false && value == null && type.IsValueType == false && type.IsArray == false && type.HasBaseType(typeof(UnityEngine.Object)) == false && type.HasBaseType(typeof(string)) == false) {
 
                 EditorGUILayout.LabelField("Null");
                 return false;
@@ -737,9 +751,17 @@ namespace ME.ECSEditor {
 		            } else if (type.IsArray == true) {
 
 			            var arr = (System.Array)value;
+			            if (arr == null) arr = GUILayoutExt.ResizeArray(arr, 0, type);
 			            var state = true;
 			            GUILayoutExt.FoldOut(ref state, string.Format("{0} [{1}]", caption, arr.Length), () => {
 
+				            var size = EditorGUILayout.IntField("Size", arr.Length);
+				            if (size != arr.Length) {
+
+					            arr = GUILayoutExt.ResizeArray(arr, size, type);
+
+				            }
+				            
 				            var array = arr;
 				            for (int i = 0; i < arr.Length; ++i) {
 
@@ -755,6 +777,7 @@ namespace ME.ECSEditor {
 				            }
 
 			            });
+			            value = arr;
 
 		            }
 

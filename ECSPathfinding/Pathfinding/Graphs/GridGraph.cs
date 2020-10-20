@@ -284,8 +284,8 @@ namespace ME.ECS.Pathfinding {
 
             if (this.drawMode != DrawMode.None) {
 
-                var nodeBorderColor = new Color(0.2f, 0.5f, 1f, 0.2f);
-                var nodeColor = new Color(0.2f, 0.5f, 1f, 0.2f);
+                var nodeBorderColor = new Color(0.2f, 0.5f, 1f, 0.05f);
+                var nodeColor = new Color(0.2f, 0.5f, 1f, 0.05f);
                 var nodeBorderColorWalkableWorld = new Color(0.2f, 0.5f, 1f, 0.6f);
                 var nodeColorWalkableWorld = new Color(0.2f, 0.5f, 1f, 0.6f);
                 var nodeBorderColorUnwalkable = new Color(1f, 0.2f, 0.2f, 0.4f);
@@ -341,10 +341,10 @@ namespace ME.ECS.Pathfinding {
                     if (node.walkable == true) {
 
                         Gizmos.color = nodeColorWalkableWorld;
-                        Gizmos.DrawCube(worldPos, new Vector3(0.8f, 0f, 0.8f) * this.nodeSize);
+                        Gizmos.DrawCube(worldPos, new Vector3(0.9f, 0f, 0.9f) * this.nodeSize);
 
                         Gizmos.color = nodeBorderColorWalkableWorld;
-                        Gizmos.DrawWireCube(worldPos, new Vector3(0.8f, 0f, 0.8f) * this.nodeSize);
+                        Gizmos.DrawWireCube(worldPos, new Vector3(0.9f, 0f, 0.9f) * this.nodeSize);
 
                     }
 
