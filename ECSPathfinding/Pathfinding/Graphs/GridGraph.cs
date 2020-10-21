@@ -303,27 +303,30 @@ namespace ME.ECS.Pathfinding {
 
                         nodeColor = this.GetAreaColor(node.area);
                         nodeBorderColor = nodeColor;
-                        nodeBorderColor.a = 0.6f;
+                        nodeBorderColor.a = 0.06f;
 
                         nodeColorWalkableWorld = nodeColor;
+                        nodeColorWalkableWorld.a = 0.6f;
                         nodeBorderColorWalkableWorld = nodeBorderColor;
 
                     } else if (this.drawMode == DrawMode.Penalty) {
 
                         nodeColor = this.GetPenaltyColor(node.penalty);
                         nodeBorderColor = nodeColor;
-                        nodeBorderColor.a = 0.6f;
+                        nodeBorderColor.a = 0.06f;
 
                         nodeColorWalkableWorld = nodeColor;
+                        nodeColorWalkableWorld.a = 0.6f;
                         nodeBorderColorWalkableWorld = nodeBorderColor;
 
                     } else if (this.drawMode == DrawMode.Tags) {
 
                         nodeColor = this.GetAreaColor(node.tag);
                         nodeBorderColor = nodeColor;
-                        nodeBorderColor.a = 0.6f;
+                        nodeBorderColor.a = 0.06f;
 
                         nodeColorWalkableWorld = nodeColor;
+                        nodeColorWalkableWorld.a = 0.6f;
                         nodeBorderColorWalkableWorld = nodeBorderColor;
 
                     }

@@ -161,7 +161,7 @@ namespace ME.ECS.Pathfinding {
             if (this.areaColors.TryGetValue(area, out var color) == false) {
 
                 color = this.GetSColor();
-                color.a = 0.4f;
+                color.a = 0.04f;
                 this.areaColors.Add(area, color);
                 return color;
 
@@ -227,8 +227,8 @@ namespace ME.ECS.Pathfinding {
             var min = this.minPenalty;
             var max = this.maxPenalty;
             
-            var from = new Color(0f, 1f, 0f, 0.5f);
-            var to = new Color(1f, 0f, 0f, 0.5f);
+            var from = new Color(0f, 1f, 0f, 0.05f);
+            var to = new Color(1f, 0f, 0f, 0.05f);
 
             var t = Mathf.Clamp01((penalty - min) / (min == max ? 1f : max - min));
             return Color.Lerp(from, to, t);
