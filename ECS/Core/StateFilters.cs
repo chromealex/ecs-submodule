@@ -11,6 +11,12 @@ namespace ME.ECS {
 
     }
 
+    public interface IFilterAction {
+
+        void Execute(in Entity entity);
+
+    }
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -373,6 +379,9 @@ namespace ME.ECS {
         internal BufferArray<string> aliases;
         private int dataCount;
 
+        private IFilterAction predicateOnAdd;
+        private IFilterAction predicateOnRemove;
+
         #if UNITY_EDITOR
         private BufferArray<string> editorTypes;
         private BufferArray<string> editorStackTraceFile;
@@ -393,7 +402,7 @@ namespace ME.ECS {
             
         }
 
-        public void SetEntityCapacity(int capacity) {
+        internal void SetEntityCapacity(int capacity) {
             
             //ArrayUtils.Resize(capacity, ref this.requests);
             //ArrayUtils.Resize(capacity, ref this.requestsRemoveEntity);
@@ -402,7 +411,7 @@ namespace ME.ECS {
 
         }
         
-        public void OnEntityCreate(in Entity entity) {
+        internal void OnEntityCreate(in Entity entity) {
 
             //ArrayUtils.Resize(entity.id, ref this.requests);
             //ArrayUtils.Resize(entity.id, ref this.requestsRemoveEntity);
@@ -411,7 +420,7 @@ namespace ME.ECS {
 
         }
 
-        public void OnEntityDestroy(in Entity entity) {
+        internal void OnEntityDestroy(in Entity entity) {
 
             //ArrayUtils.Resize(entity.id, ref this.requests);
             //ArrayUtils.Resize(entity.id, ref this.requestsRemoveEntity);
@@ -683,6 +692,9 @@ namespace ME.ECS {
             ArrayUtils.Copy(in other.aliases, ref this.aliases);
             this.nodesCount = other.nodesCount;
 
+            this.predicateOnAdd = other.predicateOnAdd;
+            this.predicateOnRemove = other.predicateOnRemove;
+
             this.archetypeContains = other.archetypeContains;
             this.archetypeNotContains = other.archetypeNotContains;
             
@@ -842,7 +854,7 @@ namespace ME.ECS {
 
         }
 
-        public bool OnRemoveEntity(in Entity entity) {
+        internal bool OnRemoveEntity(in Entity entity) {
 
             if (entity.version == Entity.VERSION_ZERO) return false;
 
@@ -875,6 +887,8 @@ namespace ME.ECS {
             ref var res = ref this.dataContains.arr[idx];
             if (res == false) {
 
+                if (this.predicateOnAdd != null) this.predicateOnAdd.Execute(in entity);
+
                 res = true;
                 //this.data.Add(entity.id, entity);
                 this.data.arr[idx] = entity;
@@ -893,6 +907,8 @@ namespace ME.ECS {
             ref var res = ref this.dataContains.arr[idx];
             if (res == true) {
 
+                if (this.predicateOnRemove != null) this.predicateOnRemove.Execute(in entity);
+                
                 res = false;
                 //this.data.Remove(entity.id);
                 this.data.arr[idx] = default;
@@ -1128,6 +1144,22 @@ namespace ME.ECS {
 
             var filter = new TFilter();
             this.tempNodesCustom.Add(filter);
+            return this;
+
+        }
+
+        public Filter SetOnEntityAdd<T>(T predicate) where T : class, IFilterAction {
+
+            this.predicateOnAdd = predicate;
+            
+            return this;
+
+        }
+
+        public Filter SetOnEntityRemove<T>(T predicate) where T : class, IFilterAction {
+            
+            this.predicateOnRemove = predicate;
+            
             return this;
 
         }
