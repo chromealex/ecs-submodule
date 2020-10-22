@@ -13,7 +13,7 @@ namespace ME.ECS.DataConfigs {
         public IComponent[] components = new IComponent[0];
 
         public int[] structComponentsDataTypeIds = new int[0];
-        public int[] structComponentsComponentTypeIds = new int[0];
+        //public int[] structComponentsComponentTypeIds = new int[0];
         public int[] componentsTypeIds = new int[0];
         
         public void Apply(in Entity entity) {
@@ -21,7 +21,7 @@ namespace ME.ECS.DataConfigs {
             var world = Worlds.currentWorld;
             for (int i = 0; i < this.structComponents.Length; ++i) {
 
-                world.SetData(in entity, in this.structComponents[i], in this.structComponentsDataTypeIds[i], in this.structComponentsComponentTypeIds[i]);
+                world.SetData(in entity, in this.structComponents[i], in this.structComponentsDataTypeIds[i], -1);//in this.structComponentsComponentTypeIds[i]);
 
             }
 
@@ -77,7 +77,7 @@ namespace ME.ECS.DataConfigs {
                     {
                         
                         this.structComponentsDataTypeIds = new int[this.structComponents.Length];
-                        this.structComponentsComponentTypeIds = new int[this.structComponents.Length];
+                        //this.structComponentsComponentTypeIds = new int[this.structComponents.Length];
                         for (int i = 0; i < this.structComponents.Length; ++i) {
 
                             var obj = this.structComponents[i];
@@ -98,7 +98,7 @@ namespace ME.ECS.DataConfigs {
                             var allId = ComponentTypesRegistry.allTypeId[type];
                             this.structComponentsDataTypeIds[i] = allId;
 
-                            if (ComponentTypesRegistry.typeId.TryGetValue(type, out var componentIndex) == true) {
+                            /*if (ComponentTypesRegistry.typeId.TryGetValue(type, out var componentIndex) == true) {
 
                                 this.structComponentsComponentTypeIds[i] = componentIndex;
 
@@ -106,7 +106,7 @@ namespace ME.ECS.DataConfigs {
 
                                 this.structComponentsComponentTypeIds[i] = -1;
 
-                            }
+                            }*/
                             
                         }
                         
