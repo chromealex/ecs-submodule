@@ -43,6 +43,46 @@ namespace ME.ECSEditor {
 
     public static class GUILayoutExt {
 
+	    public struct GUIColorUsing : IDisposable {
+
+		    private Color oldColor;
+
+		    public GUIColorUsing(Color color) {
+
+			    this.oldColor = GUI.color;
+			    GUI.color = color;
+
+		    }
+		    
+		    public void Dispose() {
+
+			    GUI.color = this.oldColor;
+
+		    }
+
+	    }
+
+	    public struct GUIAlphaUsing : IDisposable {
+
+		    private Color oldColor;
+
+		    public GUIAlphaUsing(float alpha) {
+
+			    this.oldColor = GUI.color;
+			    var c = this.oldColor;
+			    c.a = alpha;
+			    GUI.color = c;
+
+		    }
+		    
+		    public void Dispose() {
+
+			    GUI.color = this.oldColor;
+
+		    }
+
+	    }
+
 	    public static void DrawGradient(float height, Color from, Color to, string labelFrom, string labelTo) {
 	        
 		    var tex = new Texture2D(2, 1, TextureFormat.RGBA32, false);
@@ -559,8 +599,9 @@ namespace ME.ECSEditor {
             //var cellHeight = 24f;
             //var tableStyle = new GUIStyle("Box");
 
+            var objType = instance.GetType();
             var changed = false;
-            var fields = instance.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            var fields = objType.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
             if (fields.Length > 0) {
 
                 /*GUILayout.BeginHorizontal();
@@ -599,6 +640,17 @@ namespace ME.ECSEditor {
 
                         }
                         EditorGUI.EndDisabledGroup();
+
+                        var helps = objType.GetCustomAttributes(typeof(ComponentHelpAttribute), false);
+                        if (helps.Length > 0) {
+
+	                        using (new GUIAlphaUsing(0.6f)) {
+
+		                        GUILayout.Label(((ComponentHelpAttribute)helps[0]).comment, EditorStyles.miniLabel);
+
+	                        }
+
+                        }
                         //GUILayout.EndHorizontal();
 
                         //}, tableStyle, GUILayout.ExpandWidth(true), GUILayout.Height(cellHeight));
@@ -990,6 +1042,11 @@ namespace ME.ECSEditor {
 
 	            if (typeCheckOnly == false) {
 
+		            ++EditorGUI.indentLevel;
+		            GUILayoutExt.DrawFields(world, value);
+		            --EditorGUI.indentLevel;
+		            
+		            /*
 		            var str = value.ToString();
 		            if (str.Contains("\n") == true) {
 
@@ -999,11 +1056,11 @@ namespace ME.ECSEditor {
 
 			            EditorGUILayout.TextField(caption, str);
 
-		            }
+		            }*/
 
 	            }
 
-	            return false;
+	            return true;
 
             }
 
