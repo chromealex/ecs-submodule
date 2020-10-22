@@ -35,7 +35,11 @@
 		/// Internal pool.
 		/// The arrays in each bucket have lengths of 2^i
 		/// </summary>
+		#if MULTITHREAD_SUPPORT
 		private static readonly CCStack<T[]>[] pool = new CCStack<T[]>[PoolArray<T>.MAX_STACK_SIZE];
+		#else
+		private static readonly System.Collections.Generic.Stack<T[]>[] pool = new System.Collections.Generic.Stack<T[]>[PoolArray<T>.MAX_STACK_SIZE];
+		#endif
 		//private static readonly System.Collections.Generic.Stack<T[]>[] pool = new System.Collections.Generic.Stack<T[]>[PoolArray<T>.MAX_STACK_SIZE];
 		private static readonly System.Collections.Generic.Stack<T[]>[] exactPool = new System.Collections.Generic.Stack<T[]>[PoolArray<T>.MaximumExactArrayLength+1];
 
@@ -52,7 +56,11 @@
 					for (int i = 0; i < PoolArray<T>.MAX_STACK_SIZE; ++i) {
 
 						var bucketIndex = i;
+						#if MULTITHREAD_SUPPORT
 						PoolArray<T>.pool[bucketIndex] = new CCStack<T[]>(usePool: true);
+						#else
+						PoolArray<T>.pool[bucketIndex] = new System.Collections.Generic.Stack<T[]>();
+						#endif
 
 					}
 
@@ -86,11 +94,20 @@
 
 			if (PoolArray<T>.pool[0] == null) PoolArray<T>.Initialize();
 			
+			#if MULTITHREAD_SUPPORT
 			if (PoolArray<T>.pool[bucketIndex].TryPop(out var result) == true) {
 
 				return result;
 
 			}
+			#else
+			var pool = PoolArray<T>.pool[bucketIndex];
+			if (pool.Count > 0) {
+
+				return pool.Pop();
+
+			}
+			#endif
 			
 			/*lock (PoolArray<T>.pool) {
 				

@@ -112,6 +112,13 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true),
+            new DefineInfo("MULTITHREAD_SUPPORT", "Turn on this option if you need to add/remove components inside jobs.", () => {
+                #if MULTITHREAD_SUPPORT
+                return true;
+                #else
+                return false;
+                #endif
+            }, true),
             new DefineInfo("MESSAGE_PACK_SUPPORT", "MessagePack package support.", () => {
                 #if MESSAGE_PACK_SUPPORT
                 return true;

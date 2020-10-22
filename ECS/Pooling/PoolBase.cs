@@ -261,7 +261,11 @@ namespace ME.ECS {
     #endif
     public class PoolInternalBase {
 
+	    #if MULTITHREAD_SUPPORT
 	    protected CCStack<object> cache = new CCStack<object>(usePool: true);
+		#else
+		protected Stack<object> cache = new Stack<object>();
+		#endif
 	    protected System.Func<object> constructor;
 	    protected System.Action<object> desctructor;
 	    protected System.Type poolType;
@@ -409,7 +413,11 @@ namespace ME.ECS {
 	    [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	    public virtual object Spawn() {
 
+			#if MULTITHREAD_SUPPORT
 		    this.cache.TryPop(out object item);
+			#else
+			var item = (this.cache.Count > 0 ? this.cache.Pop() : null);
+			#endif
 		    if (item == null) {
 
 			    ++PoolInternalBase.newAllocated;
