@@ -1,8 +1,8 @@
 {
     "name": "PathfindingFeatures",
     "references": [
-        "GUID:2d1ae4e32c1ae45f89e4a171ecae507a",
-        "GUID:8979e5b9ed38b420d8191f6eb2c94074"
+        "GUID:f2862ef27658549338bde50aeac32636",
+        "GUID:cb5024e1a29374a56afe66e6c304a488"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
