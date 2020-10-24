@@ -132,6 +132,15 @@ namespace ME.ECS {
 
         }
 
+        public static void ResetTypeIds() {
+
+            AllComponentTypesCounter.counter = -1;
+            ComponentTypesRegistry.allTypeId.Clear();
+            if (ComponentTypesRegistry.reset != null) ComponentTypesRegistry.reset.Invoke();
+            ComponentTypesRegistry.reset = null;
+
+        }
+
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int GetAllComponentTypeId<TComponent>() {
 
@@ -139,6 +148,13 @@ namespace ME.ECS {
                 
                 AllComponentTypes<TComponent>.typeId = ++AllComponentTypesCounter.counter;
                 ComponentTypesRegistry.allTypeId.Add(typeof(TComponent), AllComponentTypes<TComponent>.typeId);
+                
+                ComponentTypesRegistry.reset += () => {
+
+                    AllComponentTypes<TComponent>.typeId = -1;
+                    AllComponentTypes<TComponent>.isTag = false;
+
+                };
 
             }
             

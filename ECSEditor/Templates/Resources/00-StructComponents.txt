@@ -4,6 +4,7 @@
     
         public static void InitTypeId() {
             
+            WorldUtilities.ResetTypeIds();
             CoreComponentsInitializer.InitTypeId();
             
 #CONTENT3#
@@ -12,6 +13,7 @@
         
         static partial void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
     
+            WorldUtilities.ResetTypeIds();
             ComponentsInitializerWorld.Setup(ComponentsInitializerWorldGen.Init);
             CoreComponentsInitializer.Init(ref structComponentsContainer);
 #CONTENT#

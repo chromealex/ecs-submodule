@@ -17,6 +17,9 @@ namespace ME.ECS {
         
         public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
             
+            WorldUtilities.InitComponentTypeId<ME.ECS.Views.ViewComponent>(false);
+            WorldUtilities.InitComponentTypeId<ME.ECS.Views.IViewComponent>(false);
+
             TransformComponentsInitializer.Init(ref structComponentsContainer);
             NameComponentsInitializer.Init(ref structComponentsContainer);
             CameraComponentsInitializer.Init(ref structComponentsContainer);
