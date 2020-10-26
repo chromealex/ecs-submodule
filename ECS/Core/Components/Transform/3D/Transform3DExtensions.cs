@@ -111,7 +111,7 @@
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static UnityEngine.Vector3 GetLocalScale(this in Entity child) {
 
-            return Worlds.currentWorld.GetData<Scale>(in child).ToVector3();
+            return Worlds.currentWorld.GetData<Scale>(in child, createIfNotExists: false).ToVector3();
 
         }
 

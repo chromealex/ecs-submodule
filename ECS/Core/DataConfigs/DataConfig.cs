@@ -38,6 +38,19 @@ namespace ME.ECS.DataConfigs {
 
         }
 
+        public bool Has<T>() where T : struct, IStructComponent {
+
+            var idx = System.Array.IndexOf(this.structComponentsDataTypeIds, AllComponentTypes<T>.typeId);
+            if (idx >= 0) {
+
+                return true;
+
+            }
+
+            return false;
+
+        }
+
         public T Get<T>() where T : struct, IStructComponent {
 
             var idx = System.Array.IndexOf(this.structComponentsDataTypeIds, AllComponentTypes<T>.typeId);
@@ -63,6 +76,7 @@ namespace ME.ECS.DataConfigs {
 
             if (Application.isPlaying == true) return;
 
+            var changed = false;
             var allAsms = System.AppDomain.CurrentDomain.GetAssemblies();
             foreach (var asm in allAsms) {
 
@@ -75,15 +89,25 @@ namespace ME.ECS.DataConfigs {
                     m.Invoke(null, null);
                     
                     {
-                        
-                        this.structComponentsDataTypeIds = new int[this.structComponents.Length];
+
+                        if (this.structComponentsDataTypeIds == null || this.structComponentsDataTypeIds.Length != this.structComponents.Length) {
+                            
+                            this.structComponentsDataTypeIds = new int[this.structComponents.Length];
+                            changed = true;
+
+                        }
                         //this.structComponentsComponentTypeIds = new int[this.structComponents.Length];
                         for (int i = 0; i < this.structComponents.Length; ++i) {
 
                             var obj = this.structComponents[i];
                             if (obj == null) {
 
-                                this.structComponentsDataTypeIds[i] = -1;
+                                if (this.structComponentsDataTypeIds[i] != -1) {
+                                    
+                                    this.structComponentsDataTypeIds[i] = -1;
+                                    changed = true;
+                                    
+                                }
                                 continue;
                                 
                             }
@@ -96,7 +120,12 @@ namespace ME.ECS.DataConfigs {
                                 
                             }
                             var allId = ComponentTypesRegistry.allTypeId[type];
-                            this.structComponentsDataTypeIds[i] = allId;
+                            if (this.structComponentsDataTypeIds[i] != allId) {
+                                
+                                this.structComponentsDataTypeIds[i] = allId;
+                                changed = true;
+
+                            }
 
                             /*if (ComponentTypesRegistry.typeId.TryGetValue(type, out var componentIndex) == true) {
 
@@ -113,14 +142,25 @@ namespace ME.ECS.DataConfigs {
                     }
                     
                     {
-                        
-                        this.componentsTypeIds = new int[this.components.Length];
+
+                        if (this.componentsTypeIds == null || this.componentsTypeIds.Length != this.components.Length) {
+                            
+                            this.componentsTypeIds = new int[this.components.Length];
+                            changed = true;
+
+                        }
+
                         for (int i = 0; i < this.components.Length; ++i) {
 
                             var obj = this.components[i];
                             if (obj == null) {
 
-                                this.componentsTypeIds[i] = -1;
+                                if (this.componentsTypeIds[i] != -1) {
+                                    
+                                    this.componentsTypeIds[i] = -1;
+                                    changed = true;
+
+                                }
                                 continue;
                                 
                             }
@@ -128,11 +168,21 @@ namespace ME.ECS.DataConfigs {
                             var type = obj.GetType();
                             if (ComponentTypesRegistry.typeId.TryGetValue(type, out var componentIndex) == true) {
 
-                                this.componentsTypeIds[i] = componentIndex;
+                                if (this.componentsTypeIds[i] != componentIndex) {
+                                    
+                                    this.componentsTypeIds[i] = componentIndex;
+                                    changed = true;
+
+                                }
 
                             } else {
 
-                                this.componentsTypeIds[i] = -1;
+                                if (this.componentsTypeIds[i] != -1) {
+                                    
+                                    this.componentsTypeIds[i] = -1;
+                                    changed = true;
+
+                                }
 
                             }
 
@@ -144,12 +194,16 @@ namespace ME.ECS.DataConfigs {
                 }
 
             }
-            
-            #if UNITY_EDITOR
-            UnityEditor.EditorUtility.SetDirty(this);
-            #endif
-            
-            Debug.Log("DataConfig " + this + " reloaded");
+
+            if (changed == true) {
+
+                #if UNITY_EDITOR
+                UnityEditor.EditorUtility.SetDirty(this);
+                #endif
+
+                Debug.Log("DataConfig " + this + " reloaded");
+
+            }
 
         }
         
