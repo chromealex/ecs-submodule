@@ -144,6 +144,12 @@ namespace ME.ECS.DataConfigs {
                 }
 
             }
+            
+            #if UNITY_EDITOR
+            UnityEditor.EditorUtility.SetDirty(this);
+            #endif
+            
+            Debug.Log("DataConfig " + this + " reloaded");
 
         }
         
