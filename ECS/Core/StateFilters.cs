@@ -887,13 +887,13 @@ namespace ME.ECS {
             ref var res = ref this.dataContains.arr[idx];
             if (res == false) {
 
-                if (this.predicateOnAdd != null) this.predicateOnAdd.Execute(in entity);
-
                 res = true;
                 //this.data.Add(entity.id, entity);
                 this.data.arr[idx] = entity;
                 ++this.dataCount;
                 this.UpdateMinMaxAdd(idx);
+
+                if (this.predicateOnAdd != null) this.predicateOnAdd.Execute(in entity);
 
             }
 
@@ -907,13 +907,13 @@ namespace ME.ECS {
             ref var res = ref this.dataContains.arr[idx];
             if (res == true) {
 
-                if (this.predicateOnRemove != null) this.predicateOnRemove.Execute(in entity);
-                
                 res = false;
                 //this.data.Remove(entity.id);
                 this.data.arr[idx] = default;
                 --this.dataCount;
                 this.UpdateMinMaxRemove(idx);
+                
+                if (this.predicateOnRemove != null) this.predicateOnRemove.Execute(in entity);
                 return true;
 
             }

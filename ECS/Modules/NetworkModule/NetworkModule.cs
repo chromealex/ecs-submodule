@@ -408,7 +408,7 @@ namespace ME.ECS.Network {
                 evt.storeInHistory = storeInHistory;
                 
                 var storedInHistory = false;
-                if (this.GetNetworkType() == NetworkType.RunLocal) {
+                if (this.GetNetworkType() == NetworkType.RunLocal && storeInHistory == true) {
                     
                     this.statesHistoryModule.AddEvent(evt);
                     storedInHistory = true;
@@ -568,27 +568,32 @@ namespace ME.ECS.Network {
 
             //this.localOrderIndex = 0;
 
-            this.pingTime += deltaTime;
-            if (this.pingTime >= 1f) {
+            if (this.GetNetworkType() != NetworkType.RunLocal) {
 
-                this.SystemRPC(this, NetworkModule<TState>.PING_RPC_ID, this.world.GetTimeSinceStart(), true);
-                this.pingTime -= 1f;
+                this.pingTime += deltaTime;
+                if (this.pingTime >= 1f) {
 
-            }
-            
-            this.syncTime += deltaTime;
-            if (this.syncTime >= 2f) {
-                
-                if (this.syncTickSent != this.syncedTick) {
-                    
-                    this.SystemRPC(this, NetworkModule<TState>.SYNC_RPC_ID, this.syncedTick, this.syncHash);
-                    this.syncTickSent = this.syncedTick;
-                    
+                    this.SystemRPC(this, NetworkModule<TState>.PING_RPC_ID, this.world.GetTimeSinceStart(), true);
+                    this.pingTime -= 1f;
+
                 }
-                this.syncTime -= 2f;
-                
+
+                this.syncTime += deltaTime;
+                if (this.syncTime >= 2f) {
+
+                    if (this.syncTickSent != this.syncedTick) {
+
+                        this.SystemRPC(this, NetworkModule<TState>.SYNC_RPC_ID, this.syncedTick, this.syncHash);
+                        this.syncTickSent = this.syncedTick;
+
+                    }
+
+                    this.syncTime -= 2f;
+
+                }
+
             }
-            
+
             if (this.transporter != null && this.serializer != null) {
 
                 this.statesHistoryModule.BeginAddEvents();
