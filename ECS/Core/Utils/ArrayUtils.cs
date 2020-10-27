@@ -109,6 +109,32 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void Copy<T>(ListCopyable<T> fromArr, ref ListCopyable<T> arr) where T : struct {
+
+            if (fromArr == null) {
+
+                if (arr != null) {
+                    
+                    PoolList<T>.Recycle(ref arr);
+                    
+                }
+
+                arr = null;
+                return;
+
+            }
+
+            if (arr == null) {
+
+                arr = PoolList<T>.Spawn(fromArr.Count);
+
+            }
+            
+            arr.CopyFrom(fromArr);
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void Copy<T, TCopy>(ListCopyable<T> fromArr, ref ListCopyable<T> arr, TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             if (fromArr == null) {

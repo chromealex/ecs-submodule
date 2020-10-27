@@ -87,6 +87,9 @@ namespace ME.ECS {
         internal BufferArray<TComponent> components;
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<byte> componentsStates;
+        [ME.ECS.Serializer.SerializeField]
+        internal ListCopyable<int> lifetimeIndexes;
+        
         internal TComponent emptyComponent;
 
         public override int GetCustomHash() {
@@ -114,30 +117,42 @@ namespace ME.ECS {
             this.isTag = default;
             PoolArray<TComponent>.Recycle(ref this.components);
             PoolArray<byte>.Recycle(ref this.componentsStates);
+            if (this.lifetimeIndexes != null) PoolList<int>.Recycle(ref this.lifetimeIndexes);
             
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override void UseLifetimeStep(World world, in byte step) {
-            
-            for (int i = 0; i < this.componentsStates.Length; ++i) {
-                
-                ref var state = ref this.componentsStates.arr[i];
-                if (state == 0) continue;
-                
-                if (state - 1 == step) {
-                    
-                    ref var entity = ref world.GetEntityById(in i);
-                    if (entity.version == 0) return;
-                    
-                    state = 0;
-                    if (this.isTag == false) this.components.arr[i] = default;
-                    if (world.currentState.filters.HasInFilters<TComponent>() == true) world.currentState.storage.archetypes.Remove<TComponent>(in entity);
-                    --world.currentState.structComponents.count;
-                    world.RemoveComponentFromFilter(in entity);
-                    
+
+            if (this.lifetimeIndexes != null) {
+
+                for (int i = 0; i < this.lifetimeIndexes.Count; ++i) {
+
+                    var id = this.lifetimeIndexes[i];
+                    this.UseLifetimeStep(id, world, in step);
+
                 }
+                this.lifetimeIndexes.Clear();
                 
+            }
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private void UseLifetimeStep(int id, World world, in byte step) {
+
+            ref var state = ref this.componentsStates.arr[id];
+            if (state - 1 == step) {
+                    
+                ref var entity = ref world.GetEntityById(in id);
+                if (entity.version == 0) return;
+                    
+                state = 0;
+                if (this.isTag == false) this.components.arr[id] = default;
+                if (world.currentState.filters.HasInFilters<TComponent>() == true) world.currentState.storage.archetypes.Remove<TComponent>(in entity);
+                --world.currentState.structComponents.count;
+                world.RemoveComponentFromFilter(in entity);
+                    
             }
             
         }
@@ -329,62 +344,14 @@ namespace ME.ECS {
 
         }
 
-        /*[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public ref TComponent Get(in Entity entity) {
-
-            #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
-                
-                EmptyEntityException.Throw();
-                
-            }
-            #endif
-
-            //var bucketId = this.GetBucketId(in entity.id, out var index);
-            //var index = entity.id;
-            //this.CheckResize(in index);
-            return ref this.components.arr[entity.id];
-            
-        }
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public bool Set(in Entity entity, in TComponent data) {
-
-            #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
-                
-                EmptyEntityException.Throw();
-                
-            }
-            #endif
-
-            //var bucketId = this.GetBucketId(in entity.id, out var index);
-            var index = entity.id;
-            //this.CheckResize(in index);
-            ref var bucketState = ref this.componentsStates.arr[index];
-            ref var bucket = ref this.components.arr[index];
-            bucket = data;
-            if (bucketState == 0) {
-
-                bucketState = 1;
-
-                this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
-                return true;
-
-            }
-
-            return false;
-
-        }
-*/
-
         public override void CopyFrom(StructRegistryBase other) {
 
             var _other = (StructComponents<TComponent>)other;
             this.isTag = _other.isTag;
             ArrayUtils.Copy(in _other.components, ref this.components);
             ArrayUtils.Copy(in _other.componentsStates, ref this.componentsStates);
-
+            ArrayUtils.Copy(_other.lifetimeIndexes, ref this.lifetimeIndexes);
+            
         }
 
     }
@@ -660,112 +627,6 @@ namespace ME.ECS {
             return reg.Has(in entity);
             
         }
-
-        /*#if ECS_COMPILE_IL2CPP_OPTIONS
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-        #endif
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public bool Has<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
-            
-            #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
-                
-                EmptyEntityException.Throw();
-                
-            }
-            #endif
-
-            var code = WorldUtilities.GetComponentTypeId<TComponent>();
-            //this.Validate<TComponent>(in code);
-            var reg = (StructComponents<TComponent>)this.list.arr[code];
-            return reg.Has(in entity);
-            
-        }
-
-        #if ECS_COMPILE_IL2CPP_OPTIONS
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-        #endif
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public ref TComponent Get<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
-            
-            #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
-                
-                EmptyEntityException.Throw();
-                
-            }
-            #endif
-
-            var code = WorldUtilities.GetComponentTypeId<TComponent>();
-            //this.Validate<TComponent>(in code);
-            var reg = (StructComponents<TComponent>)this.list.arr[code];
-            return ref reg.Get(in entity);
-            
-        }
-
-        #if ECS_COMPILE_IL2CPP_OPTIONS
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-        #endif
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public bool Set<TComponent>(in Entity entity, TComponent data) where TComponent : struct, IStructComponent {
-            
-            #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
-                
-                EmptyEntityException.Throw();
-                
-            }
-            #endif
-
-            var code = WorldUtilities.GetComponentTypeId<TComponent>();
-            //this.Validate<TComponent>(in code);
-            var reg = (StructComponents<TComponent>)this.list.arr[code];
-            if (reg.Set(in entity, data) == true) {
-            
-                ++this.count;
-                return true;
-
-            }
-
-            return false;
-
-        }
-
-        #if ECS_COMPILE_IL2CPP_OPTIONS
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-        #endif
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public bool Remove<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
-            
-            #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
-                
-                EmptyEntityException.Throw();
-                
-            }
-            #endif
-
-            var code = WorldUtilities.GetComponentTypeId<TComponent>();
-            //this.Validate<TComponent>(in code);
-            var reg = (StructComponents<TComponent>)this.list.arr[code];
-            if (reg.Remove(in entity) == true) {
-
-                --this.count;
-                return true;
-
-            }
-
-            return false;
-
-        }*/
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
@@ -1181,7 +1042,8 @@ namespace ME.ECS {
 
         }
 
-        public void PlayTasksForFrame() {
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private void PlayTasksForFrame() {
 
             if (this.currentState.structComponents.nextFrameTasks.Count > 0) {
 
@@ -1201,7 +1063,8 @@ namespace ME.ECS {
             
         }
 
-        public void PlayTasksForTick() {
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private void PlayTasksForTick() {
             
             if (this.currentState.structComponents.nextTickTasks.Count > 0) {
 
@@ -1219,6 +1082,30 @@ namespace ME.ECS {
 
             }
             
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private void UseLifetimeStep(ComponentLifetime step) {
+
+            var bStep = (byte)step;
+            for (int i = 0; i < this.currentState.structComponents.list.Length; ++i) {
+
+                ref var reg = ref this.currentState.structComponents.list.arr[i];
+                if (reg == null) continue;
+                
+                reg.UseLifetimeStep(this, bStep);
+
+            }
+            
+        }
+
+        private void AddToLifetimeIndex<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
+            
+            ref var r = ref this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
+            var reg = (StructComponents<TComponent>)r;
+            if (reg.lifetimeIndexes == null) reg.lifetimeIndexes = PoolList<int>.Spawn(10);
+            reg.lifetimeIndexes.Add(entity.id);
+
         }
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -1270,7 +1157,9 @@ namespace ME.ECS {
 
                 if (lifetime == ComponentLifetime.Infinite) return;
                 state = (byte)(lifetime + 1);
-
+                
+                this.AddToLifetimeIndex<TComponent>(in entity);
+                
             }
 
         }
@@ -1325,25 +1214,12 @@ namespace ME.ECS {
                 if (lifetime == ComponentLifetime.Infinite) return;
                 state = (byte)(lifetime + 1);
 
+                this.AddToLifetimeIndex<TComponent>(in entity);
+
             }
 
         }
 
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void UseLifetimeStep(ComponentLifetime step) {
-
-            var bStep = (byte)step;
-            for (int i = 0; i < this.currentState.structComponents.list.Length; ++i) {
-
-                ref var reg = ref this.currentState.structComponents.list.arr[i];
-                if (reg == null) continue;
-                
-                reg.UseLifetimeStep(this, bStep);
-
-            }
-            
-        }
-        
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void RemoveData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
             
