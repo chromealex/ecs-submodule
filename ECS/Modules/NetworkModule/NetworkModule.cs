@@ -29,7 +29,6 @@ namespace ME.ECS.Network {
         None = 0x0,
         SendToNet = 0x1,
         RunLocal = 0x2,
-        UseSerializer = 0x4,
         
     }
 
