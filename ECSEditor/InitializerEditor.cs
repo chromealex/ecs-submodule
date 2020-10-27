@@ -599,6 +599,12 @@ namespace ME.ECSEditor {
             while (index >= this.lists.Count) this.lists.Add(null);
             var list = this.lists[index];
             this.FillList(index, ref list);
+
+            if (index == this.lists.Count - 1) {
+                
+                return list.GetHeight() + 90f;
+                
+            }
             
             return list.GetHeight() + 10f;
 
