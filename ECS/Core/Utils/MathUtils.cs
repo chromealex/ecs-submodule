@@ -15,15 +15,15 @@ namespace ME.ECS {
             
         }
 
-        public static FPVector3 XY(this FPVector2 v) {
+        public static FPVector3 XY(this FPVector2 v, float z = 0f) {
             
-            return new FPVector3(v.x, v.y, 0f);
+            return new FPVector3(v.x, v.y, z);
             
         }
         
-        public static FPVector3 XZ(this FPVector2 v) {
+        public static FPVector3 XZ(this FPVector2 v, float y = 0f) {
             
-            return new FPVector3(v.x, 0f, v.y);
+            return new FPVector3(v.x, y, v.y);
             
         }
 
@@ -47,15 +47,15 @@ namespace ME.ECS {
             
         }
 
-        public static Vector3 XY(this Vector2 v) {
+        public static Vector3 XY(this Vector2 v, float z = 0f) {
             
-            return new Vector3(v.x, v.y, 0f);
+            return new Vector3(v.x, v.y, z);
             
         }
         
-        public static Vector3 XZ(this Vector2 v) {
+        public static Vector3 XZ(this Vector2 v, float y = 0f) {
             
-            return new Vector3(v.x, 0f, v.y);
+            return new Vector3(v.x, y, v.y);
             
         }
 
@@ -71,15 +71,15 @@ namespace ME.ECS {
             
         }
 
-        public static Vector3Int XY(this Vector2Int v) {
+        public static Vector3Int XY(this Vector2Int v, int z = 0) {
             
-            return new Vector3Int(v.x, v.y, 0);
+            return new Vector3Int(v.x, v.y, z);
             
         }
         
-        public static Vector3Int XZ(this Vector2Int v) {
+        public static Vector3Int XZ(this Vector2Int v, int y = 0) {
             
-            return new Vector3Int(v.x, 0, v.y);
+            return new Vector3Int(v.x, y, v.y);
             
         }
 
