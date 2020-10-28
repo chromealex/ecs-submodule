@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿#define EDITOR_ARRAY
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections.LowLevel.Unsafe;
@@ -20,7 +21,8 @@ namespace ME.ECS.Collections {
     [System.Serializable]
     public readonly struct BufferArray<T> : System.IEquatable<BufferArray<T>>, IBufferArray {
 
-        #if UNITY_EDITOR
+        #if UNITY_EDITOR && EDITOR_ARRAY
+        [System.Serializable]
         public struct EditorArr {
 
             public T[] data;
@@ -175,7 +177,7 @@ namespace ME.ECS.Collections {
             this.Length = length;
             this.isNotEmpty = (length > 0 && arr != null);
             
-            #if UNITY_EDITOR
+            #if UNITY_EDITOR && EDITOR_ARRAY
             this.arr.data = arr;
             this.arr.length = length;
             this.arr.isNotEmpty = this.isNotEmpty;
