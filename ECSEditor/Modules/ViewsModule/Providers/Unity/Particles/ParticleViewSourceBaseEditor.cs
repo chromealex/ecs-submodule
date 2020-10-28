@@ -11,7 +11,7 @@ namespace ME.ECSEditor {
 
         public override void OnInspectorGUI() {
 
-            this.DrawInspectorGUI(((ParticleViewSourceBase)this.target).GetSource().entity, drawDefaultInspector: false);
+            this.DrawInspectorGUI(((ParticleViewSourceBase)this.target).GetSource().entity, drawDefaultInspector: true);
 
         }
 
