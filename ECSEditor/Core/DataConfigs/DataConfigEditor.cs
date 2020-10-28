@@ -112,6 +112,8 @@ namespace ME.ECSEditor {
                                 EditorGUILayout.Toggle(componentName, true);
                                 EditorGUI.EndDisabledGroup();
 
+                                GUILayoutExt.DrawComponentHelp(component.GetType());
+
                             } else if (fieldsCount == 1) {
 
                                 var changed = GUILayoutExt.DrawFields(worldEditor, component, componentName);
