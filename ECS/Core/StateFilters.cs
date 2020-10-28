@@ -35,6 +35,26 @@ namespace ME.ECS {
             }
         }
 
+        public void Clear() {
+
+            for (int i = 0; i < this.filters.Length; ++i) {
+
+                this.filters.arr[i].Clear();
+
+            }
+            
+        }
+
+        public void OnDeserialize(int lastEntityId) {
+
+            for (int i = 0; i < this.filters.Length; ++i) {
+
+                this.filters.arr[i].OnDeserialize(lastEntityId);
+
+            }
+            
+        }
+        
         public int GetAllFiltersArchetypeCount() {
 
             return this.allFiltersArchetype.Count;
@@ -396,6 +416,31 @@ namespace ME.ECS {
 
         }
 
+        public void Clear() {
+            
+            for (int i = 0; i < this.data.Length; ++i) {
+
+                var entity = this.data.arr[i];
+                if (entity.version > Entity.VERSION_ZERO) {
+
+                    this.Remove_INTERNAL(entity);
+
+                }
+
+            }
+            
+            ArrayUtils.Clear(this.data);
+            ArrayUtils.Clear(this.dataContains);
+            this.dataCount = 0;
+            
+        }
+
+        public void OnDeserialize(int lastEntityId) {
+
+            this.SetEntityCapacity(lastEntityId);
+
+        }
+        
         public void Recycle() {
             
             PoolFilters.Recycle(this);

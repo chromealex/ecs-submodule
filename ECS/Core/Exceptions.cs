@@ -31,9 +31,19 @@ namespace ME.ECS {
 
         private EmptyEntityException() : base("[ME.ECS] You are trying to change empty entity.") {}
 
+        private EmptyEntityException(Entity entity) : base("[ME.ECS] You are trying to change entity that has been destroyed already: " + entity) {}
+
         public static void Throw() {
 
             throw new EmptyEntityException();
+
+        }
+
+        public static void Throw(Entity entity) {
+
+            if (entity.version == 0) EmptyEntityException.Throw();
+            
+            throw new EmptyEntityException(entity);
 
         }
 
