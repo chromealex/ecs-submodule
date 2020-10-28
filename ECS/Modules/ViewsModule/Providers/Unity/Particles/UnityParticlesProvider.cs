@@ -123,7 +123,7 @@ namespace ME.ECS.Views.Providers {
 
         }
 
-        public BufferArray<Item> items;
+        public Item[] items;
 
         void IPoolableRecycle.OnRecycle() {
             
@@ -142,17 +142,17 @@ namespace ME.ECS.Views.Providers {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public ref UnityEngine.ParticleSystem.Particle GetRootData() {
 
-            return ref this.items.arr[0].particleData;
+            return ref this.items[0].particleData;
             
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void SetRootData(ref UnityEngine.ParticleSystem.Particle data) {
 
-            this.items.arr[0].particleData = data;
+            this.items[0].particleData = data;
             for (int i = 1; i < this.items.Length; ++i) {
 
-                ref var item = ref this.items.arr[i];
+                ref var item = ref this.items[i];
                 item.particleData.position = data.position + item.itemData.localPosition;
                 item.particleData.rotation3D = data.rotation3D + item.itemData.localRotation;
                 item.particleData.startSize3D = UnityEngine.Vector3.Scale(data.startSize3D, item.itemData.localScale);
@@ -170,7 +170,7 @@ namespace ME.ECS.Views.Providers {
             UnityEngine.ParticleSystem[] particleSystems,
             bool reset) {
 
-            if (this.items.arr == null || this.items.Length != filters.Length + particleSystems.Length) {
+            if (this.items == null || this.items.Length != filters.Length + particleSystems.Length) {
 
                 reset = true;
 
@@ -178,7 +178,7 @@ namespace ME.ECS.Views.Providers {
 
             if (reset == true) {
                 
-                this.items = BufferArray<Item>.Empty;
+                this.items = new Item[0];
                 
             }
 
@@ -222,7 +222,7 @@ namespace ME.ECS.Views.Providers {
 
                 }
 
-                this.items = BufferArray<Item>.From(itemsList.ToArray());
+                this.items = itemsList.ToArray();
 
             }
             
@@ -232,7 +232,7 @@ namespace ME.ECS.Views.Providers {
 
             for (int i = 0; i < this.items.Length; ++i) {
 
-                this.items.arr[i].itemData.SimulateParticles(time, seed);
+                this.items[i].itemData.SimulateParticles(time, seed);
 
             }
 
@@ -242,7 +242,7 @@ namespace ME.ECS.Views.Providers {
             
             for (int i = 0; i < this.items.Length; ++i) {
 
-                this.items.arr[i].itemData.UpdateParticlesSimulation(deltaTime);
+                this.items[i].itemData.UpdateParticlesSimulation(deltaTime);
 
             }
             
@@ -516,10 +516,10 @@ namespace ME.ECS.Views.Providers {
             }
 
             var particleViewBase = (ParticleViewBase)obj;
-            particleViewBase.items = PoolArray<ParticleViewBase.Item>.Spawn(prefabSource.items.Length);
+            particleViewBase.items = new ParticleViewBase.Item[prefabSource.items.Length];//PoolArray<ParticleViewBase.Item>.Spawn(prefabSource.items.Length);
             for (int i = 0; i < particleViewBase.items.Length; ++i) {
 
-                particleViewBase.items.arr[i] = prefabSource.items.arr[i];
+                particleViewBase.items[i] = prefabSource.items[i];
 
             }
             
@@ -531,7 +531,7 @@ namespace ME.ECS.Views.Providers {
             for (int i = 0; i < prefabSource.items.Length; ++i) {
 
                 maxParticleCount = 0;
-                ref var source = ref prefabSource.items.arr[i];
+                ref var source = ref prefabSource.items[i];
                 key = source.itemData.GetKey();
                 ParticleSystemItem psItem;
                 if (this.psItems.TryGetValue(key, out psItem) == false) {
@@ -623,7 +623,7 @@ namespace ME.ECS.Views.Providers {
                 psItem.r = 0;
                 if (psItem.ps.particleCount > maxParticleCount) maxParticleCount = psItem.ps.particleCount;
 
-                particleViewBase.items.arr[i].itemData = psItem;
+                particleViewBase.items[i].itemData = psItem;
 
             }
             
@@ -638,7 +638,7 @@ namespace ME.ECS.Views.Providers {
             var view = (ParticleViewBase)instance;
             for (int i = 0; i < view.items.Length; ++i) {
 
-                view.items.arr[i].particleData.startSize = 0f;
+                view.items[i].particleData.startSize = 0f;
 
             }
 
@@ -753,7 +753,7 @@ namespace ME.ECS.Views.Providers {
 
                         for (int j = 0; j < view.items.Length; ++j) {
 
-                            ref var element = ref view.items.arr[j];
+                            ref var element = ref view.items[j];
                             if (element.itemData.ps == ps) {
 
                                 if (element.itemData.lifetime > 0f) {
