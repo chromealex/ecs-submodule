@@ -885,7 +885,7 @@ namespace ME.ECS {
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -902,7 +902,7 @@ namespace ME.ECS {
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -947,7 +947,7 @@ namespace ME.ECS {
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -991,7 +991,7 @@ namespace ME.ECS {
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -1028,7 +1028,7 @@ namespace ME.ECS {
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -1120,9 +1120,9 @@ namespace ME.ECS {
             #endif
 
             #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
+            if (entity.IsAlive() == false) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -1176,9 +1176,9 @@ namespace ME.ECS {
             #endif
 
             #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
+            if (entity.IsAlive() == false) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -1232,9 +1232,9 @@ namespace ME.ECS {
             #endif
             
             #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
+            if (entity.IsAlive() == false) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif

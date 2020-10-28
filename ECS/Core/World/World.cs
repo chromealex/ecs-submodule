@@ -1194,6 +1194,12 @@ namespace ME.ECS {
 
         }
 
+        public int GetEntitiesCount() {
+
+            return this.currentState.storage.Count;
+
+        }
+        
         public void UpdateEntity(in Entity entity) {
             
             this.CreateEntityPlugins(entity);
@@ -1932,7 +1938,7 @@ namespace ME.ECS {
 
                                                 foreach (ref var entity in sysFilter.filter) {
 
-                                                    sysFilterContext.AdvanceTick(in entity, in fixedDeltaTime);
+                                                    if (entity.version > Entity.VERSION_ZERO) sysFilterContext.AdvanceTick(in entity, in fixedDeltaTime);
 
                                                 }
 
