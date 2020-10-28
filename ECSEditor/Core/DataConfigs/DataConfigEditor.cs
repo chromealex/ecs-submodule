@@ -7,6 +7,7 @@ namespace ME.ECSEditor {
     using ME.ECS;
 
     [UnityEditor.CustomEditor(typeof(ME.ECS.DataConfigs.DataConfig), true)]
+    [CanEditMultipleObjects]
     public class DataConfigEditor : Editor {
 
         public struct Registry {
@@ -23,6 +24,7 @@ namespace ME.ECSEditor {
 
         }
 
+        private static readonly WorldsViewerEditor.WorldEditor multipleWorldEditor = new WorldsViewerEditor.WorldEditor();
         private static readonly System.Collections.Generic.Dictionary<Object, WorldsViewerEditor.WorldEditor> worldEditors = new System.Collections.Generic.Dictionary<Object, WorldsViewerEditor.WorldEditor>();
 
         public override void OnInspectorGUI() {
@@ -33,15 +35,183 @@ namespace ME.ECSEditor {
 
             var backStyle = new GUIStyle(EditorStyles.label);
             backStyle.normal.background = Texture2D.whiteTexture;
-            
-            var dataConfig = (ME.ECS.DataConfigs.DataConfig)this.target;
-            if (DataConfigEditor.worldEditors.TryGetValue(this.target, out var worldEditor) == false) {
 
-                worldEditor = new WorldsViewerEditor.WorldEditor();
-                DataConfigEditor.worldEditors.Add(this.target, worldEditor);
+            var slice = new ME.ECS.DataConfigs.DataConfigSlice();
+            var isMultiple = false;
+            if (this.targets.Length > 1) {
 
+                slice = ME.ECS.DataConfigs.DataConfigSlice.Distinct(this.targets.Cast<ME.ECS.DataConfigs.DataConfig>().ToArray());
+                isMultiple = true;
+
+            } else {
+
+                var config = (ME.ECS.DataConfigs.DataConfig)this.target;
+                slice = new ME.ECS.DataConfigs.DataConfigSlice() {
+                    configs = new [] {
+                        config
+                    },
+                    structComponentsDataTypeIds = config.structComponentsDataTypeIds,
+                    componentsTypeIds = config.componentsTypeIds
+                };
+                
             }
 
+            var usedComponentsAll = new System.Collections.Generic.HashSet<System.Type>();
+            foreach (var cfg in slice.configs) {
+
+                var componentTypes = cfg.GetStructComponentTypes();
+                foreach (var cType in componentTypes) {
+                    
+                    if (usedComponentsAll.Contains(cType) == false) usedComponentsAll.Add(cType);
+                    
+                }
+                
+                if (DataConfigEditor.worldEditors.TryGetValue(cfg, out var worldEditor) == false) {
+
+                    worldEditor = new WorldsViewerEditor.WorldEditor();
+                    DataConfigEditor.worldEditors.Add(cfg, worldEditor);
+
+                }
+                
+            }
+
+            if (isMultiple == true) {
+
+                GUILayoutExt.DrawHeader("The same components:");
+
+                GUILayoutExt.Padding(8f, () => {
+
+                    var kz = 0;
+                    for (int i = 0; i < slice.structComponentsDataTypeIds.Length; ++i) {
+
+                        var typeId = slice.structComponentsDataTypeIds[i];
+                        var component = slice.configs[0].GetByTypeId(typeId);
+                        var components = slice.configs.Select(x => x.GetByTypeId(typeId)).ToArray();
+
+                        var backColor = GUI.backgroundColor;
+                        GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
+
+                        GUILayout.BeginVertical(backStyle);
+                        {
+                            GUI.backgroundColor = backColor;
+                            var editor = WorldsViewerEditor.GetEditor(components);
+                            if (editor != null) {
+
+                                EditorGUI.BeginChangeCheck();
+                                editor.OnDrawGUI();
+                                if (EditorGUI.EndChangeCheck() == true) {
+
+                                    //component = editor.GetTarget<IStructComponent>();
+                                    //dataConfig.structComponents[registry.index] = component;
+                                    //this.Save(dataConfig);
+                                    slice.Set(typeId, components);
+                                    this.Save(slice.configs);
+
+                                }
+
+                            } else {
+
+                                var componentName = GUILayoutExt.GetStringCamelCaseSpace(component.GetType().Name);
+                                var fieldsCount = GUILayoutExt.GetFieldsCount(component);
+                                if (fieldsCount == 0) {
+
+                                    EditorGUI.BeginDisabledGroup(true);
+                                    EditorGUILayout.Toggle(componentName, true);
+                                    EditorGUI.EndDisabledGroup();
+
+                                } else if (fieldsCount == 1) {
+
+                                    var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, components, componentName);
+                                    if (changed == true) {
+
+                                        slice.Set(typeId, components);
+                                        this.Save(slice.configs);
+
+                                    }
+
+                                } else {
+
+                                    GUILayout.BeginHorizontal();
+                                    {
+                                        GUILayout.Space(18f);
+                                        GUILayout.BeginVertical();
+                                        {
+
+                                            var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
+                                            var foldout = EditorPrefs.GetBool(key, true);
+                                            GUILayoutExt.FoldOut(ref foldout, componentName, () => {
+
+                                                var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, components);
+                                                if (changed == true) {
+
+                                                    slice.Set(typeId, components);
+                                                    this.Save(slice.configs);
+
+                                                }
+
+                                            });
+                                            EditorPrefs.SetBool(key, foldout);
+
+                                        }
+                                        GUILayout.EndVertical();
+                                    }
+                                    GUILayout.EndHorizontal();
+
+                                }
+
+                                GUILayoutExt.DrawComponentHelp(component.GetType());
+
+                            }
+                        }
+                        GUILayout.EndVertical();
+
+                        GUILayoutExt.Separator();
+
+                    }
+
+                });
+
+                GUILayoutExt.DrawAddComponentMenu(usedComponentsAll, (addType, isUsed) => {
+
+                    foreach (var dataConfigInner in slice.configs) {
+
+                        if (isUsed == true) {
+
+                            usedComponentsAll.Remove(addType);
+                            for (int i = 0; i < dataConfigInner.structComponents.Length; ++i) {
+
+                                if (dataConfigInner.structComponents[i].GetType() == addType) {
+
+                                    var list = dataConfigInner.structComponents.ToList();
+                                    list.RemoveAt(i);
+                                    dataConfigInner.structComponents = list.ToArray();
+                                    dataConfigInner.OnScriptLoad();
+                                    this.Save(dataConfigInner);
+                                    break;
+
+                                }
+
+                            }
+
+                        } else {
+
+                            usedComponentsAll.Add(addType);
+                            System.Array.Resize(ref dataConfigInner.structComponents, dataConfigInner.structComponents.Length + 1);
+                            dataConfigInner.structComponents[dataConfigInner.structComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
+                            dataConfigInner.OnScriptLoad();
+                            this.Save(dataConfigInner);
+
+                        }
+
+                    }
+
+                });
+                
+                return;
+
+            }
+            
+            var dataConfig = (ME.ECS.DataConfigs.DataConfig)this.target;
             GUILayoutExt.Padding(8f, () => {
              
                 var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
@@ -104,7 +274,7 @@ namespace ME.ECSEditor {
 
                         } else {
 
-                            var componentName = component.GetType().Name;
+                            var componentName = GUILayoutExt.GetStringCamelCaseSpace(component.GetType().Name);
                             var fieldsCount = GUILayoutExt.GetFieldsCount(component);
                             if (fieldsCount == 0) {
 
@@ -116,7 +286,7 @@ namespace ME.ECSEditor {
 
                             } else if (fieldsCount == 1) {
 
-                                var changed = GUILayoutExt.DrawFields(worldEditor, component, componentName);
+                                var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component, componentName);
                                 if (changed == true) {
 
                                     dataConfig.structComponents[registry.index] = component;
@@ -136,7 +306,7 @@ namespace ME.ECSEditor {
                                         var foldout = EditorPrefs.GetBool(key, true);
                                         GUILayoutExt.FoldOut(ref foldout, componentName, () => {
 
-                                            var changed = GUILayoutExt.DrawFields(worldEditor, component);
+                                            var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component);
                                             if (changed == true) {
 
                                                 dataConfig.structComponents[registry.index] = component;
@@ -268,7 +438,7 @@ namespace ME.ECSEditor {
 
                             } else if (fieldsCount == 1) {
 
-                                var changed = GUILayoutExt.DrawFields(worldEditor, component, componentName);
+                                var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component, componentName);
                                 if (changed == true) {
 
                                     dataConfig.components[registry.index] = component;
@@ -288,7 +458,7 @@ namespace ME.ECSEditor {
                                         var foldout = EditorPrefs.GetBool(key, true);
                                         GUILayoutExt.FoldOut(ref foldout, componentName, () => {
 
-                                            var changed = GUILayoutExt.DrawFields(worldEditor, component);
+                                            var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component);
                                             if (changed == true) {
 
                                                 dataConfig.components[registry.index] = component;
@@ -353,6 +523,12 @@ namespace ME.ECSEditor {
         private void Save(ME.ECS.DataConfigs.DataConfig dataConfig) {
             
             EditorUtility.SetDirty(dataConfig);
+            
+        }
+
+        private void Save(ME.ECS.DataConfigs.DataConfig[] dataConfigs) {
+            
+            foreach (var dataConfig in dataConfigs) EditorUtility.SetDirty(dataConfig);
             
         }
 

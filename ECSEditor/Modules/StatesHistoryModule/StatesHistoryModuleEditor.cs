@@ -8,6 +8,7 @@ namespace ME.ECSEditor {
     public class StatesHistoryModuleEditor : ME.ECSEditor.IGUIEditor<IStatesHistoryModuleBase> {
 
         public IStatesHistoryModuleBase target { get; set; }
+        public IStatesHistoryModuleBase[] targets { get; set; }
 
         public T GetTarget<T>() {
 

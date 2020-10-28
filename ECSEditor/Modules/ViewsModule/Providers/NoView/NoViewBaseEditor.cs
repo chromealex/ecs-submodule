@@ -8,6 +8,7 @@ namespace ME.ECSEditor {
     public class UnityNoViewProviderJobsEditor : IJobsViewGUIEditor<InitializerBase> {
 
         public InitializerBase target { get; set; }
+        public InitializerBase[] targets { get; set; }
 
         public T GetTarget<T>() {
 

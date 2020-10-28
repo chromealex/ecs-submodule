@@ -6,6 +6,7 @@ namespace ME.ECSEditor {
     public class NameComponentEditor : ME.ECSEditor.IGUIEditor<ME.ECS.Name.Name> {
 
         public ME.ECS.Name.Name target { get; set; }
+        public ME.ECS.Name.Name[] targets { get; set; }
 
         public T GetTarget<T>() {
 

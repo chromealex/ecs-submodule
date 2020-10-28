@@ -21,6 +21,7 @@ namespace ME.ECSEditor {
     public class UnityParticlesProviderEditor : IDebugViewGUIEditor<InitializerBase> {
 
         public InitializerBase target { get; set; }
+        public InitializerBase[] targets { get; set; }
 
         public T GetTarget<T>() {
 
@@ -50,6 +51,7 @@ namespace ME.ECSEditor {
     public class UnityParticlesProviderJobsEditor : IJobsViewGUIEditor<InitializerBase> {
 
         public InitializerBase target { get; set; }
+        public InitializerBase[] targets { get; set; }
 
         public T GetTarget<T>() {
 

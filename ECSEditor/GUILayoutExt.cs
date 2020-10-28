@@ -11,7 +11,7 @@ namespace ME.ECSEditor {
 
     public interface ICustomFieldEditor : IGUIEditorBase {
 
-	    bool DrawGUI(string caption, System.Reflection.FieldInfo fieldInfo, ref object value, bool typeCheckOnly);
+	    bool DrawGUI(string caption, System.Reflection.FieldInfo fieldInfo, ref object value, bool typeCheckOnly, bool hasMultipleDifferentValues);
 
     }
 
@@ -592,6 +592,120 @@ namespace ME.ECSEditor {
 
         }
 
+        public class TempObject : MonoBehaviour {
+
+	        [SerializeReference]
+	        public object data;
+
+        }
+        
+        public static bool DrawFields(WorldsViewerEditor.WorldEditor world, object[] instances, string customName = null) {
+
+	        var temp = new GameObject("Temp");
+	        foreach (var instance in instances) {
+		        
+		        var comp = temp.AddComponent<TempObject>();
+		        comp.data = instance;
+
+	        }
+	        
+	        var comps = temp.GetComponents<TempObject>();
+	        var obj = new SerializedObject(comps);
+
+	        obj.Update();
+	        var changed = false;
+	        var it = obj.FindProperty("data");
+	        it.NextVisible(true);
+	        EditorGUI.BeginChangeCheck();
+	        EditorGUILayout.PropertyField(it, new GUIContent(customName), includeChildren: true);
+	        if (EditorGUI.EndChangeCheck() == true) {
+
+		        changed = true;
+
+	        }
+	        while (it.NextVisible(true) == true) {
+
+		        var depth = EditorGUI.indentLevel;
+		        EditorGUI.indentLevel = it.depth - 1;
+		        EditorGUI.BeginChangeCheck();
+		        EditorGUILayout.PropertyField(it);
+		        if (EditorGUI.EndChangeCheck() == true) {
+
+			        changed = true;
+
+		        }
+		        EditorGUI.indentLevel = depth;
+
+		        //GUILayoutExt.DrawComponentHelp(System.Type.GetType(it.managedReferenceFullTypename));
+
+	        }
+	        obj.ApplyModifiedProperties();
+	        
+	        if (changed == true) {
+
+		        for (int i = 0; i < comps.Length; ++i) {
+
+			        instances[i] = comps[i].data;
+			        Debug.Log("Change " + instances[i] + " from " + comps[i].data);
+
+		        }
+		        
+	        }
+	        
+	        GameObject.DestroyImmediate(temp);
+	        
+	        return changed;
+	        
+	        /*
+	        var objType = instances[0].GetType();
+	        var changed = false;
+	        var fields = objType.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+	        if (fields.Length > 0) {
+
+		        foreach (var field in fields) {
+
+			        var isDiff = false;
+			        var prevVal = string.Empty;
+			        foreach (var instance in instances) {
+				    
+				        var val = field.GetValue(instance);
+				        if (val.ToString() != prevVal) {
+
+					        prevVal = val.ToString();
+					        isDiff = true;
+
+				        }
+
+			        }
+
+			        var value = field.GetValue(instances[0]);
+			        var oldValue = value;
+			        var isEditable = GUILayoutExt.PropertyField(world, field.Name, field, field.FieldType, ref value, typeCheckOnly: true, hasMultipleDifferentValues: isDiff);
+			        EditorGUI.BeginDisabledGroup(disabled: (isEditable == false));
+			        if (GUILayoutExt.PropertyField(world, customName != null ? customName : field.Name, field, field.FieldType, ref value, typeCheckOnly: false, hasMultipleDifferentValues: isDiff) == true) {
+
+				        if (oldValue != value) {
+
+					        foreach (var instance in instances) field.SetValue(instance, value);
+					        changed = true;
+
+				        }
+
+			        }
+
+			        EditorGUI.EndDisabledGroup();
+			        
+		        }
+
+	        }
+
+	        GUILayoutExt.DrawComponentHelp(objType);
+            
+	        return changed;
+	        */
+
+        }
+
         public static bool DrawFields(WorldsViewerEditor.WorldEditor world, object instance, string customName = null) {
 
             //var padding = 2f;
@@ -627,9 +741,9 @@ namespace ME.ECSEditor {
                         //var lastRect = GUILayoutUtility.GetLastRect();
                         var value = field.GetValue(instance);
                         var oldValue = value;
-                        var isEditable = GUILayoutExt.PropertyField(world, field.Name, field, field.FieldType, ref value, typeCheckOnly: true);
+                        var isEditable = GUILayoutExt.PropertyField(world, field.Name, field, field.FieldType, ref value, typeCheckOnly: true, hasMultipleDifferentValues: false);
                         EditorGUI.BeginDisabledGroup(disabled: (isEditable == false));
-                        if (GUILayoutExt.PropertyField(world, customName != null ? customName : field.Name, field, field.FieldType, ref value, typeCheckOnly: false) == true) {
+                        if (GUILayoutExt.PropertyField(world, customName != null ? customName : field.Name, field, field.FieldType, ref value, typeCheckOnly: false, hasMultipleDifferentValues: false) == true) {
 
                             if (oldValue != value) {
 
@@ -705,7 +819,8 @@ namespace ME.ECSEditor {
         public static string GetStringCamelCaseSpace(string caption) {
 
 	        if (string.IsNullOrEmpty(caption) == true) return string.Empty;
-	        return System.Text.RegularExpressions.Regex.Replace(caption, "[A-Z]", " $0").Trim();;
+	        var str = System.Text.RegularExpressions.Regex.Replace(caption, "[A-Z]", " $0").Trim();
+	        return char.ToUpper(str[0]) + str.Substring(1);
 
         }
         
@@ -723,7 +838,7 @@ namespace ME.ECSEditor {
         }
         
         private static System.Collections.Generic.Dictionary<System.Type, ICustomFieldEditor> customFieldEditors = null;
-        public static bool PropertyField(WorldsViewerEditor.WorldEditor world, string caption, System.Reflection.FieldInfo fieldInfo, System.Type type, ref object value, bool typeCheckOnly) {
+        public static bool PropertyField(WorldsViewerEditor.WorldEditor world, string caption, System.Reflection.FieldInfo fieldInfo, System.Type type, ref object value, bool typeCheckOnly, bool hasMultipleDifferentValues) {
 
             if (typeCheckOnly == false && value == null && type.IsValueType == false && type.IsArray == false && type.HasBaseType(typeof(UnityEngine.Object)) == false && type.HasBaseType(typeof(string)) == false) {
 
@@ -732,12 +847,12 @@ namespace ME.ECSEditor {
 
             }
 
-            caption = GUILayoutExt.GetStringCamelCaseSpace(caption);
+            EditorGUI.showMixedValue = hasMultipleDifferentValues;
 
             ME.ECSEditor.GUILayoutExt.CollectEditorsAll<ICustomFieldEditor, CustomFieldEditorAttribute>(ref GUILayoutExt.customFieldEditors);
             if (GUILayoutExt.customFieldEditors.TryGetValue(type, out var editor) == true) {
 
-	            return editor.DrawGUI(caption, fieldInfo, ref value, typeCheckOnly);
+	            return editor.DrawGUI(caption, fieldInfo, ref value, typeCheckOnly, hasMultipleDifferentValues);
 
             } else if (type.IsEnum == true) {
 
@@ -774,9 +889,9 @@ namespace ME.ECSEditor {
 					            if (i > 0) GUILayoutExt.Separator();
 					            var arrValue = arr[i];
 					            object v = default;
-					            var isEditable = GUILayoutExt.PropertyField(world, null, fieldInfo, arrValue.GetType(), ref v, typeCheckOnly: true);
+					            var isEditable = GUILayoutExt.PropertyField(world, null, fieldInfo, arrValue.GetType(), ref v, typeCheckOnly: true, hasMultipleDifferentValues: hasMultipleDifferentValues);
 					            EditorGUI.BeginDisabledGroup(disabled: (isEditable == false));
-					            GUILayoutExt.PropertyField(world, "Element [" + i.ToString() + "]", fieldInfo, arrValue.GetType(), ref arrValue, typeCheckOnly: false);
+					            GUILayoutExt.PropertyField(world, "Element [" + i.ToString() + "]", fieldInfo, arrValue.GetType(), ref arrValue, typeCheckOnly: false, hasMultipleDifferentValues: hasMultipleDifferentValues);
 					            EditorGUI.EndDisabledGroup();
 					            arr[i] = arrValue;
 
@@ -798,9 +913,9 @@ namespace ME.ECSEditor {
 					            if (i > 0) GUILayoutExt.Separator();
 					            var arrValue = array.GetValue(i);
 					            object v = default;
-					            var isEditable = GUILayoutExt.PropertyField(world, null, fieldInfo, arrValue.GetType(), ref v, typeCheckOnly: true);
+					            var isEditable = GUILayoutExt.PropertyField(world, null, fieldInfo, arrValue.GetType(), ref v, typeCheckOnly: true, hasMultipleDifferentValues: hasMultipleDifferentValues);
 					            EditorGUI.BeginDisabledGroup(disabled: (isEditable == false));
-					            GUILayoutExt.PropertyField(world, "Element [" + i.ToString() + "]", fieldInfo, arrValue.GetType(), ref arrValue, typeCheckOnly: false);
+					            GUILayoutExt.PropertyField(world, "Element [" + i.ToString() + "]", fieldInfo, arrValue.GetType(), ref arrValue, typeCheckOnly: false, hasMultipleDifferentValues: hasMultipleDifferentValues);
 					            EditorGUI.EndDisabledGroup();
 					            array.SetValue(arrValue, i);
 
@@ -829,9 +944,9 @@ namespace ME.ECSEditor {
 					            if (i > 0) GUILayoutExt.Separator();
 					            var arrValue = array.GetValue(i);
 					            object v = default;
-					            var isEditable = GUILayoutExt.PropertyField(world, null, fieldInfo, arrValue.GetType(), ref v, typeCheckOnly: true);
+					            var isEditable = GUILayoutExt.PropertyField(world, null, fieldInfo, arrValue.GetType(), ref v, typeCheckOnly: true, hasMultipleDifferentValues: hasMultipleDifferentValues);
 					            EditorGUI.BeginDisabledGroup(disabled: (isEditable == false));
-					            GUILayoutExt.PropertyField(world, "Element [" + i.ToString() + "]", fieldInfo, arrValue.GetType(), ref arrValue, typeCheckOnly: false);
+					            GUILayoutExt.PropertyField(world, "Element [" + i.ToString() + "]", fieldInfo, arrValue.GetType(), ref arrValue, typeCheckOnly: false, hasMultipleDifferentValues: hasMultipleDifferentValues);
 					            EditorGUI.EndDisabledGroup();
 					            array.SetValue(arrValue, i);
 
@@ -908,9 +1023,9 @@ namespace ME.ECSEditor {
             } else if (type == typeof(Color)) {
 
                 if (typeCheckOnly == false) {
-
-                    value = EditorGUILayout.ColorField(caption, (Color)value);
-                    GUILayout.Label(value.ToString());
+	                
+	                value = EditorGUILayout.ColorField(caption, (Color)value);
+	                GUILayout.Label(value.ToString());
 
                 }
                 
@@ -1069,10 +1184,14 @@ namespace ME.ECSEditor {
 
 	            }
 
+	            EditorGUI.showMixedValue = false;
+
 	            return true;
 
             }
 
+            EditorGUI.showMixedValue = false;
+            
             return true;
 
         }

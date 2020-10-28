@@ -10,6 +10,7 @@ namespace ME.ECSEditor {
     public interface IGUIEditor<T> : IGUIEditorBase {
 
         T target { get; set; }
+        T[] targets { get; set; }
 
     }
     

@@ -46,6 +46,7 @@ namespace ME.ECS.Pathfinding.Editor {
         }
         
         public Graph target { get; set; }
+        public Graph[] targets { get; set; }
         
         public T GetTarget<T>() {
             return (T)(object)this.target;

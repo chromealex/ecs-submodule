@@ -8,6 +8,7 @@ namespace ME.ECSEditor {
     public class NetworkModuleEditor : ME.ECSEditor.IGUIEditor<INetworkModuleBase> {
 
         public INetworkModuleBase target { get; set; }
+        public INetworkModuleBase[] targets { get; set; }
 
         public T GetTarget<T>() {
 

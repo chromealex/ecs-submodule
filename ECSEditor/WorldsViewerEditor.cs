@@ -457,6 +457,39 @@ namespace ME.ECSEditor {
 
         }
 
+        public static IGUIEditorBase GetEditor<T>(T[] instances, IGUIEditorBase editor) {
+            
+            var editorT = editor as IGUIEditor<T>;
+            if (editorT != null) {
+
+                editorT.target = instances[0];
+                editorT.targets = instances;
+                return editorT;
+
+            } else {
+
+                var prop = editor.GetType().GetProperty("target", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Public);
+                if (prop != null) {
+
+                    prop.SetValue(editor, instances[0]);
+                    return editor;
+
+                }
+                
+                var propTargets = editor.GetType().GetProperty("targets", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Public);
+                if (propTargets != null) {
+
+                    propTargets.SetValue(editor, instances);
+                    return editor;
+
+                }
+
+            }
+
+            return null;
+
+        }
+
         public static IGUIEditorBase GetEditor<T>(T instance, System.Type type) {
             
             IGUIEditorBase editor;
@@ -470,9 +503,68 @@ namespace ME.ECSEditor {
 
         }
 
+        public static IGUIEditorBase GetEditor<T>(T[] instances, System.Type type) {
+            
+            IGUIEditorBase editor;
+            if (WorldsViewerEditor.editors.TryGetValue(type, out editor) == true) {
+
+                return WorldsViewerEditor.GetEditor(instances, editor);
+                
+            }
+
+            return null;
+
+        }
+
+        public static IGUIEditorBase GetEditor<T>(T[] instances) {
+
+            return WorldsViewerEditor.GetEditor(instances, out _);
+
+        }
+
         public static IGUIEditorBase GetEditor<T>(T instance) {
 
             return WorldsViewerEditor.GetEditor(instance, out _);
+
+        }
+
+        public static IGUIEditorBase GetEditor<T>(T[] instances, out int order) {
+
+            if (WorldsViewerEditor.editors == null) GUILayoutExt.CollectEditors<IGUIEditorBase, CustomEditorAttribute>(ref WorldsViewerEditor.editors);
+
+            order = 0;
+            
+            var type = instances[0].GetType();
+            while (type != null && type != typeof(object)) {
+
+                var editor = WorldsViewerEditor.GetEditor(instances, type);
+                if (editor != null) {
+                    
+                    var attrs = editor.GetType().GetCustomAttributes(typeof(CustomEditorAttribute), inherit: true);
+                    order = ((CustomEditorAttribute)attrs[0]).order;
+                    return editor;
+                    
+                }
+                
+                var interfaces = type.GetInterfaces();
+                foreach (var @interface in interfaces) {
+
+                    editor = WorldsViewerEditor.GetEditor(instances, @interface);
+                    if (editor != null) {
+
+                        var attrs = editor.GetType().GetCustomAttributes(typeof(CustomEditorAttribute), inherit: true);
+                        order = ((CustomEditorAttribute)attrs[0]).order;
+                        return editor;
+                        
+                    }
+
+                }
+
+                type = type.BaseType;
+
+            }
+
+            return null;
 
         }
 

@@ -7,6 +7,7 @@ namespace ME.ECSEditor {
     public class ViewComponentEditor : ME.ECSEditor.IGUIEditor<IViewComponent> {
 
         public IViewComponent target { get; set; }
+        public IViewComponent[] targets { get; set; }
 
         public T GetTarget<T>() {
 
@@ -28,6 +29,7 @@ namespace ME.ECSEditor {
     public class ViewsModuleEditor : ME.ECSEditor.IGUIEditor<IViewModuleBase> {
 
         public IViewModuleBase target { get; set; }
+        public IViewModuleBase[] targets { get; set; }
 
         public T GetTarget<T>() {
 

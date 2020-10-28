@@ -6,6 +6,7 @@ namespace ME.ECSEditor {
     public class TransformPositionComponentEditor : ME.ECSEditor.IGUIEditor<ME.ECS.Transform.Position> {
 
         public ME.ECS.Transform.Position target { get; set; }
+        public ME.ECS.Transform.Position[] targets { get; set; }
 
         public T GetTarget<T>() {
 
@@ -30,6 +31,7 @@ namespace ME.ECSEditor {
     public class TransformRotationComponentEditor : ME.ECSEditor.IGUIEditor<ME.ECS.Transform.Rotation> {
 
         public ME.ECS.Transform.Rotation target { get; set; }
+        public ME.ECS.Transform.Rotation[] targets { get; set; }
 
         public T GetTarget<T>() {
 
@@ -54,6 +56,7 @@ namespace ME.ECSEditor {
     public class TransformScaleComponentEditor : ME.ECSEditor.IGUIEditor<ME.ECS.Transform.Scale> {
 
         public ME.ECS.Transform.Scale target { get; set; }
+        public ME.ECS.Transform.Scale[] targets { get; set; }
 
         public T GetTarget<T>() {
 

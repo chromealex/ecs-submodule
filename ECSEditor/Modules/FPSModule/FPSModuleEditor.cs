@@ -7,6 +7,7 @@ namespace ME.ECSEditor {
     public class FPSModuleEditor : IGUIEditor<IFPSModuleBase> {
 
         public IFPSModuleBase target { get; set; }
+        public IFPSModuleBase[] targets { get; set; }
 
         public T GetTarget<T>() {
 
