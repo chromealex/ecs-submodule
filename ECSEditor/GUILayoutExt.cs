@@ -641,16 +641,6 @@ namespace ME.ECSEditor {
                         }
                         EditorGUI.EndDisabledGroup();
 
-                        var helps = objType.GetCustomAttributes(typeof(ComponentHelpAttribute), false);
-                        if (helps.Length > 0) {
-
-	                        using (new GUIAlphaUsing(0.6f)) {
-
-		                        GUILayout.Label(((ComponentHelpAttribute)helps[0]).comment, EditorStyles.miniLabel);
-
-	                        }
-
-                        }
                         //GUILayout.EndHorizontal();
 
                         //}, tableStyle, GUILayout.ExpandWidth(true), GUILayout.Height(cellHeight));
@@ -661,7 +651,26 @@ namespace ME.ECSEditor {
 
             }
 
+            GUILayoutExt.DrawComponentHelp(objType);
+            
             return changed;
+
+        }
+
+        public static void DrawComponentHelp(System.Type type) {
+	        
+	        var helps = type.GetCustomAttributes(typeof(ComponentHelpAttribute), false);
+	        if (helps.Length > 0) {
+
+		        using (new GUIAlphaUsing(0.6f)) {
+
+			        var style = new GUIStyle(EditorStyles.miniLabel);
+			        style.wordWrap = true;
+			        GUILayout.Label(((ComponentHelpAttribute)helps[0]).comment, style);
+
+		        }
+
+	        }
 
         }
 
