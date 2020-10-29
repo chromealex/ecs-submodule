@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -19,7 +18,9 @@ namespace ME.ECS.DataConfigs {
         [SerializeReference]
         public IStructComponent[] removeStructComponents = new IStructComponent[0];
         public int[] removeStructComponentsDataTypeIds = new int[0];
-        
+
+        public string[] templates;
+
         public void Apply(in Entity entity) {
 
             var world = Worlds.currentWorld;
@@ -110,7 +111,117 @@ namespace ME.ECS.DataConfigs {
             return default;
 
         }
+
+        public void AddTo<T>(ref T[] arr, T component) {
+
+            var found = false;
+            for (int i = 0; i < arr.Length; ++i) {
+
+                var comp = arr[i];
+                if (comp.GetType() == component.GetType()) {
+
+                    found = true;
+                    break;
+
+                }
+
+            }
+
+            if (found == false) {
+                
+                System.Array.Resize(ref arr, arr.Length + 1);
+                arr[arr.Length - 1] = component;
+
+            }
+            
+        }
+
+        public bool HasByType<T>(T[] arr, object component) {
+
+            for (int i = 0; i < arr.Length; ++i) {
+
+                var comp = arr[i];
+                if (comp.GetType() == component.GetType()) {
+
+                    return true;
+
+                }
+
+            }
+
+            return false;
+
+        }
         
+        public void RemoveFrom<T>(ref T[] arr, object component) {
+
+            for (int i = 0; i < arr.Length; ++i) {
+
+                var comp = arr[i];
+                if (comp.GetType() == component.GetType()) {
+
+                    var list = arr.ToList();
+                    list.RemoveAt(i);
+                    arr = list.ToArray();
+                    break;
+
+                }
+
+            }
+
+        }
+
+        public void AddTemplate(DataConfigTemplate template) {
+
+            for (var i = 0; i < template.structComponents.Length; ++i) {
+
+                this.AddTo(ref this.structComponents, template.structComponents[i]);
+
+            }
+
+            for (var i = 0; i < template.components.Length; ++i) {
+
+                this.AddTo(ref this.components, template.components[i]);
+
+            }
+
+            for (var i = 0; i < template.removeStructComponents.Length; ++i) {
+
+                this.AddTo(ref this.removeStructComponents, template.removeStructComponents[i]);
+
+            }
+
+            this.OnScriptLoad();
+
+        }
+
+        public void RemoveTemplate(DataConfigTemplate template, System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate> allTemplates) {
+            
+            for (var i = 0; i < template.structComponents.Length; ++i) {
+
+                var hasOther = allTemplates.Any(x => x != template && x.HasByType(x.structComponents, template.structComponents[i]));
+                if (hasOther == false) this.RemoveFrom(ref this.structComponents, template.structComponents[i]);
+
+            }
+
+            for (var i = 0; i < template.components.Length; ++i) {
+
+                var hasOther = allTemplates.Any(x => x != template && x.HasByType(x.structComponents, template.structComponents[i]));
+                if (hasOther == false) this.RemoveFrom(ref this.components, template.components[i]);
+
+            }
+
+            for (var i = 0; i < template.removeStructComponents.Length; ++i) {
+
+                var hasOther = allTemplates.Any(x => x != template && x.HasByType(x.structComponents, template.structComponents[i]));
+                if (hasOther == false) this.RemoveFrom(ref this.removeStructComponents, template.removeStructComponents[i]);
+
+            }
+
+            this.OnScriptLoad();
+
+        }
+
         public void OnValidate() {
 
             if (Application.isPlaying == true) return;

@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0e13efcdbfb4d3fb2a189867f5f509, type: 3}
+  m_Name: New Data Config Template
+  m_EditorClassIdentifier: 
+  structComponents:
+  - id: 0
+  - id: 1
+  components: []
+  structComponentsDataTypeIds: 0b00000055000000
+  componentsTypeIds: 
+  removeStructComponents: []
+  removeStructComponentsDataTypeIds: 
+  templates: []
+  editorComment: 
+  references:
+    version: 1
+    00000000:
+      type: {class: Camera, ns: ME.ECS.Camera, asm: ECSAssembly}
+      data:
+        perspective: 0
+        orthoSize: 0
+        fieldOfView: 0
+        aspect: 0
+        nearClipPlane: 0
+        farClipPlane: 0
+    00000001:
+      type: {class: IsCamera, ns: ProjectX.Gameplay.Features.Gameplay.Core.Camera.Components,
+        asm: ProjectX.Gameplay.Core}

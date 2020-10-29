@@ -101,9 +101,6 @@ namespace ME.ECSEditor {
                                 editor.OnDrawGUI();
                                 if (EditorGUI.EndChangeCheck() == true) {
 
-                                    //component = editor.GetTarget<IStructComponent>();
-                                    //dataConfig.structComponents[registry.index] = component;
-                                    //this.Save(dataConfig);
                                     slice.Set(typeId, components);
                                     this.Save(slice.configs);
 
@@ -159,9 +156,10 @@ namespace ME.ECSEditor {
 
                                 }
 
-                                GUILayoutExt.DrawComponentHelp(component.GetType());
-
                             }
+                            
+                            GUILayoutExt.DrawComponentHelp(component.GetType());
+
                         }
                         GUILayout.EndVertical();
 
@@ -286,8 +284,6 @@ namespace ME.ECSEditor {
                                 EditorGUILayout.Toggle(componentName, true);
                                 EditorGUI.EndDisabledGroup();
 
-                                GUILayoutExt.DrawComponentHelp(component.GetType());
-
                             } else if (fieldsCount == 1) {
 
                                 var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component, componentName);
@@ -329,6 +325,10 @@ namespace ME.ECSEditor {
                             }
 
                         }
+                        
+                        GUILayoutExt.DrawComponentHelp(component.GetType());
+                        this.DrawComponentTemplatesUsage(dataConfig, component);
+
                     }
                     GUILayout.EndVertical();
 
@@ -485,6 +485,10 @@ namespace ME.ECSEditor {
                             }
 
                         }
+
+                        GUILayoutExt.DrawComponentHelp(component.GetType());
+                        this.DrawComponentTemplatesUsage(dataConfig, component);
+
                     }
                     GUILayout.EndVertical();
 
@@ -561,6 +565,7 @@ namespace ME.ECSEditor {
                         EditorGUI.EndDisabledGroup();
 
                         GUILayoutExt.DrawComponentHelp(type);
+                        this.DrawComponentTemplatesUsage(dataConfig, dataConfig.removeStructComponents[i]);
 
                     }
                     GUILayout.EndVertical();
@@ -603,6 +608,169 @@ namespace ME.ECSEditor {
 
             });
 
+            if ((dataConfig is ME.ECS.DataConfigs.DataConfigTemplate) == false) this.DrawTemplates(dataConfig);
+
+        }
+
+        private void DrawTemplates(ME.ECS.DataConfigs.DataConfig dataConfig) {
+
+            GUILayoutExt.Separator(6f);
+            GUILayoutExt.DrawHeader("Used Templates:");
+            GUILayoutExt.Separator();
+
+            var usedComponents = new System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate>();
+            if (dataConfig.templates != null) {
+
+                var rect = new Rect(0f, 0f, EditorGUIUtility.currentViewWidth, 1000f);
+                var style = new GUIStyle("AssetLabel Partial");
+                var buttonRects = EditorGUIUtility.GetFlowLayoutedRects(rect, style, 4f, 4f, dataConfig.templates.Select(x => {
+                    
+                    var guid = x;
+                    if (string.IsNullOrEmpty(guid) == true) return string.Empty;
+                    
+                    var path = AssetDatabase.GUIDToAssetPath(guid);
+                    if (string.IsNullOrEmpty(path) == true) return string.Empty;
+                    
+                    var template = AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfigTemplate>(path);
+                    if (template == null) return string.Empty;
+
+                    return template.name;
+
+                }).ToList());
+                GUILayout.BeginHorizontal();
+                GUILayout.EndHorizontal();
+                var areaRect = GUILayoutUtility.GetLastRect();
+                for (int i = 0; i < buttonRects.Count; ++i) areaRect.height = Mathf.Max(0f, buttonRects[i].yMax);
+
+                GUILayoutUtility.GetRect(areaRect.width, areaRect.height);
+                
+                GUI.BeginGroup(areaRect);
+                for (int i = 0; i < dataConfig.templates.Length; ++i) {
+
+                    var guid = dataConfig.templates[i];
+                    if (string.IsNullOrEmpty(guid) == true) continue;
+
+                    var path = AssetDatabase.GUIDToAssetPath(guid);
+                    if (string.IsNullOrEmpty(path) == true) continue;
+
+                    var template = AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfigTemplate>(path);
+                    if (template == null) continue;
+
+                    if (usedComponents.Contains(template) == false) usedComponents.Add(template);
+                    
+                }
+
+                for (int i = 0; i < dataConfig.templates.Length; ++i) {
+
+                    var guid = dataConfig.templates[i];
+                    if (string.IsNullOrEmpty(guid) == true) continue;
+                    
+                    var path = AssetDatabase.GUIDToAssetPath(guid);
+                    if (string.IsNullOrEmpty(path) == true) continue;
+                    
+                    var template = AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfigTemplate>(path);
+                    if (template == null) continue;
+
+                    if (GUI.Button(buttonRects[i], template.name, style) == true) {
+                        
+                        this.RemoveTemplate(dataConfig, template, usedComponents);
+                        
+                    }
+
+                }
+                GUI.EndGroup();
+
+            }
+
+            GUILayoutExt.DrawManageDataConfigTemplateMenu(usedComponents, (template, isUsed) => {
+
+                var path = AssetDatabase.GetAssetPath(template);
+                var guid = AssetDatabase.AssetPathToGUID(path);
+                if (string.IsNullOrEmpty(guid) == true) return;
+                
+                if (isUsed == true) {
+
+                    usedComponents.Remove(template);
+                    for (int i = 0; i < dataConfig.templates.Length; ++i) {
+
+                        if (dataConfig.templates[i] == guid) {
+
+                            this.RemoveTemplate(dataConfig, template, usedComponents);
+                            break;
+
+                        }
+
+                    }
+
+                } else {
+
+                    usedComponents.Add(template);
+                    System.Array.Resize(ref dataConfig.templates, dataConfig.templates.Length + 1);
+                    dataConfig.templates[dataConfig.templates.Length - 1] = guid;
+                    dataConfig.AddTemplate(template);
+                    dataConfig.OnScriptLoad();
+                    this.Save(dataConfig);
+
+                }
+
+            });
+
+        }
+
+        private void DrawComponentTemplatesUsage(ME.ECS.DataConfigs.DataConfig dataConfig, object component) {
+
+            if (dataConfig.templates.Length > 1) {
+                
+                GUILayout.BeginHorizontal();
+                var list = new System.Collections.Generic.List<ME.ECS.DataConfigs.DataConfigTemplate>();
+                for (int i = 0; i < dataConfig.templates.Length; ++i) {
+
+                    var guid = dataConfig.templates[i];
+                    if (string.IsNullOrEmpty(guid) == true) continue;
+                    
+                    var path = AssetDatabase.GUIDToAssetPath(guid);
+                    if (string.IsNullOrEmpty(path) == true) continue;
+                    
+                    var template = AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfigTemplate>(path);
+                    if (template == null) continue;
+
+                    if (template.HasByType(template.structComponents, component) == true) {
+
+                        list.Add(template);
+
+                    }
+
+                }
+
+                if (list.Count > 1) {
+
+                    var style = new GUIStyle("AssetLabel Partial");
+                    foreach (var item in list) {
+
+                        GUILayout.Label(item.name, style);
+
+                    }
+
+                }
+                GUILayout.EndHorizontal();
+                
+            }
+            
+        }
+        
+        private void RemoveTemplate(ME.ECS.DataConfigs.DataConfig dataConfig, ME.ECS.DataConfigs.DataConfigTemplate template, System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate> allTemplates) {
+            
+            var path = AssetDatabase.GetAssetPath(template);
+            var guid = AssetDatabase.AssetPathToGUID(path);
+            if (string.IsNullOrEmpty(guid) == true) return;
+
+            var list = dataConfig.templates.ToList();
+            list.Remove(guid);
+            dataConfig.templates = list.ToArray();
+            dataConfig.RemoveTemplate(template, allTemplates);
+            dataConfig.OnScriptLoad();
+            this.Save(dataConfig);
+            
         }
 
         private void Save(ME.ECS.DataConfigs.DataConfig dataConfig) {
