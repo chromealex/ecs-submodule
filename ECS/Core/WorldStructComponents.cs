@@ -24,8 +24,8 @@ namespace ME.ECS {
     public interface IStructRegistryBase {
 
         IStructComponent GetObject(Entity entity);
-        void SetObject(Entity entity, IStructComponent data);
-        void RemoveObject(Entity entity);
+        bool SetObject(Entity entity, IStructComponent data);
+        bool RemoveObject(Entity entity);
         bool HasType(System.Type type);
 
     }
@@ -47,8 +47,8 @@ namespace ME.ECS {
         
         public abstract bool HasType(System.Type type);
         public abstract IStructComponent GetObject(Entity entity);
-        public abstract void SetObject(Entity entity, IStructComponent data);
-        public abstract void RemoveObject(Entity entity);
+        public abstract bool SetObject(Entity entity, IStructComponent data);
+        public abstract bool RemoveObject(Entity entity);
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public abstract void UseLifetimeStep(World world, in byte step);
@@ -231,7 +231,7 @@ namespace ME.ECS {
 
         }
 
-        public override void SetObject(Entity entity, IStructComponent data) {
+        public override bool SetObject(Entity entity, IStructComponent data) {
 
             #if WORLD_EXCEPTIONS
             if (entity.version == 0) {
@@ -257,12 +257,16 @@ namespace ME.ECS {
 
                 var componentIndex = WorldUtilities.GetComponentTypeId<TComponent>();
                 if (this.world.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
-                
+
+                return true;
+
             }
+
+            return false;
 
         }
 
-        public override void RemoveObject(Entity entity) {
+        public override bool RemoveObject(Entity entity) {
 
             #if WORLD_EXCEPTIONS
             if (entity.version == 0) {
@@ -283,8 +287,12 @@ namespace ME.ECS {
                 
                 var componentIndex = WorldUtilities.GetComponentTypeId<TComponent>();
                 if (this.world.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
-                
+
+                return true;
+
             }
+
+            return false;
 
         }
 
@@ -1035,11 +1043,14 @@ namespace ME.ECS {
             
             // Inline all manually
             ref var reg = ref this.currentState.structComponents.list.arr[dataIndex];
-            reg.SetObject(entity, data);
-            if (this.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.currentState.storage.archetypes.Set(in entity, in componentIndex);
-            ++this.currentState.structComponents.count;
-            this.AddComponentToFilter(entity);
+            if (reg.SetObject(entity, data) == true) {
 
+                if (this.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.currentState.storage.archetypes.Set(in entity, in componentIndex);
+                ++this.currentState.structComponents.count;
+                this.AddComponentToFilter(entity);
+    
+            }
+            
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -1246,6 +1257,36 @@ namespace ME.ECS {
                 state = 0;
                 if (reg.isTag == false) reg.components.arr[entity.id] = default;
                 if (this.currentState.filters.HasInFilters<TComponent>() == true) this.currentState.storage.archetypes.Remove<TComponent>(in entity);
+                --this.currentState.structComponents.count;
+                this.RemoveComponentFromFilter(in entity);
+                
+            }
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void RemoveData(in Entity entity, in int dataIndex, in int componentIndex) {
+            
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+                
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+            
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+            
+            var reg = this.currentState.structComponents.list.arr[dataIndex];
+            if (reg.RemoveObject(entity) == true) {
+                
+                if (this.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.currentState.storage.archetypes.Remove(in entity, in componentIndex);
                 --this.currentState.structComponents.count;
                 this.RemoveComponentFromFilter(in entity);
                 

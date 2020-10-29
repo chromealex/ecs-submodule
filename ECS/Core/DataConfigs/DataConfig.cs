@@ -5,109 +5,6 @@ using UnityEngine;
 
 namespace ME.ECS.DataConfigs {
 
-    public struct DataConfigSlice {
-
-        public DataConfig[] configs;
-        public int[] structComponentsDataTypeIds;
-        public int[] componentsTypeIds;
-
-        public void Set(int typeId, IStructComponent[] components) {
-
-            for (int i = 0; i < this.configs.Length; ++i) {
-
-                this.configs[i].SetByTypeId(typeId, components[i]);
-
-            }
-            
-        }
-        
-        public static DataConfigSlice Distinct(DataConfig[] configs) {
-            
-            var slice = new DataConfigSlice();
-            slice.configs = configs;
-            
-            {
-
-                var listIdx = new Dictionary<int, int>();
-                for (int i = 0; i < configs.Length; ++i) {
-
-                    var config = configs[i];
-                    for (int j = 0; j < config.structComponentsDataTypeIds.Length; ++j) {
-
-                        var idx = config.structComponentsDataTypeIds[j];
-                        if (listIdx.TryGetValue(idx, out var count) == true) {
-
-                            listIdx[idx] = count + 1;
-
-                        } else {
-
-                            listIdx.Add(idx, 1);
-
-                        }
-
-                    }
-
-                }
-
-                var list = new List<int>();
-                foreach (var kv in listIdx) {
-
-                    if (kv.Value == configs.Length) {
-
-                        list.Add(kv.Key);
-
-                    }
-
-                }
-
-                slice.structComponentsDataTypeIds = list.ToArray();
-
-            }
-            
-            {
-
-                var listIdx = new Dictionary<int, int>();
-                for (int i = 0; i < configs.Length; ++i) {
-
-                    var config = configs[i];
-                    for (int j = 0; j < config.componentsTypeIds.Length; ++j) {
-
-                        var idx = config.componentsTypeIds[j];
-                        if (listIdx.TryGetValue(idx, out var count) == true) {
-
-                            listIdx[idx] = count + 1;
-
-                        } else {
-
-                            listIdx.Add(idx, 1);
-
-                        }
-
-                    }
-
-                }
-
-                var list = new List<int>();
-                foreach (var kv in listIdx) {
-
-                    if (kv.Value > 1) {
-
-                        list.Add(kv.Key);
-
-                    }
-
-                }
-
-                slice.componentsTypeIds = list.ToArray();
-
-            }
-
-            return slice;
-
-        }
-        
-    }
-    
     [CreateAssetMenu(menuName = "ME.ECS/Data Config")]
     public class DataConfig : ScriptableObject {
 
@@ -119,15 +16,25 @@ namespace ME.ECS.DataConfigs {
         public int[] structComponentsDataTypeIds = new int[0];
         public int[] componentsTypeIds = new int[0];
         
+        [SerializeReference]
+        public IStructComponent[] removeStructComponents = new IStructComponent[0];
+        public int[] removeStructComponentsDataTypeIds = new int[0];
+        
         public void Apply(in Entity entity) {
 
             var world = Worlds.currentWorld;
+            for (int i = 0; i < this.removeStructComponentsDataTypeIds.Length; ++i) {
+
+                world.RemoveData(in entity, in this.removeStructComponentsDataTypeIds[i], -1);
+
+            }
+
             for (int i = 0; i < this.structComponents.Length; ++i) {
 
                 world.SetData(in entity, in this.structComponents[i], in this.structComponentsDataTypeIds[i], -1);
 
             }
-
+            
             for (int i = 0; i < this.components.Length; ++i) {
 
                 world.AddComponent(entity, this.components[i], this.componentsTypeIds[i]);
@@ -227,6 +134,49 @@ namespace ME.ECS.DataConfigs {
                     if (m == null) continue;
                     
                     m.Invoke(null, null);
+                    
+                    {
+
+                        if (this.removeStructComponentsDataTypeIds == null || this.removeStructComponentsDataTypeIds.Length != this.removeStructComponents.Length) {
+                            
+                            this.removeStructComponentsDataTypeIds = new int[this.removeStructComponents.Length];
+                            changed = true;
+
+                        }
+                        
+                        for (int i = 0; i < this.removeStructComponents.Length; ++i) {
+
+                            var obj = this.removeStructComponents[i];
+                            if (obj == null) {
+
+                                if (this.removeStructComponentsDataTypeIds[i] != -1) {
+                                    
+                                    this.removeStructComponentsDataTypeIds[i] = -1;
+                                    changed = true;
+                                    
+                                }
+                                continue;
+                                
+                            }
+                            
+                            var type = obj.GetType();
+                            if (ComponentTypesRegistry.allTypeId.ContainsKey(type) == false) {
+                                
+                                Debug.LogWarning("Type was not found: " + type + " on config " + this, this);
+                                continue;
+                                
+                            }
+                            var allId = ComponentTypesRegistry.allTypeId[type];
+                            if (this.removeStructComponentsDataTypeIds[i] != allId) {
+                                
+                                this.removeStructComponentsDataTypeIds[i] = allId;
+                                changed = true;
+
+                            }
+
+                        }
+                        
+                    }
                     
                     {
 
@@ -349,4 +299,107 @@ namespace ME.ECS.DataConfigs {
 
     }
 
+    public struct DataConfigSlice {
+
+        public DataConfig[] configs;
+        public int[] structComponentsDataTypeIds;
+        public int[] componentsTypeIds;
+
+        public void Set(int typeId, IStructComponent[] components) {
+
+            for (int i = 0; i < this.configs.Length; ++i) {
+
+                this.configs[i].SetByTypeId(typeId, components[i]);
+
+            }
+            
+        }
+        
+        public static DataConfigSlice Distinct(DataConfig[] configs) {
+            
+            var slice = new DataConfigSlice();
+            slice.configs = configs;
+            
+            {
+
+                var listIdx = new Dictionary<int, int>();
+                for (int i = 0; i < configs.Length; ++i) {
+
+                    var config = configs[i];
+                    for (int j = 0; j < config.structComponentsDataTypeIds.Length; ++j) {
+
+                        var idx = config.structComponentsDataTypeIds[j];
+                        if (listIdx.TryGetValue(idx, out var count) == true) {
+
+                            listIdx[idx] = count + 1;
+
+                        } else {
+
+                            listIdx.Add(idx, 1);
+
+                        }
+
+                    }
+
+                }
+
+                var list = new List<int>();
+                foreach (var kv in listIdx) {
+
+                    if (kv.Value == configs.Length) {
+
+                        list.Add(kv.Key);
+
+                    }
+
+                }
+
+                slice.structComponentsDataTypeIds = list.ToArray();
+
+            }
+            
+            {
+
+                var listIdx = new Dictionary<int, int>();
+                for (int i = 0; i < configs.Length; ++i) {
+
+                    var config = configs[i];
+                    for (int j = 0; j < config.componentsTypeIds.Length; ++j) {
+
+                        var idx = config.componentsTypeIds[j];
+                        if (listIdx.TryGetValue(idx, out var count) == true) {
+
+                            listIdx[idx] = count + 1;
+
+                        } else {
+
+                            listIdx.Add(idx, 1);
+
+                        }
+
+                    }
+
+                }
+
+                var list = new List<int>();
+                foreach (var kv in listIdx) {
+
+                    if (kv.Value > 1) {
+
+                        list.Add(kv.Key);
+
+                    }
+
+                }
+
+                slice.componentsTypeIds = list.ToArray();
+
+            }
+
+            return slice;
+
+        }
+        
+    }
+    
 }

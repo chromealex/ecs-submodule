@@ -482,7 +482,7 @@ namespace ME.ECSEditor {
             GUILayout.Space(4f);
             GUILayoutExt.Separator();
             GUILayoutExt.Padding(
-                16f, 4f,
+                8f, 4f,
                 () => {
                     
                     GUILayout.Label(caption, EditorStyles.boldLabel);
@@ -1241,20 +1241,19 @@ namespace ME.ECSEditor {
 
         }
 
-        public static void Separator() {
+        public static void Separator(float lineHeight = 0.5f) {
             
-            GUILayoutExt.Separator(new Color(0.1f, 0.1f, 0.1f, 0.2f));
+            GUILayoutExt.Separator(new Color(0.1f, 0.1f, 0.1f, 0.2f), lineHeight);
             
         }
 
-        public static void Separator(Color color) {
+        public static void Separator(Color color, float lineHeight = 0.5f) {
 
-            var lineHeight = 0.5f;
             Rect rect = EditorGUILayout.GetControlRect(false, lineHeight);
             rect.height = lineHeight;
             rect.width += 4f;
             rect.x -= 2f;
-            rect.y -= lineHeight * 2f;
+            rect.y -= lineHeight * 0.5f;
             EditorGUI.DrawRect(rect, color);
 
         }

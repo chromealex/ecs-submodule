@@ -211,9 +211,13 @@ namespace ME.ECSEditor {
 
             }
             
+            GUILayoutExt.Separator(6f);
+            GUILayoutExt.DrawHeader("Add Struct Components:");
+            GUILayoutExt.Separator();
+
             var dataConfig = (ME.ECS.DataConfigs.DataConfig)this.target;
             GUILayoutExt.Padding(8f, () => {
-             
+
                 var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
 
                 var kz = 0;
@@ -366,6 +370,10 @@ namespace ME.ECSEditor {
 
             });
 
+            GUILayoutExt.Separator(6f);
+            GUILayoutExt.DrawHeader("Add Managed Components:");
+            GUILayoutExt.Separator();
+
             GUILayoutExt.Padding(8f, () => {
 
                 var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
@@ -515,6 +523,83 @@ namespace ME.ECSEditor {
                     }
 
                 }, drawRefComponents: true);
+
+            });
+
+            GUILayoutExt.Separator(6f);
+            GUILayoutExt.DrawHeader("Remove Struct Components:");
+            GUILayoutExt.Separator();
+
+            // Remove struct components
+            GUILayoutExt.Padding(8f, () => {
+             
+                var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
+
+                var kz = 0;
+                var registries = dataConfig.removeStructComponentsDataTypeIds;
+                for (int i = 0; i < registries.Length; ++i) {
+
+                    var registry = registries[i];
+                    var type = ComponentTypesRegistry.allTypeId.FirstOrDefault(x => x.Value == registry).Key;
+                    
+                    if (type == null) {
+                        continue;
+                    }
+
+                    usedComponents.Add(type);
+
+                    var backColor = GUI.backgroundColor;
+                    GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
+
+                    GUILayout.BeginVertical(backStyle);
+                    {
+                        GUI.backgroundColor = backColor;
+                        var componentName = GUILayoutExt.GetStringCamelCaseSpace(type.Name);
+                        
+                        EditorGUI.BeginDisabledGroup(true);
+                        EditorGUILayout.Toggle(componentName, true);
+                        EditorGUI.EndDisabledGroup();
+
+                        GUILayoutExt.DrawComponentHelp(type);
+
+                    }
+                    GUILayout.EndVertical();
+
+                    GUILayoutExt.Separator();
+
+                }
+
+                GUILayoutExt.DrawAddComponentMenu(usedComponents, (addType, isUsed) => {
+
+                    if (isUsed == true) {
+
+                        usedComponents.Remove(addType);
+                        for (int i = 0; i < dataConfig.removeStructComponents.Length; ++i) {
+
+                            if (dataConfig.removeStructComponents[i].GetType() == addType) {
+
+                                var list = dataConfig.removeStructComponents.ToList();
+                                list.RemoveAt(i);
+                                dataConfig.removeStructComponents = list.ToArray();
+                                dataConfig.OnScriptLoad();
+                                this.Save(dataConfig);
+                                break;
+
+                            }
+
+                        }
+
+                    } else {
+
+                        usedComponents.Add(addType);
+                        System.Array.Resize(ref dataConfig.removeStructComponents, dataConfig.removeStructComponents.Length + 1);
+                        dataConfig.removeStructComponents[dataConfig.removeStructComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
+                        dataConfig.OnScriptLoad();
+                        this.Save(dataConfig);
+
+                    }
+
+                });
 
             });
 
