@@ -826,8 +826,6 @@ namespace ME.ECSEditor {
 
             }
 
-            GUILayoutExt.DrawComponentHelp(objType);
-            
             return changed;
 
         }

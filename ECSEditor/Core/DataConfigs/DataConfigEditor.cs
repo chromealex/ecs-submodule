@@ -719,7 +719,7 @@ namespace ME.ECSEditor {
 
         private void DrawComponentTemplatesUsage(ME.ECS.DataConfigs.DataConfig dataConfig, object component) {
 
-            if (dataConfig.templates.Length > 1) {
+            if (dataConfig.templates != null && dataConfig.templates.Length > 1) {
                 
                 GUILayout.BeginHorizontal();
                 var list = new System.Collections.Generic.List<ME.ECS.DataConfigs.DataConfigTemplate>();

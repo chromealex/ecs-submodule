@@ -1132,6 +1132,8 @@ namespace ME.ECSEditor {
                             }
                             GUILayout.EndVertical();
 
+                            GUILayoutExt.DrawComponentHelp(component.GetType());
+                            
                             GUILayoutExt.Separator();
 
                         }
@@ -1199,10 +1201,12 @@ namespace ME.ECSEditor {
                                         GUILayout.Space(2f);
                                     }
                                     GUILayout.EndVertical();
+                                    
+                                    GUILayoutExt.DrawComponentHelp(component.GetType());
+                                    
                                     GUILayoutExt.Separator();
 
                                 }
-
 
                             });
                             world.SetFoldOutComponents(storage, entityData.id, foldoutComponents);
