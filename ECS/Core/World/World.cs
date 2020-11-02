@@ -1419,7 +1419,7 @@ namespace ME.ECS {
         /// </summary>
         /// <param name="instance"></param>
         /// <param name="parameters"></param>
-        public bool AddFeature(IFeatureBase instance) {
+        public bool AddFeature(IFeatureBase instance, bool doConstruct = true) {
 
             WorldUtilities.SetWorld(this);
             
@@ -1437,7 +1437,7 @@ namespace ME.ECS {
             
             this.features.Add(instance);
             this.statesFeatures.Add(ModuleState.AllActive);
-            ((FeatureBase)instance).DoConstruct();
+            if (doConstruct == true) ((FeatureBase)instance).DoConstruct();
 
             return true;
 

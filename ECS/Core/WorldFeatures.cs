@@ -13,6 +13,12 @@ namespace ME.ECS {
                 
             }
             
+            for (int i = 0; i < this.items.Count; ++i) {
+                
+                this.items[i].features.InitializePost(world);
+                
+            }
+            
         }
 
         public void DeInitialize(World world) {
@@ -65,10 +71,25 @@ namespace ME.ECS {
 
                 var item = this.features[i];
                 if (item.enabled == true) {
-                    
+
                     var instance = UnityEngine.Object.Instantiate(item.feature);
                     instance.name = item.feature.name;
-                    world.AddFeature(item.featureInstance = instance);
+                    world.AddFeature(item.featureInstance = instance, doConstruct: false);
+
+                }
+
+            }
+
+        }
+        
+        public void InitializePost(World world) {
+
+            for (int i = 0; i < this.features.Count; ++i) {
+                
+                var item = this.features[i];
+                if (item.enabled == true) {
+                    
+                    item.featureInstance.DoConstruct();
                     
                 }
                 
