@@ -82,20 +82,24 @@ namespace ME.ECS.Pathfinding {
                 for (int i = 0; i < this.items.Length; ++i) {
 
                     var item = this.items[i];
+                    if (item.modifyWalkability == false) continue;
+                    
                     if (item.requiredTile == tile) {
 
                         var worldPos = this.tilemap.CellToWorld(pos);
-                        var node = graph.GetNearest(this.GetPosition(worldPos));
-                        if (visited.Contains(node) == false) {
+                        var result = PoolList<Node>.Spawn(1);
+                        graph.GetNodesInBounds(result, new Bounds(worldPos + new Vector3(this.tilemap.cellSize.x, 0f, this.tilemap.cellSize.z) * 0.5f, this.tilemap.cellSize));
+                        foreach (var node in result) {
 
-                            visited.Add(node);
-                            if (item.modifyWalkability == true) {
+                            if (visited.Contains(node) == false) {
 
+                                visited.Add(node);
                                 node.walkable = item.walkable;
 
                             }
 
                         }
+                        PoolList<Node>.Recycle(ref result);
 
                     } 
 
