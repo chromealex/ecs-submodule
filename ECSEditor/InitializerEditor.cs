@@ -273,6 +273,12 @@ namespace ME.ECSEditor {
                         "Each system with filter has `jobs` flag which determine AdvanceTick behavior. If checked, jobs will be enabled and AdvanceTick will run asynchronously.");
 
                     GUILayoutExt.ToggleLeft(
+                        ref target.worldSettings.createInstanceForFeatures,
+                        ref isDirty,
+                        "Create instance copy for Features",
+                        "When you add feature into the world, do you need to create copy of feature data at runtime? Turn off this checkbox if you do not want to change features data.");
+
+                    GUILayoutExt.ToggleLeft(
                         ref target.worldSettings.useJobsForViews,
                         ref isDirty,
                         "Use jobs for Views",

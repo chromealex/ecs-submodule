@@ -72,8 +72,8 @@ namespace ME.ECS {
                 var item = this.features[i];
                 if (item.enabled == true) {
 
-                    var instance = UnityEngine.Object.Instantiate(item.feature);
-                    instance.name = item.feature.name;
+                    var instance = (world.settings.createInstanceForFeatures == true ? UnityEngine.Object.Instantiate(item.feature) : item.feature);
+                    if (world.settings.createInstanceForFeatures == true) instance.name = item.feature.name;
                     world.AddFeature(item.featureInstance = instance, doConstruct: false);
 
                 }
@@ -105,7 +105,7 @@ namespace ME.ECS {
                 if (item.enabled == true) {
                     
                     world.RemoveFeature(item.featureInstance);
-                    UnityEngine.Object.DestroyImmediate(item.featureInstance);
+                    if (world.settings.createInstanceForFeatures == true) UnityEngine.Object.DestroyImmediate(item.featureInstance);
                     item.featureInstance = null;
 
                 }

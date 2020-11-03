@@ -54,6 +54,7 @@ namespace ME.ECS {
 
         public bool useJobsForSystems;
         public bool useJobsForViews;
+        public bool createInstanceForFeatures;
         public bool turnOffViews;
 
         public WorldViewsSettings viewsSettings;
@@ -61,6 +62,7 @@ namespace ME.ECS {
         public static WorldSettings Default => new WorldSettings() {
             useJobsForSystems = true,
             useJobsForViews = true,
+            createInstanceForFeatures = true,
             turnOffViews = false,
             viewsSettings = new WorldViewsSettings()
         };
