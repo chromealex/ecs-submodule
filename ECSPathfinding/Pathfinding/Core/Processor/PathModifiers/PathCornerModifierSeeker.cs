@@ -48,7 +48,7 @@ namespace ME.ECS.Pathfinding {
                 }
 
             }
-            corners.Add(nodes[nodes.Count - 1]);
+            corners.Add(path.graph.GetNearest(nodes[nodes.Count - 1].worldPosition, constraint));
 
             for (int iter = 0; iter < corners.Count; ++iter) {
 
@@ -57,11 +57,12 @@ namespace ME.ECS.Pathfinding {
                     var c = corners[i];
                     var next = corners[i + 2];
                     var allWalkable = true;
-                    for (float d = 0f; d < 1f; d += 0.01f) {
-
-                        var pos = Vector3.Lerp(c.worldPosition, next.worldPosition, d);
-                        var node = path.graph.GetNearest(pos);
-                        if (node.walkable == false ||
+                    var pos = c.worldPosition;
+                    do {
+                        
+                        pos = Vector3.MoveTowards(pos, next.worldPosition, 0.01f);
+                        var node = path.graph.GetNearest(pos, Constraint.Empty);
+                        if ( //node.walkable == false ||
                             node.penalty != c.penalty ||
                             node.IsSuitable(constraint) == false) {
 
@@ -69,9 +70,9 @@ namespace ME.ECS.Pathfinding {
                             break;
 
                         }
-
-                    }
-
+                        
+                    } while ((pos - next.worldPosition).sqrMagnitude > 0.01f);
+                    
                     if (allWalkable == true) {
 
                         if (i + 1 < corners.Count) {
