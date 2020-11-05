@@ -429,7 +429,7 @@
 
         public string ToSmallString() {
 
-            return "Id: " + this.id.ToString() + " Version: " + this.version.ToString();
+            return "Id: " + this.id.ToString() + "#" + this.version.ToString();
             
         }
 
