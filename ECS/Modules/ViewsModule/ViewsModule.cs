@@ -116,10 +116,10 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void DestroyAllViews(Entity entity) {
+        public void DestroyAllViews(in Entity entity) {
             
             var viewsModule = this.GetModule<ViewsModule>();
-            viewsModule.DestroyAllViews(entity);
+            viewsModule.DestroyAllViews(in entity);
             
         }
 
@@ -687,7 +687,7 @@ namespace ME.ECS.Views {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void DestroyAllViews(Entity entity) {
+        public void DestroyAllViews(in Entity entity) {
 
             if (entity.id >= this.list.Length) return;
             

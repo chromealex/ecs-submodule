@@ -1244,7 +1244,7 @@ namespace ME.ECS {
 
         }*/
 
-        public bool RemoveEntity(Entity entity) {
+        public bool RemoveEntity(in Entity entity) {
 
             #if WORLD_EXCEPTIONS
             if (entity.version == 0) {
@@ -1263,7 +1263,7 @@ namespace ME.ECS {
                     data.RemoveAt(entity.id);
 
                     this.RemoveFromFilters(entity);
-                    this.DestroyEntityPlugins(entity);
+                    this.DestroyEntityPlugins(in entity);
                     this.RemoveComponents(entity);
                     return true;
 

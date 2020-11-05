@@ -48,7 +48,14 @@
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void Destroy(this in Entity entity) {
             
-            Worlds.currentWorld.RemoveEntity(entity);
+            Worlds.currentWorld.RemoveEntity(in entity);
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void DestroyAllViews(this in Entity entity) {
+            
+            Worlds.currentWorld.DestroyAllViews(in entity);
             
         }
 
