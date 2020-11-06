@@ -462,8 +462,8 @@ namespace ME.ECS.Views.Providers {
                 particleSystem.gameObject.hideFlags = UnityEngine.HideFlags.HideInHierarchy;
                 
             }
-            particleSystem.Stop(withChildren: true);
             particleSystem.Pause(withChildren: true);
+            particleSystem.Stop(withChildren: true);
             particleSystem.useAutoRandomSeed = false;
             particleSystem.randomSeed = 1u;
             
