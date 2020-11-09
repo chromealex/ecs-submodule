@@ -86,7 +86,7 @@ namespace ME.ECS.Collections {
         public IBufferArray Resize(int newSize) {
 
             var newArr = new T[newSize];
-            if (this.arr != null) System.Array.Copy(this.arr, newArr, newSize > this.arr.length ? this.arr.length : newSize);
+            if (this.arr != null) System.Array.Copy(this.arr, newArr, newSize > this.Length ? this.Length : newSize);
             return new BufferArray<T>(newArr, newSize);
 
         }
