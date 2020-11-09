@@ -705,11 +705,14 @@ namespace ME.ECSEditor {
                 } else {
 
                     usedComponents.Add(template);
+                    if (dataConfig.templates == null) dataConfig.templates = new string[0];
                     System.Array.Resize(ref dataConfig.templates, dataConfig.templates.Length + 1);
                     dataConfig.templates[dataConfig.templates.Length - 1] = guid;
                     dataConfig.AddTemplate(template);
                     dataConfig.OnScriptLoad();
                     this.Save(dataConfig);
+                    AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(dataConfig), ImportAssetOptions.ForceUpdate);
+                    AssetDatabase.SaveAssets();
 
                 }
 

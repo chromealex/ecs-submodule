@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ME.ECS.Extensions;
 using UnityEngine;
 
 namespace ME.ECS.DataConfigs {
@@ -130,12 +131,12 @@ namespace ME.ECS.DataConfigs {
             if (found == false) {
                 
                 System.Array.Resize(ref arr, arr.Length + 1);
-                arr[arr.Length - 1] = component;
+                arr[arr.Length - 1] = (T)((object)component).DeepClone();
 
             }
             
         }
-
+        
         public bool HasByType<T>(T[] arr, object component) {
 
             for (int i = 0; i < arr.Length; ++i) {
