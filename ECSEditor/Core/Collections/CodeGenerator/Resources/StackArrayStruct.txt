@@ -14,6 +14,12 @@ public struct StackArray#LENGTH#<T> : IStackArray where T : struct {
 
     }
 
+    public void Resize(int newLength) {
+
+        this.length = (newLength > #LENGTH# ? #LENGTH# : newLength);
+
+    }
+    
     public int Length {
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         get {

@@ -6,11 +6,12 @@ using Unity.Collections.LowLevel.Unsafe;
 
 namespace ME.ECS.Collections {
 
-    internal interface IBufferArray {
+    public interface IBufferArray {
 
         int Count { get; }
         System.Array GetArray();
-        
+        IBufferArray Resize(int newSize);
+
     }
     
     #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -82,6 +83,14 @@ namespace ME.ECS.Collections {
             }
         }
 
+        public IBufferArray Resize(int newSize) {
+
+            var newArr = new T[newSize];
+            if (this.arr != null) System.Array.Copy(this.arr, newArr, newSize > this.arr.length ? this.arr.length : newSize);
+            return new BufferArray<T>(newArr, newSize);
+
+        }
+        
         public int IndexOf(T instance) {
 
             if (this.isNotEmpty == false) return -1;

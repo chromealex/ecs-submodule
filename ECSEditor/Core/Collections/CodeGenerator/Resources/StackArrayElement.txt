@@ -1,1 +1,1 @@
-public struct A#LENGTH#<T>where T:struct{public T #VARS#;}
+[System.Serializable]public struct A#LENGTH#<T>where T:struct{public T #VARS#;}

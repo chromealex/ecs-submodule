@@ -20,7 +20,9 @@ namespace ME.ECSEditor {
 
         public override void OnInspectorGUI() {
             
+            this.serializedObject.Update();
             EditorGUILayout.PropertyField(this.editorComment);
+            this.serializedObject.ApplyModifiedProperties();
             
             base.OnInspectorGUI();
             

@@ -21,6 +21,7 @@ namespace ME.ECS.Collections {
 
         int Length { get; }
         object this[int index] { get; set; }
+        void Resize(int newLength);
 
     }
 
@@ -60,6 +61,12 @@ namespace ME.ECS.Collections {
 
         }
 
+        public void Resize(int newLength) {
+    
+            this.length = (newLength > #MAX_LENGTH# ? #MAX_LENGTH# : newLength);
+    
+        }
+        
         public int Length {
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             get {

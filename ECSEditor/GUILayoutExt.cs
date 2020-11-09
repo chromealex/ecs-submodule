@@ -806,12 +806,12 @@ namespace ME.ECSEditor {
                         EditorGUI.BeginDisabledGroup(disabled: (isEditable == false));
                         if (GUILayoutExt.PropertyField(world, customName != null ? customName : field.Name, field, field.FieldType, ref value, typeCheckOnly: false, hasMultipleDifferentValues: false) == true) {
 
-                            if (oldValue != value) {
+                            //if (oldValue != value) {
 
                                 field.SetValue(instance, value);
                                 changed = true;
 
-                            }
+                            //}
 
                         }
                         EditorGUI.EndDisabledGroup();
