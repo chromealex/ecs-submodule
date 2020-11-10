@@ -131,7 +131,7 @@ namespace ME.ECS.DataConfigs {
             if (found == false) {
                 
                 System.Array.Resize(ref arr, arr.Length + 1);
-                arr[arr.Length - 1] = (T)((object)component).DeepClone();
+                arr[arr.Length - 1] = component; //(T)((object)component).DeepClone();
 
             }
             

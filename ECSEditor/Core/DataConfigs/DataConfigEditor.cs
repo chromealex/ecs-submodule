@@ -673,7 +673,8 @@ namespace ME.ECSEditor {
 
                     if (GUI.Button(buttonRects[i], template.name, style) == true) {
                         
-                        this.RemoveTemplate(dataConfig, template, usedComponents);
+                        EditorGUIUtility.PingObject(template);
+                        //this.RemoveTemplate(dataConfig, template, usedComponents);
                         
                     }
 
@@ -711,6 +712,7 @@ namespace ME.ECSEditor {
                     dataConfig.AddTemplate(template);
                     dataConfig.OnScriptLoad();
                     this.Save(dataConfig);
+                    AssetDatabase.ForceReserializeAssets(new [] { AssetDatabase.GetAssetPath(dataConfig) }, ForceReserializeAssetsOptions.ReserializeAssetsAndMetadata);
                     AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(dataConfig), ImportAssetOptions.ForceUpdate);
                     AssetDatabase.SaveAssets();
 
