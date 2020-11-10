@@ -486,26 +486,50 @@ namespace ME.ECSEditor {
 
         }
         
-        public static bool ToggleLeft(ref bool state, ref bool isDirty, string caption, string text) {
+	    public static bool ToggleLeft(ref bool state, ref bool isDirty, string caption, string text) {
 
-            var labelRich = new GUIStyle(EditorStyles.label);
-            labelRich.richText = true;
+		    var labelRich = new GUIStyle(EditorStyles.label);
+		    labelRich.richText = true;
 
-            var isLocalDirty = false;
-            var flag = EditorGUILayout.ToggleLeft(caption, state, labelRich);
-            if (flag != state) {
+		    var isLocalDirty = false;
+		    var flag = EditorGUILayout.ToggleLeft(caption, state, labelRich);
+		    if (flag != state) {
 
-                isLocalDirty = true;
-                isDirty = true;
-                state = flag;
+			    isLocalDirty = true;
+			    isDirty = true;
+			    state = flag;
                         
-            }
-            if (string.IsNullOrEmpty(text) == false) GUILayoutExt.SmallLabel(text);
-            EditorGUILayout.Space();
+		    }
+		    if (string.IsNullOrEmpty(text) == false) GUILayoutExt.SmallLabel(text);
+		    EditorGUILayout.Space();
 
-            return isLocalDirty;
+		    return isLocalDirty;
 
-        }
+	    }
+
+	    public static bool IntFieldLeft(ref int state, ref bool isDirty, string caption, string text) {
+
+		    var labelRich = new GUIStyle(EditorStyles.label);
+		    labelRich.richText = true;
+
+		    var isLocalDirty = false;
+		    GUILayout.BeginHorizontal();
+		    var flag = EditorGUILayout.IntField(state, labelRich);
+		    EditorGUILayout.LabelField(caption);
+		    GUILayout.EndHorizontal();
+		    if (flag != state) {
+
+			    isLocalDirty = true;
+			    isDirty = true;
+			    state = flag;
+                        
+		    }
+		    if (string.IsNullOrEmpty(text) == false) GUILayoutExt.SmallLabel(text);
+		    EditorGUILayout.Space();
+
+		    return isLocalDirty;
+
+	    }
 
         public static LayerMask DrawLayerMaskField(string label, LayerMask layerMask) {
 

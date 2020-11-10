@@ -55,8 +55,9 @@ namespace ME.ECS {
         public bool useJobsForSystems;
         public bool useJobsForViews;
         public bool createInstanceForFeatures;
+        public int maxTicksSimulationCount;
         public bool turnOffViews;
-
+        
         public WorldViewsSettings viewsSettings;
         
         public static WorldSettings Default => new WorldSettings() {
@@ -1555,7 +1556,7 @@ namespace ME.ECS {
             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("Simulate", WorldStep.None);
             #endif
 
-            if (this.simulationToTick > this.simulationFromTick + 1000L) {
+            if (this.settings.maxTicksSimulationCount > 0L && this.simulationToTick > this.simulationFromTick + this.settings.maxTicksSimulationCount) {
                 
                 throw new System.Exception("Simulation failed because of ticks count is out of range: [" + this.simulationFromTick + ".." + this.simulationToTick + ")");
                 

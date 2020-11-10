@@ -278,6 +278,12 @@ namespace ME.ECSEditor {
                         "Create instance copy for Features",
                         "When you add feature into the world, do you need to create copy of feature data at runtime? Turn off this checkbox if you do not want to change features data.");
 
+                    GUILayoutExt.IntFieldLeft(
+                        ref target.worldSettings.maxTicksSimulationCount,
+                        ref isDirty,
+                        "Max ticks per simulation frame",
+                        "If simulation ticks count will be over this value, exception will be throw. Zero value = ignore this parameter.");
+
                     GUILayoutExt.ToggleLeft(
                         ref target.worldSettings.useJobsForViews,
                         ref isDirty,
