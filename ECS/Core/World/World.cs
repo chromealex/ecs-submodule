@@ -1555,6 +1555,11 @@ namespace ME.ECS {
             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("Simulate", WorldStep.None);
             #endif
 
+            if (this.simulationToTick > this.simulationFromTick + 1000L) {
+                
+                throw new System.Exception("Simulation failed because of ticks count is out of range: [" + this.simulationFromTick + ".." + this.simulationToTick + ")");
+                
+            }
             this.Simulate(this.simulationFromTick, this.simulationToTick);
 
             #if CHECKPOINT_COLLECTOR
