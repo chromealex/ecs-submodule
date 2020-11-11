@@ -563,36 +563,38 @@ namespace ME.ECS.Network {
 
         }
 
-        public void Update(in float deltaTime) {
+        protected virtual void SendPing(float deltaTime) {
+            
+            this.pingTime += deltaTime;
+            if (this.pingTime >= 1f) {
 
-            //this.localOrderIndex = 0;
-
-            if (this.GetNetworkType() != NetworkType.RunLocal) {
-
-                this.pingTime += deltaTime;
-                if (this.pingTime >= 1f) {
-
-                    this.SystemRPC(this, NetworkModule<TState>.PING_RPC_ID, this.world.GetTimeSinceStart(), true);
-                    this.pingTime -= 1f;
-
-                }
-
-                this.syncTime += deltaTime;
-                if (this.syncTime >= 2f) {
-
-                    if (this.syncTickSent != this.syncedTick) {
-
-                        this.SystemRPC(this, NetworkModule<TState>.SYNC_RPC_ID, this.syncedTick, this.syncHash);
-                        this.syncTickSent = this.syncedTick;
-
-                    }
-
-                    this.syncTime -= 2f;
-
-                }
+                this.SystemRPC(this, NetworkModule<TState>.PING_RPC_ID, this.world.GetTimeSinceStart(), true);
+                this.pingTime -= 1f;
 
             }
 
+        }
+
+        protected virtual void SendSync(float deltaTime) {
+            
+            this.syncTime += deltaTime;
+            if (this.syncTime >= 2f) {
+
+                if (this.syncTickSent != this.syncedTick) {
+
+                    this.SystemRPC(this, NetworkModule<TState>.SYNC_RPC_ID, this.syncedTick, this.syncHash);
+                    this.syncTickSent = this.syncedTick;
+
+                }
+
+                this.syncTime -= 2f;
+
+            }
+
+        }
+
+        protected virtual void ReceiveEventsAndApply() {
+            
             if (this.transporter != null && this.serializer != null) {
 
                 this.statesHistoryModule.BeginAddEvents();
@@ -611,42 +613,56 @@ namespace ME.ECS.Network {
 
             }
 
-            {
+        }
 
-                var tick = this.world.GetCurrentTick();
-                
-                var timeSinceGameStart = (long)(this.world.GetTimeSinceStart() * 1000L);
-                var targetTick = (Tick)System.Math.Floor(timeSinceGameStart / (this.world.GetTickTime() * 1000d));
-                var oldestEventTick = this.statesHistoryModule.GetAndResetOldestTick(tick);
-                //UnityEngine.Debug.LogError("Tick: " + tick + ", timeSinceGameStart: " + timeSinceGameStart + ", targetTick: " + targetTick + ", oldestEventTick: " + oldestEventTick);
-                if (oldestEventTick == Tick.Invalid || oldestEventTick >= tick) {
+        protected virtual void ApplyTicksByState() {
+            
+            var tick = this.world.GetCurrentTick();
+            
+            var timeSinceGameStart = (long)(this.world.GetTimeSinceStart() * 1000L);
+            var targetTick = (Tick)System.Math.Floor(timeSinceGameStart / (this.world.GetTickTime() * 1000d));
+            var oldestEventTick = this.statesHistoryModule.GetAndResetOldestTick(tick);
+            //UnityEngine.Debug.LogError("Tick: " + tick + ", timeSinceGameStart: " + timeSinceGameStart + ", targetTick: " + targetTick + ", oldestEventTick: " + oldestEventTick);
+            if (oldestEventTick == Tick.Invalid || oldestEventTick >= tick) {
 
-                    // No events found
-                    this.world.SetFromToTicks(tick, targetTick);
-                    return;
+                // No events found
+                this.world.SetFromToTicks(tick, targetTick);
+                return;
 
-                }
-
-                var sourceState = this.statesHistoryModule.GetStateBeforeTick(oldestEventTick, out var sourceTick);
-                if (sourceState == null) {
-
-                    sourceState = this.world.GetResetState<TState>();
-                    targetTick = tick;
-                    
-                }
-                //UnityEngine.Debug.Log("Rollback. Oldest: " + oldestEventTick + ", sourceTick: " + sourceTick + ", targetTick: " + targetTick);
-
-                this.statesHistoryModule.InvalidateEntriesAfterTick(sourceTick);
-
-                // Applying old state.
-                var currentState = this.world.GetState();
-                currentState.CopyFrom(sourceState);
-                currentState.Initialize(this.world, freeze: false, restore: true);
-                
-                this.world.SetFromToTicks(sourceTick, targetTick);
-                
             }
 
+            var sourceState = this.statesHistoryModule.GetStateBeforeTick(oldestEventTick, out var sourceTick);
+            if (sourceState == null) {
+
+                sourceState = this.world.GetResetState<TState>();
+                targetTick = tick;
+                
+            }
+            //UnityEngine.Debug.Log("Rollback. Oldest: " + oldestEventTick + ", sourceTick: " + sourceTick + ", targetTick: " + targetTick);
+
+            this.statesHistoryModule.InvalidateEntriesAfterTick(sourceTick);
+
+            // Applying old state.
+            var currentState = this.world.GetState();
+            currentState.CopyFrom(sourceState);
+            currentState.Initialize(this.world, freeze: false, restore: true);
+            
+            this.world.SetFromToTicks(sourceTick, targetTick);
+            
+        }
+        
+        public virtual void Update(in float deltaTime) {
+
+            if (this.GetNetworkType() != NetworkType.RunLocal) {
+
+                this.SendPing(deltaTime);
+                this.SendSync(deltaTime);
+
+            }
+
+            this.ReceiveEventsAndApply();
+            this.ApplyTicksByState();
+            
         }
 
         public RPCId RegisterRPC(System.Reflection.MethodInfo methodInfo, bool runLocalOnly = false) {
