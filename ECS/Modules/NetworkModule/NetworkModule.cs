@@ -164,6 +164,12 @@ namespace ME.ECS.Network {
             
         }
 
+        public ME.ECS.Network.ISerializer GetSerializer() {
+
+            return this.serializer;
+
+        }
+
         public double GetPing() {
 
             return this.ping;

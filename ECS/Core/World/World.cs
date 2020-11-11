@@ -196,7 +196,81 @@ namespace ME.ECS {
             return this.isLoading;
 
         }
+        
+        public struct HistoryState {
 
+            public State state;
+            public ME.ECS.StatesHistory.HistoryStorage events;
+            public Tick tick;
+
+        }
+
+        public byte[] Serialize() {
+            
+            var statesHistory = this.GetModule<ME.ECS.StatesHistory.IStatesHistoryModuleBase>();
+                    
+            var data = new HistoryState();
+            data.state = statesHistory.GetOldestState();
+            data.events = statesHistory.GetHistoryStorage(data.state.tick + Tick.One, this.GetCurrentTick());
+            data.tick = this.GetCurrentTick();
+
+            var serializers = ME.ECS.Serializer.ECSSerializers.GetSerializers();
+            serializers.Add(new ME.ECS.Serializer.BufferArraySerializer());
+            var bytes = ME.ECS.Serializer.Serializer.Pack(data, serializers);
+            return bytes;
+
+        }
+        
+        public void Deserialize<TState>(byte[] worldData, System.Collections.Generic.List<byte[]> eventsWhileConnecting) where TState : State, new() {
+            
+            var statesHistory = this.GetModule<ME.ECS.StatesHistory.IStatesHistoryModuleBase>();
+            statesHistory.Reset();
+
+            var serializers = ME.ECS.Serializer.ECSSerializers.GetSerializers();
+            serializers.Add(new ME.ECS.Serializer.BufferArraySerializer());
+            var data = ME.ECS.Serializer.Serializer.Unpack<HistoryState>(worldData, serializers);
+            
+            // Make a ref of current filters to the new state
+            this.GetState().filters.Clear();
+            data.state.filters = this.GetState().filters;
+            this.GetState().filters = null;
+            
+            this.SetState<TState>(data.state);
+            data.state.filters.OnDeserialize(this.GetEntitiesCount());
+            statesHistory.AddEvents(data.events.events);
+
+            var networkModule = this.GetModule<ME.ECS.Network.NetworkModule<TState>>();
+            statesHistory.BeginAddEvents();
+            for (int i = 0; i < eventsWhileConnecting.Count; ++i) {
+
+                var package = networkModule.GetSerializer().Deserialize(eventsWhileConnecting[i]);
+                statesHistory.AddEvent(package);
+
+            }
+            statesHistory.EndAddEvents();
+            
+            // Update logic
+            this.ForEachEntity(out var allEntities);
+            for (int j = allEntities.FromIndex, jCount = allEntities.SizeCount; j < jCount; ++j) {
+
+                var entity = allEntities[j];
+                if (entity.IsAlive() == true) {
+                    
+                    ComponentsInitializerWorld.Init(in entity);
+                    this.CreateEntityPlugins(entity);
+                    this.UpdateFiltersOnFilterCreate(entity);
+                    
+                }
+
+            }
+            this.SetFromToTicks(data.state.tick, data.tick);
+            this.UpdateLogic(0f);
+
+            // Update views
+            this.GetModule<ME.ECS.Views.ViewsModule>().SetRequestsAsDirty();
+
+        }
+        
         public void Load(System.Action onComplete) {
 
             this.isLoading = true;
