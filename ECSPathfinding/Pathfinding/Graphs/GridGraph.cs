@@ -226,6 +226,8 @@ namespace ME.ECS.Pathfinding {
             var y = (int)((clamped.y + this.agentHeight * this.size.y * 0.5f) / this.agentHeight);
             var z = (int)((clamped.z + this.nodeSize * this.size.z * 0.5f) / this.nodeSize);
 
+            y = Mathf.Clamp(y, -this.size.y + 1, this.size.y - 1);
+            
             for (int idx = 0, cnt = this.nodes.Count; idx < cnt; ++idx) {
 
                 var p = ME.ECS.MathUtils.GetSpiralPointByIndex(new Vector2Int(x, z), idx);
@@ -245,9 +247,9 @@ namespace ME.ECS.Pathfinding {
             var min = bounds.min;
             var max = bounds.max;
 
-            var minNode = this.GetNearest<GridNode>(min, Constraint.Empty);
+            var minNode = this.GetNearest<GridNode>(min + this.graphCenter, Constraint.Empty);
             if (minNode == null) return;
-            var maxNode = this.GetNearest<GridNode>(max, Constraint.Empty);
+            var maxNode = this.GetNearest<GridNode>(max + this.graphCenter, Constraint.Empty);
             if (maxNode == null) return;
             
             for (int y = minNode.position.y; y <= maxNode.position.y; ++y) {
@@ -258,8 +260,10 @@ namespace ME.ECS.Pathfinding {
 
                         var index = GridGraphUtilities.GetIndexByPosition(this, new Vector3Int(z, y, x));
                         var n = this.nodes[index];
+                        //Debug.DrawLine(n.worldPosition + Vector3.up * 5f, n.worldPosition + Vector3.up * 10f, Color.red, 5f);
                         if (bounds.Contains(n.worldPosition) == true) {
 
+                            //Debug.DrawLine(n.worldPosition + Vector3.up * 10f, n.worldPosition + Vector3.up * 15f, Color.magenta, 5f);
                             result.Add(n);
 
                         }
