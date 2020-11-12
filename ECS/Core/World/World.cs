@@ -101,7 +101,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public class WorldBase {
+    public abstract class WorldBase {
         
         internal WorldStep currentStep;
         internal ListCopyable<IFeatureBase> features;
@@ -143,7 +143,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed partial class World : WorldBase, IWorld, IPoolableSpawn, IPoolableRecycle {
+    public sealed partial class World : WorldBase, IPoolableSpawn, IPoolableRecycle {
 
         private const int FEATURES_CAPACITY = 100;
         private const int SYSTEMS_CAPACITY = 100;
@@ -197,7 +197,7 @@ namespace ME.ECS {
 
         }
         
-        public struct HistoryState {
+        public struct WorldState {
 
             public State state;
             public ME.ECS.StatesHistory.HistoryStorage events;
@@ -209,16 +209,15 @@ namespace ME.ECS {
             
             var statesHistory = this.GetModule<ME.ECS.StatesHistory.IStatesHistoryModuleBase>();
                     
-            var data = new HistoryState();
+            var data = new WorldState();
             data.state = statesHistory.GetOldestState();
             data.events = statesHistory.GetHistoryStorage(data.state.tick + Tick.One, this.GetCurrentTick());
             data.tick = this.GetCurrentTick();
 
-            var serializers = ME.ECS.Serializer.ECSSerializers.GetSerializers();
-            serializers.Add(new ME.ECS.Serializer.BufferArraySerializer());
-            var bytes = ME.ECS.Serializer.Serializer.Pack(data, serializers);
-            return bytes;
-
+            var networkModule = this.GetModule<ME.ECS.Network.INetworkModuleBase>();
+            var serializer = networkModule.GetSerializer();
+            return serializer.SerializeWorld(data);
+            
         }
         
         public void Deserialize<TState>(byte[] worldData, System.Collections.Generic.List<byte[]> eventsWhileConnecting) where TState : State, new() {
@@ -226,9 +225,8 @@ namespace ME.ECS {
             var statesHistory = this.GetModule<ME.ECS.StatesHistory.IStatesHistoryModuleBase>();
             statesHistory.Reset();
 
-            var serializers = ME.ECS.Serializer.ECSSerializers.GetSerializers();
-            serializers.Add(new ME.ECS.Serializer.BufferArraySerializer());
-            var data = ME.ECS.Serializer.Serializer.Unpack<HistoryState>(worldData, serializers);
+            var networkModule = this.GetModule<ME.ECS.Network.INetworkModuleBase>();
+            var data = networkModule.GetSerializer().DeserializeWorld(worldData);
             
             // Make a ref of current filters to the new state
             this.GetState().filters.Clear();
@@ -239,7 +237,6 @@ namespace ME.ECS {
             data.state.filters.OnDeserialize(this.GetEntitiesCount());
             statesHistory.AddEvents(data.events.events);
 
-            var networkModule = this.GetModule<ME.ECS.Network.NetworkModule<TState>>();
             statesHistory.BeginAddEvents();
             for (int i = 0; i < eventsWhileConnecting.Count; ++i) {
 

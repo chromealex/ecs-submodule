@@ -480,6 +480,14 @@ namespace ME.ECS.Serializer.Tests {
             }
 
             public class FakeSerializer : ME.ECS.Network.ISerializer {
+                
+                public byte[] SerializeWorld(World.WorldState data) {
+                    throw new System.NotImplementedException();
+                }
+
+                public World.WorldState DeserializeWorld(byte[] bytes) {
+                    throw new System.NotImplementedException();
+                }
 
                 public ME.ECS.StatesHistory.HistoryStorage DeserializeStorage(byte[] bytes) {
                     throw new System.NotImplementedException();
@@ -491,6 +499,7 @@ namespace ME.ECS.Serializer.Tests {
 
                 public byte[] Serialize(ME.ECS.StatesHistory.HistoryEvent historyEvent) => ME.ECS.Serializer.Serializer.Pack(historyEvent);
                 public ME.ECS.StatesHistory.HistoryEvent Deserialize(byte[] bytes) => ME.ECS.Serializer.Serializer.Unpack<ME.ECS.StatesHistory.HistoryEvent>(bytes);
+                
             }
         }
     }

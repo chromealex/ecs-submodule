@@ -55,6 +55,9 @@ namespace ME.ECS.Network {
         byte[] Serialize(StatesHistory.HistoryEvent historyEvent);
         StatesHistory.HistoryEvent Deserialize(byte[] bytes);
 
+        byte[] SerializeWorld(World.WorldState data);
+        World.WorldState DeserializeWorld(byte[] bytes);
+
     }
 
     public interface INetworkModuleBase : IModuleBase {
@@ -63,6 +66,7 @@ namespace ME.ECS.Network {
         
         void SetTransporter(ITransporter transporter);
         void SetSerializer(ISerializer serializer);
+        ISerializer GetSerializer();
 
         int GetRPCOrder();
         

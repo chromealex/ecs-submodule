@@ -10,7 +10,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public partial class World : IWorld, IPoolableSpawn, IPoolableRecycle {
+    public partial class World : IPoolableSpawn, IPoolableRecycle {
 
         private static class MarkersDirectCache<TMarker> where TMarker : struct, IMarker {
 

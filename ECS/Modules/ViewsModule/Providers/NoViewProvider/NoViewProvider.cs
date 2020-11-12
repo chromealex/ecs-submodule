@@ -9,13 +9,6 @@
 
     }
     
-    public partial interface IWorld {
-
-        ViewId RegisterViewSource(NoViewBase prefab);
-        void InstantiateView(NoViewBase prefab, Entity entity);
-
-    }
-
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
