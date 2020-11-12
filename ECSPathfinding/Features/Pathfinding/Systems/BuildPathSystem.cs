@@ -52,40 +52,8 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
             var path = active.CalculatePath(request.from, request.to, constraint, new ME.ECS.Pathfinding.PathCornersModifier());
             if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete) {
 
-                var vPath = PoolList<UnityEngine.Vector3>.Spawn(path.nodesModified.Count);
-                for (var i = 0; i < path.nodesModified.Count; ++i) {
-
-                    var node = path.nodesModified[i];
-                    vPath.Add(node.worldPosition);
-
-                }
-
-                var nearestTarget = active.GetNearest(request.to);
-                if (nearestTarget.IsSuitable(constraint) == true) {
-
-                    vPath.Add(request.to);
-
-                }
-
-                var unitPath = entity.AddComponent<Path>();
-                unitPath.result = path.result;
-                unitPath.path = ME.ECS.Collections.BufferArray<UnityEngine.Vector3>.From(vPath);
-                unitPath.nodes = ME.ECS.Collections.BufferArray<ME.ECS.Pathfinding.Node>.From(path.nodesModified);
-
-                /*
-                UnityEngine.Debug.LogWarning("============================= PATH: {");
-                for (int i = 0; i < unitPath.path.Length; ++i) {
-                    
-                    UnityEngine.Debug.LogWarning("PATH POINT: " + unitPath.path.arr[i].ToStringDec());
-                    
-                }
-                UnityEngine.Debug.LogWarning("============================= } END");
-                */
+                this.pathfindingFeature.SetPath(in entity, path, constraint, request.to);
                 
-                entity.SetData(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
-                
-                PoolList<UnityEngine.Vector3>.Recycle(ref vPath);
-
             }
 
             path.Recycle();

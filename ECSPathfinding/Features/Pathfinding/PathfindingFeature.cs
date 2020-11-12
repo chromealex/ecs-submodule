@@ -60,6 +60,54 @@ namespace ME.ECS.Pathfinding.Features {
             
         }
 
+        public void SetPath(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 to) {
+            
+            this.SetPath(in entity, path.nodesModified, path.result, constraint, to);
+            
+        }
+
+        public void SetPath(in Entity entity, ListCopyable<Node> nodes, PathCompleteState result, Constraint constraint, UnityEngine.Vector3 to) {
+
+            var vPath = PoolList<UnityEngine.Vector3>.Spawn(nodes.Count);
+            for (var i = 0; i < nodes.Count; ++i) {
+
+                var node = nodes[i];
+                vPath.Add(node.worldPosition);
+
+            }
+
+            var nearestTarget = this.GetNearest(to);
+            if (nearestTarget.IsSuitable(constraint) == true) {
+
+                vPath.Add(to);
+
+            }
+
+            var unitPath = entity.AddComponent<ME.ECS.Pathfinding.Features.Pathfinding.Components.Path>();
+            unitPath.result = result;
+            unitPath.path = ME.ECS.Collections.BufferArray<UnityEngine.Vector3>.From(vPath);
+            unitPath.nodes = ME.ECS.Collections.BufferArray<ME.ECS.Pathfinding.Node>.From(nodes);
+
+            entity.SetData(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
+                
+            PoolList<UnityEngine.Vector3>.Recycle(ref vPath);
+
+        }
+
+        public ME.ECS.Pathfinding.Path CalculatePath(UnityEngine.Vector3 from, UnityEngine.Vector3 to, Constraint constraint) {
+            
+            var active = this.GetEntity().GetComponent<PathfindingInstance>().pathfinding;
+            if (active == null) {
+
+                return default;
+
+            }
+            
+            var path = active.CalculatePath(from, to, constraint, new ME.ECS.Pathfinding.PathCornersModifier());
+            return path;
+
+        }
+        
         public void GetNodesInBounds(ListCopyable<Node> output, UnityEngine.Bounds bounds) {
          
             this.pathfindingEntity.GetComponent<PathfindingInstance>().pathfinding.GetNodesInBounds(output, bounds);
