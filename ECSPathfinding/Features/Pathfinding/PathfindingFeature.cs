@@ -68,6 +68,8 @@ namespace ME.ECS.Pathfinding.Features {
 
         public void SetPath(in Entity entity, ListCopyable<Node> nodes, PathCompleteState result, Constraint constraint, UnityEngine.Vector3 to) {
 
+            entity.RemoveComponents<ME.ECS.Pathfinding.Features.Pathfinding.Components.Path>();
+            
             var vPath = PoolList<UnityEngine.Vector3>.Spawn(nodes.Count);
             for (var i = 0; i < nodes.Count; ++i) {
 
