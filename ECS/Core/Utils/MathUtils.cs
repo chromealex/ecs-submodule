@@ -256,6 +256,20 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static uint GetKey0(ulong a) {
+            
+            return (uint)(a & uint.MaxValue);
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static uint GetKey1(ulong a) {
+            
+            return (uint)(a >> 32);
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static long GetKey(int a1, int a2) {
             
             return (((long)a2 << 32) | (uint)a1);
