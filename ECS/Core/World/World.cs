@@ -1997,7 +1997,7 @@ namespace ME.ECS {
 
                                         if (this.settings.useJobsForSystems == true && sysFilter.jobs == true) {
 
-                                            var arrEntities = sysFilter.filter.GetArray();
+                                            var arrEntities = sysFilter.filter.ToArray();
                                             using (var arr = new Unity.Collections.NativeArray<Entity>(arrEntities.arr, Unity.Collections.Allocator.TempJob)) {
 
                                                 var length = arrEntities.Length;

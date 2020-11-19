@@ -29,18 +29,21 @@ namespace ME.ECS.Pathfinding {
         
         public override void ApplyBeforeConnections(Graph graph) {
 
+            var halfOffset = new Vector3(this.tilemap.cellSize.x, 0f, this.tilemap.cellSize.z) * 0.5f;
+            
             var visited = PoolHashSet<Node>.Spawn();
             foreach (var pos in this.bounds.allPositionsWithin) {
 
-                var tile = this.tilemap.GetTile(pos);
+                var worldPos = pos + halfOffset;
+                var cellPos = this.tilemap.layoutGrid.WorldToCell(worldPos);
+                var tile = this.tilemap.GetTile(cellPos);
                 for (int i = 0; i < this.items.Length; ++i) {
 
                     var item = this.items[i];
                     if (item.requiredTile == tile) {
 
-                        var worldPos = this.tilemap.CellToWorld(pos);
                         var result = PoolList<Node>.Spawn(1);
-                        graph.GetNodesInBounds(result, new Bounds(worldPos + new Vector3(this.tilemap.cellSize.x, 0f, this.tilemap.cellSize.z) * 0.5f, this.tilemap.cellSize));
+                        graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize));
                         foreach (var node in result) {
 
                             if (visited.Contains(node) == false) {
@@ -75,10 +78,14 @@ namespace ME.ECS.Pathfinding {
 
         public override void ApplyAfterConnections(Graph graph) {
             
+            var halfOffset = new Vector3(this.tilemap.cellSize.x, 0f, this.tilemap.cellSize.z) * 0.5f;
+
             var visited = PoolHashSet<Node>.Spawn();
             foreach (var pos in this.bounds.allPositionsWithin) {
 
-                var tile = this.tilemap.GetTile(pos);
+                var worldPos = pos + halfOffset;
+                var cellPos = this.tilemap.layoutGrid.WorldToCell(worldPos);
+                var tile = this.tilemap.GetTile(cellPos);
                 for (int i = 0; i < this.items.Length; ++i) {
 
                     var item = this.items[i];
@@ -86,9 +93,8 @@ namespace ME.ECS.Pathfinding {
                     
                     if (item.requiredTile == tile) {
 
-                        var worldPos = this.tilemap.CellToWorld(pos);
                         var result = PoolList<Node>.Spawn(1);
-                        graph.GetNodesInBounds(result, new Bounds(worldPos + new Vector3(this.tilemap.cellSize.x, 0f, this.tilemap.cellSize.z) * 0.5f, this.tilemap.cellSize));
+                        graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize));
                         foreach (var node in result) {
 
                             if (visited.Contains(node) == false) {
