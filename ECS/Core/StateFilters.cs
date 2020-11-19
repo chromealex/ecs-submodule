@@ -294,8 +294,8 @@ namespace ME.ECS {
             public EntityEnumerator(BufferArray<Entity> bufferArray, int min, int max) {
 
                 this.bufferArray = bufferArray;
-                this.index = -1;//min - 1;
-                this.max = bufferArray.Length - 1; //max;
+                this.index = min - 1;
+                this.max = max;//bufferArray.Length - 1; //max;
 
             }
 
@@ -362,6 +362,7 @@ namespace ME.ECS {
                 
             this.set = set;
             this.arr = this.set.GetArray(out var min, out var max);
+            UnityEngine.Debug.Log("ITER: " + min + " :: " + max + " :: " + (this.arr.Length - 1) + " :: " + set);
             this.setEnumerator = new EntityEnumerator(this.arr, min, max);
             this.set.SetForEachMode(true);
 
@@ -653,7 +654,7 @@ namespace ME.ECS {
             max = this.max;
 
             if (min < 0) min = 0;
-            if (max >= this.Count) max = this.Count - 1;
+            if (max >= this.data.Count) max = this.data.Count - 1;
             
             /*var data = PoolArray<Entity>.Spawn(this.dataCount);
             for (int i = 0, k = 0; i < this.data.Length; ++i) {
@@ -1073,34 +1074,52 @@ namespace ME.ECS {
                 this.min = int.MaxValue;
                 this.max = int.MinValue;
                 return;
-
+                
             }
             
             if (idx == this.min) {
 
                 // Update new min (find next index)
+                var changed = false;
                 for (int i = idx; i < this.data.Length; ++i) {
 
                     if (this.dataContains.arr[i] == true) {
 
                         this.min = i;
+                        changed = true;
                         break;
 
                     }
 
                 }
 
-            } else if (idx == this.max) {
+                if (changed == false) {
+
+                    this.min = int.MaxValue;
+
+                }
+
+            }
+            
+            if (idx == this.max) {
 
                 // Update new max (find prev index)
+                var changed = false;
                 for (int i = idx; i >= 0; --i) {
 
                     if (this.dataContains.arr[i] == true) {
 
                         this.max = i;
+                        changed = true;
                         break;
 
                     }
+
+                }
+
+                if (changed == false) {
+
+                    this.max = int.MinValue;
 
                 }
 
