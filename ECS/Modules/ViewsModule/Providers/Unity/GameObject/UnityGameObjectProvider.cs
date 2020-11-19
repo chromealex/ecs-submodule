@@ -394,7 +394,7 @@ namespace ME.ECS.Views.Providers {
 
                             var view = item[j] as MonoBehaviourView;
                             if (view == null) continue;
-                            if (view.applyStateJob == true) {
+                            if (view.applyStateJob == true && view.entity.IsAlive() == true) {
 
                                 changed |= ArrayUtils.Resize(k, ref this.currentTransforms);
                                 var isNew = false;

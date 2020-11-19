@@ -821,6 +821,8 @@ namespace ME.ECS.Views {
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private void CreateVisualInstance(in uint seed, in ViewInfo viewInfo) {
+
+            if (viewInfo.entity.IsAlive() == false) return;
             
             var instance = this.SpawnView_INTERNAL(viewInfo);
             if (instance == null) {
@@ -1013,6 +1015,7 @@ namespace ME.ECS.Views {
                 for (int i = 0, count = list.Length; i < count; ++i) {
 
                     var instance = list[i];
+                    if (instance.entity.IsAlive() == false) continue;
                     instance.ApplyState(deltaTime, immediately: false);
                     instance.UpdateParticlesSimulation(deltaTime);
 
