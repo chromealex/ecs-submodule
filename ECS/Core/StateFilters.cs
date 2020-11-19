@@ -362,7 +362,6 @@ namespace ME.ECS {
                 
             this.set = set;
             this.arr = this.set.GetArray(out var min, out var max);
-            UnityEngine.Debug.Log("ITER: " + min + " :: " + max + " :: " + (this.arr.Length - 1) + " :: " + set);
             this.setEnumerator = new EntityEnumerator(this.arr, min, max);
             this.set.SetForEachMode(true);
 
