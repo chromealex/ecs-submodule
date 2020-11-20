@@ -2017,7 +2017,7 @@ namespace ME.ECS {
 
                                                 foreach (ref var entity in sysFilter.filter) {
 
-                                                    if (entity.version > Entity.VERSION_ZERO) sysFilterContext.AdvanceTick(in entity, in fixedDeltaTime);
+                                                    sysFilterContext.AdvanceTick(in entity, in fixedDeltaTime);
 
                                                 }
 
