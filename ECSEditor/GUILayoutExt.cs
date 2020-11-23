@@ -1185,6 +1185,14 @@ namespace ME.ECSEditor {
 
 	            }
 
+            } else if (type == typeof(bool)) {
+
+	            if (typeCheckOnly == false) {
+
+		            value = EditorGUILayout.Toggle(caption, (bool)value);
+
+	            }
+
             } else if (type == typeof(int)) {
 
                 if (typeCheckOnly == false) {
