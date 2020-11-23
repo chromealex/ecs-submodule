@@ -1081,8 +1081,10 @@ namespace ME.ECSEditor {
 		            GUILayout.BeginHorizontal();
 		            var buttonWidth = 50f;
 		            EditorGUILayout.LabelField(caption, GUILayout.Width(EditorGUIUtility.labelWidth));
-		            if (entity == Entity.Empty) {
-			            GUILayout.Label("Empty");   
+		            if (entity.IsAlive() == false) {
+			            
+			            GUILayout.Label("Empty");
+			            
 		            } else {
 			            var customName = entity.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value;
 			            GUILayout.BeginVertical();
