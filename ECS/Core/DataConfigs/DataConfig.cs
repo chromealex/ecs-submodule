@@ -225,8 +225,6 @@ namespace ME.ECS.DataConfigs {
 
         public void OnValidate() {
 
-            if (Application.isPlaying == true) return;
-            
             this.OnScriptLoad();
             
         }
@@ -234,6 +232,9 @@ namespace ME.ECS.DataConfigs {
         public void OnScriptLoad() {
 
             if (Application.isPlaying == true) return;
+            #if UNITY_EDITOR
+            if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode == true) return;
+            #endif
 
             var changed = false;
             var allAsms = System.AppDomain.CurrentDomain.GetAssemblies();
