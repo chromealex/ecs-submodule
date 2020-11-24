@@ -1218,7 +1218,7 @@ namespace ME.ECS {
             if (version == 0) return false;
             
             ref var entitiesList = ref this.currentState.storage.GetData();
-            if (entitiesList[entityId].version == version && entitiesList.IsFree(entityId) == false) {
+            if (entitiesList[entityId].version == version) {// && entitiesList.IsFree(entityId) == false) {
 
                 return true;
 
@@ -1329,10 +1329,7 @@ namespace ME.ECS {
             var data = this.currentState.storage.GetData();
             if (data.IsFree(entity.id) == false && entity.id > 0) {
 
-                //var entityInStorage = data[entity.id];
-                /*if (entityInStorage.version == entity.version)*/ {
-
-                    data.RemoveAt(entity.id);
+                if (data.RemoveAt(entity.id) == true) {
 
                     this.RemoveFromFilters(entity);
                     this.DestroyEntityPlugins(in entity);
@@ -2046,6 +2043,8 @@ namespace ME.ECS {
 
                                 }
 
+                                this.currentState.storage.ApplyPrepared();
+
                                 #if CHECKPOINT_COLLECTOR
                                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
                                 #endif
@@ -2064,8 +2063,6 @@ namespace ME.ECS {
                 ////////////////
                 this.currentStep &= ~WorldStep.SystemsLogicTick;
                 ////////////////
-
-                this.currentState.storage.ApplyPrepared();
 
                 /*#if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveComponentsOnce", WorldStep.None);

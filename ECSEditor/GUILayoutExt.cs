@@ -1052,13 +1052,17 @@ namespace ME.ECSEditor {
 		            EditorGUILayout.LabelField(caption, GUILayout.Width(EditorGUIUtility.labelWidth));
 		            GUILayoutExt.Icon(new [] { "Assets/ECS/ECSEditor/EditorResources/icon-link.png", "Assets/ECS-submodule/ECSEditor/EditorResources/icon-link.png" }, 16f, 16f);
 		            if (entity == Entity.Empty) {
-						GUILayout.Label("Empty");   
+			            
+						GUILayout.Label("Empty");
+						
 		            } else {
-			            var customName = entity.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value;
+			            
+			            var customName = (entity.IsAlive() == true ? entity.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value : string.Empty);
 			            GUILayout.BeginVertical();
 			            GUILayout.Label(string.IsNullOrEmpty(customName) == false ? customName : "Unnamed");
 			            GUILayout.Label(entity.ToSmallString(), EditorStyles.miniLabel);
 			            GUILayout.EndVertical();
+			            
 		            }
 
 		            GUILayout.FlexibleSpace();
@@ -1081,16 +1085,18 @@ namespace ME.ECSEditor {
 		            GUILayout.BeginHorizontal();
 		            var buttonWidth = 50f;
 		            EditorGUILayout.LabelField(caption, GUILayout.Width(EditorGUIUtility.labelWidth));
-		            if (entity.IsAlive() == false) {
+		            if (entity == Entity.Empty) {
 			            
 			            GUILayout.Label("Empty");
 			            
 		            } else {
-			            var customName = entity.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value;
+			            
+			            var customName = (entity.IsAlive() == true ? entity.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value : string.Empty);
 			            GUILayout.BeginVertical();
 			            GUILayout.Label(string.IsNullOrEmpty(customName) == false ? customName : "Unnamed");
 			            GUILayout.Label(entity.ToSmallString(), EditorStyles.miniLabel);
 			            GUILayout.EndVertical();
+			            
 		            }
 
 		            GUILayout.FlexibleSpace();
