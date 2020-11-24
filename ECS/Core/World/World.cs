@@ -1319,9 +1319,9 @@ namespace ME.ECS {
         public bool RemoveEntity(in Entity entity) {
 
             #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
+            if (entity.IsAlive() == false) {
 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
 
             }
             #endif

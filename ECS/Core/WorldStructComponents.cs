@@ -195,9 +195,9 @@ namespace ME.ECS {
         public override IStructComponent GetObject(Entity entity) {
 
             #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
+            if (entity.IsAlive() == false) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -234,9 +234,9 @@ namespace ME.ECS {
         public override bool SetObject(Entity entity, IStructComponent data) {
 
             #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
+            if (entity.IsAlive() == false) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -269,9 +269,9 @@ namespace ME.ECS {
         public override bool RemoveObject(Entity entity) {
 
             #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
+            if (entity.IsAlive() == false) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -302,7 +302,7 @@ namespace ME.ECS {
             #if WORLD_EXCEPTIONS
             if (entity.version == 0) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -318,9 +318,9 @@ namespace ME.ECS {
         public override bool Remove(in Entity entity, bool clearAll = false) {
 
             #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
+            if (entity.IsAlive() == false) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
