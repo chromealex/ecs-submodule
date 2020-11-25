@@ -395,7 +395,7 @@ namespace ME.ECS {
             
             public void Execute() {
 
-                this.world.SetData(this.entity, in this.data, this.lifetime);
+                if (this.entity.IsAlive() == true) this.world.SetData(this.entity, in this.data, this.lifetime);
 
             }
 
@@ -1078,19 +1078,19 @@ namespace ME.ECS {
         private void PlayTasksForTick() {
             
             if (this.currentState.structComponents.nextTickTasks.Count > 0) {
-
+                
                 for (int i = 0; i < this.currentState.structComponents.nextTickTasks.Count; ++i) {
-
+                    
                     var task = this.currentState.structComponents.nextTickTasks[i];
                     if (task == null) continue;
                     
                     task.Execute();
                     task.Recycle();
-
+                    
                 }
-
+                
                 this.currentState.structComponents.nextTickTasks.ClearNoCC();
-
+                
             }
             
         }

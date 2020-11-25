@@ -1215,7 +1215,7 @@ namespace ME.ECS {
 
         public bool IsAlive(in int entityId, in ushort version) {
 
-            if (version == 0) return false;
+            if (version == Entity.VERSION_ZERO) return false;
             
             ref var entitiesList = ref this.currentState.storage.GetData();
             if (entitiesList[entityId].version == version) {// && entitiesList.IsFree(entityId) == false) {

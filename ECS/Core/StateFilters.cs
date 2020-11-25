@@ -342,7 +342,7 @@ namespace ME.ECS {
                     ++this.index;
                     if (this.index > this.max) return false;
 
-                } while (this.bufferArray.arr[this.index].version == Entity.VERSION_ZERO);
+                } while (this.bufferArray.arr[this.index].IsAlive() == false);
                 
                 return true;
 
