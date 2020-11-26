@@ -680,19 +680,6 @@ namespace ME.ECS {
 
         }
 
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public BufferArray<Entity> ToArray() {
-
-            var data = PoolArray<Entity>.Spawn(this.dataCount);
-            for (int i = 0, k = 0; i < this.data.Length; ++i) {
-                if (this.data.arr[i].version > 0) {
-                    data.arr[k++] = this.data.arr[i];
-                }
-            }
-            return data;
-
-        }
-
         void IPoolableSpawn.OnSpawn() {
 
             //this.requests = PoolArray<Entity>.Spawn(Filter.REQUESTS_CAPACITY);
