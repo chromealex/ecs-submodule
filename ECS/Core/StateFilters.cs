@@ -544,7 +544,7 @@ namespace ME.ECS {
         }
 
         public void Update() {
-
+            
             var list = PoolList<Entity>.Spawn(Filter.ENTITIES_CAPACITY);
             if (this.world.ForEachEntity(list) == true) {
 

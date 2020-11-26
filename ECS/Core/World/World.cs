@@ -1339,6 +1339,10 @@ namespace ME.ECS {
                 this.RemoveComponents(entity);
                 return true;
 
+            } else {
+
+                UnityEngine.Debug.LogError("Failed to remove entity " + entity);
+
             }
 
             return false;

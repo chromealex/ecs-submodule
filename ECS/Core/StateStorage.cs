@@ -34,11 +34,9 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         private ListCopyable<int> alive;
         [ME.ECS.Serializer.SerializeField]
-        private BufferArray<int> aliveIdx;
-        [ME.ECS.Serializer.SerializeField]
         private ListCopyable<int> dead;
         [ME.ECS.Serializer.SerializeField]
-        private ListCopyable<int> deadPrepared;
+        private HashSetCopyable<int> deadPrepared;
         [ME.ECS.Serializer.SerializeField]
         private int aliveCount;
         [ME.ECS.Serializer.SerializeField]
@@ -84,9 +82,8 @@ namespace ME.ECS {
             
             this.versions = PoolArray<ushort>.Spawn(capacity);
             this.alive = PoolList<int>.Spawn(capacity);
-            this.aliveIdx = PoolArray<int>.Spawn(capacity);
             this.dead = PoolList<int>.Spawn(capacity);
-            this.deadPrepared = PoolList<int>.Spawn(capacity);
+            this.deadPrepared = PoolHashSetCopyable<int>.Spawn(capacity);
             this.aliveCount = 0;
             this.entityId = -1;
             this.archetypes = PoolClass<ArchetypeEntities>.Spawn();
@@ -97,9 +94,8 @@ namespace ME.ECS {
 
             PoolArray<ushort>.Recycle(ref this.versions);
             PoolList<int>.Recycle(ref this.alive);
-            PoolArray<int>.Recycle(ref this.aliveIdx);
             PoolList<int>.Recycle(ref this.dead);
-            PoolList<int>.Recycle(ref this.deadPrepared);
+            PoolHashSetCopyable<int>.Recycle(ref this.deadPrepared);
             this.aliveCount = 0;
             this.entityId = -1;
             PoolClass<ArchetypeEntities>.Recycle(ref this.archetypes);
@@ -113,9 +109,8 @@ namespace ME.ECS {
             
             ArrayUtils.Copy(other.versions, ref this.versions);
             ArrayUtils.Copy(other.alive, ref this.alive);
-            ArrayUtils.Copy(other.aliveIdx, ref this.aliveIdx);
             ArrayUtils.Copy(other.dead, ref this.dead);
-            ArrayUtils.Copy(other.deadPrepared, ref this.deadPrepared);
+            this.deadPrepared.CopyFrom(other.deadPrepared);
             this.aliveCount = other.aliveCount;
             this.entityId = other.entityId;
             this.archetypes.CopyFrom(other.archetypes);
@@ -134,14 +129,12 @@ namespace ME.ECS {
             } else {
 
                 id = ++this.entityId;
-                ArrayUtils.Resize(id, ref this.versions);
-                ArrayUtils.Resize(id, ref this.aliveIdx);
+                ArrayUtils.Resize(id, ref this.versions, true);
 
             }
             
             ++this.aliveCount;
             this.alive.Add(id);
-            this.aliveIdx.arr[id] = this.alive.Count - 1;
             ref var v = ref this.versions.arr[id];
             if (v == 0) ++v;
             return new Entity(id, v);
@@ -151,6 +144,7 @@ namespace ME.ECS {
         public bool Dealloc(Entity entity) {
 
             if (this.IsAlive(entity.id, entity.version) == false) return false;
+            if (this.deadPrepared.Contains(entity.id) == true) return false;
 
             this.deadPrepared.Add(entity.id);
             
@@ -165,8 +159,8 @@ namespace ME.ECS {
                 --this.aliveCount;
                 ++this.versions.arr[id];
                 this.dead.Add(id);
-                this.alive.RemoveAt(this.aliveIdx.arr[id]);
-                
+                this.alive.Remove(id);
+
             }
             this.deadPrepared.Clear();
 
