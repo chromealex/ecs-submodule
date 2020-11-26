@@ -82,6 +82,14 @@ namespace ME.ECS {
     
     public static partial class ComponentsInitializer {
 
+        public static void InitTypeId() {
+            
+            ComponentsInitializer.InitTypeIdPartial();
+            
+        }
+        
+        static partial void InitTypeIdPartial();
+        
         public static void DoInit() {
             
             ComponentsInitializer.Init(ref Worlds.currentWorld.GetStructComponents());

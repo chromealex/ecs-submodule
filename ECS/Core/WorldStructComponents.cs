@@ -51,7 +51,7 @@ namespace ME.ECS {
         public abstract bool RemoveObject(Entity entity);
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public abstract void UseLifetimeStep(World world, in byte step);
+        public abstract void UseLifetimeStep(World world, byte step);
         
         public abstract void CopyFrom(StructRegistryBase other);
 
@@ -122,14 +122,14 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public override void UseLifetimeStep(World world, in byte step) {
+        public override void UseLifetimeStep(World world, byte step) {
 
             if (this.lifetimeIndexes != null) {
 
                 for (int i = 0; i < this.lifetimeIndexes.Count; ++i) {
 
                     var id = this.lifetimeIndexes[i];
-                    this.UseLifetimeStep(id, world, in step);
+                    this.UseLifetimeStep(id, world, step);
 
                 }
                 this.lifetimeIndexes.Clear();
@@ -139,11 +139,11 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        private void UseLifetimeStep(int id, World world, in byte step) {
+        private void UseLifetimeStep(int id, World world, byte step) {
 
             ref var state = ref this.componentsStates.arr[id];
             if (state - 1 == step) {
-                    
+                
                 ref var entity = ref world.GetEntityById(in id);
                 if (entity.version == 0) return;
                     
@@ -195,9 +195,9 @@ namespace ME.ECS {
         public override IStructComponent GetObject(Entity entity) {
 
             #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
+            if (entity.IsAlive() == false) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -234,9 +234,9 @@ namespace ME.ECS {
         public override bool SetObject(Entity entity, IStructComponent data) {
 
             #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
+            if (entity.IsAlive() == false) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -269,9 +269,9 @@ namespace ME.ECS {
         public override bool RemoveObject(Entity entity) {
 
             #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
+            if (entity.IsAlive() == false) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -302,7 +302,7 @@ namespace ME.ECS {
             #if WORLD_EXCEPTIONS
             if (entity.version == 0) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -318,9 +318,9 @@ namespace ME.ECS {
         public override bool Remove(in Entity entity, bool clearAll = false) {
 
             #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
+            if (entity.IsAlive() == false) {
                 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -395,7 +395,7 @@ namespace ME.ECS {
             
             public void Execute() {
 
-                this.world.SetData(this.entity, in this.data, this.lifetime);
+                if (this.entity.IsAlive() == true) this.world.SetData(this.entity, in this.data, this.lifetime);
 
             }
 
@@ -1078,19 +1078,19 @@ namespace ME.ECS {
         private void PlayTasksForTick() {
             
             if (this.currentState.structComponents.nextTickTasks.Count > 0) {
-
+                
                 for (int i = 0; i < this.currentState.structComponents.nextTickTasks.Count; ++i) {
-
+                    
                     var task = this.currentState.structComponents.nextTickTasks[i];
                     if (task == null) continue;
                     
                     task.Execute();
                     task.Recycle();
-
+                    
                 }
-
+                
                 this.currentState.structComponents.nextTickTasks.ClearNoCC();
-
+                
             }
             
         }

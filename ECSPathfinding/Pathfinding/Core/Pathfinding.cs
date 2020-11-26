@@ -33,6 +33,8 @@ namespace ME.ECS.Pathfinding {
         public List<Graph> graphs;
 
         public LogLevel logLevel;
+
+        public bool clonePathfinding = true;
         
         private HashSet<GraphDynamicModifier> dynamicModifiers = new HashSet<GraphDynamicModifier>();
 
@@ -161,6 +163,8 @@ namespace ME.ECS.Pathfinding {
                 float dist = float.MaxValue;
                 for (int i = 0; i < this.graphs.Count; ++i) {
 
+                    if (constraint.graphMask >= 0 && (constraint.graphMask & (1 << this.graphs[i].index)) == 0) continue;
+                    
                     var node = this.graphs[i].GetNearest(worldPosition, constraint);
                     if (node == null) continue;
                     

@@ -1052,13 +1052,17 @@ namespace ME.ECSEditor {
 		            EditorGUILayout.LabelField(caption, GUILayout.Width(EditorGUIUtility.labelWidth));
 		            GUILayoutExt.Icon(new [] { "Assets/ECS/ECSEditor/EditorResources/icon-link.png", "Assets/ECS-submodule/ECSEditor/EditorResources/icon-link.png" }, 16f, 16f);
 		            if (entity == Entity.Empty) {
-						GUILayout.Label("Empty");   
+			            
+						GUILayout.Label("Empty");
+						
 		            } else {
-			            var customName = entity.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value;
+			            
+			            var customName = (entity.IsAlive() == true ? entity.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value : string.Empty);
 			            GUILayout.BeginVertical();
 			            GUILayout.Label(string.IsNullOrEmpty(customName) == false ? customName : "Unnamed");
 			            GUILayout.Label(entity.ToSmallString(), EditorStyles.miniLabel);
 			            GUILayout.EndVertical();
+			            
 		            }
 
 		            GUILayout.FlexibleSpace();
@@ -1082,13 +1086,17 @@ namespace ME.ECSEditor {
 		            var buttonWidth = 50f;
 		            EditorGUILayout.LabelField(caption, GUILayout.Width(EditorGUIUtility.labelWidth));
 		            if (entity == Entity.Empty) {
-			            GUILayout.Label("Empty");   
+			            
+			            GUILayout.Label("Empty");
+			            
 		            } else {
-			            var customName = entity.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value;
+			            
+			            var customName = (entity.IsAlive() == true ? entity.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value : string.Empty);
 			            GUILayout.BeginVertical();
 			            GUILayout.Label(string.IsNullOrEmpty(customName) == false ? customName : "Unnamed");
 			            GUILayout.Label(entity.ToSmallString(), EditorStyles.miniLabel);
 			            GUILayout.EndVertical();
+			            
 		            }
 
 		            GUILayout.FlexibleSpace();
@@ -1182,6 +1190,14 @@ namespace ME.ECSEditor {
 	            if (typeCheckOnly == false) {
 
 		            value = (pfloat)EditorGUILayout.FloatField(caption, (float)(pfloat)value);
+
+	            }
+
+            } else if (type == typeof(bool)) {
+
+	            if (typeCheckOnly == false) {
+
+		            value = EditorGUILayout.Toggle(caption, (bool)value);
 
 	            }
 

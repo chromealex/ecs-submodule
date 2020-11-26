@@ -52,14 +52,14 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
                 return;
 
             }
-            
+
             if (this.pathfinding == null && _other.pathfinding != null) {
                 
-                this.pathfinding = _other.pathfinding.Clone();
+                this.pathfinding = (_other.pathfinding.clonePathfinding == true ? _other.pathfinding.Clone() : _other.pathfinding);
                 
             } else {
 
-                this.pathfinding.CopyFrom(_other.pathfinding); 
+                if (_other.pathfinding.clonePathfinding == true) this.pathfinding.CopyFrom(_other.pathfinding); 
 
             }
             
