@@ -1289,6 +1289,12 @@ namespace ME.ECS {
             
         }
 
+        public ListCopyable<int> GetAliveEntities() {
+
+            return this.currentState.storage.GetAlive();
+            
+        }
+
         /*public bool HasEntity<TEntity>(int entityId) where TEntity : struct, IEntity {
             
             var key = MathUtils.GetKey(this.id, entityId);

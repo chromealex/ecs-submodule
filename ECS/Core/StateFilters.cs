@@ -550,7 +550,7 @@ namespace ME.ECS {
 
                 for (int i = 0; i < list.Count; ++i) {
 
-                    this.OnUpdate(list[i]);
+                    this.OnUpdate(in list[i]);
 
                 }
 

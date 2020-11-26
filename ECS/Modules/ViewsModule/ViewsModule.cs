@@ -871,44 +871,41 @@ namespace ME.ECS.Views {
 
             var hasChanged = false;
             var aliveEntities = PoolHashSet<int>.Spawn(ViewsModule.INTERNAL_ENTITIES_CACHE_CAPACITY);
-            var allEntities = PoolList<Entity>.Spawn(ViewsModule.INTERNAL_ENTITIES_CACHE_CAPACITY);
-            if (this.world.ForEachEntity(allEntities) == true) {
+            //var allEntities = PoolList<Entity>.Spawn(ViewsModule.INTERNAL_ENTITIES_CACHE_CAPACITY);
+            var allEntities = this.world.GetAliveEntities();
+            for (int j = 0; j < allEntities.Count; ++j) {
 
-                for (int j = 0; j < allEntities.Count; ++j) {
+                ref var entityId = ref allEntities[j];
 
-                    ref var item = ref allEntities[j];
+                aliveEntities.Add(entityId);
+                
+                var allViews = this.world.ForEachComponent<ViewComponent>(entityId);
+                if (allViews != null) {
 
-                    aliveEntities.Add(item.id);
-                    
-                    var allViews = this.world.ForEachComponent<ViewComponent>(item);
-                    if (allViews != null) {
+                    // Comparing current state views to current rendering
+                    foreach (var viewComponent in allViews) {
 
-                        // Comparing current state views to current rendering
-                        foreach (var viewComponent in allViews) {
+                        var view = (ViewComponent)viewComponent;
+                        if (this.IsRenderingNow(in view.viewInfo) == true) {
 
-                            var view = (ViewComponent)viewComponent;
-                            if (this.IsRenderingNow(in view.viewInfo) == true) {
+                            // is rendering now
+                            //this.prevList.Add(view.viewInfo);
 
-                                // is rendering now
-                                //this.prevList.Add(view.viewInfo);
+                        } else {
 
-                            } else {
-
-                                // is not rendering now
-                                // create required instance
-                                this.CreateVisualInstance(in view.seed, in view.viewInfo);
-                                hasChanged = true;
-
-                            }
+                            // is not rendering now
+                            // create required instance
+                            this.CreateVisualInstance(in view.seed, in view.viewInfo);
+                            hasChanged = true;
 
                         }
 
                     }
 
                 }
-                
-            }
 
+            }
+            
             for (var id = this.list.Length - 1; id >= 0; --id) {
                 
                 ref var views = ref this.list.arr[id];
@@ -978,7 +975,6 @@ namespace ME.ECS.Views {
             }
 
             PoolHashSet<int>.Recycle(ref aliveEntities);
-            PoolList<Entity>.Recycle(ref allEntities);
 
             return hasChanged;
 

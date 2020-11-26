@@ -8,6 +8,7 @@ namespace ME.ECS {
     public interface IStorage : IPoolableRecycle {
 
         int AliveCount { get; }
+        int DeadCount { get; }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         bool IsAlive(int id, ushort version);
@@ -50,6 +51,19 @@ namespace ME.ECS {
             get {
                 return this.aliveCount;
             }
+        }
+
+        public int DeadCount {
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            get {
+                return this.dead.Count;
+            }
+        }
+
+        public ListCopyable<int> GetAlive() {
+            
+            return this.alive;
+
         }
 
         public bool ForEach(ListCopyable<Entity> results) {

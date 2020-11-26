@@ -135,6 +135,12 @@ namespace ME.ECS {
 
         }
 
+        public ListCopyable<IComponent> ForEachComponent<TComponent>(int entityId) where TComponent : class, IComponent {
+
+            return this.currentState.components.ForEach<TComponent>(entityId);
+
+        }
+
         /// <summary>
         /// Check is component exists on entity
         /// </summary>
