@@ -2,7 +2,7 @@
 
     public static partial class ComponentsInitializer {
     
-        public static void InitTypeId() {
+        static partial void InitTypeIdPartial() {
             
             WorldUtilities.ResetTypeIds();
             CoreComponentsInitializer.InitTypeId();
