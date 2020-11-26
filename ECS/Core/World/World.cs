@@ -1213,9 +1213,9 @@ namespace ME.ECS {
 
         }
 
-        public bool IsAlive(in int entityId, in ushort version) {
+        public bool IsAlive(int entityId, ushort version) {
 
-            if (version == 0) return false;
+            if (version == Entity.VERSION_ZERO) return false;
             
             ref var entitiesList = ref this.currentState.storage.GetData();
             if (entitiesList[entityId].version == version && entitiesList.IsFree(entityId) == false) {
@@ -1232,7 +1232,7 @@ namespace ME.ECS {
             
             ref var entitiesList = ref this.currentState.storage.GetData();
             ref var ent = ref entitiesList[id];
-            if (this.IsAlive(in ent.id, in ent.version) == false) return ref Entity.Empty;
+            if (this.IsAlive(ent.id, ent.version) == false) return ref Entity.Empty;
             
             return ref ent;
 
@@ -1320,9 +1320,9 @@ namespace ME.ECS {
         public bool RemoveEntity(in Entity entity) {
 
             #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
+            if (entity.IsAlive() == false) {
 
-                EmptyEntityException.Throw();
+                EmptyEntityException.Throw(entity);
 
             }
             #endif
@@ -1330,10 +1330,7 @@ namespace ME.ECS {
             var data = this.currentState.storage.GetData();
             if (data.IsFree(entity.id) == false && entity.id > 0) {
 
-                //var entityInStorage = data[entity.id];
-                /*if (entityInStorage.version == entity.version)*/ {
-
-                    data.RemoveAt(entity.id);
+                if (data.RemoveAt(entity.id) == true) {
 
                     this.RemoveFromFilters(entity);
                     this.DestroyEntityPlugins(in entity);
@@ -1998,7 +1995,7 @@ namespace ME.ECS {
 
                                         if (this.settings.useJobsForSystems == true && sysFilter.jobs == true) {
 
-                                            var arrEntities = sysFilter.filter.GetArray();
+                                            var arrEntities = sysFilter.filter.ToArray();
                                             using (var arr = new Unity.Collections.NativeArray<Entity>(arrEntities.arr, Unity.Collections.Allocator.TempJob)) {
 
                                                 var length = arrEntities.Length;
@@ -2018,7 +2015,7 @@ namespace ME.ECS {
 
                                                 foreach (ref var entity in sysFilter.filter) {
 
-                                                    if (entity.version > Entity.VERSION_ZERO) sysFilterContext.AdvanceTick(in entity, in fixedDeltaTime);
+                                                    sysFilterContext.AdvanceTick(in entity, in fixedDeltaTime);
 
                                                 }
 
@@ -2047,6 +2044,8 @@ namespace ME.ECS {
 
                                 }
 
+                                this.currentState.storage.ApplyPrepared();
+
                                 #if CHECKPOINT_COLLECTOR
                                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
                                 #endif
@@ -2065,8 +2064,6 @@ namespace ME.ECS {
                 ////////////////
                 this.currentStep &= ~WorldStep.SystemsLogicTick;
                 ////////////////
-
-                this.currentState.storage.ApplyPrepared();
 
                 /*#if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveComponentsOnce", WorldStep.None);

@@ -30,6 +30,16 @@ namespace ME.ECS.Pathfinding {
 
         public long graphMask;
 
+        public override string ToString() {
+            
+            return "AgentSize: " + this.agentSize +
+                   ", Area: " + this.checkArea + " (" + this.areaMask + ")" +
+                   ", Tags: " + this.checkTags + " (" + this.tagsMask + ")" +
+                   ", Walkable: " + this.checkWalkability + " (" + this.walkable + ")" +
+                   ", Graph: " + this.graphMask;
+            
+        }
+
     }
 
 }

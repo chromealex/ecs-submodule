@@ -284,16 +284,85 @@ namespace ME.ECS {
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     public struct FilterEnumerator : IEnumerator<Entity> {
+        
+        public struct EntityEnumerator : IEnumerator<Entity> {
+
+            private BufferArray<Entity> bufferArray;
+            private int index;
+            private int max;
             
+            public EntityEnumerator(BufferArray<Entity> bufferArray, int min, int max) {
+
+                this.bufferArray = bufferArray;
+                this.index = min - 1;
+                this.max = max;//bufferArray.Length - 1; //max;
+
+            }
+
+            object System.Collections.IEnumerator.Current {
+                get {
+                    throw new AllocationException();
+                }
+            }
+
+            #if ECS_COMPILE_IL2CPP_OPTIONS
+            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+            #endif
+            Entity IEnumerator<Entity>.Current {
+                [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+                get {
+                    return this.bufferArray.arr[this.index];
+                }
+            }
+            
+            #if ECS_COMPILE_IL2CPP_OPTIONS
+            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+            #endif
+            public ref Entity Current {
+                [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+                get {
+                    return ref this.bufferArray.arr[this.index];
+                }
+            }
+
+            #if ECS_COMPILE_IL2CPP_OPTIONS
+            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+            #endif
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            public bool MoveNext() {
+
+                do {
+
+                    ++this.index;
+                    if (this.index > this.max) return false;
+
+                } while (this.bufferArray.arr[this.index].IsAlive() == false);
+                
+                return true;
+
+            }
+
+            public void Reset() {}
+
+            public void Dispose() {}
+            
+        }
+        
         private readonly Filter set;
-        private BufferArray<Entity>.Enumerator setEnumerator;
+        private EntityEnumerator setEnumerator;
         private BufferArray<Entity> arr;
             
         internal FilterEnumerator(Filter set) {
                 
             this.set = set;
-            this.arr = this.set.GetArray();
-            this.setEnumerator = this.arr.GetEnumerator();
+            this.arr = this.set.GetArray(out var min, out var max);
+            this.setEnumerator = new EntityEnumerator(this.arr, min, max);
             this.set.SetForEachMode(true);
 
         }
@@ -306,7 +375,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void Dispose() {
 
-            PoolArray<Entity>.Recycle(this.arr);
+            //PoolArray<Entity>.Recycle(this.arr);
             this.set.SetForEachMode(false);
 
         }
@@ -578,15 +647,23 @@ namespace ME.ECS {
         #endif
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public BufferArray<Entity> GetArray() {
+        public BufferArray<Entity> GetArray(out int min, out int max) {
 
-            var data = PoolArray<Entity>.Spawn(this.dataCount);
+            min = this.min;
+            max = this.max;
+
+            if (min < 0) min = 0;
+            if (max >= this.data.Count) max = this.data.Count - 1;
+            
+            /*var data = PoolArray<Entity>.Spawn(this.dataCount);
             for (int i = 0, k = 0; i < this.data.Length; ++i) {
                 if (this.data.arr[i].version > 0) {
                     data.arr[k++] = this.data.arr[i];
                 }
             }
-            return data;
+            return data;*/
+
+            return this.data;
 
         }
 
@@ -594,7 +671,7 @@ namespace ME.ECS {
         public BufferArray<Entity> ToArray() {
 
             var data = PoolArray<Entity>.Spawn(this.dataCount);
-            for (int i = 0, k = 0; i < this.data.Length; ++i) {
+            for (int i = this.min, k = 0; i <= this.max; ++i) {
                 if (this.data.arr[i].version > 0) {
                     data.arr[k++] = this.data.arr[i];
                 }
@@ -996,34 +1073,52 @@ namespace ME.ECS {
                 this.min = int.MaxValue;
                 this.max = int.MinValue;
                 return;
-
+                
             }
             
             if (idx == this.min) {
 
                 // Update new min (find next index)
+                var changed = false;
                 for (int i = idx; i < this.data.Length; ++i) {
 
                     if (this.dataContains.arr[i] == true) {
 
                         this.min = i;
+                        changed = true;
                         break;
 
                     }
 
                 }
 
-            } else if (idx == this.max) {
+                if (changed == false) {
+
+                    this.min = int.MaxValue;
+
+                }
+
+            }
+            
+            if (idx == this.max) {
 
                 // Update new max (find prev index)
+                var changed = false;
                 for (int i = idx; i >= 0; --i) {
 
                     if (this.dataContains.arr[i] == true) {
 
                         this.max = i;
+                        changed = true;
                         break;
 
                     }
+
+                }
+
+                if (changed == false) {
+
+                    this.max = int.MinValue;
 
                 }
 

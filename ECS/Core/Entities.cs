@@ -341,7 +341,7 @@
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool IsAlive() {
 
-            return Worlds.currentWorld.IsAlive(in this.id, in this.version);
+            return Worlds.currentWorld.IsAlive(this.id, this.version);
 
         }
 
