@@ -133,7 +133,7 @@ namespace ME.ECSEditor {
 
 	    public static Entity DrawEntitySelection(World world, in Entity entity, bool checkAlive, bool drawSelectButton = true) {
 		    
-		    ref var currentEntity = ref world.GetEntityById(in entity.id);
+		    var currentEntity = world.GetEntityById(in entity.id);
 		    if (checkAlive == true && entity.IsAlive() == false) {
 
 			    EditorGUILayout.HelpBox("This entity version is already in pool, the list of components has been changed.", MessageType.Warning);
@@ -204,21 +204,26 @@ namespace ME.ECSEditor {
                 
                 var worldEditor = new WorldsViewerEditor.WorldEditor();
                 worldEditor.world = Worlds.currentWorld;
-                var entities = worldEditor.GetEntitiesStorage();
                 
-                foreach (var idx in entities) {
+                var allEntities = PoolList<Entity>.Spawn(worldEditor.world.GetState().storage.AliveCount);
+                if (worldEditor.world.ForEachEntity(allEntities) == true) {
 
-	                if (entities.IsFree(idx) == true) continue;
-	                var entity = entities[idx];
-	                var name = entity.HasData<ME.ECS.Name.Name>() == true ? entity.GetData<ME.ECS.Name.Name>().value : "Unnamed";
-	                popup.Item(string.Format("{0} ({1})", name, entity), () => {
+	                for (int i = 0; i < allEntities.Count; ++i) {
+
+		                var entity = allEntities[i];
+		                var name = entity.HasData<ME.ECS.Name.Name>() == true ? entity.GetData<ME.ECS.Name.Name>().value : "Unnamed";
+		                popup.Item(string.Format("{0} ({1})", name, entity), () => {
 		                
-		                entityDebugComponent.world = worldEditor.world;
-		                entityDebugComponent.entity = entity;
+			                entityDebugComponent.world = worldEditor.world;
+			                entityDebugComponent.entity = entity;
 		                
-	                });
-	                
+		                });
+
+	                }
+
                 }
+                PoolList<Entity>.Recycle(ref allEntities);
+
                 popup.Show();
 
             }

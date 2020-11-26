@@ -5,26 +5,19 @@ namespace ME.ECS {
     
     using ME.ECS.Collections;
     
-    public interface IStorage : IPoolableRecycle, IEnumerable {
+    public interface IStorage : IPoolableRecycle {
 
-        int Count {
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            get;
-        }
+        int AliveCount { get; }
 
-        int FromIndex {
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            get;
-        }
-
-        int ToIndex {
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            get;
-        }
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        ref RefList<Entity> GetData();
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        bool IsFree(int index);
+        bool IsAlive(int id, ushort version);
+
+        bool ForEach(ListCopyable<Entity> results);
+        
+        Entity Alloc();
+        bool Dealloc(Entity entity);
+
+        void ApplyDead();
 
     }
 
@@ -35,6 +28,157 @@ namespace ME.ECS {
     #endif
     public sealed class Storage : IStorage {
 
+        [ME.ECS.Serializer.SerializeField]
+        private BufferArray<ushort> versions;
+        [ME.ECS.Serializer.SerializeField]
+        private ListCopyable<int> alive;
+        [ME.ECS.Serializer.SerializeField]
+        private BufferArray<int> aliveIdx;
+        [ME.ECS.Serializer.SerializeField]
+        private ListCopyable<int> dead;
+        [ME.ECS.Serializer.SerializeField]
+        private ListCopyable<int> deadPrepared;
+        [ME.ECS.Serializer.SerializeField]
+        private int aliveCount;
+        [ME.ECS.Serializer.SerializeField]
+        private int entityId;
+        [ME.ECS.Serializer.SerializeField]
+        internal ArchetypeEntities archetypes;
+
+        public int AliveCount {
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            get {
+                return this.aliveCount;
+            }
+        }
+
+        public bool ForEach(ListCopyable<Entity> results) {
+            
+            results.Clear();
+            for (int i = 0; i < this.alive.Count; ++i) {
+
+                var id = this.alive[i];
+                results.Add(new Entity(id, this.versions.arr[id]));
+                
+            }
+
+            return true;
+
+        }
+        
+        public void Initialize(int capacity) {
+            
+            this.versions = PoolArray<ushort>.Spawn(capacity);
+            this.alive = PoolList<int>.Spawn(capacity);
+            this.aliveIdx = PoolArray<int>.Spawn(capacity);
+            this.dead = PoolList<int>.Spawn(capacity);
+            this.deadPrepared = PoolList<int>.Spawn(capacity);
+            this.aliveCount = 0;
+            this.entityId = -1;
+            this.archetypes = PoolClass<ArchetypeEntities>.Spawn();
+
+        }
+        
+        void IPoolableRecycle.OnRecycle() {
+
+            PoolArray<ushort>.Recycle(ref this.versions);
+            PoolList<int>.Recycle(ref this.alive);
+            PoolArray<int>.Recycle(ref this.aliveIdx);
+            PoolList<int>.Recycle(ref this.dead);
+            PoolList<int>.Recycle(ref this.deadPrepared);
+            this.aliveCount = 0;
+            this.entityId = -1;
+            PoolClass<ArchetypeEntities>.Recycle(ref this.archetypes);
+
+        }
+        
+        public void SetFreeze(bool freeze) {
+        }
+
+        public void CopyFrom(Storage other) {
+            
+            ArrayUtils.Copy(other.versions, ref this.versions);
+            ArrayUtils.Copy(other.alive, ref this.alive);
+            ArrayUtils.Copy(other.aliveIdx, ref this.aliveIdx);
+            ArrayUtils.Copy(other.dead, ref this.dead);
+            ArrayUtils.Copy(other.deadPrepared, ref this.deadPrepared);
+            this.aliveCount = other.aliveCount;
+            this.entityId = other.entityId;
+            this.archetypes.CopyFrom(other.archetypes);
+
+        }
+        
+        public Entity Alloc() {
+
+            int id = -1;
+            if (this.dead.Count > 0) {
+                
+                id = this.dead[0];
+                this.dead[0] = this.dead[this.dead.Count - 1];
+                this.dead.RemoveAt(this.dead.Count - 1);
+                
+            } else {
+
+                id = ++this.entityId;
+                ArrayUtils.Resize(id, ref this.versions);
+                ArrayUtils.Resize(id, ref this.aliveIdx);
+
+            }
+            
+            ++this.aliveCount;
+            this.alive.Add(id);
+            this.aliveIdx.arr[id] = this.alive.Count - 1;
+            ref var v = ref this.versions.arr[id];
+            if (v == 0) ++v;
+            return new Entity(id, v);
+            
+        }
+
+        public bool Dealloc(Entity entity) {
+
+            if (this.IsAlive(entity.id, entity.version) == false) return false;
+
+            this.deadPrepared.Add(entity.id);
+            
+            return true;
+
+        }
+
+        public void ApplyDead() {
+
+            foreach (var id in this.deadPrepared) {
+
+                --this.aliveCount;
+                ++this.versions.arr[id];
+                this.dead.Add(id);
+                this.alive.RemoveAt(this.aliveIdx.arr[id]);
+                
+            }
+            this.deadPrepared.Clear();
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public bool IsAlive(int id, ushort version) {
+
+            return this.versions.arr[id] == version;
+
+        }
+        
+        public Entity this[int id] {
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            get {
+                return new Entity(id, this.versions.arr[id]);
+            }
+        }
+        
+        public override string ToString() {
+            
+            return "Storage: dead(" + this.dead.Count + ") alive(" + this.aliveCount + ")";
+            
+        }
+        
+        /*
         public struct StorageEnumerator : IEnumerator<int> {
 
             private Storage storage;
@@ -218,7 +362,7 @@ namespace ME.ECS {
             
             return "Storage Count: " + this.list.ToString();
             
-        }
+        }*/
 
     }
 

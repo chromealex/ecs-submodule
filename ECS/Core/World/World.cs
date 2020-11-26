@@ -247,19 +247,21 @@ namespace ME.ECS {
             statesHistory.EndAddEvents();
             
             // Update logic
-            this.ForEachEntity(out var allEntities);
-            for (int j = allEntities.FromIndex, jCount = allEntities.SizeCount; j < jCount; ++j) {
+            var list = PoolList<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
+            if (this.ForEachEntity(list) == true) {
 
-                var entity = allEntities[j];
-                if (entity.IsAlive() == true) {
-                    
+                for (int i = 0; i < list.Count; ++i) {
+
+                    ref var entity = ref list[i];
                     ComponentsInitializerWorld.Init(in entity);
                     this.CreateEntityPlugins(entity);
                     this.UpdateFiltersOnFilterCreate(entity);
-                    
+
                 }
 
             }
+            PoolList<Entity>.Recycle(ref list);
+
             this.SetFromToTicks(data.state.tick, data.tick);
             this.UpdateLogic(0f);
 
@@ -402,16 +404,19 @@ namespace ME.ECS {
         
         void IPoolableRecycle.OnRecycle() {
             
-            if (this.ForEachEntity(out var entities) == true) {
+            var list = PoolList<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
+            if (this.ForEachEntity(list) == true) {
 
-                for (int i = entities.FromIndex; i < entities.SizeCount; ++i) {
-                    
-                    if (entities.IsFree(i) == true) continue;
-                    this.RemoveEntity(entities[i]);
+                for (int i = 0; i < list.Count; ++i) {
+
+                    ref var item = ref list[i];
+                    this.RemoveEntity(item);
 
                 }
-                
+
             }
+            PoolList<Entity>.Recycle(ref list);
+            this.GetState().storage.ApplyDead();
 
             PoolArray<bool>.Recycle(ref this.currentSystemContextFiltersUsed);
             
@@ -821,20 +826,20 @@ namespace ME.ECS {
             
             if (this.entitiesCapacity > 0) filterRef.SetEntityCapacity(this.entitiesCapacity);
             
-            if (this.ForEachEntity(out var allEntities) == true) {
+            var list = PoolList<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
+            if (this.ForEachEntity(list) == true) {
 
-                for (int j = allEntities.FromIndex, jCount = allEntities.SizeCount; j < jCount; ++j) {
-                    
-                    ref var item = ref allEntities[j];
-                    if (allEntities.IsFree(j) == true) continue;
+                for (int i = 0; i < list.Count; ++i) {
 
+                    ref var item = ref list[i];
                     ComponentsInitializerWorld.Init(in item);
                     this.UpdateFiltersOnFilterCreate(item);
-                    
-                }
-                
-            }
 
+                }
+
+            }
+            PoolList<Entity>.Recycle(ref list);
+            
         }
 
         public void Register(ref FiltersStorage filtersRef, bool freeze, bool restore) {
@@ -941,19 +946,19 @@ namespace ME.ECS {
                 this.BeginRestoreEntities();
                 
                 // Update entities cache
-                if (this.ForEachEntity(out var allEntities) == true) {
+                var list = PoolList<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
+                if (this.ForEachEntity(list) == true) {
 
-                    for (int j = allEntities.FromIndex, jCount = allEntities.SizeCount; j < jCount; ++j) {
-                    
-                        ref var item = ref allEntities[j];
-                        if (allEntities.IsFree(j) == true) continue;
-                    
+                    for (int i = 0; i < list.Count; ++i) {
+
+                        ref var item = ref list[i];
                         this.UpdateFilters(item);
                         this.CreateEntityPlugins(item);
 
                     }
-                
+
                 }
+                PoolList<Entity>.Recycle(ref list);
                 
                 this.EndRestoreEntities();
 
@@ -1215,26 +1220,17 @@ namespace ME.ECS {
 
         public bool IsAlive(int entityId, ushort version) {
 
-            if (version == Entity.VERSION_ZERO) return false;
+            return this.currentState.storage.IsAlive(entityId, version);
             
-            ref var entitiesList = ref this.currentState.storage.GetData();
-            if (entitiesList[entityId].version == version && entitiesList.IsFree(entityId) == false) {
-
-                return true;
-
-            }
-
-            return false;
-
         }
 
-        public ref Entity GetEntityById(in int id) {
+        public Entity GetEntityById(in int id) {
             
-            ref var entitiesList = ref this.currentState.storage.GetData();
-            ref var ent = ref entitiesList[id];
-            if (this.IsAlive(ent.id, ent.version) == false) return ref Entity.Empty;
+            ref var entitiesList = ref this.currentState.storage;
+            var ent = entitiesList[id];
+            if (this.IsAlive(ent.id, ent.version) == false) return Entity.Empty;
             
-            return ref ent;
+            return ent;
 
         }
 
@@ -1248,12 +1244,16 @@ namespace ME.ECS {
         
         public Entity AddEntity(string name = null) {
 
+            var entity = this.currentState.storage.Alloc();
+            
+            /*
             ref var entitiesList = ref this.currentState.storage.GetData();
             var nextIndex = entitiesList.GetNextIndex();
             var ent = entitiesList[nextIndex];
             var entity = new Entity(nextIndex, (ushort)(ent.version + 1));
             if (entity.IsAlive() == true) UnityEngine.Debug.LogError("Entity is alive while creating. WTF?");
             entitiesList.Add(entity);
+            */
 
             this.UpdateEntity(entity);
             
@@ -1271,7 +1271,7 @@ namespace ME.ECS {
 
         public int GetEntitiesCount() {
 
-            return this.currentState.storage.Count;
+            return this.currentState.storage.AliveCount;
 
         }
         
@@ -1283,10 +1283,9 @@ namespace ME.ECS {
 
         }
 
-        public bool ForEachEntity(out RefList<Entity> output) {
+        public bool ForEachEntity(ListCopyable<Entity> results) {
 
-            output = this.currentState.storage.GetData();
-            return output != null;
+            return this.currentState.storage.ForEach(results);
             
         }
 
@@ -1327,17 +1326,12 @@ namespace ME.ECS {
             }
             #endif
             
-            var data = this.currentState.storage.GetData();
-            if (data.IsFree(entity.id) == false && entity.id > 0) {
-
-                if (data.RemoveAt(entity.id) == true) {
-
-                    this.RemoveFromFilters(entity);
-                    this.DestroyEntityPlugins(in entity);
-                    this.RemoveComponents(entity);
-                    return true;
-
-                }
+            if (this.currentState.storage.Dealloc(entity) == true) {
+            
+                this.RemoveFromFilters(entity);
+                this.DestroyEntityPlugins(in entity);
+                this.RemoveComponents(entity);
+                return true;
 
             }
 
@@ -2044,7 +2038,7 @@ namespace ME.ECS {
 
                                 }
 
-                                this.currentState.storage.ApplyPrepared();
+                                this.currentState.storage.ApplyDead();
 
                                 #if CHECKPOINT_COLLECTOR
                                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);

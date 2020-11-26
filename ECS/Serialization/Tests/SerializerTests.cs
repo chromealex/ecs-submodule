@@ -254,18 +254,19 @@ namespace ME.ECS.Serializer.Tests {
             {
 
                 // Restore new world
-                targetWorld.ForEachEntity(out var allEntities);
-                for (int j = allEntities.FromIndex, jCount = allEntities.SizeCount; j < jCount; ++j) {
+                var allEntities = PoolList<Entity>.Spawn(100);
+                if (targetWorld.ForEachEntity(allEntities) == true) {
 
-                    var entity = allEntities[j];
-                    if (entity.IsAlive() == true) {
-                        
+                    for (int i = 0; i < allEntities.Count; ++i) {
+
+                        ref var entity = ref allEntities[i];
                         targetWorld.UpdateEntity(entity);
-                        
+
                     }
 
                 }
-
+                PoolList<Entity>.Recycle(ref allEntities);
+                
                 // Test new world
 
             }

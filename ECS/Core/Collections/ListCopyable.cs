@@ -113,9 +113,10 @@
         }
 
         public void RemoveAt(int index) {
+            
             this.Count--;
-            this.innerArray.arr[index] = default(T);
-            System.Array.Copy(this.innerArray.arr, index + 1, this.innerArray.arr, index, this.Count - index);
+            if (index < this.Count) System.Array.Copy(this.innerArray.arr, index + 1, this.innerArray.arr, index, this.Count - index);
+            this.innerArray.arr[this.Count] = default(T);
 
         }
 

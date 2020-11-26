@@ -871,11 +871,11 @@ namespace ME.ECS.Views {
 
             var hasChanged = false;
             var aliveEntities = PoolHashSet<int>.Spawn(ViewsModule.INTERNAL_ENTITIES_CACHE_CAPACITY);
-            if (this.world.ForEachEntity(out RefList<Entity> allEntities) == true) {
+            var allEntities = PoolList<Entity>.Spawn(ViewsModule.INTERNAL_ENTITIES_CACHE_CAPACITY);
+            if (this.world.ForEachEntity(allEntities) == true) {
 
-                for (int j = allEntities.FromIndex, jCount = allEntities.SizeCount; j < jCount; ++j) {
+                for (int j = 0; j < allEntities.Count; ++j) {
 
-                    if (allEntities.IsFree(j) == true) continue;
                     ref var item = ref allEntities[j];
 
                     aliveEntities.Add(item.id);
@@ -978,6 +978,7 @@ namespace ME.ECS.Views {
             }
 
             PoolHashSet<int>.Recycle(ref aliveEntities);
+            PoolList<Entity>.Recycle(ref allEntities);
 
             return hasChanged;
 

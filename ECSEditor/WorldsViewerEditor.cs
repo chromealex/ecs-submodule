@@ -841,61 +841,65 @@ namespace ME.ECSEditor {
                     {
                         var foldout = world.IsFoldOut(storage);
                         GUILayoutExt.FoldOut(ref foldout, GUILayoutExt.GetTypeLabel(storage.GetType()), () => {
-
-                            var list = storage.GetData();
-                            var elements = PoolList<Entity>.Spawn(list.SizeCount);
-                            var elementsIdx = PoolList<int>.Spawn(list.SizeCount);
+                            
+                            var elements = PoolList<Entity>.Spawn(storage.AliveCount);
+                            var elementsIdx = PoolList<int>.Spawn(storage.AliveCount);
                             var paramsList = PoolList<string>.Spawn(4);
                             var search = world.GetSearch(storage);
                             var searchList = search.Split(new [] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
-                            for (var i = list.FromIndex; i < list.SizeCount; ++i) {
+                            
+                            var allEntities = PoolList<Entity>.Spawn(storage.AliveCount);
+                            if (storage.ForEach(allEntities) == true) {
 
-                                if (list.IsFree(i) == true) continue;
+                                for (int i = 0; i < allEntities.Count; ++i) {
 
-                                var entity = list[i];
-                                if (string.IsNullOrEmpty(search) == false) {
+                                    ref var entity = ref allEntities[i];
+                                    if (string.IsNullOrEmpty(search) == false) {
 
-                                    paramsList.Clear();
+                                        paramsList.Clear();
                                     
-                                    var name = entity.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value;
-                                    if (name != null) paramsList.Add(name.ToLower());
+                                        var name = entity.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value;
+                                        if (name != null) paramsList.Add(name.ToLower());
                                     
-                                    var registries = componentsStructStorage.GetAllRegistries();
-                                    for (int k = 0; k < registries.Length; ++k) {
+                                        var registries = componentsStructStorage.GetAllRegistries();
+                                        for (int k = 0; k < registries.Length; ++k) {
 
-                                        var registry = registries.arr[k];
-                                        if (registry == null) continue;
+                                            var registry = registries.arr[k];
+                                            if (registry == null) continue;
                                         
-                                        var component = registry.GetObject(entity);
-                                        if (component == null) continue;
+                                            var component = registry.GetObject(entity);
+                                            if (component == null) continue;
 
-                                        var compName = component.GetType().Name.ToLower();
-                                        paramsList.Add(compName);
-
-                                    }
-
-                                    if (paramsList.Count == 0) continue;
-                                    
-                                    var notFound = false;
-                                    foreach (var p in searchList) {
-
-                                        if (paramsList.Contains(p) == false) {
-
-                                            notFound = true;
-                                            break;
+                                            var compName = component.GetType().Name.ToLower();
+                                            paramsList.Add(compName);
 
                                         }
+
+                                        if (paramsList.Count == 0) continue;
+                                    
+                                        var notFound = false;
+                                        foreach (var p in searchList) {
+
+                                            if (paramsList.Contains(p) == false) {
+
+                                                notFound = true;
+                                                break;
+
+                                            }
                                         
+                                        }
+                                    
+                                        if (notFound == true) continue;
+                                    
                                     }
-                                    
-                                    if (notFound == true) continue;
-                                    
+
+                                    elements.Add(entity);
+                                    elementsIdx.Add(i);
+
                                 }
 
-                                elements.Add(entity);
-                                elementsIdx.Add(i);
-
                             }
+                            PoolList<Entity>.Recycle(ref allEntities);
                             PoolList<string>.Recycle(ref paramsList);
 
                             var elementsOnPage = world.GetOnPageCount(storage);
@@ -922,7 +926,7 @@ namespace ME.ECSEditor {
 
                                           GUILayout.Space(2f);
                                           WorldsViewerEditor.DrawEntity(entityData, world, storage, componentsStructStorage, componentsStorage, modules);
-                                          list.Set(elementsIdx[i], entityData);
+                                          //list.Set(elementsIdx[i], entityData);
 
                                       }
 
@@ -1534,7 +1538,7 @@ namespace ME.ECSEditor {
 
                                 });
 
-                                var entitiesCount = storage.Count;
+                                var entitiesCount = storage.AliveCount;
                                 GUILayoutExt.FoldOut(ref worldEditor.foldoutEntitiesStorage, "Entities (" + entitiesCount.ToString() + ")", () => {
 
                                     var cellHeight = 25f;

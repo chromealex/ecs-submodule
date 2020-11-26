@@ -545,18 +545,17 @@ namespace ME.ECS {
 
         public void Update() {
 
-            if (this.world.ForEachEntity(out RefList<Entity> list) == true) {
+            var list = PoolList<Entity>.Spawn(Filter.ENTITIES_CAPACITY);
+            if (this.world.ForEachEntity(list) == true) {
 
-                for (int i = list.FromIndex; i < list.SizeCount; ++i) {
+                for (int i = 0; i < list.Count; ++i) {
 
-                    var entity = list[i];
-                    if (list.IsFree(i) == true) continue;
-                    
-                    this.OnUpdate(entity);
+                    this.OnUpdate(list[i]);
 
                 }
 
             }
+            PoolList<Entity>.Recycle(ref list);
 
         }
 

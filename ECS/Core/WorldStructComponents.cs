@@ -144,7 +144,7 @@ namespace ME.ECS {
             ref var state = ref this.componentsStates.arr[id];
             if (state - 1 == step) {
                 
-                ref var entity = ref world.GetEntityById(in id);
+                var entity = world.GetEntityById(in id);
                 if (entity.version == 0) return;
                     
                 state = 0;
