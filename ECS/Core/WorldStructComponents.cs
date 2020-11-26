@@ -51,7 +51,7 @@ namespace ME.ECS {
         public abstract bool RemoveObject(Entity entity);
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public abstract void UseLifetimeStep(World world, in byte step);
+        public abstract void UseLifetimeStep(World world, byte step);
         
         public abstract void CopyFrom(StructRegistryBase other);
 
@@ -122,14 +122,14 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public override void UseLifetimeStep(World world, in byte step) {
+        public override void UseLifetimeStep(World world, byte step) {
 
             if (this.lifetimeIndexes != null) {
 
                 for (int i = 0; i < this.lifetimeIndexes.Count; ++i) {
 
                     var id = this.lifetimeIndexes[i];
-                    this.UseLifetimeStep(id, world, in step);
+                    this.UseLifetimeStep(id, world, step);
 
                 }
                 this.lifetimeIndexes.Clear();
@@ -139,11 +139,11 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        private void UseLifetimeStep(int id, World world, in byte step) {
+        private void UseLifetimeStep(int id, World world, byte step) {
 
             ref var state = ref this.componentsStates.arr[id];
             if (state - 1 == step) {
-                    
+                
                 ref var entity = ref world.GetEntityById(in id);
                 if (entity.version == 0) return;
                     

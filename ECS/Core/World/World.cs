@@ -1213,12 +1213,12 @@ namespace ME.ECS {
 
         }
 
-        public bool IsAlive(in int entityId, in ushort version) {
+        public bool IsAlive(int entityId, ushort version) {
 
             if (version == Entity.VERSION_ZERO) return false;
             
             ref var entitiesList = ref this.currentState.storage.GetData();
-            if (entitiesList[entityId].version == version) {// && entitiesList.IsFree(entityId) == false) {
+            if (entitiesList[entityId].version == version && entitiesList.IsFree(entityId) == false) {
 
                 return true;
 
@@ -1232,7 +1232,7 @@ namespace ME.ECS {
             
             ref var entitiesList = ref this.currentState.storage.GetData();
             ref var ent = ref entitiesList[id];
-            if (this.IsAlive(in ent.id, in ent.version) == false) return ref Entity.Empty;
+            if (this.IsAlive(ent.id, ent.version) == false) return ref Entity.Empty;
             
             return ref ent;
 
