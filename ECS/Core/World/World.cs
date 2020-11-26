@@ -1252,6 +1252,7 @@ namespace ME.ECS {
             var nextIndex = entitiesList.GetNextIndex();
             var ent = entitiesList[nextIndex];
             var entity = new Entity(nextIndex, (ushort)(ent.version + 1));
+            if (entity.IsAlive() == true) UnityEngine.Debug.LogError("Entity is alive while creating. WTF?");
             entitiesList.Add(entity);
 
             this.UpdateEntity(entity);
