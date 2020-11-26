@@ -72,7 +72,7 @@ namespace ME.ECS.Pathfinding {
                  constraint.agentSize.y > 0f ||
                  constraint.agentSize.z > 0f)) {
 
-                var result = PoolList<Node>.Spawn(1);
+                var result = PoolList<Node>.Spawn(10);
                 this.graph.GetNodesInBounds(result, new Bounds(this.worldPosition, constraint.agentSize));
                 for (int e = 0, cnt = result.Count; e < cnt; ++e) {
 

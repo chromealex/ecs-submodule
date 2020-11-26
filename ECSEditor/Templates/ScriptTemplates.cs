@@ -301,10 +301,13 @@ MonoBehaviour:
             ScriptTemplates.CreateEmptyDirectory(path, "Markers");
             ScriptTemplates.CreateEmptyDirectory(path, "Features");
             ScriptTemplates.CreateEmptyDirectory(path, "Views");
-            ScriptTemplates.CreateEmptyDirectory(path, "gen");
+            ScriptTemplates.CreateEmptyDirectory(path, "Generator");
 
             ScriptTemplates.Create(path, projectName + "State.cs", "00-StateTemplate", defines, allowRename: false);
-            ScriptTemplates.Create(path, projectName + "Initializer.cs", "00-InitializerTemplate", defines, allowRename: false, onCreated: (asset) => {
+            
+            ScriptTemplates.CreateEmptyDirectory(path + "/Generator", "gen");
+            ScriptTemplates.Create(path + "/Generator", projectName + ".gen.asmdef", "00-asmdef", defines, allowRename: false);
+            ScriptTemplates.Create(path + "/Generator", projectName + "Initializer.cs", "00-InitializerTemplate", defines, allowRename: false, onCreated: (asset) => {
                 
                 var assetPath = AssetDatabase.GetAssetPath(asset);
                 var meta = assetPath + ".meta";

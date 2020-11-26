@@ -227,7 +227,7 @@ namespace ME.ECS.Collections {
 
         public bool RemoveAt(int index) {
 
-            if (this.IsFree(index) == false) {
+            if (this.IsFree(index) == false && this.freePrepared.Contains(index) == false) {
 
                 this.freePrepared.Add(index);
                 --this.count;
