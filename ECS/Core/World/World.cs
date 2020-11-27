@@ -2017,7 +2017,7 @@ namespace ME.ECS {
 
                                             if (sysFilter is ISystemFilter sysFilterContext) {
 
-                                                foreach (ref var entity in sysFilter.filter) {
+                                                foreach (var entity in sysFilter.filter) {
 
                                                     sysFilterContext.AdvanceTick(in entity, in fixedDeltaTime);
 

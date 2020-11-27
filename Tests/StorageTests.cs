@@ -81,7 +81,7 @@ namespace ME.ECS.Tests {
                     NUnit.Framework.Assert.IsTrue(st.IsAlive(entity.id, entity.version));
 
                 }
-                
+
                 for (int i = 0; i < list.Count; ++i) {
 
                     st.Dealloc(list[i]);
