@@ -289,13 +289,13 @@ namespace ME.ECS {
 
             private BufferArray<Entity> bufferArray;
             private int index;
-            private int max;
+            //private int max;
             
-            public EntityEnumerator(BufferArray<Entity> bufferArray, int min, int max) {
+            public EntityEnumerator(BufferArray<Entity> bufferArray) {
 
                 this.bufferArray = bufferArray;
-                this.index = min - 1;
-                this.max = max;//bufferArray.Length - 1; //max;
+                this.index = -1;
+                //this.max = max;//bufferArray.Length - 1; //max;
 
             }
 
@@ -337,6 +337,9 @@ namespace ME.ECS {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public bool MoveNext() {
 
+                ++this.index;
+                return this.index < this.bufferArray.Length;
+                /*
                 do {
 
                     ++this.index;
@@ -344,7 +347,7 @@ namespace ME.ECS {
 
                 } while (this.bufferArray.arr[this.index].IsAlive() == false);
                 
-                return true;
+                return true;*/
 
             }
 
@@ -361,8 +364,8 @@ namespace ME.ECS {
         internal FilterEnumerator(Filter set) {
                 
             this.set = set;
-            this.arr = this.set.GetArray(out var min, out var max);
-            this.setEnumerator = new EntityEnumerator(this.arr, min, max);
+            this.arr = this.set.ToArray();
+            this.setEnumerator = new EntityEnumerator(this.arr);
             this.set.SetForEachMode(true);
 
         }
@@ -375,7 +378,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void Dispose() {
 
-            //PoolArray<Entity>.Recycle(this.arr);
+            PoolArray<Entity>.Recycle(this.arr);
             this.set.SetForEachMode(false);
 
         }
@@ -671,7 +674,7 @@ namespace ME.ECS {
 
             var data = PoolArray<Entity>.Spawn(this.dataCount);
             for (int i = this.min, k = 0; i <= this.max; ++i) {
-                if (this.data.arr[i].version > 0) {
+                if (this.data.arr[i].IsAlive() == true) {
                     data.arr[k++] = this.data.arr[i];
                 }
             }

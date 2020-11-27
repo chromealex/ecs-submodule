@@ -16,7 +16,7 @@ namespace ME.ECS {
         bool ForEach(ListCopyable<Entity> results);
         
         Entity Alloc();
-        bool Dealloc(Entity entity);
+        bool Dealloc(in Entity entity);
 
         void ApplyDead();
 
@@ -36,7 +36,7 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         private ListCopyable<int> dead;
         [ME.ECS.Serializer.SerializeField]
-        private HashSetCopyable<int> deadPrepared;
+        private ListCopyable<int> deadPrepared;
         [ME.ECS.Serializer.SerializeField]
         private int aliveCount;
         [ME.ECS.Serializer.SerializeField]
@@ -83,7 +83,7 @@ namespace ME.ECS {
             this.versions = PoolArray<ushort>.Spawn(capacity);
             this.alive = PoolList<int>.Spawn(capacity);
             this.dead = PoolList<int>.Spawn(capacity);
-            this.deadPrepared = PoolHashSetCopyable<int>.Spawn(capacity);
+            this.deadPrepared = PoolList<int>.Spawn(capacity);
             this.aliveCount = 0;
             this.entityId = -1;
             this.archetypes = PoolClass<ArchetypeEntities>.Spawn();
@@ -95,7 +95,7 @@ namespace ME.ECS {
             PoolArray<ushort>.Recycle(ref this.versions);
             PoolList<int>.Recycle(ref this.alive);
             PoolList<int>.Recycle(ref this.dead);
-            PoolHashSetCopyable<int>.Recycle(ref this.deadPrepared);
+            PoolList<int>.Recycle(ref this.deadPrepared);
             this.aliveCount = 0;
             this.entityId = -1;
             PoolClass<ArchetypeEntities>.Recycle(ref this.archetypes);
@@ -110,7 +110,7 @@ namespace ME.ECS {
             ArrayUtils.Copy(other.versions, ref this.versions);
             ArrayUtils.Copy(other.alive, ref this.alive);
             ArrayUtils.Copy(other.dead, ref this.dead);
-            this.deadPrepared.CopyFrom(other.deadPrepared);
+            ArrayUtils.Copy(other.deadPrepared, ref this.deadPrepared);
             this.aliveCount = other.aliveCount;
             this.entityId = other.entityId;
             this.archetypes.CopyFrom(other.archetypes);
@@ -141,10 +141,9 @@ namespace ME.ECS {
             
         }
 
-        public bool Dealloc(Entity entity) {
+        public bool Dealloc(in Entity entity) {
 
             if (this.IsAlive(entity.id, entity.version) == false) return false;
-            if (this.deadPrepared.Contains(entity.id) == true) return false;
 
             this.deadPrepared.Add(entity.id);
             
@@ -152,12 +151,20 @@ namespace ME.ECS {
 
         }
 
+        public void IncrementVersion(in Entity entity) {
+            
+            // Make this entity not alive, but not completely destroyed at this time
+            ++this.versions.arr[entity.id];
+            
+        }
+
         public void ApplyDead() {
 
-            foreach (var id in this.deadPrepared) {
+            for (int i = 0, cnt = this.deadPrepared.Count; i < cnt; ++i) {
 
+                var id = this.deadPrepared[i];
+                
                 --this.aliveCount;
-                ++this.versions.arr[id];
                 this.dead.Add(id);
                 this.alive.Remove(id);
 

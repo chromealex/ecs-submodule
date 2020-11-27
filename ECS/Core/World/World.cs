@@ -1332,11 +1332,14 @@ namespace ME.ECS {
             }
             #endif
             
-            if (this.currentState.storage.Dealloc(entity) == true) {
+            if (this.currentState.storage.Dealloc(in entity) == true) {
             
                 this.RemoveFromFilters(entity);
                 this.DestroyEntityPlugins(in entity);
                 this.RemoveComponents(entity);
+                
+                this.currentState.storage.IncrementVersion(in entity);
+                
                 return true;
 
             } else {
