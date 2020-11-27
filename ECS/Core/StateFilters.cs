@@ -1240,9 +1240,8 @@ namespace ME.ECS {
         public Filter Push(ref Filter filter) {
 
             var world = Worlds.currentWorld;
-            var worldInt = Worlds.currentWorld;
             var nextId = world.currentState.filters.GetNextId();
-            if (worldInt.HasFilter(nextId) == false) {
+            if (world.HasFilter(nextId) == false) {
 
                 this.tempNodes.AddRange(this.tempNodesCustom);
                 var arr = this.tempNodes.OrderBy(x => x.GetType().GetHashCode()).ToArray();
@@ -1252,7 +1251,7 @@ namespace ME.ECS {
                 this.tempNodes.Clear();
                 this.tempNodesCustom.Clear();
                 
-                var existsFilter = worldInt.GetFilterEquals(this);
+                var existsFilter = world.GetFilterEquals(this);
                 if (existsFilter != null) {
 
                     filter = existsFilter;
@@ -1271,13 +1270,13 @@ namespace ME.ECS {
                     //this.world = worldInt;
                     world.currentState.filters.RegisterInAllArchetype(in this.archetypeContains);
                     world.currentState.filters.RegisterInAllArchetype(in this.archetypeNotContains);
-                    worldInt.Register(this);
+                    world.Register(this);
                     
                 }
 
             } else {
 
-                UnityEngine.Debug.LogWarning(string.Format("World #{0} already has filter {1}!", worldInt.id, this));
+                UnityEngine.Debug.LogWarning(string.Format("World #{0} already has filter {1}!", world.id, this));
 
             }
 
