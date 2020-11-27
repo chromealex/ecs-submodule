@@ -2035,6 +2035,8 @@ namespace ME.ECS {
 
                                 }
 
+                                this.currentState.storage.ApplyDead();
+
                                 this.currentSystemContext = null;
 
                                 for (int f = 1, cnt = this.currentSystemContextFiltersUsed.Length; f < cnt; ++f) {
@@ -2047,8 +2049,6 @@ namespace ME.ECS {
                                     }
 
                                 }
-
-                                this.currentState.storage.ApplyDead();
 
                                 #if CHECKPOINT_COLLECTOR
                                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
