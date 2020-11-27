@@ -322,10 +322,10 @@ namespace ME.ECS {
             [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
             [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
             #endif
-            public ref Entity Current {
+            public Entity Current {
                 [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
                 get {
-                    return ref this.bufferArray.arr[this.index];
+                    return this.bufferArray.arr[this.index];
                 }
             }
 
@@ -409,10 +409,10 @@ namespace ME.ECS {
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public ref Entity Current {
+        public Entity Current {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             get {
-                return ref this.setEnumerator.Current;
+                return this.setEnumerator.Current;
             }
         }
  
