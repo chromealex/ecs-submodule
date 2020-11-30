@@ -50,6 +50,8 @@ namespace ME.ECS.Pathfinding {
             }
             corners.Add(path.graph.GetNearest(nodes[nodes.Count - 1].worldPosition, constraint));
 
+            var cons = Constraint.Empty;
+            cons.graphMask = constraint.graphMask;
             for (int iter = 0; iter < corners.Count; ++iter) {
 
                 for (int i = 0; i < corners.Count - 2; ++i) {
@@ -61,7 +63,7 @@ namespace ME.ECS.Pathfinding {
                     do {
                         
                         pos = Vector3.MoveTowards(pos, next.worldPosition, 0.01f);
-                        var node = path.graph.GetNearest(pos, Constraint.Empty);
+                        var node = path.graph.GetNearest(pos, cons);
                         if ( //node.walkable == false ||
                             node.penalty != c.penalty ||
                             node.IsSuitable(constraint) == false) {

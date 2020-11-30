@@ -461,8 +461,13 @@ namespace ME.ECS {
         private BufferArray<bool> dataContains;
         private BufferArray<Entity> data;
         private bool forEachMode;
+        #if MULTITHREAD_SUPPORT
         private CCList<Entity> requests;
         private CCList<Entity> requestsRemoveEntity;
+        #else
+        private ListCopyable<Entity> requests;
+        private ListCopyable<Entity> requestsRemoveEntity;
+        #endif
         private int min;
         private int max;
         
@@ -686,8 +691,13 @@ namespace ME.ECS {
 
             //this.requests = PoolArray<Entity>.Spawn(Filter.REQUESTS_CAPACITY);
             //this.requestsRemoveEntity = PoolArray<Entity>.Spawn(Filter.REQUESTS_CAPACITY);
+            #if MULTITHREAD_SUPPORT
             this.requests = PoolCCList<Entity>.Spawn();
             this.requestsRemoveEntity = PoolCCList<Entity>.Spawn();
+            #else
+            this.requests = PoolList<Entity>.Spawn(Filter.REQUESTS_CAPACITY);
+            this.requestsRemoveEntity = PoolList<Entity>.Spawn(Filter.REQUESTS_CAPACITY);
+            #endif
             this.nodes = PoolArray<IFilterNode>.Spawn(Filter.NODES_CAPACITY);
             this.data = PoolArray<Entity>.Spawn(Filter.ENTITIES_CAPACITY);
             this.dataContains = PoolArray<bool>.Spawn(Filter.ENTITIES_CAPACITY);
@@ -717,8 +727,13 @@ namespace ME.ECS {
             PoolArray<IFilterNode>.Recycle(ref this.nodes);
             //PoolArray<Entity>.Recycle(ref this.requestsRemoveEntity);
             //PoolArray<Entity>.Recycle(ref this.requests);
+            #if MULTITHREAD_SUPPORT
             PoolCCList<Entity>.Recycle(ref this.requestsRemoveEntity);
             PoolCCList<Entity>.Recycle(ref this.requests);
+            #else
+            PoolList<Entity>.Recycle(ref this.requests);
+            PoolList<Entity>.Recycle(ref this.requestsRemoveEntity);
+            #endif
 
             this.min = int.MaxValue;
             this.max = int.MinValue;
@@ -792,7 +807,7 @@ namespace ME.ECS {
 
             {
                 
-                var requests = this.GetRequests();
+                var requests = this.requests;
                 for (int i = 0, cnt = requests.Count; i < cnt; ++i) {
                     
                     this.OnUpdateForced_INTERNAL(requests[i]);
@@ -800,13 +815,17 @@ namespace ME.ECS {
                 }
                 
                 //System.Array.Clear(requests.arr, 0, requests.Length);
+                #if MULTITHREAD_SUPPORT
                 requests.ClearNoCC();
+                #else
+                requests.Clear();
+                #endif
 
             }
 
             {
                 
-                var requests = this.GetRequestsRemoveEntity();
+                var requests = this.requestsRemoveEntity;
                 for (int i = 0, cnt = requests.Count; i < cnt; ++i) {
                     
                     this.Remove_INTERNAL(requests[i]);
@@ -814,8 +833,12 @@ namespace ME.ECS {
                 }
                 
                 //System.Array.Clear(requests.arr, 0, requests.Length);
+                #if MULTITHREAD_SUPPORT
                 requests.ClearNoCC();
-                
+                #else
+                requests.Clear();
+                #endif
+
             }
 
         }
@@ -852,20 +875,6 @@ namespace ME.ECS {
         public BufferArray<Entity> GetData() {
 
             return this.data;
-
-        }
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public CCList<Entity> GetRequests() {
-
-            return this.requests;
-
-        }
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public CCList<Entity> GetRequestsRemoveEntity() {
-
-            return this.requestsRemoveEntity;
 
         }
 
