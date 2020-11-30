@@ -1047,7 +1047,6 @@ namespace ME.ECS {
 
                 if (this.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.currentState.storage.archetypes.Set(in entity, in componentIndex);
                 ++this.currentState.structComponents.count;
-                this.AddComponentToFilter(entity);
     
             }
             
@@ -1288,7 +1287,6 @@ namespace ME.ECS {
                 
                 if (this.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.currentState.storage.archetypes.Remove(in entity, in componentIndex);
                 --this.currentState.structComponents.count;
-                this.RemoveComponentFromFilter(in entity);
                 
             }
             

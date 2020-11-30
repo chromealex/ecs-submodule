@@ -85,7 +85,7 @@ namespace ME.ECS.Pathfinding {
 
         protected ListCopyable<Node> AstarSearch(Graph graph, ListCopyable<Node> visited, Node startNode, Node endNode, Constraint constraint, int threadIndex) {
             
-            var openList = PoolQueue<Node>.Spawn(10);
+            var openList = PoolQueue<Node>.Spawn(500);
             
             startNode.startToCurNodeLen[threadIndex] = 0f;
             

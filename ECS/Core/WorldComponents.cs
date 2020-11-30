@@ -119,8 +119,7 @@ namespace ME.ECS {
 
             this.currentState.components.Add(entity.id, data);
             if (this.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.currentState.storage.archetypes.Set(in entity, in componentIndex);
-            this.AddComponentToFilter(entity);
-
+            
         }
 
         public TComponent GetComponent<TComponent>(Entity entity) where TComponent : class, IComponent {
