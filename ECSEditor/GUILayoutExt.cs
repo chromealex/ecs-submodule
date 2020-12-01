@@ -11,7 +11,7 @@ namespace ME.ECSEditor {
 
     public interface ICustomFieldEditor : IGUIEditorBase {
 
-	    bool DrawGUI(string caption, System.Reflection.FieldInfo fieldInfo, ref object value, bool typeCheckOnly, bool hasMultipleDifferentValues);
+	    bool DrawGUI(string caption, object instance, int instanceArrIndex, System.Reflection.FieldInfo fieldInfo, ref object value, bool typeCheckOnly, bool hasMultipleDifferentValues);
 
     }
 
@@ -831,9 +831,9 @@ namespace ME.ECSEditor {
                         //var lastRect = GUILayoutUtility.GetLastRect();
                         var value = field.GetValue(instance);
                         var oldValue = value;
-                        var isEditable = GUILayoutExt.PropertyField(world, field.Name, field, field.FieldType, ref value, typeCheckOnly: true, hasMultipleDifferentValues: false);
+                        var isEditable = GUILayoutExt.PropertyField(world, field.Name, instance, -1, field, field.FieldType, ref value, typeCheckOnly: true, hasMultipleDifferentValues: false);
                         EditorGUI.BeginDisabledGroup(disabled: (isEditable == false));
-                        if (GUILayoutExt.PropertyField(world, customName != null ? customName : field.Name, field, field.FieldType, ref value, typeCheckOnly: false, hasMultipleDifferentValues: false) == true) {
+                        if (GUILayoutExt.PropertyField(world, customName != null ? customName : field.Name, instance, -1, field, field.FieldType, ref value, typeCheckOnly: false, hasMultipleDifferentValues: false) == true) {
 
                             //if (oldValue != value) {
 
@@ -926,7 +926,7 @@ namespace ME.ECSEditor {
         }
         
         private static System.Collections.Generic.Dictionary<System.Type, ICustomFieldEditor> customFieldEditors = null;
-        public static bool PropertyField(WorldsViewerEditor.WorldEditor world, string caption, System.Reflection.FieldInfo fieldInfo, System.Type type, ref object value, bool typeCheckOnly, bool hasMultipleDifferentValues) {
+        public static bool PropertyField(WorldsViewerEditor.WorldEditor world, string caption, object instance, int instanceArrIndex, System.Reflection.FieldInfo fieldInfo, System.Type type, ref object value, bool typeCheckOnly, bool hasMultipleDifferentValues) {
 
             if (typeCheckOnly == false && value == null && type.IsValueType == false && type.IsArray == false && type.HasBaseType(typeof(UnityEngine.Object)) == false && type.HasBaseType(typeof(string)) == false) {
 
@@ -940,7 +940,7 @@ namespace ME.ECSEditor {
             ME.ECSEditor.GUILayoutExt.CollectEditorsAll<ICustomFieldEditor, CustomFieldEditorAttribute>(ref GUILayoutExt.customFieldEditors);
             if (GUILayoutExt.customFieldEditors.TryGetValue(type, out var editor) == true) {
 
-	            return editor.DrawGUI(caption, fieldInfo, ref value, typeCheckOnly, hasMultipleDifferentValues);
+	            return editor.DrawGUI(caption, instance, instanceArrIndex, fieldInfo, ref value, typeCheckOnly, hasMultipleDifferentValues);
 
             } else if (type.IsEnum == true) {
 
@@ -977,9 +977,9 @@ namespace ME.ECSEditor {
 					            if (i > 0) GUILayoutExt.Separator();
 					            var arrValue = arr[i];
 					            object v = default;
-					            var isEditable = GUILayoutExt.PropertyField(world, null, fieldInfo, arrValue.GetType(), ref v, typeCheckOnly: true, hasMultipleDifferentValues: hasMultipleDifferentValues);
+					            var isEditable = GUILayoutExt.PropertyField(world, null, instance, i, fieldInfo, arrValue.GetType(), ref v, typeCheckOnly: true, hasMultipleDifferentValues: hasMultipleDifferentValues);
 					            EditorGUI.BeginDisabledGroup(disabled: (isEditable == false));
-					            GUILayoutExt.PropertyField(world, "Element [" + i.ToString() + "]", fieldInfo, arrValue.GetType(), ref arrValue, typeCheckOnly: false, hasMultipleDifferentValues: hasMultipleDifferentValues);
+					            GUILayoutExt.PropertyField(world, "Element [" + i.ToString() + "]", instance, i, fieldInfo, arrValue.GetType(), ref arrValue, typeCheckOnly: false, hasMultipleDifferentValues: hasMultipleDifferentValues);
 					            EditorGUI.EndDisabledGroup();
 					            arr[i] = arrValue;
 
@@ -1001,9 +1001,9 @@ namespace ME.ECSEditor {
 					            if (i > 0) GUILayoutExt.Separator();
 					            var arrValue = array.GetValue(i);
 					            object v = default;
-					            var isEditable = GUILayoutExt.PropertyField(world, null, fieldInfo, arrValue.GetType(), ref v, typeCheckOnly: true, hasMultipleDifferentValues: hasMultipleDifferentValues);
+					            var isEditable = GUILayoutExt.PropertyField(world, null, instance, i, fieldInfo, arrValue.GetType(), ref v, typeCheckOnly: true, hasMultipleDifferentValues: hasMultipleDifferentValues);
 					            EditorGUI.BeginDisabledGroup(disabled: (isEditable == false));
-					            GUILayoutExt.PropertyField(world, "Element [" + i.ToString() + "]", fieldInfo, arrValue.GetType(), ref arrValue, typeCheckOnly: false, hasMultipleDifferentValues: hasMultipleDifferentValues);
+					            GUILayoutExt.PropertyField(world, "Element [" + i.ToString() + "]", instance, i, fieldInfo, arrValue.GetType(), ref arrValue, typeCheckOnly: false, hasMultipleDifferentValues: hasMultipleDifferentValues);
 					            EditorGUI.EndDisabledGroup();
 					            array.SetValue(arrValue, i);
 
@@ -1032,9 +1032,9 @@ namespace ME.ECSEditor {
 					            if (i > 0) GUILayoutExt.Separator();
 					            var arrValue = array.GetValue(i);
 					            object v = default;
-					            var isEditable = GUILayoutExt.PropertyField(world, null, fieldInfo, arrValue.GetType(), ref v, typeCheckOnly: true, hasMultipleDifferentValues: hasMultipleDifferentValues);
+					            var isEditable = GUILayoutExt.PropertyField(world, null, instance, i, fieldInfo, arrValue.GetType(), ref v, typeCheckOnly: true, hasMultipleDifferentValues: hasMultipleDifferentValues);
 					            EditorGUI.BeginDisabledGroup(disabled: (isEditable == false));
-					            GUILayoutExt.PropertyField(world, "Element [" + i.ToString() + "]", fieldInfo, arrValue.GetType(), ref arrValue, typeCheckOnly: false, hasMultipleDifferentValues: hasMultipleDifferentValues);
+					            GUILayoutExt.PropertyField(world, "Element [" + i.ToString() + "]", instance, i, fieldInfo, arrValue.GetType(), ref arrValue, typeCheckOnly: false, hasMultipleDifferentValues: hasMultipleDifferentValues);
 					            EditorGUI.EndDisabledGroup();
 					            array.SetValue(arrValue, i);
 
