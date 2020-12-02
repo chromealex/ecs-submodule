@@ -349,6 +349,29 @@ namespace ME.ECS {
 
         }
 
+        public static Vector3 GetNearestPositionToTarget(Vector3 from, Vector3 target, float minRange, float maxRange) {
+
+            var dir = target - from;
+            var distanceSqr = dir.sqrMagnitude;
+            if (distanceSqr <= maxRange * maxRange &&
+                distanceSqr >= minRange * minRange) {
+
+                return from;
+
+            }
+
+            var tRange = maxRange;
+            if (distanceSqr < minRange * minRange) {
+
+                tRange = minRange;
+
+            }
+            
+            var ray = new Ray(target, from - target);
+            return ray.GetPoint(tRange);
+
+        }
+
     }
 
 }
