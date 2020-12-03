@@ -25,13 +25,14 @@ namespace ME.ECS.Pathfinding {
         public bool walkable;
         public int area;
         public int tag;
+        public float height;
 
         internal readonly Node[] parent = new Node[Pathfinding.THREADS_COUNT];
         internal readonly float[] startToCurNodeLen = new float[Pathfinding.THREADS_COUNT];
         internal readonly bool[] isOpened = new bool[Pathfinding.THREADS_COUNT];
         internal readonly bool[] isClosed = new bool[Pathfinding.THREADS_COUNT];
 
-        public Node() {}
+        protected Node() {}
 
         public virtual void CopyFrom(Node other) {
 
@@ -42,6 +43,7 @@ namespace ME.ECS.Pathfinding {
             this.walkable = other.walkable;
             this.area = other.area;
             this.tag = other.tag;
+            this.height = other.height;
 
         }
         

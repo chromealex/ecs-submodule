@@ -58,6 +58,7 @@ namespace ME.ECS.Pathfinding.Editor {
                     this.target.nodeSize = EditorGUILayout.FloatField("Node Size", this.target.nodeSize);
                     
                     this.target.initialPenalty = EditorGUILayout.FloatField("Initial Penalty", this.target.initialPenalty);
+                    this.target.initialHeight = EditorGUILayout.FloatField("Initial Height", this.target.initialHeight);
                     this.target.diagonalCostFactor = EditorGUILayout.FloatField("Diagonal Cost Factor", this.target.diagonalCostFactor);
                     this.target.connectionsType = (GridGraph.ConnectionsType)EditorGUILayout.EnumPopup("Connections Type", this.target.connectionsType);
                     
@@ -93,8 +94,12 @@ namespace ME.ECS.Pathfinding.Editor {
 
                         ME.ECSEditor.GUILayoutExt.DrawGradient(10f, Color.green, Color.red, this.target.minPenalty.ToString("0"), this.target.maxPenalty.ToString("0"));
 
+                    } else if (this.target.drawMode == GridGraph.DrawMode.Height) {
+
+                        ME.ECSEditor.GUILayoutExt.DrawGradient(10f, Color.black, Color.white, this.target.minHeight.ToString("0"), this.target.maxHeight.ToString("0"));
+
                     }
-                    
+
                     this.target.drawNonwalkableNodes = EditorGUILayout.ToggleLeft("Draw Non-walkable Nodes", this.target.drawNonwalkableNodes);
                     this.target.drawConnections = EditorGUILayout.ToggleLeft("Draw Connections", this.target.drawConnections);
                     this.target.drawConnectionsToUnwalkable = EditorGUILayout.ToggleLeft("Draw Connections to Non-walkable", this.target.drawConnectionsToUnwalkable);

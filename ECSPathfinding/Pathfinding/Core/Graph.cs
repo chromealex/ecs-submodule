@@ -36,6 +36,9 @@ namespace ME.ECS.Pathfinding {
         public float minPenalty { get; private set; }
         public float maxPenalty { get; private set; }
 
+        public float minHeight { get; private set; }
+        public float maxHeight { get; private set; }
+
         public virtual void OnRecycle() {
 
             this.pathfinding = null;
@@ -45,6 +48,8 @@ namespace ME.ECS.Pathfinding {
             this.buildingState = default;
             this.minPenalty = default;
             this.maxPenalty = default;
+            this.minHeight = default;
+            this.maxHeight = default;
             
         }
 
@@ -59,6 +64,8 @@ namespace ME.ECS.Pathfinding {
             this.buildingState = other.buildingState;
             this.minPenalty = other.minPenalty;
             this.maxPenalty = other.maxPenalty;
+            this.minHeight = other.minHeight;
+            this.maxHeight = other.maxHeight;
             
             this.OnCopyFrom(other);
             
@@ -235,6 +242,19 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        protected Color GetHeightColor(float height) {
+
+            var min = this.minHeight;
+            var max = this.maxHeight;
+            
+            var from = new Color(0f, 0f, 0f, 0.05f);
+            var to = new Color(1f, 1f, 1f, 0.05f);
+
+            var t = Mathf.Clamp01((height - min) / (min == max ? 1f : max - min));
+            return Color.Lerp(from, to, t);
+
+        }
+
         public void DoBuild() {
 
             var pathfinding = this.pathfinding;
@@ -246,6 +266,9 @@ namespace ME.ECS.Pathfinding {
             
             this.minPenalty = float.MaxValue;
             this.maxPenalty = float.MinValue;
+
+            this.minHeight = float.MaxValue;
+            this.maxHeight = float.MinValue;
 
             System.Diagnostics.Stopwatch swBuildNodes = null;
             if (pathfinding.HasLogLevel(LogLevel.GraphBuild) == true) swBuildNodes = System.Diagnostics.Stopwatch.StartNew();
@@ -270,6 +293,10 @@ namespace ME.ECS.Pathfinding {
                 var p = this.nodes[i].penalty;
                 if (p < this.minPenalty) this.minPenalty = p;
                 if (p > this.maxPenalty) this.maxPenalty = p;
+
+                var h = this.nodes[i].height;
+                if (h < this.minHeight) this.minHeight = h;
+                if (h > this.maxHeight) this.maxHeight = h;
 
             }
 

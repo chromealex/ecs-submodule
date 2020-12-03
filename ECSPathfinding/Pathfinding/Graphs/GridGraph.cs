@@ -47,6 +47,7 @@ namespace ME.ECS.Pathfinding {
             Areas,
             Penalty,
             Tags,
+            Height,
 
         }
 
@@ -63,6 +64,7 @@ namespace ME.ECS.Pathfinding {
         public float nodeSize = 1f;
         
         public float initialPenalty = 100f;
+        public float initialHeight = 0f;
         public float diagonalCostFactor = 0.9f;
         public ConnectionsType connectionsType = ConnectionsType.All;
 
@@ -135,6 +137,7 @@ namespace ME.ECS.Pathfinding {
             this.size = gg.size;
             this.nodeSize = gg.nodeSize;
             this.initialPenalty = gg.initialPenalty;
+            this.initialHeight = gg.initialHeight;
             this.diagonalCostFactor = gg.diagonalCostFactor;
             this.connectionsType = gg.connectionsType;
             this.agentHeight = gg.agentHeight;
@@ -327,6 +330,16 @@ namespace ME.ECS.Pathfinding {
                     } else if (this.drawMode == DrawMode.Tags) {
 
                         nodeColor = this.GetAreaColor(node.tag);
+                        nodeBorderColor = nodeColor;
+                        nodeBorderColor.a = 0.06f;
+
+                        nodeColorWalkableWorld = nodeColor;
+                        nodeColorWalkableWorld.a = 0.6f;
+                        nodeBorderColorWalkableWorld = nodeBorderColor;
+
+                    } else if (this.drawMode == DrawMode.Height) {
+
+                        nodeColor = this.GetHeightColor(node.height);
                         nodeBorderColor = nodeColor;
                         nodeBorderColor.a = 0.06f;
 
@@ -630,6 +643,7 @@ namespace ME.ECS.Pathfinding {
                         node.walkable = true;
                         node.worldPosition = worldPos;
                         node.penalty = this.initialPenalty;
+                        node.height = this.initialHeight;
                         this.nodes.Add(node);
                         
                         this.BuildNodePhysics(node);

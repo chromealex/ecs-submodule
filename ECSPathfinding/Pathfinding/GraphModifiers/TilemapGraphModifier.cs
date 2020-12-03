@@ -12,6 +12,7 @@ namespace ME.ECS.Pathfinding {
             public UnityEngine.Tilemaps.TileBase requiredTile;
             public int tag;
             public int penaltyDelta;
+            public float heightDelta;
             public bool modifyWalkability;
             public bool walkable;
 
@@ -21,12 +22,6 @@ namespace ME.ECS.Pathfinding {
         public Item[] items;
         public BoundsInt bounds;
 
-        private Vector3 GetPosition(Vector3 pos) {
-
-            return new Vector3(pos.x, pos.y, pos.z);
-
-        }
-        
         public override void ApplyBeforeConnections(Graph graph) {
 
             var halfOffset = new Vector3(this.tilemap.cellSize.x, 0f, this.tilemap.cellSize.z) * 0.5f;
@@ -43,23 +38,15 @@ namespace ME.ECS.Pathfinding {
                     if (item.requiredTile == tile) {
 
                         var result = PoolList<Node>.Spawn(1);
-                        graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize));
+                        graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize * 0.5f));
                         foreach (var node in result) {
 
                             if (visited.Contains(node) == false) {
 
                                 visited.Add(node);
-                                var dt = item.penaltyDelta;
-                                if (dt < 0) {
-
-                                    node.penalty -= (uint)(-item.penaltyDelta);
-
-                                } else {
-
-                                    node.penalty += (uint)item.penaltyDelta;
-
-                                }
-
+                                
+                                node.penalty += item.penaltyDelta;
+                                node.height += item.heightDelta;
                                 node.tag = item.tag;
 
                             }
@@ -94,7 +81,7 @@ namespace ME.ECS.Pathfinding {
                     if (item.requiredTile == tile) {
 
                         var result = PoolList<Node>.Spawn(1);
-                        graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize));
+                        graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize * 0.5f));
                         foreach (var node in result) {
 
                             if (visited.Contains(node) == false) {
