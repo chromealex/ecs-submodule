@@ -798,6 +798,12 @@ namespace ME.ECSEditor {
 
         public static bool DrawFields(WorldsViewerEditor.WorldEditor world, object instance, string customName = null) {
 
+	        return GUILayoutExt.DrawFields(world, ref instance, customName);
+
+        }
+
+        public static bool DrawFields(WorldsViewerEditor.WorldEditor world, ref object instance, string customName = null) {
+
             //var padding = 2f;
             //var margin = 1f;
             //var cellHeight = 24f;
@@ -1032,9 +1038,9 @@ namespace ME.ECSEditor {
 					            if (i > 0) GUILayoutExt.Separator();
 					            var arrValue = array.GetValue(i);
 					            object v = default;
-					            var isEditable = GUILayoutExt.PropertyField(world, null, instance, i, fieldInfo, arrValue.GetType(), ref v, typeCheckOnly: true, hasMultipleDifferentValues: hasMultipleDifferentValues);
+					            var isEditable = GUILayoutExt.PropertyField(world, null, array, i, fieldInfo, arrValue.GetType(), ref v, typeCheckOnly: true, hasMultipleDifferentValues: hasMultipleDifferentValues);
 					            EditorGUI.BeginDisabledGroup(disabled: (isEditable == false));
-					            GUILayoutExt.PropertyField(world, "Element [" + i.ToString() + "]", instance, i, fieldInfo, arrValue.GetType(), ref arrValue, typeCheckOnly: false, hasMultipleDifferentValues: hasMultipleDifferentValues);
+					            GUILayoutExt.PropertyField(world, "Element [" + i.ToString() + "]", array, i, fieldInfo, arrValue.GetType(), ref arrValue, typeCheckOnly: false, hasMultipleDifferentValues: hasMultipleDifferentValues);
 					            EditorGUI.EndDisabledGroup();
 					            array.SetValue(arrValue, i);
 
@@ -1271,7 +1277,7 @@ namespace ME.ECSEditor {
 	            if (typeCheckOnly == false) {
 
 		            ++EditorGUI.indentLevel;
-		            GUILayoutExt.DrawFields(world, value);
+		            GUILayoutExt.DrawFields(world, ref value);
 		            --EditorGUI.indentLevel;
 		            
 		            /*
