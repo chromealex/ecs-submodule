@@ -1037,6 +1037,7 @@ namespace ME.ECSEditor {
 
 					            if (i > 0) GUILayoutExt.Separator();
 					            var arrValue = array.GetValue(i);
+					            if (arrValue == null) arrValue = System.Activator.CreateInstance(array.GetType().GetElementType());
 					            object v = default;
 					            var isEditable = GUILayoutExt.PropertyField(world, null, array, i, fieldInfo, arrValue.GetType(), ref v, typeCheckOnly: true, hasMultipleDifferentValues: hasMultipleDifferentValues);
 					            EditorGUI.BeginDisabledGroup(disabled: (isEditable == false));
