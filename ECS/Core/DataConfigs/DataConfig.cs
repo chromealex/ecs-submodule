@@ -45,6 +45,7 @@ namespace ME.ECS.DataConfigs {
             
             // Update filters
             {
+                ComponentsInitializerWorld.Init(in entity);
                 world.UpdateFilters(in entity);
             }
 
