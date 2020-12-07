@@ -69,7 +69,7 @@ namespace ME.ECS.Pathfinding.Features {
         public void SetPath(in Entity entity, ListCopyable<Node> nodes, PathCompleteState result, Constraint constraint, UnityEngine.Vector3 to) {
 
             entity.RemoveComponents<ME.ECS.Pathfinding.Features.Pathfinding.Components.Path>();
-            
+
             var vPath = PoolList<UnityEngine.Vector3>.Spawn(nodes.Count);
             for (var i = 0; i < nodes.Count; ++i) {
 
@@ -78,6 +78,16 @@ namespace ME.ECS.Pathfinding.Features {
 
             }
 
+            if (nodes.Count > 1) {
+            
+                var currentPos = entity.GetPosition();
+                var a = vPath[0];
+                var b = vPath[1];
+                var target = a + UnityEngine.Vector3.Project(currentPos - a, b - a);
+                vPath[0] = target;
+
+            }
+            
             var nearestTarget = this.GetNearest(to);
             if (nearestTarget.IsSuitable(constraint) == true) {
 
