@@ -631,12 +631,16 @@ namespace ME.ECS.Views {
 
             }
 
-            var predicate = new RemoveComponentViewPredicate();
-            predicate.entityId = instance.entity.id;
-            predicate.prefabSourceId = instance.prefabSourceId;
-            predicate.creationTick = instance.creationTick;
+            if (instance.entity.IsAlive() == true) {
 
-            this.world.RemoveComponentsPredicate<ViewComponent, RemoveComponentViewPredicate>(instance.entity, predicate);
+                var predicate = new RemoveComponentViewPredicate();
+                predicate.entityId = instance.entity.id;
+                predicate.prefabSourceId = instance.prefabSourceId;
+                predicate.creationTick = instance.creationTick;
+
+                this.world.RemoveComponentsPredicate<ViewComponent, RemoveComponentViewPredicate>(instance.entity, predicate);
+
+            }
 
             this.isRequestsDirty = true;
             
