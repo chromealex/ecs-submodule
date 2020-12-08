@@ -186,7 +186,7 @@ namespace ME.ECS {
                 if (bucket.components.arr != null && entityId >= 0 && entityId < bucket.components.Length) {
 
                     ref var list = ref bucket.components.arr[entityId];
-                    if (list == null) return 0;
+                    if (list == null) continue;
                     
                     count += list.Count;
                     PoolComponents.Recycle(list);

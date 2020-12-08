@@ -1,7 +1,7 @@
 ﻿namespace ME.ECS {
 
     using Collections;
-    
+
     public struct ComponentTypesCounter {
 
         public static int counter = -1;
@@ -47,21 +47,21 @@
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void Destroy(this in Entity entity) {
-            
+
             Worlds.currentWorld.RemoveEntity(in entity);
-            
+
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void DestroyAllViews(this in Entity entity) {
-            
+
             Worlds.currentWorld.DestroyAllViews(in entity);
-            
+
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static Entity RemoveData<TComponent>(this Entity entity) where TComponent : struct, IStructComponent {
-            
+
             Worlds.currentWorld.RemoveData<TComponent>(entity);
             return entity;
 
@@ -69,21 +69,21 @@
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool HasData<TComponent>(this Entity entity) where TComponent : struct, IStructComponent {
-            
+
             return Worlds.currentWorld.HasData<TComponent>(entity);
-            
+
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static ref TComponent GetData<TComponent>(this in Entity entity, bool createIfNotExists = true) where TComponent : struct, IStructComponent {
-            
+
             return ref Worlds.currentWorld.GetData<TComponent>(in entity, createIfNotExists);
-            
+
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static Entity SetData<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
-            
+
             Worlds.currentWorld.SetData<TComponent>(in entity);
             return entity;
 
@@ -91,7 +91,7 @@
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static Entity SetData<TComponent>(this in Entity entity, in ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
-            
+
             Worlds.currentWorld.SetData<TComponent>(in entity, in lifetime);
             return entity;
 
@@ -99,7 +99,7 @@
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static Entity SetData<TComponent>(this in Entity entity, in TComponent data) where TComponent : struct, IStructComponent {
-            
+
             Worlds.currentWorld.SetData(in entity, in data);
             return entity;
 
@@ -107,7 +107,7 @@
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static Entity SetData<TComponent>(this in Entity entity, in TComponent data, in ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
-            
+
             Worlds.currentWorld.SetData(in entity, in data, in lifetime);
             return entity;
 
@@ -115,7 +115,7 @@
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static Entity ValidateData<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent {
-            
+
             Worlds.currentWorld.ValidateData<TComponent>(in entity, isTag);
             return entity;
 
@@ -123,65 +123,58 @@
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool HasComponent<TComponent>(this Entity entity)
-            where TComponent : class, IComponent
-        {
-        
+            where TComponent : class, IComponent {
+
             return Worlds.currentWorld.HasComponent<TComponent>(entity);
-            
+
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static TComponent GetComponent<TComponent>(this Entity entity)
-            where TComponent : class, IComponent
-        {
-        
+            where TComponent : class, IComponent {
+
             return Worlds.currentWorld.GetComponent<TComponent>(entity);
-            
+
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static TComponent AddComponent<TComponent>(this Entity entity)
-            where TComponent : class, IComponent, new()
-        {
-        
+            where TComponent : class, IComponent, new() {
+
             return Worlds.currentWorld.AddComponent<TComponent>(entity);
-            
+
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static TComponent AddOrGetComponent<TComponent>(this Entity entity)
-            where TComponent : class, IComponent, new()
-        {
-        
+            where TComponent : class, IComponent, new() {
+
             return Worlds.currentWorld.AddOrGetComponent<TComponent>(entity);
-            
+
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static TComponent AddComponent<TComponent, TComponentType>(this Entity entity)
-            where TComponentType : class, IComponent where TComponent : class, TComponentType, IComponent, new()
-        {
-        
+            where TComponentType : class, IComponent where TComponent : class, TComponentType, IComponent, new() {
+
             return Worlds.currentWorld.AddComponent<TComponent, TComponentType>(entity);
-            
+
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void RemoveComponents<TComponent>(this Entity entity)
-            where TComponent : class, IComponent
-        {
-        
+            where TComponent : class, IComponent {
+
             Worlds.currentWorld.RemoveComponents<TComponent>(entity);
-            
+
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static ListCopyable<IComponent> ForEachComponent<TComponent>(this Entity entity)
-            where TComponent : class, IComponent
-        {
-        
+            where TComponent : class, IComponent {
+
             return Worlds.currentWorld.ForEachComponent<TComponent>(entity);
-            
+
         }
 
     }
@@ -196,6 +189,7 @@
 
         [ME.ECS.Serializer.SerializeField]
         private readonly Entity storage;
+
         public Entity entity {
             #if ECS_COMPILE_IL2CPP_OPTIONS
             [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
@@ -207,6 +201,7 @@
                 if (this.storage.IsAlive() == true) {
                     return this.storage;
                 }
+
                 return Entity.Empty;
             }
         }
@@ -267,9 +262,9 @@
         }
 
         public override bool Equals(object obj) {
-            
+
             throw new AllocationException();
-            
+
         }
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -291,13 +286,13 @@
         #endif
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() {
-            
+
             return this.entity.GetHashCode();
-            
+
         }
-        
+
     }
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
@@ -311,7 +306,7 @@
 
         public const ushort VERSION_ZERO = 0;
         public static Entity Empty = new Entity(0, Entity.VERSION_ZERO);
-        
+
         #if MESSAGE_PACK_SUPPORT
         [MessagePack.Key(0)]
         #endif
@@ -320,7 +315,7 @@
         [MessagePack.Key(1)]
         #endif
         public readonly ushort version;
-        
+
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
@@ -353,7 +348,7 @@
             this.version = entity.version;
 
         }
-        
+
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         internal Entity(int id, ushort version) {
 
@@ -399,9 +394,9 @@
         }
 
         public override bool Equals(object obj) {
-            
+
             throw new AllocationException();
-            
+
         }
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -423,21 +418,21 @@
         #endif
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() {
-            
+
             return this.id ^ this.version;
-            
+
         }
 
         public override string ToString() {
-            
+
             return "Entity Id: " + this.id.ToString() + " Version: " + this.version.ToString();
-            
+
         }
 
         public string ToSmallString() {
 
             return "Id: " + this.id.ToString() + "#" + this.version.ToString();
-            
+
         }
 
     }

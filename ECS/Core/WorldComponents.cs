@@ -28,7 +28,7 @@ namespace ME.ECS {
         #region Regular Components
         public TComponent AddOrGetComponent<TComponent>(Entity entity) where TComponent : class, IComponent, new() {
 
-            var element = this.currentState.components.GetFirst<TComponent>(entity.id);
+            var element = this.GetComponent<TComponent>(entity);
             if (element != null) return element;
             
             return this.AddComponent<TComponent>(entity);
@@ -117,24 +117,48 @@ namespace ME.ECS {
             }
             #endif
 
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
             this.currentState.components.Add(entity.id, data);
             if (this.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.currentState.storage.archetypes.Set(in entity, in componentIndex);
             
         }
 
         public TComponent GetComponent<TComponent>(Entity entity) where TComponent : class, IComponent {
-
+            
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+            
             return this.currentState.components.GetFirst<TComponent>(entity.id);
 
         }
 
         public ListCopyable<IComponent> ForEachComponent<TComponent>(Entity entity) where TComponent : class, IComponent {
 
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
             return this.currentState.components.ForEach<TComponent>(entity.id);
 
         }
 
-        public ListCopyable<IComponent> ForEachComponent<TComponent>(int entityId) where TComponent : class, IComponent {
+        internal ListCopyable<IComponent> ForEachComponent<TComponent>(int entityId) where TComponent : class, IComponent {
 
             return this.currentState.components.ForEach<TComponent>(entityId);
 
@@ -148,6 +172,14 @@ namespace ME.ECS {
         /// <typeparam name="TComponent"></typeparam>
         /// <returns></returns>
         public bool HasComponent<TComponent>(Entity entity) where TComponent : class, IComponent {
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
 
             return this.currentState.components.Contains<TComponent>(entity.id);
             
@@ -171,6 +203,14 @@ namespace ME.ECS {
             if (this.worldThread != System.Threading.Thread.CurrentThread) {
                 
                 WrongThreadException.Throw("RemoveComponentsPredicate");
+                
+            }
+            #endif
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
                 
             }
             #endif
@@ -206,6 +246,14 @@ namespace ME.ECS {
             }
             #endif
 
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
             if (this.currentState.components.RemoveAll(entity.id) > 0) {
                 
                 this.currentState.storage.archetypes.RemoveAll(in entity);
@@ -235,6 +283,14 @@ namespace ME.ECS {
                 
                 WrongThreadException.Throw("RemoveComponents");
 
+            }
+            #endif
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
             }
             #endif
 
@@ -273,6 +329,7 @@ namespace ME.ECS {
             if (this.currentState.components.RemoveAll<TComponent>() > 0) {
                 
                 this.currentState.storage.archetypes.RemoveAll<TComponent>();
+                this.UpdateAllFilters();
 
             }
 
