@@ -936,23 +936,29 @@ namespace ME.ECS.Views {
                     for (int i = views.Length - 1; i >= 0; --i) {
 
                         var instance = views[i];
-                        var allViews = this.world.ForEachComponent<ViewComponent>(instance.entity);
-                        if (allViews == null) continue;
-
-                        //ViewComponent viewFound = null;
                         var found = false;
-                        for (int index = 0, count = allViews.Count; index < count; ++index) {
-                            
-                            var viewComponent = allViews[index];
-                            var view = (ViewComponent)viewComponent;
-                            if (instance.prefabSourceId == view.viewInfo.prefabSourceId) {
+                        if (instance.entity.IsAlive() == true) {
 
-                                //viewFound = view;
-                                found = true;
-                                break;
+                            var allViews = this.world.ForEachComponent<ViewComponent>(instance.entity);
+                            if (allViews != null) {
+
+                                //ViewComponent viewFound = null;
+                                for (int index = 0, count = allViews.Count; index < count; ++index) {
+
+                                    var viewComponent = allViews[index];
+                                    var view = (ViewComponent)viewComponent;
+                                    if (instance.prefabSourceId == view.viewInfo.prefabSourceId) {
+
+                                        //viewFound = view;
+                                        found = true;
+                                        break;
+
+                                    }
+
+                                }
 
                             }
-                            
+
                         }
 
                         if (found == false) {
