@@ -204,6 +204,7 @@ namespace ME.ECS.Serializer.Tests {
                 WorldUtilities.CreateWorld<TestState>(ref world, 0.033f);
                 {
                     world.AddModule<TestStatesHistoryModule>();
+                    world.AddModule<FakeNetworkModule>();
                 
                     world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
 
@@ -242,36 +243,29 @@ namespace ME.ECS.Serializer.Tests {
             var sourceWorld = CreateWorld();
             {
                 var dt = 2f;
-                sourceWorld.SetFromToTicks(0, 10);
+                sourceWorld.SetFromToTicks(0, 50);
                 //sourceWorld.PreUpdate(dt);
                 sourceWorld.Update(dt);
                 //sourceWorld.LateUpdate(dt);
             }
-            var bytes = sourceWorld.GetState().Serialize<TestState>();
 
+            var bytes = sourceWorld.Serialize();
+            
             var targetWorld = CreateWorld();
-            targetWorld.GetState().Deserialize<TestState>(bytes);
             {
-
-                // Restore new world
-                var allEntities = PoolList<Entity>.Spawn(100);
-                if (targetWorld.ForEachEntity(allEntities) == true) {
-
-                    for (int i = 0; i < allEntities.Count; ++i) {
-
-                        ref var entity = ref allEntities[i];
-                        targetWorld.UpdateEntity(entity);
-
-                    }
-
-                }
-                PoolList<Entity>.Recycle(ref allEntities);
-                
-                // Test new world
-
+                var dt = 2f;
+                targetWorld.SetFromToTicks(0, 50);
+                //sourceWorld.PreUpdate(dt);
+                targetWorld.Update(dt);
+                //sourceWorld.LateUpdate(dt);
             }
+            targetWorld.Deserialize<TestState>(bytes, new System.Collections.Generic.List<byte[]>());
             
             UnityEngine.Debug.Log("Bytes: " + bytes.Length);
+            var ent1 = sourceWorld.GetEntityById(1);
+            var ent2 = targetWorld.GetEntityById(1);
+            NUnit.Framework.Assert.True(ent1.HasData<TestStructComponent>());
+            NUnit.Framework.Assert.True(ent2.HasData<TestStructComponent>());
 
             WorldUtilities.ReleaseWorld<TestState>(ref sourceWorld);
             WorldUtilities.ReleaseWorld<TestState>(ref targetWorld);
@@ -483,11 +477,11 @@ namespace ME.ECS.Serializer.Tests {
             public class FakeSerializer : ME.ECS.Network.ISerializer {
                 
                 public byte[] SerializeWorld(World.WorldState data) {
-                    throw new System.NotImplementedException();
+                    return ME.ECS.Serializer.Serializer.Pack(data);
                 }
 
                 public World.WorldState DeserializeWorld(byte[] bytes) {
-                    throw new System.NotImplementedException();
+                    return ME.ECS.Serializer.Serializer.Unpack<World.WorldState>(bytes);
                 }
 
                 public ME.ECS.StatesHistory.HistoryStorage DeserializeStorage(byte[] bytes) {

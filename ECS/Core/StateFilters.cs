@@ -39,6 +39,7 @@ namespace ME.ECS {
 
             for (int i = 0; i < this.filters.Length; ++i) {
 
+                if (this.filters.arr[i] == null) continue;
                 this.filters.arr[i].Clear();
 
             }
@@ -49,6 +50,7 @@ namespace ME.ECS {
 
             for (int i = 0; i < this.filters.Length; ++i) {
 
+                if (this.filters.arr[i] == null) continue;
                 this.filters.arr[i].OnDeserialize(lastEntityId);
 
             }
