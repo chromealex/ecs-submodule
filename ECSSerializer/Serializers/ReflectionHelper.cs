@@ -1,6 +1,8 @@
-namespace ME.ECS.Serializer {
+using System;
+using System.Linq;
+using ME.ECS.Serializer.Attributes;
 
-    using Enumerable = System.Linq.Enumerable;
+namespace ME.ECS.Serializer {
 
     public static class ReflectionHelper {
         
@@ -24,7 +26,12 @@ namespace ME.ECS.Serializer {
                                                  )
                 );
 
-                fieldInfos = Enumerable.ToArray(Enumerable.OrderBy(fieldInfosArr, x => x.Name));
+                fieldInfos = fieldInfosArr
+	                .OrderByDescending(x => Attribute.IsDefined(x, typeof(OrderAttribute)))
+	                .ThenBy(x => ((OrderAttribute)x.GetCustomAttributes(typeof(OrderAttribute), false)
+		                .SingleOrDefault())?.Order)
+	                .ToArray();
+
                 ReflectionHelper.fieldInfoCache.Add(type, fieldInfos);
 
             }
