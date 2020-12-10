@@ -102,6 +102,7 @@ namespace ME.ECS.StatesHistory {
         #if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(0)]
         #endif
+        [Order]
         public long tick;
         /// <summary>
         /// Global event order (for example: you have 30 players on the map, each has it's own index)
@@ -109,6 +110,7 @@ namespace ME.ECS.StatesHistory {
         #if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(1)]
         #endif
+        [Order]
         public int order;
         /// <summary>
         /// Local event order (order would be the first, then localOrder applies)
@@ -141,6 +143,7 @@ namespace ME.ECS.StatesHistory {
         #if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(5)]
         #endif
+        [Order]
         public int rpcId;
         /// <summary>
         /// Parameters of method
