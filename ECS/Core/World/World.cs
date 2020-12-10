@@ -1218,6 +1218,7 @@ namespace ME.ECS {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool IsAlive(int entityId, ushort version) {
 
             return this.currentState.storage.IsAlive(entityId, version);

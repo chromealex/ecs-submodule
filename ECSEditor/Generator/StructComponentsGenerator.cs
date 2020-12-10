@@ -45,6 +45,8 @@ namespace ME.ECSEditor {
 
         [UnityEditor.Callbacks.DidReloadScripts]
         private static void OnScriptsReloaded() {
+
+            if (EditorApplication.isPlayingOrWillChangePlaymode == true) return;
             
             StructComponentsGenerator.Init();
             Generator.OnAfterAssemblyReload(false);
