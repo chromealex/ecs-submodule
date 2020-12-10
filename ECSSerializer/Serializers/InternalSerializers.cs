@@ -141,16 +141,16 @@ namespace ME.ECS.Serializer {
         public void Pack(Packer packer, object obj) {
 
             var packerObject = (Packer.PackerObject)obj;
-            packer.PackInternal(packerObject.meta);
             packer.PackInternal(packerObject.data);
+            packer.PackInternal(packerObject.meta);
 
         }
 
         public object Unpack(Packer packer) {
 
             var packerObject = new Packer.PackerObject();
-            packerObject.meta = (Packer.Meta)packer.UnpackInternal();
             packerObject.data = (byte[])packer.UnpackInternal();
+            packerObject.meta = (Packer.Meta)packer.UnpackInternal();
 
             return packerObject;
 
