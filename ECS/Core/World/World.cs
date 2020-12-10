@@ -1822,6 +1822,12 @@ namespace ME.ECS {
             this.simulationFromTick = from;
             this.simulationToTick = to;
 
+            if (this.settings.maxTicksSimulationCount > 0L && this.simulationToTick > this.simulationFromTick + this.settings.maxTicksSimulationCount) {
+                
+                throw new System.Exception("Simulation failed because of ticks count is out of range: [" + this.simulationFromTick + ".." + this.simulationToTick + ")");
+                
+            }
+
         }
 
         private struct ForeachFilterJob : Unity.Jobs.IJobParallelFor {
