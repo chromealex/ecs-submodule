@@ -952,7 +952,7 @@ namespace ME.ECS {
                     for (int i = 0; i < list.Count; ++i) {
 
                         ref var item = ref list[i];
-                        this.UpdateFilters(item);
+                        this.UpdateFiltersOnFilterCreate(item);
                         this.CreateEntityPlugins(item);
 
                     }
