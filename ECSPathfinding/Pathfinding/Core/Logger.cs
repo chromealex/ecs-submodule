@@ -21,7 +21,7 @@ namespace ME.ECS.Pathfinding {
 
             var val = Application.GetStackTraceLogType(LogType.Log);
             Application.SetStackTraceLogType(LogType.Log, StackTraceLogType.None);
-            Debug.Log(log);
+            UnityEngine.Debug.Log(log);
             Application.SetStackTraceLogType(LogType.Log, val);
             
         }

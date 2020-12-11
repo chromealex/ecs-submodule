@@ -111,7 +111,7 @@ namespace ME.ECS.Pathfinding {
 
             if (this.nodes != null) {
 
-                Debug.Log("Recycle: " + this.nodes.Count);
+                UnityEngine.Debug.Log("Recycle: " + this.nodes.Count);
                 for (int i = 0; i < this.nodes.Count; ++i) {
 
                     var node = (GridNode)this.nodes[i];

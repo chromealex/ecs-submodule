@@ -4,14 +4,14 @@
     using UnityEditor;
     using ME.ECS;
     
-    [UnityEditor.CustomEditor(typeof(EntityDebugComponent), true)]
+    [UnityEditor.CustomEditor(typeof(ME.ECS.Debug.EntityDebugComponent), true)]
     public class EntityDebugComponentEditor : Editor {
 
         private static readonly System.Collections.Generic.Dictionary<World, WorldsViewerEditor.WorldEditor> worldEditors = new System.Collections.Generic.Dictionary<World, WorldsViewerEditor.WorldEditor>();
         
         public override void OnInspectorGUI() {
 
-            var target = this.target as EntityDebugComponent;
+            var target = this.target as ME.ECS.Debug.EntityDebugComponent;
             if (target.world != null && target.world.isActive == true) {
 
                 var currentEntity = GUILayoutExt.DrawEntitySelection(target.world, in target.entity, checkAlive: true, drawSelectButton: false);

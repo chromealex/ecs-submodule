@@ -276,7 +276,7 @@ namespace ME.ECS.DataConfigs {
                             var type = obj.GetType();
                             if (ComponentTypesRegistry.allTypeId.ContainsKey(type) == false) {
                                 
-                                Debug.LogWarning("Type was not found: " + type + " on config " + this, this);
+                                UnityEngine.Debug.LogWarning("Type was not found: " + type + " on config " + this, this);
                                 continue;
                                 
                             }
@@ -319,7 +319,7 @@ namespace ME.ECS.DataConfigs {
                             var type = obj.GetType();
                             if (ComponentTypesRegistry.allTypeId.ContainsKey(type) == false) {
                                 
-                                Debug.LogWarning("Type was not found: " + type + " on config " + this, this);
+                                UnityEngine.Debug.LogWarning("Type was not found: " + type + " on config " + this, this);
                                 continue;
                                 
                             }
@@ -395,7 +395,7 @@ namespace ME.ECS.DataConfigs {
                 UnityEditor.EditorUtility.SetDirty(this);
                 #endif
 
-                Debug.Log("DataConfig " + this + " reloaded");
+                UnityEngine.Debug.Log("DataConfig " + this + " reloaded");
 
             }
 

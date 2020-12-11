@@ -167,7 +167,7 @@ namespace ME.ECSEditor {
 
 	    }
 	    
-	    public static void DrawAddEntityMenu(EntityDebugComponent entityDebugComponent) {
+	    public static void DrawAddEntityMenu(ME.ECS.Debug.EntityDebugComponent entityDebugComponent) {
             
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();

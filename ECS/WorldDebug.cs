@@ -8,11 +8,11 @@ namespace ME.ECS {
     #endif
     public sealed partial class World {
 
-        private System.Collections.Generic.Dictionary<Entity, EntityDebugComponent> debugEntities = new System.Collections.Generic.Dictionary<Entity, EntityDebugComponent>();
+        private System.Collections.Generic.Dictionary<Entity, ME.ECS.Debug.EntityDebugComponent> debugEntities = new System.Collections.Generic.Dictionary<Entity, ME.ECS.Debug.EntityDebugComponent>();
 
         private float updateNamesTimer = 0f;
 
-        public System.Collections.Generic.Dictionary<Entity, EntityDebugComponent> GetDebugEntities() {
+        public System.Collections.Generic.Dictionary<Entity, ME.ECS.Debug.EntityDebugComponent> GetDebugEntities() {
 
             return this.debugEntities;
 
@@ -72,8 +72,8 @@ namespace ME.ECS {
 
                 if (this.debugEntities.ContainsKey(entity) == false) {
 
-                    var debug = new UnityEngine.GameObject(this.GetName(entity, out var hasName), typeof(EntityDebugComponent));
-                    var comp = debug.GetComponent<EntityDebugComponent>();
+                    var debug = new UnityEngine.GameObject(this.GetName(entity, out var hasName), typeof(ME.ECS.Debug.EntityDebugComponent));
+                    var comp = debug.GetComponent<ME.ECS.Debug.EntityDebugComponent>();
                     comp.transform.hideFlags = UnityEngine.HideFlags.HideInInspector;
                     comp.entity = entity;
                     comp.world = this;
