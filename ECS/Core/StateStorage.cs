@@ -30,7 +30,7 @@ namespace ME.ECS {
     public sealed class Storage : IStorage {
 
         [ME.ECS.Serializer.SerializeField]
-        private BufferArray<ushort> versions;
+        internal BufferArray<ushort> versions;
         [ME.ECS.Serializer.SerializeField]
         private ListCopyable<int> alive;
         [ME.ECS.Serializer.SerializeField]

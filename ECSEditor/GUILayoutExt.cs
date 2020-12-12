@@ -1054,7 +1054,9 @@ namespace ME.ECSEditor {
 
 	            }
 	            
-            } else if (type == typeof(RefEntity)) {
+            } else
+            #pragma warning disable
+            if (type == typeof(RefEntity)) {
 
 	            if (typeCheckOnly == false) {
 
@@ -1088,7 +1090,7 @@ namespace ME.ECSEditor {
 		            GUILayout.EndHorizontal();
 		            
 	            }
-
+			#pragma warning restore
             } else if (type == typeof(Entity)) {
 
 	            if (typeCheckOnly == false) {

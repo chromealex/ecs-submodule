@@ -185,6 +185,7 @@
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     [System.Serializable]
+    [System.ObsoleteAttribute("Use Entity direct struct instead of RefEntity")]
     public readonly struct RefEntity : System.IEquatable<RefEntity>, System.IComparable<RefEntity> {
 
         [ME.ECS.Serializer.SerializeField]
@@ -336,7 +337,9 @@
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool IsAlive() {
 
-            return Worlds.currentWorld.IsAlive(this.id, this.version);
+            // Inline manually
+            return Worlds.currentWorld.currentState.storage.versions.arr[this.id] == this.version;
+            //return Worlds.currentWorld.IsAlive(this.id, this.version);
 
         }
 
