@@ -149,6 +149,12 @@ namespace ME.ECS.Pathfinding {
             
         }
 
+        public override float GetNodeMinDistance() {
+            
+            return this.nodeSize - 0.01f;
+            
+        }
+
         public override void RemoveNode(ref Node node, bool bruteForceConnections = false) {
 
             base.RemoveNode(ref node, bruteForceConnections);

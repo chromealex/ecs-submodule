@@ -14,6 +14,7 @@ namespace ME.ECS.Pathfinding {
         public Vector3 to;
         public Constraint constraint;
         public PathCornersModifier pathCornersModifier;
+        public bool isValid;
 
     }
     
@@ -297,7 +298,7 @@ namespace ME.ECS.Pathfinding {
             void Unity.Jobs.IJobParallelFor.Execute(int index) {
 
                 var item = this.arr[index];
-                Pathfinding.results.arr[index] = Pathfinding.pathfinding.CalculatePath(item.@from, item.to, item.constraint, item.pathCornersModifier, index);
+                if (item.isValid == true) Pathfinding.results.arr[index] = Pathfinding.pathfinding.CalculatePath(item.@from, item.to, item.constraint, item.pathCornersModifier, index);
                 this.arr[index] = item;
 
             }
@@ -338,7 +339,8 @@ namespace ME.ECS.Pathfinding {
                 from = requestFrom,
                 to = requestTo,
                 constraint = constraint,
-                pathCornersModifier = pathCornersModifier
+                pathCornersModifier = pathCornersModifier,
+                isValid = true,
             };
             
         }

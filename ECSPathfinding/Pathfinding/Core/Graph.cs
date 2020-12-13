@@ -72,7 +72,13 @@ namespace ME.ECS.Pathfinding {
         }
 
         public abstract void OnCopyFrom(Graph other);
-        
+
+        public virtual float GetNodeMinDistance() {
+
+            return 1f;
+
+        }
+
         public virtual T AddNode<T>() where T : Node, new() {
 
             var node = PoolClass<T>.Spawn();

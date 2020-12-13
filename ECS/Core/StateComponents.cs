@@ -136,7 +136,7 @@ namespace ME.ECS {
                         if (list[i] is TComponent tComp) {
 
                             PoolComponents.Recycle(ref tComp);
-                            list.RemoveAt(i);
+                            list.RemoveAtFast(i);
                             ++count;
 
                         }
@@ -168,7 +168,7 @@ namespace ME.ECS {
 
                 var tComp = list[i] as TComponent;
                 PoolComponents.Recycle(ref tComp);
-                list.RemoveAt(i);
+                list.RemoveAtFast(i);
                 ++count;
 
             }

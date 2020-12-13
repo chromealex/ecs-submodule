@@ -58,6 +58,8 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
                 for (int i = 0; i < this.idx; ++i) {
 
                     var task = this.pathTasks[i];
+                    if (task.isValid == false) continue;
+                    
                     var path = results.arr[i];
                     if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete) {
 

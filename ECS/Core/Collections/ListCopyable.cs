@@ -120,6 +120,14 @@
 
         }
 
+        public void RemoveAtFast(int index) {
+            
+            this.Count--;
+            this.innerArray.arr[index] = this.innerArray.arr[this.Count];
+            this.innerArray.arr[this.Count] = default;
+            
+        }
+
         public T[] ToArray() {
             var retArray = new T[this.Count];
             System.Array.Copy(this.innerArray.arr, 0, retArray, 0, this.Count);

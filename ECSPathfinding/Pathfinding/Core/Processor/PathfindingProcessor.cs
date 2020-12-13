@@ -11,7 +11,8 @@ namespace ME.ECS.Pathfinding {
         
         public Path Run<TMod>(Pathfinding pathfinding, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0) where TMod : IPathModifier {
 
-            if (threadIndex < 0 || threadIndex > Pathfinding.THREADS_COUNT) threadIndex = threadIndex % Pathfinding.THREADS_COUNT;
+            if (threadIndex < 0) threadIndex = 0;
+            threadIndex = threadIndex % Pathfinding.THREADS_COUNT;
 
             var constraintStart = constraint;
             constraintStart.checkWalkability = true;
