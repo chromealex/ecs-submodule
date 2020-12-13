@@ -1,0 +1,25 @@
+﻿#region Namespaces
+namespace #PROJECTNAME#.Systems {
+    public struct Dummy {}
+}
+
+namespace #PROJECTNAME#.Components {
+    public struct Dummy {}
+}
+
+namespace #PROJECTNAME#.Modules {
+    public struct Dummy {}
+}
+
+namespace #PROJECTNAME#.Features {
+    public struct Dummy {}
+}
+
+namespace #PROJECTNAME#.Markers {
+    public struct Dummy {}
+}
+
+namespace #PROJECTNAME#.Views {
+    public struct Dummy {}
+}
+#endregion

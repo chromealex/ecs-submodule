@@ -304,6 +304,7 @@ MonoBehaviour:
             ScriptTemplates.CreateEmptyDirectory(path, "Generator");
 
             ScriptTemplates.Create(path, projectName + "State.cs", "00-StateTemplate", defines, allowRename: false);
+            ScriptTemplates.Create(path, "AssemblyInfo.cs", "00-AssemblyInfo", defines, allowRename: false);
             
             ScriptTemplates.CreateEmptyDirectory(path + "/Generator", "gen");
             ScriptTemplates.Create(path + "/Generator", projectName + ".gen.asmdef", "00-asmdef", defines, allowRename: false);
