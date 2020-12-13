@@ -91,6 +91,13 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true),
+            new DefineInfo("WORLD_TICK_THREADED", "If turned on, ME.ECS will run logic in another thread.", () => {
+                #if WORLD_TICK_THREADED
+                return true;
+                #else
+                return false;
+                #endif
+            }, true),
             new DefineInfo("FPS_MODULE_SUPPORT", "FPS module support.", () => {
                 #if FPS_MODULE_SUPPORT
                 return true;

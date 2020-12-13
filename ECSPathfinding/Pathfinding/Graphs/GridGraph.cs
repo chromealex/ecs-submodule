@@ -582,6 +582,13 @@ namespace ME.ECS.Pathfinding {
 
             }
             
+            #if WORLD_TICK_THREADED
+            // Quit if threaded logic is active
+            node.worldPosition = worldPos;
+            node.walkable = true;
+            return false;
+            #else
+            
             var raycastResult = false;
             RaycastHit hit;
             if (this.collisionCheckRadius <= 0f) {
@@ -614,6 +621,7 @@ namespace ME.ECS.Pathfinding {
                 node.walkable = false;
 
             }
+            #endif
 
             return false;
 

@@ -21,6 +21,18 @@ namespace ME.ECS {
 
     }
 
+    public interface IAdvanceTickPost {
+
+        void AdvanceTickPost(in float deltaTime);
+
+    }
+
+    public interface IAdvanceTickPre {
+
+        void AdvanceTickPre(in float deltaTime);
+
+    }
+
     public interface IUpdate {
 
         void Update(in float deltaTime);

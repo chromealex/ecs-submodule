@@ -1,4 +1,6 @@
-﻿//#define TICK_THREADED
+﻿#if WORLD_TICK_THREADED
+#define TICK_THREADED
+#endif
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 #define CHECKPOINT_COLLECTOR
 #endif
@@ -1958,6 +1960,26 @@ namespace ME.ECS {
                     #endif
 
                     this.PlayTasksForTick();
+                    
+                    for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
+
+                        ref var group = ref this.systemGroups.arr[i];
+                        for (int j = 0; j < group.systems.Length; ++j) {
+
+                            if (group.IsSystemActive(j) == true) {
+
+                                ref var system = ref group.systems.arr[j];
+                                if (system is IAdvanceTickPre sysPost) {
+                                    
+                                    sysPost.AdvanceTickPre(in fixedDeltaTime);
+                                    
+                                }
+
+                            }
+
+                        }
+
+                    }
 
                     for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
 
@@ -2073,6 +2095,26 @@ namespace ME.ECS {
                         #if CHECKPOINT_COLLECTOR
                         if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.LogicTick);
                         #endif
+
+                    }
+
+                    for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
+
+                        ref var group = ref this.systemGroups.arr[i];
+                        for (int j = 0; j < group.systems.Length; ++j) {
+
+                            if (group.IsSystemActive(j) == true) {
+
+                                ref var system = ref group.systems.arr[j];
+                                if (system is IAdvanceTickPost sysPost) {
+                                    
+                                    sysPost.AdvanceTickPost(in fixedDeltaTime);
+                                    
+                                }
+
+                            }
+
+                        }
 
                     }
                     

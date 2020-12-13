@@ -10,9 +10,11 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class BuildPathSystem : ISystemFilter {
+    public sealed class BuildPathSystem : ISystemFilter, IAdvanceTickPost, IAdvanceTickPre {
 
         private PathfindingFeature pathfindingFeature;
+        private Unity.Collections.NativeArray<PathTask> pathTasks;
+        private int idx;
         
         public World world { get; set; }
 
@@ -35,29 +37,60 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
             
         }
 
-        void ISystemFilter.AdvanceTick(in Entity entity, in float deltaTime) {
+        void IAdvanceTickPre.AdvanceTickPre(in float deltaTime) {
             
-            var active = this.pathfindingFeature.GetEntity().GetComponent<PathfindingInstance>().pathfinding;
-            if (active == null) {
+            this.idx = 0;
 
-                return;
+        }
+
+        void IAdvanceTickPost.AdvanceTickPost(in float deltaTime) {
+
+            var instance = this.pathfindingFeature.GetEntity().GetComponent<PathfindingInstance>();
+            if (instance == null) return;
+
+            var active = instance.pathfinding;
+            if (active == null) return;
+
+            if (this.pathTasks.IsCreated == true) {
+
+                ME.ECS.Collections.BufferArray<ME.ECS.Pathfinding.Path> results = default;
+                active.RunTasks(this.pathTasks, ref results);
+                for (int i = 0; i < this.idx; ++i) {
+
+                    var task = this.pathTasks[i];
+                    var path = results.arr[i];
+                    if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete) {
+
+                        this.pathfindingFeature.SetPath(in task.entity, path, task.constraint, task.to);
+
+                    }
+
+                    path.Recycle();
+
+                }
+
+                this.pathTasks.Dispose();
 
             }
             
+        }
+        
+        void ISystemFilter.AdvanceTick(in Entity entity, in float deltaTime) {
+            
+            var instance = this.pathfindingFeature.GetEntity().GetComponent<PathfindingInstance>();
+            if (instance == null) return;
+
+            var active = instance.pathfinding;
+            if (active == null) return;
+
             entity.RemoveComponents<Path>();
 
             var request = entity.GetData<CalculatePath>();
             //UnityEngine.Debug.LogWarning("REQUEST PATH: " + request.@from.ToStringDec() + " to " + request.to.ToStringDec());
             var constraint = request.constraint;
-            var path = active.CalculatePath(request.from, request.to, constraint, new ME.ECS.Pathfinding.PathCornersModifier());
-            if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete) {
-
-                this.pathfindingFeature.SetPath(in entity, path, constraint, request.to);
-                
-            }
-
-            path.Recycle();
-
+            ArrayUtils.Resize(this.idx, ref this.pathTasks);
+            this.pathTasks[this.idx++] = active.CalculatePathTask(entity, request.from, request.to, constraint, new ME.ECS.Pathfinding.PathCornersModifier());
+            
             entity.RemoveData<CalculatePath>();
 
         }
