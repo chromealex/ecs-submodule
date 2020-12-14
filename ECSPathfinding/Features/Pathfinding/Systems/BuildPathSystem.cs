@@ -39,6 +39,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
 
         void IAdvanceTickPre.AdvanceTickPre(in float deltaTime) {
             
+            if (this.pathTasks.IsCreated == true) this.pathTasks.Dispose();
             this.idx = 0;
 
         }
@@ -55,12 +56,14 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
 
                 ME.ECS.Collections.BufferArray<ME.ECS.Pathfinding.Path> results = default;
                 active.RunTasks(this.pathTasks, ref results);
+                //UnityEngine.Debug.Log("Calc paths: " + this.idx);
                 for (int i = 0; i < this.idx; ++i) {
 
                     var task = this.pathTasks[i];
                     if (task.isValid == false) continue;
                     
                     var path = results.arr[i];
+                    //UnityEngine.Debug.Log("Path build: " + i + " :: " + path.result);
                     if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete) {
 
                         this.pathfindingFeature.SetPath(in task.entity, path, task.constraint, task.to);
