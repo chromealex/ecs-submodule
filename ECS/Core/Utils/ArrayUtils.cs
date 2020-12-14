@@ -269,7 +269,7 @@ namespace ME.ECS {
             }
 
             System.Array.Copy(fromArr.arr, arr.arr, fromArr.Length);
-
+            
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

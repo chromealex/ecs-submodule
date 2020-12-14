@@ -123,8 +123,7 @@ namespace ME.ECS {
             if (this.dead.Count > 0) {
                 
                 id = this.dead[0];
-                this.dead[0] = this.dead[this.dead.Count - 1];
-                this.dead.RemoveAt(this.dead.Count - 1);
+                this.dead.RemoveAtFast(0);
                 
             } else {
 

@@ -482,9 +482,9 @@ namespace ME.ECS {
         private IFilterAction predicateOnRemove;
 
         #if UNITY_EDITOR
-        private BufferArray<string> editorTypes;
-        private BufferArray<string> editorStackTraceFile;
-        private BufferArray<int> editorStackTraceLineNumber;
+        private string[] editorTypes;
+        private string[] editorStackTraceFile;
+        private int[] editorStackTraceLineNumber;
         #endif
 
         public Filter() {}
@@ -596,35 +596,35 @@ namespace ME.ECS {
         #if UNITY_EDITOR
         public string GetEditorStackTraceFilename(int index) {
 
-            return this.editorStackTraceFile.arr[index];
+            return this.editorStackTraceFile[index];
 
         }
 
         public int GetEditorStackTraceLineNumber(int index) {
 
-            return this.editorStackTraceLineNumber.arr[index];
+            return this.editorStackTraceLineNumber[index];
 
         }
 
         public string ToEditorTypesString() {
 
-            return string.Join(", ", this.editorTypes.arr, 0, this.editorTypes.Length);
+            return string.Join(", ", this.editorTypes, 0, this.editorTypes.Length);
 
         }
 
         public void AddTypeToEditorWith<TComponent>() {
             
-            var idx = (this.editorTypes.arr != null ? this.editorTypes.Length : 0);
-            ArrayUtils.Resize(idx, ref this.editorTypes, resizeWithOffset: false);
-            this.editorTypes.arr[idx] = "W<" + typeof(TComponent).Name + ">";
+            var idx = (this.editorTypes != null ? this.editorTypes.Length : 0);
+            System.Array.Resize(ref this.editorTypes, idx + 1);
+            this.editorTypes[idx] = "W<" + typeof(TComponent).Name + ">";
             
         }
 
         public void AddTypeToEditorWithout<TComponent>() {
 
-            var idx = (this.editorTypes.arr != null ? this.editorTypes.Length : 0);
-            ArrayUtils.Resize(idx, ref this.editorTypes, resizeWithOffset: false);
-            this.editorTypes.arr[idx] = "WO<" + typeof(TComponent).Name + ">";
+            var idx = (this.editorTypes != null ? this.editorTypes.Length : 0);
+            System.Array.Resize(ref this.editorTypes, idx + 1);
+            this.editorTypes[idx] = "WO<" + typeof(TComponent).Name + ">";
 
         }
 
@@ -644,13 +644,13 @@ namespace ME.ECS {
 
         public void OnEditorFilterAddStackTrace(string file, int lineNumber) {
             
-            var idx = (this.editorStackTraceFile.arr != null ? this.editorStackTraceFile.Length : 0);
-            ArrayUtils.Resize(idx, ref this.editorStackTraceFile, resizeWithOffset: false);
-            this.editorStackTraceFile.arr[idx] = file;
+            var idx = (this.editorStackTraceFile != null ? this.editorStackTraceFile.Length : 0);
+            System.Array.Resize(ref this.editorStackTraceFile, idx + 1);
+            this.editorStackTraceFile[idx] = file;
             
-            idx = (this.editorStackTraceLineNumber.arr != null ? this.editorStackTraceLineNumber.Length : 0);
-            ArrayUtils.Resize(idx, ref this.editorStackTraceLineNumber, resizeWithOffset: false);
-            this.editorStackTraceLineNumber.arr[idx] = lineNumber;
+            idx = (this.editorStackTraceLineNumber != null ? this.editorStackTraceLineNumber.Length : 0);
+            System.Array.Resize(ref this.editorStackTraceLineNumber, idx + 1);
+            this.editorStackTraceLineNumber[idx] = lineNumber;
 
         }
         #endif
@@ -704,7 +704,7 @@ namespace ME.ECS {
             this.data = PoolArray<Entity>.Spawn(Filter.ENTITIES_CAPACITY);
             this.dataContains = PoolArray<bool>.Spawn(Filter.ENTITIES_CAPACITY);
             this.dataCount = 0;
-
+            
             this.id = default;
             if (this.aliases.arr != null) PoolArray<string>.Recycle(ref this.aliases);
             this.nodesCount = default;
@@ -715,9 +715,9 @@ namespace ME.ECS {
             this.max = int.MinValue;
             
             #if UNITY_EDITOR
-            if (this.editorTypes.arr != null) PoolArray<string>.Recycle(ref this.editorTypes);
-            if (this.editorStackTraceFile.arr != null) PoolArray<string>.Recycle(ref this.editorStackTraceFile);
-            if (this.editorStackTraceLineNumber.arr != null) PoolArray<int>.Recycle(ref this.editorStackTraceLineNumber);
+            this.editorTypes = null;
+            this.editorStackTraceFile = null;
+            this.editorStackTraceLineNumber = null;
             #endif
             
         }
@@ -748,9 +748,9 @@ namespace ME.ECS {
             if (this.aliases.arr != null) PoolArray<string>.Recycle(ref this.aliases);
             
             #if UNITY_EDITOR
-            if (this.editorTypes.arr != null) PoolArray<string>.Recycle(ref this.editorTypes);
-            if (this.editorStackTraceFile.arr != null) PoolArray<string>.Recycle(ref this.editorStackTraceFile);
-            if (this.editorStackTraceLineNumber.arr != null) PoolArray<int>.Recycle(ref this.editorStackTraceLineNumber);
+            this.editorTypes = null;
+            this.editorStackTraceFile = null;
+            this.editorStackTraceLineNumber = null;
             #endif
 
         }
@@ -866,7 +866,7 @@ namespace ME.ECS {
             ArrayUtils.Copy(in other.dataContains, ref this.dataContains);
             
             #if UNITY_EDITOR
-            ArrayUtils.Copy(in other.editorTypes, ref this.editorTypes);
+            this.editorTypes = other.editorTypes;
             this.editorStackTraceFile = other.editorStackTraceFile;
             this.editorStackTraceLineNumber = other.editorStackTraceLineNumber;
             #endif
@@ -1259,8 +1259,9 @@ namespace ME.ECS {
 
                 this.tempNodes.AddRange(this.tempNodesCustom);
                 var arr = this.tempNodes.OrderBy(x => x.GetType().GetHashCode()).ToArray();
+
                 if (this.nodes.arr != null) PoolArray<IFilterNode>.Recycle(ref this.nodes);
-                this.nodes = new BufferArray<IFilterNode>(arr, arr.Length);
+                this.nodes = BufferArray<IFilterNode>.From(arr);
                 this.nodesCount = this.nodes.Length;
                 this.tempNodes.Clear();
                 this.tempNodesCustom.Clear();
@@ -1271,7 +1272,7 @@ namespace ME.ECS {
                     filter = existsFilter;
                     filter.AddAlias(this.name);
                     #if UNITY_EDITOR
-                    filter.OnEditorFilterAddStackTrace(this.editorStackTraceFile.arr[0], this.editorStackTraceLineNumber.arr[0]);
+                    filter.OnEditorFilterAddStackTrace(this.editorStackTraceFile[0], this.editorStackTraceLineNumber[0]);
                     #endif
                     this.Recycle();
                     return existsFilter;
@@ -1281,7 +1282,6 @@ namespace ME.ECS {
                     this.id = world.currentState.filters.AllocateNextId();
 
                     filter = this;
-                    //this.world = worldInt;
                     world.currentState.filters.RegisterInAllArchetype(in this.archetypeContains);
                     world.currentState.filters.RegisterInAllArchetype(in this.archetypeNotContains);
                     world.Register(this);
