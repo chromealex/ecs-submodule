@@ -27,10 +27,11 @@ namespace ME.ECS.Serializer {
                 );
 
                 fieldInfos = fieldInfosArr
-	                .OrderByDescending(x => Attribute.IsDefined(x, typeof(OrderAttribute)))
-	                .ThenBy(x => ((OrderAttribute)x.GetCustomAttributes(typeof(OrderAttribute), false)
-		                .SingleOrDefault())?.order)
-	                .ToArray();
+                    .OrderByDescending(x => Attribute.IsDefined(x, typeof(OrderAttribute)))
+                    .ThenBy(x => ((OrderAttribute)x.GetCustomAttributes(typeof(OrderAttribute), false)
+                        .SingleOrDefault())?.order)
+                    .ThenBy(x => x.Name)
+                    .ToArray();
 
                 ReflectionHelper.fieldInfoCache.Add(type, fieldInfos);
 
