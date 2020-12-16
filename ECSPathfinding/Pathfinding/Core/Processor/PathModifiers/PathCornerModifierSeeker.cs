@@ -62,7 +62,7 @@ namespace ME.ECS.Pathfinding {
                     var pos = c.worldPosition;
                     do {
                         
-                        pos = Vector3.MoveTowards(pos, next.worldPosition, 0.01f);
+                        pos = Vector3.MoveTowards(pos, next.worldPosition, path.graph.GetNodeMinDistance());
                         var node = path.graph.GetNearest(pos, cons);
                         if ( //node.walkable == false ||
                             node.penalty != c.penalty ||

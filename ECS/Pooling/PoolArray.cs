@@ -43,13 +43,15 @@
 		//private static readonly System.Collections.Generic.Stack<T[]>[] pool = new System.Collections.Generic.Stack<T[]>[PoolArray<T>.MAX_STACK_SIZE];
 		private static readonly System.Collections.Generic.Stack<T[]>[] exactPool = new System.Collections.Generic.Stack<T[]>[PoolArray<T>.MaximumExactArrayLength+1];
 
-		//private static readonly System.Collections.Generic.HashSet<T[]> outArrays = new System.Collections.Generic.HashSet<T[]>();
+		private static readonly System.Collections.Generic.HashSet<T[]> outArrays = new System.Collections.Generic.HashSet<T[]>();
 		
 		private static readonly T[] empty = new T[0];
 		
 		public static void Initialize() {
 
+#if MULTITHREAD_SUPPORT
 			lock (PoolArray<T>.pool) {
+#endif
 
 				if (PoolArray<T>.pool[0] == null) {
 
@@ -66,7 +68,9 @@
 
 				}
 
+#if MULTITHREAD_SUPPORT
 			}
+#endif
 			
 		}
 		
@@ -104,7 +108,12 @@
 			var pool = PoolArray<T>.pool[bucketIndex];
 			if (pool.Count > 0) {
 
-				return pool.Pop();
+				var arrPooled = pool.Pop();
+				#if UNITY_EDITOR
+				PoolArray<T>.outArrays.Add(arrPooled);
+				#endif
+				//UnityEngine.Debug.Log("Spawn array: " + arrPooled + " :: " + arrPooled.GetHashCode());
+				return arrPooled;
 
 			}
 			#endif
@@ -126,7 +135,12 @@
 			var arr = new T[1 << bucketIndex];
 			outArrays.Add(arr);
 			return arr;*/
-			return new T[1 << bucketIndex];
+			var arr = new T[1 << bucketIndex];
+			#if UNITY_EDITOR
+			PoolArray<T>.outArrays.Add(arr);
+			#endif
+			//UnityEngine.Debug.Log("Spawn new array: " + arr + " :: " + arr.GetHashCode());
+			return arr;
 		}
 
 		/// <summary>
@@ -170,7 +184,7 @@
 			//array = null;
 			//return;
 			
-			if (array == null) {
+			if (array == null || array.Length == 0) {
 				return;
 			}
 
@@ -187,25 +201,51 @@
 
 			}
 
-			if (isPowerOfTwo) {
+			if (isPowerOfTwo == true) {
+				
 				var bucketIndex = 0;
 				while (1 << bucketIndex < array.Length && bucketIndex < 30) {
 					bucketIndex++;
 				}
 
+				#if UNITY_EDITOR
+				if (PoolArray<T>.outArrays.Contains(array) == false) {
+						
+					UnityEngine.Debug.LogError("You are trying to push array that already in pool!");
+						
+				}
+				PoolArray<T>.outArrays.Remove(array);
+				#endif
+
 				PoolArray<T>.pool[bucketIndex].Push(array);
+				
 			} else if (array.Length <= PoolArray<T>.MaximumExactArrayLength) {
 
+				#if MULTITHREAD_SUPPORT
 				lock (PoolArray<T>.pool) {
+				#endif
 
 					var stack = PoolArray<T>.exactPool[array.Length];
 					if (stack == null) {
 						stack = PoolArray<T>.exactPool[array.Length] = new System.Collections.Generic.Stack<T[]>();
 					}
 
+					#if UNITY_EDITOR
+					if (PoolArray<T>.outArrays.Contains(array) == false) {
+						
+						UnityEngine.Debug.LogError("You are trying to push array that already in pool!");
+						
+					}
+					PoolArray<T>.outArrays.Remove(array);
+					#endif
+
+					//UnityEngine.Debug.Log("Recycle array " + array + " :: " + array.GetHashCode());
 					stack.Push(array);
 
+				#if MULTITHREAD_SUPPORT
 				}
+				#endif
+
 			}
 			
 			/*

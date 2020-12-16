@@ -40,7 +40,7 @@ namespace ME.ECSEditor {
 
                     }
                     
-                    var c = go.GetComponent<ME.ECS.EntityDebugComponent>();
+                    var c = go.GetComponent<ME.ECS.Debug.EntityDebugComponent>();
                     if (c != null) {
 
                         InspectorAddComponent.HideButton();

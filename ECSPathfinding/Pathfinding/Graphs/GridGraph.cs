@@ -111,7 +111,7 @@ namespace ME.ECS.Pathfinding {
 
             if (this.nodes != null) {
 
-                Debug.Log("Recycle: " + this.nodes.Count);
+                UnityEngine.Debug.Log("Recycle: " + this.nodes.Count);
                 for (int i = 0; i < this.nodes.Count; ++i) {
 
                     var node = (GridNode)this.nodes[i];
@@ -146,6 +146,12 @@ namespace ME.ECS.Pathfinding {
             this.collisionCheckRadius = gg.collisionCheckRadius;
             
             ArrayUtils.Copy(other.nodes, ref this.nodes, new CopyNode());
+            
+        }
+
+        public override float GetNodeMinDistance() {
+            
+            return this.nodeSize - 0.01f;
             
         }
 
@@ -582,6 +588,13 @@ namespace ME.ECS.Pathfinding {
 
             }
             
+            #if WORLD_TICK_THREADED
+            // Quit if threaded logic is active
+            node.worldPosition = worldPos;
+            node.walkable = true;
+            return false;
+            #else
+            
             var raycastResult = false;
             RaycastHit hit;
             if (this.collisionCheckRadius <= 0f) {
@@ -614,6 +627,7 @@ namespace ME.ECS.Pathfinding {
                 node.walkable = false;
 
             }
+            #endif
 
             return false;
 

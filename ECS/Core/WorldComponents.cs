@@ -26,6 +26,7 @@ namespace ME.ECS {
         }
         
         #region Regular Components
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public TComponent AddOrGetComponent<TComponent>(Entity entity) where TComponent : class, IComponent, new() {
 
             var element = this.GetComponent<TComponent>(entity);
@@ -41,6 +42,7 @@ namespace ME.ECS {
         /// <param name="entity"></param>
         /// <typeparam name="TEntity"></typeparam>
         /// <typeparam name="TComponent"></typeparam>
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public TComponent AddComponent<TComponent>(Entity entity) where TComponent : class, IComponent, new() {
 
             TComponent data;
@@ -57,6 +59,7 @@ namespace ME.ECS {
         /// <typeparam name="TEntity"></typeparam>
         /// <typeparam name="TComponent"></typeparam>
         /// <typeparam name="TComponentType"></typeparam>
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public TComponent AddComponent<TComponent, TComponentType>(Entity entity) where TComponentType : class, IComponent where TComponent : class, TComponentType, IComponent, new() {
 
             TComponent data;
@@ -73,6 +76,7 @@ namespace ME.ECS {
         /// <param name="data"></param>
         /// <typeparam name="TEntity"></typeparam>
         /// <typeparam name="TComponent"></typeparam>
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public TComponent AddComponent<TComponent>(Entity entity, TComponent data) where TComponent : class, IComponent {
 
             #if WORLD_STATE_CHECK
@@ -99,6 +103,7 @@ namespace ME.ECS {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         internal void AddComponent<TComponent>(Entity entity, TComponent data, in int componentIndex) where TComponent : class, IComponent {
             
             #if WORLD_STATE_CHECK
@@ -130,6 +135,7 @@ namespace ME.ECS {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public TComponent GetComponent<TComponent>(Entity entity) where TComponent : class, IComponent {
             
             #if WORLD_EXCEPTIONS
@@ -144,6 +150,7 @@ namespace ME.ECS {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public ListCopyable<IComponent> ForEachComponent<TComponent>(Entity entity) where TComponent : class, IComponent {
 
             #if WORLD_EXCEPTIONS
@@ -158,6 +165,7 @@ namespace ME.ECS {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         internal ListCopyable<IComponent> ForEachComponent<TComponent>(int entityId) where TComponent : class, IComponent {
 
             return this.currentState.components.ForEach<TComponent>(entityId);
@@ -171,6 +179,7 @@ namespace ME.ECS {
         /// <typeparam name="TEntity"></typeparam>
         /// <typeparam name="TComponent"></typeparam>
         /// <returns></returns>
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool HasComponent<TComponent>(Entity entity) where TComponent : class, IComponent {
 
             #if WORLD_EXCEPTIONS
@@ -189,6 +198,7 @@ namespace ME.ECS {
         /// Remove all components with type from certain entity by predicate
         /// </summary>
         /// <param name="entity"></param>
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void RemoveComponentsPredicate<TComponent, TComponentPredicate>(Entity entity, TComponentPredicate predicate) where TComponent : class, IComponent where TComponentPredicate : IComponentPredicate<TComponent> {
 
             #if WORLD_STATE_CHECK
@@ -228,6 +238,7 @@ namespace ME.ECS {
         /// Remove all components from certain entity
         /// </summary>
         /// <param name="entity"></param>
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void RemoveComponents(Entity entity) {
 
             #if WORLD_STATE_CHECK
@@ -268,6 +279,7 @@ namespace ME.ECS {
         /// Remove all components from certain entity by type
         /// </summary>
         /// <param name="entity"></param>
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void RemoveComponents<TComponent>(Entity entity) where TComponent : class, IComponent {
 
             #if WORLD_STATE_CHECK
@@ -308,6 +320,7 @@ namespace ME.ECS {
         /// This method doesn't update any filter, you should call UpdateFilter manually
         /// </summary>
         /// <typeparam name="TComponent"></typeparam>
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void RemoveComponents<TComponent>() where TComponent : class, IComponent {
 
             #if WORLD_STATE_CHECK

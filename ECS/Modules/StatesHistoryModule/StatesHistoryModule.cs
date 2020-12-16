@@ -102,7 +102,7 @@ namespace ME.ECS.StatesHistory {
         #if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(0)]
         #endif
-        [Order]
+        [ME.ECS.Serializer.Attributes.OrderAttribute]
         public long tick;
         /// <summary>
         /// Global event order (for example: you have 30 players on the map, each has it's own index)
@@ -110,14 +110,23 @@ namespace ME.ECS.StatesHistory {
         #if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(1)]
         #endif
-        [Order]
+        [ME.ECS.Serializer.Attributes.OrderAttribute]
         public int order;
+        /// <summary>
+        /// Rpc Id is a method Id (see NetworkModule::RegisterRPC) 
+        /// </summary>
+        #if MESSAGE_PACK_SUPPORT
+        [MessagePack.KeyAttribute(5)]
+        #endif
+        [ME.ECS.Serializer.Attributes.OrderAttribute]
+        public int rpcId;
         /// <summary>
         /// Local event order (order would be the first, then localOrder applies)
         /// </summary>
         #if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(2)]
         #endif
+        [ME.ECS.Serializer.Attributes.OrderAttribute]
         public int localOrder;
         
         // Data
@@ -137,14 +146,7 @@ namespace ME.ECS.StatesHistory {
         [MessagePack.KeyAttribute(4)]
         #endif
         public int groupId;
-        /// <summary>
-        /// Rpc Id is a method Id (see NetworkModule::RegisterRPC) 
-        /// </summary>
-        #if MESSAGE_PACK_SUPPORT
-        [MessagePack.KeyAttribute(5)]
-        #endif
-        [Order]
-        public int rpcId;
+        
         /// <summary>
         /// Parameters of method
         /// </summary>

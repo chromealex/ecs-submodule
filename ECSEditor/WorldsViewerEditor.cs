@@ -774,7 +774,7 @@ namespace ME.ECSEditor {
 
             if (found == false) {
 
-                var objects = GameObject.FindObjectsOfType<EntityDebugComponent>();
+                var objects = GameObject.FindObjectsOfType<ME.ECS.Debug.EntityDebugComponent>();
                 foreach (var obj in objects) {
 
                     if (obj.entity == entity) {
@@ -797,8 +797,8 @@ namespace ME.ECSEditor {
 
                 } else {
 
-                    var debug = new GameObject("Debug-" + entity.ToString(), typeof(EntityDebugComponent));
-                    var info = debug.GetComponent<EntityDebugComponent>();
+                    var debug = new GameObject("Debug-" + entity.ToString(), typeof(ME.ECS.Debug.EntityDebugComponent));
+                    var info = debug.GetComponent<ME.ECS.Debug.EntityDebugComponent>();
                     info.entity = entity;
                     info.world = Worlds.currentWorld;
                     info.hasName = false;

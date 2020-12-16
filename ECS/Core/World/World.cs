@@ -1,4 +1,6 @@
-﻿//#define TICK_THREADED
+﻿#if WORLD_TICK_THREADED
+#define TICK_THREADED
+#endif
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 #define CHECKPOINT_COLLECTOR
 #endif
@@ -952,7 +954,7 @@ namespace ME.ECS {
                     for (int i = 0; i < list.Count; ++i) {
 
                         ref var item = ref list[i];
-                        this.UpdateFilters(item);
+                        this.UpdateFiltersOnFilterCreate(item);
                         this.CreateEntityPlugins(item);
 
                     }
@@ -1218,9 +1220,12 @@ namespace ME.ECS {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool IsAlive(int entityId, ushort version) {
 
-            return this.currentState.storage.IsAlive(entityId, version);
+            // Inline manually
+            return this.currentState.storage.versions.arr[entityId] == version;
+            //return this.currentState.storage.IsAlive(entityId, version);
             
         }
 
@@ -1822,6 +1827,12 @@ namespace ME.ECS {
             this.simulationFromTick = from;
             this.simulationToTick = to;
 
+            if (this.settings.maxTicksSimulationCount > 0L && this.simulationToTick > this.simulationFromTick + this.settings.maxTicksSimulationCount) {
+                
+                throw new System.Exception("Simulation failed because of ticks count is out of range: [" + this.simulationFromTick + ".." + this.simulationToTick + ")");
+                
+            }
+
         }
 
         private struct ForeachFilterJob : Unity.Jobs.IJobParallelFor {
@@ -1949,6 +1960,26 @@ namespace ME.ECS {
                     #endif
 
                     this.PlayTasksForTick();
+                    
+                    for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
+
+                        ref var group = ref this.systemGroups.arr[i];
+                        for (int j = 0; j < group.systems.Length; ++j) {
+
+                            if (group.IsSystemActive(j) == true) {
+
+                                ref var system = ref group.systems.arr[j];
+                                if (system is IAdvanceTickPre sysPost) {
+                                    
+                                    sysPost.AdvanceTickPre(in fixedDeltaTime);
+                                    
+                                }
+
+                            }
+
+                        }
+
+                    }
 
                     for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
 
@@ -2064,6 +2095,26 @@ namespace ME.ECS {
                         #if CHECKPOINT_COLLECTOR
                         if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.LogicTick);
                         #endif
+
+                    }
+
+                    for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
+
+                        ref var group = ref this.systemGroups.arr[i];
+                        for (int j = 0; j < group.systems.Length; ++j) {
+
+                            if (group.IsSystemActive(j) == true) {
+
+                                ref var system = ref group.systems.arr[j];
+                                if (system is IAdvanceTickPost sysPost) {
+                                    
+                                    sysPost.AdvanceTickPost(in fixedDeltaTime);
+                                    
+                                }
+
+                            }
+
+                        }
 
                     }
                     

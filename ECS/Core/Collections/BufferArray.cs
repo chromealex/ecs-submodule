@@ -1,8 +1,6 @@
 ﻿#define EDITOR_ARRAY
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using Unity.Collections.LowLevel.Unsafe;
 
 namespace ME.ECS.Collections {
 
@@ -101,12 +99,13 @@ namespace ME.ECS.Collections {
 
         public BufferArray<T> RemoveAt(int index) {
 
-            var newLength = this.Length - 1;
+            var newLength = this.Length;
             newLength--;
+            
             if (index < newLength) {
-                
-                System.Array.Copy(this.arr, index + 1, this.arr, index, this.Length - index);
-                
+
+                System.Array.Copy(this.arr, index + 1, this.arr, index, newLength - index);
+
             }
             
             return new BufferArray<T>(this.arr, newLength);

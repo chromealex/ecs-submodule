@@ -304,9 +304,14 @@ MonoBehaviour:
             ScriptTemplates.CreateEmptyDirectory(path, "Generator");
 
             ScriptTemplates.Create(path, projectName + "State.cs", "00-StateTemplate", defines, allowRename: false);
+            ScriptTemplates.Create(path, "AssemblyInfo.cs", "00-AssemblyInfo", defines, allowRename: false);
             
             ScriptTemplates.CreateEmptyDirectory(path + "/Generator", "gen");
-            ScriptTemplates.Create(path + "/Generator", projectName + ".gen.asmdef", "00-asmdef", defines, allowRename: false);
+            var definesGen = defines.ToDictionary(x => x.Key, x => x.Value);
+            definesGen["PROJECTNAME"] = projectName + ".gen";
+            var refGuid = AssetDatabase.AssetPathToGUID(path + "/" + projectName + ".asmdef");
+            definesGen.Add("REFERENCES", @",""GUID:" + refGuid + @"""");
+            ScriptTemplates.Create(path + "/Generator", projectName + ".gen.asmdef", "00-asmdef", definesGen, allowRename: false);
             ScriptTemplates.Create(path + "/Generator", projectName + "Initializer.cs", "00-InitializerTemplate", defines, allowRename: false, onCreated: (asset) => {
                 
                 var assetPath = AssetDatabase.GetAssetPath(asset);

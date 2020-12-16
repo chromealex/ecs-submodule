@@ -252,7 +252,19 @@ namespace ME.ECSEditor {
                     return;
 
                 }
-                
+
+                ComponentIndexGeneratorData componentIndex = null;
+                if (System.IO.Directory.Exists(asmNamePath + "/gen") == true) {
+
+                    componentIndex = ComponentIndexGeneratorData.Generate(asmNamePath);
+                    componentIndex.ResetCurrent();
+
+                } else {
+
+                    return;
+
+                }
+
                 foreach (var assembly in assemblies) {
 
                     if (allAsms.Contains(assembly.GetName().Name) == true && assembly.GetName().Name != "ECSAssembly") {
@@ -270,6 +282,7 @@ namespace ME.ECSEditor {
                                     if (listEntities.Contains(type) == false) {
                                         
                                         listEntities.Add(type);
+                                        componentIndex.SetStruct(type);
                                         
                                     }
 
@@ -280,6 +293,7 @@ namespace ME.ECSEditor {
                                     if (listComponents.Contains(type) == false) {
 
                                         listComponents.Add(type);
+                                        componentIndex.SetRef(type);
                                         
                                     }
 
@@ -295,14 +309,16 @@ namespace ME.ECSEditor {
 
                 }
 
-                foreach (var type in listComponents) {
-                    
+                componentIndex.ApplyCurrent();
+                
+                foreach (var type in componentIndex.current.typesRefs) {
+
                     if (itemStr3 != null) {
 
                         var resItem3 = itemStr3;
                         resItem3 = resItem3.Replace("#PROJECTNAME#", asmName);
                         resItem3 = resItem3.Replace("#STATENAME#", asmName + "State");
-                        resItem3 = resItem3.Replace("#TYPENAME#", type.FullName);
+                        resItem3 = resItem3.Replace("#TYPENAME#", type);
                         resItem3 = resItem3.Replace("#ISTAG#", "false");
 
                         output3 += resItem3;
@@ -311,14 +327,17 @@ namespace ME.ECSEditor {
 
                 }
 
-                foreach (var entityType in listEntities) {
-
-                    var hasFields = (entityType.GetFields(System.Reflection.BindingFlags.Default | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 0);
+                for (var i = 0; i < componentIndex.current.typesStructs.Count; ++i) {
                     
+                    var asmType = componentIndex.current.asmTypesStructs[i];
+                    var entityType = componentIndex.current.typesStructs[i];
+                    var hasFields = (System.Type.GetType(entityType + ", " + asmType).GetFields(System.Reflection.BindingFlags.Default | System.Reflection.BindingFlags.Instance |
+                                                                                                System.Reflection.BindingFlags.Public).Length > 0);
+
                     var resItem = itemStr;
                     resItem = resItem.Replace("#PROJECTNAME#", asmName);
                     resItem = resItem.Replace("#STATENAME#", asmName + "State");
-                    resItem = resItem.Replace("#TYPENAME#", entityType.FullName);
+                    resItem = resItem.Replace("#TYPENAME#", entityType);
                     resItem = resItem.Replace("#ISTAG#", hasFields == true ? "false" : "true");
 
                     output += resItem;
@@ -328,7 +347,7 @@ namespace ME.ECSEditor {
                         var resItem2 = itemStr2;
                         resItem2 = resItem2.Replace("#PROJECTNAME#", asmName);
                         resItem2 = resItem2.Replace("#STATENAME#", asmName + "State");
-                        resItem2 = resItem2.Replace("#TYPENAME#", entityType.FullName);
+                        resItem2 = resItem2.Replace("#TYPENAME#", entityType);
                         resItem2 = resItem2.Replace("#ISTAG#", hasFields == true ? "false" : "true");
 
                         output2 += resItem2;
@@ -340,17 +359,18 @@ namespace ME.ECSEditor {
                         var resItem3 = itemStr3;
                         resItem3 = resItem3.Replace("#PROJECTNAME#", asmName);
                         resItem3 = resItem3.Replace("#STATENAME#", asmName + "State");
-                        resItem3 = resItem3.Replace("#TYPENAME#", entityType.FullName);
+                        resItem3 = resItem3.Replace("#TYPENAME#", entityType);
                         resItem3 = resItem3.Replace("#ISTAG#", hasFields == true ? "false" : "true");
 
                         output3 += resItem3;
 
                     }
-
+                    
                 }
 
-                ME.ECSEditor.ScriptTemplates.Create(asmNamePath, Generator.FILE_NAME, Generator.TEMPLATE, new Dictionary<string, string>() { { "CONTENT", output }, { "CONTENT2", output2 }, { "CONTENT3", output3 } }, false);
-                
+                ME.ECSEditor.ScriptTemplates.Create(asmNamePath, Generator.FILE_NAME, Generator.TEMPLATE,
+                                                    new Dictionary<string, string>() { { "CONTENT", output }, { "CONTENT2", output2 }, { "CONTENT3", output3 } }, false);
+
             }
 
         }

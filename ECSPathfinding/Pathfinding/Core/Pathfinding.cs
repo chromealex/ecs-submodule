@@ -5,7 +5,19 @@ using UnityEngine;
 namespace ME.ECS.Pathfinding {
     
     using ME.ECS.Collections;
+    using Unity.Jobs;
 
+    public struct PathTask {
+
+        public Entity entity;
+        public Vector3 from;
+        public Vector3 to;
+        public Constraint constraint;
+        public PathCornersModifier pathCornersModifier;
+        public bool isValid;
+
+    }
+    
     [ExecuteInEditMode]
     #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
@@ -204,16 +216,16 @@ namespace ME.ECS.Pathfinding {
             
         }
 
-        public Path CalculatePath<TMod>(Vector3 from, Vector3 to, Constraint constraint, TMod pathModifier) where TMod : IPathModifier {
+        public Path CalculatePath<TMod>(Vector3 from, Vector3 to, Constraint constraint, TMod pathModifier, int threadIndex = 0) where TMod : IPathModifier {
 
             var graph = this.GetNearest(from, constraint).graph;
-            return this.CalculatePath(from, to, constraint, graph, pathModifier);
+            return this.CalculatePath(from, to, constraint, graph, pathModifier, threadIndex);
             
         }
 
-        public Path CalculatePath<TMod>(Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier) where TMod : IPathModifier {
+        public Path CalculatePath<TMod>(Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0) where TMod : IPathModifier {
 
-            return this.processor.Run(this, from, to, constraint, graph, pathModifier);
+            return this.processor.Run(this, from, to, constraint, graph, pathModifier, threadIndex);
 
         }
 
@@ -277,6 +289,60 @@ namespace ME.ECS.Pathfinding {
 
             }
 
+        }
+
+        private struct RunTasksJob : Unity.Jobs.IJobParallelFor {
+
+            public Unity.Collections.NativeArray<PathTask> arr;
+
+            void Unity.Jobs.IJobParallelFor.Execute(int index) {
+
+                var item = this.arr[index];
+                if (item.isValid == true) Pathfinding.results.arr[index] = Pathfinding.pathfinding.CalculatePath(item.@from, item.to, item.constraint, item.pathCornersModifier, index);
+                this.arr[index] = item;
+
+            }
+
+        }
+
+        private static Pathfinding pathfinding;
+        private static BufferArray<Path> results;
+        public void RunTasks(Unity.Collections.NativeArray<PathTask> tasks, ref BufferArray<Path> results) {
+
+            ArrayUtils.Resize(tasks.Length, ref Pathfinding.results);
+            
+            Pathfinding.pathfinding = this;
+            
+            var job = new RunTasksJob() {
+                arr = tasks,
+            };
+            var jobHandle = job.Schedule(tasks.Length, 64);
+            jobHandle.Complete();
+
+            results = Pathfinding.results;
+
+            /*
+            for (int i = 0; i < tasks.Count; ++i) {
+
+                var task = tasks[i];
+                task.result = this.CalculatePath(task.@from, task.to, task.constraint, task.pathCornersModifier);
+                tasks[i] = task;
+
+            }*/
+
+        }
+        
+        public PathTask CalculatePathTask(Entity entity, Vector3 requestFrom, Vector3 requestTo, Constraint constraint, PathCornersModifier pathCornersModifier) {
+
+            return new PathTask() {
+                entity = entity,
+                from = requestFrom,
+                to = requestTo,
+                constraint = constraint,
+                pathCornersModifier = pathCornersModifier,
+                isValid = true,
+            };
+            
         }
 
     }
