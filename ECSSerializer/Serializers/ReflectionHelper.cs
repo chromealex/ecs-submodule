@@ -30,6 +30,7 @@ namespace ME.ECS.Serializer {
 	                .OrderByDescending(x => Attribute.IsDefined(x, typeof(OrderAttribute)))
 	                .ThenBy(x => ((OrderAttribute)x.GetCustomAttributes(typeof(OrderAttribute), false)
 		                .SingleOrDefault())?.order)
+                    .ThenBy(x => x.Name)
 	                .ToArray();
 
                 ReflectionHelper.fieldInfoCache.Add(type, fieldInfos);
