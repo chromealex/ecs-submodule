@@ -1249,6 +1249,14 @@ namespace ME.ECS {
         
         public Entity AddEntity(string name = null) {
 
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+
             var entity = this.currentState.storage.Alloc();
             
             /*
