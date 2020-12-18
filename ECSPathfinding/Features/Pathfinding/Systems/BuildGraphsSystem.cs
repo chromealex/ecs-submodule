@@ -12,15 +12,9 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
     #endif
     public sealed class BuildGraphsSystem : ISystemFilter {
 
-        private PathfindingFeature pathfindingFeature;
-        
         public World world { get; set; }
 
-        void ISystemBase.OnConstruct() {
-            
-            this.pathfindingFeature = this.world.GetFeature<PathfindingFeature>();
-
-        }
+        void ISystemBase.OnConstruct() {}
         
         void ISystemBase.OnDeconstruct() {}
         
@@ -41,6 +35,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
             
             entity.GetComponent<PathfindingInstance>().pathfinding.BuildAll();
 
+            entity.SetData(new IsAllGraphsBuilt(), ComponentLifetime.NotifyAllSystems);
             entity.RemoveData<BuildAllGraphs>();
 
         }

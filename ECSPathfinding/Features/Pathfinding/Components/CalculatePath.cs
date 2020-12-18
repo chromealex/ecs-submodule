@@ -4,6 +4,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
     public struct IsPathfinding : IStructComponent {}
     public struct BuildAllGraphs : IStructComponent {}
     public struct HasPathfindingInstance : IStructComponent {}
+    public struct IsAllGraphsBuilt : IStructComponent {}
     
     public struct CalculatePath : IStructComponent {
 
