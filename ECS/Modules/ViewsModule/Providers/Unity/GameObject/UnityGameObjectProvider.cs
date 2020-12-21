@@ -260,7 +260,7 @@ namespace ME.ECS.Views.Providers {
         int System.IComparable<IView>.CompareTo(IView other) { return 0; }
 
         public World world { get; private set; }
-        public Entity entity { get; private set; }
+        public virtual Entity entity { get; private set; }
         public ViewId prefabSourceId { get; private set; }
         public Tick creationTick { get; private set; }
 
