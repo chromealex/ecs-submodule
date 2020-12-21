@@ -1136,6 +1136,41 @@ namespace ME.ECS {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void CopyFrom(in Entity from, in Entity to) {
+
+            #if WORLD_EXCEPTIONS
+            if (from.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(from);
+                
+            }
+            #endif
+
+            #if WORLD_EXCEPTIONS
+            if (to.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(to);
+                
+            }
+            #endif
+
+            {
+                // Clear entity
+                this.RemoveComponents(to);
+                this.RemoveData(to);
+            }
+
+            {
+                // Copy data
+                this.currentState.components.CopyFrom(in from, in to);
+                this.currentState.structComponents.CopyFrom(in from, in to);
+                this.AddComponentToFilter(to);
+            }
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void AddComponentToFilter(Entity entity) {
             
             ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
@@ -1156,6 +1191,7 @@ namespace ME.ECS {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void RemoveComponentFromFilter(in Entity entity) {
             
             ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);

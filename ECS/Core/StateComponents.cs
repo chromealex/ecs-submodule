@@ -407,6 +407,27 @@ namespace ME.ECS {
             }
 
         }
+
+        public void CopyFrom(in Entity from, in Entity to) {
+
+            for (int i = 0; i < this.buckets.Length; ++i) {
+
+                var bucket = this.buckets.arr[i];
+                if (bucket.components.arr == null) continue;
+                
+                var list = bucket.components.arr[from.id];
+                for (int j = 0; j < list.Count; ++j) {
+
+                    var item = list[j];
+                    if (item == null) continue;
+                    
+                    this.Add(to.id, item);
+                    
+                }
+
+            }
+            
+        }
         
         public void CopyFrom(Components other) {
             
@@ -415,60 +436,6 @@ namespace ME.ECS {
             // Clone other array
             ArrayUtils.Copy(other.buckets, ref this.buckets, new CopyBucket());
             
-            // Check-test
-            /*
-            if ((other.buckets.arr != null && this.buckets.arr == null) ||
-                (other.buckets.arr == null && this.buckets.arr != null) ||
-                (other.buckets.Length != this.buckets.Length)) {
-                
-                UnityEngine.Debug.LogError("Copy test failure");
-
-            }
-
-            for (int i = 0; i < other.buckets.Length; ++i) {
-
-                if (other.buckets.arr[i].components.Length != this.buckets.arr[i].components.Length) {
-                    
-                    UnityEngine.Debug.LogError("Copy test failure");
-                    
-                }
-                
-                for (int j = 0; j < other.buckets.arr[i].components.Length; ++j) {
-
-                    var c = other.buckets.arr[i].components.arr[j];
-                    var c2 = this.buckets.arr[i].components.arr[j];
-                    if (c != null) {
-
-                        if (c2 == null) {
-                            
-                            UnityEngine.Debug.LogError("Copy test failure");
-
-                        }
-                        
-                        if (c.Count == c2.Count) {
-
-                            for (int k = 0; k < c.Count; ++k) {
-
-                                if (c[k].GetType() != c2[k].GetType()) {
-
-                                    UnityEngine.Debug.LogError("Copy test failure");
-
-                                }
-
-                            }
-
-                        } else {
-
-                            UnityEngine.Debug.LogError("Copy test failure");
-
-                        }
-
-                    }
-                    
-                }
-
-            }*/
-
         }
         
     }

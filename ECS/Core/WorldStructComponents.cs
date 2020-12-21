@@ -45,6 +45,8 @@ namespace ME.ECS {
 
         public abstract bool IsTag();
         
+        public abstract int GetTypeBit();
+        
         public abstract bool HasType(System.Type type);
         public abstract IStructComponent GetObject(Entity entity);
         public abstract bool SetObject(Entity entity, IStructComponent data);
@@ -55,6 +57,8 @@ namespace ME.ECS {
         
         public abstract void CopyFrom(StructRegistryBase other);
 
+        public abstract void CopyFrom(in Entity from, in Entity to);
+        
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public abstract void Validate(in int capacity);
 
@@ -92,6 +96,12 @@ namespace ME.ECS {
         
         internal TComponent emptyComponent;
 
+        public override int GetTypeBit() {
+
+            return WorldUtilities.GetComponentTypeId<TComponent>();
+            
+        }
+        
         public override int GetCustomHash() {
 
             var hash = 0;
@@ -349,6 +359,22 @@ namespace ME.ECS {
             }
 
             return false;
+
+        }
+
+        public override void CopyFrom(in Entity from, in Entity to) {
+
+            this.componentsStates.arr[to.id] = this.componentsStates.arr[from.id];
+            if (this.isTag == false) this.components.arr[to.id] = this.components.arr[from.id];
+            if (this.componentsStates.arr[from.id] > 0) {
+
+                this.world.currentState.storage.archetypes.Set<TComponent>(in to);
+
+            } else {
+                
+                this.world.currentState.storage.archetypes.Remove<TComponent>(in to);
+
+            }
 
         }
 
@@ -692,6 +718,17 @@ namespace ME.ECS {
 
         }
 
+        public void CopyFrom(in Entity from, in Entity to) {
+
+            for (int i = 0; i < this.list.Count; ++i) {
+
+                var reg = this.list.arr[i];
+                reg.CopyFrom(in from, in to);
+
+            }
+            
+        }
+        
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -1225,6 +1262,48 @@ namespace ME.ECS {
                 state = (byte)(lifetime + 1);
 
                 this.AddToLifetimeIndex<TComponent>(in entity);
+
+            }
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void RemoveData(in Entity entity) {
+            
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+                
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+            
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            var changed = false;
+            for (int i = 0; i < this.currentState.structComponents.list.arr.length; ++i) {
+
+                var reg = this.currentState.structComponents.list.arr[i];
+                if (reg.Remove(in entity, false) == true) {
+
+                    var bit = reg.GetTypeBit();
+                    if (this.currentState.filters.allFiltersArchetype.HasBit(bit) == true) this.currentState.storage.archetypes.Remove(in entity, bit);
+                    --this.currentState.structComponents.count;
+                    changed = true;
+
+                }
+
+            }
+
+            if (changed == true) {
+
+                this.RemoveComponentFromFilter(in entity);
 
             }
 

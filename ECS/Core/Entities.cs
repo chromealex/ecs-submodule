@@ -82,6 +82,14 @@
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static Entity CopyFrom(this in Entity entity, in Entity fromEntity) {
+
+            Worlds.currentWorld.CopyFrom(in fromEntity, in entity);
+            return entity;
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static Entity SetData<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
 
             Worlds.currentWorld.SetData<TComponent>(in entity);
