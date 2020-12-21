@@ -12,13 +12,6 @@ namespace ME.ECS {
     #endif
     public sealed class Components : IPoolableRecycle {
 
-        private static class ComponentType<TComponent> {
-
-            public static int id = -1;
-            public static bool inHash = true;
-
-        }
-
         public struct Bucket {
 
             public BufferArray<ListCopyable<IComponent>> components;
@@ -203,27 +196,21 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private static int GetTypeId<TComponent>() {
 
-            if (ComponentType<TComponent>.id < 0) {
-
-                ComponentType<TComponent>.id = Components.typeId++;
-
-            }
-
-            return ComponentType<TComponent>.id;
+            return WorldUtilities.GetAllComponentTypeId<TComponent>();
 
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private static bool IsTypeInHash<TComponent>() {
 
-            return ComponentType<TComponent>.inHash;
+            return WorldUtilities.IsAllComponentInHash<TComponent>();
 
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         internal static void SetTypeInHash<TComponent>(bool state) {
 
-            ComponentType<TComponent>.inHash = state;
+            WorldUtilities.SetAllComponentInHash<TComponent>(state);
 
         }
 

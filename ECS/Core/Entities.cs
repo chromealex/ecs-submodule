@@ -35,6 +35,7 @@
         public static readonly byte _;
         public static int typeId = -1;
         public static bool isTag = false;
+        public static bool isInHash = true;
 
     }
 

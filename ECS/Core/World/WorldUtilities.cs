@@ -142,6 +142,20 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool IsAllComponentInHash<TComponent>() {
+
+            return AllComponentTypes<TComponent>.isInHash;
+
+        }
+        
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void SetAllComponentInHash<TComponent>(bool state) {
+            
+            AllComponentTypes<TComponent>.isInHash = state;
+            
+        }
+        
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int GetAllComponentTypeId<TComponent>() {
 
             if (AllComponentTypes<TComponent>.typeId < 0) {
