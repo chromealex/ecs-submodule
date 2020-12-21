@@ -451,7 +451,7 @@ namespace ME.ECS {
             }
         }
 
-        private World world {
+        internal World world {
             get {
                 return Worlds.currentWorld;
             }
