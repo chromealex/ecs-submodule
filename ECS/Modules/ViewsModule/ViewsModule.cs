@@ -693,23 +693,9 @@ namespace ME.ECS.Views {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void DestroyAllViews(in Entity entity) {
 
-            if (entity.id >= this.list.Length) return;
+            this.world.RemoveComponents<ViewComponent>(entity);
+            this.isRequestsDirty = true;
             
-            var views = this.list.arr[entity.id];
-            if (views.mainView == null) return;
-
-            this.DestroyView(ref views.mainView);
-            if (views.otherViews != null) {
-
-                for (int i = 0, length = views.otherViews.Count; i < length; ++i) {
-
-                    var view = views.otherViews[i];
-                    this.DestroyView(ref view);
-
-                }
-
-            }
-
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
