@@ -210,9 +210,13 @@
 
 				#if UNITY_EDITOR
 				if (PoolArray<T>.outArrays.Contains(array) == false) {
-						
-					UnityEngine.Debug.LogError("You are trying to push array that already in pool!");
-						
+
+					if (PoolArray<T>.pool[bucketIndex].Contains(array) == true) {
+
+						UnityEngine.Debug.LogError("You are trying to push array that already in pool!");
+
+					}
+
 				}
 				PoolArray<T>.outArrays.Remove(array);
 				#endif
@@ -232,9 +236,13 @@
 
 					#if UNITY_EDITOR
 					if (PoolArray<T>.outArrays.Contains(array) == false) {
-						
-						UnityEngine.Debug.LogError("You are trying to push array that already in pool!");
-						
+
+						if (stack.Contains(array) == true) {
+
+							UnityEngine.Debug.LogError("You are trying to push array that already in pool!");
+
+						}
+
 					}
 					PoolArray<T>.outArrays.Remove(array);
 					#endif
