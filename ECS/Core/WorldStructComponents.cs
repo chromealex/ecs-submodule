@@ -1287,7 +1287,7 @@ namespace ME.ECS {
             #endif
 
             var changed = false;
-            for (int i = 0; i < this.currentState.structComponents.list.arr.length; ++i) {
+            for (int i = 0; i < this.currentState.structComponents.list.Length; ++i) {
 
                 var reg = this.currentState.structComponents.list.arr[i];
                 if (reg.Remove(in entity, false) == true) {
