@@ -1,6 +1,7 @@
 ﻿
 namespace ME.ECS {
 
+    #if UNITY_2020_OR_NEWER
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -50,6 +51,25 @@ namespace ME.ECS {
         }
 
     }
+    #else
+    public readonly ref struct DataBuffer<T> where T : struct, IStructComponent {
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public DataBuffer(World world, ME.ECS.Collections.BufferArray<Entity> arr) {
+
+            throw new System.Exception("To use Span please use Unity 2020 or newer");
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public ref T Get(int entityId) {
+
+            throw new System.Exception("To use Span please use Unity 2020 or newer");
+            
+        }
+
+    }
+    #endif
 
     /*public class Test {
         
