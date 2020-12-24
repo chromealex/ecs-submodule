@@ -40,6 +40,8 @@ namespace ME.ECS.Pathfinding.Features {
         
         protected override void OnConstruct() {
 
+            this.pathfindingInstance = null;
+            
             PathfindingComponentsInitializer.Init(ref this.world.GetStructComponents());
             ComponentsInitializerWorld.Register(PathfindingComponentsInitializer.InitEntity);
             

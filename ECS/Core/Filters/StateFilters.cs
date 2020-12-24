@@ -713,6 +713,9 @@ namespace ME.ECS {
 
             this.min = int.MaxValue;
             this.max = int.MinValue;
+
+            this.predicateOnAdd = null;
+            this.predicateOnRemove = null;
             
             #if UNITY_EDITOR
             this.editorTypes = null;
@@ -739,6 +742,9 @@ namespace ME.ECS {
 
             this.min = int.MaxValue;
             this.max = int.MinValue;
+
+            this.predicateOnAdd = null;
+            this.predicateOnRemove = null;
 
             this.dataCount = 0;
             this.archetypeContains = default;
