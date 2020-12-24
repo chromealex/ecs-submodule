@@ -445,7 +445,7 @@ namespace ME.ECS.Views.Providers {
 
         public override void OnDeconstruct() {
 
-            UnityEngine.Object.Destroy(this.mainParticleSystem);
+            UnityObjectUtils.Destroy(this.mainParticleSystem);
             this.mainParticleSystem = null;
             
             this.pool = null;
