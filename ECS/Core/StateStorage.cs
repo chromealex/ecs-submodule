@@ -11,7 +11,7 @@ namespace ME.ECS {
         int DeadCount { get; }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        bool IsAlive(int id, ushort version);
+        bool IsAlive(int id, ushort generation);
 
         bool ForEach(ListCopyable<Entity> results);
         
@@ -30,7 +30,7 @@ namespace ME.ECS {
     public sealed class Storage : IStorage {
 
         [ME.ECS.Serializer.SerializeField]
-        internal BufferArray<ushort> versions;
+        internal BufferArray<ushort> generations;
         [ME.ECS.Serializer.SerializeField]
         private ListCopyable<int> alive;
         [ME.ECS.Serializer.SerializeField]
@@ -43,6 +43,8 @@ namespace ME.ECS {
         private int entityId;
         [ME.ECS.Serializer.SerializeField]
         internal ArchetypeEntities archetypes;
+        [ME.ECS.Serializer.SerializeField]
+        internal EntityVersions versions;
 
         public int AliveCount {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -70,7 +72,7 @@ namespace ME.ECS {
             for (int i = 0; i < this.alive.Count; ++i) {
 
                 var id = this.alive[i];
-                results.Add(new Entity(id, this.versions.arr[id]));
+                results.Add(new Entity(id, this.generations.arr[id]));
                 
             }
 
@@ -80,25 +82,27 @@ namespace ME.ECS {
         
         public void Initialize(int capacity) {
             
-            this.versions = PoolArray<ushort>.Spawn(capacity);
+            this.generations = PoolArray<ushort>.Spawn(capacity);
             this.alive = PoolList<int>.Spawn(capacity);
             this.dead = PoolList<int>.Spawn(capacity);
             this.deadPrepared = PoolList<int>.Spawn(capacity);
             this.aliveCount = 0;
             this.entityId = -1;
             this.archetypes = PoolClass<ArchetypeEntities>.Spawn();
+            this.versions = PoolClass<EntityVersions>.Spawn();
 
         }
         
         void IPoolableRecycle.OnRecycle() {
 
-            PoolArray<ushort>.Recycle(ref this.versions);
+            PoolArray<ushort>.Recycle(ref this.generations);
             PoolList<int>.Recycle(ref this.alive);
             PoolList<int>.Recycle(ref this.dead);
             PoolList<int>.Recycle(ref this.deadPrepared);
             this.aliveCount = 0;
             this.entityId = -1;
             PoolClass<ArchetypeEntities>.Recycle(ref this.archetypes);
+            PoolClass<EntityVersions>.Recycle(ref this.versions);
 
         }
         
@@ -107,13 +111,14 @@ namespace ME.ECS {
 
         public void CopyFrom(Storage other) {
             
-            ArrayUtils.Copy(other.versions, ref this.versions);
+            ArrayUtils.Copy(other.generations, ref this.generations);
             ArrayUtils.Copy(other.alive, ref this.alive);
             ArrayUtils.Copy(other.dead, ref this.dead);
             ArrayUtils.Copy(other.deadPrepared, ref this.deadPrepared);
             this.aliveCount = other.aliveCount;
             this.entityId = other.entityId;
             this.archetypes.CopyFrom(other.archetypes);
+            this.versions.CopyFrom(other.versions);
 
         }
         
@@ -128,21 +133,22 @@ namespace ME.ECS {
             } else {
 
                 id = ++this.entityId;
-                ArrayUtils.Resize(id, ref this.versions, true);
+                ArrayUtils.Resize(id, ref this.generations, true);
 
             }
             
             ++this.aliveCount;
             this.alive.Add(id);
-            ref var v = ref this.versions.arr[id];
+            ref var v = ref this.generations.arr[id];
             if (v == 0) ++v;
+            this.versions.Reset(id);
             return new Entity(id, v);
             
         }
 
         public bool Dealloc(in Entity entity) {
 
-            if (this.IsAlive(entity.id, entity.version) == false) return false;
+            if (this.IsAlive(entity.id, entity.generation) == false) return false;
 
             this.deadPrepared.Add(entity.id);
             
@@ -150,10 +156,10 @@ namespace ME.ECS {
 
         }
 
-        public void IncrementVersion(in Entity entity) {
+        public void IncrementGeneration(in Entity entity) {
             
             // Make this entity not alive, but not completely destroyed at this time
-            ++this.versions.arr[entity.id];
+            ++this.generations.arr[entity.id];
             
         }
 
@@ -173,16 +179,16 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public bool IsAlive(int id, ushort version) {
+        public bool IsAlive(int id, ushort generation) {
 
-            return this.versions.arr[id] == version;
+            return this.generations.arr[id] == generation;
 
         }
         
         public Entity this[int id] {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             get {
-                return new Entity(id, this.versions.arr[id]);
+                return new Entity(id, this.generations.arr[id]);
             }
         }
         

@@ -155,7 +155,7 @@ namespace ME.ECS {
             if (state - 1 == step) {
                 
                 var entity = world.GetEntityById(in id);
-                if (entity.version == 0) return;
+                if (entity.generation == 0) return;
                     
                 state = 0;
                 if (this.isTag == false) this.components.arr[id] = default;
@@ -310,7 +310,7 @@ namespace ME.ECS {
         public override bool Has(in Entity entity) {
 
             #if WORLD_EXCEPTIONS
-            if (entity.version == 0) {
+            if (entity.generation == 0) {
                 
                 EmptyEntityException.Throw(entity);
                 
@@ -915,6 +915,7 @@ namespace ME.ECS {
 
         public void ValidateData<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent {
 
+            this.currentState.storage.versions.Validate(in entity);
             this.currentState.structComponents.Validate<TComponent>(in entity, isTag);
             if (this.currentState.filters.HasInFilters<TComponent>() == true && this.HasData<TComponent>(in entity) == true) {
                 
@@ -967,6 +968,7 @@ namespace ME.ECS {
                 #endif
                 
                 state = 1;
+                this.currentState.storage.versions.Increment(in entity);
                 if (this.currentState.filters.HasInFilters<TComponent>() == true) this.currentState.storage.archetypes.Set<TComponent>(in entity);
                 ++this.currentState.structComponents.count;
                 this.AddComponentToFilter(entity);
@@ -1005,6 +1007,7 @@ namespace ME.ECS {
             if (state == 0) {
 
                 state = 1;
+                this.currentState.storage.versions.Increment(in entity);
                 if (this.currentState.filters.HasInFilters<TComponent>() == true) this.currentState.storage.archetypes.Set<TComponent>(in entity);
                 ++this.currentState.structComponents.count;
                 this.AddComponentToFilter(entity);
@@ -1049,6 +1052,7 @@ namespace ME.ECS {
             if (state == 0) {
 
                 state = 1;
+                this.currentState.storage.versions.Increment(in entity);
                 if (this.currentState.filters.HasInFilters<TComponent>() == true) this.currentState.storage.archetypes.Set<TComponent>(in entity);
                 ++this.currentState.structComponents.count;
                 this.AddComponentToFilter(entity);
@@ -1082,6 +1086,7 @@ namespace ME.ECS {
             ref var reg = ref this.currentState.structComponents.list.arr[dataIndex];
             if (reg.SetObject(entity, data) == true) {
 
+                this.currentState.storage.versions.Increment(in entity);
                 if (this.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.currentState.storage.archetypes.Set(in entity, in componentIndex);
                 ++this.currentState.structComponents.count;
     
@@ -1303,6 +1308,7 @@ namespace ME.ECS {
 
             if (changed == true) {
 
+                this.currentState.storage.versions.Increment(in entity);
                 this.RemoveComponentFromFilter(in entity);
 
             }
@@ -1333,6 +1339,7 @@ namespace ME.ECS {
             if (state > 0) {
                 
                 state = 0;
+                this.currentState.storage.versions.Increment(in entity);
                 if (reg.isTag == false) reg.components.arr[entity.id] = default;
                 if (this.currentState.filters.HasInFilters<TComponent>() == true) this.currentState.storage.archetypes.Remove<TComponent>(in entity);
                 --this.currentState.structComponents.count;
@@ -1364,6 +1371,7 @@ namespace ME.ECS {
             var reg = this.currentState.structComponents.list.arr[dataIndex];
             if (reg.RemoveObject(entity) == true) {
                 
+                this.currentState.storage.versions.Increment(in entity);
                 if (this.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.currentState.storage.archetypes.Remove(in entity, in componentIndex);
                 --this.currentState.structComponents.count;
                 

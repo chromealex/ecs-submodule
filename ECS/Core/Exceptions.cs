@@ -41,7 +41,7 @@ namespace ME.ECS {
 
         public static void Throw(Entity entity) {
 
-            if (entity.version == 0) EmptyEntityException.Throw();
+            if (entity.generation == 0) EmptyEntityException.Throw();
             
             throw new EmptyEntityException(entity);
 

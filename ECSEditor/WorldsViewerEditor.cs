@@ -982,7 +982,7 @@ namespace ME.ECSEditor {
             EditorGUIUtility.wideMode = true;
             
             var name = (entityData.HasData<ME.ECS.Name.Name>() == true ? entityData.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value : "Unnamed");
-            GUILayoutExt.DrawHeader("Entity " + entityData.id.ToString() + " (" + entityData.version.ToString() + ") " + name);
+            GUILayoutExt.DrawHeader("Entity " + entityData.id.ToString() + " (" + entityData.generation.ToString() + ") " + name);
             {
 
                 var usedComponents = new HashSet<System.Type>();
@@ -1009,7 +1009,8 @@ namespace ME.ECSEditor {
                         GUILayout.BeginHorizontal(backStyle);
                         {
                             GUILayout.Label("ID: " + entityData.id.ToString(), EditorStyles.miniLabel);
-                            GUILayout.Label("Version: " + entityData.version.ToString(), EditorStyles.miniLabel);
+                            GUILayout.Label("Gen: " + entityData.generation.ToString(), EditorStyles.miniLabel);
+                            GUILayout.Label("Version: " + entityData.GetVersion().ToString(), EditorStyles.miniLabel);
                         }
                         GUILayout.EndHorizontal();
                         GUILayoutExt.Separator();

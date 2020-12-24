@@ -230,7 +230,7 @@
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool IsAlive() {
 
-            return Worlds.currentWorld.IsAlive(this.entity.id, this.entity.version);
+            return Worlds.currentWorld.IsAlive(this.entity.id, this.entity.generation);
 
         }
 
@@ -313,8 +313,8 @@
     #endif
     public readonly struct Entity : System.IEquatable<Entity>, System.IComparable<Entity> {
 
-        public const ushort VERSION_ZERO = 0;
-        public static Entity Empty = new Entity(0, Entity.VERSION_ZERO);
+        public const ushort GENERATION_ZERO = 0;
+        public static Entity Empty = new Entity(0, Entity.GENERATION_ZERO);
 
         #if MESSAGE_PACK_SUPPORT
         [MessagePack.Key(0)]
@@ -323,7 +323,7 @@
         #if MESSAGE_PACK_SUPPORT
         [MessagePack.Key(1)]
         #endif
-        public readonly ushort version;
+        public readonly ushort generation;
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
@@ -333,7 +333,7 @@
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool IsEmpty() {
 
-            return this.version == Entity.VERSION_ZERO;
+            return this.generation == Entity.GENERATION_ZERO;
 
         }
 
@@ -346,8 +346,8 @@
         public bool IsAlive() {
 
             // Inline manually
-            return Worlds.currentWorld.currentState.storage.versions.arr[this.id] == this.version;
-            //return Worlds.currentWorld.IsAlive(this.id, this.version);
+            return Worlds.currentWorld.currentState.storage.generations.arr[this.id] == this.generation;
+            //return Worlds.currentWorld.IsAlive(this.id, this.generation);
 
         }
 
@@ -356,15 +356,15 @@
 
             var entity = Worlds.currentWorld.AddEntity(name);
             this.id = entity.id;
-            this.version = entity.version;
+            this.generation = entity.generation;
 
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        internal Entity(int id, ushort version) {
+        internal Entity(int id, ushort generation) {
 
             this.id = id;
-            this.version = version;
+            this.generation = generation;
 
         }
 
@@ -376,7 +376,7 @@
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(Entity e1, Entity e2) {
 
-            return e1.id == e2.id && e1.version == e2.version;
+            return e1.id == e2.id && e1.generation == e2.generation;
 
         }
 
@@ -430,19 +430,32 @@
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() {
 
-            return this.id ^ this.version;
+            return this.id ^ this.generation;
 
         }
 
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public uint GetVersion() {
+
+            if (Worlds.currentWorld == null) return 0u;
+            return Worlds.currentWorld.currentState.storage.versions.Get(this);
+
+        }
+        
         public override string ToString() {
 
-            return "Entity Id: " + this.id.ToString() + " Version: " + this.version.ToString();
+            return "Entity Id: " + this.id.ToString() + " Gen: " + this.generation.ToString() + " Ver: " + this.GetVersion().ToString();
 
         }
 
         public string ToSmallString() {
 
-            return "Id: " + this.id.ToString() + "#" + this.version.ToString();
+            return "Id: " + this.id.ToString() + "#" + this.generation.ToString() + " (" + this.GetVersion().ToString() + ")";
 
         }
 

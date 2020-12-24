@@ -500,7 +500,7 @@ namespace ME.ECS {
             for (int i = 0; i < this.data.Length; ++i) {
 
                 var entity = this.data.arr[i];
-                if (entity.version > Entity.VERSION_ZERO) {
+                if (entity.generation > Entity.GENERATION_ZERO) {
 
                     this.Remove_INTERNAL(entity);
 
@@ -664,14 +664,6 @@ namespace ME.ECS {
             if (min < 0) min = 0;
             if (max >= this.data.Count) max = this.data.Count - 1;
             
-            /*var data = PoolArray<Entity>.Spawn(this.dataCount);
-            for (int i = 0, k = 0; i < this.data.Length; ++i) {
-                if (this.data.arr[i].version > 0) {
-                    data.arr[k++] = this.data.arr[i];
-                }
-            }
-            return data;*/
-
             return this.data;
 
         }
@@ -960,7 +952,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private bool OnUpdateForced_INTERNAL(in Entity entity) {
             
-            if (entity.version == Entity.VERSION_ZERO) return false;
+            if (entity.generation == Entity.GENERATION_ZERO) return false;
 
             var isExists = this.Contains_INTERNAL(in entity.id);
             if (isExists == true) {
@@ -978,7 +970,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private bool OnUpdate_INTERNAL(in Entity entity) {
 
-            if (entity.version == Entity.VERSION_ZERO) return false;
+            if (entity.generation == Entity.GENERATION_ZERO) return false;
             
             if (this.world.currentSystemContext != null) {
                 
@@ -1010,7 +1002,7 @@ namespace ME.ECS {
 
         internal bool OnRemoveEntity(in Entity entity) {
 
-            if (entity.version == Entity.VERSION_ZERO) return false;
+            if (entity.generation == Entity.GENERATION_ZERO) return false;
 
             if (this.world.currentSystemContext != null) {
 

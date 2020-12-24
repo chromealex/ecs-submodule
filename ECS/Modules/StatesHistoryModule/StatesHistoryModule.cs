@@ -136,6 +136,7 @@ namespace ME.ECS.StatesHistory {
         #if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(3)]
         #endif
+        [ME.ECS.Serializer.Attributes.OrderAttribute]
         public int objId;
         /// <summary>
         /// Group Id of objects (see NetworkModule::RegisterObject).
@@ -145,20 +146,23 @@ namespace ME.ECS.StatesHistory {
         #if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(4)]
         #endif
+        [ME.ECS.Serializer.Attributes.OrderAttribute]
         public int groupId;
         
+        #if MESSAGE_PACK_SUPPORT
+        [MessagePack.KeyAttribute(7)]
+        #endif
+        [ME.ECS.Serializer.Attributes.OrderAttribute]
+        public bool storeInHistory;
+
         /// <summary>
         /// Parameters of method
         /// </summary>
         #if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(6)]
         #endif
+        [ME.ECS.Serializer.Attributes.OrderAttribute]
         public object[] parameters;
-
-        #if MESSAGE_PACK_SUPPORT
-        [MessagePack.KeyAttribute(7)]
-        #endif
-        public bool storeInHistory;
 
         public override string ToString() {
             
@@ -189,6 +193,8 @@ namespace ME.ECS.StatesHistory {
 
     public interface IStatesHistoryModuleBase : IModuleBase {
 
+        uint GetEventForwardTick();
+        
         void BeginAddEvents();
         void EndAddEvents();
 
@@ -317,6 +323,14 @@ namespace ME.ECS.StatesHistory {
 
         }
 
+        uint IStatesHistoryModuleBase.GetEventForwardTick() {
+
+            var next = this.GetTicksForInput();
+            if (next <= 0) next = 1;
+            return next;
+
+        }
+        
         void IStatesHistoryModuleBase.SetEventRunner(IEventRunner eventRunner) {
 
             this.eventRunner = eventRunner;
@@ -388,6 +402,16 @@ namespace ME.ECS.StatesHistory {
         protected virtual uint GetTicksPerState() {
 
             return StatesHistoryModule<TState>.DEFAULT_TICKS_PER_STATE;
+
+        }
+
+        /// <summary>
+        /// Event event should run on N ticks forward
+        /// </summary>
+        /// <returns></returns>
+        protected virtual uint GetTicksForInput() {
+
+            return Tick.One;
 
         }
 

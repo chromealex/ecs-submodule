@@ -1260,7 +1260,7 @@ namespace ME.ECS {
         public bool IsAlive(int entityId, ushort version) {
 
             // Inline manually
-            return this.currentState.storage.versions.arr[entityId] == version;
+            return this.currentState.storage.generations.arr[entityId] == version;
             //return this.currentState.storage.IsAlive(entityId, version);
             
         }
@@ -1269,7 +1269,7 @@ namespace ME.ECS {
             
             ref var entitiesList = ref this.currentState.storage;
             var ent = entitiesList[id];
-            if (this.IsAlive(ent.id, ent.version) == false) return Entity.Empty;
+            if (this.IsAlive(ent.id, ent.generation) == false) return Entity.Empty;
             
             return ent;
 
@@ -1294,16 +1294,6 @@ namespace ME.ECS {
             #endif
 
             var entity = this.currentState.storage.Alloc();
-            
-            /*
-            ref var entitiesList = ref this.currentState.storage.GetData();
-            var nextIndex = entitiesList.GetNextIndex();
-            var ent = entitiesList[nextIndex];
-            var entity = new Entity(nextIndex, (ushort)(ent.version + 1));
-            if (entity.IsAlive() == true) UnityEngine.Debug.LogError("Entity is alive while creating. WTF?");
-            entitiesList.Add(entity);
-            */
-
             this.UpdateEntity(entity);
             
             if (name != null) {
@@ -1387,7 +1377,7 @@ namespace ME.ECS {
                 this.DestroyEntityPlugins(in entity);
                 this.RemoveComponents(entity);
 
-                this.currentState.storage.IncrementVersion(in entity);
+                this.currentState.storage.IncrementGeneration(in entity);
                 
                 return true;
 
@@ -2090,7 +2080,7 @@ namespace ME.ECS {
                                                 jobHandle.Complete();
 
                                             }
-
+                                            
                                         } else {
 
                                             if (sysFilter is ISystemFilter sysFilterContext) {

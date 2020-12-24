@@ -372,7 +372,7 @@ namespace ME.ECS.Network {
             if (this.objectToKey.TryGetValue(instance, out key) == true) {
 
                 var evt = new ME.ECS.StatesHistory.HistoryEvent();
-                evt.tick = this.world.GetStateTick() + Tick.One; // Call RPC on next tick
+                evt.tick = this.world.GetStateTick() + this.statesHistoryModule.GetEventForwardTick(); // Call RPC on next N tick
                 evt.parameters = parameters;
                 evt.rpcId = rpcId;
                 evt.objId = key.objId;

@@ -137,7 +137,7 @@ namespace ME.ECSEditor {
 		    if (checkAlive == true && entity.IsAlive() == false) {
 
 			    EditorGUILayout.HelpBox("This entity version is already in pool, the list of components has been changed.", MessageType.Warning);
-			    if (currentEntity.version > 0) {
+			    if (currentEntity.generation > 0) {
                         
 				    GUILayout.Label("New entity: " + currentEntity.ToSmallString());
                         
@@ -149,7 +149,7 @@ namespace ME.ECSEditor {
 
 		    }
 
-		    if (drawSelectButton == true && currentEntity.version > 0) {
+		    if (drawSelectButton == true && currentEntity.generation > 0) {
 
 			    UnityEngine.GUILayout.BeginHorizontal();
 			    UnityEngine.GUILayout.FlexibleSpace();
