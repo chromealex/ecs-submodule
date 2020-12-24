@@ -11,20 +11,13 @@ namespace ME.ECS {
 
 	    private static Dictionary<int, PoolInternalBase> pool = new Dictionary<int, PoolInternalBase>();
 	    
-	    public static T Spawn<T>() where T : class, IComponentBase, new() {
+	    public static StructRegistryBase Spawn<T>() where T : struct, IStructComponent {
 
-		    var key = WorldUtilities.GetKey<T>();
-		    var obj = (T)PoolRegistries.Spawn_INTERNAL(key);
+		    var key = WorldUtilities.GetAllComponentTypeId<T>();
+		    var obj = (StructComponents<T>)PoolRegistries.Spawn_INTERNAL(key);
 		    if (obj != null) return obj;
 
-		    return PoolInternalBase.Create<T>();
-
-	    }
-	    
-	    public static object Spawn(System.Type type) {
-
-		    var key = WorldUtilities.GetKey(type);
-		    return PoolRegistries.Spawn_INTERNAL(key);
+		    return PoolInternalBase.Create<StructComponents<T>>();
 
 	    }
 
@@ -49,13 +42,6 @@ namespace ME.ECS {
 
 	    }
 
-	    public static void Recycle<T>(ref T system) where T : class, IComponentBase {
-
-		    PoolRegistries.Recycle(system);
-		    system = null;
-
-	    }
-
 	    private static void Recycle_INTERNAL(int key, object system) {
 		    
 		    PoolInternalBase pool;
@@ -73,58 +59,11 @@ namespace ME.ECS {
 		    
 	    }
 
-	    public static void Recycle(object system) {
+	    public static void Recycle(StructRegistryBase system) {
 
-		    var key = WorldUtilities.GetKey(system.GetType());
+		    var key = system.GetAllTypeBit();
 		    PoolRegistries.Recycle_INTERNAL(key, system);
 		    
-	    }
-
-	    public static void Recycle<T>(T system) where T : class, IComponentBase {
-
-		    var key = WorldUtilities.GetKey<T>();
-		    PoolRegistries.Recycle_INTERNAL(key, system);
-		    
-	    }
-
-	    public static void Recycle<T>(T system, System.Type type) where T : class, IComponentBase {
-
-		    var key = WorldUtilities.GetKey(type);
-		    PoolRegistries.Recycle_INTERNAL(key, system);
-
-	    }
-
-	    public static void Recycle<TComponent>(ref TComponent[] list) where TComponent : class, IComponentBase {
-
-		    for (int i = 0; i < list.Length; ++i) {
-			    
-			    PoolRegistries.Recycle(list[i]);
-			    
-		    }
-		    PoolArray<TComponent>.Recycle(ref list);
-
-	    }
-
-	    public static void Recycle<TComponent>(List<TComponent> list) where TComponent : class, IComponentBase {
-
-		    for (int i = 0; i < list.Count; ++i) {
-			    
-			    PoolRegistries.Recycle(list[i], list[i].GetType());
-			    
-		    }
-		    list.Clear();
-
-	    }
-
-	    public static void Recycle<TComponent>(HashSet<TComponent> list) where TComponent : class, IComponentBase {
-
-		    foreach (var item in list) {
-			    
-			    PoolRegistries.Recycle(item);
-			    
-		    }
-		    list.Clear();
-
 	    }
 
     }
