@@ -155,6 +155,53 @@ namespace ME.ECS {
 
             }
 
+            if (arr != null) {
+
+                for (int i = 0; i < arr.Count; ++i) {
+
+                    copy.Recycle(arr[i]);
+
+                }
+
+                PoolCCList<T>.Recycle(ref arr);
+
+            }
+            
+            arr = PoolCCList<T>.Spawn();
+            arr.InitialCopyOf(fromArr);
+
+            for (int i = 0; i < fromArr.array.Length; ++i) {
+
+                if (fromArr.array[i] == null && arr.array[i] != null) {
+                    
+                    for (int k = 0; k < arr.array[i].Length; ++k) {
+                        
+                        copy.Recycle(arr.array[i][k]);
+                        
+                    }
+                    
+                    PoolArray<T>.Release(ref arr.array[i]);
+                    
+                } else if (fromArr.array[i] != null && arr.array[i] == null) {
+
+                    arr.array[i] = PoolArray<T>.Claim(fromArr.array[i].Length);
+
+                } else if (fromArr.array[i] == null && arr.array[i] == null) {
+                    
+                    continue;
+                    
+                }
+                
+                var cnt = fromArr.array[i].Length;
+                for (int j = 0; j < cnt; ++j) {
+
+                    copy.Copy(fromArr.array[i][j], ref arr.array[i][j]);
+
+                }
+
+            }
+            
+            /*
             if (arr == null || fromArr.Count != arr.Count) {
 
                 if (arr != null) {
@@ -203,7 +250,7 @@ namespace ME.ECS {
 
                 }
 
-            }
+            }*/
             
         }
 
