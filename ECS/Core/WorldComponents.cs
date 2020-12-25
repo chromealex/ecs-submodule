@@ -95,7 +95,6 @@ namespace ME.ECS {
             }
             #endif
 
-            this.currentState.storage.versions.Increment(in entity);
             this.currentState.components.Add(entity.id, data);
             if (this.currentState.filters.HasInFilters<TComponent>() == true) this.currentState.storage.archetypes.Set<TComponent>(in entity);
             this.AddComponentToFilter(entity);
@@ -228,7 +227,6 @@ namespace ME.ECS {
 
             if (this.currentState.components.RemoveAllPredicate<TComponent, TComponentPredicate>(entity.id, predicate) > 0) {
                 
-                this.currentState.storage.versions.Increment(in entity);
                 this.currentState.storage.archetypes.Remove<TComponent>(in entity);
                 this.RemoveComponentFromFilter(in entity);
 
@@ -269,7 +267,6 @@ namespace ME.ECS {
 
             if (this.currentState.components.RemoveAll(entity.id) > 0) {
                 
-                this.currentState.storage.versions.Increment(in entity);
                 this.currentState.storage.archetypes.RemoveAll(in entity);
                 ComponentsInitializerWorld.Init(in entity);
                 this.RemoveComponentFromFilter(in entity);
@@ -311,7 +308,6 @@ namespace ME.ECS {
 
             if (this.currentState.components.RemoveAll<TComponent>(entity.id) > 0) {
                 
-                this.currentState.storage.versions.Increment(in entity);
                 this.currentState.storage.archetypes.Remove<TComponent>(in entity);
                 this.RemoveComponentFromFilter(in entity);
 

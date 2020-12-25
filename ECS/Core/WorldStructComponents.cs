@@ -46,7 +46,6 @@ namespace ME.ECS {
         public abstract bool IsTag();
         
         public abstract int GetTypeBit();
-        public abstract int GetAllTypeBit();
         
         public abstract bool HasType(System.Type type);
         public abstract IStructComponent GetObject(Entity entity);
@@ -75,12 +74,6 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public abstract void OnRecycle();
 
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public abstract void Recycle();
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public abstract StructRegistryBase Clone();
-
         public abstract int GetCustomHash();
 
     }
@@ -108,13 +101,7 @@ namespace ME.ECS {
             return WorldUtilities.GetComponentTypeId<TComponent>();
             
         }
-
-        public override int GetAllTypeBit() {
-
-            return WorldUtilities.GetAllComponentTypeId<TComponent>();
-            
-        }
-
+        
         public override int GetCustomHash() {
 
             var hash = 0;
@@ -132,20 +119,6 @@ namespace ME.ECS {
             }
 
             return hash;
-
-        }
-
-        public override void Recycle() {
-            
-            PoolRegistries.Recycle(this);
-            
-        }
-
-        public override StructRegistryBase Clone() {
-
-            var reg = PoolRegistries.Spawn<TComponent>();
-            reg.CopyFrom(this);
-            return reg;
 
         }
 
@@ -436,7 +409,6 @@ namespace ME.ECS {
             void Execute();
             void Recycle();
             ITask Clone();
-            void CopyFrom(ITask other);
 
         }
 
@@ -453,16 +425,6 @@ namespace ME.ECS {
 
             }
 
-            public void CopyFrom(ITask other) {
-                
-                var _other = (NextFrameTask<TComponent>)other;
-                this.entity = _other.entity;
-                this.data = _other.data;
-                this.world = _other.world;
-                this.lifetime = _other.lifetime;
-
-            }
-
             public void Recycle() {
 
                 this.world = null;
@@ -476,7 +438,10 @@ namespace ME.ECS {
             public ITask Clone() {
 
                 var copy = PoolClass<NextFrameTask<TComponent>>.Spawn();
-                copy.CopyFrom(this);
+                copy.data = this.data;
+                copy.entity = this.entity;
+                copy.world = this.world;
+                copy.lifetime = this.lifetime;
                 return copy;
 
             }
@@ -664,11 +629,18 @@ namespace ME.ECS {
                 ArrayUtils.Resize(code, ref this.list);
                 
             }
-
+            
             if (this.list.arr[code] == null) {
 
-                var instance = (StructComponents<TComponent>)PoolRegistries.Spawn<TComponent>();
-                instance.isTag = isTag;
+                var instance = (StructRegistryBase)PoolRegistries.Spawn(typeof(StructRegistryBase));
+                if (instance == null) {
+                    
+                    var newInstance = (StructComponents<TComponent>)System.Activator.CreateInstance(typeof(StructComponents<TComponent>));
+                    newInstance.isTag = isTag;
+                    instance = newInstance;
+
+                }
+                
                 this.list.arr[code] = instance;
 
             }
@@ -756,68 +728,6 @@ namespace ME.ECS {
             }
             
         }
-
-        private struct CopyTask : IArrayElementCopy<ITask> {
-
-            public void Copy(ITask @from, ref ITask to) {
-
-                if (from == null && to == null) return;
-                
-                if (from == null && to != null) {
-                    
-                    to.Recycle();
-                    to = null;
-
-                } else if (to == null) {
-                    
-                    to = from.Clone();
-                    
-                } else {
-
-                    to.CopyFrom(from);
-
-                }
-
-            }
-
-            public void Recycle(ITask item) {
-                
-                item.Recycle();
-                
-            }
-
-        }
-        
-        public struct CopyRegistry : IArrayElementCopy<StructRegistryBase> {
-            
-            public void Copy(StructRegistryBase @from, ref StructRegistryBase to) {
-
-                if (from == null && to == null) return;
-
-                if (from == null && to != null) {
-                    
-                    to.Recycle();
-                    to = null;
-
-                } else if (to == null) {
-                    
-                    to = from.Clone();
-                    
-                } else {
-
-                    to.CopyFrom(from);
-                    
-                }
-
-            }
-
-            public void Recycle(StructRegistryBase item) {
-                
-                PoolRegistries.Recycle(item);
-                
-            }
-
-        }
         
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
@@ -826,15 +736,87 @@ namespace ME.ECS {
         #endif
         public void CopyFrom(StructComponentsContainer other) {
 
-            //this.OnRecycle();
+            this.OnRecycle();
             
             this.count = other.count;
             this.isCreated = other.isCreated;
 
-            ArrayUtils.Copy(other.nextFrameTasks, ref this.nextFrameTasks, new CopyTask());
-            ArrayUtils.Copy(other.nextTickTasks, ref this.nextTickTasks, new CopyTask());
-            ArrayUtils.Copy(other.list, ref this.list, new CopyRegistry());
+            this.nextFrameTasks = PoolCCList<ITask>.Spawn();
+            this.nextFrameTasks.InitialCopyOf(other.nextFrameTasks);
+            for (int i = 0; i < other.nextFrameTasks.array.Length; ++i) {
+
+                if (other.nextFrameTasks.array[i] == null) {
+                    
+                    this.nextFrameTasks.array[i] = null;
+                    continue;
+                    
+                }
+                
+                for (int j = 0; j < other.nextFrameTasks.array[i].Length; ++j) {
+
+                    var item = other.nextFrameTasks.array[i][j];
+                    if (item == null) {
+                        
+                        this.nextFrameTasks.array[i][j] = null;
+                        continue;
+                        
+                    }
+                    
+                    var copy = item.Clone();
+                    this.nextFrameTasks.array[i][j] = copy;
+
+                }
+                
+            }
+
+            this.nextTickTasks = PoolCCList<ITask>.Spawn();
+            this.nextTickTasks.InitialCopyOf(other.nextTickTasks);
+            for (int i = 0; i < other.nextTickTasks.array.Length; ++i) {
+
+                if (other.nextTickTasks.array[i] == null) {
+
+                    this.nextTickTasks.array[i] = null;
+                    continue;
+                    
+                }
+
+                for (int j = 0; j < other.nextTickTasks.array[i].Length; ++j) {
+
+                    var item = other.nextTickTasks.array[i][j];
+                    if (item == null) {
+                        
+                        this.nextTickTasks.array[i][j] = null;
+                        continue;
+                        
+                    }
+                    
+                    var copy = item.Clone();
+                    this.nextTickTasks.array[i][j] = copy;
+
+                }
+                
+            }
             
+            this.list = PoolArray<StructRegistryBase>.Spawn(other.list.Length);
+            for (int i = 0; i < other.list.Length; ++i) {
+
+                if (other.list.arr[i] != null) {
+
+                    var type = other.list.arr[i].GetType();
+                    var comp = (StructRegistryBase)PoolRegistries.Spawn(type);
+                    if (comp == null) {
+                        
+                        comp = (StructRegistryBase)System.Activator.CreateInstance(type);
+                        
+                    }
+
+                    this.list.arr[i] = comp;
+                    this.list.arr[i].CopyFrom(other.list.arr[i]);
+
+                }
+
+            }
+
         }
 
     }

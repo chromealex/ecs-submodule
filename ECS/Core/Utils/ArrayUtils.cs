@@ -135,55 +135,6 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static void Copy<T, TCopy>(CCList<T> fromArr, ref CCList<T> arr, TCopy copy) where TCopy : IArrayElementCopy<T> {
-
-            if (fromArr == null) {
-
-                if (arr != null) {
-
-                    for (int i = 0; i < arr.Count; ++i) {
-                        
-                        copy.Recycle(arr[i]);
-                        
-                    }
-                    PoolCCList<T>.Recycle(ref arr);
-                    
-                }
-
-                arr = null;
-                return;
-
-            }
-
-            if (arr == null || fromArr.Count != arr.Count) {
-
-                if (arr != null) PoolCCList<T>.Recycle(ref arr);
-                arr = PoolCCList<T>.Spawn();
-                arr.InitialCopyOf(fromArr);
-
-            }
-
-            var cnt = arr.Count;
-            for (int i = 0; i < fromArr.Count; ++i) {
-
-                var isDefault = i >= cnt;
-                T item = (isDefault ? default : arr[i]);
-                copy.Copy(fromArr[i], ref item);
-                if (isDefault == true) {
-                    
-                    arr.Add(item);
-                    
-                } else {
-
-                    arr[i] = item;
-
-                }
-
-            }
-            
-        }
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void Copy<T, TCopy>(ListCopyable<T> fromArr, ref ListCopyable<T> arr, TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             if (fromArr == null) {
