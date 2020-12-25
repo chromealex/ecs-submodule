@@ -818,8 +818,98 @@ namespace ME.ECS {
             this.count = other.count;
             this.isCreated = other.isCreated;
 
-            ArrayUtils.Copy(other.nextFrameTasks, ref this.nextFrameTasks, new CopyTask());
-            ArrayUtils.Copy(other.nextTickTasks, ref this.nextTickTasks, new CopyTask());
+            {
+                
+                for (int i = 0; i < this.nextFrameTasks.array.Length; ++i) {
+
+                    if (this.nextFrameTasks.array[i] == null) continue;
+                
+                    for (int j = 0; j < this.nextFrameTasks.array[i].Length; ++j) {
+                    
+                        if (this.nextFrameTasks.array[i][j] == null) continue;
+
+                        this.nextFrameTasks.array[i][j].Recycle();
+                    
+                    }
+                
+                }
+                PoolCCList<ITask>.Recycle(ref this.nextFrameTasks);
+            
+                for (int i = 0; i < this.nextTickTasks.array.Length; ++i) {
+
+                    if (this.nextTickTasks.array[i] == null) continue;
+                
+                    for (int j = 0; j < this.nextTickTasks.array[i].Length; ++j) {
+                    
+                        if (this.nextTickTasks.array[i][j] == null) continue;
+                    
+                        this.nextTickTasks.array[i][j].Recycle();
+                    
+                    }
+                
+                }
+                PoolCCList<ITask>.Recycle(ref this.nextTickTasks);
+                
+                this.nextFrameTasks = PoolCCList<ITask>.Spawn();
+                this.nextFrameTasks.InitialCopyOf(other.nextFrameTasks);
+                for (int i = 0; i < other.nextFrameTasks.array.Length; ++i) {
+
+                    if (other.nextFrameTasks.array[i] == null) {
+                    
+                        this.nextFrameTasks.array[i] = null;
+                        continue;
+                    
+                    }
+                
+                    for (int j = 0; j < other.nextFrameTasks.array[i].Length; ++j) {
+
+                        var item = other.nextFrameTasks.array[i][j];
+                        if (item == null) {
+                        
+                            this.nextFrameTasks.array[i][j] = null;
+                            continue;
+                        
+                        }
+                    
+                        var copy = item.Clone();
+                        this.nextFrameTasks.array[i][j] = copy;
+
+                    }
+                
+                }
+
+                this.nextTickTasks = PoolCCList<ITask>.Spawn();
+                this.nextTickTasks.InitialCopyOf(other.nextTickTasks);
+                for (int i = 0; i < other.nextTickTasks.array.Length; ++i) {
+
+                    if (other.nextTickTasks.array[i] == null) {
+
+                        this.nextTickTasks.array[i] = null;
+                        continue;
+                    
+                    }
+
+                    for (int j = 0; j < other.nextTickTasks.array[i].Length; ++j) {
+
+                        var item = other.nextTickTasks.array[i][j];
+                        if (item == null) {
+                        
+                            this.nextTickTasks.array[i][j] = null;
+                            continue;
+                        
+                        }
+                    
+                        var copy = item.Clone();
+                        this.nextTickTasks.array[i][j] = copy;
+
+                    }
+                
+                }
+
+            }
+            
+            //ArrayUtils.Copy(other.nextFrameTasks, ref this.nextFrameTasks, new CopyTask());
+            //ArrayUtils.Copy(other.nextTickTasks, ref this.nextTickTasks, new CopyTask());
             ArrayUtils.Copy(other.list, ref this.list, new CopyRegistry());
             
         }
