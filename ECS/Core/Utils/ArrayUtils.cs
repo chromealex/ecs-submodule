@@ -157,25 +157,49 @@ namespace ME.ECS {
 
             if (arr == null || fromArr.Count != arr.Count) {
 
-                if (arr != null) PoolCCList<T>.Recycle(ref arr);
+                if (arr != null) {
+                    
+                    for (int i = 0; i < arr.Count; ++i) {
+                        
+                        copy.Recycle(arr[i]);
+                        
+                    }
+                    
+                    PoolCCList<T>.Recycle(ref arr);
+                    
+                }
+                
                 arr = PoolCCList<T>.Spawn();
                 arr.InitialCopyOf(fromArr);
 
             }
 
-            var cnt = arr.Count;
-            for (int i = 0; i < fromArr.Count; ++i) {
+            for (int i = 0; i < fromArr.array.Length; ++i) {
 
-                var isDefault = i >= cnt;
-                T item = (isDefault ? default : arr[i]);
-                copy.Copy(fromArr[i], ref item);
-                if (isDefault == true) {
+                if (fromArr.array[i] == null && arr.array[i] != null) {
                     
-                    arr.Add(item);
+                    for (int k = 0; k < arr.array[i].Length; ++k) {
+                        
+                        copy.Recycle(arr.array[i][k]);
+                        
+                    }
                     
-                } else {
+                    PoolArray<T>.Release(ref arr.array[i]);
+                    
+                } else if (fromArr.array[i] != null && arr.array[i] == null) {
 
-                    arr[i] = item;
+                    arr.array[i] = PoolArray<T>.Claim(fromArr.array[i].Length);
+
+                } else if (fromArr.array[i] == null && arr.array[i] == null) {
+                    
+                    continue;
+                    
+                }
+                
+                var cnt = fromArr.array[i].Length;
+                for (int j = 0; j < cnt; ++j) {
+
+                    copy.Copy(fromArr.array[i][j], ref arr.array[i][j]);
 
                 }
 
