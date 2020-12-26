@@ -184,6 +184,7 @@ namespace ME.ECS {
                 if (world.currentState.filters.HasInFilters<TComponent>() == true) world.currentState.storage.archetypes.Remove<TComponent>(in entity);
                 --world.currentState.structComponents.count;
                 world.RemoveComponentFromFilter(in entity);
+                world.RaiseEntityActionOnRemove<TComponent>(in entity);
                     
             }
             
@@ -437,7 +438,11 @@ namespace ME.ECS {
             
             public void Execute() {
 
-                if (this.entity.IsAlive() == true) this.world.SetData(this.entity, in this.data, this.lifetime);
+                if (this.entity.IsAlive() == true) {
+                    
+                    this.world.SetData(this.entity, in this.data, this.lifetime);
+                    
+                }
 
             }
 
@@ -1067,6 +1072,7 @@ namespace ME.ECS {
                 if (this.currentState.filters.HasInFilters<TComponent>() == true) this.currentState.storage.archetypes.Set<TComponent>(in entity);
                 ++this.currentState.structComponents.count;
                 this.AddComponentToFilter(entity);
+                this.RaiseEntityActionOnAdd<TComponent>(in entity);
                 
             }
 
@@ -1108,6 +1114,7 @@ namespace ME.ECS {
                 this.AddComponentToFilter(entity);
 
             }
+            this.RaiseEntityActionOnAdd<TComponent>(in entity);
 
             return ref state;
 
@@ -1153,6 +1160,7 @@ namespace ME.ECS {
                 this.AddComponentToFilter(entity);
 
             }
+            this.RaiseEntityActionOnAdd<TComponent>(in entity);
 
             return ref state;
 
@@ -1439,6 +1447,7 @@ namespace ME.ECS {
                 if (this.currentState.filters.HasInFilters<TComponent>() == true) this.currentState.storage.archetypes.Remove<TComponent>(in entity);
                 --this.currentState.structComponents.count;
                 this.RemoveComponentFromFilter(in entity);
+                this.RaiseEntityActionOnRemove<TComponent>(in entity);
                 
             }
             

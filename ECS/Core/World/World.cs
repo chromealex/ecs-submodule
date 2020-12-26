@@ -815,6 +815,96 @@ namespace ME.ECS {
 
         }
 
+        #region GlobalEvents
+        private struct GlobalEventFrameItem {
+
+            public GlobalEvent globalEvent;
+            public Entity data;
+
+        }
+
+        private List<GlobalEventFrameItem> globalEventFrameItems = new List<GlobalEventFrameItem>();
+        private HashSet<long> globalEventFrameEvents = new HashSet<long>();
+
+        public void ProcessGlobalEvents() {
+
+            for (int i = 0; i < this.globalEventFrameItems.Count; ++i) {
+
+                var item = this.globalEventFrameItems[i];
+                item.globalEvent.Run(in item.data);
+                
+            }
+            this.globalEventFrameItems.Clear();
+            this.globalEventFrameEvents.Clear();
+            
+        }
+
+        public void RegisterGlobalEventFrame(GlobalEvent globalEvent, in Entity entity) {
+
+            var key = MathUtils.GetKey(globalEvent.GetHashCode(), entity.GetHashCode());
+            if (this.globalEventFrameEvents.Contains(key) == false) {
+
+                this.globalEventFrameEvents.Add(key);
+                this.globalEventFrameItems.Add(new GlobalEventFrameItem() {
+                    globalEvent = globalEvent,
+                    data = entity
+                });
+
+            }
+
+        }
+        #endregion
+
+        private static class EntityActionDirectCache<TComponent> where TComponent : struct, IStructComponent {
+
+            public static BufferArray<ListCopyable<EntityAction<TComponent>>> data;
+
+        }
+        
+        public void RaiseEntityActionOnAdd<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
+            
+            ArrayUtils.Resize(this.id, ref EntityActionDirectCache<TComponent>.data);
+            ref var list = ref EntityActionDirectCache<TComponent>.data.arr[this.id];
+            if (list == null) return;
+            for (int i = 0, count = list.Count; i < count; ++i) {
+
+                list[i].ExecuteOnAdd(in entity);
+
+            }
+
+        }
+        
+        public void RaiseEntityActionOnRemove<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
+            
+            ArrayUtils.Resize(this.id, ref EntityActionDirectCache<TComponent>.data);
+            ref var list = ref EntityActionDirectCache<TComponent>.data.arr[this.id];
+            if (list == null) return;
+            for (int i = 0, count = list.Count; i < count; ++i) {
+
+                list[i].ExecuteOnRemove(in entity);
+
+            }
+
+        }
+
+        public void RegisterEntityAction<TComponent>(EntityAction<TComponent> action) where TComponent : struct, IStructComponent {
+            
+            ArrayUtils.Resize(this.id, ref EntityActionDirectCache<TComponent>.data);
+            ref var list = ref EntityActionDirectCache<TComponent>.data.arr[this.id];
+            if (list == null) list = PoolList<EntityAction<TComponent>>.Spawn(10);
+            list.Add(action);
+
+        }
+        
+        public void UnRegisterEntityAction<TComponent>(EntityAction<TComponent> action) where TComponent : struct, IStructComponent {
+            
+            ArrayUtils.Resize(this.id, ref EntityActionDirectCache<TComponent>.data);
+            ref var list = ref EntityActionDirectCache<TComponent>.data.arr[this.id];
+            if (list == null) return;
+            list.Remove(action);
+
+        }
+
         public void Register(Filter filterRef) {
 
             this.currentState.filters.Register(filterRef);
@@ -1736,9 +1826,9 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void UpdateVisualPost(float deltaTime) {
             
+            this.ProcessGlobalEvents();
+            
             if (deltaTime < 0f) return;
-
-            var state = this.GetState();
 
             ////////////////
             this.currentStep |= WorldStep.SystemsVisualTick;
@@ -1850,7 +1940,7 @@ namespace ME.ECS {
         }
 
         public void LateUpdate(float deltaTime) {
-            
+
             this.UpdateVisualPost(deltaTime);
             
         }
