@@ -866,7 +866,54 @@ namespace ME.ECS {
             
         }
 
-        public void RegisterGlobalEventFrame(GlobalEvent globalEvent, in Entity entity, GlobalEventType globalEventType) {
+        public bool CancelGlobalEvent(GlobalEvent globalEvent, in Entity entity, GlobalEventType globalEventType) {
+
+            var key = MathUtils.GetKey(globalEvent.GetHashCode(), entity.GetHashCode());
+            if (globalEventType == GlobalEventType.Visual) {
+
+                if (this.globalEventFrameEvents.Contains(key) == true) {
+
+                    for (int i = 0; i < this.globalEventFrameItems.Count; ++i) {
+                        
+                        var item = this.globalEventFrameItems[i];
+                        if (item.globalEvent == globalEvent && item.data == entity) {
+
+                            this.globalEventFrameEvents.Remove(key);
+                            this.globalEventFrameItems.RemoveAt(i);
+                            return true;
+
+                        } 
+                        
+                    }
+
+                }
+
+            } else if (globalEventType == GlobalEventType.Logic) {
+                
+                if (this.globalEventLogicEvents.Contains(key) == true) {
+
+                    for (int i = 0; i < this.globalEventLogicItems.Count; ++i) {
+                        
+                        var item = this.globalEventLogicItems[i];
+                        if (item.globalEvent == globalEvent && item.data == entity) {
+
+                            this.globalEventLogicEvents.Remove(key);
+                            this.globalEventLogicItems.RemoveAt(i);
+                            return true;
+
+                        } 
+                        
+                    }
+
+                }
+                
+            }
+
+            return false;
+
+        }
+        
+        public void RegisterGlobalEvent(GlobalEvent globalEvent, in Entity entity, GlobalEventType globalEventType) {
 
             var key = MathUtils.GetKey(globalEvent.GetHashCode(), entity.GetHashCode());
             if (globalEventType == GlobalEventType.Visual) {

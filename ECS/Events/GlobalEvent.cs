@@ -28,6 +28,26 @@ namespace ME.ECS {
             
         }
 
+        public bool Cancel() {
+            
+            return this.Cancel(in Entity.Empty, World.GlobalEventType.Visual);
+            
+        }
+
+        public bool Cancel(in Entity entity) {
+            
+            return this.Cancel(in entity, World.GlobalEventType.Visual);
+            
+        }
+
+        public bool Cancel(in Entity entity, World.GlobalEventType globalEventType) {
+            
+            for (int i = 0; i < this.callOthers.Length; ++i) this.callOthers[i].Cancel(in entity, globalEventType);
+
+            return Worlds.currentWorld.CancelGlobalEvent(this, in entity, globalEventType);
+            
+        }
+
         public void Execute() {
             
             this.Execute(in Entity.Empty, World.GlobalEventType.Visual);
@@ -44,7 +64,7 @@ namespace ME.ECS {
             
             for (int i = 0; i < this.callOthers.Length; ++i) this.callOthers[i].Execute(in entity, globalEventType);
 
-            Worlds.currentWorld.RegisterGlobalEventFrame(this, in entity, globalEventType);
+            Worlds.currentWorld.RegisterGlobalEvent(this, in entity, globalEventType);
             
         }
 
