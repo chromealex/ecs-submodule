@@ -27,12 +27,24 @@ namespace ME.ECS {
             if (this.events != null) this.events.Invoke(entity);
             
         }
-        
+
+        public void Execute() {
+            
+            this.Execute(in Entity.Empty, World.GlobalEventType.Visual);
+            
+        }
+
         public void Execute(in Entity entity) {
             
-            for (int i = 0; i < this.callOthers.Length; ++i) this.callOthers[i].Execute(in entity);
+            this.Execute(in entity, World.GlobalEventType.Visual);
+            
+        }
 
-            Worlds.currentWorld.RegisterGlobalEventFrame(this, in entity);
+        public void Execute(in Entity entity, World.GlobalEventType globalEventType) {
+            
+            for (int i = 0; i < this.callOthers.Length; ++i) this.callOthers[i].Execute(in entity, globalEventType);
+
+            Worlds.currentWorld.RegisterGlobalEventFrame(this, in entity, globalEventType);
             
         }
 

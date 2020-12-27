@@ -823,38 +823,82 @@ namespace ME.ECS {
 
         }
 
+        public enum GlobalEventType : byte {
+
+            Logic,
+            Visual,
+
+        }
+        
         private List<GlobalEventFrameItem> globalEventFrameItems = new List<GlobalEventFrameItem>();
         private HashSet<long> globalEventFrameEvents = new HashSet<long>();
 
-        public void ProcessGlobalEvents() {
+        private List<GlobalEventFrameItem> globalEventLogicItems = new List<GlobalEventFrameItem>();
+        private HashSet<long> globalEventLogicEvents = new HashSet<long>();
 
-            for (int i = 0; i < this.globalEventFrameItems.Count; ++i) {
+        public void ProcessGlobalEvents(GlobalEventType globalEventType) {
 
-                var item = this.globalEventFrameItems[i];
-                item.globalEvent.Run(in item.data);
-                
+            if (globalEventType == GlobalEventType.Visual) {
+
+                for (int i = 0; i < this.globalEventFrameItems.Count; ++i) {
+
+                    var item = this.globalEventFrameItems[i];
+                    item.globalEvent.Run(in item.data);
+
+                }
+
+                this.globalEventFrameItems.Clear();
+                this.globalEventFrameEvents.Clear();
+
+            } else if (globalEventType == GlobalEventType.Logic) {
+            
+                for (int i = 0; i < this.globalEventLogicItems.Count; ++i) {
+
+                    var item = this.globalEventLogicItems[i];
+                    item.globalEvent.Run(in item.data);
+
+                }
+
+                this.globalEventLogicItems.Clear();
+                this.globalEventLogicEvents.Clear();
+
             }
-            this.globalEventFrameItems.Clear();
-            this.globalEventFrameEvents.Clear();
             
         }
 
-        public void RegisterGlobalEventFrame(GlobalEvent globalEvent, in Entity entity) {
+        public void RegisterGlobalEventFrame(GlobalEvent globalEvent, in Entity entity, GlobalEventType globalEventType) {
 
             var key = MathUtils.GetKey(globalEvent.GetHashCode(), entity.GetHashCode());
-            if (this.globalEventFrameEvents.Contains(key) == false) {
+            if (globalEventType == GlobalEventType.Visual) {
 
-                this.globalEventFrameEvents.Add(key);
-                this.globalEventFrameItems.Add(new GlobalEventFrameItem() {
-                    globalEvent = globalEvent,
-                    data = entity
-                });
+                if (this.globalEventFrameEvents.Contains(key) == false) {
+
+                    this.globalEventFrameEvents.Add(key);
+                    this.globalEventFrameItems.Add(new GlobalEventFrameItem() {
+                        globalEvent = globalEvent,
+                        data = entity
+                    });
+
+                }
+
+            } else if (globalEventType == GlobalEventType.Logic) {
+                
+                if (this.globalEventLogicEvents.Contains(key) == false) {
+
+                    this.globalEventLogicEvents.Add(key);
+                    this.globalEventLogicItems.Add(new GlobalEventFrameItem() {
+                        globalEvent = globalEvent,
+                        data = entity
+                    });
+
+                }
 
             }
 
         }
         #endregion
 
+        #region EntityActions
         private static class EntityActionDirectCache<TComponent> where TComponent : struct, IStructComponent {
 
             public static BufferArray<ListCopyable<EntityAction<TComponent>>> data;
@@ -904,6 +948,7 @@ namespace ME.ECS {
             list.Remove(action);
 
         }
+        #endregion
 
         public void Register(Filter filterRef) {
 
@@ -1779,8 +1824,6 @@ namespace ME.ECS {
             
             if (deltaTime < 0f) return;
 
-            var state = this.GetState();
-
             ////////////////
             this.currentStep |= WorldStep.ModulesVisualTick;
             ////////////////
@@ -1826,7 +1869,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void UpdateVisualPost(float deltaTime) {
             
-            this.ProcessGlobalEvents();
+            this.ProcessGlobalEvents(GlobalEventType.Visual);
             
             if (deltaTime < 0f) return;
 
@@ -2258,6 +2301,8 @@ namespace ME.ECS {
                 #endif*/
 
                 this.UseLifetimeStep(ComponentLifetime.NotifyAllSystemsBelow);
+
+                this.ProcessGlobalEvents(GlobalEventType.Logic);
 
             }
             
