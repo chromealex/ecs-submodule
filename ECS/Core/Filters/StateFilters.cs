@@ -84,6 +84,7 @@ namespace ME.ECS {
                 
                 if (this.filters.arr[i] == null) continue;
                 this.filters.arr[i].Recycle();
+                this.filters.arr[i] = null;
 
             }
 
@@ -481,6 +482,8 @@ namespace ME.ECS {
         private IFilterAction predicateOnAdd;
         private IFilterAction predicateOnRemove;
 
+        public bool isPooled;
+
         #if UNITY_EDITOR
         private string[] editorTypes;
         private string[] editorStackTraceFile;
@@ -521,8 +524,8 @@ namespace ME.ECS {
         }
         
         public void Recycle() {
-            
-            PoolFilters.Recycle(this);
+
+            if (this.isPooled == false) PoolFilters.Recycle(this);
             
         }
 
@@ -683,6 +686,8 @@ namespace ME.ECS {
 
         void IPoolableSpawn.OnSpawn() {
 
+            this.isPooled = false;
+            
             //this.requests = PoolArray<Entity>.Spawn(Filter.REQUESTS_CAPACITY);
             //this.requestsRemoveEntity = PoolArray<Entity>.Spawn(Filter.REQUESTS_CAPACITY);
             #if MULTITHREAD_SUPPORT
@@ -719,6 +724,8 @@ namespace ME.ECS {
 
         void IPoolableRecycle.OnRecycle() {
             
+            this.isPooled = true;
+
             PoolArray<bool>.Recycle(ref this.dataContains);
             PoolArray<Entity>.Recycle(ref this.data);
             PoolArray<IFilterNode>.Recycle(ref this.nodes);
@@ -844,6 +851,8 @@ namespace ME.ECS {
         }
 
         public void CopyFrom(Filter other) {
+
+            this.isPooled = other.isPooled;
 
             this.id = other.id;
             this.min = other.min;
