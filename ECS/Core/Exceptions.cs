@@ -21,7 +21,7 @@ namespace ME.ECS {
 
         public static void Throw() {
 
-            throw new WrongThreadException("Prefab you want to register is null.");
+            throw new ViewSourceIsNullException("Prefab you want to use is null.");
 
         }
         
