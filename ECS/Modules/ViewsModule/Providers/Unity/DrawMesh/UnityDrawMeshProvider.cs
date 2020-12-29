@@ -41,6 +41,12 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public ViewId RegisterViewSource(DrawMeshViewSourceBase prefab) {
 
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
+            
             return this.RegisterViewSource(new UnityDrawMeshProviderInitializer(), prefab.GetSource());
 
         }
@@ -48,6 +54,12 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void InstantiateView(DrawMeshViewSourceBase prefab, Entity entity) {
 
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
+            
             this.InstantiateView(prefab.GetSource(), entity);
             
         }

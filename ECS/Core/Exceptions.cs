@@ -14,6 +14,19 @@ namespace ME.ECS {
 
     }
 
+    public class ViewSourceIsNullException : System.Exception {
+
+        public ViewSourceIsNullException() : base("ME.ECS Exception") { }
+        public ViewSourceIsNullException(string message) : base(message) { }
+
+        public static void Throw() {
+
+            throw new WrongThreadException("Prefab you want to register is null.");
+
+        }
+        
+    }
+
     public class WrongThreadException : System.Exception {
 
         public WrongThreadException() : base("ME.ECS Exception") { }
