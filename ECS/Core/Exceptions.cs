@@ -66,6 +66,12 @@ namespace ME.ECS {
 
         public InStateException() : base("[ME.ECS] Could not perform action because current step is in state (" + Worlds.currentWorld.GetCurrentStep().ToString() + ").") {}
 
+        public static void ThrowWorldStateCheck() {
+
+            throw new InStateException();
+
+        }
+
     }
 
     public class OutOfStateException : System.Exception {
