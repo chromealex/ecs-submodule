@@ -726,17 +726,23 @@ namespace ME.ECS.Views {
 
         public ViewId RegisterViewSource<TProvider>(TProvider providerInitializer, IView prefab) where TProvider : struct, IViewsProviderInitializer {
 
-            /*if (this.world.HasStep(WorldStep.LogicTick) == true) {
-
-                throw new InStateException();
-
-            }*/
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
 
             if (this.registryPrefabToId.TryGetValue(prefab, out var viewId) == true) {
 
                 return viewId;
 
             }
+            
+            /*if (this.world.HasStep(WorldStep.LogicTick) == true) {
+
+                throw new InStateException();
+
+            }*/
 
             ++this.viewSourceIdRegistry;
             this.registryPrefabToId.Add(prefab, this.viewSourceIdRegistry);
@@ -753,6 +759,12 @@ namespace ME.ECS.Views {
         }
 
         public bool UnRegisterViewSource(IView prefab) {
+
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
 
             if (this.world.HasStep(WorldStep.LogicTick) == true) {
 

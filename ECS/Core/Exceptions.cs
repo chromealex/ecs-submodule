@@ -14,6 +14,19 @@ namespace ME.ECS {
 
     }
 
+    public class ViewSourceIsNullException : System.Exception {
+
+        public ViewSourceIsNullException() : base("ME.ECS Exception") { }
+        public ViewSourceIsNullException(string message) : base(message) { }
+
+        public static void Throw() {
+
+            throw new ViewSourceIsNullException("Prefab you want to use is null.");
+
+        }
+        
+    }
+
     public class WrongThreadException : System.Exception {
 
         public WrongThreadException() : base("ME.ECS Exception") { }
@@ -52,6 +65,12 @@ namespace ME.ECS {
     public class InStateException : System.Exception {
 
         public InStateException() : base("[ME.ECS] Could not perform action because current step is in state (" + Worlds.currentWorld.GetCurrentStep().ToString() + ").") {}
+
+        public static void ThrowWorldStateCheck() {
+
+            throw new InStateException();
+
+        }
 
     }
 

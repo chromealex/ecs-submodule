@@ -367,7 +367,13 @@ namespace ME.ECS.Network {
         }
 
         private void CallRPC(object instance, RPCId rpcId, bool storeInHistory, object[] parameters) {
+            
+            if (this.world.HasStep(WorldStep.LogicTick) == true) {
 
+                InStateException.ThrowWorldStateCheck();
+
+            }
+            
             Key key;
             if (this.objectToKey.TryGetValue(instance, out key) == true) {
 

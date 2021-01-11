@@ -26,15 +26,6 @@ namespace ME.ECS {
 
     }
 
-    public partial interface IWorldBase {
-        
-        ViewId RegisterViewSource(UnityEngine.GameObject prefab);
-        ViewId RegisterViewSource(MonoBehaviourViewBase prefab);
-        void InstantiateView(UnityEngine.GameObject prefab, Entity entity);
-        void InstantiateView(MonoBehaviourViewBase prefab, Entity entity);
-
-    }
-    
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -52,6 +43,12 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public ViewId RegisterViewSource(UnityGameObjectProviderInitializer providerInitializer, UnityEngine.GameObject prefab) {
 
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
+            
             IView component;
             if (prefab.TryGetComponent(out component) == true) {
 
