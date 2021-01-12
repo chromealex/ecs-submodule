@@ -283,6 +283,25 @@ namespace ME.ECS {
             
         }
 
+        public static int ConvertOrientationToRawIndex(int orientation) {
+
+            switch (orientation) {
+                
+                case 0: return 1;
+                case 1: return 2;
+                case 2: return 4;
+                case 3: return 7;
+                case 4: return 6;
+                case 5: return 5;
+                case 6: return 3;
+                case 7: return 0;
+                
+            }
+
+            return 0;
+
+        }
+        
         public static int GetOrientation(Vector2 dir) {
 
             MathUtils.GetOrientation(out var d, dir);
