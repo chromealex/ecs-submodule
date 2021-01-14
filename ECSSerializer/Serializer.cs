@@ -35,7 +35,6 @@ namespace ME.ECS.Serializer {
         Meta          = 254,
         MetaType      = 253,
         MetaTypeArray = 252,
-        HistoryEvent  = 251,
 
         Boolean = 251,
         String  = 250,
@@ -64,6 +63,8 @@ namespace ME.ECS.Serializer {
 
         Generic     = 229,
         GenericDictionary = 228,
+        
+        HistoryEvent  = 227,
     }
     
     [System.AttributeUsageAttribute(System.AttributeTargets.Field | System.AttributeTargets.Property)]
