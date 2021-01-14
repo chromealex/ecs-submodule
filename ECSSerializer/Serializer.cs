@@ -63,6 +63,8 @@ namespace ME.ECS.Serializer {
 
         Generic     = 229,
         GenericDictionary = 228,
+        
+        HistoryEvent  = 227,
     }
     
     [System.AttributeUsageAttribute(System.AttributeTargets.Field | System.AttributeTargets.Property)]

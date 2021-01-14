@@ -178,6 +178,37 @@ namespace ME.ECS {
 
         }
 
+        private struct FilterCopy : IArrayElementCopy<Filter> {
+
+            public void Copy(Filter @from, ref Filter to) {
+
+                if (from == null && to == null) return;
+                
+                if (from == null && to != null) {
+
+                    to.Recycle();
+                    to = null;
+
+                } else if (from != null && to == null) {
+
+                    to = from.Clone();
+
+                } else {
+
+                    to.CopyFrom(from);
+
+                }
+
+            }
+
+            public void Recycle(Filter item) {
+                
+                item.Recycle();
+                
+            }
+
+        }
+
         public void CopyFrom(FiltersStorage other) {
 
             this.nextId = other.nextId;
@@ -204,7 +235,9 @@ namespace ME.ECS {
                 
             }*/
 
-            if (this.freeze == true) {
+            ArrayUtils.Copy(other.filters, ref this.filters, new FilterCopy());
+            
+            /*if (this.freeze == true) {
 
                 // Just copy if filters storage is in freeze mode
                 if (this.filters.arr == null) {
@@ -275,7 +308,7 @@ namespace ME.ECS {
                 
             }
 
-            this.freeze = other.freeze;
+            this.freeze = other.freeze;*/
 
         }
 
@@ -794,7 +827,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public BufferArray<Entity> ToArray() {
 
-            var data = PoolArray<Entity>.Spawn(this.dataCount);
+            var data = PoolArray<Entity>.Spawn(this.dataCount - this.requestsRemoveEntity.Count);
             for (int i = this.min, k = 0; i <= this.max; ++i) {
                 if (this.data.arr[i].IsAlive() == true) {
                     data.arr[k++] = this.data.arr[i];
