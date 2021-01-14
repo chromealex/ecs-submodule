@@ -1149,7 +1149,7 @@ namespace ME.ECSEditor {
                         #region Filters
                         {
                             var filtersCnt = 0;
-                            var containsFilters = PoolList<Filter>.Spawn(1);
+                            var containsFilters = PoolList<FilterData>.Spawn(1);
                             var filters = world.GetFilters();
                             for (int i = 0; i < filters.filters.Length; ++i) {
 
@@ -1177,7 +1177,7 @@ namespace ME.ECSEditor {
                             });
                             world.SetFoldOutFilters(storage, entityData.id, foldoutFilters);
                             
-                            PoolList<Filter>.Recycle(ref containsFilters);
+                            PoolList<FilterData>.Recycle(ref containsFilters);
                         }
                         
                         var cnt = 0;
@@ -1639,7 +1639,7 @@ namespace ME.ECSEditor {
 
         }
 
-        public static void DrawFilter(FiltersStorage filters, Filter filter) {
+        public static void DrawFilter(FiltersStorage filters, FilterData filter) {
             
             var cellHeight = 25f;
             var padding = 2f;

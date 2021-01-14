@@ -38,7 +38,7 @@
                 this.systems.arr[i].OnDeconstruct();
                 if (this.systems.arr[i] is ISystemFilter systemFilter) {
 
-                    systemFilter.filter = null;
+                    systemFilter.filter = Filter.Empty;
 
                 }
                 PoolSystems.Recycle(this.systems.arr[i]);
@@ -211,7 +211,7 @@
                 
                 if (instance is ISystemFilter systemFilter) {
 
-                    systemFilter.filter = null;
+                    systemFilter.filter = Filter.Empty;
                     
                 }
                 

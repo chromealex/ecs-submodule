@@ -768,25 +768,25 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public Filter GetFilter(in int id) {
+        public FilterData GetFilter(in int id) {
 
             return this.currentState.filters.filters.arr[id - 1];
 
         }
 
-        internal Filter GetFilterByHashCode(int hashCode) {
+        internal FilterData GetFilterByHashCode(int hashCode) {
 
             return this.currentState.filters.GetByHashCode(hashCode);
 
         }
 
-        public Filter GetFilterEquals(Filter other) {
+        public FilterData GetFilterEquals(FilterData other) {
             
             return this.currentState.filters.GetFilterEquals(other);
             
         }
 
-        public bool HasFilter(Filter filterRef) {
+        public bool HasFilter(FilterData filterRef) {
             
             ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];
@@ -997,7 +997,7 @@ namespace ME.ECS {
         }
         #endregion
 
-        public void Register(Filter filterRef) {
+        public void Register(FilterData filterRef) {
 
             this.currentState.filters.Register(filterRef);
 
@@ -2242,8 +2242,8 @@ namespace ME.ECS {
                                         
                                     }*/
 
-                                    sysFilter.filter = (sysFilter.filter != null ? sysFilter.filter : sysFilter.CreateFilter());
-                                    if (sysFilter.filter != null) {
+                                    sysFilter.filter = (sysFilter.filter.IsAlive() == true ? sysFilter.filter : sysFilter.CreateFilter());
+                                    if (sysFilter.filter.IsAlive() == true) {
 
                                         if (this.settings.useJobsForSystems == true && sysFilter.jobs == true) {
 
