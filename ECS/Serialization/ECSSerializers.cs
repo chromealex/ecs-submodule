@@ -75,6 +75,7 @@ namespace ME.ECS.Serializer {
             ser.Add(new RPCIdSerializer());
             ser.Add(new ViewIdSerializer());
             ser.Add(new TickSerializer());
+            ser.Add(new HistoryEventSerializer());
             return ser;
 
         }

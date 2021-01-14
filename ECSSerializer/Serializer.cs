@@ -35,6 +35,7 @@ namespace ME.ECS.Serializer {
         Meta          = 254,
         MetaType      = 253,
         MetaTypeArray = 252,
+        HistoryEvent  = 251,
 
         Boolean = 251,
         String  = 250,
