@@ -469,7 +469,7 @@ namespace ME.ECS {
     public struct Filter {
 
         private int id;
-        private World world;
+        internal World world;
         private FilterData temp;
 
         public static Filter Empty => new Filter();
