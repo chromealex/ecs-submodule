@@ -468,8 +468,8 @@ namespace ME.ECS {
 
     public struct Filter {
 
-        public int id;
-        public World world;
+        private int id;
+        private World world;
         private FilterData temp;
 
         public static Filter Empty => new Filter();
