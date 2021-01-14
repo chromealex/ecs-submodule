@@ -178,9 +178,9 @@ namespace ME.ECS {
 
         }
 
-        private struct FilterCopy : IArrayElementCopy<Filter> {
+        private struct FilterCopy : IArrayElementCopy<FilterData> {
 
-            public void Copy(Filter @from, ref Filter to) {
+            public void Copy(FilterData @from, ref FilterData to) {
 
                 if (from == null && to == null) return;
                 
@@ -201,7 +201,7 @@ namespace ME.ECS {
 
             }
 
-            public void Recycle(Filter item) {
+            public void Recycle(FilterData item) {
                 
                 item.Recycle();
                 
