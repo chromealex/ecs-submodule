@@ -466,6 +466,11 @@ namespace ME.ECS {
         }
     }
 
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
     public struct Filter {
 
         private int id;
@@ -476,6 +481,13 @@ namespace ME.ECS {
 
         public int Count => this.world.GetFilter(this.id).Count;
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public bool IsForEntity(int id) {
+
+            return this.world.GetFilter(this.id).IsForEntity(id);
+
+        }
+        
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void ApplyAllRequests() {
             
