@@ -482,6 +482,13 @@ namespace ME.ECS {
         public int Count => this.world.GetFilter(this.id).Count;
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public int GetMaxEntityId() {
+
+            return this.world.GetFilter(this.id).GetMaxEntityId();
+
+        }
+        
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool IsForEntity(int id) {
 
             return this.world.GetFilter(this.id).IsForEntity(id);
@@ -1240,6 +1247,11 @@ namespace ME.ECS {
 
             return false;
 
+        }
+        
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public int GetMaxEntityId() {
+            return this.max;
         }
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
