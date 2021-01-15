@@ -403,6 +403,8 @@ namespace ME.ECS {
                 if (bucket.components.arr == null) continue;
                 
                 var list = bucket.components.arr[from.id];
+                if (list == null) continue;
+                
                 for (int j = 0; j < list.Count; ++j) {
 
                     var item = list[j];

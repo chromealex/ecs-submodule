@@ -743,7 +743,7 @@ namespace ME.ECS {
             for (int i = 0; i < this.list.Count; ++i) {
 
                 var reg = this.list.arr[i];
-                reg.CopyFrom(in from, in to);
+                if (reg != null) reg.CopyFrom(in from, in to);
 
             }
             
