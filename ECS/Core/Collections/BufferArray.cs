@@ -196,9 +196,8 @@ namespace ME.ECS.Collections {
         }
 
         public BufferArray<T> Dispose() {
-
-            T[] arr = this.arr;
-            PoolArray<T>.Recycle(ref arr);
+            
+            PoolArray<T>.Recycle(this);
             return new BufferArray<T>(null, 0);
 
         }
