@@ -385,11 +385,11 @@ namespace ME.ECS {
             if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.components.arr[to.id] = this.components.arr[from.id];
             if (this.componentsStates.arr[from.id] > 0) {
 
-                this.world.currentState.storage.archetypes.Set(in to, WorldUtilities.GetAllComponentTypeId<TComponent>());
+                if (this.world.currentState.filters.HasInFilters<TComponent>() == true) this.world.currentState.storage.archetypes.Set<TComponent>(in to);
 
             } else {
                 
-                this.world.currentState.storage.archetypes.Remove(in to, WorldUtilities.GetAllComponentTypeId<TComponent>());
+                if (this.world.currentState.filters.HasInFilters<TComponent>() == true) this.world.currentState.storage.archetypes.Remove<TComponent>(in to);
 
             }
 
