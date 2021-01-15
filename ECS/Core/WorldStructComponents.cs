@@ -1398,7 +1398,7 @@ namespace ME.ECS {
             for (int i = 0; i < this.currentState.structComponents.list.Length; ++i) {
 
                 var reg = this.currentState.structComponents.list.arr[i];
-                if (reg.Remove(in entity, false) == true) {
+                if (reg != null && reg.Remove(in entity, false) == true) {
 
                     var bit = reg.GetTypeBit();
                     if (this.currentState.filters.allFiltersArchetype.HasBit(bit) == true) this.currentState.storage.archetypes.Remove(in entity, bit);
