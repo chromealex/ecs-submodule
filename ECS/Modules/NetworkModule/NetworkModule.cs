@@ -432,8 +432,8 @@ namespace ME.ECS.Network {
                 
                 if (storedInHistory == false && storeInHistory == true && (this.GetNetworkType() & NetworkType.RunLocal) != 0) {
  
-                    var dEvt = this.serializer.Deserialize(this.serializer.Serialize(evt));
-                    this.statesHistoryModule.AddEvent(dEvt);
+                    //var dEvt = this.serializer.Deserialize(this.serializer.Serialize(evt));
+                    this.statesHistoryModule.AddEvent(evt);
                     storedInHistory = true;
  
                 }
