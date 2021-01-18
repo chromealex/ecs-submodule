@@ -17,11 +17,11 @@ namespace ME.ECS {
 
     }
 
-    #if ECS_COMPILE_IL2CPP_OPTIONS
+#if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-    #endif
+#endif
     public sealed partial class World {
 
         private StatesHistory.IStatesHistoryModuleBase statesHistoryModule;
@@ -72,60 +72,60 @@ namespace ME.ECS {
 namespace ME.ECS.StatesHistory {
 
     [System.Serializable]
-    #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
     [MessagePack.MessagePackObjectAttribute]
-    #endif
+#endif
     public struct HistoryStorage {
 
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(0)]
-        #endif
+#endif
         public HistoryEvent[] events;
 
     }
 
-    #if ECS_COMPILE_IL2CPP_OPTIONS
+#if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-    #endif
+#endif
     [System.Serializable]
-    #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
     [MessagePack.MessagePackObjectAttribute]
-    #endif
+#endif
     public struct HistoryEvent {
 
         // Header
         /// <summary>
         /// Event tick
         /// </summary>
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(0)]
-        #endif
+#endif
         [ME.ECS.Serializer.Attributes.OrderAttribute]
         public long tick;
         /// <summary>
         /// Global event order (for example: you have 30 players on the map, each has it's own index)
         /// </summary>
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(1)]
-        #endif
+#endif
         [ME.ECS.Serializer.Attributes.OrderAttribute]
         public int order;
         /// <summary>
         /// Rpc Id is a method Id (see NetworkModule::RegisterRPC) 
         /// </summary>
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(5)]
-        #endif
+#endif
         [ME.ECS.Serializer.Attributes.OrderAttribute]
         public int rpcId;
         /// <summary>
         /// Local event order (order would be the first, then localOrder applies)
         /// </summary>
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(2)]
-        #endif
+#endif
         [ME.ECS.Serializer.Attributes.OrderAttribute]
         public int localOrder;
         
@@ -133,9 +133,9 @@ namespace ME.ECS.StatesHistory {
         /// <summary>
         /// Object Id to be called on (see NetworkModule::RegisterObject)
         /// </summary>
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(3)]
-        #endif
+#endif
         [ME.ECS.Serializer.Attributes.OrderAttribute]
         public int objId;
         /// <summary>
@@ -143,24 +143,24 @@ namespace ME.ECS.StatesHistory {
         /// One object could be registered in different groups at the same time.
         /// 0 by default (Common group)
         /// </summary>
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(4)]
-        #endif
+#endif
         [ME.ECS.Serializer.Attributes.OrderAttribute]
         public int groupId;
         
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(7)]
-        #endif
+#endif
         [ME.ECS.Serializer.Attributes.OrderAttribute]
         public bool storeInHistory;
 
         /// <summary>
         /// Parameters of method
         /// </summary>
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(6)]
-        #endif
+#endif
         [ME.ECS.Serializer.Attributes.OrderAttribute]
         public object[] parameters;
 
@@ -236,11 +236,11 @@ namespace ME.ECS.StatesHistory {
 
     }
 
-    #if ECS_COMPILE_IL2CPP_OPTIONS
+#if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-    #endif
+#endif
     public abstract class StatesHistoryModule<TState> : IStatesHistoryModule<TState>, IUpdate, IModuleValidation where TState : State, new() {
 
         private const int OLDEST_TICK_THRESHOLD = 1;
@@ -551,6 +551,58 @@ namespace ME.ECS.StatesHistory {
             }*/
 
         }
+
+        public void CancelEvent(HistoryEvent historyEvent){
+
+			if (historyEvent.storeInHistory == false) {
+
+				return;
+
+			}
+
+			var revertResult = false;
+			var eventTick = historyEvent.tick;
+
+			if (historyEvent.tick <= Tick.Zero) {
+
+				// Tick fix if it is zero
+				historyEvent.tick = Tick.One;
+
+			}
+
+			ME.ECS.Collections.SortedList<long, HistoryEvent> list;
+			if (this.events.TryGetValue(historyEvent.tick, out list) == true) {
+
+				var key = MathUtils.GetKey(historyEvent.order, historyEvent.localOrder);
+				if (list.ContainsKey(key)) {
+					list.Remove(key);
+
+					var previousState = this.GetStateBeforeTick(eventTick, out var targetTick);
+
+					if (targetTick != Tick.Invalid) {
+
+						var actualState = this.world.GetState();
+						actualState.CopyFrom(previousState);
+
+						this.oldestTick = historyEvent.tick;
+
+						--this.statEventsAdded;
+
+						revertResult = true;
+
+					}
+
+				}
+
+			}
+
+			if (revertResult == false) {
+
+				throw new System.Exception($"Event for a tick {eventTick} cannot be reverted.");
+
+			}
+
+		}
 
         /*public void Simulate(Tick currentTick, Tick targetTick) {
 

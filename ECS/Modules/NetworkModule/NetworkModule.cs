@@ -110,11 +110,11 @@ namespace ME.ECS.Network {
 
     }
 
-    #if ECS_COMPILE_IL2CPP_OPTIONS
+#if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-    #endif
+#endif
     public abstract class NetworkModule<TState> : INetworkModule<TState>, IUpdate, StatesHistory.IEventRunner, IModuleValidation where TState : State, new() {
 
         private static readonly RPCId PING_RPC_ID = -1;
@@ -578,6 +578,12 @@ namespace ME.ECS.Network {
             return true;
 
         }
+
+		protected void CancelEvent(ME.ECS.StatesHistory.HistoryEvent historyEvent){
+			
+			this.statesHistoryModule.CancelEvent(historyEvent);
+
+		}
 
         protected virtual void SendPing(float deltaTime) {
             
