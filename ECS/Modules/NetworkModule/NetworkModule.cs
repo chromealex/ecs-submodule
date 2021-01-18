@@ -579,6 +579,12 @@ namespace ME.ECS.Network {
 
         }
 
+        protected void CancelEvent(ME.ECS.StatesHistory.HistoryEvent historyEvent){
+			
+            this.statesHistoryModule.CancelEvent(historyEvent);
+
+        }
+
         protected virtual void SendPing(float deltaTime) {
             
             this.pingTime += deltaTime;
