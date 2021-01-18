@@ -406,6 +406,21 @@ namespace ME.ECS {
 
         }
 
+        public static bool IsPositionInRange(Vector3 from, Vector3 target, float minRange, float maxRange) {
+            
+            var dir = target - from;
+            var distanceSqr = dir.sqrMagnitude;
+            if (distanceSqr <= maxRange * maxRange &&
+                distanceSqr >= minRange * minRange) {
+
+                return true;
+
+            }
+
+            return false;
+
+        }
+        
         public static Vector3 GetNearestPositionToTarget(Vector3 from, Vector3 target, float minRange, float maxRange) {
 
             var dir = target - from;
