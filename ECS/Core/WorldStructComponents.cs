@@ -184,7 +184,9 @@ namespace ME.ECS {
                 if (world.currentState.filters.HasInFilters<TComponent>() == true) world.currentState.storage.archetypes.Remove<TComponent>(in entity);
                 --world.currentState.structComponents.count;
                 world.RemoveComponentFromFilter(in entity);
+                #if ENTITY_ACTIONS
                 world.RaiseEntityActionOnRemove<TComponent>(in entity);
+                #endif
                     
             }
             
@@ -1072,7 +1074,9 @@ namespace ME.ECS {
                 if (this.currentState.filters.HasInFilters<TComponent>() == true) this.currentState.storage.archetypes.Set<TComponent>(in entity);
                 ++this.currentState.structComponents.count;
                 this.AddComponentToFilter(entity);
+                #if ENTITY_ACTIONS
                 this.RaiseEntityActionOnAdd<TComponent>(in entity);
+                #endif
                 
             }
 
@@ -1114,7 +1118,9 @@ namespace ME.ECS {
                 this.AddComponentToFilter(entity);
 
             }
+            #if ENTITY_ACTIONS
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
+            #endif
 
             return ref state;
 
@@ -1160,7 +1166,9 @@ namespace ME.ECS {
                 this.AddComponentToFilter(entity);
 
             }
+            #if ENTITY_ACTIONS
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
+            #endif
 
             return ref state;
 
@@ -1447,7 +1455,9 @@ namespace ME.ECS {
                 if (this.currentState.filters.HasInFilters<TComponent>() == true) this.currentState.storage.archetypes.Remove<TComponent>(in entity);
                 --this.currentState.structComponents.count;
                 this.RemoveComponentFromFilter(in entity);
+                #if ENTITY_ACTIONS
                 this.RaiseEntityActionOnRemove<TComponent>(in entity);
+                #endif
                 
             }
             

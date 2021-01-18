@@ -13,6 +13,7 @@ namespace ME.ECS {
 
     }
     
+    #if ENTITY_ACTIONS
     public class EntityAction<TComponent> : EntityActionBase where TComponent : struct, IStructComponent {
 
         public static EntityAction<TComponent> Create(World world) {
@@ -121,6 +122,7 @@ namespace ME.ECS {
         }
 
     }
+    #endif
     
     public class FilterAction : System.IDisposable {
 

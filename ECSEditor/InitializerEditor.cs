@@ -132,7 +132,14 @@ namespace ME.ECSEditor {
                 #else
                 return false;
                 #endif
-            }, true)
+            }, true),
+            new DefineInfo("ENTITY_ACTIONS", "Turn on to add Entity Actions support. Entity Actions - raise events on Add/Remove components data on entities.", () => {
+                #if ENTITY_ACTIONS
+                return true;
+                #else
+                return false;
+                #endif
+            }, true),
         };
 
         private bool settingsFoldOut {

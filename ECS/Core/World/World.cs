@@ -946,6 +946,7 @@ namespace ME.ECS {
         #endregion
 
         #region EntityActions
+        #if ENTITY_ACTIONS
         private static class EntityActionDirectCache<TComponent> where TComponent : struct, IStructComponent {
 
             public static BufferArray<ListCopyable<EntityAction<TComponent>>> data;
@@ -995,6 +996,7 @@ namespace ME.ECS {
             list.Remove(action);
 
         }
+        #endif
         #endregion
 
         public void Register(FilterData filterRef) {
