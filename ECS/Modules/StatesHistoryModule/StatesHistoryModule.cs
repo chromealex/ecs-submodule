@@ -554,55 +554,55 @@ namespace ME.ECS.StatesHistory {
 
         public void CancelEvent(HistoryEvent historyEvent){
 
-			if (historyEvent.storeInHistory == false) {
+            if (historyEvent.storeInHistory == false) {
 
-				return;
+                return;
 
-			}
+            }
 
-			var revertResult = false;
-			var eventTick = historyEvent.tick;
+            var revertResult = false;
+            var eventTick = historyEvent.tick;
 
-			if (historyEvent.tick <= Tick.Zero) {
+            if (historyEvent.tick <= Tick.Zero) {
 
-				// Tick fix if it is zero
-				historyEvent.tick = Tick.One;
+                // Tick fix if it is zero
+                historyEvent.tick = Tick.One;
 
-			}
+            }
 
-			ME.ECS.Collections.SortedList<long, HistoryEvent> list;
-			if (this.events.TryGetValue(historyEvent.tick, out list) == true) {
+            ME.ECS.Collections.SortedList<long, HistoryEvent> list;
+            if (this.events.TryGetValue(historyEvent.tick, out list) == true) {
 
-				var key = MathUtils.GetKey(historyEvent.order, historyEvent.localOrder);
-				if (list.ContainsKey(key)) {
-					list.Remove(key);
+                var key = MathUtils.GetKey(historyEvent.order, historyEvent.localOrder);
+                if (list.ContainsKey(key)) {
+                    list.Remove(key);
 
-					var previousState = this.GetStateBeforeTick(eventTick, out var targetTick);
+                    var previousState = this.GetStateBeforeTick(eventTick, out var targetTick);
 
-					if (targetTick != Tick.Invalid) {
+                    if (targetTick != Tick.Invalid) {
 
-						var actualState = this.world.GetState();
-						actualState.CopyFrom(previousState);
+                        var actualState = this.world.GetState();
+                        actualState.CopyFrom(previousState);
 
-						this.oldestTick = historyEvent.tick;
+                        this.oldestTick = historyEvent.tick;
 
-						--this.statEventsAdded;
+                        --this.statEventsAdded;
 
-						revertResult = true;
+                        revertResult = true;
 
-					}
+                    }
 
-				}
+                }
 
-			}
+            }
 
-			if (revertResult == false) {
+            if (revertResult == false) {
 
-				throw new System.Exception($"Event for a tick {eventTick} cannot be reverted.");
+                throw new System.Exception($"Event for a tick {eventTick} cannot be reverted.");
 
-			}
+            }
 
-		}
+        }
 
         /*public void Simulate(Tick currentTick, Tick targetTick) {
 
