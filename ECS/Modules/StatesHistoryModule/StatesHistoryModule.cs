@@ -222,6 +222,7 @@ namespace ME.ECS.StatesHistory {
         void Reset();
         void AddEvents(IList<HistoryEvent> historyEvents);
         void AddEvent(HistoryEvent historyEvent);
+        void CancelEvent(HistoryEvent historyEvent);
 
     }
 
