@@ -8,11 +8,6 @@ namespace ME.ECS {
         Tick GetCurrentTick();
         //void Simulate(double time);
         //void Simulate(Tick toTick);
-
-    }
-
-    public partial interface IWorldBase {
-
         void SetStatesHistoryModule(StatesHistory.IStatesHistoryModuleBase module);
 
     }
@@ -467,12 +462,9 @@ namespace ME.ECS.StatesHistory {
             ME.ECS.Collections.SortedList<long, HistoryEvent> list;
             if (this.events.TryGetValue(historyEvent.tick, out list) == true) {
 
-                for (int i = 0; i < list.Count; ++i) {
-
-                    if (list[i].IsEqualsTo(historyEvent) == true) return true;
-
-                }
-
+                var key = MathUtils.GetKey(historyEvent.order, historyEvent.localOrder);
+                return list.ContainsKey(key);
+                
             }
 
             return false;
@@ -553,16 +545,13 @@ namespace ME.ECS.StatesHistory {
 
         }
 
-        public void CancelEvent(HistoryEvent historyEvent){
+        public void CancelEvent(HistoryEvent historyEvent) {
 
             if (historyEvent.storeInHistory == false) {
 
                 return;
 
             }
-
-            var revertResult = false;
-            var eventTick = historyEvent.tick;
 
             if (historyEvent.tick <= Tick.Zero) {
 
@@ -575,31 +564,12 @@ namespace ME.ECS.StatesHistory {
             if (this.events.TryGetValue(historyEvent.tick, out list) == true) {
 
                 var key = MathUtils.GetKey(historyEvent.order, historyEvent.localOrder);
-                if (list.ContainsKey(key)) {
-                    list.Remove(key);
+                if (list.Remove(key) == true) {
 
-                    var previousState = this.GetStateBeforeTick(eventTick, out var targetTick);
-
-                    if (targetTick != Tick.Invalid) {
-
-                        var actualState = this.world.GetState();
-                        actualState.CopyFrom(previousState);
-
-                        this.oldestTick = historyEvent.tick;
-
-                        --this.statEventsAdded;
-
-                        revertResult = true;
-
-                    }
-
+                    --this.statEventsAdded;
+                    this.oldestTick = (this.oldestTick == Tick.Invalid || historyEvent.tick < this.oldestTick ? (Tick)historyEvent.tick : this.oldestTick);
+                    
                 }
-
-            }
-
-            if (revertResult == false) {
-
-                throw new System.Exception($"Event for a tick {eventTick} cannot be reverted.");
 
             }
 
