@@ -2,8 +2,14 @@
 
 	using Collections;
 
+	#if ECS_COMPILE_IL2CPP_OPTIONS
+	[Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+	[Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+	[Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+	#endif
 	public static class PoolArrayUtilities {
 
+		[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static int GetArrayLengthPot(int length) {
 			
 			var bucketIndex = 0;
@@ -79,6 +85,7 @@
 		/// Warning: Returned arrays may contain arbitrary data.
 		/// You cannot rely on it being zeroed out.
 		/// </summary>
+		[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		internal static T[] Claim(int minimumLength) {
 
 			//return new T[minimumLength];
@@ -153,6 +160,7 @@
 		/// Warning: Returned arrays may contain arbitrary data.
 		/// You cannot rely on it being zeroed out.
 		/// </summary>
+		[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		internal static T[] ClaimWithExactLength(int length) {
 			var isPowerOfTwo = length != 0 && (length & (length - 1)) == 0;
 			if (isPowerOfTwo) {
@@ -179,6 +187,7 @@
 		/// If the array was got using the <see cref="ClaimWithExactLength"/> method then the allowNonPowerOfTwo parameter must be set to true.
 		/// The parameter exists to make sure that non power of two arrays are not pooled unintentionally which could lead to memory leaks.
 		/// </summary>
+		[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		internal static void Release(ref T[] array, bool allowNonPowerOfTwo = false) {
 
 			//array = null;
@@ -285,6 +294,7 @@
 			array = null;
 		}
 		
+		[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static BufferArray<T> Spawn(int length) {
 
 	        //return new BufferArray<T>(new T[length], length);
@@ -297,6 +307,7 @@
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void Recycle(ref BufferArray<T> buffer) {
 
 	        //buffer = new BufferArray<T>(null, 0);
@@ -308,6 +319,7 @@
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void Recycle(BufferArray<T> buffer) {
 
 	        //buffer = new BufferArray<T>(null, 0);
@@ -318,6 +330,7 @@
 	        
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void Recycle(ref T[] buffer) {
 
 	        buffer = null;
