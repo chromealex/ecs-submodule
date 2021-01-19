@@ -1368,7 +1368,7 @@ namespace ME.ECSEditor {
                                             var group = systems.arr[i];
                                             var foldoutObj = group.runtimeSystem.allSystems;
                                             var groupState = worldEditor.IsFoldOutCustom(foldoutObj);
-                                            GUILayoutExt.FoldOut(ref groupState, group.name + " (" + group.length.ToString() + ")", () => {
+                                            GUILayoutExt.FoldOut(ref groupState, group.name + " (" + group.runtimeSystem.allSystems.Count.ToString() + ")", () => {
                                                 
                                                 for (int j = 0; j < group.runtimeSystem.allSystems.Count; ++j) {
 

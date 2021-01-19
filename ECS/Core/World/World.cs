@@ -363,6 +363,7 @@ namespace ME.ECS {
             this.statesFeatures = PoolList<ModuleState>.Spawn(World.FEATURES_CAPACITY);
             //this.statesSystems = PoolList<ModuleState>.Spawn(World.SYSTEMS_CAPACITY);
             this.statesModules = PoolList<ModuleState>.Spawn(World.MODULES_CAPACITY);
+            this.systemGroups = PoolArray<SystemGroup>.Spawn(World.FEATURES_CAPACITY);
             
             ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
 
@@ -422,6 +423,7 @@ namespace ME.ECS {
                 this.systemGroups.arr[i].Deconstruct();
 
             }
+            PoolArray<SystemGroup>.Recycle(ref this.systemGroups);
             
             for (int i = 0; i < this.modules.Count; ++i) {
                 

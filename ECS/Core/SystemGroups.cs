@@ -137,42 +137,42 @@
         public void Add(ISystemBase system, RuntimeSystemFlag state = RuntimeSystemFlag.All) {
 
             {
-                if (this.allSystems == null) this.allSystems = new ListCopyable<ISystemBase>();
+                if (this.allSystems == null) this.allSystems = PoolList<ISystemBase>.Spawn(4);
                 this.allSystems.Add(system);
             }
             {
                 if ((state & RuntimeSystemFlag.Visual) != 0 && system is IUpdate systemTyped) {
-                    if (this.systemUpdates == null) this.systemUpdates = new ListCopyable<IUpdate>();
+                    if (this.systemUpdates == null) this.systemUpdates = PoolList<IUpdate>.Spawn(4);
                     this.systemUpdates.Add(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is ISystemFilter systemTyped) {
-                    if (this.systemFilters == null) this.systemFilters = new ListCopyable<ISystemFilter>();
+                    if (this.systemFilters == null) this.systemFilters = PoolList<ISystemFilter>.Spawn(4);
                     this.systemFilters.Add(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is ILoadableSystem systemTyped) {
-                    if (this.systemLoadable == null) this.systemLoadable = new ListCopyable<ILoadableSystem>();
+                    if (this.systemLoadable == null) this.systemLoadable = PoolList<ILoadableSystem>.Spawn(4);
                     this.systemLoadable.Add(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is IAdvanceTick systemTyped) {
-                    if (this.systemAdvanceTick == null) this.systemAdvanceTick = new ListCopyable<IAdvanceTick>();
+                    if (this.systemAdvanceTick == null) this.systemAdvanceTick = PoolList<IAdvanceTick>.Spawn(4);
                     this.systemAdvanceTick.Add(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is IAdvanceTickPre systemTyped) {
-                    if (this.systemAdvanceTickPre == null) this.systemAdvanceTickPre = new ListCopyable<IAdvanceTickPre>();
+                    if (this.systemAdvanceTickPre == null) this.systemAdvanceTickPre = PoolList<IAdvanceTickPre>.Spawn(4);
                     this.systemAdvanceTickPre.Add(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is IAdvanceTickPost systemTyped) {
-                    if (this.systemAdvanceTickPost == null) this.systemAdvanceTickPost = new ListCopyable<IAdvanceTickPost>();
+                    if (this.systemAdvanceTickPost == null) this.systemAdvanceTickPost = PoolList<IAdvanceTickPost>.Spawn(4);
                     this.systemAdvanceTickPost.Add(systemTyped);
                 }
             }
@@ -183,42 +183,42 @@
             
             var hasAny = false;
             {
-                if (this.allSystems == null) this.allSystems = new ListCopyable<ISystemBase>();
+                if (this.allSystems == null) this.allSystems = PoolList<ISystemBase>.Spawn(4);
                 hasAny = this.allSystems.Remove(system);
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is ISystemFilter systemTyped) {
-                    if (this.systemFilters == null) this.systemFilters = new ListCopyable<ISystemFilter>();
+                    if (this.systemFilters == null) this.systemFilters = PoolList<ISystemFilter>.Spawn(4);
                     this.systemFilters.Remove(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Visual) != 0 && system is IUpdate systemTyped) {
-                    if (this.systemUpdates == null) this.systemUpdates = new ListCopyable<IUpdate>();
+                    if (this.systemUpdates == null) this.systemUpdates = PoolList<IUpdate>.Spawn(4);
                     this.systemUpdates.Remove(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is ILoadableSystem systemTyped) {
-                    if (this.systemLoadable == null) this.systemLoadable = new ListCopyable<ILoadableSystem>();
+                    if (this.systemLoadable == null) this.systemLoadable = PoolList<ILoadableSystem>.Spawn(4);
                     this.systemLoadable.Remove(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is IAdvanceTick systemTyped) {
-                    if (this.systemAdvanceTick == null) this.systemAdvanceTick = new ListCopyable<IAdvanceTick>();
+                    if (this.systemAdvanceTick == null) this.systemAdvanceTick = PoolList<IAdvanceTick>.Spawn(4);
                     this.systemAdvanceTick.Remove(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is IAdvanceTickPre systemTyped) {
-                    if (this.systemAdvanceTickPre == null) this.systemAdvanceTickPre = new ListCopyable<IAdvanceTickPre>();
+                    if (this.systemAdvanceTickPre == null) this.systemAdvanceTickPre = PoolList<IAdvanceTickPre>.Spawn(4);
                     this.systemAdvanceTickPre.Remove(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is IAdvanceTickPost systemTyped) {
-                    if (this.systemAdvanceTickPost == null) this.systemAdvanceTickPost = new ListCopyable<IAdvanceTickPost>();
+                    if (this.systemAdvanceTickPost == null) this.systemAdvanceTickPost = PoolList<IAdvanceTickPost>.Spawn(4);
                     this.systemAdvanceTickPost.Remove(systemTyped);
                 }
             }
@@ -246,6 +246,14 @@
                     }
                 }
             }
+            
+            if (this.allSystems != null) PoolList<ISystemBase>.Recycle(ref this.allSystems);
+            if (this.systemUpdates != null) PoolList<IUpdate>.Recycle(ref this.systemUpdates);
+            if (this.systemFilters != null) PoolList<ISystemFilter>.Recycle(ref this.systemFilters);
+            if (this.systemLoadable != null) PoolList<ILoadableSystem>.Recycle(ref this.systemLoadable);
+            if (this.systemAdvanceTick != null) PoolList<IAdvanceTick>.Recycle(ref this.systemAdvanceTick);
+            if (this.systemAdvanceTickPre != null) PoolList<IAdvanceTickPre>.Recycle(ref this.systemAdvanceTickPre);
+            if (this.systemAdvanceTickPost != null) PoolList<IAdvanceTickPost>.Recycle(ref this.systemAdvanceTickPost);
 
         }
 
@@ -261,9 +269,6 @@
         public string name;
         internal World world;
         internal RuntimeSystem runtimeSystem;
-        //internal BufferArray<ISystemBase> systems;
-        //internal BufferArray<ModuleState> statesSystems;
-        internal int length;
         internal int worldIndex;
 
         public SystemGroup(string name) : this(Worlds.currentWorld, name) {}
@@ -274,9 +279,6 @@
             this.world = world;
             this.worldIndex = -1;
             this.runtimeSystem = new RuntimeSystem();
-            //this.systems = new BufferArray<ISystemBase>();
-            //this.statesSystems = new BufferArray<ModuleState>();
-            this.length = 0;
             this.worldIndex = world.AddSystemGroup(ref this);
 
         }
@@ -284,7 +286,7 @@
         internal void Deconstruct() {
 
             this.runtimeSystem.Deconstruct();
-            
+
         }
 
         public bool IsSystemActive(ISystemBase system, RuntimeSystemFlag state) {
