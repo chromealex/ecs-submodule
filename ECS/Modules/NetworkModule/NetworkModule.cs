@@ -117,6 +117,7 @@ namespace ME.ECS.Network {
     #endif
     public abstract class NetworkModule<TState> : INetworkModule<TState>, IUpdate, StatesHistory.IEventRunner, IModuleValidation where TState : State, new() {
 
+        private static readonly RPCId CANCEL_EVENT_RPC_ID = -11;
         private static readonly RPCId PING_RPC_ID = -1;
         private static readonly RPCId SYNC_RPC_ID = -2;
         
@@ -147,6 +148,7 @@ namespace ME.ECS.Network {
             
             this.world.SetNetworkModule(this);
             
+            this.RegisterRPC(NetworkModule<TState>.CANCEL_EVENT_RPC_ID, new System.Action<byte[]>(this.CancelEvent_RPC).Method);
             this.RegisterRPC(NetworkModule<TState>.PING_RPC_ID, new System.Action<double, bool>(this.Ping_RPC).Method);
             this.RegisterRPC(NetworkModule<TState>.SYNC_RPC_ID, new System.Action<Tick, int>(this.Sync_RPC).Method);
             this.RegisterObject(this, -1, -1);
@@ -167,7 +169,7 @@ namespace ME.ECS.Network {
             PoolDictionary<int, System.Reflection.MethodInfo>.Recycle(ref this.registry);
             
         }
-
+        
         public ME.ECS.Network.ISerializer GetSerializer() {
 
             return this.serializer;
@@ -177,6 +179,21 @@ namespace ME.ECS.Network {
         public double GetPing() {
 
             return this.ping;
+
+        }
+
+        private void CancelEvent_RPC(byte[] array) {
+
+            try {
+                
+                var cancelEvent = this.serializer.Deserialize(array);
+                this.CancelEvent(cancelEvent);
+                
+            } catch (System.Exception exception) {
+                
+                UnityEngine.Debug.LogException(exception);
+                
+            }
 
         }
 

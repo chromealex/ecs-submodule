@@ -312,18 +312,8 @@
 			public int Compare(TKey x, TKey y) {
 
 				int result = Comparer<TKey>.Default.Compare(x, y);
-				if (result == 0) {
-					
-					return 0;	//changed 1 => 0 because
-								//1. It's expected behavior for the IComparer interface.
-								//2. SortedList.ContainsKey(...) returned false despite of the fact that the key exists.
+				return result;
 
-				} else {
-					
-					return result;
-					
-				}
-				
 			}
 
 		}
