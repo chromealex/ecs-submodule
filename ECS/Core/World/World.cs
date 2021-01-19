@@ -107,20 +107,14 @@ namespace ME.ECS {
         
         internal WorldStep currentStep;
         internal ListCopyable<IFeatureBase> features;
-        //internal List<ISystemBase> systems;
         internal ListCopyable<IModuleBase> modules;
         internal BufferArray<SystemGroup> systemGroups;
 
         internal ListCopyable<ModuleState> statesFeatures;
-        //internal List<ModuleState> statesSystems;
         internal ListCopyable<ModuleState> statesModules;
 
         internal ICheckpointCollector checkpointCollector;
         
-        // State cache:
-        //internal Storage storagesCache;
-        //internal FiltersStorage filtersStorage;
-
         internal float tickTime;
         internal double timeSinceStart;
         public bool isActive;
@@ -281,17 +275,8 @@ namespace ME.ECS {
             for (int i = 0; i < this.systemGroups.Length; ++i) {
 
                 var group = this.systemGroups.arr[i];
-                for (int j = 0; j < group.systems.Length; ++j) {
-
-                    var system = group.systems.arr[j];
-                    if (system is ILoadableSystem) {
-
-                        ++awatingCount;
-                        
-                    }
-
-                }
-
+                awatingCount += (group.runtimeSystem.systemLoadable != null ? group.runtimeSystem.systemLoadable.Count : 0);
+                
             }
 
             if (awatingCount == 0) {
@@ -306,25 +291,22 @@ namespace ME.ECS {
             for (int i = 0; i < this.systemGroups.Length; ++i) {
 
                 var group = this.systemGroups.arr[i];
-                for (int j = 0; j < group.systems.Length; ++j) {
+                if (group.runtimeSystem.systemLoadable == null) continue;
+                for (int j = 0; j < group.runtimeSystem.systemLoadable.Count; ++j) {
 
-                    var system = group.systems.arr[j];
-                    if (system is ILoadableSystem loadableSystem) {
+                    var loadableSystem = group.runtimeSystem.systemLoadable[j];
+                    loadableSystem.Load(() => {
 
-                        loadableSystem.Load(() => {
+                        --awatingCount;
+                        if (awatingCount == 0) {
+                            
+                            this.isLoading = false;
+                            this.isLoaded = true;
+                            onComplete.Invoke();
+                            
+                        }
 
-                            --awatingCount;
-                            if (awatingCount == 0) {
-                                
-                                this.isLoading = false;
-                                this.isLoaded = true;
-                                onComplete.Invoke();
-                                
-                            }
-
-                        });
-
-                    }
+                    });
 
                 }
 
@@ -507,33 +489,19 @@ namespace ME.ECS {
 
         }
 
-        public void SetSystemState(ISystemBase system, ModuleState state) {
+        public bool IsSystemActive(ISystemBase system, RuntimeSystemFlag state) {
 
             for (int i = 0; i < this.systemGroups.Length; ++i) {
 
-                if (this.systemGroups.arr[i].SetSystemState(system, state) == true) {
+                if (this.systemGroups.arr[i].IsSystemActive(system, state) == true) {
 
-                    return;
+                    return true;
 
                 }
 
             }
             
-        }
-        
-        public ModuleState GetSystemState(ISystemBase system) {
-
-            for (int i = 0; i < this.systemGroups.Length; ++i) {
-
-                if (this.systemGroups.arr[i].GetSystemState(system, out var state) == true) {
-
-                    return state;
-
-                }
-
-            }
-            
-            return ModuleState.AllActive;
+            return false;
 
         }
 
@@ -1934,27 +1902,20 @@ namespace ME.ECS {
                 for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
 
                     ref var group = ref this.systemGroups.arr[i];
-                    for (int j = 0; j < group.systems.Length; ++j) {
+                    if (group.runtimeSystem.systemUpdates == null) continue;
+                    for (int j = 0; j < group.runtimeSystem.systemUpdates.Count; ++j) {
 
-                        if (group.IsSystemActive(j) == true) {
+                        ref var system = ref group.runtimeSystem.systemUpdates[j];
+                        
+                        #if CHECKPOINT_COLLECTOR
+                        if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.VisualTick);
+                        #endif
 
-                            ref var system = ref group.systems.arr[j];
-                            
-                            #if CHECKPOINT_COLLECTOR
-                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.VisualTick);
-                            #endif
+                        system.Update(in deltaTime);
 
-                            if (system is IUpdate sysBase) {
-
-                                sysBase.Update(in deltaTime);
-
-                            }
-
-                            #if CHECKPOINT_COLLECTOR
-                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.VisualTick);
-                            #endif
-
-                        }
+                        #if CHECKPOINT_COLLECTOR
+                        if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.VisualTick);
+                        #endif
 
                     }
 
@@ -2088,6 +2049,34 @@ namespace ME.ECS {
         public unsafe delegate void SystemFilterAdvanceTick(in Entity entity, in float deltaTime, void* burstWorldStructComponentsAccess);*/
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private void PrepareAdvanceTickForSystem<T>(T system) where T : class, ISystemBase {
+            
+            this.currentSystemContext = system;
+            System.Array.Clear(this.currentSystemContextFiltersUsed.arr, 0, this.currentSystemContextFiltersUsed.Length);
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private void PostAdvanceTickForSystem() {
+            
+            this.currentState.storage.ApplyDead();
+
+            this.currentSystemContext = null;
+
+            for (int f = 1, cnt = this.currentSystemContextFiltersUsed.Length; f < cnt; ++f) {
+
+                if (this.currentSystemContextFiltersUsed.arr[f] == true) {
+
+                    var filter = this.GetFilter(f);
+                    filter.ApplyAllRequests();
+
+                }
+
+            }
+
+        }
+        
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void Simulate(Tick from, Tick to) {
             
             this.PlayTasksForFrame();
@@ -2177,101 +2166,110 @@ namespace ME.ECS {
 
                     this.PlayTasksForTick();
                     
+                    #if CHECKPOINT_COLLECTOR
+                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPre", WorldStep.LogicTick);
+                    #endif
+
                     for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
 
                         ref var group = ref this.systemGroups.arr[i];
-                        for (int j = 0; j < group.systems.Length; ++j) {
+                        if (group.runtimeSystem.systemAdvanceTickPre == null) continue;
+                        for (int j = 0; j < group.runtimeSystem.systemAdvanceTickPre.Count; ++j) {
 
-                            if (group.IsSystemActive(j) == true) {
+                            ref var system = ref group.runtimeSystem.systemAdvanceTickPre[j];
+                            #if CHECKPOINT_COLLECTOR
+                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
+                            #endif
 
-                                ref var system = ref group.systems.arr[j];
-                                if (system is IAdvanceTickPre sysPost) {
-                                    
-                                    sysPost.AdvanceTickPre(in fixedDeltaTime);
-                                    
-                                }
+                            system.AdvanceTickPre(fixedDeltaTime);
 
-                            }
+                            #if CHECKPOINT_COLLECTOR
+                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
+                            #endif
 
                         }
 
                     }
 
+                    #if CHECKPOINT_COLLECTOR
+                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPre", WorldStep.LogicTick);
+                    #endif
+
+                    #if CHECKPOINT_COLLECTOR
+                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickFilters", WorldStep.LogicTick);
+                    #endif
+
                     for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
 
                         ref var group = ref this.systemGroups.arr[i];
-                        for (int j = 0; j < group.systems.Length; ++j) {
+                        if (group.runtimeSystem.systemFilters == null) continue;
+                        for (int j = 0; j < group.runtimeSystem.systemFilters.Count; ++j) {
 
-                            if (group.IsSystemActive(j) == true) {
+                            ref var system = ref group.runtimeSystem.systemFilters[j];
+                            
+                            #if CHECKPOINT_COLLECTOR
+                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
+                            #endif
 
-                                ref var system = ref group.systems.arr[j];
-                                
-                                #if CHECKPOINT_COLLECTOR
-                                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
-                                #endif
+                            this.PrepareAdvanceTickForSystem(system);
+                            {
 
-                                this.currentSystemContext = system;
-                                System.Array.Clear(this.currentSystemContextFiltersUsed.arr, 0, this.currentSystemContextFiltersUsed.Length);
-                                if (system is ISystemFilter sysFilter) {
+                                /*if (sysFilter is IAdvanceTickBurst advTick) {
 
-                                    /*if (sysFilter is IAdvanceTickBurst advTick) {
-    
-                                        // Under the development process
-                                        // This should not used right now
-                                        
-                                        var functionPointer = Unity.Burst.BurstCompiler.CompileFunctionPointer(advTick.GetAdvanceTickForBurst());
-                                        var arrEntities = sysFilter.filter.GetArray();
-                                        using (var arr = new Unity.Collections.NativeArray<Entity>(arrEntities.arr, Unity.Collections.Allocator.TempJob)) {
-    
-                                            var length = arrEntities.Length;
-                                            var burstWorldStructComponentsAccess = new BurstWorldStructComponentsAccess();
-                                            unsafe {
-    
-                                                var bws = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AddressOf(ref burstWorldStructComponentsAccess);
-                                                PoolArray<Entity>.Recycle(ref arrEntities);
-                                                var job = new ForeachFilterJobBurst() {
-                                                    deltaTime = fixedDeltaTime,
-                                                    entities = arr,
-                                                    function = functionPointer,
-                                                    bws = bws
-                                                };
-                                                var jobHandle = job.Schedule(length, sysFilter.jobsBatchCount);
-                                                jobHandle.Complete();
-                                                
-                                            }
-    
-                                        }
-                                        
-                                    }*/
+                                    // Under the development process
+                                    // This should not used right now
+                                    
+                                    var functionPointer = Unity.Burst.BurstCompiler.CompileFunctionPointer(advTick.GetAdvanceTickForBurst());
+                                    var arrEntities = sysFilter.filter.GetArray();
+                                    using (var arr = new Unity.Collections.NativeArray<Entity>(arrEntities.arr, Unity.Collections.Allocator.TempJob)) {
 
-                                    sysFilter.filter = (sysFilter.filter.IsAlive() == true ? sysFilter.filter : sysFilter.CreateFilter());
-                                    if (sysFilter.filter.IsAlive() == true) {
+                                        var length = arrEntities.Length;
+                                        var burstWorldStructComponentsAccess = new BurstWorldStructComponentsAccess();
+                                        unsafe {
 
-                                        if (this.settings.useJobsForSystems == true && sysFilter.jobs == true) {
-
-                                            var arrEntities = sysFilter.filter.ToArray();
-                                            using (var arr = new Unity.Collections.NativeArray<Entity>(arrEntities.arr, Unity.Collections.Allocator.TempJob)) {
-
-                                                var length = arrEntities.Length;
-                                                PoolArray<Entity>.Recycle(ref arrEntities);
-                                                var job = new ForeachFilterJob() {
-                                                    deltaTime = fixedDeltaTime,
-                                                    entities = arr
-                                                };
-                                                var jobHandle = job.Schedule(length, sysFilter.jobsBatchCount);
-                                                jobHandle.Complete();
-
-                                            }
+                                            var bws = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AddressOf(ref burstWorldStructComponentsAccess);
+                                            PoolArray<Entity>.Recycle(ref arrEntities);
+                                            var job = new ForeachFilterJobBurst() {
+                                                deltaTime = fixedDeltaTime,
+                                                entities = arr,
+                                                function = functionPointer,
+                                                bws = bws
+                                            };
+                                            var jobHandle = job.Schedule(length, sysFilter.jobsBatchCount);
+                                            jobHandle.Complete();
                                             
-                                        } else {
+                                        }
 
-                                            if (sysFilter is ISystemFilter sysFilterContext) {
+                                    }
+                                    
+                                }*/
 
-                                                foreach (var entity in sysFilter.filter) {
+                                system.filter = (system.filter.IsAlive() == true ? system.filter : system.CreateFilter());
+                                if (system.filter.IsAlive() == true) {
 
-                                                    sysFilterContext.AdvanceTick(in entity, in fixedDeltaTime);
+                                    if (this.settings.useJobsForSystems == true && system.jobs == true) {
 
-                                                }
+                                        var arrEntities = system.filter.ToArray();
+                                        using (var arr = new Unity.Collections.NativeArray<Entity>(arrEntities.arr, Unity.Collections.Allocator.TempJob)) {
+
+                                            var length = arrEntities.Length;
+                                            PoolArray<Entity>.Recycle(ref arrEntities);
+                                            var job = new ForeachFilterJob() {
+                                                deltaTime = fixedDeltaTime,
+                                                entities = arr
+                                            };
+                                            var jobHandle = job.Schedule(length, system.jobsBatchCount);
+                                            jobHandle.Complete();
+
+                                        }
+                                        
+                                    } else {
+
+                                        {
+
+                                            foreach (var entity in system.filter) {
+
+                                                system.AdvanceTick(in entity, fixedDeltaTime);
 
                                             }
 
@@ -2279,32 +2277,14 @@ namespace ME.ECS {
 
                                     }
 
-                                } else if (system is IAdvanceTick sysBase) {
-
-                                    sysBase.AdvanceTick(in fixedDeltaTime);
-
                                 }
-
-                                this.currentState.storage.ApplyDead();
-
-                                this.currentSystemContext = null;
-
-                                for (int f = 1, cnt = this.currentSystemContextFiltersUsed.Length; f < cnt; ++f) {
-
-                                    if (this.currentSystemContextFiltersUsed.arr[f] == true) {
-
-                                        var filter = this.GetFilter(in f);
-                                        filter.ApplyAllRequests();
-
-                                    }
-
-                                }
-
-                                #if CHECKPOINT_COLLECTOR
-                                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
-                                #endif
 
                             }
+                            this.PostAdvanceTickForSystem();
+                            
+                            #if CHECKPOINT_COLLECTOR
+                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
+                            #endif
 
                         }
 
@@ -2314,26 +2294,70 @@ namespace ME.ECS {
 
                     }
 
+                    #if CHECKPOINT_COLLECTOR
+                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickFilters", WorldStep.LogicTick);
+                    #endif
+
+                    #if CHECKPOINT_COLLECTOR
+                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTick", WorldStep.LogicTick);
+                    #endif
+
                     for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
 
                         ref var group = ref this.systemGroups.arr[i];
-                        for (int j = 0; j < group.systems.Length; ++j) {
+                        if (group.runtimeSystem.systemAdvanceTick == null) continue;
+                        for (int j = 0; j < group.runtimeSystem.systemAdvanceTick.Count; ++j) {
 
-                            if (group.IsSystemActive(j) == true) {
+                            ref var system = ref group.runtimeSystem.systemAdvanceTick[j];
+                            
+                            #if CHECKPOINT_COLLECTOR
+                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
+                            #endif
 
-                                ref var system = ref group.systems.arr[j];
-                                if (system is IAdvanceTickPost sysPost) {
-                                    
-                                    sysPost.AdvanceTickPost(in fixedDeltaTime);
-                                    
-                                }
+                            system.AdvanceTick(fixedDeltaTime);
 
-                            }
+                            #if CHECKPOINT_COLLECTOR
+                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
+                            #endif
+
+                        }
+
+                    }
+
+                    #if CHECKPOINT_COLLECTOR
+                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTick", WorldStep.LogicTick);
+                    #endif
+
+                    #if CHECKPOINT_COLLECTOR
+                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPost", WorldStep.LogicTick);
+                    #endif
+
+                    for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
+
+                        ref var group = ref this.systemGroups.arr[i];
+                        if (group.runtimeSystem.systemAdvanceTickPost == null) continue;
+                        for (int j = 0; j < group.runtimeSystem.systemAdvanceTickPost.Count; ++j) {
+
+                            ref var system = ref group.runtimeSystem.systemAdvanceTickPost[j];
+                            
+                            #if CHECKPOINT_COLLECTOR
+                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
+                            #endif
+
+                            system.AdvanceTickPost(fixedDeltaTime);
+
+                            #if CHECKPOINT_COLLECTOR
+                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
+                            #endif
 
                         }
 
                     }
                     
+                    #if CHECKPOINT_COLLECTOR
+                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPost", WorldStep.LogicTick);
+                    #endif
+
                 }
                 ////////////////
                 this.currentStep &= ~WorldStep.SystemsLogicTick;

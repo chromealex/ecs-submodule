@@ -1366,13 +1366,13 @@ namespace ME.ECSEditor {
                                         for (int i = 0; i < systems.Length; ++i) {
 
                                             var group = systems.arr[i];
-                                            var foldoutObj = group.systems;
+                                            var foldoutObj = group.runtimeSystem.allSystems;
                                             var groupState = worldEditor.IsFoldOutCustom(foldoutObj);
                                             GUILayoutExt.FoldOut(ref groupState, group.name + " (" + group.length.ToString() + ")", () => {
                                                 
-                                                for (int j = 0; j < group.systems.Length; ++j) {
+                                                for (int j = 0; j < group.runtimeSystem.allSystems.Count; ++j) {
 
-                                                    var system = group.systems.arr[j];
+                                                    var system = group.runtimeSystem.allSystems[j];
 
                                                     GUILayout.BeginHorizontal();
                                                     {
@@ -1385,14 +1385,8 @@ namespace ME.ECSEditor {
                                                             GUILayout.BeginHorizontal(GUILayout.ExpandWidth(true));
                                                             GUILayout.FlexibleSpace();
 
-                                                            var flag = world.GetSystemState(system);
-                                                            var state = (flag & ME.ECS.ModuleState.LogicInactive) == 0;
-                                                            if (this.ToggleMethod(worldEditor, system, "AdvanceTick", ref state) == true) {
-
-                                                                world.SetSystemState(
-                                                                    system, state == false ? flag | ME.ECS.ModuleState.LogicInactive : flag & ~ME.ECS.ModuleState.LogicInactive);
-
-                                                            }
+                                                            var state = world.IsSystemActive(system, RuntimeSystemFlag.Logic);
+                                                            this.ToggleMethod(worldEditor, system, "AdvanceTick", ref state);
 
                                                             GUILayout.FlexibleSpace();
                                                             GUILayout.EndHorizontal();
@@ -1405,14 +1399,8 @@ namespace ME.ECSEditor {
                                                             GUILayout.BeginHorizontal(GUILayout.ExpandWidth(true));
                                                             GUILayout.FlexibleSpace();
 
-                                                            var flag = world.GetSystemState(system);
-                                                            var state = (flag & ME.ECS.ModuleState.VisualInactive) == 0;
-                                                            if (this.ToggleMethod(worldEditor, system, "Update", ref state) == true) {
-
-                                                                world.SetSystemState(
-                                                                    system, state == false ? flag | ME.ECS.ModuleState.VisualInactive : flag & ~ME.ECS.ModuleState.VisualInactive);
-
-                                                            }
+                                                            var state = world.IsSystemActive(system, RuntimeSystemFlag.Visual);
+                                                            this.ToggleMethod(worldEditor, system, "Update", ref state);
 
                                                             GUILayout.FlexibleSpace();
                                                             GUILayout.EndHorizontal();

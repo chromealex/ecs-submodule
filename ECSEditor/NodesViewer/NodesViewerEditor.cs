@@ -1010,8 +1010,8 @@ namespace ME.ECSEditor {
             for (int i = 0; i < systems.Length; ++i) {
 
                 var group = systems.arr[i];
-                if (group.systems.Length == 0) continue;
-                systemsLogicContainer = graph.AddNode(systemsLogicContainer, new SystemsLogicContainer(group.name, this.CreateSubGraph<SystemLogicNode>(group.systems, "AdvanceTick", WorldStep.LogicTick)), group.systems.arr);
+                if (group.runtimeSystem.allSystems.Count == 0) continue;
+                systemsLogicContainer = graph.AddNode(systemsLogicContainer, new SystemsLogicContainer(group.name, this.CreateSubGraph<SystemLogicNode>(group.runtimeSystem.allSystems, "AdvanceTick", WorldStep.LogicTick)), group.runtimeSystem.allSystems);
 
             }
             var endTick = graph.AddNode(systemsLogicContainer, new EndTickNode(null));
@@ -1021,8 +1021,8 @@ namespace ME.ECSEditor {
             for (int i = 0; i < systems.Length; ++i) {
 
                 var group = systems.arr[i];
-                if (group.systems.Length == 0) continue;
-                systemsVisualContainer = graph.AddNode(systemsVisualContainer, new SystemsVisualContainer(group.name, this.CreateSubGraph<SystemVisualNode>(group.systems, "Update", WorldStep.VisualTick)), group.systems.arr);
+                if (group.runtimeSystem.allSystems.Count == 0) continue;
+                systemsVisualContainer = graph.AddNode(systemsVisualContainer, new SystemsVisualContainer(group.name, this.CreateSubGraph<SystemVisualNode>(group.runtimeSystem.allSystems, "Update", WorldStep.VisualTick)), group.runtimeSystem.allSystems);
 
             }
             
@@ -1120,8 +1120,8 @@ namespace ME.ECSEditor {
         public static void ShowInstance() {
 
             var instance = EditorWindow.GetWindow(typeof(NodesViewerEditor));
-            var icon = UnityEditor.Experimental.EditorResources.Load<Texture2D>("Assets/ECS/ECSEditor/EditorResources/icon-nodesviewer.png");
-            if (icon == null) icon = UnityEditor.Experimental.EditorResources.Load<Texture2D>("Assets/ECS-submodule/ECSEditor/EditorResources/icon-nodesviewer.png");
+            var icon = UnityEditor.Experimental.EditorResources.Load<Texture2D>("Assets/ECS/ECSEditor/EditorResources/icon-nodesviewer.png", false);
+            if (icon == null) icon = UnityEditor.Experimental.EditorResources.Load<Texture2D>("Assets/ECS-submodule/ECSEditor/EditorResources/icon-nodesviewer.png", false);
             instance.titleContent = new GUIContent("Nodes Viewer", icon);
             instance.Show();
 
