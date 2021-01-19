@@ -1156,6 +1156,7 @@ namespace ME.ECS {
             if (this.world.currentSystemContext != null) {
                 
                 this.world.currentSystemContextFiltersUsed.arr[this.id] = true;
+                this.world.currentSystemContextFiltersUsedAnyChanged = true;
                 this.requests.Add(entity);
                 return false;
 
@@ -1188,6 +1189,7 @@ namespace ME.ECS {
             if (this.world.currentSystemContext != null) {
 
                 this.world.currentSystemContextFiltersUsed.arr[this.id] = true;
+                this.world.currentSystemContextFiltersUsedAnyChanged = true;
                 //this.requestsRemoveEntity.TryAdd(entity.version, entity);
                 this.requestsRemoveEntity.Add(entity);
                 return false;

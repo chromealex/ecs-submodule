@@ -60,12 +60,14 @@ namespace ME.ECS {
             }
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public ListCopyable<int> GetAlive() {
             
             return this.alive;
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool ForEach(ListCopyable<Entity> results) {
             
             results.Clear();
@@ -106,9 +108,11 @@ namespace ME.ECS {
 
         }
         
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void SetFreeze(bool freeze) {
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void CopyFrom(Storage other) {
             
             ArrayUtils.Copy(other.generations, ref this.generations);
@@ -122,6 +126,7 @@ namespace ME.ECS {
 
         }
         
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public Entity Alloc() {
 
             int id = -1;
@@ -146,6 +151,7 @@ namespace ME.ECS {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool Dealloc(in Entity entity) {
 
             if (this.IsAlive(entity.id, entity.generation) == false) return false;
@@ -156,6 +162,7 @@ namespace ME.ECS {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void IncrementGeneration(in Entity entity) {
             
             // Make this entity not alive, but not completely destroyed at this time
@@ -163,18 +170,25 @@ namespace ME.ECS {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void ApplyDead() {
 
-            for (int i = 0, cnt = this.deadPrepared.Count; i < cnt; ++i) {
+            var cnt = this.deadPrepared.Count;
+            if (cnt > 0) {
 
-                var id = this.deadPrepared[i];
-                
-                --this.aliveCount;
-                this.dead.Add(id);
-                this.alive.Remove(id);
+                for (int i = 0; i < cnt; ++i) {
+
+                    var id = this.deadPrepared[i];
+
+                    --this.aliveCount;
+                    this.dead.Add(id);
+                    this.alive.Remove(id);
+
+                }
+
+                this.deadPrepared.Clear();
 
             }
-            this.deadPrepared.Clear();
 
         }
 

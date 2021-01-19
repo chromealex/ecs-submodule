@@ -126,7 +126,7 @@ namespace ME.ECS.Collections {
 
                 this.head = 0;
                 this.tail = this.Count;
-                if (this.innerArray.isNotEmpty == true) {
+                if (this.innerArray.isCreated == true) {
                     PoolArray<T>.Recycle(ref this.innerArray);
                 }
 

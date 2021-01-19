@@ -119,8 +119,9 @@ namespace ME.ECS {
         internal double timeSinceStart;
         public bool isActive;
 
-        public ISystemBase currentSystemContext { get; internal set; }
+        public IContext currentSystemContext { get; internal set; }
         public BufferArray<bool> currentSystemContextFiltersUsed;
+        public bool currentSystemContextFiltersUsedAnyChanged;
 
         internal Tick simulationFromTick;
         internal Tick simulationToTick;
@@ -348,6 +349,7 @@ namespace ME.ECS {
             #endif
             
             this.currentSystemContextFiltersUsed = PoolArray<bool>.Spawn(World.FILTERS_CACHE_CAPACITY);
+            this.currentSystemContextFiltersUsedAnyChanged = false;
             
             this.currentState = default;
             this.resetState = default;
@@ -404,6 +406,7 @@ namespace ME.ECS {
             this.GetState().storage.ApplyDead();
 
             PoolArray<bool>.Recycle(ref this.currentSystemContextFiltersUsed);
+            this.currentSystemContextFiltersUsedAnyChanged = default;
             
             #if WORLD_THREAD_CHECK
             this.worldThread = null;
@@ -1825,12 +1828,20 @@ namespace ME.ECS {
             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("Simulate", WorldStep.None);
             #endif
 
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.BeginSample($"Simulate");
+            #endif
+
             if (this.settings.maxTicksSimulationCount > 0L && this.simulationToTick > this.simulationFromTick + this.settings.maxTicksSimulationCount) {
                 
                 throw new System.Exception("Simulation failed because of ticks count is out of range: [" + this.simulationFromTick + ".." + this.simulationToTick + ")");
                 
             }
             this.Simulate(this.simulationFromTick, this.simulationToTick);
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.EndSample();
+            #endif
 
             #if CHECKPOINT_COLLECTOR
             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("Simulate", WorldStep.None);
@@ -1852,6 +1863,10 @@ namespace ME.ECS {
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.VisualTick);
                 #endif
 
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"VisualTick-Pre [All Modules]");
+                #endif
+
                 for (int i = 0, count = this.modules.Count; i < count; ++i) {
 
                     if (this.IsModuleActive(i) == true) {
@@ -1860,11 +1875,19 @@ namespace ME.ECS {
                         if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules[i], WorldStep.VisualTick);
                         #endif
 
+                        #if UNITY_EDITOR
+                        UnityEngine.Profiling.Profiler.BeginSample($"[{this.modules[i]}]");
+                        #endif
+
                         if (this.modules[i] is IUpdate moduleBase) {
 
                             moduleBase.Update(in deltaTime);
 
                         }
+
+                        #if UNITY_EDITOR
+                        UnityEngine.Profiling.Profiler.EndSample();
+                        #endif
 
                         #if CHECKPOINT_COLLECTOR
                         if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules[i], WorldStep.VisualTick);
@@ -1873,6 +1896,10 @@ namespace ME.ECS {
                     }
 
                 }
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
 
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.VisualTick);
@@ -1901,6 +1928,10 @@ namespace ME.ECS {
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.VisualTick);
                 #endif
 
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"VisualTick-Post [All Modules]");
+                #endif
+
                 for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
 
                     ref var group = ref this.systemGroups.arr[i];
@@ -1913,7 +1944,15 @@ namespace ME.ECS {
                         if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.VisualTick);
                         #endif
 
+                        #if UNITY_EDITOR
+                        UnityEngine.Profiling.Profiler.BeginSample($"VisualTick [{system}]");
+                        #endif
+
                         system.Update(in deltaTime);
+
+                        #if UNITY_EDITOR
+                        UnityEngine.Profiling.Profiler.EndSample();
+                        #endif
 
                         #if CHECKPOINT_COLLECTOR
                         if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.VisualTick);
@@ -1922,6 +1961,10 @@ namespace ME.ECS {
                     }
 
                 }
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
 
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.VisualTick);
@@ -1936,8 +1979,16 @@ namespace ME.ECS {
             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
             #endif
 
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.BeginSample($"Remove Markers");
+            #endif
+
             this.RemoveMarkers();
             
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.EndSample();
+            #endif
+
             #if CHECKPOINT_COLLECTOR
             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
             #endif
@@ -2051,10 +2102,11 @@ namespace ME.ECS {
         public unsafe delegate void SystemFilterAdvanceTick(in Entity entity, in float deltaTime, void* burstWorldStructComponentsAccess);*/
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        private void PrepareAdvanceTickForSystem<T>(T system) where T : class, ISystemBase {
+        private void PrepareAdvanceTickForSystem<T>(T system) where T : class, IContext {
             
             this.currentSystemContext = system;
             System.Array.Clear(this.currentSystemContextFiltersUsed.arr, 0, this.currentSystemContextFiltersUsed.Length);
+            this.currentSystemContextFiltersUsedAnyChanged = false;
             
         }
 
@@ -2065,12 +2117,16 @@ namespace ME.ECS {
 
             this.currentSystemContext = null;
 
-            for (int f = 1, cnt = this.currentSystemContextFiltersUsed.Length; f < cnt; ++f) {
+            if (this.currentSystemContextFiltersUsedAnyChanged == true) {
 
-                if (this.currentSystemContextFiltersUsed.arr[f] == true) {
+                for (int f = 1, cnt = this.currentSystemContextFiltersUsed.Length; f < cnt; ++f) {
 
-                    var filter = this.GetFilter(f);
-                    filter.ApplyAllRequests();
+                    if (this.currentSystemContextFiltersUsed.arr[f] == true) {
+
+                        var filter = this.GetFilter(f);
+                        filter.ApplyAllRequests();
+
+                    }
 
                 }
 
@@ -2081,7 +2137,15 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void Simulate(Tick from, Tick to) {
             
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.BeginSample($"PlayTasksForFrame");
+            #endif
+
             this.PlayTasksForFrame();
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.EndSample();
+            #endif
 
             if (from > to) {
 
@@ -2090,6 +2154,10 @@ namespace ME.ECS {
 
             }
 
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.BeginSample($"Tick [{from}..{to}]");
+            #endif
+            
             var state = this.GetState();
 
             //UnityEngine.Debug.Log("Simulate " + from + " to " + to);
@@ -2106,6 +2174,10 @@ namespace ME.ECS {
                     if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.LogicTick);
                     #endif
                     
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [All Modules]");
+                    #endif
+
                     for (int i = 0, count = this.modules.Count; i < count; ++i) {
 
                         if (this.IsModuleActive(i) == true) {
@@ -2116,7 +2188,15 @@ namespace ME.ECS {
                             
                             if (this.modules[i] is IAdvanceTick moduleBase) {
 
+                                #if UNITY_EDITOR
+                                UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [{moduleBase}]");
+                                #endif
+
                                 moduleBase.AdvanceTick(in fixedDeltaTime);
+
+                                #if UNITY_EDITOR
+                                UnityEngine.Profiling.Profiler.EndSample();
+                                #endif
 
                             }
                             
@@ -2128,6 +2208,10 @@ namespace ME.ECS {
 
                     }
                     
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.EndSample();
+                    #endif
+
                     #if CHECKPOINT_COLLECTOR
                     if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.LogicTick);
                     #endif
@@ -2146,8 +2230,16 @@ namespace ME.ECS {
                     if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTick", WorldStep.None);
                     #endif
 
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.BeginSample($"PlayPluginsForTick[{state.tick}]");
+                    #endif
+
                     this.PlayPluginsForTick(state.tick);
                     
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.EndSample();
+                    #endif
+
                     #if CHECKPOINT_COLLECTOR
                     if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTick", WorldStep.None);
                     #endif
@@ -2166,10 +2258,22 @@ namespace ME.ECS {
                     if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.LogicTick);
                     #endif
 
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.BeginSample($"PlayTasksForTick");
+                    #endif
+
                     this.PlayTasksForTick();
                     
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.EndSample();
+                    #endif
+
                     #if CHECKPOINT_COLLECTOR
                     if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPre", WorldStep.LogicTick);
+                    #endif
+
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [AdvanceTickPre]");
                     #endif
 
                     for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
@@ -2183,7 +2287,15 @@ namespace ME.ECS {
                             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
                             #endif
 
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.BeginSample(system.ToString());
+                            #endif
+
                             system.AdvanceTickPre(fixedDeltaTime);
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.EndSample();
+                            #endif
 
                             #if CHECKPOINT_COLLECTOR
                             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
@@ -2193,12 +2305,20 @@ namespace ME.ECS {
 
                     }
 
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.EndSample();
+                    #endif
+
                     #if CHECKPOINT_COLLECTOR
                     if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPre", WorldStep.LogicTick);
                     #endif
 
                     #if CHECKPOINT_COLLECTOR
                     if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickFilters", WorldStep.LogicTick);
+                    #endif
+
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [AdvanceTickFilters]");
                     #endif
 
                     for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
@@ -2213,7 +2333,20 @@ namespace ME.ECS {
                             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
                             #endif
 
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.BeginSample($"PrepareAdvanceTickForSystem [{system}]");
+                            #endif
+
                             this.PrepareAdvanceTickForSystem(system);
+                            
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.EndSample();
+                            #endif
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.BeginSample($"AdvanceTick [{system}]");
+                            #endif
+
                             {
 
                                 /*if (sysFilter is IAdvanceTickBurst advTick) {
@@ -2282,19 +2415,32 @@ namespace ME.ECS {
                                 }
 
                             }
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.EndSample();
+                            #endif
+                            
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.BeginSample($"PostAdvanceTickForSystem [{system}]");
+                            #endif
+
                             this.PostAdvanceTickForSystem();
                             
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.EndSample();
+                            #endif
+
                             #if CHECKPOINT_COLLECTOR
                             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
                             #endif
 
                         }
 
-                        #if CHECKPOINT_COLLECTOR
-                        if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.LogicTick);
-                        #endif
-
                     }
+
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.EndSample();
+                    #endif
 
                     #if CHECKPOINT_COLLECTOR
                     if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickFilters", WorldStep.LogicTick);
@@ -2302,6 +2448,10 @@ namespace ME.ECS {
 
                     #if CHECKPOINT_COLLECTOR
                     if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTick", WorldStep.LogicTick);
+                    #endif
+
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [AdvanceTick]");
                     #endif
 
                     for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
@@ -2312,11 +2462,39 @@ namespace ME.ECS {
 
                             ref var system = ref group.runtimeSystem.systemAdvanceTick[j];
                             
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.BeginSample($"PrepareAdvanceTickForSystem [{system}]");
+                            #endif
+
+                            this.PrepareAdvanceTickForSystem(system);
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.EndSample();
+                            #endif
+
                             #if CHECKPOINT_COLLECTOR
                             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
                             #endif
 
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.BeginSample($"AdvanceTick [{system}]");
+                            #endif
+
                             system.AdvanceTick(fixedDeltaTime);
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.EndSample();
+                            #endif
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.BeginSample($"PostAdvanceTickForSystem [{system}]");
+                            #endif
+
+                            this.PostAdvanceTickForSystem();
+                            
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.EndSample();
+                            #endif
 
                             #if CHECKPOINT_COLLECTOR
                             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
@@ -2326,12 +2504,20 @@ namespace ME.ECS {
 
                     }
 
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.EndSample();
+                    #endif
+
                     #if CHECKPOINT_COLLECTOR
                     if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTick", WorldStep.LogicTick);
                     #endif
 
                     #if CHECKPOINT_COLLECTOR
                     if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPost", WorldStep.LogicTick);
+                    #endif
+
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [AdvanceTickPost]");
                     #endif
 
                     for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
@@ -2346,7 +2532,15 @@ namespace ME.ECS {
                             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
                             #endif
 
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.BeginSample($"AdvanceTickPost [{system}]");
+                            #endif
+
                             system.AdvanceTickPost(fixedDeltaTime);
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.EndSample();
+                            #endif
 
                             #if CHECKPOINT_COLLECTOR
                             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
@@ -2356,8 +2550,16 @@ namespace ME.ECS {
 
                     }
                     
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.EndSample();
+                    #endif
+
                     #if CHECKPOINT_COLLECTOR
                     if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPost", WorldStep.LogicTick);
+                    #endif
+
+                    #if CHECKPOINT_COLLECTOR
+                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.LogicTick);
                     #endif
 
                 }
@@ -2375,9 +2577,25 @@ namespace ME.ECS {
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveComponentsOnce", WorldStep.None);
                 #endif*/
 
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"UseLifetimeStep NotifyAllSystemsBelow");
+                #endif
+
                 this.UseLifetimeStep(ComponentLifetime.NotifyAllSystemsBelow);
 
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"ProcessGlobalEvents [Logic]");
+                #endif
+
                 this.ProcessGlobalEvents(GlobalEventType.Logic);
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
 
             }
             
@@ -2390,7 +2608,15 @@ namespace ME.ECS {
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("SimulatePluginsForTicks", WorldStep.None);
                 #endif
 
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"SimulatePluginsForTicks");
+                #endif
+
                 this.SimulatePluginsForTicks(from, to);
+                
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
                 
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("SimulatePluginsForTicks", WorldStep.None);
@@ -2401,8 +2627,20 @@ namespace ME.ECS {
             this.currentStep &= ~WorldStep.PluginsLogicSimulate;
             ////////////////
 
-            this.UseLifetimeStep(ComponentLifetime.NotifyAllModulesBelow);
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.BeginSample($"UseLifetimeStep NotifyAllSystemsBelow");
+            #endif
 
+            this.UseLifetimeStep(ComponentLifetime.NotifyAllModulesBelow);
+            
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.EndSample();
+            #endif
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.EndSample();
+            #endif
+            
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

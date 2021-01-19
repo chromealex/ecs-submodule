@@ -373,7 +373,7 @@ namespace ME.ECS.Views.Providers {
             
             if (this.world.settings.useJobsForViews == false || this.world.settings.viewsSettings.unityGameObjectProviderDisableJobs == true) return;
             
-            if (list.isNotEmpty == true) {
+            if (list.isCreated == true) {
 
                 if (hasChanged == true) {
 
