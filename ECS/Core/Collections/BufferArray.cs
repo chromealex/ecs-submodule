@@ -28,11 +28,12 @@ namespace ME.ECS.Collections {
 
             public T[] data;
             public int Length;
+            public int usedLength;
             public bool isCreated;
             
             public ref T this[int index] {
                 get {
-                    if (this.isCreated == false || index >= this.Length) throw new System.IndexOutOfRangeException();
+                    if (this.isCreated == false || index >= this.usedLength) throw new System.IndexOutOfRangeException();
                     return ref this.data[index];
                 }
             }
@@ -202,6 +203,7 @@ namespace ME.ECS.Collections {
             #if UNITY_EDITOR && EDITOR_ARRAY
             this.arr.data = arr;
             this.arr.Length = (arr != null ? arr.Length : 0);
+            this.arr.usedLength = length;
             this.arr.isCreated = this.isCreated;
             #else
             this.arr = arr;
