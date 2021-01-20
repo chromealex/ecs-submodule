@@ -109,6 +109,7 @@ namespace ME.ECS {
         internal ListCopyable<IFeatureBase> features;
         internal ListCopyable<IModuleBase> modules;
         internal BufferArray<SystemGroup> systemGroups;
+        internal int systemGroupsLength;
 
         internal ListCopyable<ModuleState> statesFeatures;
         internal ListCopyable<ModuleState> statesModules;
@@ -273,7 +274,7 @@ namespace ME.ECS {
             this.isLoaded = false;
             
             var awatingCount = 0;
-            for (int i = 0; i < this.systemGroups.Length; ++i) {
+            for (int i = 0; i < this.systemGroupsLength; ++i) {
 
                 var group = this.systemGroups.arr[i];
                 awatingCount += (group.runtimeSystem.systemLoadable != null ? group.runtimeSystem.systemLoadable.Count : 0);
@@ -289,7 +290,7 @@ namespace ME.ECS {
 
             }
             
-            for (int i = 0; i < this.systemGroups.Length; ++i) {
+            for (int i = 0; i < this.systemGroupsLength; ++i) {
 
                 var group = this.systemGroups.arr[i];
                 if (group.runtimeSystem.systemLoadable == null) continue;
@@ -323,7 +324,7 @@ namespace ME.ECS {
         
         public int AddSystemGroup(ref SystemGroup group) {
 
-            var index = this.systemGroups.Length;
+            var index = this.systemGroupsLength++;
             ArrayUtils.Resize(in index, ref this.systemGroups, resizeWithOffset: false);
             this.systemGroups.arr[index] = group;
             return index;
@@ -366,6 +367,7 @@ namespace ME.ECS {
             //this.statesSystems = PoolList<ModuleState>.Spawn(World.SYSTEMS_CAPACITY);
             this.statesModules = PoolList<ModuleState>.Spawn(World.MODULES_CAPACITY);
             this.systemGroups = PoolArray<SystemGroup>.Spawn(World.FEATURES_CAPACITY);
+            this.systemGroupsLength = 0;
             
             ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
 
@@ -421,7 +423,7 @@ namespace ME.ECS {
             
             PoolList<IFeatureBase>.Recycle(ref this.features);
 
-            for (int i = 0; i < this.systemGroups.Length; ++i) {
+            for (int i = 0; i < this.systemGroupsLength; ++i) {
 
                 this.systemGroups.arr[i].Deconstruct();
 
@@ -496,7 +498,7 @@ namespace ME.ECS {
 
         public bool IsSystemActive(ISystemBase system, RuntimeSystemFlag state) {
 
-            for (int i = 0; i < this.systemGroups.Length; ++i) {
+            for (int i = 0; i < this.systemGroupsLength; ++i) {
 
                 if (this.systemGroups.arr[i].IsSystemActive(system, state) == true) {
 
@@ -1746,7 +1748,7 @@ namespace ME.ECS {
         /// <returns></returns>
         public bool HasSystem<TSystem>() where TSystem : class, ISystemBase, new() {
 
-            for (int i = 0; i < this.systemGroups.Length; ++i) {
+            for (int i = 0; i < this.systemGroupsLength; ++i) {
 
                 if (this.systemGroups.arr[i].HasSystem<TSystem>() == true) {
 
@@ -1767,7 +1769,7 @@ namespace ME.ECS {
         /// <returns></returns>
         public TSystem GetSystem<TSystem>() where TSystem : class, ISystemBase {
 
-            for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
+            for (int i = 0, count = this.systemGroupsLength; i < count; ++i) {
 
                 var system = this.systemGroups.arr[i].GetSystem<TSystem>();
                 if (system != null) return system;
@@ -1932,7 +1934,7 @@ namespace ME.ECS {
                 UnityEngine.Profiling.Profiler.BeginSample($"VisualTick-Post [All Modules]");
                 #endif
 
-                for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
+                for (int i = 0, count = this.systemGroupsLength; i < count; ++i) {
 
                     ref var group = ref this.systemGroups.arr[i];
                     if (group.runtimeSystem.systemUpdates == null) continue;
@@ -2276,7 +2278,7 @@ namespace ME.ECS {
                     UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [AdvanceTickPre]");
                     #endif
 
-                    for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
+                    for (int i = 0, count = this.systemGroupsLength; i < count; ++i) {
 
                         ref var group = ref this.systemGroups.arr[i];
                         if (group.runtimeSystem.systemAdvanceTickPre == null) continue;
@@ -2321,7 +2323,7 @@ namespace ME.ECS {
                     UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [AdvanceTickFilters]");
                     #endif
 
-                    for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
+                    for (int i = 0, count = this.systemGroupsLength; i < count; ++i) {
 
                         ref var group = ref this.systemGroups.arr[i];
                         if (group.runtimeSystem.systemFilters == null) continue;
@@ -2454,7 +2456,7 @@ namespace ME.ECS {
                     UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [AdvanceTick]");
                     #endif
 
-                    for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
+                    for (int i = 0, count = this.systemGroupsLength; i < count; ++i) {
 
                         ref var group = ref this.systemGroups.arr[i];
                         if (group.runtimeSystem.systemAdvanceTick == null) continue;
@@ -2520,7 +2522,7 @@ namespace ME.ECS {
                     UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [AdvanceTickPost]");
                     #endif
 
-                    for (int i = 0, count = this.systemGroups.Length; i < count; ++i) {
+                    for (int i = 0, count = this.systemGroupsLength; i < count; ++i) {
 
                         ref var group = ref this.systemGroups.arr[i];
                         if (group.runtimeSystem.systemAdvanceTickPost == null) continue;
