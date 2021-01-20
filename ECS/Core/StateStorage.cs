@@ -48,7 +48,7 @@ namespace ME.ECS {
 
         public override int GetHashCode() {
 
-            return this.versions.GetHashCode();
+            return this.versions.GetHashCode() ^ this.aliveCount ^ this.entityId ^ this.dead.Count;
 
         }
 

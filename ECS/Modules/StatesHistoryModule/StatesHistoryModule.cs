@@ -488,6 +488,12 @@ namespace ME.ECS.StatesHistory {
             this.events.Clear();
             
         }
+
+        public void HardResetTo(Tick tick) {
+
+            this.oldestTick = tick;
+
+        }
         
         public void AddEvent(HistoryEvent historyEvent) {
 
