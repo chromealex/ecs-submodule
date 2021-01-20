@@ -127,7 +127,7 @@ namespace ME.ECSEditor {
 
             var stateTypeStr = "StateClassType";
             var projectName = path.Split('/');
-            var type = typeof(ME.ECS.IStateBase);
+            var type = typeof(ME.ECS.State);
             var types = System.AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => p.IsClass == true && type.IsAssignableFrom(p) && projectName.Contains(p.Name.Replace("State", string.Empty))).ToArray();
             if (types.Length > 0) {
 

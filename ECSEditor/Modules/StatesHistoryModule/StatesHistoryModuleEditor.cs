@@ -37,7 +37,7 @@ namespace ME.ECSEditor {
             foreach (var entryData in entries) {
 
                 var entry = entryData as ME.ECS.Network.IStatesHistoryEntry;
-                var state = entry.GetData() as IStateBase;
+                var state = entry.GetData() as State;
                 UnityEngine.GUILayout.Label("Tick: " + state.tick + ", State: " + state.entityId + ", Hash: " + state.GetHash());
                 
             }
