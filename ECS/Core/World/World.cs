@@ -2326,87 +2326,91 @@ namespace ME.ECS {
                     for (int i = 0, count = this.systemGroupsLength; i < count; ++i) {
 
                         ref var group = ref this.systemGroups.arr[i];
-                        if (group.runtimeSystem.systemFilters == null) continue;
-                        for (int j = 0; j < group.runtimeSystem.systemFilters.Count; ++j) {
+                        if (group.runtimeSystem.systemAdvanceTick == null) continue;
+                        for (int j = 0; j < group.runtimeSystem.systemAdvanceTick.Count; ++j) {
 
-                            ref var system = ref group.runtimeSystem.systemFilters[j];
-                            
-                            #if CHECKPOINT_COLLECTOR
-                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
-                            #endif
+                            ref var systemBase = ref group.runtimeSystem.systemAdvanceTick[j];
 
-                            #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.BeginSample($"PrepareAdvanceTickForSystem [{system}]");
-                            #endif
+                            if (systemBase is ISystemFilter system) {
+                                
+                                #if CHECKPOINT_COLLECTOR
+                                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
+                                #endif
 
-                            this.PrepareAdvanceTickForSystem(system);
-                            
-                            #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.EndSample();
-                            #endif
+                                #if UNITY_EDITOR
+                                UnityEngine.Profiling.Profiler.BeginSample($"PrepareAdvanceTickForSystem [{system}]");
+                                #endif
 
-                            #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.BeginSample($"AdvanceTick [{system}]");
-                            #endif
+                                this.PrepareAdvanceTickForSystem(system);
 
-                            {
+                                #if UNITY_EDITOR
+                                UnityEngine.Profiling.Profiler.EndSample();
+                                #endif
 
-                                /*if (sysFilter is IAdvanceTickBurst advTick) {
+                                #if UNITY_EDITOR
+                                UnityEngine.Profiling.Profiler.BeginSample($"AdvanceTick [{system}]");
+                                #endif
 
-                                    // Under the development process
-                                    // This should not used right now
-                                    
-                                    var functionPointer = Unity.Burst.BurstCompiler.CompileFunctionPointer(advTick.GetAdvanceTickForBurst());
-                                    var arrEntities = sysFilter.filter.GetArray();
-                                    using (var arr = new Unity.Collections.NativeArray<Entity>(arrEntities.arr, Unity.Collections.Allocator.TempJob)) {
+                                {
 
-                                        var length = arrEntities.Length;
-                                        var burstWorldStructComponentsAccess = new BurstWorldStructComponentsAccess();
-                                        unsafe {
-
-                                            var bws = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AddressOf(ref burstWorldStructComponentsAccess);
-                                            PoolArray<Entity>.Recycle(ref arrEntities);
-                                            var job = new ForeachFilterJobBurst() {
-                                                deltaTime = fixedDeltaTime,
-                                                entities = arr,
-                                                function = functionPointer,
-                                                bws = bws
-                                            };
-                                            var jobHandle = job.Schedule(length, sysFilter.jobsBatchCount);
-                                            jobHandle.Complete();
-                                            
-                                        }
-
-                                    }
-                                    
-                                }*/
-
-                                system.filter = (system.filter.IsAlive() == true ? system.filter : system.CreateFilter());
-                                if (system.filter.IsAlive() == true) {
-
-                                    if (this.settings.useJobsForSystems == true && system.jobs == true) {
-
-                                        var arrEntities = system.filter.ToArray();
+                                    /*if (sysFilter is IAdvanceTickBurst advTick) {
+    
+                                        // Under the development process
+                                        // This should not used right now
+                                        
+                                        var functionPointer = Unity.Burst.BurstCompiler.CompileFunctionPointer(advTick.GetAdvanceTickForBurst());
+                                        var arrEntities = sysFilter.filter.GetArray();
                                         using (var arr = new Unity.Collections.NativeArray<Entity>(arrEntities.arr, Unity.Collections.Allocator.TempJob)) {
-
+    
                                             var length = arrEntities.Length;
-                                            PoolArray<Entity>.Recycle(ref arrEntities);
-                                            var job = new ForeachFilterJob() {
-                                                deltaTime = fixedDeltaTime,
-                                                entities = arr
-                                            };
-                                            var jobHandle = job.Schedule(length, system.jobsBatchCount);
-                                            jobHandle.Complete();
-
+                                            var burstWorldStructComponentsAccess = new BurstWorldStructComponentsAccess();
+                                            unsafe {
+    
+                                                var bws = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AddressOf(ref burstWorldStructComponentsAccess);
+                                                PoolArray<Entity>.Recycle(ref arrEntities);
+                                                var job = new ForeachFilterJobBurst() {
+                                                    deltaTime = fixedDeltaTime,
+                                                    entities = arr,
+                                                    function = functionPointer,
+                                                    bws = bws
+                                                };
+                                                var jobHandle = job.Schedule(length, sysFilter.jobsBatchCount);
+                                                jobHandle.Complete();
+                                                
+                                            }
+    
                                         }
                                         
-                                    } else {
+                                    }*/
 
-                                        {
+                                    system.filter = (system.filter.IsAlive() == true ? system.filter : system.CreateFilter());
+                                    if (system.filter.IsAlive() == true) {
 
-                                            foreach (var entity in system.filter) {
+                                        if (this.settings.useJobsForSystems == true && system.jobs == true) {
 
-                                                system.AdvanceTick(in entity, fixedDeltaTime);
+                                            var arrEntities = system.filter.ToArray();
+                                            using (var arr = new Unity.Collections.NativeArray<Entity>(arrEntities.arr, Unity.Collections.Allocator.TempJob)) {
+
+                                                var length = arrEntities.Length;
+                                                PoolArray<Entity>.Recycle(ref arrEntities);
+                                                var job = new ForeachFilterJob() {
+                                                    deltaTime = fixedDeltaTime,
+                                                    entities = arr
+                                                };
+                                                var jobHandle = job.Schedule(length, system.jobsBatchCount);
+                                                jobHandle.Complete();
+
+                                            }
+
+                                        } else {
+
+                                            {
+
+                                                foreach (var entity in system.filter) {
+
+                                                    system.AdvanceTick(in entity, fixedDeltaTime);
+
+                                                }
 
                                             }
 
@@ -2416,25 +2420,65 @@ namespace ME.ECS {
 
                                 }
 
+                                #if UNITY_EDITOR
+                                UnityEngine.Profiling.Profiler.EndSample();
+                                #endif
+
+                                #if UNITY_EDITOR
+                                UnityEngine.Profiling.Profiler.BeginSample($"PostAdvanceTickForSystem [{system}]");
+                                #endif
+
+                                this.PostAdvanceTickForSystem();
+
+                                #if UNITY_EDITOR
+                                UnityEngine.Profiling.Profiler.EndSample();
+                                #endif
+
+                                #if CHECKPOINT_COLLECTOR
+                                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
+                                #endif
+                                
+                            } else if (systemBase is IAdvanceTick advanceTickSystem){
+                                
+                                #if UNITY_EDITOR
+                                UnityEngine.Profiling.Profiler.BeginSample($"PrepareAdvanceTickForSystem [{advanceTickSystem}]");
+                                #endif
+
+                                this.PrepareAdvanceTickForSystem(advanceTickSystem);
+
+                                #if UNITY_EDITOR
+                                UnityEngine.Profiling.Profiler.EndSample();
+                                #endif
+
+                                #if CHECKPOINT_COLLECTOR
+                                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(advanceTickSystem, WorldStep.LogicTick);
+                                #endif
+
+                                #if UNITY_EDITOR
+                                UnityEngine.Profiling.Profiler.BeginSample($"AdvanceTick [{advanceTickSystem}]");
+                                #endif
+
+                                advanceTickSystem.AdvanceTick(fixedDeltaTime);
+
+                                #if UNITY_EDITOR
+                                UnityEngine.Profiling.Profiler.EndSample();
+                                #endif
+
+                                #if UNITY_EDITOR
+                                UnityEngine.Profiling.Profiler.BeginSample($"PostAdvanceTickForSystem [{advanceTickSystem}]");
+                                #endif
+
+                                this.PostAdvanceTickForSystem();
+                            
+                                #if UNITY_EDITOR
+                                UnityEngine.Profiling.Profiler.EndSample();
+                                #endif
+
+                                #if CHECKPOINT_COLLECTOR
+                                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(advanceTickSystem, WorldStep.LogicTick);
+                                #endif
                             }
-
-                            #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.EndSample();
-                            #endif
                             
-                            #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.BeginSample($"PostAdvanceTickForSystem [{system}]");
-                            #endif
-
-                            this.PostAdvanceTickForSystem();
-                            
-                            #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.EndSample();
-                            #endif
-
-                            #if CHECKPOINT_COLLECTOR
-                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
-                            #endif
 
                         }
 
@@ -2443,76 +2487,11 @@ namespace ME.ECS {
                     #if UNITY_EDITOR
                     UnityEngine.Profiling.Profiler.EndSample();
                     #endif
-
+                    
                     #if CHECKPOINT_COLLECTOR
                     if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickFilters", WorldStep.LogicTick);
                     #endif
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTick", WorldStep.LogicTick);
-                    #endif
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [AdvanceTick]");
-                    #endif
-
-                    for (int i = 0, count = this.systemGroupsLength; i < count; ++i) {
-
-                        ref var group = ref this.systemGroups.arr[i];
-                        if (group.runtimeSystem.systemAdvanceTick == null) continue;
-                        for (int j = 0; j < group.runtimeSystem.systemAdvanceTick.Count; ++j) {
-
-                            ref var system = ref group.runtimeSystem.systemAdvanceTick[j];
-                            
-                            #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.BeginSample($"PrepareAdvanceTickForSystem [{system}]");
-                            #endif
-
-                            this.PrepareAdvanceTickForSystem(system);
-
-                            #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.EndSample();
-                            #endif
-
-                            #if CHECKPOINT_COLLECTOR
-                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
-                            #endif
-
-                            #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.BeginSample($"AdvanceTick [{system}]");
-                            #endif
-
-                            system.AdvanceTick(fixedDeltaTime);
-
-                            #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.EndSample();
-                            #endif
-
-                            #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.BeginSample($"PostAdvanceTickForSystem [{system}]");
-                            #endif
-
-                            this.PostAdvanceTickForSystem();
-                            
-                            #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.EndSample();
-                            #endif
-
-                            #if CHECKPOINT_COLLECTOR
-                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
-                            #endif
-
-                        }
-
-                    }
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.EndSample();
-                    #endif
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTick", WorldStep.LogicTick);
-                    #endif
+                    
 
                     #if CHECKPOINT_COLLECTOR
                     if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPost", WorldStep.LogicTick);

@@ -17,7 +17,9 @@ namespace ME.ECS {
 
     }
 
-    public interface IAdvanceTick : IContext {
+    public interface IAdvanceTickBase : IContext { }
+    
+    public interface IAdvanceTick : IAdvanceTickBase {
 
         void AdvanceTick(in float deltaTime);
 
@@ -41,7 +43,7 @@ namespace ME.ECS {
 
     }
 
-    public interface ISystemFilter : ISystem {
+    public interface ISystemFilter : ISystem, IAdvanceTickBase {
 
         bool jobs { get; }
         int jobsBatchCount { get; }
