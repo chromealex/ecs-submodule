@@ -201,7 +201,7 @@ namespace ME.ECS.Collections {
             
             #if UNITY_EDITOR && EDITOR_ARRAY
             this.arr.data = arr;
-            this.arr.Length = length;
+            this.arr.Length = (arr != null ? arr.Length : 0);
             this.arr.isCreated = this.isCreated;
             #else
             this.arr = arr;

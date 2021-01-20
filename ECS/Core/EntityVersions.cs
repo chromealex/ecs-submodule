@@ -12,7 +12,17 @@ namespace ME.ECS {
 
         [ME.ECS.Serializer.SerializeField]
         private BufferArray<uint> values;
-        
+
+        public override int GetHashCode() {
+
+            var hash = 0;
+            for (int i = 0; i < this.values.Length; ++i) {
+                hash ^= (int)(this.values.arr[i] + 100000u);
+            }
+            return hash;
+            
+        }
+
         public void OnRecycle() {
 
             PoolArray<uint>.Recycle(ref this.values);

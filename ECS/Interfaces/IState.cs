@@ -49,7 +49,7 @@ namespace ME.ECS {
         /// <returns></returns>
         public virtual int GetHash() {
 
-            return this.components.GetHash() ^ this.structComponents.Count ^ this.randomState.GetHashCode();//^ this.structComponents.GetCustomHash();
+            return this.components.GetHash() ^ this.structComponents.Count ^ this.randomState.GetHashCode() ^ this.storage.GetHashCode();//^ this.structComponents.GetCustomHash();
 
         }
 

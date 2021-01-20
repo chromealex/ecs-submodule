@@ -46,6 +46,12 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         internal EntityVersions versions;
 
+        public override int GetHashCode() {
+
+            return this.versions.GetHashCode();
+
+        }
+
         public int AliveCount {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             get {
@@ -145,7 +151,7 @@ namespace ME.ECS {
             ++this.aliveCount;
             this.alive.Add(id);
             ref var v = ref this.generations.arr[id];
-            if (v == 0) ++v;
+            if (v == 0u) ++v;
             this.versions.Reset(id);
             return new Entity(id, v);
             
