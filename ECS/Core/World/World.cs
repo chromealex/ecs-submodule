@@ -2156,6 +2156,8 @@ namespace ME.ECS {
 
             }
 
+            if (from < Tick.Zero) from = Tick.Zero;
+
             var state = this.GetState();
 
             //UnityEngine.Debug.Log("Simulate " + from + " to " + to);
