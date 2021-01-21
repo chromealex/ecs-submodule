@@ -13,7 +13,7 @@ namespace ME.ECSEditor {
                 paths.Add(AssetDatabase.GetAssetPath(config));
             });
 
-            AssetDatabase.ForceReserializeAssets(paths);
+            AssetDatabase.ForceReserializeAssets(paths, ForceReserializeAssetsOptions.ReserializeAssets);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             
