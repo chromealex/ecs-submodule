@@ -409,8 +409,12 @@ namespace ME.ECS {
 
                     var item = list[j];
                     if (item == null) continue;
+
+                    IComponent newItem = null;
+                    var copyComponent = new CopyComponent();
+                    copyComponent.Copy(item, ref newItem);
                     
-                    this.Add(to.id, item);
+                    this.Add(to.id, newItem);
                     
                 }
 
