@@ -39,7 +39,7 @@ namespace ME.ECSEditor {
                     var entry = (ME.ECS.Collections.SortedList<long, HistoryEvent>)ren.Value;
                     for (int i = 0; i < entry.Count; ++i) {
 
-                        UnityEngine.Debug.Log(entry[i].ToString());
+                        UnityEngine.Debug.Log(entry.GetByIndex(i).ToString());
 
                     }
                     
