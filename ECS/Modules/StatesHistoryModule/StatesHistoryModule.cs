@@ -664,7 +664,7 @@ namespace ME.ECS.StatesHistory {
                     
             }
             
-            this.CleanUpHashTable(tick - 100L);
+            this.CleanUpHashTable(tick - 1000L);
             
         }
 
