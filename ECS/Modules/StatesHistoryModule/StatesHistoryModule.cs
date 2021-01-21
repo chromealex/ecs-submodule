@@ -475,6 +475,9 @@ namespace ME.ECS.StatesHistory {
 
         public void RecalculateFromResetState() {
 
+            this.statesHistory.DiscardAll();
+            this.statesHistory.Clear();
+            
             var targetTick = this.world.GetCurrentTick();
             this.HardResetTo(Tick.Zero);
             this.world.GetModule<ME.ECS.Network.NetworkModule<TState>>().Update(0f);
