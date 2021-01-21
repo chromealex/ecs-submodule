@@ -640,7 +640,7 @@ namespace ME.ECS.StatesHistory {
 
             } else {
 
-                arr = PoolArray<int>.Spawn(orderId);
+                arr = PoolArray<int>.Spawn(orderId + 1);
                 arr.arr[orderId] = hash;
                 this.syncHashTable.Add(tick, arr);
                 
