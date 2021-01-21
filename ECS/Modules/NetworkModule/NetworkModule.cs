@@ -677,7 +677,7 @@ namespace ME.ECS.Network {
                 targetTick = tick;
                 
             }
-            //UnityEngine.Debug.Log("Rollback. Oldest: " + oldestEventTick + ", sourceTick: " + sourceTick + ", targetTick: " + targetTick);
+            UnityEngine.Debug.Log("Rollback. Oldest: " + oldestEventTick + ", sourceTick: " + sourceTick + ", targetTick: " + targetTick);
 
             this.statesHistoryModule.InvalidateEntriesAfterTick(sourceTick);
 
