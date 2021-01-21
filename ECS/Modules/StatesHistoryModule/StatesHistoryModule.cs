@@ -633,7 +633,7 @@ namespace ME.ECS.StatesHistory {
 
         public void SetSyncHash(int orderId, Tick tick, int hash) {
 
-            UnityEngine.Debug.Log("SetSyncHash: " + orderId + " :: " + tick + " :: " + hash);
+            //UnityEngine.Debug.Log("SetSyncHash: " + orderId + " :: " + tick + " :: " + hash);
             Dictionary<int, int> dic;
             if (this.syncHashTable.TryGetValue(tick, out dic) == true) {
 
@@ -694,27 +694,33 @@ namespace ME.ECS.StatesHistory {
             
         }
         
-        private void CheckHash(Tick tick) {
+        private void CheckHash(Tick currentTick) {
 
-            if (this.syncHashTable.TryGetValue(tick, out var dic) == true) {
+            foreach (var sync in this.syncHashTable) {
 
-                var state = this.GetStateBeforeTick(tick, out _);
-                if (state == null) state = this.world.GetResetState<TState>();
-                var localHash = this.GetStateHash(state);
-                foreach (var kv in dic) {
+                var tick = sync.Key;
+                var dic = sync.Value;
+                if (dic.Count > 0) {
 
-                    var remoteHash = kv.Value;
-                    if (localHash != remoteHash) {
+                    var state = this.GetStateBeforeTick(tick, out _);
+                    if (state == null) state = this.world.GetResetState<TState>();
+                    var localHash = this.GetStateHash(state);
+                    foreach (var kv in dic) {
                         
-                        var orderId = kv.Key;
-                        UnityEngine.Debug.LogError(this.world.id + " Remote Hash (" + orderId + "): " + remoteHash + ", Local Hash: " + localHash);
+                        var remoteHash = kv.Value;
+                        if (localHash != remoteHash) {
+                        
+                            var orderId = kv.Key;
+                            UnityEngine.Debug.LogError(this.world.id + " Remote Hash (" + orderId + "): " + remoteHash + ", Local Hash: " + localHash);
 
+                        }
+                        
                     }
                     
                 }
 
             }
-
+            
         }
 
         public int GetStateHash(State state) {
