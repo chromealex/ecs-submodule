@@ -93,6 +93,16 @@ namespace ME.ECS.Serializer {
 
             }
 
+            public Item Fill(ITypeSerializer serializer) {
+
+                this.typeValue = serializer.GetTypeValue();
+                this.pack = serializer.Pack;
+                this.unpack = serializer.Unpack;
+                
+                return this;
+
+            }
+
         }
 
         private Dictionary<System.Type, Item> serializers;
@@ -142,12 +152,29 @@ namespace ME.ECS.Serializer {
         
         public void Add<T>(T serializer) where T : struct, ITypeSerializer {
 
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (serializer.GetTypeSerialized().IsGenericTypeDefinition) {
                 //https://github.com/mono/mono/issues/7095
                 throw new System.Exception("Using GenericTypeDefinition for Serializer Type cause crash on Mono Runtime. Do not use it.");
             }
-#endif
+            #endif
+            
+            this.Init(32);
+
+            this.serializers.Add(serializer.GetTypeSerialized(), new Item().Fill(serializer));
+            if (serializer is ITypeSerializerInherit) this.serializersBaseType.Add(serializer.GetTypeSerialized(), new Item().Fill(serializer));
+            this.serializersByTypeValue.Add(serializer.GetTypeValue(), new Item().Fill(serializer));
+
+        }
+
+        public void Add(ITypeSerializer serializer) {
+
+            #if UNITY_EDITOR
+            if (serializer.GetTypeSerialized().IsGenericTypeDefinition) {
+                //https://github.com/mono/mono/issues/7095
+                throw new System.Exception("Using GenericTypeDefinition for Serializer Type cause crash on Mono Runtime. Do not use it.");
+            }
+            #endif
             
             this.Init(32);
 
