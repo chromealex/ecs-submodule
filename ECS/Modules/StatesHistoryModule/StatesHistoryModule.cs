@@ -219,6 +219,8 @@ namespace ME.ECS.StatesHistory {
         void AddEvent(HistoryEvent historyEvent);
         void CancelEvent(HistoryEvent historyEvent);
 
+        void RecalculateFromResetState();
+
     }
 
     public interface IStatesHistoryModule<TState> : IStatesHistoryModuleBase, IModule where TState : State, new() {
@@ -471,6 +473,16 @@ namespace ME.ECS.StatesHistory {
 
         }
 
+        public void RecalculateFromResetState() {
+
+            var targetTick = this.world.GetCurrentTick();
+            this.HardResetTo(Tick.Zero);
+            this.world.GetModule<ME.ECS.Network.NetworkModule<TState>>().Update(0f);
+            this.world.simulationToTick = targetTick;
+            this.world.UpdateLogic(0f);
+
+        }
+        
         public void Reset() {
 
             this.oldestTick = Tick.Invalid;

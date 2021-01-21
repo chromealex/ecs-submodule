@@ -47,6 +47,12 @@ namespace ME.ECSEditor {
 
             }
 
+            if (UnityEngine.GUILayout.Button("Recalculate from Reset State") == true) {
+
+                this.target.RecalculateFromResetState();
+
+            }
+
             var dataStates = this.target.GetDataStates();
             var entries = dataStates.GetEntries();
             foreach (var entryData in entries) {
