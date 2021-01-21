@@ -207,7 +207,7 @@ namespace ME.ECS.StatesHistory {
 
         //void Simulate(Tick currentTick, Tick targetTick);
         
-        void SetSyncHash(Tick tick, int hash);
+        void SetSyncHash(int orderId, Tick tick, int hash);
 
         int GetEventsAddedCount();
         int GetEventsPlayedCount();
@@ -254,7 +254,7 @@ namespace ME.ECS.StatesHistory {
         //private StatesCircularQueue<TState> states;
         private ME.ECS.Network.StatesHistory<TState> statesHistory;
         private Dictionary<Tick, ME.ECS.Collections.SortedList<long, HistoryEvent>> events;
-        private Dictionary<Tick, int> syncHash;
+        private Dictionary<Tick, ME.ECS.Collections.BufferArray<int>> syncHashTable;
         //private Tick maxTick;
         private bool prewarmed;
         //private Tick beginAddEventsTick;
@@ -278,7 +278,7 @@ namespace ME.ECS.StatesHistory {
             this.statesHistory = new ME.ECS.Network.StatesHistory<TState>(this.world, this.GetQueueCapacity());
             //this.states = new StatesCircularQueue<TState>(this.GetTicksPerState(), this.GetQueueCapacity());
             this.events = PoolDictionary<Tick, ME.ECS.Collections.SortedList<long, HistoryEvent>>.Spawn(StatesHistoryModule<TState>.POOL_EVENTS_CAPACITY);
-            this.syncHash = PoolDictionary<Tick, int>.Spawn(StatesHistoryModule<TState>.POOL_SYNCHASH_CAPACITY);
+            this.syncHashTable = PoolDictionary<Tick, ME.ECS.Collections.BufferArray<int>>.Spawn(StatesHistoryModule<TState>.POOL_SYNCHASH_CAPACITY);
             PoolSortedList<int, HistoryEvent>.Prewarm(StatesHistoryModule<TState>.POOL_HISTORY_SIZE, StatesHistoryModule<TState>.POOL_HISTORY_CAPACITY);
             
             this.world.SetStatesHistoryModule(this);
@@ -314,7 +314,13 @@ namespace ME.ECS.StatesHistory {
 
             }
             PoolDictionary<Tick, ME.ECS.Collections.SortedList<long, HistoryEvent>>.Recycle(ref this.events);
-            PoolDictionary<Tick, int>.Recycle(ref this.syncHash);
+
+            foreach (var kv in this.syncHashTable) {
+                
+                PoolArray<int>.Recycle(kv.Value);
+                
+            }
+            PoolDictionary<Tick, ME.ECS.Collections.BufferArray<int>>.Recycle(ref this.syncHashTable);
 
             //this.states.Recycle();
             //this.states = null;
@@ -490,8 +496,13 @@ namespace ME.ECS.StatesHistory {
 
             this.oldestTick = Tick.Invalid;
             this.lastSavedStateTick = Tick.Invalid;
-            
-            this.syncHash.Clear();
+
+            foreach (var item in this.syncHashTable) {
+                
+                PoolArray<int>.Recycle(item.Value);
+                
+            }
+            this.syncHashTable.Clear();
             this.statesHistory.DiscardAll();
             this.statesHistory.Clear();
             
@@ -620,32 +631,67 @@ namespace ME.ECS.StatesHistory {
 
         }*/
 
-        public void SetSyncHash(Tick tick, int hash) {
+        public void SetSyncHash(int orderId, Tick tick, int hash) {
 
-            if (this.syncHash.ContainsKey(tick) == false) {
+            if (this.syncHashTable.TryGetValue(tick, out var arr) == true) {
 
-                this.syncHash.Add(tick, hash);
+                ArrayUtils.Resize(orderId, ref arr);
+                arr.arr[orderId] = hash;
 
             } else {
 
-                this.syncHash[tick] = hash;
+                arr = PoolArray<int>.Spawn(orderId);
+                arr.arr[orderId] = hash;
+                this.syncHashTable.Add(tick, arr);
+                
+            }
+            
+            this.CleanUpHashTable(tick - 100L);
+            
+        }
 
+        private void CleanUpHashTable(Tick beforeTick) {
+
+            var list = PoolList<Tick>.Spawn(this.syncHashTable.Count);
+            foreach (var kv in this.syncHashTable) {
+
+                if (kv.Key <= beforeTick) {
+                    
+                    list.Add(kv.Key);
+                    
+                }
+                
             }
 
+            for (int i = 0; i < list.Count; ++i) {
+
+                var key = list[i];
+                var arr = this.syncHashTable[key];
+                PoolArray<int>.Recycle(arr);
+                this.syncHashTable.Remove(key);
+
+            }
+            
+            PoolList<Tick>.Recycle(ref list);
+            
         }
         
         private void CheckHash(Tick tick) {
 
-            int hash;
-            if (this.syncHash.TryGetValue(tick, out hash) == true) {
+            if (this.syncHashTable.TryGetValue(tick, out var arr) == true) {
 
                 var state = this.GetStateBeforeTick(tick, out _);
                 if (state == null) state = this.world.GetResetState<TState>();
                 var localHash = this.GetStateHash(state);
-                if (localHash != hash) {
+                for (int i = 0; i < arr.Length; ++i) {
 
-                    UnityEngine.Debug.LogError(this.world.id + " Remote Hash: " + hash + ", Local Hash: " + localHash);
+                    var remoteHash = arr.arr[i];
+                    if (localHash != remoteHash) {
+                        
+                        UnityEngine.Debug.LogError(this.world.id + " Remote Hash (" + i + "): " + remoteHash + ", Local Hash: " + localHash);
 
+                    }
+                    
                 }
 
             }
@@ -654,7 +700,7 @@ namespace ME.ECS.StatesHistory {
 
         public int GetStateHash(State state) {
 
-            return state.entityId ^ (int)state.tick ^ state.GetHash();
+            return state.GetHash();
 
         }
 

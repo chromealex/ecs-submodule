@@ -199,7 +199,7 @@ namespace ME.ECS.Network {
 
         private void Sync_RPC(Tick tick, int hash) {
 
-            this.statesHistoryModule.SetSyncHash(tick, hash);
+            this.statesHistoryModule.SetSyncHash(this.GetCurrentHistoryEvent().order, tick, hash);
             
         }
 
@@ -505,7 +505,7 @@ namespace ME.ECS.Network {
 
         }
         
-        private Tick runEventTick;
+        private ME.ECS.StatesHistory.HistoryEvent runCurrentEvent;
         void StatesHistory.IEventRunner.RunEvent(StatesHistory.HistoryEvent historyEvent) {
             
             System.Reflection.MethodInfo methodInfo;
@@ -514,13 +514,19 @@ namespace ME.ECS.Network {
                 var key = MathUtils.GetKey(historyEvent.groupId, historyEvent.objId);
                 if (this.keyToObjects.TryGetValue(key, out var instance) == true) {
 
-                    this.runEventTick = historyEvent.tick;
+                    this.runCurrentEvent = historyEvent;
                     methodInfo.Invoke(instance, historyEvent.parameters);
-                    this.runEventTick = 0UL;
+                    this.runCurrentEvent = default;
 
                 }
 
             }
+
+        }
+
+        public ME.ECS.StatesHistory.HistoryEvent GetCurrentHistoryEvent() {
+
+            return this.runCurrentEvent;
 
         }
 

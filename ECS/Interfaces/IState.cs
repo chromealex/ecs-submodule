@@ -30,7 +30,7 @@ namespace ME.ECS {
         /// <returns></returns>
         public virtual int GetHash() {
 
-            return this.components.GetHash() ^ this.structComponents.Count ^ this.randomState.GetHashCode() ^ this.storage.GetHashCode();//^ this.structComponents.GetCustomHash();
+            return this.entityId ^ this.tick ^ this.components.GetHash() ^ this.structComponents.Count ^ this.randomState.GetHashCode() ^ this.storage.GetHashCode();//^ this.structComponents.GetCustomHash();
 
         }
 
