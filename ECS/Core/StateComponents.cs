@@ -223,7 +223,7 @@ namespace ME.ECS {
             bucket.includeInHash = Components.IsTypeInHash<TComponent>();
             ArrayUtils.Resize(entityId, ref bucket.components);
 
-            if (bucket.components.arr[entityId] == null) bucket.components.arr[entityId] = PoolList<IComponent>.Spawn(1);
+            if (bucket.components.arr[entityId] == null) bucket.components.arr[entityId] = PoolListCopyable<IComponent>.Spawn(1);
             bucket.components.arr[entityId].Add(data);
             
         }
@@ -315,7 +315,7 @@ namespace ME.ECS {
                         if (list != null) {
 
                             PoolComponents.Recycle(list);
-                            PoolList<IComponent>.Recycle(ref list);
+                            PoolListCopyable<IComponent>.Recycle(ref list);
                             bucket.components.arr[j] = null;
 
                         }

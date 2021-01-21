@@ -353,7 +353,7 @@ namespace ME.ECS.StatesHistory {
         /// <returns></returns>
         HistoryStorage IStatesHistoryModuleBase.GetHistoryStorage(Tick from, Tick to) {
 
-            var list = PoolList<HistoryEvent>.Spawn(100);
+            var list = PoolListCopyable<HistoryEvent>.Spawn(100);
             foreach (var data in this.events) {
 
                 var tick = data.Key;
@@ -380,7 +380,7 @@ namespace ME.ECS.StatesHistory {
 
             var storage = new HistoryStorage();
             storage.events = list.ToArray();
-            PoolList<HistoryEvent>.Recycle(ref list);
+            PoolListCopyable<HistoryEvent>.Recycle(ref list);
             return storage;
 
         }

@@ -37,7 +37,7 @@ namespace ME.ECS.Pathfinding {
                     var item = this.items[i];
                     if (item.requiredTile == tile) {
 
-                        var result = PoolList<Node>.Spawn(1);
+                        var result = PoolListCopyable<Node>.Spawn(1);
                         graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize * 0.5f));
                         foreach (var node in result) {
 
@@ -52,7 +52,7 @@ namespace ME.ECS.Pathfinding {
                             }
 
                         }
-                        PoolList<Node>.Recycle(ref result);
+                        PoolListCopyable<Node>.Recycle(ref result);
 
                     } 
 
@@ -80,7 +80,7 @@ namespace ME.ECS.Pathfinding {
                     
                     if (item.requiredTile == tile) {
 
-                        var result = PoolList<Node>.Spawn(1);
+                        var result = PoolListCopyable<Node>.Spawn(1);
                         graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize * 0.5f));
                         foreach (var node in result) {
 
@@ -92,7 +92,7 @@ namespace ME.ECS.Pathfinding {
                             }
 
                         }
-                        PoolList<Node>.Recycle(ref result);
+                        PoolListCopyable<Node>.Recycle(ref result);
 
                     } 
 

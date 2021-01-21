@@ -1,8 +1,6 @@
 {
-    "name": "MEECSSerializer",
-    "references": [
-        "GUID:948ed582966c54c1988774d66ffc3446"
-    ],
+    "name": "ME.Pools",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

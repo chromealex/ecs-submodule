@@ -41,7 +41,7 @@ namespace ME.ECS {
 
                 }
 
-                PoolList<T>.Recycle(ref item);
+                PoolListCopyable<T>.Recycle(ref item);
 
             }
 
@@ -84,7 +84,7 @@ namespace ME.ECS {
             if (arr == null || fromArr.Count != arr.Count) {
 
                 if (arr != null) PoolList<T>.Recycle(ref arr);
-                arr = PoolList<T>.SpawnList(fromArr.Count);
+                arr = PoolList<T>.Spawn(fromArr.Count);
 
             }
 
@@ -115,7 +115,7 @@ namespace ME.ECS {
 
                 if (arr != null) {
                     
-                    PoolList<T>.Recycle(ref arr);
+                    PoolListCopyable<T>.Recycle(ref arr);
                     
                 }
 
@@ -126,7 +126,7 @@ namespace ME.ECS {
 
             if (arr == null) {
 
-                arr = PoolList<T>.Spawn(fromArr.Count);
+                arr = PoolListCopyable<T>.Spawn(fromArr.Count);
 
             }
             
@@ -266,7 +266,7 @@ namespace ME.ECS {
                         copy.Recycle(arr[i]);
                         
                     }
-                    PoolList<T>.Recycle(ref arr);
+                    PoolListCopyable<T>.Recycle(ref arr);
                     
                 }
 
@@ -277,8 +277,8 @@ namespace ME.ECS {
 
             if (arr == null || fromArr.Count != arr.Count) {
 
-                if (arr != null) PoolList<T>.Recycle(ref arr);
-                arr = PoolList<T>.Spawn(fromArr.Count);
+                if (arr != null) PoolListCopyable<T>.Recycle(ref arr);
+                arr = PoolListCopyable<T>.Spawn(fromArr.Count);
 
             }
 

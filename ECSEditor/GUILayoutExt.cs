@@ -205,7 +205,7 @@ namespace ME.ECSEditor {
                 var worldEditor = new WorldsViewerEditor.WorldEditor();
                 worldEditor.world = Worlds.currentWorld;
                 
-                var allEntities = PoolList<Entity>.Spawn(worldEditor.world.GetState().storage.AliveCount);
+                var allEntities = PoolListCopyable<Entity>.Spawn(worldEditor.world.GetState().storage.AliveCount);
                 if (worldEditor.world.ForEachEntity(allEntities) == true) {
 
 	                for (int i = 0; i < allEntities.Count; ++i) {
@@ -222,7 +222,7 @@ namespace ME.ECSEditor {
 	                }
 
                 }
-                PoolList<Entity>.Recycle(ref allEntities);
+                PoolListCopyable<Entity>.Recycle(ref allEntities);
 
                 popup.Show();
 

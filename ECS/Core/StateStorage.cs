@@ -91,9 +91,9 @@ namespace ME.ECS {
         public void Initialize(int capacity) {
             
             this.generations = PoolArray<ushort>.Spawn(capacity);
-            this.alive = PoolList<int>.Spawn(capacity);
-            this.dead = PoolList<int>.Spawn(capacity);
-            this.deadPrepared = PoolList<int>.Spawn(capacity);
+            this.alive = PoolListCopyable<int>.Spawn(capacity);
+            this.dead = PoolListCopyable<int>.Spawn(capacity);
+            this.deadPrepared = PoolListCopyable<int>.Spawn(capacity);
             this.aliveCount = 0;
             this.entityId = -1;
             this.archetypes = PoolClass<ArchetypeEntities>.Spawn();
@@ -104,9 +104,9 @@ namespace ME.ECS {
         void IPoolableRecycle.OnRecycle() {
 
             PoolArray<ushort>.Recycle(ref this.generations);
-            PoolList<int>.Recycle(ref this.alive);
-            PoolList<int>.Recycle(ref this.dead);
-            PoolList<int>.Recycle(ref this.deadPrepared);
+            PoolListCopyable<int>.Recycle(ref this.alive);
+            PoolListCopyable<int>.Recycle(ref this.dead);
+            PoolListCopyable<int>.Recycle(ref this.deadPrepared);
             this.aliveCount = 0;
             this.entityId = -1;
             PoolClass<ArchetypeEntities>.Recycle(ref this.archetypes);

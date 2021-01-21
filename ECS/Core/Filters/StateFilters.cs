@@ -730,7 +730,7 @@ namespace ME.ECS {
 
         public void Update() {
             
-            var list = PoolList<Entity>.Spawn(FilterData.ENTITIES_CAPACITY);
+            var list = PoolListCopyable<Entity>.Spawn(FilterData.ENTITIES_CAPACITY);
             if (this.world.ForEachEntity(list) == true) {
 
                 for (int i = 0; i < list.Count; ++i) {
@@ -740,7 +740,7 @@ namespace ME.ECS {
                 }
 
             }
-            PoolList<Entity>.Recycle(ref list);
+            PoolListCopyable<Entity>.Recycle(ref list);
 
         }
 
@@ -866,8 +866,8 @@ namespace ME.ECS {
             this.requests = PoolCCList<Entity>.Spawn();
             this.requestsRemoveEntity = PoolCCList<Entity>.Spawn();
             #else
-            this.requests = PoolList<Entity>.Spawn(FilterData.REQUESTS_CAPACITY);
-            this.requestsRemoveEntity = PoolList<Entity>.Spawn(FilterData.REQUESTS_CAPACITY);
+            this.requests = PoolListCopyable<Entity>.Spawn(FilterData.REQUESTS_CAPACITY);
+            this.requestsRemoveEntity = PoolListCopyable<Entity>.Spawn(FilterData.REQUESTS_CAPACITY);
             #endif
             this.nodes = PoolArray<IFilterNode>.Spawn(FilterData.NODES_CAPACITY);
             this.data = PoolArray<Entity>.Spawn(FilterData.ENTITIES_CAPACITY);
@@ -907,8 +907,8 @@ namespace ME.ECS {
             PoolCCList<Entity>.Recycle(ref this.requestsRemoveEntity);
             PoolCCList<Entity>.Recycle(ref this.requests);
             #else
-            PoolList<Entity>.Recycle(ref this.requests);
-            PoolList<Entity>.Recycle(ref this.requestsRemoveEntity);
+            PoolListCopyable<Entity>.Recycle(ref this.requests);
+            PoolListCopyable<Entity>.Recycle(ref this.requestsRemoveEntity);
             #endif
 
             this.min = int.MaxValue;

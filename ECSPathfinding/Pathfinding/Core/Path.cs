@@ -24,8 +24,8 @@ namespace ME.ECS.Pathfinding {
 
         public void Recycle() {
             
-            if (this.nodes != null) PoolList<Node>.Recycle(ref this.nodes);
-            if (this.nodesModified != null) PoolList<Node>.Recycle(ref this.nodesModified);
+            if (this.nodes != null) PoolListCopyable<Node>.Recycle(ref this.nodes);
+            if (this.nodesModified != null) PoolListCopyable<Node>.Recycle(ref this.nodesModified);
             
         }
 

@@ -245,7 +245,7 @@ namespace ME.ECS {
             statesHistory.EndAddEvents();
             
             // Update logic
-            var list = PoolList<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
+            var list = PoolListCopyable<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
             if (this.ForEachEntity(list) == true) {
 
                 for (int i = 0; i < list.Count; ++i) {
@@ -258,7 +258,7 @@ namespace ME.ECS {
                 }
 
             }
-            PoolList<Entity>.Recycle(ref list);
+            PoolListCopyable<Entity>.Recycle(ref list);
 
             this.SetFromToTicks(data.state.tick, data.tick);
             this.UpdateLogic(0f);
@@ -360,12 +360,12 @@ namespace ME.ECS {
             this.timeSinceStart = default;
             this.entitiesCapacity = default;
             
-            this.features = PoolList<IFeatureBase>.Spawn(World.FEATURES_CAPACITY);
+            this.features = PoolListCopyable<IFeatureBase>.Spawn(World.FEATURES_CAPACITY);
             //this.systems = PoolList<ISystemBase>.Spawn(World.SYSTEMS_CAPACITY);
-            this.modules = PoolList<IModuleBase>.Spawn(World.MODULES_CAPACITY);
-            this.statesFeatures = PoolList<ModuleState>.Spawn(World.FEATURES_CAPACITY);
+            this.modules = PoolListCopyable<IModuleBase>.Spawn(World.MODULES_CAPACITY);
+            this.statesFeatures = PoolListCopyable<ModuleState>.Spawn(World.FEATURES_CAPACITY);
             //this.statesSystems = PoolList<ModuleState>.Spawn(World.SYSTEMS_CAPACITY);
-            this.statesModules = PoolList<ModuleState>.Spawn(World.MODULES_CAPACITY);
+            this.statesModules = PoolListCopyable<ModuleState>.Spawn(World.MODULES_CAPACITY);
             this.systemGroups = PoolArray<SystemGroup>.Spawn(World.FEATURES_CAPACITY);
             this.systemGroupsLength = 0;
             
@@ -393,7 +393,7 @@ namespace ME.ECS {
         
         void IPoolableRecycle.OnRecycle() {
             
-            var list = PoolList<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
+            var list = PoolListCopyable<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
             if (this.ForEachEntity(list) == true) {
 
                 for (int i = 0; i < list.Count; ++i) {
@@ -404,7 +404,7 @@ namespace ME.ECS {
                 }
 
             }
-            PoolList<Entity>.Recycle(ref list);
+            PoolListCopyable<Entity>.Recycle(ref list);
             this.GetState().storage.ApplyDead();
 
             PoolArray<bool>.Recycle(ref this.currentSystemContextFiltersUsed);
@@ -421,7 +421,7 @@ namespace ME.ECS {
             
             PoolArray<bool>.Recycle(ref FiltersDirectCache.dic.arr[this.id]);
             
-            PoolList<IFeatureBase>.Recycle(ref this.features);
+            PoolListCopyable<IFeatureBase>.Recycle(ref this.features);
 
             for (int i = 0; i < this.systemGroupsLength; ++i) {
 
@@ -436,10 +436,10 @@ namespace ME.ECS {
                 PoolModules.Recycle(this.modules[i]);
 
             }
-            PoolList<IModuleBase>.Recycle(ref this.modules);
+            PoolListCopyable<IModuleBase>.Recycle(ref this.modules);
             
-            PoolList<ModuleState>.Recycle(ref this.statesModules);
-            PoolList<ModuleState>.Recycle(ref this.statesFeatures);
+            PoolListCopyable<ModuleState>.Recycle(ref this.statesModules);
+            PoolListCopyable<ModuleState>.Recycle(ref this.statesFeatures);
             
             //PoolInternalBaseNoStackPool.Clear();
             //PoolInternalBase.Clear();
@@ -987,7 +987,7 @@ namespace ME.ECS {
             
             if (this.entitiesCapacity > 0) filterRef.SetEntityCapacity(this.entitiesCapacity);
             
-            var list = PoolList<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
+            var list = PoolListCopyable<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
             if (this.ForEachEntity(list) == true) {
 
                 for (int i = 0; i < list.Count; ++i) {
@@ -999,7 +999,7 @@ namespace ME.ECS {
                 }
 
             }
-            PoolList<Entity>.Recycle(ref list);
+            PoolListCopyable<Entity>.Recycle(ref list);
             
         }
 
@@ -1107,7 +1107,7 @@ namespace ME.ECS {
                 this.BeginRestoreEntities();
                 
                 // Update entities cache
-                var list = PoolList<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
+                var list = PoolListCopyable<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
                 if (this.ForEachEntity(list) == true) {
 
                     for (int i = 0; i < list.Count; ++i) {
@@ -1119,7 +1119,7 @@ namespace ME.ECS {
                     }
 
                 }
-                PoolList<Entity>.Recycle(ref list);
+                PoolListCopyable<Entity>.Recycle(ref list);
                 
                 this.EndRestoreEntities();
 
@@ -2156,16 +2156,16 @@ namespace ME.ECS {
 
             }
 
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.BeginSample($"Tick [{from}..{to}]");
-            #endif
-            
             var state = this.GetState();
 
             //UnityEngine.Debug.Log("Simulate " + from + " to " + to);
             this.cpf = to - from;
             var fixedDeltaTime = this.GetTickTime();
             for (state.tick = from; state.tick < to; ++state.tick) {
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample(from.ToString());
+                #endif
 
                 ////////////////
                 this.currentStep |= WorldStep.ModulesLogicTick;
@@ -2191,7 +2191,7 @@ namespace ME.ECS {
                             if (this.modules[i] is IAdvanceTick moduleBase) {
 
                                 #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [{moduleBase}]");
+                                UnityEngine.Profiling.Profiler.BeginSample(moduleBase.ToString());
                                 #endif
 
                                 moduleBase.AdvanceTick(in fixedDeltaTime);
@@ -2233,7 +2233,7 @@ namespace ME.ECS {
                     #endif
 
                     #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.BeginSample($"PlayPluginsForTick[{state.tick}]");
+                    UnityEngine.Profiling.Profiler.BeginSample($"PlayPluginsForTick");
                     #endif
 
                     this.PlayPluginsForTick(state.tick);
@@ -2338,7 +2338,7 @@ namespace ME.ECS {
                                 #endif
 
                                 #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.BeginSample($"PrepareAdvanceTickForSystem [{system}]");
+                                UnityEngine.Profiling.Profiler.BeginSample($"PrepareAdvanceTickForSystem");
                                 #endif
 
                                 this.PrepareAdvanceTickForSystem(system);
@@ -2348,7 +2348,7 @@ namespace ME.ECS {
                                 #endif
 
                                 #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.BeginSample($"AdvanceTick [{system}]");
+                                UnityEngine.Profiling.Profiler.BeginSample(system.ToString());
                                 #endif
 
                                 {
@@ -2425,7 +2425,7 @@ namespace ME.ECS {
                                 #endif
 
                                 #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.BeginSample($"PostAdvanceTickForSystem [{system}]");
+                                UnityEngine.Profiling.Profiler.BeginSample($"PostAdvanceTickForSystem");
                                 #endif
 
                                 this.PostAdvanceTickForSystem();
@@ -2441,7 +2441,7 @@ namespace ME.ECS {
                             } else if (systemBase is IAdvanceTick advanceTickSystem){
                                 
                                 #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.BeginSample($"PrepareAdvanceTickForSystem [{advanceTickSystem}]");
+                                UnityEngine.Profiling.Profiler.BeginSample($"PrepareAdvanceTickForSystem");
                                 #endif
 
                                 this.PrepareAdvanceTickForSystem(advanceTickSystem);
@@ -2455,7 +2455,7 @@ namespace ME.ECS {
                                 #endif
 
                                 #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.BeginSample($"AdvanceTick [{advanceTickSystem}]");
+                                UnityEngine.Profiling.Profiler.BeginSample($"AdvanceTick");
                                 #endif
 
                                 advanceTickSystem.AdvanceTick(fixedDeltaTime);
@@ -2465,7 +2465,7 @@ namespace ME.ECS {
                                 #endif
 
                                 #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.BeginSample($"PostAdvanceTickForSystem [{advanceTickSystem}]");
+                                UnityEngine.Profiling.Profiler.BeginSample($"PostAdvanceTickForSystem");
                                 #endif
 
                                 this.PostAdvanceTickForSystem();
@@ -2514,7 +2514,7 @@ namespace ME.ECS {
                             #endif
 
                             #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.BeginSample($"AdvanceTickPost [{system}]");
+                            UnityEngine.Profiling.Profiler.BeginSample(system.ToString());
                             #endif
 
                             system.AdvanceTickPost(fixedDeltaTime);
@@ -2578,6 +2578,10 @@ namespace ME.ECS {
                 UnityEngine.Profiling.Profiler.EndSample();
                 #endif
 
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
+
             }
             
             ////////////////
@@ -2609,7 +2613,7 @@ namespace ME.ECS {
             ////////////////
 
             #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.BeginSample($"UseLifetimeStep NotifyAllSystemsBelow");
+            UnityEngine.Profiling.Profiler.BeginSample($"UseLifetimeStep NotifyAllModulesBelow");
             #endif
 
             this.UseLifetimeStep(ComponentLifetime.NotifyAllModulesBelow);
@@ -2618,10 +2622,6 @@ namespace ME.ECS {
             UnityEngine.Profiling.Profiler.EndSample();
             #endif
 
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.EndSample();
-            #endif
-            
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

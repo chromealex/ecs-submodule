@@ -842,13 +842,13 @@ namespace ME.ECSEditor {
                         var foldout = world.IsFoldOut(storage);
                         GUILayoutExt.FoldOut(ref foldout, GUILayoutExt.GetTypeLabel(storage.GetType()), () => {
                             
-                            var elements = PoolList<Entity>.Spawn(storage.AliveCount);
-                            var elementsIdx = PoolList<int>.Spawn(storage.AliveCount);
-                            var paramsList = PoolList<string>.Spawn(4);
+                            var elements = PoolListCopyable<Entity>.Spawn(storage.AliveCount);
+                            var elementsIdx = PoolListCopyable<int>.Spawn(storage.AliveCount);
+                            var paramsList = PoolListCopyable<string>.Spawn(4);
                             var search = world.GetSearch(storage);
                             var searchList = search.Split(new [] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
                             
-                            var allEntities = PoolList<Entity>.Spawn(storage.AliveCount);
+                            var allEntities = PoolListCopyable<Entity>.Spawn(storage.AliveCount);
                             if (storage.ForEach(allEntities) == true) {
 
                                 for (int i = 0; i < allEntities.Count; ++i) {
@@ -899,8 +899,8 @@ namespace ME.ECSEditor {
                                 }
 
                             }
-                            PoolList<Entity>.Recycle(ref allEntities);
-                            PoolList<string>.Recycle(ref paramsList);
+                            PoolListCopyable<Entity>.Recycle(ref allEntities);
+                            PoolListCopyable<string>.Recycle(ref paramsList);
 
                             var elementsOnPage = world.GetOnPageCount(storage);
                             world.SetPage(storage, GUILayoutExt.Pages(elements.Count, world.GetPage(storage), elementsOnPage, (from, to) => {
@@ -940,8 +940,8 @@ namespace ME.ECSEditor {
                                           ));
                             
 
-                            PoolList<Entity>.Recycle(ref elements);
-                            PoolList<int>.Recycle(ref elementsIdx);
+                            PoolListCopyable<Entity>.Recycle(ref elements);
+                            PoolListCopyable<int>.Recycle(ref elementsIdx);
                             
                         });
                         world.SetFoldOut(storage, foldout);
@@ -1149,7 +1149,7 @@ namespace ME.ECSEditor {
                         #region Filters
                         {
                             var filtersCnt = 0;
-                            var containsFilters = PoolList<FilterData>.Spawn(1);
+                            var containsFilters = PoolListCopyable<FilterData>.Spawn(1);
                             var filters = world.GetFilters();
                             for (int i = 0; i < filters.filters.Length; ++i) {
 
@@ -1177,7 +1177,7 @@ namespace ME.ECSEditor {
                             });
                             world.SetFoldOutFilters(storage, entityData.id, foldoutFilters);
                             
-                            PoolList<FilterData>.Recycle(ref containsFilters);
+                            PoolListCopyable<FilterData>.Recycle(ref containsFilters);
                         }
                         
                         var cnt = 0;
@@ -1222,8 +1222,8 @@ namespace ME.ECSEditor {
                         if (cnt > 0) {
 
                             #if VIEWS_MODULE_SUPPORT
-                            var activeViews = PoolList<ME.ECS.Views.IView>.Spawn(1);
-                            var activeViewProviders = PoolList<ME.ECS.Views.IViewModuleBase>.Spawn(1);
+                            var activeViews = PoolListCopyable<ME.ECS.Views.IView>.Spawn(1);
+                            var activeViewProviders = PoolListCopyable<ME.ECS.Views.IViewModuleBase>.Spawn(1);
                             var viewsModules = modules.OfType<ME.ECS.Views.IViewModuleBase>().ToArray();
                             foreach (var viewsModule in viewsModules) {
 
@@ -1284,8 +1284,8 @@ namespace ME.ECSEditor {
 
                             }
 
-                            PoolList<ME.ECS.Views.IView>.Recycle(ref activeViews);
-                            PoolList<ME.ECS.Views.IViewModuleBase>.Recycle(ref activeViewProviders);
+                            PoolListCopyable<ME.ECS.Views.IView>.Recycle(ref activeViews);
+                            PoolListCopyable<ME.ECS.Views.IViewModuleBase>.Recycle(ref activeViewProviders);
                             #endif
 
                         }

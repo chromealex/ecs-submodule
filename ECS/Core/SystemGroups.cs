@@ -122,36 +122,36 @@
         public void Add(ISystemBase system, RuntimeSystemFlag state = RuntimeSystemFlag.All) {
 
             {
-                if (this.allSystems == null) this.allSystems = PoolList<ISystemBase>.Spawn(4);
+                if (this.allSystems == null) this.allSystems = PoolListCopyable<ISystemBase>.Spawn(4);
                 this.allSystems.Add(system);
             }
             {
                 if ((state & RuntimeSystemFlag.Visual) != 0 && system is IUpdate systemTyped) {
-                    if (this.systemUpdates == null) this.systemUpdates = PoolList<IUpdate>.Spawn(4);
+                    if (this.systemUpdates == null) this.systemUpdates = PoolListCopyable<IUpdate>.Spawn(4);
                     this.systemUpdates.Add(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is ILoadableSystem systemTyped) {
-                    if (this.systemLoadable == null) this.systemLoadable = PoolList<ILoadableSystem>.Spawn(4);
+                    if (this.systemLoadable == null) this.systemLoadable = PoolListCopyable<ILoadableSystem>.Spawn(4);
                     this.systemLoadable.Add(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is IAdvanceTickBase systemTyped) {
-                    if (this.systemAdvanceTick == null) this.systemAdvanceTick = PoolList<IAdvanceTickBase>.Spawn(4);
+                    if (this.systemAdvanceTick == null) this.systemAdvanceTick = PoolListCopyable<IAdvanceTickBase>.Spawn(4);
                     this.systemAdvanceTick.Add(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is IAdvanceTickPre systemTyped) {
-                    if (this.systemAdvanceTickPre == null) this.systemAdvanceTickPre = PoolList<IAdvanceTickPre>.Spawn(4);
+                    if (this.systemAdvanceTickPre == null) this.systemAdvanceTickPre = PoolListCopyable<IAdvanceTickPre>.Spawn(4);
                     this.systemAdvanceTickPre.Add(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is IAdvanceTickPost systemTyped) {
-                    if (this.systemAdvanceTickPost == null) this.systemAdvanceTickPost = PoolList<IAdvanceTickPost>.Spawn(4);
+                    if (this.systemAdvanceTickPost == null) this.systemAdvanceTickPost = PoolListCopyable<IAdvanceTickPost>.Spawn(4);
                     this.systemAdvanceTickPost.Add(systemTyped);
                 }
             }
@@ -162,36 +162,36 @@
             
             var hasAny = false;
             {
-                if (this.allSystems == null) this.allSystems = PoolList<ISystemBase>.Spawn(4);
+                if (this.allSystems == null) this.allSystems = PoolListCopyable<ISystemBase>.Spawn(4);
                 hasAny = this.allSystems.Remove(system);
             }
             {
                 if ((state & RuntimeSystemFlag.Visual) != 0 && system is IUpdate systemTyped) {
-                    if (this.systemUpdates == null) this.systemUpdates = PoolList<IUpdate>.Spawn(4);
+                    if (this.systemUpdates == null) this.systemUpdates = PoolListCopyable<IUpdate>.Spawn(4);
                     this.systemUpdates.Remove(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is ILoadableSystem systemTyped) {
-                    if (this.systemLoadable == null) this.systemLoadable = PoolList<ILoadableSystem>.Spawn(4);
+                    if (this.systemLoadable == null) this.systemLoadable = PoolListCopyable<ILoadableSystem>.Spawn(4);
                     this.systemLoadable.Remove(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is IAdvanceTickBase systemTyped) {
-                    if (this.systemAdvanceTick == null) this.systemAdvanceTick = PoolList<IAdvanceTickBase>.Spawn(4);
+                    if (this.systemAdvanceTick == null) this.systemAdvanceTick = PoolListCopyable<IAdvanceTickBase>.Spawn(4);
                     this.systemAdvanceTick.Remove(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is IAdvanceTickPre systemTyped) {
-                    if (this.systemAdvanceTickPre == null) this.systemAdvanceTickPre = PoolList<IAdvanceTickPre>.Spawn(4);
+                    if (this.systemAdvanceTickPre == null) this.systemAdvanceTickPre = PoolListCopyable<IAdvanceTickPre>.Spawn(4);
                     this.systemAdvanceTickPre.Remove(systemTyped);
                 }
             }
             {
                 if ((state & RuntimeSystemFlag.Logic) != 0 && system is IAdvanceTickPost systemTyped) {
-                    if (this.systemAdvanceTickPost == null) this.systemAdvanceTickPost = PoolList<IAdvanceTickPost>.Spawn(4);
+                    if (this.systemAdvanceTickPost == null) this.systemAdvanceTickPost = PoolListCopyable<IAdvanceTickPost>.Spawn(4);
                     this.systemAdvanceTickPost.Remove(systemTyped);
                 }
             }
@@ -222,12 +222,12 @@
                 }
             }
             
-            if (this.allSystems != null) PoolList<ISystemBase>.Recycle(ref this.allSystems);
-            if (this.systemUpdates != null) PoolList<IUpdate>.Recycle(ref this.systemUpdates);
-            if (this.systemLoadable != null) PoolList<ILoadableSystem>.Recycle(ref this.systemLoadable);
-            if (this.systemAdvanceTick != null) PoolList<IAdvanceTickBase>.Recycle(ref this.systemAdvanceTick);
-            if (this.systemAdvanceTickPre != null) PoolList<IAdvanceTickPre>.Recycle(ref this.systemAdvanceTickPre);
-            if (this.systemAdvanceTickPost != null) PoolList<IAdvanceTickPost>.Recycle(ref this.systemAdvanceTickPost);
+            if (this.allSystems != null) PoolListCopyable<ISystemBase>.Recycle(ref this.allSystems);
+            if (this.systemUpdates != null) PoolListCopyable<IUpdate>.Recycle(ref this.systemUpdates);
+            if (this.systemLoadable != null) PoolListCopyable<ILoadableSystem>.Recycle(ref this.systemLoadable);
+            if (this.systemAdvanceTick != null) PoolListCopyable<IAdvanceTickBase>.Recycle(ref this.systemAdvanceTick);
+            if (this.systemAdvanceTickPre != null) PoolListCopyable<IAdvanceTickPre>.Recycle(ref this.systemAdvanceTickPre);
+            if (this.systemAdvanceTickPost != null) PoolListCopyable<IAdvanceTickPost>.Recycle(ref this.systemAdvanceTickPost);
 
         }
 

@@ -14,8 +14,7 @@ namespace ME.ECS.Serializer {
 
             var arr = (IList)obj;
             var type = arr.GetType();
-            var int32 = new Int32Serializer();
-            int32.Pack(packer, arr.Count);
+            Int32Serializer.PackDirect(packer, arr.Count);
 
             if (type.IsArray == true) {
 
@@ -30,15 +29,15 @@ namespace ME.ECS.Serializer {
                     
                 }
 
-                int32.Pack(packer, packer.GetMetaTypeId(type.GetElementType()));
+                Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(type.GetElementType()));
 
                 if (rank > 1) {
 
-                    int32.Pack(packer, rank);
+                    Int32Serializer.PackDirect(packer, rank);
                     var arrData = (System.Array)arr;
                     
                     for (int j = 0; j < rank; ++j) {
-                        int32.Pack(packer, arrData.GetLength(j));
+                        Int32Serializer.PackDirect(packer, arrData.GetLength(j));
                     }
 
                     void WrapDimension(int[] ids, int currentDimension) {
@@ -67,8 +66,8 @@ namespace ME.ECS.Serializer {
             } else {
 
                 packer.WriteByte(0);
-                int32.Pack(packer, packer.GetMetaTypeId(arr.GetType().GenericTypeArguments[0]));
-                int32.Pack(packer, packer.GetMetaTypeId(arr.GetType().GetGenericTypeDefinition()));
+                Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(arr.GetType().GenericTypeArguments[0]));
+                Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(arr.GetType().GetGenericTypeDefinition()));
 
                 for (int i = 0; i < arr.Count; ++i) {
 
@@ -82,20 +81,19 @@ namespace ME.ECS.Serializer {
 
         public object Unpack(Packer packer) {
 
-            var int32   = new Int32Serializer();
-            var length  = (int)int32.Unpack(packer);
+            var length  = Int32Serializer.UnpackDirect(packer);
             var isArray = packer.ReadByte();
-            var typeId  = (int)int32.Unpack(packer);
+            var typeId  = Int32Serializer.UnpackDirect(packer);
             var typeIn  = packer.GetMetaType(typeId);
 
             IList arr = null;
             if (isArray == 2) {
                 
-                var rank = (int)int32.Unpack(packer);
+                var rank = Int32Serializer.UnpackDirect(packer);
                 if (rank > 1) {
                     var lengthArray = new int[rank];
                     for (int j = 0; j < rank; ++j) {
-                        lengthArray[j] = (int)int32.Unpack(packer);
+                        lengthArray[j] = Int32Serializer.UnpackDirect(packer);
                     }
                     
                     var arrData = System.Array.CreateInstance(typeIn, lengthArray);
@@ -127,7 +125,7 @@ namespace ME.ECS.Serializer {
 
             } else {
 
-                var type  = packer.GetMetaType((int)int32.Unpack(packer));
+                var type  = packer.GetMetaType(Int32Serializer.UnpackDirect(packer));
                 var t    = type.MakeGenericType(typeIn);
 
                 arr = (IList)System.Activator.CreateInstance(t);
@@ -246,32 +244,31 @@ namespace ME.ECS.Serializer {
             return typeof(byte[]);
         }
 
+        public static void PackDirect(Packer packer, byte[] arr) {
+            
+            Int32Serializer.PackDirect(packer, arr.Length);
+            packer.WriteBytes(arr);
+
+        }
+
+        public static byte[] UnpackDirect(Packer packer) {
+            
+            var length = Int32Serializer.UnpackDirect(packer);
+            var arr = new byte[length];
+            packer.ReadBytes(arr);
+            return arr;
+
+        }
+
         public void Pack(Packer packer, object obj) {
 
-            var arr = (System.Array)obj;
-
-            Int32Serializer.PackDirect(packer, arr.Length);
-
-            for (int i = 0; i < arr.Length; ++i) {
-
-                packer.WriteByte((byte)arr.GetValue(i));
-
-            }
-
+            ByteArraySerializer.PackDirect(packer, (byte[])obj);
+            
         }
 
         public object Unpack(Packer packer) {
 
-            var length = Int32Serializer.UnpackDirect(packer);
-
-            var arr = new byte[length];
-            for (int i = 0; i < length; ++i) {
-
-                arr[i] = packer.ReadByte();
-
-            }
-
-            return arr;
+            return ByteArraySerializer.UnpackDirect(packer);
 
         }
 

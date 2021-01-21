@@ -27,7 +27,7 @@ namespace ME.ECS.Pathfinding {
             var endNode = graph.GetNearest(to, constraintEnd);
             if (endNode == null) return new Path();
             
-            var visited = PoolList<Node>.Spawn(10);
+            var visited = PoolListCopyable<Node>.Spawn(10);
             System.Diagnostics.Stopwatch swPath = null;
             if (pathfinding.HasLogLevel(LogLevel.Path) == true) swPath = System.Diagnostics.Stopwatch.StartNew();
             var nodesPath = this.AstarSearch(graph, visited, startNode, endNode, constraint, threadIndex);
@@ -58,7 +58,7 @@ namespace ME.ECS.Pathfinding {
 
             }
 
-            PoolList<Node>.Recycle(ref visited);
+            PoolListCopyable<Node>.Recycle(ref visited);
 
             System.Diagnostics.Stopwatch swModifier = null;
             if (pathfinding.HasLogLevel(LogLevel.PathMods) == true) swModifier = System.Diagnostics.Stopwatch.StartNew();
@@ -142,7 +142,7 @@ namespace ME.ECS.Pathfinding {
         
         private ListCopyable<Node> RetracePath(int threadIndex, Node endNode) {
             
-            var path = PoolList<Node>.Spawn(10);
+            var path = PoolListCopyable<Node>.Spawn(10);
             path.Add(endNode);
             while (endNode.parent[threadIndex] != null) {
                 

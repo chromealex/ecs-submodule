@@ -65,6 +65,7 @@ namespace ME.ECS.Serializer {
         GenericDictionary = 228,
         
         HistoryEvent  = 227,
+        Char  = 226,
     }
     
     [System.AttributeUsageAttribute(System.AttributeTargets.Field | System.AttributeTargets.Property)]
@@ -74,7 +75,7 @@ namespace ME.ECS.Serializer {
 
     }
 
-    public struct Serializers {
+    public struct Serializers : System.IDisposable {
 
         public struct Item {
 
@@ -82,11 +83,13 @@ namespace ME.ECS.Serializer {
             public System.Action<Packer, object> pack;
             public System.Func<Packer, object> unpack;
 
-            public Item(ITypeSerializer serializer) {
+            public Item Fill<T>(T serializer) where T : struct, ITypeSerializer {
 
                 this.typeValue = serializer.GetTypeValue();
                 this.pack = serializer.Pack;
                 this.unpack = serializer.Unpack;
+                
+                return this;
 
             }
 
@@ -98,10 +101,18 @@ namespace ME.ECS.Serializer {
 
         private void Init(int capacity) {
             
-            if (this.serializers == null) this.serializers = new Dictionary<System.Type, Item>(capacity);
-            if (this.serializersBaseType == null) this.serializersBaseType = new Dictionary<System.Type, Item>(capacity);
-            if (this.serializersByTypeValue == null) this.serializersByTypeValue = new Dictionary<byte, Item>(capacity);
+            if (this.serializers == null) this.serializers = PoolDictionary<System.Type, Item>.Spawn(capacity);
+            if (this.serializersBaseType == null) this.serializersBaseType = PoolDictionary<System.Type, Item>.Spawn(capacity);
+            if (this.serializersByTypeValue == null) this.serializersByTypeValue = PoolDictionary<byte, Item>.Spawn(capacity);
 
+        }
+
+        public void Dispose() {
+            
+            if (this.serializers != null) PoolDictionary<System.Type, Item>.Recycle(ref this.serializers);
+            if (this.serializersBaseType != null) PoolDictionary<System.Type, Item>.Recycle(ref this.serializersBaseType);
+            if (this.serializersByTypeValue != null) PoolDictionary<byte, Item>.Recycle(ref this.serializersByTypeValue);
+            
         }
         
         public void Add(Serializers serializers) {
@@ -129,7 +140,7 @@ namespace ME.ECS.Serializer {
 
         }
         
-        public void Add<T>(T serializer) where T : ITypeSerializer {
+        public void Add<T>(T serializer) where T : struct, ITypeSerializer {
 
 #if UNITY_EDITOR
             if (serializer.GetTypeSerialized().IsGenericTypeDefinition) {
@@ -140,9 +151,9 @@ namespace ME.ECS.Serializer {
             
             this.Init(32);
 
-            this.serializers.Add(serializer.GetTypeSerialized(), new Item(serializer));
-            if (serializer is ITypeSerializerInherit) this.serializersBaseType.Add(serializer.GetTypeSerialized(), new Item(serializer));
-            this.serializersByTypeValue.Add(serializer.GetTypeValue(), new Item(serializer));
+            this.serializers.Add(serializer.GetTypeSerialized(), new Item().Fill(serializer));
+            if (serializer is ITypeSerializerInherit) this.serializersBaseType.Add(serializer.GetTypeSerialized(), new Item().Fill(serializer));
+            this.serializersByTypeValue.Add(serializer.GetTypeValue(), new Item().Fill(serializer));
 
         }
 
@@ -243,14 +254,18 @@ namespace ME.ECS.Serializer {
             var serializers = Serializer.GetDefaultSerializers();
             serializers.Add(serializersInternal);
             serializers.Add(customSerializers);
+            serializersInternal.Dispose();
+            customSerializers.Dispose();
 
-            byte[] bytes = null;
             var packer = new Packer(serializers, new System.IO.MemoryStream());
 
             var serializer = new GenericSerializer();
             serializer.Pack(packer, obj, typeof(T));
 
-            bytes = packer.ToArray();
+            var bytes = packer.ToArray();
+            
+            serializers.Dispose();
+            
             return bytes;
 
         }
@@ -411,7 +426,7 @@ namespace ME.ECS.Serializer {
         public static Packer FromStream(Serializers serializers, System.IO.MemoryStream stream) {
 
             var packer = new Packer(serializers, stream);
-            var packerObject = (PackerObject)packer.UnpackInternal();
+            var packerObject = PackerObjectSerializer.UnpackDirect(packer);
             packer.meta = packerObject.meta;
             packer.stream = new System.IO.MemoryStream(packerObject.data);
 
@@ -434,10 +449,10 @@ namespace ME.ECS.Serializer {
             obj.data = this.stream.ToArray();
 
             byte[] output = null;
-            using (var stream = new System.IO.MemoryStream()) {
+            using (var stream = new System.IO.MemoryStream(this.stream.Capacity)) {
 
                 var packer = new Packer(this.serializers, stream);
-                packer.PackInternal(obj);
+                PackerObjectSerializer.PackDirect(packer, obj);
 
                 output = stream.ToArray();
 
@@ -564,10 +579,22 @@ namespace ME.ECS.Serializer {
 
         }
 
+        public void ReadBytes(byte[] output) {
+
+            this.stream.Read(output, 0, output.Length);
+
+        }
+
         public void WriteByte(byte @byte) {
 
             this.stream.WriteByte(@byte);
+            
+        }
 
+        public void WriteBytes(byte[] bytes) {
+
+            this.stream.Write(bytes, 0, bytes.Length);
+            
         }
 
         public void PackInternal<T>(T root) {

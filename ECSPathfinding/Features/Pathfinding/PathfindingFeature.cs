@@ -72,7 +72,7 @@ namespace ME.ECS.Pathfinding.Features {
 
             entity.RemoveComponents<ME.ECS.Pathfinding.Features.Pathfinding.Components.Path>();
 
-            var vPath = PoolList<UnityEngine.Vector3>.Spawn(nodes.Count);
+            var vPath = PoolListCopyable<UnityEngine.Vector3>.Spawn(nodes.Count);
             for (var i = 0; i < nodes.Count; ++i) {
 
                 var node = nodes[i];
@@ -104,7 +104,7 @@ namespace ME.ECS.Pathfinding.Features {
 
             entity.SetData(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
                 
-            PoolList<UnityEngine.Vector3>.Recycle(ref vPath);
+            PoolListCopyable<UnityEngine.Vector3>.Recycle(ref vPath);
 
         }
 

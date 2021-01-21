@@ -21,7 +21,7 @@ namespace ME.ECS.Pathfinding {
         public Path Run(Path path, Constraint constraint) {
 
             ref var nodes = ref path.nodes;
-            var corners = PoolList<Node>.Spawn(10);
+            var corners = PoolListCopyable<Node>.Spawn(10);
             var prevDir = -1;
             for (int i = 0; i < nodes.Count - 1; ++i) {
 

@@ -321,7 +321,7 @@ namespace ME.ECS.Views.Providers {
             this.pool = null;
             if (this.currentTransformArray.isCreated == true) this.currentTransformArray.Dispose();
             //if (this.resultTransforms != null) PoolList<UnityEngine.Transform>.Recycle(ref this.resultTransforms);
-            if (this.tempList != null) PoolList<MonoBehaviourView>.Recycle(ref this.tempList);
+            if (this.tempList != null) PoolListCopyable<MonoBehaviourView>.Recycle(ref this.tempList);
 
         }
         
@@ -377,7 +377,7 @@ namespace ME.ECS.Views.Providers {
 
                 if (hasChanged == true) {
 
-                    if (this.tempList == null) this.tempList = PoolList<MonoBehaviourView>.Spawn(list.Length);
+                    if (this.tempList == null) this.tempList = PoolListCopyable<MonoBehaviourView>.Spawn(list.Length);
 
                     var changed = false; //ArrayUtils.Resize(list.Length - 1, ref this.currentTransforms);
 

@@ -414,7 +414,7 @@ namespace ME.ECS.Views {
 
                 if (this.otherViews == null) {
 
-                    this.otherViews = PoolList<IView>.Spawn(1);
+                    this.otherViews = PoolListCopyable<IView>.Spawn(1);
                     
                 }
 
@@ -522,7 +522,7 @@ namespace ME.ECS.Views {
             this.isRequestsDirty = true;
             this.UpdateRequests();
             
-            var temp = PoolList<IView>.Spawn(this.registryPrefabToId.Count);
+            var temp = PoolListCopyable<IView>.Spawn(this.registryPrefabToId.Count);
             foreach (var prefab in this.registryIdToPrefab) {
 
                 temp.Add(prefab.Value);
@@ -534,7 +534,7 @@ namespace ME.ECS.Views {
                 this.UnRegisterViewSource(prefab);
                 
             }
-            PoolList<IView>.Recycle(ref temp);
+            PoolListCopyable<IView>.Recycle(ref temp);
 
             PoolDictionary<ViewId, IViewsProvider>.Recycle(ref this.registryPrefabToProvider);
             PoolDictionary<ViewId, IViewsProviderInitializerBase>.Recycle(ref this.registryPrefabToProviderInitializer);
@@ -547,7 +547,7 @@ namespace ME.ECS.Views {
             for (int i = 0; i < this.list.Length; ++i) {
 
                 var views = this.list.arr[i];
-                if (views.otherViews != null) PoolList<IView>.Recycle(views.otherViews);
+                if (views.otherViews != null) PoolListCopyable<IView>.Recycle(views.otherViews);
                 
             }
             //PoolDictionary<int, List<IView<TEntity>>>.Recycle(ref this.list);

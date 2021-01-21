@@ -1,7 +1,8 @@
 {
     "name": "ECSEditorAssembly",
     "references": [
-        "GUID:8979e5b9ed38b420d8191f6eb2c94074"
+        "GUID:8979e5b9ed38b420d8191f6eb2c94074",
+        "GUID:948ed582966c54c1988774d66ffc3446"
     ],
     "includePlatforms": [
         "Editor"
@@ -12,5 +13,6 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": []
+    "versionDefines": [],
+    "noEngineReferences": false
 }
