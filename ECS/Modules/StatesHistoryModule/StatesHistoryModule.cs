@@ -703,7 +703,8 @@ namespace ME.ECS.StatesHistory {
                 if (dic.Count > 0) {
 
                     var state = this.GetStateBeforeTick(tick, out _);
-                    if (state == null) state = this.world.GetResetState<TState>();
+                    if (state == null || state.tick != tick) continue;
+                    
                     var localHash = this.GetStateHash(state);
                     foreach (var kv in dic) {
                         
