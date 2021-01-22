@@ -400,7 +400,7 @@ namespace ME.ECS {
             for (int i = 0; i < this.buckets.Length; ++i) {
 
                 var bucket = this.buckets.arr[i];
-                if (bucket.components.arr == null) continue;
+                if (bucket.components.arr == null || from.id >= bucket.components.Length) continue;
                 
                 var list = bucket.components.arr[from.id];
                 if (list == null) continue;
@@ -413,9 +413,12 @@ namespace ME.ECS {
                     IComponent newItem = null;
                     var copyComponent = new CopyComponent();
                     copyComponent.Copy(item, ref newItem);
-                    
-                    this.Add(to.id, newItem);
-                    
+
+                    ArrayUtils.Resize(to.id, ref bucket.components);
+                    var obj = bucket.components.arr[to.id];
+                    if (obj == null) obj = PoolListCopyable<IComponent>.Spawn(4);
+                    obj.Add(newItem);
+
                 }
 
             }
