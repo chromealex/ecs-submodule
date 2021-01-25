@@ -846,7 +846,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public BufferArray<Entity> ToArray() {
 
-            var data = PoolArray<Entity>.Spawn(this.dataCount - this.requestsRemoveEntity.Count);
+            var data = PoolArray<Entity>.Spawn(this.dataCount >= this.requestsRemoveEntity.Count ? this.dataCount - this.requestsRemoveEntity.Count : 0);
             for (int i = this.min, k = 0; i <= this.max; ++i) {
                 if (this.data.arr[i].IsAlive() == true) {
                     data.arr[k++] = this.data.arr[i];
