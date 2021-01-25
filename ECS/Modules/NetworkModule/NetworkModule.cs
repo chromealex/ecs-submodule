@@ -126,6 +126,7 @@ namespace ME.ECS.Network {
         private System.Collections.Generic.HashSet<int> runLocalOnly;
         private System.Collections.Generic.Dictionary<long, object> keyToObjects;
         private System.Collections.Generic.Dictionary<object, Key> objectToKey;
+        private int currentObjectRegistryId;
         
         private StatesHistory.IStatesHistoryModule<TState> statesHistoryModule;
         protected ITransporter transporter { get; private set; }
@@ -142,6 +143,7 @@ namespace ME.ECS.Network {
             this.objectToKey = PoolDictionary<object, Key>.Spawn(100);
             this.keyToObjects = PoolDictionary<long, object>.Spawn(100);
             this.runLocalOnly = PoolHashSet<int>.Spawn(100);
+            this.currentObjectRegistryId = 1000;
 
             this.statesHistoryModule = this.world.GetModule<StatesHistory.IStatesHistoryModule<TState>>();
             this.statesHistoryModule.SetEventRunner(this);
@@ -162,6 +164,7 @@ namespace ME.ECS.Network {
             this.OnDeInitialize();
             
             this.UnRegisterObject(this, -1);
+            this.currentObjectRegistryId = 1000;
 
             PoolHashSet<int>.Recycle(ref this.runLocalOnly);
             PoolDictionary<long, object>.Recycle(ref this.keyToObjects);
@@ -280,7 +283,9 @@ namespace ME.ECS.Network {
 
         }
 
-        public bool RegisterObject(object obj, int objId, int groupId = 0) {
+        public bool RegisterObject(object obj, int objId = 0, int groupId = 0) {
+
+            if (objId == 0) objId = ++this.currentObjectRegistryId;
             
             var key = MathUtils.GetKey(groupId, objId);
             if (this.keyToObjects.ContainsKey(key) == false) {
