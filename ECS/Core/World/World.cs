@@ -1316,21 +1316,21 @@ namespace ME.ECS {
 
             {
                 // Clear entity
-                this.RemoveComponents(to);
-                this.RemoveData(to);
+                this.RemoveComponents(in to);
+                this.RemoveData(in to);
             }
 
             {
                 // Copy data
                 this.currentState.components.CopyFrom(in from, in to);
                 this.currentState.structComponents.CopyFrom(in from, in to);
-                this.AddComponentToFilter(to);
+                this.UpdateFilters(in to);
             }
             
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void AddComponentToFilter(Entity entity) {
+        public void AddComponentToFilter(in Entity entity) {
             
             ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];
@@ -1372,7 +1372,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void RemoveFromFilters_INTERNAL(Entity entity) {
+        public void RemoveFromFilters_INTERNAL(in Entity entity) {
             
             ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];
@@ -1416,21 +1416,21 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public bool IsAlive(int entityId, ushort version) {
+        public bool IsAlive(int entityId, ushort generation) {
 
             // Inline manually
-            return this.currentState.storage.generations.arr[entityId] == version;
+            return this.currentState.storage.cache.arr[entityId].generation == generation;
             //return this.currentState.storage.IsAlive(entityId, version);
             
         }
 
-        public Entity GetEntityById(in int id) {
+        public ref Entity GetEntityById(in int id) {
             
             ref var entitiesList = ref this.currentState.storage;
-            var ent = entitiesList[id];
-            if (this.IsAlive(ent.id, ent.generation) == false) return Entity.Empty;
+            ref var ent = ref entitiesList[id];
+            if (this.IsAlive(ent.id, ent.generation) == false) return ref Entity.Empty;
             
-            return ent;
+            return ref ent;
 
         }
 
@@ -1442,7 +1442,7 @@ namespace ME.ECS {
             
         }
         
-        public Entity AddEntity(string name = null) {
+        public ref Entity AddEntity(string name = null) {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -1452,8 +1452,8 @@ namespace ME.ECS {
             }
             #endif
 
-            var entity = this.currentState.storage.Alloc();
-            this.UpdateEntity(entity);
+            ref var entity = ref this.currentState.storage.Alloc();
+            this.UpdateEntity(in entity);
             
             if (name != null) {
 
@@ -1463,7 +1463,7 @@ namespace ME.ECS {
 
             }
 
-            return entity;
+            return ref entity;
 
         }
 

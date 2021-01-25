@@ -346,7 +346,7 @@
         public bool IsAlive() {
 
             // Inline manually
-            return Worlds.currentWorld.currentState.storage.generations.arr[this.id] == this.generation;
+            return Worlds.currentWorld.currentState.storage.cache.arr[this.id].generation == this.generation;
             //return Worlds.currentWorld.IsAlive(this.id, this.generation);
 
         }
@@ -354,7 +354,7 @@
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public Entity(string name) {
 
-            var entity = Worlds.currentWorld.AddEntity(name);
+            ref var entity = ref Worlds.currentWorld.AddEntity(name);
             this.id = entity.id;
             this.generation = entity.generation;
 

@@ -15,7 +15,7 @@ namespace ME.ECS {
 
         bool ForEach(ListCopyable<Entity> results);
         
-        Entity Alloc();
+        ref Entity Alloc();
         bool Dealloc(in Entity entity);
 
         void ApplyDead();
@@ -30,7 +30,7 @@ namespace ME.ECS {
     public sealed class Storage : IStorage {
 
         [ME.ECS.Serializer.SerializeField]
-        internal BufferArray<ushort> generations;
+        internal BufferArray<Entity> cache;
         [ME.ECS.Serializer.SerializeField]
         private ListCopyable<int> alive;
         [ME.ECS.Serializer.SerializeField]
@@ -80,7 +80,7 @@ namespace ME.ECS {
             for (int i = 0; i < this.alive.Count; ++i) {
 
                 var id = this.alive[i];
-                results.Add(new Entity(id, this.generations.arr[id]));
+                results.Add(this.cache.arr[id]);
                 
             }
 
@@ -90,7 +90,7 @@ namespace ME.ECS {
         
         public void Initialize(int capacity) {
             
-            this.generations = PoolArray<ushort>.Spawn(capacity);
+            this.cache = PoolArray<Entity>.Spawn(capacity);
             this.alive = PoolListCopyable<int>.Spawn(capacity);
             this.dead = PoolListCopyable<int>.Spawn(capacity);
             this.deadPrepared = PoolListCopyable<int>.Spawn(capacity);
@@ -103,7 +103,7 @@ namespace ME.ECS {
         
         void IPoolableRecycle.OnRecycle() {
 
-            PoolArray<ushort>.Recycle(ref this.generations);
+            PoolArray<Entity>.Recycle(ref this.cache);
             PoolListCopyable<int>.Recycle(ref this.alive);
             PoolListCopyable<int>.Recycle(ref this.dead);
             PoolListCopyable<int>.Recycle(ref this.deadPrepared);
@@ -121,7 +121,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void CopyFrom(Storage other) {
             
-            ArrayUtils.Copy(other.generations, ref this.generations);
+            ArrayUtils.Copy(other.cache, ref this.cache);
             ArrayUtils.Copy(other.alive, ref this.alive);
             ArrayUtils.Copy(other.dead, ref this.dead);
             ArrayUtils.Copy(other.deadPrepared, ref this.deadPrepared);
@@ -133,7 +133,7 @@ namespace ME.ECS {
         }
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public Entity Alloc() {
+        public ref Entity Alloc() {
 
             int id = -1;
             if (this.dead.Count > 0) {
@@ -144,17 +144,17 @@ namespace ME.ECS {
             } else {
 
                 id = ++this.entityId;
-                ArrayUtils.Resize(id, ref this.generations, true);
+                ArrayUtils.Resize(id, ref this.cache, true);
 
             }
             
             ++this.aliveCount;
             this.alive.Add(id);
-            ref var v = ref this.generations.arr[id];
-            if (v == 0u) ++v;
+            ref var e = ref this.cache.arr[id];
+            if (e.generation == 0) e = new Entity(id, 1);
             this.versions.Reset(id);
-            return new Entity(id, v);
-            
+            return ref e;
+
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -172,7 +172,7 @@ namespace ME.ECS {
         public void IncrementGeneration(in Entity entity) {
             
             // Make this entity not alive, but not completely destroyed at this time
-            ++this.generations.arr[entity.id];
+            this.cache.arr[entity.id] = new Entity(entity.id, (ushort)(entity.generation + 1));
             
         }
 
@@ -200,14 +200,14 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool IsAlive(int id, ushort generation) {
 
-            return this.generations.arr[id] == generation;
+            return this.cache.arr[id].generation == generation;
 
         }
         
-        public Entity this[int id] {
+        public ref Entity this[int id] {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             get {
-                return new Entity(id, this.generations.arr[id]);
+                return ref this.cache.arr[id];
             }
         }
         

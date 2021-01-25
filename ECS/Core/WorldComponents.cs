@@ -241,7 +241,7 @@ namespace ME.ECS {
         /// </summary>
         /// <param name="entity"></param>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void RemoveComponents(Entity entity) {
+        public void RemoveComponents(in Entity entity) {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {

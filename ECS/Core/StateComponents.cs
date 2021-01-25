@@ -415,7 +415,7 @@ namespace ME.ECS {
                     copyComponent.Copy(item, ref newItem);
 
                     ArrayUtils.Resize(to.id, ref bucket.components);
-                    var obj = bucket.components.arr[to.id];
+                    ref var obj = ref bucket.components.arr[to.id];
                     if (obj == null) obj = PoolListCopyable<IComponent>.Spawn(4);
                     obj.Add(newItem);
 
