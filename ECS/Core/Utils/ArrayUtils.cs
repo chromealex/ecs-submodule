@@ -479,6 +479,7 @@ namespace ME.ECS {
 
             if (newLength <= arr.arr.Length) {
 
+                System.Array.Clear(arr.arr, arr.Length, newLength - arr.Length);
                 arr = new BufferArray<T>(arr.arr, newLength);
                 return false;
 

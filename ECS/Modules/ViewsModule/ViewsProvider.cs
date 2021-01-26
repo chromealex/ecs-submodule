@@ -67,10 +67,9 @@
         
         public void SimulateParticles(float time, uint seed, ParticleSimulationSettings settings) {
             
-            /*this.particleSystem.Stop(true);
-            this.particleSystem.Pause(true);
+            this.particleSystem.Stop(true, UnityEngine.ParticleSystemStopBehavior.StopEmittingAndClear);
             if (this.particleSystem.useAutoRandomSeed == true) this.particleSystem.useAutoRandomSeed = false;
-            if (this.particleSystem.randomSeed != seed) this.particleSystem.randomSeed = seed;*/
+            if (this.particleSystem.randomSeed != seed) this.particleSystem.randomSeed = seed;
             
             if (settings.simulationType == ParticleSimulationSettings.SimulationType.RestoreSoft) {
 
@@ -249,12 +248,12 @@
             if (this.particleItems == null || this.particleItems.Length != particleSystems.Length) {
 
                 if (this.hasDefault == false) {
-                    
+
                     this.settings = ParticleSimulationSettings.@default;
                     this.hasDefault = true;
 
                 }
-                
+
                 this.particleItems = new ParticleSimulationItem[particleSystems.Length];
                 for (int i = 0, cnt = this.particleItems.Length; i < cnt; ++i) {
 
@@ -263,13 +262,9 @@
 
                 }
 
-                this.hasElements = particleSystems.Length > 0;
-
-            } else {
-
-                this.hasElements = false;
-
             }
+
+            this.hasElements = particleSystems.Length > 0;
 
         }
 
