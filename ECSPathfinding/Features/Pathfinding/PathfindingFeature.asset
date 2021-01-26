@@ -13,3 +13,6 @@ MonoBehaviour:
   m_Name: PathfindingFeature
   m_EditorClassIdentifier: 
   editorComment: Building path using PathCornersModifier
+  usePathSmoothing: 0
+  bezierCurveSubdivisions: 2
+  bezierTangentLength: 0.2
