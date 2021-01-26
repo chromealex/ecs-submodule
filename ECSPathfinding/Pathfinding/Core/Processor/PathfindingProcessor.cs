@@ -27,7 +27,7 @@ namespace ME.ECS.Pathfinding {
             var endNode = graph.GetNearest(to, constraintEnd);
             if (endNode == null) return new Path();
             
-            var visited = PoolList<Node>.Spawn(10);
+            var visited = PoolListCopyable<Node>.Spawn(10);
             System.Diagnostics.Stopwatch swPath = null;
             if (pathfinding.HasLogLevel(LogLevel.Path) == true) swPath = System.Diagnostics.Stopwatch.StartNew();
             var nodesPath = this.AstarSearch(graph, visited, startNode, endNode, constraint, threadIndex);
@@ -58,7 +58,7 @@ namespace ME.ECS.Pathfinding {
 
             }
 
-            PoolList<Node>.Recycle(ref visited);
+            PoolListCopyable<Node>.Recycle(ref visited);
 
             System.Diagnostics.Stopwatch swModifier = null;
             if (pathfinding.HasLogLevel(LogLevel.PathMods) == true) swModifier = System.Diagnostics.Stopwatch.StartNew();
@@ -86,11 +86,12 @@ namespace ME.ECS.Pathfinding {
 
         protected ListCopyable<Node> AstarSearch(Graph graph, ListCopyable<Node> visited, Node startNode, Node endNode, Constraint constraint, int threadIndex) {
             
-            var openList = PoolQueue<Node>.Spawn(500);
+            var openList = PoolPriorityQueue<Node>.Spawn(500);
+            openList.isMinPriorityQueue = true;
             
             startNode.startToCurNodeLen[threadIndex] = 0f;
             
-            openList.Enqueue(startNode);
+            openList.Enqueue(0, startNode);
             startNode.isOpened[threadIndex] = true;
 
             while (openList.Count > 0) {
@@ -102,12 +103,13 @@ namespace ME.ECS.Pathfinding {
 
                 if (node.index == endNode.index) {
                     
-                    PoolQueue<Node>.Recycle(ref openList);
+                    PoolPriorityQueue<Node>.Recycle(ref openList);
                     return this.RetracePath(threadIndex, endNode);
                     
                 }
 
                 var neighbors = node.GetConnections();
+                var currentNodeCost = node.startToCurNodeLen[threadIndex];
                 foreach(var conn in neighbors) {
                     
                     if (conn.index < 0) continue;
@@ -115,15 +117,15 @@ namespace ME.ECS.Pathfinding {
                     var neighbor = graph.nodes[conn.index];
                     if (neighbor.isClosed[threadIndex] == true) continue;
                     if (neighbor.IsSuitable(constraint) == false) continue;
-                    
-                    float ng = node.startToCurNodeLen[threadIndex] + conn.cost; 
-                    if (neighbor.isOpened[threadIndex] == false || ng < neighbor.startToCurNodeLen[threadIndex]) {
+
+                    var cost = currentNodeCost + conn.cost;
+                    if (neighbor.isOpened[threadIndex] == false || cost < neighbor.startToCurNodeLen[threadIndex]) {
                         
-                        neighbor.startToCurNodeLen[threadIndex] = ng;
+                        neighbor.startToCurNodeLen[threadIndex] = cost;
                         neighbor.parent[threadIndex] = node;
                         if (neighbor.isOpened[threadIndex] == false) {
                             
-                            openList.Enqueue(neighbor);
+                            openList.Enqueue(cost, neighbor);
                             visited.Add(neighbor);
                             neighbor.isOpened[threadIndex] = true;
                             
@@ -135,14 +137,14 @@ namespace ME.ECS.Pathfinding {
                 
             }
 
-            PoolQueue<Node>.Recycle(ref openList);
+            PoolPriorityQueue<Node>.Recycle(ref openList);
             return null;
 
         }
         
         private ListCopyable<Node> RetracePath(int threadIndex, Node endNode) {
             
-            var path = PoolList<Node>.Spawn(10);
+            var path = PoolListCopyable<Node>.Spawn(10);
             path.Add(endNode);
             while (endNode.parent[threadIndex] != null) {
                 

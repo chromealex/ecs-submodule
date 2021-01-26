@@ -150,8 +150,8 @@ namespace ME.ECS.Pathfinding {
         }
 
         public override float GetNodeMinDistance() {
-            
-            return this.nodeSize - 0.01f;
+
+            return this.nodeSize / 10f;
             
         }
 
@@ -207,7 +207,7 @@ namespace ME.ECS.Pathfinding {
             
                 var targetNode = this.GetNodeByIndex<GridNode>(target);
                 var cost = (node.worldPosition - targetNode.worldPosition).sqrMagnitude;
-                connection.cost = cost * (GridGraphUtilities.IsDiagonalDirection(direction) == true ? this.diagonalCostFactor : 1f) + targetNode.penalty;
+                connection.cost = (cost + targetNode.penalty) * (GridGraphUtilities.IsDiagonalDirection(direction) == true ? this.diagonalCostFactor : 1f);
                 connection.index = target;
                 
             }

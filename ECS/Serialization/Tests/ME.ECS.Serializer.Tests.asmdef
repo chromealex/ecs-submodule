@@ -4,7 +4,8 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "ECSAssembly",
-        "MEECSSerializer"
+        "MEECSSerializer",
+        "ME.Pools"
     ],
     "includePlatforms": [
         "Editor"

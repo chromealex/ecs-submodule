@@ -1,12 +1,14 @@
 namespace ME.ECS {
 
-    public interface ILoadableSystem {
+    public interface IContext {}
+    
+    public interface ILoadableSystem : IContext {
 
         void Load(System.Action onComplete);
 
     }
     
-    public interface ISystemBase {
+    public interface ISystemBase : IContext {
         
         World world { get; set; }
         
@@ -15,31 +17,33 @@ namespace ME.ECS {
 
     }
 
-    public interface IAdvanceTick {
+    public interface IAdvanceTickBase : IContext { }
+    
+    public interface IAdvanceTick : IAdvanceTickBase {
 
         void AdvanceTick(in float deltaTime);
 
     }
 
-    public interface IAdvanceTickPost {
+    public interface IAdvanceTickPost : IContext {
 
         void AdvanceTickPost(in float deltaTime);
 
     }
 
-    public interface IAdvanceTickPre {
+    public interface IAdvanceTickPre : IContext {
 
         void AdvanceTickPre(in float deltaTime);
 
     }
 
-    public interface IUpdate {
+    public interface IUpdate : IContext {
 
         void Update(in float deltaTime);
 
     }
 
-    public interface ISystemFilter : ISystem {
+    public interface ISystemFilter : ISystem, IAdvanceTickBase {
 
         bool jobs { get; }
         int jobsBatchCount { get; }
@@ -59,7 +63,7 @@ namespace ME.ECS {
     
     public interface ISystem : ISystemBase { }
 
-    public interface ISystemValidation {
+    public interface ISystemValidation : IContext {
 
         bool CouldBeAdded();
 

@@ -41,7 +41,7 @@ namespace ME.ECS {
 
                 }
 
-                PoolList<T>.Recycle(ref item);
+                PoolListCopyable<T>.Recycle(ref item);
 
             }
 
@@ -84,7 +84,7 @@ namespace ME.ECS {
             if (arr == null || fromArr.Count != arr.Count) {
 
                 if (arr != null) PoolList<T>.Recycle(ref arr);
-                arr = PoolList<T>.SpawnList(fromArr.Count);
+                arr = PoolList<T>.Spawn(fromArr.Count);
 
             }
 
@@ -115,7 +115,7 @@ namespace ME.ECS {
 
                 if (arr != null) {
                     
-                    PoolList<T>.Recycle(ref arr);
+                    PoolListCopyable<T>.Recycle(ref arr);
                     
                 }
 
@@ -126,11 +126,131 @@ namespace ME.ECS {
 
             if (arr == null) {
 
-                arr = PoolList<T>.Spawn(fromArr.Count);
+                arr = PoolListCopyable<T>.Spawn(fromArr.Count);
 
             }
             
             arr.CopyFrom(fromArr);
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void Copy<T, TCopy>(CCList<T> fromArr, ref CCList<T> arr, TCopy copy) where TCopy : IArrayElementCopy<T> {
+
+            if (fromArr == null) {
+
+                if (arr != null) {
+
+                    for (int i = 0; i < arr.Count; ++i) {
+                        
+                        copy.Recycle(arr[i]);
+                        
+                    }
+                    PoolCCList<T>.Recycle(ref arr);
+                    
+                }
+
+                arr = null;
+                return;
+
+            }
+
+            if (arr != null) {
+
+                for (int i = 0; i < arr.Count; ++i) {
+
+                    copy.Recycle(arr[i]);
+
+                }
+
+                PoolCCList<T>.Recycle(ref arr);
+
+            }
+            
+            arr = PoolCCList<T>.Spawn();
+            arr.InitialCopyOf(fromArr);
+
+            for (int i = 0; i < fromArr.array.Length; ++i) {
+
+                if (fromArr.array[i] == null && arr.array[i] != null) {
+                    
+                    for (int k = 0; k < arr.array[i].Length; ++k) {
+                        
+                        copy.Recycle(arr.array[i][k]);
+                        
+                    }
+                    
+                    PoolArray<T>.Release(ref arr.array[i]);
+                    
+                } else if (fromArr.array[i] != null && arr.array[i] == null) {
+
+                    arr.array[i] = PoolArray<T>.Claim(fromArr.array[i].Length);
+
+                } else if (fromArr.array[i] == null && arr.array[i] == null) {
+                    
+                    continue;
+                    
+                }
+                
+                var cnt = fromArr.array[i].Length;
+                for (int j = 0; j < cnt; ++j) {
+
+                    copy.Copy(fromArr.array[i][j], ref arr.array[i][j]);
+
+                }
+
+            }
+            
+            /*
+            if (arr == null || fromArr.Count != arr.Count) {
+
+                if (arr != null) {
+                    
+                    for (int i = 0; i < arr.Count; ++i) {
+                        
+                        copy.Recycle(arr[i]);
+                        
+                    }
+                    
+                    PoolCCList<T>.Recycle(ref arr);
+                    
+                }
+                
+                arr = PoolCCList<T>.Spawn();
+                arr.InitialCopyOf(fromArr);
+
+            }
+
+            for (int i = 0; i < fromArr.array.Length; ++i) {
+
+                if (fromArr.array[i] == null && arr.array[i] != null) {
+                    
+                    for (int k = 0; k < arr.array[i].Length; ++k) {
+                        
+                        copy.Recycle(arr.array[i][k]);
+                        
+                    }
+                    
+                    PoolArray<T>.Release(ref arr.array[i]);
+                    
+                } else if (fromArr.array[i] != null && arr.array[i] == null) {
+
+                    arr.array[i] = PoolArray<T>.Claim(fromArr.array[i].Length);
+
+                } else if (fromArr.array[i] == null && arr.array[i] == null) {
+                    
+                    continue;
+                    
+                }
+                
+                var cnt = fromArr.array[i].Length;
+                for (int j = 0; j < cnt; ++j) {
+
+                    copy.Copy(fromArr.array[i][j], ref arr.array[i][j]);
+
+                }
+
+            }*/
             
         }
 
@@ -146,7 +266,7 @@ namespace ME.ECS {
                         copy.Recycle(arr[i]);
                         
                     }
-                    PoolList<T>.Recycle(ref arr);
+                    PoolListCopyable<T>.Recycle(ref arr);
                     
                 }
 
@@ -157,8 +277,8 @@ namespace ME.ECS {
 
             if (arr == null || fromArr.Count != arr.Count) {
 
-                if (arr != null) PoolList<T>.Recycle(ref arr);
-                arr = PoolList<T>.Spawn(fromArr.Count);
+                if (arr != null) PoolListCopyable<T>.Recycle(ref arr);
+                arr = PoolListCopyable<T>.Spawn(fromArr.Count);
 
             }
 

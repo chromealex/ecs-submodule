@@ -42,7 +42,7 @@ namespace ME.ECS.Serializer.Tests {
             serializers.Add(serializersInternal);
 
             byte[] lastTest = null;
-            for (int i = 0; i < 1000; ++i) {
+            for (int i = 0; i < 100; ++i) {
 
                 var bytes = Serializer.Pack(serializers, test);
                 var testRes = Serializer.Unpack<PerfStruct>(serializers, bytes);
@@ -77,19 +77,26 @@ namespace ME.ECS.Serializer.Tests {
                 }, 5)
             };
 
+            byte[] bytes;
+            {
+                var ser = new Serializers();
+                ser.Add(new BufferArraySerializer());
 
-            var ser = new Serializers();
-            ser.Add(new BufferArraySerializer());
-
-            var bytes = Serializer.Pack(test, ser);
-
-            var testRes = Serializer.Unpack<TestDataBufferArray>(bytes, ser);
-            for (int i = 0; i < test.buffer.Length; ++i) {
-                
-                NUnit.Framework.Assert.AreEqual(test.buffer.arr[i], testRes.buffer.arr[i]);
-                
+                bytes = Serializer.Pack(test, ser);
             }
             
+            {
+                var ser = new Serializers();
+                ser.Add(new BufferArraySerializer());
+
+                var testRes = Serializer.Unpack<TestDataBufferArray>(bytes, ser);
+                for (int i = 0; i < test.buffer.Length; ++i) {
+
+                    NUnit.Framework.Assert.AreEqual(test.buffer.arr[i], testRes.buffer.arr[i]);
+
+                }
+            }
+
         }
 
 		void DictionarySerializationTest1()
@@ -158,13 +165,22 @@ namespace ME.ECS.Serializer.Tests {
                 components = comps
             };
             
-            var ser = new Serializers();
-            ser.Add(new BufferArraySerializer());
+            byte[] bytes;
+            {
+                var ser = new Serializers();
+                ser.Add(new BufferArraySerializer());
 
-            var bytes = Serializer.Pack(test, ser);
+                bytes = Serializer.Pack(test, ser);
+            }
 
-            var testRes = Serializer.Unpack<TestState>(bytes, ser);
-            NUnit.Framework.Assert.AreEqual(test.components.GetData(1).Count, testRes.components.GetData(1).Count);
+            {
+                var ser = new Serializers();
+                ser.Add(new BufferArraySerializer());
+                
+                var testRes = Serializer.Unpack<TestState>(bytes, ser);
+
+                NUnit.Framework.Assert.AreEqual(test.components.GetData(1).Count, testRes.components.GetData(1).Count);
+            }
             
         }
 

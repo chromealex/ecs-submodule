@@ -15,7 +15,7 @@ namespace ME.ECS.Pathfinding {
 
         public override void ApplyAfterConnections(Graph graph) {
             
-            var nodes = PoolList<Node>.Spawn(10);
+            var nodes = PoolListCopyable<Node>.Spawn(10);
             var bounds = this.bounds;
             bounds.center += this.transform.position;
             graph.GetNodesInBounds(nodes, this.bounds);
@@ -37,7 +37,7 @@ namespace ME.ECS.Pathfinding {
             var bounds = this.bounds;
             bounds.center += this.transform.position;
 
-            var nodes = PoolList<Node>.Spawn(10);
+            var nodes = PoolListCopyable<Node>.Spawn(10);
             graph.GetNodesInBounds(nodes, bounds);
             foreach (var node in nodes) {
         
@@ -64,7 +64,7 @@ namespace ME.ECS.Pathfinding {
                 }
         
             }
-            PoolList<Node>.Recycle(ref nodes);
+            PoolListCopyable<Node>.Recycle(ref nodes);
 
         }
 

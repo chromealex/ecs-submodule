@@ -27,6 +27,33 @@ namespace ME.ECSEditor {
         private static readonly WorldsViewerEditor.WorldEditor multipleWorldEditor = new WorldsViewerEditor.WorldEditor();
         private static readonly System.Collections.Generic.Dictionary<Object, WorldsViewerEditor.WorldEditor> worldEditors = new System.Collections.Generic.Dictionary<Object, WorldsViewerEditor.WorldEditor>();
 
+        private UnityEditorInternal.ReorderableList list;
+
+        public bool CanMove(ME.ECS.DataConfigs.DataConfig dataConfig, int from, int to) {
+
+            var arr = dataConfig.structComponents;
+            if (to < 0 || to >= arr.Length) return false;
+
+            return true;
+
+        }
+        
+        public void MoveElement(ME.ECS.DataConfigs.DataConfig dataConfig, int from, int to) {
+            
+            var arr = dataConfig.structComponents;
+            var arr2 = dataConfig.structComponentsDataTypeIds;
+            var old = arr[to];
+            arr[to] = arr[from];
+            arr[from] = old;
+
+            var old2 = arr2[to];
+            arr2[to] = arr2[from];
+            arr2[from] = old2;
+
+            this.Save(dataConfig);
+
+        }
+        
         public override void OnInspectorGUI() {
 
             var style = new GUIStyle(EditorStyles.toolbar);
@@ -258,7 +285,7 @@ namespace ME.ECSEditor {
                     var backColor = GUI.backgroundColor;
                     GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
 
-                    GUILayout.BeginVertical(backStyle);
+                    GUILayout.BeginVertical(backStyle, GUILayout.MinHeight(24f));
                     {
                         GUI.backgroundColor = backColor;
                         var editor = WorldsViewerEditor.GetEditor(component);
@@ -276,7 +303,7 @@ namespace ME.ECSEditor {
 
                         } else {
 
-                            var componentName = GUILayoutExt.GetStringCamelCaseSpace(component.GetType().Name);
+                            var componentName = component.GetType().Name;
                             var fieldsCount = GUILayoutExt.GetFieldsCount(component);
                             if (fieldsCount == 0) {
 
@@ -298,7 +325,6 @@ namespace ME.ECSEditor {
 
                                 GUILayout.BeginHorizontal();
                                 {
-                                    GUILayout.Space(18f);
                                     GUILayout.BeginVertical();
                                     {
 
@@ -306,6 +332,7 @@ namespace ME.ECSEditor {
                                         var foldout = EditorPrefs.GetBool(key, true);
                                         GUILayoutExt.FoldOut(ref foldout, componentName, () => {
 
+                                            ++EditorGUI.indentLevel;
                                             var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component);
                                             if (changed == true) {
 
@@ -313,6 +340,7 @@ namespace ME.ECSEditor {
                                                 this.Save(dataConfig);
 
                                             }
+                                            --EditorGUI.indentLevel;
 
                                         });
                                         EditorPrefs.SetBool(key, foldout);
@@ -331,6 +359,28 @@ namespace ME.ECSEditor {
 
                     }
                     GUILayout.EndVertical();
+
+                    var lastRect = GUILayoutUtility.GetLastRect();
+                    if (Event.current.type == EventType.ContextClick && lastRect.Contains(Event.current.mousePosition) == true) {
+
+                        var index = registry.index;
+                        
+                        var menu = new GenericMenu();
+                        if (this.CanMove(dataConfig, index, index - 1) == true) {
+                            menu.AddItem(new GUIContent("Move Up"), false, () => { this.MoveElement(dataConfig, index, index - 1); });
+                        } else {
+                            menu.AddDisabledItem(new GUIContent("Move Up"));
+                        }
+
+                        if (this.CanMove(dataConfig, index, index + 1) == true) {
+                            menu.AddItem(new GUIContent("Move Down"), false, () => { this.MoveElement(dataConfig, index, index + 1); });
+                        } else {
+                            menu.AddDisabledItem(new GUIContent("Move Down"));
+                        }
+
+                        menu.ShowAsContext();
+
+                    }
 
                     GUILayoutExt.Separator();
 

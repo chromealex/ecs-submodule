@@ -41,7 +41,7 @@ namespace ME.ECS {
             
             if (this.debugSettings.createGameObjectsRepresentation == true) {
 
-                var unused = PoolList<Entity>.Spawn(100);
+                var unused = PoolListCopyable<Entity>.Spawn(100);
                 foreach (var entKv in this.debugEntities) {
 
                     if (this.used.Contains(entKv.Key) == false) {
@@ -59,7 +59,7 @@ namespace ME.ECS {
 
                 }
                 
-                PoolList<Entity>.Recycle(ref unused);
+                PoolListCopyable<Entity>.Recycle(ref unused);
                 PoolHashSet<Entity>.Recycle(ref this.used);
 
             }

@@ -442,7 +442,7 @@ namespace ME.ECS.Collections {
         
         // Returns the value of the entry at the given index.
         // 
-        private TValue GetByIndex(int index) {
+        public TValue GetByIndex(int index) {
             return values[index];
         }
     

@@ -283,6 +283,63 @@ namespace ME.ECS {
             
         }
 
+        public static int ConvertOrientationToRawIndex(int orientation) {
+
+            switch (orientation) {
+                
+                case 0: return 1;
+                case 1: return 2;
+                case 2: return 4;
+                case 3: return 7;
+                case 4: return 6;
+                case 5: return 5;
+                case 6: return 3;
+                case 7: return 0;
+                
+            }
+
+            return 0;
+
+        }
+
+        public static int ConvertRawIndexToOrientation(int orientation) {
+
+            switch (orientation) {
+                
+                case 1: return 0;
+                case 2: return 1;
+                case 4: return 2;
+                case 7: return 3;
+                case 6: return 4;
+                case 5: return 5;
+                case 3: return 6;
+                case 0: return 7;
+                
+            }
+
+            return 0;
+
+        }
+
+        public static int ConvertFileIndexToOrientation(int fileIndex) {
+
+            switch (fileIndex) {
+                
+                case 0: return 1;
+                case 1: return 2;
+                case 2: return 4;
+                case 3: return 7;
+                case 4: return 6;
+                case 5: return 5;
+                case 6: return 3;
+                case 7: return 0;
+                
+            }
+
+            return 0;
+
+        }
+
         public static int GetOrientation(Vector2 dir) {
 
             MathUtils.GetOrientation(out var d, dir);
@@ -349,6 +406,21 @@ namespace ME.ECS {
 
         }
 
+        public static bool IsPositionInRange(Vector3 from, Vector3 target, float minRange, float maxRange) {
+            
+            var dir = target - from;
+            var distanceSqr = dir.sqrMagnitude;
+            if (distanceSqr <= maxRange * maxRange &&
+                distanceSqr >= minRange * minRange) {
+
+                return true;
+
+            }
+
+            return false;
+
+        }
+        
         public static Vector3 GetNearestPositionToTarget(Vector3 from, Vector3 target, float minRange, float maxRange) {
 
             var dir = target - from;

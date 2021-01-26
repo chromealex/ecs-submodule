@@ -11,31 +11,74 @@ namespace ME.ECS.Serializer {
         
         public static void PackDirect(Packer packer, string obj) {
 
-            var bytes = System.Text.UTF8Encoding.UTF8.GetBytes(obj);
-            packer.PackInternal(bytes);
+            var length = obj.Length;
+            Int32Serializer.PackDirect(packer, length);
+            for (int i = 0; i < obj.Length; ++i) {
+
+                CharSerializer.PackDirect(packer, obj[i]);
+
+            }
             
         }
         
         public static string UnpackDirect(Packer packer) {
 
-            var bytes = (byte[])packer.UnpackInternal();
-            return System.Text.UTF8Encoding.UTF8.GetString(bytes);
+            var length = Int32Serializer.UnpackDirect(packer);
+            var sb = PoolClass<System.Text.StringBuilder>.Spawn();
+            sb.Clear();
+            sb.Capacity = length;
+            for (int i = 0; i < length; ++i) {
             
+                sb.Append(CharSerializer.UnpackDirect(packer));
+                
+            }
+            var res = sb.ToString();
+            PoolClass<System.Text.StringBuilder>.Recycle(ref sb);
+            return res;
+
         }
 
         public void Pack(Packer packer, object obj) {
 
-            var v = (string)obj;
-            var bytes = System.Text.UTF8Encoding.UTF8.GetBytes(v);
-            packer.PackInternal(bytes);
+            StringSerializer.PackDirect(packer, (string)obj);
             
         }
         
         public object Unpack(Packer packer) {
 
-            var bytes = (byte[])packer.UnpackInternal();
-            return System.Text.UTF8Encoding.UTF8.GetString(bytes);
+            return StringSerializer.UnpackDirect(packer);
+
+        }
+
+    }
+
+    public struct CharSerializer : ITypeSerializer {
+
+        public byte GetTypeValue() { return (byte)TypeValue.Char; }
+        public System.Type GetTypeSerialized() { return typeof(char); }
+        
+        public static void PackDirect(Packer packer, char obj) {
+
+            UInt16Serializer.PackDirect(packer, obj);
             
+        }
+        
+        public static char UnpackDirect(Packer packer) {
+
+            return (char)UInt16Serializer.UnpackDirect(packer);
+            
+        }
+
+        public void Pack(Packer packer, object obj) {
+
+            CharSerializer.PackDirect(packer, (char)obj);
+            
+        }
+        
+        public object Unpack(Packer packer) {
+
+            return CharSerializer.UnpackDirect(packer);
+
         }
 
     }
@@ -187,21 +230,16 @@ namespace ME.ECS.Serializer {
         public static void PackDirect(Packer packer, ushort obj) {
 
             var b = new Int16Bytes() { value = obj };
-            byte size = 2;
-            if (b.b2 == 0) --size;
-            if (b.b2 == 0 && b.b1 == 0) --size;
-            packer.WriteByte(size);
-            if (size >= 1) packer.WriteByte(b.b1);
-            if (size >= 2) packer.WriteByte(b.b2);
+            packer.WriteByte(b.b1);
+            packer.WriteByte(b.b2);
 
         }
         
         public static ushort UnpackDirect(Packer packer) {
 
-            var size = packer.ReadByte();
             var res = new Int16Bytes() {
-                b1 = (size >= 1 ? packer.ReadByte() : byte.MinValue),
-                b2 = (size >= 2 ? packer.ReadByte() : byte.MinValue)
+                b1 = packer.ReadByte(),
+                b2 = packer.ReadByte()
             };
             
             return res.value;

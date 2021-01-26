@@ -117,6 +117,7 @@ namespace ME.ECS.Network {
     #endif
     public abstract class NetworkModule<TState> : INetworkModule<TState>, IUpdate, StatesHistory.IEventRunner, IModuleValidation where TState : State, new() {
 
+        private static readonly RPCId CANCEL_EVENT_RPC_ID = -11;
         private static readonly RPCId PING_RPC_ID = -1;
         private static readonly RPCId SYNC_RPC_ID = -2;
         
@@ -125,6 +126,7 @@ namespace ME.ECS.Network {
         private System.Collections.Generic.HashSet<int> runLocalOnly;
         private System.Collections.Generic.Dictionary<long, object> keyToObjects;
         private System.Collections.Generic.Dictionary<object, Key> objectToKey;
+        private int currentObjectRegistryId;
         
         private StatesHistory.IStatesHistoryModule<TState> statesHistoryModule;
         protected ITransporter transporter { get; private set; }
@@ -141,12 +143,14 @@ namespace ME.ECS.Network {
             this.objectToKey = PoolDictionary<object, Key>.Spawn(100);
             this.keyToObjects = PoolDictionary<long, object>.Spawn(100);
             this.runLocalOnly = PoolHashSet<int>.Spawn(100);
+            this.currentObjectRegistryId = 1000;
 
             this.statesHistoryModule = this.world.GetModule<StatesHistory.IStatesHistoryModule<TState>>();
             this.statesHistoryModule.SetEventRunner(this);
             
             this.world.SetNetworkModule(this);
             
+            this.RegisterRPC(NetworkModule<TState>.CANCEL_EVENT_RPC_ID, new System.Action<byte[]>(this.CancelEvent_RPC).Method);
             this.RegisterRPC(NetworkModule<TState>.PING_RPC_ID, new System.Action<double, bool>(this.Ping_RPC).Method);
             this.RegisterRPC(NetworkModule<TState>.SYNC_RPC_ID, new System.Action<Tick, int>(this.Sync_RPC).Method);
             this.RegisterObject(this, -1, -1);
@@ -160,6 +164,7 @@ namespace ME.ECS.Network {
             this.OnDeInitialize();
             
             this.UnRegisterObject(this, -1);
+            this.currentObjectRegistryId = 1000;
 
             PoolHashSet<int>.Recycle(ref this.runLocalOnly);
             PoolDictionary<long, object>.Recycle(ref this.keyToObjects);
@@ -167,7 +172,7 @@ namespace ME.ECS.Network {
             PoolDictionary<int, System.Reflection.MethodInfo>.Recycle(ref this.registry);
             
         }
-
+        
         public ME.ECS.Network.ISerializer GetSerializer() {
 
             return this.serializer;
@@ -180,9 +185,24 @@ namespace ME.ECS.Network {
 
         }
 
+        private void CancelEvent_RPC(byte[] array) {
+
+            try {
+                
+                var cancelEvent = this.serializer.Deserialize(array);
+                this.CancelEvent(cancelEvent);
+                
+            } catch (System.Exception exception) {
+                
+                UnityEngine.Debug.LogException(exception);
+                
+            }
+
+        }
+
         private void Sync_RPC(Tick tick, int hash) {
 
-            this.statesHistoryModule.SetSyncHash(tick, hash);
+            this.statesHistoryModule.SetSyncHash(this.GetCurrentHistoryEvent().order, tick, hash);
             
         }
 
@@ -263,7 +283,9 @@ namespace ME.ECS.Network {
 
         }
 
-        public bool RegisterObject(object obj, int objId, int groupId = 0) {
+        public bool RegisterObject(object obj, int objId = 0, int groupId = 0) {
+
+            if (objId == 0) objId = ++this.currentObjectRegistryId;
             
             var key = MathUtils.GetKey(groupId, objId);
             if (this.keyToObjects.ContainsKey(key) == false) {
@@ -367,12 +389,18 @@ namespace ME.ECS.Network {
         }
 
         private void CallRPC(object instance, RPCId rpcId, bool storeInHistory, object[] parameters) {
+            
+            if (this.world.HasStep(WorldStep.LogicTick) == true) {
 
+                InStateException.ThrowWorldStateCheck();
+
+            }
+            
             Key key;
             if (this.objectToKey.TryGetValue(instance, out key) == true) {
 
                 var evt = new ME.ECS.StatesHistory.HistoryEvent();
-                evt.tick = this.world.GetStateTick() + Tick.One; // Call RPC on next tick
+                evt.tick = this.world.GetStateTick() + this.statesHistoryModule.GetEventForwardTick(); // Call RPC on next N tick
                 evt.parameters = parameters;
                 evt.rpcId = rpcId;
                 evt.objId = key.objId;
@@ -426,8 +454,8 @@ namespace ME.ECS.Network {
                 
                 if (storedInHistory == false && storeInHistory == true && (this.GetNetworkType() & NetworkType.RunLocal) != 0) {
  
-                    var dEvt = this.serializer.Deserialize(this.serializer.Serialize(evt));
-                    this.statesHistoryModule.AddEvent(dEvt);
+                    //var dEvt = this.serializer.Deserialize(this.serializer.Serialize(evt));
+                    this.statesHistoryModule.AddEvent(evt);
                     storedInHistory = true;
  
                 }
@@ -482,7 +510,7 @@ namespace ME.ECS.Network {
 
         }
         
-        private Tick runEventTick;
+        private ME.ECS.StatesHistory.HistoryEvent runCurrentEvent;
         void StatesHistory.IEventRunner.RunEvent(StatesHistory.HistoryEvent historyEvent) {
             
             System.Reflection.MethodInfo methodInfo;
@@ -491,13 +519,19 @@ namespace ME.ECS.Network {
                 var key = MathUtils.GetKey(historyEvent.groupId, historyEvent.objId);
                 if (this.keyToObjects.TryGetValue(key, out var instance) == true) {
 
-                    this.runEventTick = historyEvent.tick;
+                    this.runCurrentEvent = historyEvent;
                     methodInfo.Invoke(instance, historyEvent.parameters);
-                    this.runEventTick = 0UL;
+                    this.runCurrentEvent = default;
 
                 }
 
             }
+
+        }
+
+        public ME.ECS.StatesHistory.HistoryEvent GetCurrentHistoryEvent() {
+
+            return this.runCurrentEvent;
 
         }
 
@@ -570,6 +604,12 @@ namespace ME.ECS.Network {
             this.syncHash = this.statesHistoryModule.GetStateHash(st);
 
             return true;
+
+        }
+
+        protected void CancelEvent(ME.ECS.StatesHistory.HistoryEvent historyEvent){
+			
+            this.statesHistoryModule.CancelEvent(historyEvent);
 
         }
 

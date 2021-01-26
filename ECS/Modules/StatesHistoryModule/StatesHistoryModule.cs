@@ -8,20 +8,15 @@ namespace ME.ECS {
         Tick GetCurrentTick();
         //void Simulate(double time);
         //void Simulate(Tick toTick);
-
-    }
-
-    public partial interface IWorldBase {
-
         void SetStatesHistoryModule(StatesHistory.IStatesHistoryModuleBase module);
 
     }
 
-    #if ECS_COMPILE_IL2CPP_OPTIONS
+#if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-    #endif
+#endif
     public sealed partial class World {
 
         private StatesHistory.IStatesHistoryModuleBase statesHistoryModule;
@@ -72,60 +67,60 @@ namespace ME.ECS {
 namespace ME.ECS.StatesHistory {
 
     [System.Serializable]
-    #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
     [MessagePack.MessagePackObjectAttribute]
-    #endif
+#endif
     public struct HistoryStorage {
 
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(0)]
-        #endif
+#endif
         public HistoryEvent[] events;
 
     }
 
-    #if ECS_COMPILE_IL2CPP_OPTIONS
+#if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-    #endif
+#endif
     [System.Serializable]
-    #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
     [MessagePack.MessagePackObjectAttribute]
-    #endif
+#endif
     public struct HistoryEvent {
 
         // Header
         /// <summary>
         /// Event tick
         /// </summary>
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(0)]
-        #endif
+#endif
         [ME.ECS.Serializer.Attributes.OrderAttribute]
         public long tick;
         /// <summary>
         /// Global event order (for example: you have 30 players on the map, each has it's own index)
         /// </summary>
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(1)]
-        #endif
+#endif
         [ME.ECS.Serializer.Attributes.OrderAttribute]
         public int order;
         /// <summary>
         /// Rpc Id is a method Id (see NetworkModule::RegisterRPC) 
         /// </summary>
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(5)]
-        #endif
+#endif
         [ME.ECS.Serializer.Attributes.OrderAttribute]
         public int rpcId;
         /// <summary>
         /// Local event order (order would be the first, then localOrder applies)
         /// </summary>
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(2)]
-        #endif
+#endif
         [ME.ECS.Serializer.Attributes.OrderAttribute]
         public int localOrder;
         
@@ -133,32 +128,36 @@ namespace ME.ECS.StatesHistory {
         /// <summary>
         /// Object Id to be called on (see NetworkModule::RegisterObject)
         /// </summary>
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(3)]
-        #endif
+#endif
+        [ME.ECS.Serializer.Attributes.OrderAttribute]
         public int objId;
         /// <summary>
         /// Group Id of objects (see NetworkModule::RegisterObject).
         /// One object could be registered in different groups at the same time.
         /// 0 by default (Common group)
         /// </summary>
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(4)]
-        #endif
+#endif
+        [ME.ECS.Serializer.Attributes.OrderAttribute]
         public int groupId;
         
+#if MESSAGE_PACK_SUPPORT
+        [MessagePack.KeyAttribute(7)]
+#endif
+        [ME.ECS.Serializer.Attributes.OrderAttribute]
+        public bool storeInHistory;
+
         /// <summary>
         /// Parameters of method
         /// </summary>
-        #if MESSAGE_PACK_SUPPORT
+#if MESSAGE_PACK_SUPPORT
         [MessagePack.KeyAttribute(6)]
-        #endif
+#endif
+        [ME.ECS.Serializer.Attributes.OrderAttribute]
         public object[] parameters;
-
-        #if MESSAGE_PACK_SUPPORT
-        [MessagePack.KeyAttribute(7)]
-        #endif
-        public bool storeInHistory;
 
         public override string ToString() {
             
@@ -189,6 +188,8 @@ namespace ME.ECS.StatesHistory {
 
     public interface IStatesHistoryModuleBase : IModuleBase {
 
+        uint GetEventForwardTick();
+        
         void BeginAddEvents();
         void EndAddEvents();
 
@@ -206,7 +207,7 @@ namespace ME.ECS.StatesHistory {
 
         //void Simulate(Tick currentTick, Tick targetTick);
         
-        void SetSyncHash(Tick tick, int hash);
+        void SetSyncHash(int orderId, Tick tick, int hash);
 
         int GetEventsAddedCount();
         int GetEventsPlayedCount();
@@ -216,6 +217,9 @@ namespace ME.ECS.StatesHistory {
         void Reset();
         void AddEvents(IList<HistoryEvent> historyEvents);
         void AddEvent(HistoryEvent historyEvent);
+        void CancelEvent(HistoryEvent historyEvent);
+
+        void RecalculateFromResetState();
 
     }
 
@@ -230,11 +234,11 @@ namespace ME.ECS.StatesHistory {
 
     }
 
-    #if ECS_COMPILE_IL2CPP_OPTIONS
+#if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-    #endif
+#endif
     public abstract class StatesHistoryModule<TState> : IStatesHistoryModule<TState>, IUpdate, IModuleValidation where TState : State, new() {
 
         private const int OLDEST_TICK_THRESHOLD = 1;
@@ -250,7 +254,7 @@ namespace ME.ECS.StatesHistory {
         //private StatesCircularQueue<TState> states;
         private ME.ECS.Network.StatesHistory<TState> statesHistory;
         private Dictionary<Tick, ME.ECS.Collections.SortedList<long, HistoryEvent>> events;
-        private Dictionary<Tick, int> syncHash;
+        private Dictionary<Tick, Dictionary<int, int>> syncHashTable;
         //private Tick maxTick;
         private bool prewarmed;
         //private Tick beginAddEventsTick;
@@ -274,7 +278,7 @@ namespace ME.ECS.StatesHistory {
             this.statesHistory = new ME.ECS.Network.StatesHistory<TState>(this.world, this.GetQueueCapacity());
             //this.states = new StatesCircularQueue<TState>(this.GetTicksPerState(), this.GetQueueCapacity());
             this.events = PoolDictionary<Tick, ME.ECS.Collections.SortedList<long, HistoryEvent>>.Spawn(StatesHistoryModule<TState>.POOL_EVENTS_CAPACITY);
-            this.syncHash = PoolDictionary<Tick, int>.Spawn(StatesHistoryModule<TState>.POOL_SYNCHASH_CAPACITY);
+            this.syncHashTable = PoolDictionary<Tick, Dictionary<int, int>>.Spawn(StatesHistoryModule<TState>.POOL_SYNCHASH_CAPACITY);
             PoolSortedList<int, HistoryEvent>.Prewarm(StatesHistoryModule<TState>.POOL_HISTORY_SIZE, StatesHistoryModule<TState>.POOL_HISTORY_CAPACITY);
             
             this.world.SetStatesHistoryModule(this);
@@ -310,13 +314,27 @@ namespace ME.ECS.StatesHistory {
 
             }
             PoolDictionary<Tick, ME.ECS.Collections.SortedList<long, HistoryEvent>>.Recycle(ref this.events);
-            PoolDictionary<Tick, int>.Recycle(ref this.syncHash);
+
+            foreach (var kv in this.syncHashTable) {
+                
+                PoolDictionary<int, int>.Recycle(kv.Value);
+                
+            }
+            PoolDictionary<Tick, Dictionary<int, int>>.Recycle(ref this.syncHashTable);
 
             //this.states.Recycle();
             //this.states = null;
 
         }
 
+        uint IStatesHistoryModuleBase.GetEventForwardTick() {
+
+            var next = this.GetTicksForInput();
+            if (next <= 0) next = 1;
+            return next;
+
+        }
+        
         void IStatesHistoryModuleBase.SetEventRunner(IEventRunner eventRunner) {
 
             this.eventRunner = eventRunner;
@@ -343,7 +361,7 @@ namespace ME.ECS.StatesHistory {
         /// <returns></returns>
         HistoryStorage IStatesHistoryModuleBase.GetHistoryStorage(Tick from, Tick to) {
 
-            var list = PoolList<HistoryEvent>.Spawn(100);
+            var list = PoolListCopyable<HistoryEvent>.Spawn(100);
             foreach (var data in this.events) {
 
                 var tick = data.Key;
@@ -370,7 +388,7 @@ namespace ME.ECS.StatesHistory {
 
             var storage = new HistoryStorage();
             storage.events = list.ToArray();
-            PoolList<HistoryEvent>.Recycle(ref list);
+            PoolListCopyable<HistoryEvent>.Recycle(ref list);
             return storage;
 
         }
@@ -388,6 +406,16 @@ namespace ME.ECS.StatesHistory {
         protected virtual uint GetTicksPerState() {
 
             return StatesHistoryModule<TState>.DEFAULT_TICKS_PER_STATE;
+
+        }
+
+        /// <summary>
+        /// Event event should run on N ticks forward
+        /// </summary>
+        /// <returns></returns>
+        protected virtual uint GetTicksForInput() {
+
+            return Tick.One;
 
         }
 
@@ -442,24 +470,39 @@ namespace ME.ECS.StatesHistory {
             ME.ECS.Collections.SortedList<long, HistoryEvent> list;
             if (this.events.TryGetValue(historyEvent.tick, out list) == true) {
 
-                for (int i = 0; i < list.Count; ++i) {
-
-                    if (list[i].IsEqualsTo(historyEvent) == true) return true;
-
-                }
-
+                var key = MathUtils.GetKey(historyEvent.order, historyEvent.localOrder);
+                return list.ContainsKey(key);
+                
             }
 
             return false;
 
         }
 
+        public void RecalculateFromResetState() {
+
+            this.statesHistory.DiscardAll();
+            this.statesHistory.Clear();
+            
+            var targetTick = this.world.GetCurrentTick();
+            this.HardResetTo(Tick.Zero);
+            this.world.GetModule<ME.ECS.Network.NetworkModule<TState>>().Update(0f);
+            this.world.simulationToTick = targetTick;
+            this.world.UpdateLogic(0f);
+
+        }
+        
         public void Reset() {
 
             this.oldestTick = Tick.Invalid;
             this.lastSavedStateTick = Tick.Invalid;
-            
-            this.syncHash.Clear();
+
+            foreach (var item in this.syncHashTable) {
+                
+                PoolDictionary<int, int>.Recycle(item.Value);
+                
+            }
+            this.syncHashTable.Clear();
             this.statesHistory.DiscardAll();
             this.statesHistory.Clear();
             
@@ -470,6 +513,12 @@ namespace ME.ECS.StatesHistory {
             }
             this.events.Clear();
             
+        }
+
+        public void HardResetTo(Tick tick) {
+
+            this.oldestTick = tick;
+
         }
         
         public void AddEvent(HistoryEvent historyEvent) {
@@ -528,6 +577,36 @@ namespace ME.ECS.StatesHistory {
 
         }
 
+        public void CancelEvent(HistoryEvent historyEvent) {
+
+            if (historyEvent.storeInHistory == false) {
+
+                return;
+
+            }
+
+            if (historyEvent.tick <= Tick.Zero) {
+
+                // Tick fix if it is zero
+                historyEvent.tick = Tick.One;
+
+            }
+
+            ME.ECS.Collections.SortedList<long, HistoryEvent> list;
+            if (this.events.TryGetValue(historyEvent.tick, out list) == true) {
+
+                var key = MathUtils.GetKey(historyEvent.order, historyEvent.localOrder);
+                if (list.Remove(key) == true) {
+
+                    --this.statEventsAdded;
+                    this.oldestTick = (this.oldestTick == Tick.Invalid || historyEvent.tick < this.oldestTick ? (Tick)historyEvent.tick : this.oldestTick);
+                    
+                }
+
+            }
+
+        }
+
         /*public void Simulate(Tick currentTick, Tick targetTick) {
 
             TState state;
@@ -552,41 +631,102 @@ namespace ME.ECS.StatesHistory {
 
         }*/
 
-        public void SetSyncHash(Tick tick, int hash) {
+        public void SetSyncHash(int orderId, Tick tick, int hash) {
 
-            if (this.syncHash.ContainsKey(tick) == false) {
+            //UnityEngine.Debug.Log("SetSyncHash: " + orderId + " :: " + tick + " :: " + hash);
+            Dictionary<int, int> dic;
+            if (this.syncHashTable.TryGetValue(tick, out dic) == true) {
 
-                this.syncHash.Add(tick, hash);
+                if (dic.ContainsKey(orderId) == true) {
+
+                    dic[orderId] = hash;
+
+                } else {
+                    
+                    dic.Add(orderId, hash);
+                    
+                }
 
             } else {
 
-                this.syncHash[tick] = hash;
+                dic = PoolDictionary<int, int>.Spawn(4);
+                this.syncHashTable.Add(tick, dic);
+                
+            }
+            
+            if (dic.ContainsKey(orderId) == true) {
 
+                dic[orderId] = hash;
+
+            } else {
+                    
+                dic.Add(orderId, hash);
+                    
+            }
+            
+            this.CleanUpHashTable(tick - 1000L);
+            
+        }
+
+        private void CleanUpHashTable(Tick beforeTick) {
+
+            var list = PoolList<Tick>.Spawn(this.syncHashTable.Count);
+            foreach (var kv in this.syncHashTable) {
+
+                if (kv.Key <= beforeTick) {
+                    
+                    list.Add(kv.Key);
+                    
+                }
+                
             }
 
+            for (int i = 0; i < list.Count; ++i) {
+
+                var key = list[i];
+                var arr = this.syncHashTable[key];
+                PoolDictionary<int, int>.Recycle(arr);
+                this.syncHashTable.Remove(key);
+
+            }
+            
+            PoolList<Tick>.Recycle(ref list);
+            
         }
         
-        private void CheckHash(Tick tick) {
+        private void CheckHash(Tick currentTick) {
 
-            int hash;
-            if (this.syncHash.TryGetValue(tick, out hash) == true) {
+            foreach (var sync in this.syncHashTable) {
 
-                var state = this.GetStateBeforeTick(tick, out _);
-                if (state == null) state = this.world.GetResetState<TState>();
-                var localHash = this.GetStateHash(state);
-                if (localHash != hash) {
+                var tick = sync.Key;
+                var dic = sync.Value;
+                if (dic.Count > 0) {
 
-                    UnityEngine.Debug.LogError(this.world.id + " Remote Hash: " + hash + ", Local Hash: " + localHash);
+                    var state = this.GetStateBeforeTick(tick, out _);
+                    if (state == null || state.tick != tick) continue;
+                    
+                    var localHash = this.GetStateHash(state);
+                    foreach (var kv in dic) {
+                        
+                        var remoteHash = kv.Value;
+                        if (localHash != remoteHash) {
+                        
+                            var orderId = kv.Key;
+                            UnityEngine.Debug.LogError(this.world.id + " Remote Hash (" + orderId + "): " + remoteHash + ", Local Hash: " + localHash);
 
+                        }
+                        
+                    }
+                    
                 }
 
             }
-
+            
         }
 
         public int GetStateHash(State state) {
 
-            return state.entityId ^ (int)state.tick ^ state.GetHash();
+            return state.GetHash();
 
         }
 

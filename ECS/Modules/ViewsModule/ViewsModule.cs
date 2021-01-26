@@ -414,7 +414,7 @@ namespace ME.ECS.Views {
 
                 if (this.otherViews == null) {
 
-                    this.otherViews = PoolList<IView>.Spawn(1);
+                    this.otherViews = PoolListCopyable<IView>.Spawn(1);
                     
                 }
 
@@ -522,7 +522,7 @@ namespace ME.ECS.Views {
             this.isRequestsDirty = true;
             this.UpdateRequests();
             
-            var temp = PoolList<IView>.Spawn(this.registryPrefabToId.Count);
+            var temp = PoolListCopyable<IView>.Spawn(this.registryPrefabToId.Count);
             foreach (var prefab in this.registryIdToPrefab) {
 
                 temp.Add(prefab.Value);
@@ -534,7 +534,7 @@ namespace ME.ECS.Views {
                 this.UnRegisterViewSource(prefab);
                 
             }
-            PoolList<IView>.Recycle(ref temp);
+            PoolListCopyable<IView>.Recycle(ref temp);
 
             PoolDictionary<ViewId, IViewsProvider>.Recycle(ref this.registryPrefabToProvider);
             PoolDictionary<ViewId, IViewsProviderInitializerBase>.Recycle(ref this.registryPrefabToProviderInitializer);
@@ -547,7 +547,7 @@ namespace ME.ECS.Views {
             for (int i = 0; i < this.list.Length; ++i) {
 
                 var views = this.list.arr[i];
-                if (views.otherViews != null) PoolList<IView>.Recycle(views.otherViews);
+                if (views.otherViews != null) PoolListCopyable<IView>.Recycle(views.otherViews);
                 
             }
             //PoolDictionary<int, List<IView<TEntity>>>.Recycle(ref this.list);
@@ -693,23 +693,9 @@ namespace ME.ECS.Views {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void DestroyAllViews(in Entity entity) {
 
-            if (entity.id >= this.list.Length) return;
+            this.world.RemoveComponents<ViewComponent>(entity);
+            this.isRequestsDirty = true;
             
-            var views = this.list.arr[entity.id];
-            if (views.mainView == null) return;
-
-            this.DestroyView(ref views.mainView);
-            if (views.otherViews != null) {
-
-                for (int i = 0, length = views.otherViews.Count; i < length; ++i) {
-
-                    var view = views.otherViews[i];
-                    this.DestroyView(ref view);
-
-                }
-
-            }
-
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -740,17 +726,23 @@ namespace ME.ECS.Views {
 
         public ViewId RegisterViewSource<TProvider>(TProvider providerInitializer, IView prefab) where TProvider : struct, IViewsProviderInitializer {
 
-            /*if (this.world.HasStep(WorldStep.LogicTick) == true) {
-
-                throw new InStateException();
-
-            }*/
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
 
             if (this.registryPrefabToId.TryGetValue(prefab, out var viewId) == true) {
 
                 return viewId;
 
             }
+            
+            /*if (this.world.HasStep(WorldStep.LogicTick) == true) {
+
+                throw new InStateException();
+
+            }*/
 
             ++this.viewSourceIdRegistry;
             this.registryPrefabToId.Add(prefab, this.viewSourceIdRegistry);
@@ -767,6 +759,12 @@ namespace ME.ECS.Views {
         }
 
         public bool UnRegisterViewSource(IView prefab) {
+
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
 
             if (this.world.HasStep(WorldStep.LogicTick) == true) {
 

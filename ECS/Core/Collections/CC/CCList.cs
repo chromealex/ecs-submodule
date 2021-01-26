@@ -119,7 +119,12 @@
                 
             }
             set {
-                throw new NotSupportedException();
+                var arrayIndex = CCList<T>.GetArrayIndex(index + 1);
+                if (arrayIndex > 0) {
+                    index -= ((1 << arrayIndex) - 1);
+                }
+
+                this.array[arrayIndex][index] = value;
             }
         }
 

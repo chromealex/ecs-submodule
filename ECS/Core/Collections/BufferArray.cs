@@ -20,17 +20,20 @@ namespace ME.ECS.Collections {
     [System.Serializable]
     public readonly struct BufferArray<T> : System.IEquatable<BufferArray<T>>, IBufferArray {
 
+        public static BufferArray<T> Empty = new BufferArray<T>(null, 0);
+
         #if UNITY_EDITOR && EDITOR_ARRAY
         [System.Serializable]
         public struct EditorArr {
 
             public T[] data;
-            public int length;
-            public bool isNotEmpty;
+            public int Length;
+            public int usedLength;
+            public bool isCreated;
             
             public ref T this[int index] {
                 get {
-                    if (this.isNotEmpty == false && index >= this.length) throw new System.IndexOutOfRangeException();
+                    if (this.isCreated == false || index >= this.usedLength) throw new System.IndexOutOfRangeException();
                     return ref this.data[index];
                 }
             }
@@ -73,14 +76,16 @@ namespace ME.ECS.Collections {
         public readonly T[] arr;
         #endif
         public readonly int Length;
-        public readonly bool isNotEmpty;
+        public readonly bool isCreated;
 
         public int Count {
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             get {
                 return this.Length;
             }
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public IBufferArray Resize(int newSize) {
 
             var newArr = new T[newSize];
@@ -89,14 +94,16 @@ namespace ME.ECS.Collections {
 
         }
         
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public int IndexOf(T instance) {
 
-            if (this.isNotEmpty == false) return -1;
+            if (this.isCreated == false) return -1;
             
             return System.Array.IndexOf(this.arr, instance);
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public BufferArray<T> RemoveAt(int index) {
 
             var newLength = this.Length;
@@ -112,12 +119,14 @@ namespace ME.ECS.Collections {
             
         }
         
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public System.Array GetArray() {
 
             return this.arr;
 
         }
         
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public BufferArray<T> RemoveAtUnsorted(ref int index) {
 
             this.arr[index] = this.arr[this.Length - 1];
@@ -126,6 +135,7 @@ namespace ME.ECS.Collections {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public BufferArray<T> Clear() {
             
             PoolArray<T>.Recycle(this);
@@ -140,6 +150,7 @@ namespace ME.ECS.Collections {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static BufferArray<T> From(ListCopyable<T> arr) {
 
             var length = arr.Count;
@@ -150,6 +161,7 @@ namespace ME.ECS.Collections {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static BufferArray<T> From(T[] arr) {
 
             var length = arr.Length;
@@ -160,6 +172,7 @@ namespace ME.ECS.Collections {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static BufferArray<T> From(BufferArray<T> arr) {
 
             var length = arr.Length;
@@ -170,6 +183,7 @@ namespace ME.ECS.Collections {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static BufferArray<T> From(IList<T> arr) {
 
             var length = arr.Count;
@@ -180,25 +194,27 @@ namespace ME.ECS.Collections {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         internal BufferArray(T[] arr, int length) {
             
             this.Length = length;
-            this.isNotEmpty = (length > 0 && arr != null);
+            this.isCreated = (length > 0 && arr != null);
             
             #if UNITY_EDITOR && EDITOR_ARRAY
             this.arr.data = arr;
-            this.arr.length = length;
-            this.arr.isNotEmpty = this.isNotEmpty;
+            this.arr.Length = (arr != null ? arr.Length : 0);
+            this.arr.usedLength = length;
+            this.arr.isCreated = this.isCreated;
             #else
             this.arr = arr;
             #endif
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public BufferArray<T> Dispose() {
-
-            T[] arr = this.arr;
-            PoolArray<T>.Recycle(ref arr);
+            
+            PoolArray<T>.Recycle(this);
             return new BufferArray<T>(null, 0);
 
         }
@@ -257,7 +273,7 @@ namespace ME.ECS.Collections {
 
         public struct Enumerator : IEnumerator<T> {
 
-            private BufferArray<T> bufferArray;
+            private readonly BufferArray<T> bufferArray;
             private int index;
             
             public Enumerator(BufferArray<T> bufferArray) {
@@ -311,18 +327,14 @@ namespace ME.ECS.Collections {
 
             }
 
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public void Reset() {}
 
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public void Dispose() {}
             
         }
         
-        public static BufferArray<T> Empty {
-            get {
-                return new BufferArray<T>(null, 0);
-            }
-        }
-
     }
     
 }

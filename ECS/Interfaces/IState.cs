@@ -6,33 +6,14 @@ using RandomState = UnityEngine.Random.State;
 
 namespace ME.ECS {
 
-    public interface IStateBase {
-
-        int entityId { get; set; }
-        Tick tick { get; set; }
-        RandomState randomState { get; set; }
-
-        int GetHash();
-
-        void Initialize(World world, bool freeze, bool restore);
-
-        byte[] Serialize<T>() where T : State;
-
-        void Deserialize<T>(byte[] bytes) where T : State;
-    }
-
-    public interface IState : IStateBase, IPoolableRecycle {
-
-    }
-
-    public abstract class State : IState {
+    public abstract class State : IPoolableRecycle {
 
         [ME.ECS.Serializer.SerializeField]
-        public int entityId { get; set; }
+        public int entityId;
         [ME.ECS.Serializer.SerializeField]
-        public Tick tick { get; set; }
+        public Tick tick;
         [ME.ECS.Serializer.SerializeField]
-        public RandomState randomState { get; set; }
+        public RandomState randomState;
 
         // [ME.ECS.Serializer.SerializeField]
         public FiltersStorage filters;
@@ -49,7 +30,7 @@ namespace ME.ECS {
         /// <returns></returns>
         public virtual int GetHash() {
 
-            return this.components.GetHash() ^ this.structComponents.Count;//^ this.structComponents.GetCustomHash();
+            return this.entityId ^ this.tick ^ this.components.GetHash() ^ this.structComponents.Count ^ this.randomState.GetHashCode() ^ this.storage.GetHashCode();//^ this.structComponents.GetCustomHash();
 
         }
 

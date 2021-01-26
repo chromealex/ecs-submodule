@@ -12,13 +12,6 @@ namespace ME.ECS {
     #endif
     public sealed class Components : IPoolableRecycle {
 
-        private static class ComponentType<TComponent> {
-
-            public static int id = -1;
-            public static bool inHash = true;
-
-        }
-
         public struct Bucket {
 
             public BufferArray<ListCopyable<IComponent>> components;
@@ -203,27 +196,21 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private static int GetTypeId<TComponent>() {
 
-            if (ComponentType<TComponent>.id < 0) {
-
-                ComponentType<TComponent>.id = Components.typeId++;
-
-            }
-
-            return ComponentType<TComponent>.id;
+            return WorldUtilities.GetAllComponentTypeId<TComponent>();
 
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private static bool IsTypeInHash<TComponent>() {
 
-            return ComponentType<TComponent>.inHash;
+            return WorldUtilities.IsAllComponentInHash<TComponent>();
 
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         internal static void SetTypeInHash<TComponent>(bool state) {
 
-            ComponentType<TComponent>.inHash = state;
+            WorldUtilities.SetAllComponentInHash<TComponent>(state);
 
         }
 
@@ -236,7 +223,7 @@ namespace ME.ECS {
             bucket.includeInHash = Components.IsTypeInHash<TComponent>();
             ArrayUtils.Resize(entityId, ref bucket.components);
 
-            if (bucket.components.arr[entityId] == null) bucket.components.arr[entityId] = PoolList<IComponent>.Spawn(1);
+            if (bucket.components.arr[entityId] == null) bucket.components.arr[entityId] = PoolListCopyable<IComponent>.Spawn(1);
             bucket.components.arr[entityId].Add(data);
             
         }
@@ -328,7 +315,7 @@ namespace ME.ECS {
                         if (list != null) {
 
                             PoolComponents.Recycle(list);
-                            PoolList<IComponent>.Recycle(ref list);
+                            PoolListCopyable<IComponent>.Recycle(ref list);
                             bucket.components.arr[j] = null;
 
                         }
@@ -407,6 +394,36 @@ namespace ME.ECS {
             }
 
         }
+
+        public void CopyFrom(in Entity from, in Entity to) {
+
+            for (int i = 0; i < this.buckets.Length; ++i) {
+
+                var bucket = this.buckets.arr[i];
+                if (bucket.components.arr == null || from.id >= bucket.components.Length) continue;
+                
+                var list = bucket.components.arr[from.id];
+                if (list == null) continue;
+                
+                for (int j = 0; j < list.Count; ++j) {
+
+                    var item = list[j];
+                    if (item == null) continue;
+
+                    IComponent newItem = null;
+                    var copyComponent = new CopyComponent();
+                    copyComponent.Copy(item, ref newItem);
+
+                    ArrayUtils.Resize(to.id, ref bucket.components);
+                    ref var obj = ref bucket.components.arr[to.id];
+                    if (obj == null) obj = PoolListCopyable<IComponent>.Spawn(4);
+                    obj.Add(newItem);
+
+                }
+
+            }
+            
+        }
         
         public void CopyFrom(Components other) {
             
@@ -415,60 +432,6 @@ namespace ME.ECS {
             // Clone other array
             ArrayUtils.Copy(other.buckets, ref this.buckets, new CopyBucket());
             
-            // Check-test
-            /*
-            if ((other.buckets.arr != null && this.buckets.arr == null) ||
-                (other.buckets.arr == null && this.buckets.arr != null) ||
-                (other.buckets.Length != this.buckets.Length)) {
-                
-                UnityEngine.Debug.LogError("Copy test failure");
-
-            }
-
-            for (int i = 0; i < other.buckets.Length; ++i) {
-
-                if (other.buckets.arr[i].components.Length != this.buckets.arr[i].components.Length) {
-                    
-                    UnityEngine.Debug.LogError("Copy test failure");
-                    
-                }
-                
-                for (int j = 0; j < other.buckets.arr[i].components.Length; ++j) {
-
-                    var c = other.buckets.arr[i].components.arr[j];
-                    var c2 = this.buckets.arr[i].components.arr[j];
-                    if (c != null) {
-
-                        if (c2 == null) {
-                            
-                            UnityEngine.Debug.LogError("Copy test failure");
-
-                        }
-                        
-                        if (c.Count == c2.Count) {
-
-                            for (int k = 0; k < c.Count; ++k) {
-
-                                if (c[k].GetType() != c2[k].GetType()) {
-
-                                    UnityEngine.Debug.LogError("Copy test failure");
-
-                                }
-
-                            }
-
-                        } else {
-
-                            UnityEngine.Debug.LogError("Copy test failure");
-
-                        }
-
-                    }
-                    
-                }
-
-            }*/
-
         }
         
     }

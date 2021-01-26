@@ -41,6 +41,12 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public ViewId RegisterViewSource(DrawMeshViewSourceBase prefab) {
 
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
+            
             return this.RegisterViewSource(new UnityDrawMeshProviderInitializer(), prefab.GetSource());
 
         }
@@ -48,6 +54,12 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void InstantiateView(DrawMeshViewSourceBase prefab, Entity entity) {
 
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
+            
             this.InstantiateView(prefab.GetSource(), entity);
             
         }
@@ -78,12 +90,24 @@ namespace ME.ECS.Views {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public ViewId RegisterViewSource(DrawMeshViewSourceBase prefab) {
 
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
+
             return this.RegisterViewSource(new UnityDrawMeshProviderInitializer(), prefab.GetSource());
 
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void UnRegisterViewSource(DrawMeshViewSourceBase prefab) {
+
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
 
             this.UnRegisterViewSource(prefab.GetSource());
 
@@ -92,6 +116,12 @@ namespace ME.ECS.Views {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void InstantiateView(DrawMeshViewSourceBase prefab, Entity entity) {
             
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
+
             var viewSource = prefab.GetSource();
             this.InstantiateView(this.GetViewSourceId(viewSource), entity);
             

@@ -26,13 +26,6 @@ namespace ME.ECS {
 
     }
 
-    public partial interface IWorldBase {
-        
-        ViewId RegisterViewSource(ParticleViewSourceBase prefab);
-        void InstantiateView(ParticleViewSourceBase prefab, Entity entity);
-
-    }
-
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -43,6 +36,12 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public ViewId RegisterViewSource(ParticleViewSourceBase prefab) {
 
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
+            
             return this.RegisterViewSource(new UnityParticlesProviderInitializer(), prefab.GetSource());
 
         }
@@ -50,6 +49,12 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void InstantiateView(ParticleViewSourceBase prefab, Entity entity) {
 
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
+            
             this.InstantiateView(prefab.GetSource(), entity);
             
         }
@@ -80,12 +85,24 @@ namespace ME.ECS.Views {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public ViewId RegisterViewSource(ParticleViewSourceBase prefab) {
 
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
+
             return this.RegisterViewSource(new UnityParticlesProviderInitializer(), prefab.GetSource());
 
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void UnRegisterViewSource(ParticleViewSourceBase prefab) {
+            
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
             
             this.UnRegisterViewSource(prefab.GetSource());
             
@@ -94,6 +111,12 @@ namespace ME.ECS.Views {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void InstantiateView(ParticleViewSourceBase prefab, Entity entity) {
             
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
+
             var viewSource = prefab.GetSource();
             this.InstantiateView(this.GetViewSourceId(viewSource), entity);
             
@@ -445,7 +468,7 @@ namespace ME.ECS.Views.Providers {
 
         public override void OnDeconstruct() {
 
-            UnityEngine.Object.Destroy(this.mainParticleSystem);
+            UnityObjectUtils.Destroy(this.mainParticleSystem);
             this.mainParticleSystem = null;
             
             this.pool = null;

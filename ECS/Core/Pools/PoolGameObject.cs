@@ -18,9 +18,9 @@ namespace ME.ECS.Views {
             foreach (var instance in this.prefabToInstances) {
 
                 foreach (var view in instance.Value) {
-                    
-                    if (view != null) GameObject.Destroy(view.gameObject);
-                    
+
+                    if (view != null) UnityObjectUtils.Destroy(view.gameObject);
+
                 }
                 
             }
@@ -80,14 +80,14 @@ namespace ME.ECS.Views {
 
             } else {
 
-                GameObject.Destroy(instance.gameObject);
+                UnityObjectUtils.Destroy(instance.gameObject);
 
             }
 
             instance = null;
 
         }
-
+        
     }
 
 }

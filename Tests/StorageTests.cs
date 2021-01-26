@@ -107,17 +107,17 @@ namespace ME.ECS.Tests {
 
             var entity = st.Alloc();
             NUnit.Framework.Assert.AreEqual(entity.id, 0);
-            NUnit.Framework.Assert.AreEqual(entity.version, 1);
+            NUnit.Framework.Assert.AreEqual(entity.generation, 1);
 
             NUnit.Framework.Assert.AreEqual(st.AliveCount, 1);
             NUnit.Framework.Assert.AreEqual(st.DeadCount, 0);
 
-            NUnit.Framework.Assert.IsTrue(st.IsAlive(entity.id, entity.version));
+            NUnit.Framework.Assert.IsTrue(st.IsAlive(entity.id, entity.generation));
 
             st.Dealloc(entity);
             st.ApplyDead();
 
-            NUnit.Framework.Assert.IsTrue(st.IsAlive(entity.id, entity.version) == false);
+            NUnit.Framework.Assert.IsTrue(st.IsAlive(entity.id, entity.generation) == false);
 
             NUnit.Framework.Assert.AreEqual(st.AliveCount, 0);
             NUnit.Framework.Assert.AreEqual(st.DeadCount, 1);
@@ -125,7 +125,7 @@ namespace ME.ECS.Tests {
             {
                 var entity2 = st.Alloc();
                 NUnit.Framework.Assert.AreEqual(entity2.id, 0);
-                NUnit.Framework.Assert.AreEqual(entity2.version, 2);
+                NUnit.Framework.Assert.AreEqual(entity2.generation, 2);
 
                 NUnit.Framework.Assert.AreEqual(st.AliveCount, 1);
                 NUnit.Framework.Assert.AreEqual(st.DeadCount, 0);
@@ -149,11 +149,11 @@ namespace ME.ECS.Tests {
                     var entity = st.Alloc();
                     list.Add(entity);
                     //NUnit.Framework.Assert.AreEqual(entity.id, i);
-                    NUnit.Framework.Assert.AreEqual(entity.version, v);
+                    NUnit.Framework.Assert.AreEqual(entity.generation, v);
 
                     //NUnit.Framework.Assert.AreEqual(st.AliveCount, i + 1);
 
-                    NUnit.Framework.Assert.IsTrue(st.IsAlive(entity.id, entity.version));
+                    NUnit.Framework.Assert.IsTrue(st.IsAlive(entity.id, entity.generation));
 
                 }
 
@@ -168,11 +168,11 @@ namespace ME.ECS.Tests {
                     var entity = st.Alloc();
                     list.Add(entity);
                     //NUnit.Framework.Assert.AreEqual(entity.id, i);
-                    NUnit.Framework.Assert.AreEqual(entity.version, v);
+                    NUnit.Framework.Assert.AreEqual(entity.generation, v);
 
                     //NUnit.Framework.Assert.AreEqual(st.AliveCount, i + 1);
 
-                    NUnit.Framework.Assert.IsTrue(st.IsAlive(entity.id, entity.version));
+                    NUnit.Framework.Assert.IsTrue(st.IsAlive(entity.id, entity.generation));
 
                 }
 

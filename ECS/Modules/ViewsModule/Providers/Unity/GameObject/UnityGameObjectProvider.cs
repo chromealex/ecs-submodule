@@ -26,15 +26,6 @@ namespace ME.ECS {
 
     }
 
-    public partial interface IWorldBase {
-        
-        ViewId RegisterViewSource(UnityEngine.GameObject prefab);
-        ViewId RegisterViewSource(MonoBehaviourViewBase prefab);
-        void InstantiateView(UnityEngine.GameObject prefab, Entity entity);
-        void InstantiateView(MonoBehaviourViewBase prefab, Entity entity);
-
-    }
-    
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -52,6 +43,12 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public ViewId RegisterViewSource(UnityGameObjectProviderInitializer providerInitializer, UnityEngine.GameObject prefab) {
 
+            if (prefab == null) {
+                
+                ViewSourceIsNullException.Throw();
+                
+            }
+            
             IView component;
             if (prefab.TryGetComponent(out component) == true) {
 
@@ -260,7 +257,7 @@ namespace ME.ECS.Views.Providers {
         int System.IComparable<IView>.CompareTo(IView other) { return 0; }
 
         public World world { get; private set; }
-        public Entity entity { get; private set; }
+        public virtual Entity entity { get; private set; }
         public ViewId prefabSourceId { get; private set; }
         public Tick creationTick { get; private set; }
 
@@ -324,7 +321,7 @@ namespace ME.ECS.Views.Providers {
             this.pool = null;
             if (this.currentTransformArray.isCreated == true) this.currentTransformArray.Dispose();
             //if (this.resultTransforms != null) PoolList<UnityEngine.Transform>.Recycle(ref this.resultTransforms);
-            if (this.tempList != null) PoolList<MonoBehaviourView>.Recycle(ref this.tempList);
+            if (this.tempList != null) PoolListCopyable<MonoBehaviourView>.Recycle(ref this.tempList);
 
         }
         
@@ -376,11 +373,11 @@ namespace ME.ECS.Views.Providers {
             
             if (this.world.settings.useJobsForViews == false || this.world.settings.viewsSettings.unityGameObjectProviderDisableJobs == true) return;
             
-            if (list.isNotEmpty == true) {
+            if (list.isCreated == true) {
 
                 if (hasChanged == true) {
 
-                    if (this.tempList == null) this.tempList = PoolList<MonoBehaviourView>.Spawn(list.Length);
+                    if (this.tempList == null) this.tempList = PoolListCopyable<MonoBehaviourView>.Spawn(list.Length);
 
                     var changed = false; //ArrayUtils.Resize(list.Length - 1, ref this.currentTransforms);
 

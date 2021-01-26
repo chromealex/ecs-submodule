@@ -15,7 +15,7 @@
             if (target.world != null && target.world.isActive == true) {
 
                 var currentEntity = GUILayoutExt.DrawEntitySelection(target.world, in target.entity, checkAlive: true, drawSelectButton: false);
-                if (currentEntity.IsAlive() == true) {
+                if (currentEntity.IsAlive() == true && target.entity.IsAlive() == true) {
 
                     if (EntityDebugComponentEditor.worldEditors.TryGetValue(target.world, out var worldEditor) == false) {
 

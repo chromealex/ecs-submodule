@@ -137,7 +137,7 @@ namespace ME.ECSEditor {
 		    if (checkAlive == true && entity.IsAlive() == false) {
 
 			    EditorGUILayout.HelpBox("This entity version is already in pool, the list of components has been changed.", MessageType.Warning);
-			    if (currentEntity.version > 0) {
+			    if (currentEntity.generation > 0) {
                         
 				    GUILayout.Label("New entity: " + currentEntity.ToSmallString());
                         
@@ -149,7 +149,7 @@ namespace ME.ECSEditor {
 
 		    }
 
-		    if (drawSelectButton == true && currentEntity.version > 0) {
+		    if (drawSelectButton == true && currentEntity.generation > 0) {
 
 			    UnityEngine.GUILayout.BeginHorizontal();
 			    UnityEngine.GUILayout.FlexibleSpace();
@@ -205,7 +205,7 @@ namespace ME.ECSEditor {
                 var worldEditor = new WorldsViewerEditor.WorldEditor();
                 worldEditor.world = Worlds.currentWorld;
                 
-                var allEntities = PoolList<Entity>.Spawn(worldEditor.world.GetState().storage.AliveCount);
+                var allEntities = PoolListCopyable<Entity>.Spawn(worldEditor.world.GetState().storage.AliveCount);
                 if (worldEditor.world.ForEachEntity(allEntities) == true) {
 
 	                for (int i = 0; i < allEntities.Count; ++i) {
@@ -222,7 +222,7 @@ namespace ME.ECSEditor {
 	                }
 
                 }
-                PoolList<Entity>.Recycle(ref allEntities);
+                PoolListCopyable<Entity>.Recycle(ref allEntities);
 
                 popup.Show();
 
@@ -836,7 +836,7 @@ namespace ME.ECSEditor {
                         //GUILayoutExt.DataLabel(field.Name);
                         //var lastRect = GUILayoutUtility.GetLastRect();
                         var value = field.GetValue(instance);
-                        var oldValue = value;
+                        //var oldValue = value;
                         var isEditable = GUILayoutExt.PropertyField(world, field.Name, instance, -1, field, field.FieldType, ref value, typeCheckOnly: true, hasMultipleDifferentValues: false);
                         EditorGUI.BeginDisabledGroup(disabled: (isEditable == false));
                         if (GUILayoutExt.PropertyField(world, customName != null ? customName : field.Name, instance, -1, field, field.FieldType, ref value, typeCheckOnly: false, hasMultipleDifferentValues: false) == true) {
@@ -941,6 +941,8 @@ namespace ME.ECSEditor {
 
             }
 
+            caption = GUILayoutExt.GetStringCamelCaseSpace(caption);
+            
             EditorGUI.showMixedValue = hasMultipleDifferentValues;
 
             ME.ECSEditor.GUILayoutExt.CollectEditorsAll<ICustomFieldEditor, CustomFieldEditorAttribute>(ref GUILayoutExt.customFieldEditors);
@@ -975,7 +977,7 @@ namespace ME.ECSEditor {
 		            if (type.HasInterface(typeof(ME.ECS.Collections.IStackArray)) == true) {
 			            
 			            var arr = (ME.ECS.Collections.IStackArray)value;
-			            var state = world.IsFoldOutCustom(value);
+			            var state = world.IsFoldOutCustom(type);
 			            GUILayoutExt.FoldOut(ref state, string.Format("{0} [{1}]", caption, arr.Length), () => {
 
 				            for (int i = 0; i < arr.Length; ++i) {
@@ -992,13 +994,13 @@ namespace ME.ECSEditor {
 				            }
 			            
 			            });
-			            world.SetFoldOutCustom(value, state);
+			            world.SetFoldOutCustom(type, state);
 			            value = arr;
 
 		            } else if (type.HasInterface(typeof(ME.ECS.Collections.IBufferArray)) == true) {
 			            
 			            var arr = (ME.ECS.Collections.IBufferArray)value;
-			            var state = true;
+			            var state = world.IsFoldOutCustom(type);
 			            GUILayoutExt.FoldOut(ref state, string.Format("{0} [{1}]", caption, arr.Count), () => {
 
 				            var array = arr.GetArray();
@@ -1016,13 +1018,14 @@ namespace ME.ECSEditor {
 				            }
 			            
 			            });
+			            world.SetFoldOutCustom(type, state);
 			            value = arr;
 
 		            } else if (type.IsArray == true) {
 
 			            var arr = (System.Array)value;
 			            if (arr == null) arr = GUILayoutExt.ResizeArray(arr, 0, type);
-			            var state = true;
+			            var state = world.IsFoldOutCustom(type);
 			            GUILayoutExt.FoldOut(ref state, string.Format("{0} [{1}]", caption, arr.Length), () => {
 
 				            var size = EditorGUILayout.IntField("Size", arr.Length);
@@ -1048,6 +1051,7 @@ namespace ME.ECSEditor {
 				            }
 
 			            });
+			            world.SetFoldOutCustom(type, state);
 			            value = arr;
 
 		            }
@@ -1127,21 +1131,41 @@ namespace ME.ECSEditor {
 
             } else if (type == typeof(Color)) {
 
-                if (typeCheckOnly == false) {
+	            if (typeCheckOnly == false) {
 	                
-	                value = EditorGUILayout.ColorField(caption, (Color)value);
-	                GUILayout.Label(value.ToString());
+		            value = EditorGUILayout.ColorField(caption, (Color)value);
+		            GUILayout.BeginHorizontal();
+		            {
+			            var c = (Color32)(Color)value;
+			            GUILayout.Label("Raw", EditorStyles.miniLabel, GUILayout.Width(EditorGUIUtility.labelWidth));
+			            c.r = (byte)EditorGUILayout.IntField(c.r, EditorStyles.miniTextField);
+			            c.g = (byte)EditorGUILayout.IntField(c.g, EditorStyles.miniTextField);
+			            c.b = (byte)EditorGUILayout.IntField(c.b, EditorStyles.miniTextField);
+			            c.a = (byte)EditorGUILayout.IntField(c.a, EditorStyles.miniTextField);
+			            value = (Color)(Color32)c;
+		            }
+		            GUILayout.EndHorizontal();
 
-                }
+	            }
                 
             } else if (type == typeof(Color32)) {
 
-                if (typeCheckOnly == false) {
+	            if (typeCheckOnly == false) {
 
-                    value = EditorGUILayout.ColorField(caption, (Color32)value);
-                    GUILayout.Label(value.ToString());
+		            value = EditorGUILayout.ColorField(caption, (Color32)value);
+		            GUILayout.BeginHorizontal();
+		            {
+			            var c = (Color32)value;
+			            GUILayout.Label("Raw", EditorStyles.miniLabel, GUILayout.Width(EditorGUIUtility.labelWidth));
+			            c.r = (byte)EditorGUILayout.IntField(c.r, EditorStyles.miniTextField);
+			            c.g = (byte)EditorGUILayout.IntField(c.g, EditorStyles.miniTextField);
+			            c.b = (byte)EditorGUILayout.IntField(c.b, EditorStyles.miniTextField);
+			            c.a = (byte)EditorGUILayout.IntField(c.a, EditorStyles.miniTextField);
+			            value = c;
+		            }
+		            GUILayout.EndHorizontal();
 
-                }
+	            }
                 
             } else if (type == typeof(Vector2)) {
 

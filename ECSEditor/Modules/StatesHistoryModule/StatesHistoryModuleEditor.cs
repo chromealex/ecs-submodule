@@ -32,12 +32,33 @@ namespace ME.ECSEditor {
             UnityEngine.GUILayout.Label("<b>Events Added:</b> " + this.target.GetEventsAddedCount().ToString(), style);
             UnityEngine.GUILayout.Label("<b>Events Played:</b> " + this.target.GetEventsPlayedCount().ToString(), style);
 
+            if (UnityEngine.GUILayout.Button("Print Events") == true) {
+
+                foreach (System.Collections.DictionaryEntry ren in this.target.GetData()) {
+                    
+                    var entry = (ME.ECS.Collections.SortedList<long, HistoryEvent>)ren.Value;
+                    for (int i = 0; i < entry.Count; ++i) {
+
+                        UnityEngine.Debug.Log(entry.GetByIndex(i).ToString());
+
+                    }
+                    
+                }
+
+            }
+
+            if (UnityEngine.GUILayout.Button("Recalculate from Reset State") == true) {
+
+                this.target.RecalculateFromResetState();
+
+            }
+
             var dataStates = this.target.GetDataStates();
             var entries = dataStates.GetEntries();
             foreach (var entryData in entries) {
 
                 var entry = entryData as ME.ECS.Network.IStatesHistoryEntry;
-                var state = entry.GetData() as IStateBase;
+                var state = entry.GetData() as State;
                 UnityEngine.GUILayout.Label("Tick: " + state.tick + ", State: " + state.entityId + ", Hash: " + state.GetHash());
                 
             }

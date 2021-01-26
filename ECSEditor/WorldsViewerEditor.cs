@@ -842,13 +842,13 @@ namespace ME.ECSEditor {
                         var foldout = world.IsFoldOut(storage);
                         GUILayoutExt.FoldOut(ref foldout, GUILayoutExt.GetTypeLabel(storage.GetType()), () => {
                             
-                            var elements = PoolList<Entity>.Spawn(storage.AliveCount);
-                            var elementsIdx = PoolList<int>.Spawn(storage.AliveCount);
-                            var paramsList = PoolList<string>.Spawn(4);
+                            var elements = PoolListCopyable<Entity>.Spawn(storage.AliveCount);
+                            var elementsIdx = PoolListCopyable<int>.Spawn(storage.AliveCount);
+                            var paramsList = PoolListCopyable<string>.Spawn(4);
                             var search = world.GetSearch(storage);
                             var searchList = search.Split(new [] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
                             
-                            var allEntities = PoolList<Entity>.Spawn(storage.AliveCount);
+                            var allEntities = PoolListCopyable<Entity>.Spawn(storage.AliveCount);
                             if (storage.ForEach(allEntities) == true) {
 
                                 for (int i = 0; i < allEntities.Count; ++i) {
@@ -899,8 +899,8 @@ namespace ME.ECSEditor {
                                 }
 
                             }
-                            PoolList<Entity>.Recycle(ref allEntities);
-                            PoolList<string>.Recycle(ref paramsList);
+                            PoolListCopyable<Entity>.Recycle(ref allEntities);
+                            PoolListCopyable<string>.Recycle(ref paramsList);
 
                             var elementsOnPage = world.GetOnPageCount(storage);
                             world.SetPage(storage, GUILayoutExt.Pages(elements.Count, world.GetPage(storage), elementsOnPage, (from, to) => {
@@ -940,8 +940,8 @@ namespace ME.ECSEditor {
                                           ));
                             
 
-                            PoolList<Entity>.Recycle(ref elements);
-                            PoolList<int>.Recycle(ref elementsIdx);
+                            PoolListCopyable<Entity>.Recycle(ref elements);
+                            PoolListCopyable<int>.Recycle(ref elementsIdx);
                             
                         });
                         world.SetFoldOut(storage, foldout);
@@ -982,7 +982,7 @@ namespace ME.ECSEditor {
             EditorGUIUtility.wideMode = true;
             
             var name = (entityData.HasData<ME.ECS.Name.Name>() == true ? entityData.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value : "Unnamed");
-            GUILayoutExt.DrawHeader("Entity " + entityData.id.ToString() + " (" + entityData.version.ToString() + ") " + name);
+            GUILayoutExt.DrawHeader("Entity " + entityData.id.ToString() + " (" + entityData.generation.ToString() + ") " + name);
             {
 
                 var usedComponents = new HashSet<System.Type>();
@@ -1009,7 +1009,8 @@ namespace ME.ECSEditor {
                         GUILayout.BeginHorizontal(backStyle);
                         {
                             GUILayout.Label("ID: " + entityData.id.ToString(), EditorStyles.miniLabel);
-                            GUILayout.Label("Version: " + entityData.version.ToString(), EditorStyles.miniLabel);
+                            GUILayout.Label("Gen: " + entityData.generation.ToString(), EditorStyles.miniLabel);
+                            GUILayout.Label("Version: " + entityData.GetVersion().ToString(), EditorStyles.miniLabel);
                         }
                         GUILayout.EndHorizontal();
                         GUILayoutExt.Separator();
@@ -1148,7 +1149,7 @@ namespace ME.ECSEditor {
                         #region Filters
                         {
                             var filtersCnt = 0;
-                            var containsFilters = PoolList<Filter>.Spawn(1);
+                            var containsFilters = PoolListCopyable<FilterData>.Spawn(1);
                             var filters = world.GetFilters();
                             for (int i = 0; i < filters.filters.Length; ++i) {
 
@@ -1176,7 +1177,7 @@ namespace ME.ECSEditor {
                             });
                             world.SetFoldOutFilters(storage, entityData.id, foldoutFilters);
                             
-                            PoolList<Filter>.Recycle(ref containsFilters);
+                            PoolListCopyable<FilterData>.Recycle(ref containsFilters);
                         }
                         
                         var cnt = 0;
@@ -1221,8 +1222,8 @@ namespace ME.ECSEditor {
                         if (cnt > 0) {
 
                             #if VIEWS_MODULE_SUPPORT
-                            var activeViews = PoolList<ME.ECS.Views.IView>.Spawn(1);
-                            var activeViewProviders = PoolList<ME.ECS.Views.IViewModuleBase>.Spawn(1);
+                            var activeViews = PoolListCopyable<ME.ECS.Views.IView>.Spawn(1);
+                            var activeViewProviders = PoolListCopyable<ME.ECS.Views.IViewModuleBase>.Spawn(1);
                             var viewsModules = modules.OfType<ME.ECS.Views.IViewModuleBase>().ToArray();
                             foreach (var viewsModule in viewsModules) {
 
@@ -1283,8 +1284,8 @@ namespace ME.ECSEditor {
 
                             }
 
-                            PoolList<ME.ECS.Views.IView>.Recycle(ref activeViews);
-                            PoolList<ME.ECS.Views.IViewModuleBase>.Recycle(ref activeViewProviders);
+                            PoolListCopyable<ME.ECS.Views.IView>.Recycle(ref activeViews);
+                            PoolListCopyable<ME.ECS.Views.IViewModuleBase>.Recycle(ref activeViewProviders);
                             #endif
 
                         }
@@ -1365,13 +1366,13 @@ namespace ME.ECSEditor {
                                         for (int i = 0; i < systems.Length; ++i) {
 
                                             var group = systems.arr[i];
-                                            var foldoutObj = group.systems;
+                                            var foldoutObj = group.runtimeSystem.allSystems;
                                             var groupState = worldEditor.IsFoldOutCustom(foldoutObj);
-                                            GUILayoutExt.FoldOut(ref groupState, group.name + " (" + group.length.ToString() + ")", () => {
+                                            GUILayoutExt.FoldOut(ref groupState, group.name + " (" + group.runtimeSystem.allSystems.Count.ToString() + ")", () => {
                                                 
-                                                for (int j = 0; j < group.systems.Length; ++j) {
+                                                for (int j = 0; j < group.runtimeSystem.allSystems.Count; ++j) {
 
-                                                    var system = group.systems.arr[j];
+                                                    var system = group.runtimeSystem.allSystems[j];
 
                                                     GUILayout.BeginHorizontal();
                                                     {
@@ -1384,14 +1385,8 @@ namespace ME.ECSEditor {
                                                             GUILayout.BeginHorizontal(GUILayout.ExpandWidth(true));
                                                             GUILayout.FlexibleSpace();
 
-                                                            var flag = world.GetSystemState(system);
-                                                            var state = (flag & ME.ECS.ModuleState.LogicInactive) == 0;
-                                                            if (this.ToggleMethod(worldEditor, system, "AdvanceTick", ref state) == true) {
-
-                                                                world.SetSystemState(
-                                                                    system, state == false ? flag | ME.ECS.ModuleState.LogicInactive : flag & ~ME.ECS.ModuleState.LogicInactive);
-
-                                                            }
+                                                            var state = world.IsSystemActive(system, RuntimeSystemFlag.Logic);
+                                                            this.ToggleMethod(worldEditor, system, "AdvanceTick", ref state);
 
                                                             GUILayout.FlexibleSpace();
                                                             GUILayout.EndHorizontal();
@@ -1404,14 +1399,8 @@ namespace ME.ECSEditor {
                                                             GUILayout.BeginHorizontal(GUILayout.ExpandWidth(true));
                                                             GUILayout.FlexibleSpace();
 
-                                                            var flag = world.GetSystemState(system);
-                                                            var state = (flag & ME.ECS.ModuleState.VisualInactive) == 0;
-                                                            if (this.ToggleMethod(worldEditor, system, "Update", ref state) == true) {
-
-                                                                world.SetSystemState(
-                                                                    system, state == false ? flag | ME.ECS.ModuleState.VisualInactive : flag & ~ME.ECS.ModuleState.VisualInactive);
-
-                                                            }
+                                                            var state = world.IsSystemActive(system, RuntimeSystemFlag.Visual);
+                                                            this.ToggleMethod(worldEditor, system, "Update", ref state);
 
                                                             GUILayout.FlexibleSpace();
                                                             GUILayout.EndHorizontal();
@@ -1638,7 +1627,7 @@ namespace ME.ECSEditor {
 
         }
 
-        public static void DrawFilter(FiltersStorage filters, Filter filter) {
+        public static void DrawFilter(FiltersStorage filters, FilterData filter) {
             
             var cellHeight = 25f;
             var padding = 2f;

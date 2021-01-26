@@ -132,7 +132,14 @@ namespace ME.ECSEditor {
                 #else
                 return false;
                 #endif
-            }, true)
+            }, true),
+            new DefineInfo("ENTITY_ACTIONS", "Turn on to add Entity Actions support. Entity Actions - raise events on Add/Remove components data on entities.", () => {
+                #if ENTITY_ACTIONS
+                return true;
+                #else
+                return false;
+                #endif
+            }, true),
         };
 
         private bool settingsFoldOut {
@@ -180,7 +187,7 @@ namespace ME.ECSEditor {
 
         }
 
-        public Entity entity;
+        //public Entity entity;
         private float drawWidth;
         
         //private GUIStyle addButtonStyleSaved;
@@ -401,7 +408,7 @@ namespace ME.ECSEditor {
             EditorGUILayout.Space();
             
             EditorGUI.BeginDisabledGroup(EditorApplication.isPlaying == true || EditorApplication.isPaused == true);
-            this.drawWidth = GUILayoutUtility.GetLastRect().width;
+            //this.drawWidth = GUILayoutUtility.GetLastRect().width;
             //this.list.DoLayoutList();
             this.listCategories.DoLayoutList();
             EditorGUI.EndDisabledGroup();
@@ -619,11 +626,11 @@ namespace ME.ECSEditor {
             var list = this.lists[index];
             this.FillList(index, ref list);
 
-            if (index == this.lists.Count - 1) {
+            /*if (index == this.lists.Count - 1) {
                 
-                return list.GetHeight() + 90f;
+                return list.GetHeight() + 10f;
                 
-            }
+            }*/
             
             return list.GetHeight() + 10f;
 
@@ -655,7 +662,7 @@ namespace ME.ECSEditor {
             
             this.currentListIndex = index;
 
-            rect.height = InitializerEditor.ONE_LINE_HEIGHT;
+            //rect.height = InitializerEditor.ONE_LINE_HEIGHT;
             
             var rectCheckBox = new Rect(rect);
             rectCheckBox.width = 20f;
@@ -703,6 +710,8 @@ namespace ME.ECSEditor {
 
             if (featureData.feature != null) { // Draw systems
 
+                height -= 2f;
+                
                 var editorComment = featureData.feature.editorComment;
                 if (string.IsNullOrEmpty(editorComment) == false) {
                     
@@ -753,6 +762,7 @@ namespace ME.ECSEditor {
 
             var featureData = (FeaturesList.FeatureData)this.lists[this.currentListIndex].list[index];
 
+            if (Event.current.type == EventType.Repaint) this.drawWidth = rect.width;
             rect.height = InitializerEditor.ONE_LINE_HEIGHT;
             
             var rectCheckBox = new Rect(rect);

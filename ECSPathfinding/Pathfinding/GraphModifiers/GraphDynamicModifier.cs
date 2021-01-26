@@ -60,7 +60,7 @@ namespace ME.ECS.Pathfinding {
 
             var prevBounds = this.prevBounds;
             prevBounds.center += this.prevPosition;
-            var prevNodes = PoolList<Node>.Spawn(10);
+            var prevNodes = PoolListCopyable<Node>.Spawn(10);
             this.pathfinding.GetNodesInBounds(prevNodes, prevBounds);
             foreach (var node in prevNodes) {
 
@@ -77,7 +77,7 @@ namespace ME.ECS.Pathfinding {
 
                 var bounds = this.bounds;
                 bounds.center += this.transform.position;
-                var nodes = PoolList<Node>.Spawn(10);
+                var nodes = PoolListCopyable<Node>.Spawn(10);
                 this.pathfinding.GetNodesInBounds(nodes, bounds);
                 foreach (var node in nodes) {
 

@@ -1,0 +1,11 @@
+﻿
+namespace ME.ECS.Filters {
+
+    public delegate void R(in Entity e);
+    public delegate void RCP0<TCustom0>(in TCustom0 custom0, in Entity e);
+    public delegate void RCP0<TCustom0, TCustom1>(in TCustom0 custom0, in TCustom1 custom1, in Entity e);
+    public delegate void RCP0<TCustom0, TCustom1, TCustom2>(in TCustom0 custom0, in TCustom1 custom1, in TCustom2 custom2, in Entity e);
+    
+    #CONTENT#
+
+}

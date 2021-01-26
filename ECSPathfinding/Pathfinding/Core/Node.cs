@@ -74,7 +74,7 @@ namespace ME.ECS.Pathfinding {
                  constraint.agentSize.y > 0f ||
                  constraint.agentSize.z > 0f)) {
 
-                var result = PoolList<Node>.Spawn(10);
+                var result = PoolListCopyable<Node>.Spawn(10);
                 this.graph.GetNodesInBounds(result, new Bounds(this.worldPosition, constraint.agentSize));
                 for (int e = 0, cnt = result.Count; e < cnt; ++e) {
 
@@ -84,7 +84,7 @@ namespace ME.ECS.Pathfinding {
                     if (node.IsSuitable(constraintErosion) == false) return false;
 
                 }
-                PoolList<Node>.Recycle(ref result);
+                PoolListCopyable<Node>.Recycle(ref result);
 
             }
                 
