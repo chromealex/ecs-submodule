@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace ME.ECS.Pathfinding {
 
+    [System.Serializable]
     public struct Constraint {
 
         public static Constraint Empty => new Constraint() {

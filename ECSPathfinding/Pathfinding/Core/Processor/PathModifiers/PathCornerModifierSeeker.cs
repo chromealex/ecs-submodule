@@ -22,6 +22,7 @@ namespace ME.ECS.Pathfinding {
 
             ref var nodes = ref path.nodes;
             var corners = PoolListCopyable<Node>.Spawn(10);
+            
             var prevDir = -1;
             for (int i = 0; i < nodes.Count - 1; ++i) {
 
@@ -50,22 +51,35 @@ namespace ME.ECS.Pathfinding {
             }
             corners.Add(path.graph.GetNearest(nodes[nodes.Count - 1].worldPosition, constraint));
 
+            this.UpdateCorners(path, constraint, nodes, corners);
+            path.nodesModified = corners;
+
+            return path;
+
+        }
+
+        private void UpdateCorners(Path path, Constraint constraint, ME.ECS.Collections.ListCopyable<Node> nodes, ME.ECS.Collections.ListCopyable<Node> corners) {
+            
             var cons = Constraint.Empty;
             cons.graphMask = constraint.graphMask;
             for (int iter = 0; iter < corners.Count; ++iter) {
 
                 for (int i = 0; i < corners.Count - 2; ++i) {
 
-                    var c = corners[i];
-                    var next = corners[i + 2];
+                    var currentIndex = i;
+                    var nextIndex = i + 2;
+
+                    var current = corners[currentIndex];
+                    var next = corners[nextIndex];
                     var allWalkable = true;
-                    var pos = c.worldPosition;
+                    var pos = current.worldPosition;
                     do {
-                        
+
                         pos = Vector3.MoveTowards(pos, next.worldPosition, path.graph.GetNodeMinDistance());
+                        
                         var node = path.graph.GetNearest(pos, cons);
                         if ( //node.walkable == false ||
-                            node.penalty != c.penalty ||
+                            Mathf.Abs(node.penalty - current.penalty) > Mathf.Epsilon ||
                             node.IsSuitable(constraint) == false) {
 
                             allWalkable = false;
@@ -103,10 +117,6 @@ namespace ME.ECS.Pathfinding {
                 }
 
             }
-
-            path.nodesModified = corners;
-
-            return path;
 
         }
 
