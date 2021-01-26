@@ -606,7 +606,23 @@ namespace ME.ECS.Views {
             }
 
             var viewInfo = new ViewInfo(entity, sourceId, this.world.GetStateTick());
-            
+
+            var views = this.world.ForEachComponent<ViewComponent>(entity);
+            if (views != null) {
+
+                for (int i = 0; i < views.Count; ++i) {
+
+                    var view = (ViewComponent)views[i];
+                    if (view.viewInfo.prefabSourceId == viewInfo.prefabSourceId) {
+
+                        return;
+
+                    }
+
+                }
+
+            }
+
             var component = this.world.AddComponent<ViewComponent>(entity);
             component.viewInfo = viewInfo;
             component.seed = (uint)this.world.GetSeedValue();
