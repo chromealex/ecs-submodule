@@ -218,10 +218,12 @@ namespace ME.ECS {
 
             var typeId = Components.GetTypeId<TComponent>();
             ArrayUtils.Resize(typeId, ref this.buckets);
+            //ArrayUtils.RawResize(typeId, ref this.buckets);
             
             ref var bucket = ref this.buckets.arr[typeId];
             bucket.includeInHash = Components.IsTypeInHash<TComponent>();
             ArrayUtils.Resize(entityId, ref bucket.components);
+            //ArrayUtils.RawResize(entityId, ref bucket.components);
 
             if (bucket.components.arr[entityId] == null) bucket.components.arr[entityId] = PoolListCopyable<IComponent>.Spawn(1);
             bucket.components.arr[entityId].Add(data);
@@ -410,6 +412,8 @@ namespace ME.ECS {
                     var item = list[j];
                     if (item == null) continue;
 
+                    if (item is ME.ECS.Views.ViewComponent) continue;
+                    
                     IComponent newItem = null;
                     var copyComponent = new CopyComponent();
                     copyComponent.Copy(item, ref newItem);
@@ -422,7 +426,19 @@ namespace ME.ECS {
                 }
 
             }
-            
+
+            var allViews = from.ForEachComponent<ME.ECS.Views.ViewComponent>();
+            if (allViews != null) {
+
+                for (int index = 0, count = allViews.Count; index < count; ++index) {
+
+                    var viewComponent = (ME.ECS.Views.ViewComponent)allViews[index];
+                    to.InstantiateView(viewComponent.viewInfo.prefabSourceId);
+
+                }
+
+            }
+
         }
         
         public void CopyFrom(Components other) {

@@ -117,8 +117,14 @@
 
 				var arrPooled = pool.Pop();
 				#if UNITY_EDITOR
+				if (PoolArray<T>.outArrays.Contains(arrPooled) == true) {
+					
+					UnityEngine.Debug.LogError("You are trying to pool array that has been already in pool");
+					
+				}
 				PoolArray<T>.outArrays.Add(arrPooled);
 				#endif
+				
 				//UnityEngine.Debug.Log("Spawn array: " + arrPooled + " :: " + arrPooled.GetHashCode());
 				return arrPooled;
 
@@ -217,6 +223,8 @@
 					bucketIndex++;
 				}
 
+				if (PoolArray<T>.pool[bucketIndex] == null) return;
+
 				#if UNITY_EDITOR
 				if (PoolArray<T>.outArrays.Contains(array) == false) {
 
@@ -224,6 +232,10 @@
 
 						UnityEngine.Debug.LogError("You are trying to push array that already in pool!");
 
+					} else {
+						
+						UnityEngine.Debug.LogError("You are trying to push array was created without pool!");
+						
 					}
 
 				}

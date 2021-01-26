@@ -453,6 +453,19 @@ namespace ME.ECS {
 
         }
 
+        public static void RawResize<T>(int index, ref BufferArray<T> arr) {
+
+            var newSize = index * 2 + 1;
+            if (arr.arr == null || newSize > arr.arr.Length) {
+
+                var newArr = (T[])arr.arr;
+                System.Array.Resize(ref newArr, newSize);
+                arr = new BufferArray<T>(newArr, newSize);
+
+            }
+
+        }
+        
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool Resize<T>(in int index, ref BufferArray<T> arr, bool resizeWithOffset = false) {
 
@@ -463,10 +476,26 @@ namespace ME.ECS {
             
             var newLength = arr.Length * offset + 1;
             if (newLength == 0 || newLength <= index) newLength = index * offset + 1;
-        
+
+            if (newLength <= arr.arr.Length) {
+
+                arr = new BufferArray<T>(arr.arr, newLength);
+                return false;
+
+            }
+
+            /*#if UNITY_EDITOR
+            if (typeof(T).IsArray == true ||
+                typeof(System.Collections.IEnumerable).IsAssignableFrom(typeof(T)) == true) {
+                
+                UnityEngine.Debug.LogError("Resize of array in array is not supported");
+                
+            }
+            #endif*/
+            
             var newArr = PoolArray<T>.Spawn(newLength);
             System.Array.Copy(arr.arr, newArr.arr, arr.Length);
-            PoolArray<T>.Recycle(ref arr);
+            if (arr != newArr) PoolArray<T>.Recycle(ref arr);
             arr = newArr;
 
             return true;
