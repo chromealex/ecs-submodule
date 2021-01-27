@@ -502,6 +502,8 @@ namespace ME.ECS {
 
 	    private void RemoveStackTrace(object obj) {
 		    
+		    if (obj == null) return;
+		    
 		    if (this.stackTraces == null) this.stackTraces = new Dictionary<object, string>();
 		    this.stackTraces.Remove(obj);
 
