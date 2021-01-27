@@ -6,7 +6,7 @@ using UnityEngine;
 namespace ME.ECS.Pathfinding {
 
     [System.Serializable]
-    public abstract class Node {
+    public abstract class Node : IPoolableRecycle {
 
         [System.Serializable]
         public struct Connection {
@@ -46,7 +46,25 @@ namespace ME.ECS.Pathfinding {
             this.height = other.height;
 
         }
-        
+
+        public virtual void OnRecycle() {
+
+            this.graph = null;
+            this.index = default;
+            this.worldPosition = default;
+            this.penalty = default;
+            this.walkable = default;
+            this.area = default;
+            this.tag = default;
+            this.height = default;
+            
+            System.Array.Clear(this.parent, 0, this.parent.Length);
+            System.Array.Clear(this.startToCurNodeLen, 0, this.startToCurNodeLen.Length);
+            System.Array.Clear(this.isOpened, 0, this.isOpened.Length);
+            System.Array.Clear(this.isClosed, 0, this.isClosed.Length);
+
+        }
+
         public virtual Connection[] GetConnections() {
 
             return null;

@@ -35,6 +35,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
             
             entity.GetComponent<PathfindingInstance>().pathfinding.BuildAll();
 
+            UnityEngine.Debug.Log("Graph built");
             entity.SetData(new IsAllGraphsBuilt(), ComponentLifetime.NotifyAllSystems);
             entity.RemoveData<BuildAllGraphs>();
 

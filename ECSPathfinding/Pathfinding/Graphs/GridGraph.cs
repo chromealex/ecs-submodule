@@ -866,6 +866,15 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        public override void OnRecycle() {
+            
+            base.OnRecycle();
+
+            this.position = default;
+            System.Array.Clear(this.connections, 0, this.connections.Length);
+
+        }
+
     }
     
 }
