@@ -64,6 +64,8 @@ namespace ME.ECS.Pathfinding.Features {
 
         protected override void OnDeconstruct() {
             
+            if (this.pathfindingInstance != null) this.pathfindingInstance.Recycle();
+            this.pathfindingInstance = null;
             ComponentsInitializerWorld.UnRegister(PathfindingComponentsInitializer.InitEntity);
             
         }

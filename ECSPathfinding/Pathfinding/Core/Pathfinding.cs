@@ -66,12 +66,6 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        public void OnDestroy() {
-            
-            this.OnRecycle();
-            
-        }
-        
         public Pathfinding Clone() {
 
             var instance = Object.Instantiate(this);

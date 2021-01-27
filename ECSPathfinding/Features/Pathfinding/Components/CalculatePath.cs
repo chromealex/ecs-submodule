@@ -76,7 +76,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
 
         void IPoolableRecycle.OnRecycle() {
 
-            if (this.pathfinding != null) this.pathfinding.Recycle();
+            if (this.pathfinding != null && this.pathfinding.clonePathfinding == true) this.pathfinding.Recycle();
             this.pathfinding = null;
 
         }
