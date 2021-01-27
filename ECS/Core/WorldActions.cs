@@ -169,8 +169,8 @@ namespace ME.ECS {
 
         public void Dispose() {
 
-            PoolClass<InnerAction>.Recycle(ref this.onAdd);
-            PoolClass<InnerAction>.Recycle(ref this.onRemove);
+            if (this.onAdd != null) PoolClass<InnerAction>.Recycle(ref this.onAdd);
+            if (this.onRemove != null) PoolClass<InnerAction>.Recycle(ref this.onRemove);
             PoolClass<FilterAction>.Recycle(this);
 
         }
@@ -178,6 +178,7 @@ namespace ME.ECS {
         public FilterAction Push() {
             
             this.filter.Push();
+            this.filter.world.Register(this);
             return this;
 
         }

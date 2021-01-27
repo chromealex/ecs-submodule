@@ -29,39 +29,10 @@ namespace ME.ECS {
 
 		    }
 
-		    return PoolInternalBase.Create<T>();
+		    return PoolInternalBase.Create<T>(pool);
 
 	    }
 	    
-	    public static object Spawn(System.Type type) {
-
-		    var key = WorldUtilities.GetKey(type);
-		    PoolInternalBase pool;
-		    if (PoolFilters.pool.TryGetValue(key, out pool) == true) {
-
-			    var obj = pool.Spawn();
-			    if (obj != null) return obj;
-
-		    } else {
-                
-			    pool = new PoolInternalBase(type, null, null);
-			    var obj = pool.Spawn();
-			    PoolFilters.pool.Add(key, pool);
-			    if (obj != null) return obj;
-
-		    }
-
-		    return null;
-
-	    }
-
-	    public static void Recycle<T>(ref T system) where T : class {
-
-		    PoolFilters.Recycle(system);
-		    system = default;
-
-	    }
-
 	    public static void Recycle<T>(T system) where T : class {
 
 		    var key = WorldUtilities.GetKey<T>();

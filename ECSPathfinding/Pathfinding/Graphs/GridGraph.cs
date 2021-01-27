@@ -109,19 +109,7 @@ namespace ME.ECS.Pathfinding {
             this.collisionMask = default;
             this.collisionCheckRadius = default;
 
-            if (this.nodes != null) {
-
-                UnityEngine.Debug.Log("Recycle: " + this.nodes.Count);
-                for (int i = 0; i < this.nodes.Count; ++i) {
-
-                    var node = (GridNode)this.nodes[i];
-                    PoolClass<GridNode>.Recycle(ref node);
-
-                }
-
-                this.nodes.Clear();
-
-            }
+            ArrayUtils.Recycle(ref this.nodes, new CopyNode());
 
         }
 
@@ -635,8 +623,7 @@ namespace ME.ECS.Pathfinding {
 
         protected override void BuildNodes() {
             
-            var nodes = new List<Node>(this.size.x * this.size.y * this.size.z);
-            this.nodes = nodes;
+            this.nodes = PoolListCopyable<Node>.Spawn(this.size.x * this.size.y * this.size.z);
 
             var center = this.graphCenter - new Vector3(this.size.x * this.nodeSize * 0.5f, this.size.y * this.agentHeight * 0.5f, this.size.z * this.nodeSize * 0.5f);
             

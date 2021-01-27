@@ -60,7 +60,15 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
                 
             } else {
 
-                if (_other.pathfinding.clonePathfinding == true) this.pathfinding.CopyFrom(_other.pathfinding); 
+                if (_other.pathfinding.clonePathfinding == true) {
+                    
+                    this.pathfinding.CopyFrom(_other.pathfinding);
+                    
+                } else {
+
+                    this.pathfinding = _other.pathfinding;
+
+                }
 
             }
             

@@ -203,7 +203,7 @@ namespace ME.ECS {
 
             public void Recycle(FilterData item) {
                 
-                item.Recycle();
+                if (item != null) item.Recycle();
                 
             }
 
@@ -1540,6 +1540,7 @@ namespace ME.ECS {
 
         public override string ToString() {
 
+            if (this.aliases.isCreated == false) return "Filter (#" + this.id.ToString() + ")";
             return "Name: " + string.Join("/", this.aliases.arr, 0, this.aliases.Length) + " (#" + this.id.ToString() + ")";
 
         }

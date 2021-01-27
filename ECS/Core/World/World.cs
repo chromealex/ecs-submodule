@@ -111,6 +111,8 @@ namespace ME.ECS {
         internal BufferArray<SystemGroup> systemGroups;
         internal int systemGroupsLength;
 
+        internal List<FilterAction> filterActions;
+
         internal ListCopyable<ModuleState> statesFeatures;
         internal ListCopyable<ModuleState> statesModules;
 
@@ -368,6 +370,7 @@ namespace ME.ECS {
             this.statesModules = PoolListCopyable<ModuleState>.Spawn(World.MODULES_CAPACITY);
             this.systemGroups = PoolArray<SystemGroup>.Spawn(World.FEATURES_CAPACITY);
             this.systemGroupsLength = 0;
+            this.filterActions = PoolList<FilterAction>.Spawn(4);
             
             ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
 
@@ -409,6 +412,13 @@ namespace ME.ECS {
 
             PoolArray<bool>.Recycle(ref this.currentSystemContextFiltersUsed);
             this.currentSystemContextFiltersUsedAnyChanged = default;
+
+            for (int i = 0; i < this.filterActions.Count; ++i) {
+                
+                this.filterActions[i].Dispose();
+                
+            }
+            PoolList<FilterAction>.Recycle(ref this.filterActions);
             
             #if WORLD_THREAD_CHECK
             this.worldThread = null;
@@ -973,6 +983,12 @@ namespace ME.ECS {
         }
         #endif
         #endregion
+
+        public void Register(FilterAction filterAction) {
+
+            this.filterActions.Add(filterAction);
+
+        }
 
         public void Register(FilterData filterRef) {
 

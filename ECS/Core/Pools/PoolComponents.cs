@@ -14,16 +14,15 @@ namespace ME.ECS {
 	    public static StructRegistryBase Spawn<T>() where T : struct, IStructComponent {
 
 		    var key = WorldUtilities.GetAllComponentTypeId<T>();
-		    var obj = (StructComponents<T>)PoolRegistries.Spawn_INTERNAL(key);
+		    var obj = (StructComponents<T>)PoolRegistries.Spawn_INTERNAL(key, out var pool);
 		    if (obj != null) return obj;
 
-		    return PoolInternalBase.Create<StructComponents<T>>();
+		    return PoolInternalBase.Create<StructComponents<T>>(pool);
 
 	    }
 
-	    private static object Spawn_INTERNAL(int key) {
+	    private static object Spawn_INTERNAL(int key, out PoolInternalBase pool) {
 		    
-		    PoolInternalBase pool;
 		    if (PoolRegistries.pool.TryGetValue(key, out pool) == true) {
 
 			    var obj = pool.Spawn();
@@ -61,6 +60,8 @@ namespace ME.ECS {
 
 	    public static void Recycle(StructRegistryBase system) {
 
+		    if (system == null) return;
+		    
 		    var key = system.GetAllTypeBit();
 		    PoolRegistries.Recycle_INTERNAL(key, system);
 		    
@@ -76,27 +77,34 @@ namespace ME.ECS {
     public static class PoolComponents {
 
 	    private static Dictionary<int, PoolInternalBase> pool = new Dictionary<int, PoolInternalBase>();
-	    
+
 	    public static T Spawn<T>() where T : class, IComponentBase, new() {
 
 		    var key = WorldUtilities.GetKey<T>();
-		    var obj = (T)PoolComponents.Spawn_INTERNAL(typeof(T), key);
+		    var obj = (T)PoolComponents.Spawn_INTERNAL(typeof(T), key, out var pool);
 		    if (obj != null) return obj;
 
-		    return PoolInternalBase.Create<T>();
+		    return PoolInternalBase.Create<T>(pool);
 
 	    }
 	    
 	    public static object Spawn(System.Type type) {
 
 		    var key = WorldUtilities.GetKey(type);
-		    return PoolComponents.Spawn_INTERNAL(type, key);
+		    var instance = PoolComponents.Spawn_INTERNAL(type, key, out var pool);
+		    if (instance == null) {
+
+			    instance = (IComponent)System.Activator.CreateInstance(type);
+			    PoolInternalBase.CallOnSpawn(instance, pool);
+
+		    }
+
+		    return instance;
 
 	    }
 
-	    private static object Spawn_INTERNAL(System.Type type, int key) {
+	    private static object Spawn_INTERNAL(System.Type type, int key, out PoolInternalBase pool) {
 		    
-		    PoolInternalBase pool;
 		    if (PoolComponents.pool.TryGetValue(key, out pool) == true) {
 
 			    var obj = pool.Spawn();

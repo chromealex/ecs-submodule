@@ -30,7 +30,7 @@ namespace ME.ECS.Pathfinding {
         public Vector3 graphCenter;
 
         public BuildingState buildingState;
-        public List<Node> nodes;
+        public ListCopyable<Node> nodes;
         public List<Pathfinding.ModificatorItem> modifiers = new List<Pathfinding.ModificatorItem>();
 
         public float minPenalty { get; private set; }

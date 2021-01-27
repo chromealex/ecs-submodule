@@ -48,6 +48,23 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void Recycle<T, TCopy>(ref System.Collections.Generic.List<T> item, TCopy copy) where TCopy : IArrayElementCopy<T> {
+
+            if (item != null) {
+
+                for (int i = 0; i < item.Count; ++i) {
+
+                    copy.Recycle(item[i]);
+
+                }
+
+                PoolList<T>.Recycle(ref item);
+
+            }
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void Recycle<T, TCopy>(ref ME.ECS.Collections.BufferArray<T> item, TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             for (int i = 0; i < item.Length; ++i) {
@@ -83,7 +100,7 @@ namespace ME.ECS {
 
             if (arr == null || fromArr.Count != arr.Count) {
 
-                if (arr != null) PoolList<T>.Recycle(ref arr);
+                if (arr != null) ArrayUtils.Recycle(ref arr, copy);
                 arr = PoolList<T>.Spawn(fromArr.Count);
 
             }
@@ -277,7 +294,7 @@ namespace ME.ECS {
 
             if (arr == null || fromArr.Count != arr.Count) {
 
-                if (arr != null) PoolListCopyable<T>.Recycle(ref arr);
+                if (arr != null) ArrayUtils.Recycle(ref arr, copy);
                 arr = PoolListCopyable<T>.Spawn(fromArr.Count);
 
             }
@@ -324,7 +341,7 @@ namespace ME.ECS {
 
             if (arr.arr == null || fromArr.Length != arr.Length) {
 
-                if (arr.arr != null) PoolArray<T>.Recycle(ref arr);
+                if (arr.arr != null) ArrayUtils.Recycle(ref arr, copy);
                 arr = PoolArray<T>.Spawn(fromArr.Length);
 
             }

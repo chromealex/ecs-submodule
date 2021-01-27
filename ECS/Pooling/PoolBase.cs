@@ -244,6 +244,12 @@ namespace ME.ECS {
 
 	    private static List<PoolInternalBase> list = new List<PoolInternalBase>();
 	    
+	    #if UNITY_EDITOR
+	    private Dictionary<object, string> stackTraces;
+	    private static bool isStackTraceEnabled;
+	    private static bool isStackTraceEnabledSet;
+	    #endif
+	    
 	    public static int newAllocated;
 	    public static int allocated;
 	    public static int deallocated;
@@ -265,6 +271,36 @@ namespace ME.ECS {
 	    }
 
 	    #if UNITY_EDITOR
+	    [UnityEditor.MenuItem("ME.ECS/Debug/Enable Stack Trace", isValidateFunction: true)]
+	    public static bool StackTraceValidation() {
+
+		    var key = "ME.Pools.StackTraceEnabled";
+		    var flag = UnityEditor.EditorPrefs.GetBool(key, false);
+		    UnityEditor.Menu.SetChecked("ME.ECS/Debug/Enable Stack Trace", flag);
+		    return true;
+
+	    }
+
+	    [UnityEditor.MenuItem("ME.ECS/Debug/Enable Stack Trace")]
+	    public static void StackTrace() {
+
+		    var key = "ME.Pools.StackTraceEnabled";
+		    UnityEditor.EditorPrefs.SetBool(key, !UnityEditor.EditorPrefs.GetBool(key, false));
+				
+	    }
+
+	    public static bool IsStackTraceEnabled() {
+
+		    if (PoolInternalBase.isStackTraceEnabledSet == true) return PoolInternalBase.isStackTraceEnabled;
+		    
+		    var key = "ME.Pools.StackTraceEnabled";
+		    PoolInternalBase.isStackTraceEnabled = UnityEditor.EditorPrefs.GetBool(key, false);
+		    PoolInternalBase.isStackTraceEnabledSet = true;
+
+		    return PoolInternalBase.isStackTraceEnabled;
+
+	    }
+
 	    [UnityEditor.MenuItem("ME.ECS/Debug/Pools Info")]
 	    public static void Debug() {
 		    
@@ -310,7 +346,20 @@ namespace ME.ECS {
 			    var item = PoolInternalBase.list[i];
 			    if (item.poolAllocated != item.poolDeallocated) {
 
-				    UnityEngine.Debug.Log("Memory leak: " + item.poolType + ", Pool:\n" + item);
+				    UnityEngine.Debug.LogWarning("Memory leak: " + item.poolType + ", Pool:\n" + item);
+
+				    if (PoolInternalBase.IsStackTraceEnabled() == true && item.stackTraces != null) {
+
+					    var max = 10;
+					    foreach (var stack in item.stackTraces) {
+
+						    UnityEngine.Debug.Log(stack.Key.GetType() + "\n" + stack.Value);
+						    --max;
+						    if (max <= 0) break;
+						    
+					    }
+
+				    }
 				    
 			    }
 			    
@@ -360,22 +409,30 @@ namespace ME.ECS {
 		    
 	    }
 
-	    public static T Create<T>() where T : new() {
+	    public static T Create<T>(PoolInternalBase pool) where T : new() {
 		    
 		    var instance = new T();
-		    PoolInternalBase.CallOnSpawn(instance);
+		    PoolInternalBase.CallOnSpawn(instance, pool);
 
 		    return instance;
 
 	    }
 
-	    public static void CallOnSpawn<T>(T instance) {
+	    public static void CallOnSpawn<T>(T instance, PoolInternalBase pool) {
 		    
 		    if (instance is IPoolableSpawn poolable) {
 			    
 			    poolable.OnSpawn();
 			    
 		    }
+
+		    #if UNITY_EDITOR
+		    if (PoolInternalBase.IsStackTraceEnabled() == true) {
+			    
+			    pool.WriteStackTrace(instance);
+			    
+		    }
+		    #endif
 		    
 	    }
 
@@ -426,6 +483,12 @@ namespace ME.ECS {
 		    ++PoolInternalBase.allocated;
 
 		    #if UNITY_EDITOR
+		    if (PoolInternalBase.IsStackTraceEnabled() == true) {
+
+			    this.WriteStackTrace(item);
+
+		    }
+		    
 		    if (item != null) {
 			    
 			    this.poolType = item.GetType();
@@ -437,10 +500,33 @@ namespace ME.ECS {
 
 	    }
 
+	    private void RemoveStackTrace(object obj) {
+		    
+		    if (this.stackTraces == null) this.stackTraces = new Dictionary<object, string>();
+		    this.stackTraces.Remove(obj);
+
+	    }
+	    
+	    private void WriteStackTrace(object obj) {
+
+		    if (obj == null) return;
+		    
+		    var stack = System.Environment.StackTrace;
+		    if (this.stackTraces == null) this.stackTraces = new Dictionary<object, string>();
+		    if (this.stackTraces.ContainsKey(obj) == false) this.stackTraces.Add(obj, stack);
+		    
+	    }
+
 	    [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	    public virtual void Recycle(object instance) {
 		    
 		    #if UNITY_EDITOR
+		    if (PoolInternalBase.IsStackTraceEnabled() == true) {
+
+			    this.RemoveStackTrace(instance);
+
+		    }
+
 		    if (instance != null) {
 			    
 			    this.poolType = instance.GetType();

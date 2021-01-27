@@ -306,30 +306,7 @@ namespace ME.ECS {
 
             if (this.buckets.arr == null) return;
             
-            for (int i = 0; i < this.buckets.Length; ++i) {
-
-                ref var bucket = ref this.buckets.arr[i];
-                if (bucket.components.arr != null) {
-
-                    for (int j = 0; j < bucket.components.Length; ++j) {
-
-                        var list = bucket.components.arr[j];
-                        if (list != null) {
-
-                            PoolComponents.Recycle(list);
-                            PoolListCopyable<IComponent>.Recycle(ref list);
-                            bucket.components.arr[j] = null;
-
-                        }
-
-                    }
-
-                    PoolArray<ListCopyable<IComponent>>.Recycle(ref bucket.components);
-
-                }
-
-            }
-            PoolArray<Bucket>.Recycle(ref this.buckets);
+            ArrayUtils.Recycle(ref this.buckets, new CopyBucket());
             
         }
 
@@ -337,19 +314,12 @@ namespace ME.ECS {
 
             public void Copy(IComponent from, ref IComponent to) {
                 
-                var type = from.GetType();
-                
                 var comp = to;
                 if (comp == null) {
 
+                    var type = from.GetType();
                     comp = (IComponent)PoolComponents.Spawn(type);
-                    if (comp == null) {
-
-                        comp = (IComponent)System.Activator.CreateInstance(type);
-                        PoolInternalBase.CallOnSpawn(comp);
-
-                    }
-
+                    
                 }
 
                 if (comp is IComponentCopyable compCopyable) compCopyable.CopyFrom((IComponentCopyable)from);

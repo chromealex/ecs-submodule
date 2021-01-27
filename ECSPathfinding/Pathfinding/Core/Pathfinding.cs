@@ -81,6 +81,8 @@ namespace ME.ECS.Pathfinding {
 
         public void Recycle() {
 
+            this.OnRecycle();
+            
             if (this != null && this.gameObject != null) {
                 
                 Object.Destroy(this.gameObject);
