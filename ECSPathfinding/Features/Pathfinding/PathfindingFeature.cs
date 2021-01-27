@@ -19,7 +19,13 @@ namespace ME.ECS.Pathfinding.Features {
 
         private ME.ECS.Pathfinding.Pathfinding pathfindingInstance;
         private Entity pathfindingEntity;
-        
+
+        [UnityEngine.Header("Path smoothing")]
+        public bool usePathSmoothing = false;
+        public int bezierCurveSubdivisions = 2;
+        public float bezierTangentLength = 0.2f;
+
+
         public void SetInstance(ME.ECS.Pathfinding.Pathfinding pathfinding) {
 
             this.pathfindingInstance = pathfinding;
@@ -97,6 +103,12 @@ namespace ME.ECS.Pathfinding.Features {
 
             }
 
+            if (this.usePathSmoothing == true) {
+                var newPath = PathSmoothingUtils.Bezier(vPath, this.bezierCurveSubdivisions, this.bezierTangentLength);
+                PoolListCopyable<UnityEngine.Vector3>.Recycle(ref vPath);
+                vPath = newPath;
+            }
+            
             var unitPath = entity.AddComponent<ME.ECS.Pathfinding.Features.Pathfinding.Components.Path>();
             unitPath.result = result;
             unitPath.path = ME.ECS.Collections.BufferArray<UnityEngine.Vector3>.From(vPath);
