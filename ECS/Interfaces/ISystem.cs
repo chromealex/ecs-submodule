@@ -19,6 +19,12 @@ namespace ME.ECS {
 
     public interface IAdvanceTickBase : IContext { }
     
+    public interface IAdvanceTickStep : IContext {
+
+        Tick step { get; }
+
+    }
+
     public interface IAdvanceTick : IAdvanceTickBase {
 
         void AdvanceTick(in float deltaTime);

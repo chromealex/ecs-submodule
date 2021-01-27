@@ -2205,8 +2205,11 @@ namespace ME.ECS {
                             #if CHECKPOINT_COLLECTOR
                             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules[i], WorldStep.LogicTick);
                             #endif
+
+                            var module = this.modules[i];
+                            if (module is IAdvanceTickStep step && step.step % state.tick != 0) continue;
                             
-                            if (this.modules[i] is IAdvanceTick moduleBase) {
+                            if (module is IAdvanceTick moduleBase) {
 
                                 #if UNITY_EDITOR
                                 UnityEngine.Profiling.Profiler.BeginSample(moduleBase.ToString());
@@ -2303,6 +2306,8 @@ namespace ME.ECS {
                         for (int j = 0; j < group.runtimeSystem.systemAdvanceTickPre.Count; ++j) {
 
                             ref var system = ref group.runtimeSystem.systemAdvanceTickPre[j];
+                            if (system is IAdvanceTickStep step && step.step % state.tick != 0) continue;
+
                             #if CHECKPOINT_COLLECTOR
                             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
                             #endif
@@ -2348,7 +2353,8 @@ namespace ME.ECS {
                         for (int j = 0; j < group.runtimeSystem.systemAdvanceTick.Count; ++j) {
 
                             ref var systemBase = ref group.runtimeSystem.systemAdvanceTick[j];
-
+                            if (systemBase is IAdvanceTickStep step && step.step % state.tick != 0) continue;
+                            
                             if (systemBase is ISystemFilter system) {
                                 
                                 #if CHECKPOINT_COLLECTOR
@@ -2456,7 +2462,7 @@ namespace ME.ECS {
                                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
                                 #endif
                                 
-                            } else if (systemBase is IAdvanceTick advanceTickSystem){
+                            } else if (systemBase is IAdvanceTick advanceTickSystem) {
                                 
                                 #if UNITY_EDITOR
                                 UnityEngine.Profiling.Profiler.BeginSample($"PrepareAdvanceTickForSystem");
@@ -2526,7 +2532,8 @@ namespace ME.ECS {
                         for (int j = 0; j < group.runtimeSystem.systemAdvanceTickPost.Count; ++j) {
 
                             ref var system = ref group.runtimeSystem.systemAdvanceTickPost[j];
-                            
+                            if (system is IAdvanceTickStep step && step.step % state.tick != 0) continue;
+
                             #if CHECKPOINT_COLLECTOR
                             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
                             #endif
