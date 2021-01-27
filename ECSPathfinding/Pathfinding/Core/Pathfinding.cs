@@ -66,6 +66,12 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        public void OnDestroy() {
+            
+            this.OnRecycle();
+            
+        }
+        
         public Pathfinding Clone() {
 
             var instance = Object.Instantiate(this);
@@ -92,11 +98,17 @@ namespace ME.ECS.Pathfinding {
         }
 
         private void OnRecycle() {
-            
-            for (int i = 0; i < this.graphs.Count; ++i) {
 
-                this.graphs[i].Recycle();
+            if (this.graphs != null) {
 
+                for (int i = 0; i < this.graphs.Count; ++i) {
+
+                    this.graphs[i].Recycle();
+
+                }
+                
+                PoolList<Graph>.Recycle(ref this.graphs);
+                
             }
 
         }
