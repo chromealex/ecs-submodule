@@ -108,12 +108,14 @@ namespace ME.ECS.Serializer {
         private Dictionary<System.Type, Item> serializers;
         private Dictionary<System.Type, Item> serializersBaseType;
         private Dictionary<byte, Item> serializersByTypeValue;
+        private bool isInitialized;
 
         private void Init(int capacity) {
             
             if (this.serializers == null) this.serializers = PoolDictionary<System.Type, Item>.Spawn(capacity);
             if (this.serializersBaseType == null) this.serializersBaseType = PoolDictionary<System.Type, Item>.Spawn(capacity);
             if (this.serializersByTypeValue == null) this.serializersByTypeValue = PoolDictionary<byte, Item>.Spawn(capacity);
+            this.isInitialized = true;
 
         }
 
@@ -122,11 +124,14 @@ namespace ME.ECS.Serializer {
             if (this.serializers != null) PoolDictionary<System.Type, Item>.Recycle(ref this.serializers);
             if (this.serializersBaseType != null) PoolDictionary<System.Type, Item>.Recycle(ref this.serializersBaseType);
             if (this.serializersByTypeValue != null) PoolDictionary<byte, Item>.Recycle(ref this.serializersByTypeValue);
+            this.isInitialized = false;
             
         }
         
         public void Add(Serializers serializers) {
 
+            if (serializers.isInitialized == false) return;
+            
             this.Init(32);
             serializers.Init(32);
 
@@ -306,6 +311,7 @@ namespace ME.ECS.Serializer {
             serializer.Pack(packer, obj, typeof(T));
 
             bytes = packer.ToArray();
+            allSerializers.Dispose();
             return bytes;
 
         }
@@ -328,6 +334,8 @@ namespace ME.ECS.Serializer {
 
             var serializer = new GenericSerializer();
             var instance   = (T)serializer.Unpack(packer, typeof(T));
+            customSerializers.Dispose();
+            packer.serializers.Dispose();
             return instance;
 
         }
@@ -338,6 +346,7 @@ namespace ME.ECS.Serializer {
 
             var serializer = new GenericSerializer();
             var instance   = (T)serializer.Unpack(packer, typeof(T));
+            allSerializers.Dispose();
             return instance;
 
         }
@@ -346,6 +355,8 @@ namespace ME.ECS.Serializer {
             
             var packer = Serializer.SetupDefaultPacker(bytes, customSerializers);
             new GenericSerializer().Unpack(packer, objectToOverwrite);
+            customSerializers.Dispose();
+            packer.serializers.Dispose();
             return objectToOverwrite;
 
         }
@@ -356,6 +367,8 @@ namespace ME.ECS.Serializer {
             var serializers         = Serializer.GetDefaultSerializers();
             serializers.Add(serializersInternal);
             serializers.Add(customSerializers);
+            serializersInternal.Dispose();
+            customSerializers.Dispose();
 
             System.IO.MemoryStream stream;
             if (bytes == null) {

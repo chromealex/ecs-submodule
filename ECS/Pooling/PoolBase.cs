@@ -10,7 +10,7 @@ namespace ME.ECS {
 	#endif
 	public static class PoolClass<T> where T : class, new() {
 
-		private static PoolInternalBase pool = new PoolInternalBase(() => new T(), null);
+		private static PoolInternalBase pool = new PoolInternalBase(typeof(T), () => new T(), null);
 
 		public static T Spawn() {
 		    
@@ -305,6 +305,17 @@ namespace ME.ECS {
 			    
 		    }
 
+		    for (int i = 0; i < PoolInternalBase.list.Count; ++i) {
+
+			    var item = PoolInternalBase.list[i];
+			    if (item.poolAllocated != item.poolDeallocated) {
+
+				    UnityEngine.Debug.Log("Memory leak: " + item.poolType + ", Pool:\n" + item);
+				    
+			    }
+			    
+		    }
+		    
 	    }
 	    
 	    [UnityEditor.MenuItem("ME.ECS/Debug/Pools Reset Stats")]
@@ -339,8 +350,9 @@ namespace ME.ECS {
 		    
 	    }
 
-	    public PoolInternalBase(System.Func<object> constructor, System.Action<object> desctructor) {
+	    public PoolInternalBase(System.Type poolType, System.Func<object> constructor, System.Action<object> desctructor) {
 
+		    this.poolType = poolType;
 		    this.constructor = constructor;
 		    this.desctructor = desctructor;
 

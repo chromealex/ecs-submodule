@@ -10,7 +10,7 @@ namespace ME.ECS {
     public static class PoolRefList<TValue> {
 
         private static int capacity;
-        private static PoolInternalBase pool = new PoolInternalBase(() => new RefList<TValue>(PoolRefList<TValue>.capacity), (x) => ((RefList<TValue>)x).Clear());
+        private static PoolInternalBase pool = new PoolInternalBase(typeof(RefList<TValue>), () => new RefList<TValue>(PoolRefList<TValue>.capacity), (x) => ((RefList<TValue>)x).Clear());
 
         public static RefList<TValue> Spawn(int capacity) {
 

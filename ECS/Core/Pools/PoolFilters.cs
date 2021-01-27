@@ -22,7 +22,7 @@ namespace ME.ECS {
 
 		    } else {
                 
-			    pool = new PoolInternalBase(null, null);
+			    pool = new PoolInternalBase(typeof(T), null, null);
 			    var obj = (T)pool.Spawn();
 			    PoolFilters.pool.Add(key, pool);
 			    if (obj != null) return obj;
@@ -44,7 +44,7 @@ namespace ME.ECS {
 
 		    } else {
                 
-			    pool = new PoolInternalBase(null, null);
+			    pool = new PoolInternalBase(type, null, null);
 			    var obj = pool.Spawn();
 			    PoolFilters.pool.Add(key, pool);
 			    if (obj != null) return obj;
@@ -72,7 +72,7 @@ namespace ME.ECS {
                 
 		    } else {
                 
-			    pool = new PoolInternalBase(null, null);
+			    pool = new PoolInternalBase(typeof(T), null, null);
 			    pool.Recycle(system);
 			    PoolFilters.pool.Add(key, pool);
                 

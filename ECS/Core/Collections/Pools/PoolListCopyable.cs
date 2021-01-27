@@ -10,7 +10,7 @@
 	#endif
 	public static class PoolCCList<TValue> {
 
-		private static PoolInternalBase pool = new PoolInternalBase(() => new CCList<TValue>(), (x) => ((CCList<TValue>)x).ClearNoCC());
+		private static PoolInternalBase pool = new PoolInternalBase(typeof(CCList<TValue>), () => new CCList<TValue>(), (x) => ((CCList<TValue>)x).ClearNoCC());
 
 		public static CCList<TValue> Spawn() {
 
@@ -40,7 +40,7 @@
 	#endif
 	public static class PoolSortedSetCopyable<TValue> {
 
-		private static PoolInternalBase pool = new PoolInternalBase(() => new SortedSetCopyable<TValue>(), (x) => ((SortedSetCopyable<TValue>)x).Clear());
+		private static PoolInternalBase pool = new PoolInternalBase(typeof(SortedSetCopyable<TValue>), () => new SortedSetCopyable<TValue>(), (x) => ((SortedSetCopyable<TValue>)x).Clear());
 
 		public static SortedSetCopyable<TValue> Spawn(int capacity = 0) {
 
@@ -70,7 +70,7 @@
 	#endif
 	public static class PoolHashSetCopyable<TValue> {
 
-		private static PoolInternalBase pool = new PoolInternalBase(() => new HashSetCopyable<TValue>(), (x) => ((HashSetCopyable<TValue>)x).Clear());
+		private static PoolInternalBase pool = new PoolInternalBase(typeof(ListCopyable<HashSetCopyable<TValue>>), () => new HashSetCopyable<TValue>(), (x) => ((HashSetCopyable<TValue>)x).Clear());
 
 		public static HashSetCopyable<TValue> Spawn(int capacity = 0) {
 
@@ -101,7 +101,7 @@
 	public static class PoolQueueCopyable<TValue> where TValue : struct {
 
 		private static int capacity;
-		private static PoolInternalBase pool = new PoolInternalBase(() => new QueueCopyable<TValue>(PoolQueueCopyable<TValue>.capacity), (x) => ((QueueCopyable<TValue>)x).Clear());
+		private static PoolInternalBase pool = new PoolInternalBase(typeof(QueueCopyable<TValue>), () => new QueueCopyable<TValue>(PoolQueueCopyable<TValue>.capacity), (x) => ((QueueCopyable<TValue>)x).Clear());
 
 		public static QueueCopyable<TValue> Spawn(int capacity) {
 
@@ -133,7 +133,7 @@
 	public static class PoolListCopyable<TValue> {
 
 		private static int capacity;
-		private static PoolInternalBase pool = new PoolInternalBase(() => new ListCopyable<TValue>(PoolListCopyable<TValue>.capacity), (x) => ((ListCopyable<TValue>)x).Clear());
+		private static PoolInternalBase pool = new PoolInternalBase(typeof(ListCopyable<TValue>), () => new ListCopyable<TValue>(PoolListCopyable<TValue>.capacity), (x) => ((ListCopyable<TValue>)x).Clear());
 
 		public static ListCopyable<TValue> Spawn(int capacity) {
 
@@ -177,7 +177,7 @@
 		
 		private static int capacity;
 		private static DuplicateKeyComparer duplicateComparer = new DuplicateKeyComparer();
-		private static PoolInternalBase pool = new PoolInternalBase(() => new ME.ECS.Collections.SortedList<TKey, TValue>(PoolSortedList<TKey, TValue>.capacity, PoolSortedList<TKey, TValue>.duplicateComparer), (x) => ((ME.ECS.Collections.SortedList<TKey, TValue>)x).Clear());
+		private static PoolInternalBase pool = new PoolInternalBase(typeof(System.Collections.Generic.SortedList<TKey, TValue>), () => new ME.ECS.Collections.SortedList<TKey, TValue>(PoolSortedList<TKey, TValue>.capacity, PoolSortedList<TKey, TValue>.duplicateComparer), (x) => ((ME.ECS.Collections.SortedList<TKey, TValue>)x).Clear());
 
 		public static ME.ECS.Collections.SortedList<TKey, TValue> Spawn(int capacity) {
 

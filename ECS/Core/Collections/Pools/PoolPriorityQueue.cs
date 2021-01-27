@@ -10,7 +10,7 @@ namespace ME.ECS {
     public static class PoolPriorityQueue<TValue> {
 
         private static int capacity;
-        private static PoolInternalBase pool = new PoolInternalBase(() => new PriorityQueue<TValue>(PoolPriorityQueue<TValue>.capacity), (x) => ((PriorityQueue<TValue>)x).Clear());
+        private static PoolInternalBase pool = new PoolInternalBase(typeof(PriorityQueue<TValue>), () => new PriorityQueue<TValue>(PoolPriorityQueue<TValue>.capacity), (x) => ((PriorityQueue<TValue>)x).Clear());
 
         public static PriorityQueue<TValue> Spawn(int capacity) {
 

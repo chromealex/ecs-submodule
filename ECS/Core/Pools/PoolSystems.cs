@@ -22,7 +22,7 @@ namespace ME.ECS {
 
             } else {
                 
-                pool = new PoolInternalBase(null, null);
+                pool = new PoolInternalBase(typeof(T), null, null);
                 var obj = (T)pool.Spawn();
                 PoolSystems.pool.Add(key, pool);
                 if (obj != null) return obj;
@@ -42,7 +42,7 @@ namespace ME.ECS {
 
         public static void Recycle<T>(T system) where T : class, ISystemBase {
 
-            var key = WorldUtilities.GetKey<T>();
+            var key = WorldUtilities.GetKey(system.GetType());
             PoolInternalBase pool;
             if (PoolSystems.pool.TryGetValue(key, out pool) == true) {
 
@@ -50,7 +50,7 @@ namespace ME.ECS {
                 
             } else {
                 
-                pool = new PoolInternalBase(null, null);
+                pool = new PoolInternalBase(typeof(T), null, null);
                 pool.Recycle(system);
                 PoolSystems.pool.Add(key, pool);
                 

@@ -117,7 +117,7 @@ namespace ME.ECS.Views.Providers {
         
         public override void OnConstruct() {
 
-            this.pool = new PoolInternalBase(null, null);
+            this.pool = new PoolInternalBase(typeof(NoView), null, null);
             
         }
 

@@ -12,7 +12,7 @@ namespace ME.ECS {
 	public static class PoolCCDictionary<TKey, TValue> where TValue : System.IComparable<TValue> {
 
 		private static int capacity;
-		private static PoolInternalBase pool = new PoolInternalBase(() => new CCDictionary<TKey, TValue>(CCDictionary<TKey, TValue>.DefaultConcurrencyLevel, PoolCCDictionary<TKey, TValue>.capacity), (x) => ((CCDictionary<TKey, TValue>)x).Clear());
+		private static PoolInternalBase pool = new PoolInternalBase(typeof(CCDictionary<TKey, TValue>), () => new CCDictionary<TKey, TValue>(CCDictionary<TKey, TValue>.DefaultConcurrencyLevel, PoolCCDictionary<TKey, TValue>.capacity), (x) => ((CCDictionary<TKey, TValue>)x).Clear());
 
 		public static CCDictionary<TKey, TValue> Spawn(int capacity) {
 

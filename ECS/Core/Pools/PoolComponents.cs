@@ -31,7 +31,7 @@ namespace ME.ECS {
 
 		    } else {
                 
-			    pool = new PoolInternalBase(null, null);
+			    pool = new PoolInternalBase(typeof(StructRegistryBase), null, null);
 			    var obj = pool.Spawn();
 			    PoolRegistries.pool.Add(key, pool);
 			    if (obj != null) return obj;
@@ -51,7 +51,7 @@ namespace ME.ECS {
                 
 		    } else {
                 
-			    pool = new PoolInternalBase(null, null);
+			    pool = new PoolInternalBase(typeof(StructRegistryBase), null, null);
 			    pool.Recycle(system);
 			    PoolRegistries.pool.Add(key, pool);
                 
@@ -80,7 +80,7 @@ namespace ME.ECS {
 	    public static T Spawn<T>() where T : class, IComponentBase, new() {
 
 		    var key = WorldUtilities.GetKey<T>();
-		    var obj = (T)PoolComponents.Spawn_INTERNAL(key);
+		    var obj = (T)PoolComponents.Spawn_INTERNAL(typeof(T), key);
 		    if (obj != null) return obj;
 
 		    return PoolInternalBase.Create<T>();
@@ -90,11 +90,11 @@ namespace ME.ECS {
 	    public static object Spawn(System.Type type) {
 
 		    var key = WorldUtilities.GetKey(type);
-		    return PoolComponents.Spawn_INTERNAL(key);
+		    return PoolComponents.Spawn_INTERNAL(type, key);
 
 	    }
 
-	    private static object Spawn_INTERNAL(int key) {
+	    private static object Spawn_INTERNAL(System.Type type, int key) {
 		    
 		    PoolInternalBase pool;
 		    if (PoolComponents.pool.TryGetValue(key, out pool) == true) {
@@ -104,7 +104,7 @@ namespace ME.ECS {
 
 		    } else {
                 
-			    pool = new PoolInternalBase(null, null);
+			    pool = new PoolInternalBase(type, null, null);
 			    var obj = pool.Spawn();
 			    PoolComponents.pool.Add(key, pool);
 			    if (obj != null) return obj;
@@ -122,7 +122,7 @@ namespace ME.ECS {
 
 	    }
 
-	    private static void Recycle_INTERNAL(int key, object system) {
+	    private static void Recycle_INTERNAL(System.Type type, int key, object system) {
 		    
 		    PoolInternalBase pool;
 		    if (PoolComponents.pool.TryGetValue(key, out pool) == true) {
@@ -131,7 +131,7 @@ namespace ME.ECS {
                 
 		    } else {
                 
-			    pool = new PoolInternalBase(null, null);
+			    pool = new PoolInternalBase(type, null, null);
 			    pool.Recycle(system);
 			    PoolComponents.pool.Add(key, pool);
                 
@@ -139,24 +139,17 @@ namespace ME.ECS {
 		    
 	    }
 
-	    public static void Recycle(object system) {
-
-		    var key = WorldUtilities.GetKey(system.GetType());
-		    PoolComponents.Recycle_INTERNAL(key, system);
-		    
-	    }
-
 	    public static void Recycle<T>(T system) where T : class, IComponentBase {
 
 		    var key = WorldUtilities.GetKey<T>();
-		    PoolComponents.Recycle_INTERNAL(key, system);
+		    PoolComponents.Recycle_INTERNAL(typeof(T), key, system);
 		    
 	    }
 
 	    public static void Recycle<T>(T system, System.Type type) where T : class, IComponentBase {
 
 		    var key = WorldUtilities.GetKey(type);
-		    PoolComponents.Recycle_INTERNAL(key, system);
+		    PoolComponents.Recycle_INTERNAL(type, key, system);
 
 	    }
 

@@ -11,7 +11,7 @@ namespace ME.ECS {
 
 		private static IEqualityComparer<TKey> customComparer;
 		private static int capacity;
-		private static PoolInternalBase pool = new PoolInternalBase(() => new Dictionary<TKey, TValue>(PoolDictionary<TKey, TValue>.capacity, PoolDictionary<TKey, TValue>.customComparer), (x) => ((Dictionary<TKey, TValue>)x).Clear());
+		private static PoolInternalBase pool = new PoolInternalBase(typeof(Dictionary<TKey, TValue>), () => new Dictionary<TKey, TValue>(PoolDictionary<TKey, TValue>.capacity, PoolDictionary<TKey, TValue>.customComparer), (x) => ((Dictionary<TKey, TValue>)x).Clear());
 
 		public static Dictionary<TKey, TValue> Spawn(int capacity, IEqualityComparer<TKey> customComparer = null) {
 

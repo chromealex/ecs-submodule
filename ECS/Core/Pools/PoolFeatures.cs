@@ -22,7 +22,7 @@ namespace ME.ECS {
 
             } else {
                 
-                pool = new PoolInternalBase(null, null);
+                pool = new PoolInternalBase(typeof(T), null, null);
                 var obj = (T)pool.Spawn();
                 PoolFeatures.pool.Add(key, pool);
                 if (obj != null) return obj;
@@ -50,7 +50,7 @@ namespace ME.ECS {
                 
             } else {
                 
-                pool = new PoolInternalBase(null, null);
+                pool = new PoolInternalBase(typeof(T), null, null);
                 pool.Recycle(system);
                 PoolFeatures.pool.Add(key, pool);
                 

@@ -10,7 +10,7 @@ namespace ME.ECS {
 	#endif
 	public static class PoolStates<T> where T : State, new() {
 
-		private static PoolInternalBase pool = new PoolInternalBase(() => new T(), null);
+		private static PoolInternalBase pool = new PoolInternalBase(typeof(T), () => new T(), null);
 
 		public static T Spawn() {
 		    

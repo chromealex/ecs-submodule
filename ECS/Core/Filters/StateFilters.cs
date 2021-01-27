@@ -161,7 +161,7 @@ namespace ME.ECS {
 
         public void Register(FilterData filter) {
 
-            ArrayUtils.RawResize(filter.id - 1, ref this.filters);
+            ArrayUtils.Resize(filter.id - 1, ref this.filters);
             this.filters.arr[filter.id - 1] = filter;
             
         }
@@ -758,7 +758,7 @@ namespace ME.ECS {
             if (string.IsNullOrEmpty(name) == true) return;
             
             var idx = (this.aliases.arr != null ? this.aliases.Length : 0);
-            ArrayUtils.RawResize(idx, ref this.aliases);
+            ArrayUtils.Resize(idx, ref this.aliases);
             this.aliases.arr[idx] = name;
 
         }

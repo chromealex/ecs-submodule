@@ -22,7 +22,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static TState CreateState<TState>() where TState : State, new() {
 
-            var state = PoolClass<TState>.Spawn();
+            var state = PoolStates<TState>.Spawn();
             state.entityId = default;
             state.tick = default;
             state.randomState = default;
@@ -36,7 +36,7 @@ namespace ME.ECS {
             state.entityId = default;
             state.tick = default;
             state.randomState = default;
-            PoolClass<TState>.Recycle((TState)state);
+            PoolStates<TState>.Recycle((TState)state);
             state = null;
 
         }

@@ -328,6 +328,7 @@
 	        T[] arr = buffer.arr;
 	        PoolArray<T>.Release(ref arr);
 	        buffer = new BufferArray<T>(null, 0);
+	        if (arr != null) System.Array.Clear(arr, 0, arr.Length);
 
         }
 
@@ -339,6 +340,7 @@
 	        
 	        T[] arr = buffer.arr;
 	        PoolArray<T>.Release(ref arr);
+	        if (arr != null) System.Array.Clear(arr, 0, arr.Length);
 	        
         }
 

@@ -9,7 +9,7 @@
 	#endif
 	public static class PoolStack<TValue> {
 
-		private static PoolInternalBase pool = new PoolInternalBase(() => new Stack<TValue>(), (x) => ((Stack<TValue>)x).Clear());
+		private static PoolInternalBase pool = new PoolInternalBase(typeof(Stack<TValue>), () => new Stack<TValue>(), (x) => ((Stack<TValue>)x).Clear());
 
 		public static Stack<TValue> Spawn(int capacity = 0) {
 
@@ -39,7 +39,7 @@
 	#endif
 	public static class PoolSortedSet<TValue> {
 
-		private static PoolInternalBase pool = new PoolInternalBase(() => new SortedSet<TValue>(), (x) => ((SortedSet<TValue>)x).Clear());
+		private static PoolInternalBase pool = new PoolInternalBase(typeof(SortedSet<TValue>), () => new SortedSet<TValue>(), (x) => ((SortedSet<TValue>)x).Clear());
 
 		public static SortedSet<TValue> Spawn(int capacity = 0) {
 
@@ -69,7 +69,7 @@
 	#endif
 	public static class PoolHashSet<TValue> {
 
-		private static PoolInternalBase pool = new PoolInternalBase(() => new HashSet<TValue>(), (x) => ((HashSet<TValue>)x).Clear());
+		private static PoolInternalBase pool = new PoolInternalBase(typeof(HashSet<TValue>), () => new HashSet<TValue>(), (x) => ((HashSet<TValue>)x).Clear());
 
 		public static HashSet<TValue> Spawn(int capacity = 0) {
 
@@ -100,7 +100,7 @@
 	public static class PoolQueue<TValue> {
 
 		private static int capacity;
-		private static PoolInternalBase pool = new PoolInternalBase(() => new Queue<TValue>(PoolQueue<TValue>.capacity), (x) => ((Queue<TValue>)x).Clear());
+		private static PoolInternalBase pool = new PoolInternalBase(typeof(Queue<TValue>), () => new Queue<TValue>(PoolQueue<TValue>.capacity), (x) => ((Queue<TValue>)x).Clear());
 
 		public static Queue<TValue> Spawn(int capacity) {
 
@@ -132,7 +132,7 @@
 	public static class PoolList<TValue> {
 
 		private static int capacity;
-		private static PoolInternalBase pool = new PoolInternalBase(() => new List<TValue>(PoolList<TValue>.capacity), (x) => ((List<TValue>)x).Clear());
+		private static PoolInternalBase pool = new PoolInternalBase(typeof(List<TValue>), () => new List<TValue>(PoolList<TValue>.capacity), (x) => ((List<TValue>)x).Clear());
 
 		public static List<TValue> Spawn(int capacity) {
 

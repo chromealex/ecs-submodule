@@ -40,6 +40,7 @@ namespace ME.ECS.Serializer.Tests {
             var serializersInternal = Serializer.GetInternalSerializers();
             var serializers = Serializer.GetDefaultSerializers();
             serializers.Add(serializersInternal);
+            serializersInternal.Dispose();
 
             byte[] lastTest = null;
             for (int i = 0; i < 100; ++i) {
@@ -49,6 +50,8 @@ namespace ME.ECS.Serializer.Tests {
                 lastTest = bytes;
 
             }
+            
+            serializers.Dispose();
             
             UnityEngine.Debug.Log("Bytes length: " + lastTest.Length);
 
@@ -83,6 +86,7 @@ namespace ME.ECS.Serializer.Tests {
                 ser.Add(new BufferArraySerializer());
 
                 bytes = Serializer.Pack(test, ser);
+                ser.Dispose();
             }
             
             {
@@ -90,6 +94,7 @@ namespace ME.ECS.Serializer.Tests {
                 ser.Add(new BufferArraySerializer());
 
                 var testRes = Serializer.Unpack<TestDataBufferArray>(bytes, ser);
+                ser.Dispose();
                 for (int i = 0; i < test.buffer.Length; ++i) {
 
                     NUnit.Framework.Assert.AreEqual(test.buffer.arr[i], testRes.buffer.arr[i]);
@@ -171,6 +176,7 @@ namespace ME.ECS.Serializer.Tests {
                 ser.Add(new BufferArraySerializer());
 
                 bytes = Serializer.Pack(test, ser);
+                ser.Dispose();
             }
 
             {
@@ -178,6 +184,7 @@ namespace ME.ECS.Serializer.Tests {
                 ser.Add(new BufferArraySerializer());
                 
                 var testRes = Serializer.Unpack<TestState>(bytes, ser);
+                ser.Dispose();
 
                 NUnit.Framework.Assert.AreEqual(test.components.GetData(1).Count, testRes.components.GetData(1).Count);
             }
