@@ -500,6 +500,7 @@ namespace ME.ECS {
 
 	    }
 
+	    #if UNITY_EDITOR
 	    private void RemoveStackTrace(object obj) {
 		    
 		    if (obj == null) return;
@@ -518,6 +519,7 @@ namespace ME.ECS {
 		    if (this.stackTraces.ContainsKey(obj) == false) this.stackTraces.Add(obj, stack);
 		    
 	    }
+	    #endif
 
 	    [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	    public virtual void Recycle(object instance) {
