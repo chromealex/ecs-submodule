@@ -121,6 +121,8 @@ namespace ME.ECS.Network {
         private static readonly RPCId PING_RPC_ID = -1;
         private static readonly RPCId SYNC_RPC_ID = -2;
         
+        public World world { get; set; }
+
         private RPCId rpcId;
         internal System.Collections.Generic.Dictionary<int, System.Reflection.MethodInfo> registry;
         private System.Collections.Generic.HashSet<int> runLocalOnly;
@@ -135,9 +137,11 @@ namespace ME.ECS.Network {
 
         private double ping;
         
-        public World world { get; set; }
-
         void IModuleBase.OnConstruct() {
+
+            this.localOrderIndex = 0;
+            this.rpcId = 0;
+            this.ping = 0d;
 
             this.registry = PoolDictionary<int, System.Reflection.MethodInfo>.Spawn(100);
             this.objectToKey = PoolDictionary<object, Key>.Spawn(100);
