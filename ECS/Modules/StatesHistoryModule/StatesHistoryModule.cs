@@ -713,7 +713,7 @@ namespace ME.ECS.StatesHistory {
                         if (localHash != remoteHash) {
                         
                             var orderId = kv.Key;
-                            UnityEngine.Debug.LogError(this.world.id + " Remote Hash (" + orderId + "): " + remoteHash + ", Local Hash: " + localHash);
+                            UnityEngine.Debug.LogError("[World #" + this.world.id + "] Remote Hash (Client Id: " + orderId + "): " + kv.Key + ":" + remoteHash + ", Local Hash: " + tick + ":" + localHash);
 
                         }
                         
