@@ -716,6 +716,20 @@ namespace ME.ECS.Network {
 
         public RPCId RegisterRPC(System.Reflection.MethodInfo methodInfo, bool runLocalOnly = false) {
 
+            if (this.registry.ContainsValue(methodInfo) == true) {
+
+                foreach (var reg in this.registry) {
+
+                    if (reg.Value == methodInfo) {
+
+                        return reg.Key;
+
+                    }
+                    
+                }
+                
+            }
+            
             this.RegisterRPC(++this.rpcId, methodInfo, runLocalOnly);
             return this.rpcId;
 
