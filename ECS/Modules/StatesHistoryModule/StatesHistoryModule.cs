@@ -452,6 +452,17 @@ namespace ME.ECS.StatesHistory {
                 
                 //this.Simulate(this.beginAddEventsTick, this.currentTick);
 
+                var module = this.world.GetModule<ME.ECS.Network.NetworkModule<TState>>();
+                var st = this.GetStateBeforeTick(this.oldestTick, out var syncTick);
+                if (st == null || syncTick == Tick.Invalid) st = this.world.GetResetState<TState>();
+
+                if (st.tick > module.syncedTick) {
+
+                    module.syncedTick = st.tick;
+                    module.syncHash = this.GetStateHash(st);
+
+                }
+
             }
             
             this.beginAddEvents = false;
@@ -713,7 +724,7 @@ namespace ME.ECS.StatesHistory {
                         if (localHash != remoteHash) {
                         
                             var orderId = kv.Key;
-                            UnityEngine.Debug.LogError("[World #" + this.world.id + "] Remote Hash (Client Id: " + orderId + "): " + kv.Key + ":" + remoteHash + ", Local Hash: " + tick + ":" + localHash);
+                            UnityEngine.Debug.LogError("[World #" + this.world.id + "] Remote Hash (Client Id: " + orderId + "): " + tick + ":" + remoteHash + ", Local Hash: " + tick + ":" + localHash);
 
                         }
                         

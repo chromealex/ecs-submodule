@@ -537,8 +537,8 @@ namespace ME.ECS.Network {
 
         private float pingTime;
         private float syncTime;
-        private Tick syncedTick;
-        private int syncHash;
+        internal Tick syncedTick;
+        internal int syncHash;
         private Tick syncTickSent;
 
         public Tick GetSyncTick() {
@@ -597,11 +597,6 @@ namespace ME.ECS.Network {
                 this.statesHistoryModule.RunEvent(historyEvent);
 
             }
-
-            var st = this.statesHistoryModule.GetStateBeforeTick(historyEvent.tick, out var syncTick);
-            if (st == null || syncTick == Tick.Invalid) st = this.world.GetResetState<TState>();
-            this.syncedTick = st.tick;
-            this.syncHash = this.statesHistoryModule.GetStateHash(st);
 
             return true;
 
