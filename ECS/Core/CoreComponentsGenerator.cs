@@ -58,7 +58,7 @@ namespace ME.ECS {
             CameraComponentsInitializer.Init(in entity);
             PhysicsComponentsInitializer.Init(in entity);
 
-            ComponentsInitializerWorld.onEntity.Invoke(entity);
+            if (ComponentsInitializerWorld.onEntity != null) ComponentsInitializerWorld.onEntity.Invoke(entity);
             
         }
 
