@@ -234,6 +234,7 @@ namespace ME.ECS {
 		#else
 		protected Stack<object> cache = new Stack<object>();
 		#endif
+		private HashSet<object> contains = new HashSet<object>();
 	    protected System.Func<object> constructor;
 	    protected System.Action<object> desctructor;
 	    protected System.Type poolType;
@@ -462,6 +463,7 @@ namespace ME.ECS {
 
 		    } else {
 
+			    this.contains.Remove(item);
 			    ++PoolInternalBase.used;
 			    ++this.poolUsed;
 
@@ -553,7 +555,16 @@ namespace ME.ECS {
 			    
 		    }
 
-		    this.cache.Push(instance);
+		    if (this.contains.Contains(instance) == false) {
+
+			    this.contains.Add(instance);
+			    this.cache.Push(instance);
+
+		    } else {
+			    
+			    UnityEngine.Debug.LogError("You are trying to push instance " + instance + " that already in pool!");
+			    
+		    }
 
 	    }
 

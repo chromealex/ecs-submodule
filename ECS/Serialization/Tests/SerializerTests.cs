@@ -37,21 +37,34 @@ namespace ME.ECS.Serializer.Tests {
                 data = l,
             };
             
-            var serializersInternal = Serializer.GetInternalSerializers();
-            var serializers = Serializer.GetDefaultSerializers();
-            serializers.Add(serializersInternal);
-            serializersInternal.Dispose();
-
             byte[] lastTest = null;
             for (int i = 0; i < 100; ++i) {
 
-                var bytes = Serializer.Pack(serializers, test);
-                var testRes = Serializer.Unpack<PerfStruct>(serializers, bytes);
-                lastTest = bytes;
+                byte[] bytes;
+                {
+                    var serializersInternal = Serializer.GetInternalSerializers();
+                    var serializers = Serializer.GetDefaultSerializers();
+                    serializers.Add(serializersInternal);
+                    serializersInternal.Dispose();
+
+                    bytes = Serializer.Pack(serializers, test);
+                    serializers.Dispose();
+
+                }
+
+                {
+                    var serializersInternal = Serializer.GetInternalSerializers();
+                    var serializers = Serializer.GetDefaultSerializers();
+                    serializers.Add(serializersInternal);
+                    serializersInternal.Dispose();
+
+                    var testRes = Serializer.Unpack<PerfStruct>(serializers, bytes);
+                    serializers.Dispose();
+
+                    lastTest = bytes;
+                }
 
             }
-            
-            serializers.Dispose();
             
             UnityEngine.Debug.Log("Bytes length: " + lastTest.Length);
 

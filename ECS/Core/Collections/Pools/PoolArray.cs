@@ -234,7 +234,7 @@
 
 					} else {
 						
-						UnityEngine.Debug.LogError("You are trying to push array was created without pool!");
+						UnityEngine.Debug.LogWarning("You are trying to push array was created without pool!");
 						
 					}
 

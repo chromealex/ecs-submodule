@@ -105,51 +105,59 @@ namespace ME.ECS.Serializer {
 
         }
 
+        private static Dictionary<int, bool> initialized = new Dictionary<int, bool>();
+        private static int idIncrement;
+
+        private int id;
         private Dictionary<System.Type, Item> serializers;
         private Dictionary<System.Type, Item> serializersBaseType;
         private Dictionary<byte, Item> serializersByTypeValue;
-        private bool isInitialized;
 
         private void Init(int capacity) {
-            
+
+            if (this.id == 0) this.id = ++Serializers.idIncrement;
             if (this.serializers == null) this.serializers = PoolDictionary<System.Type, Item>.Spawn(capacity);
             if (this.serializersBaseType == null) this.serializersBaseType = PoolDictionary<System.Type, Item>.Spawn(capacity);
             if (this.serializersByTypeValue == null) this.serializersByTypeValue = PoolDictionary<byte, Item>.Spawn(capacity);
-            this.isInitialized = true;
-
+            
+            if (Serializers.initialized.ContainsKey(this.id) == false) Serializers.initialized.Add(this.id, true);
+            
         }
 
         public void Dispose() {
             
+            if (Serializers.initialized.TryGetValue(this.id, out var state) == false || state == false) return;
+
             if (this.serializers != null) PoolDictionary<System.Type, Item>.Recycle(ref this.serializers);
             if (this.serializersBaseType != null) PoolDictionary<System.Type, Item>.Recycle(ref this.serializersBaseType);
             if (this.serializersByTypeValue != null) PoolDictionary<byte, Item>.Recycle(ref this.serializersByTypeValue);
-            this.isInitialized = false;
             
+            Serializers.initialized.Remove(this.id);
+
         }
         
         public void Add(Serializers serializers) {
 
-            if (serializers.isInitialized == false) return;
+            if (Serializers.initialized.TryGetValue(this.id, out var state) == false || state == false) return;
             
             this.Init(32);
             serializers.Init(32);
 
             foreach (var kv in serializers.serializers) {
                 
-                this.serializers.Add(kv.Key, kv.Value);
+                if (this.serializers.ContainsKey(kv.Key) == false) this.serializers.Add(kv.Key, kv.Value);
                 
             }
             
             foreach (var kv in serializers.serializersBaseType) {
                 
-                this.serializersBaseType.Add(kv.Key, kv.Value);
+                if (this.serializersBaseType.ContainsKey(kv.Key) == false) this.serializersBaseType.Add(kv.Key, kv.Value);
                 
             }
 
             foreach (var kv in serializers.serializersByTypeValue) {
                 
-                this.serializersByTypeValue.Add(kv.Key, kv.Value);
+                if (this.serializersByTypeValue.ContainsKey(kv.Key) == false) this.serializersByTypeValue.Add(kv.Key, kv.Value);
                 
             }
 
@@ -269,7 +277,7 @@ namespace ME.ECS.Serializer {
             serializers.Add(new ObjectArraySerializer());
             serializers.Add(new GenericListSerializer());
             serializers.Add(new GenericDictionarySerializer());
-
+            
             return serializers;
 
         }
@@ -521,6 +529,7 @@ namespace ME.ECS.Serializer {
                     case TypeValue.Double: return typeof(double);
                     case TypeValue.Boolean: return typeof(bool);
                     case TypeValue.String: return typeof(string);
+                    case TypeValue.Enum: return typeof(System.Enum);
                     
                 }
                 
@@ -594,6 +603,11 @@ namespace ME.ECS.Serializer {
                 isPrimitive = true;
                 pValue = (int)TypeValue.Double;
 
+            } else if (type == typeof(System.Enum)) {
+
+                isPrimitive = true;
+                pValue = (int)TypeValue.Enum;
+
             }
 
             if (isPrimitive == true) {
@@ -659,6 +673,14 @@ namespace ME.ECS.Serializer {
 
             } else {
 
+                if (rootType.IsArray == true) {
+                    
+                    // Custom array type
+                    
+                    return;
+
+                }
+                
                 if (rootType.IsPrimitive == true || rootType.IsArray == true) {
 
                     Debug.LogError("Pack type has failed: " + rootType);
@@ -666,7 +688,6 @@ namespace ME.ECS.Serializer {
 
                 }
 
-                Debug.Log("GEN FIELDS");
                 var fields = rootType.GetCachedFields();
                 for (int i = 0; i < fields.Length; ++i) {
 
@@ -724,7 +745,7 @@ namespace ME.ECS.Serializer {
 
             } else {
 
-                Debug.Log("Unknown type: " + type);
+                Debug.LogWarning("Unknown type: " + type);
 
             }
 
