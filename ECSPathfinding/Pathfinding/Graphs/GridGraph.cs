@@ -65,7 +65,7 @@ namespace ME.ECS.Pathfinding {
         
         public float initialPenalty = 100f;
         public float initialHeight = 0f;
-        public float diagonalCostFactor = 0.9f;
+        public float diagonalCostFactor = 1.41421f;
         public ConnectionsType connectionsType = ConnectionsType.All;
 
         public float agentHeight;
