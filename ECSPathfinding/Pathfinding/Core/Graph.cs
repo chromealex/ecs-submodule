@@ -22,7 +22,7 @@ namespace ME.ECS.Pathfinding {
     #endif
     public abstract class Graph : MonoBehaviour {
 
-        public Pathfinding pathfinding;
+        public LogLevel pathfindingLogLevel;
         
         public int index;
         public string graphName;
@@ -41,7 +41,7 @@ namespace ME.ECS.Pathfinding {
 
         public virtual void OnRecycle() {
 
-            this.pathfinding = null;
+            this.pathfindingLogLevel = default;
             this.index = default;
             this.graphName = default;
             this.graphCenter = default;
@@ -57,7 +57,7 @@ namespace ME.ECS.Pathfinding {
         
         public void CopyFrom(Graph other) {
 
-            this.pathfinding = other.pathfinding;
+            this.pathfindingLogLevel = other.pathfindingLogLevel;
             this.index = other.index;
             this.graphName = other.graphName;
             this.graphCenter = other.graphCenter;
@@ -166,6 +166,7 @@ namespace ME.ECS.Pathfinding {
 
         public abstract T GetNearest<T>(Vector3 worldPosition, Constraint constraint) where T : Node;
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public abstract void GetNodesInBounds(ListCopyable<Node> output, Bounds bounds);
 
         private Dictionary<int, Color> areaColors = new Dictionary<int, Color>();
@@ -263,10 +264,10 @@ namespace ME.ECS.Pathfinding {
 
         public void DoBuild() {
 
-            var pathfinding = this.pathfinding;
+            var pathfindingLogLevel = this.pathfindingLogLevel;
             
             System.Diagnostics.Stopwatch sw = null;
-            if (pathfinding.HasLogLevel(LogLevel.GraphBuild) == true) sw = System.Diagnostics.Stopwatch.StartNew();
+            if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) sw = System.Diagnostics.Stopwatch.StartNew();
             
             this.buildingState = BuildingState.Building;
             
@@ -277,22 +278,22 @@ namespace ME.ECS.Pathfinding {
             this.maxHeight = float.MinValue;
 
             System.Diagnostics.Stopwatch swBuildNodes = null;
-            if (pathfinding.HasLogLevel(LogLevel.GraphBuild) == true) swBuildNodes = System.Diagnostics.Stopwatch.StartNew();
+            if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swBuildNodes = System.Diagnostics.Stopwatch.StartNew();
 
             this.Validate();
             this.BuildNodes();
 
-            if (pathfinding.HasLogLevel(LogLevel.GraphBuild) == true) swBuildNodes.Stop();
+            if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swBuildNodes.Stop();
 
             System.Diagnostics.Stopwatch swBeforeConnections = null;
-            if (pathfinding.HasLogLevel(LogLevel.GraphBuild) == true) swBeforeConnections = System.Diagnostics.Stopwatch.StartNew();
+            if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swBeforeConnections = System.Diagnostics.Stopwatch.StartNew();
 
             this.RunModifiersBeforeConnections();
             
-            if (pathfinding.HasLogLevel(LogLevel.GraphBuild) == true) swBeforeConnections.Stop();
+            if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swBeforeConnections.Stop();
             
             System.Diagnostics.Stopwatch swBuildConnections = null;
-            if (pathfinding.HasLogLevel(LogLevel.GraphBuild) == true) swBuildConnections = System.Diagnostics.Stopwatch.StartNew();
+            if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swBuildConnections = System.Diagnostics.Stopwatch.StartNew();
 
             for (var i = 0; i < this.nodes.Count; ++i) {
 
@@ -308,25 +309,25 @@ namespace ME.ECS.Pathfinding {
 
             this.BuildConnections();
             
-            if (pathfinding.HasLogLevel(LogLevel.GraphBuild) == true) swBuildConnections.Stop();
+            if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swBuildConnections.Stop();
 
             System.Diagnostics.Stopwatch swAfterConnections = null;
-            if (pathfinding.HasLogLevel(LogLevel.GraphBuild) == true) swAfterConnections = System.Diagnostics.Stopwatch.StartNew();
+            if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swAfterConnections = System.Diagnostics.Stopwatch.StartNew();
 
             this.RunModifiersAfterConnections();
             
-            if (pathfinding.HasLogLevel(LogLevel.GraphBuild) == true) swAfterConnections.Stop();
+            if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swAfterConnections.Stop();
 
             System.Diagnostics.Stopwatch swBuildAreas = null;
-            if (pathfinding.HasLogLevel(LogLevel.GraphBuild) == true) swBuildAreas = System.Diagnostics.Stopwatch.StartNew();
+            if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swBuildAreas = System.Diagnostics.Stopwatch.StartNew();
 
             this.BuildAreas();
             
-            if (pathfinding.HasLogLevel(LogLevel.GraphBuild) == true) swBuildAreas.Stop();
+            if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swBuildAreas.Stop();
 
             this.buildingState = BuildingState.Built;
             
-            if (pathfinding.HasLogLevel(LogLevel.GraphBuild) == true) {
+            if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) {
 
                 Logger.Log(string.Format("Graph built {0} nodes in {1}ms:\nBuild Nodes: {2}ms\nBefore Connections: {3}ms\nBuild Connections: {4}ms\nAfter Connections: {5}ms\nBuild Areas: {6}ms", this.nodes.Count, sw.ElapsedMilliseconds, swBuildNodes.ElapsedMilliseconds, swBeforeConnections.ElapsedMilliseconds, swBuildConnections.ElapsedMilliseconds, swAfterConnections.ElapsedMilliseconds, swBuildAreas.ElapsedMilliseconds));
 

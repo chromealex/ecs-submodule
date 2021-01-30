@@ -603,6 +603,13 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void GetBounds(out int min, out int max) {
+            
+            this.world.GetFilter(this.id).GetBounds(out min, out max);
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public BufferArray<Entity> ToArray() {
             
             return this.world.GetFilter(this.id).ToArray();

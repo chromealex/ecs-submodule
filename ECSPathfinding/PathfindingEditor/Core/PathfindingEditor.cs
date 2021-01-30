@@ -116,7 +116,7 @@ namespace ME.ECS.Pathfinding.Editor {
                             var go = new GameObject("Graph", g.Key);
                             go.transform.SetParent(target.transform);
                             var comp = (Graph)go.GetComponent(g.Key);
-                            comp.pathfinding = target;
+                            comp.pathfindingLogLevel = target.logLevel;
                             target.graphs.Add(comp);
                             SceneView.RepaintAll();
                             EditorUtility.SetDirty(this.target);

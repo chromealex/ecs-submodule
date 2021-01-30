@@ -11,13 +11,13 @@ namespace ME.ECS.Serializer {
 
         public void Pack(Packer packer, object obj) {
 
-            Int64Serializer.PackDirect(packer, (uint)(Tick)obj);
+            Int64Serializer.PackDirect(packer, (Tick)obj);
             
         }
 
         public object Unpack(Packer packer) {
 
-            return Int64Serializer.UnpackDirect(packer);
+            return (Tick)Int64Serializer.UnpackDirect(packer);
             
         }
 
@@ -30,13 +30,13 @@ namespace ME.ECS.Serializer {
 
         public void Pack(Packer packer, object obj) {
 
-            UInt32Serializer.PackDirect(packer, (uint)(ViewId)obj);
+            UInt32Serializer.PackDirect(packer, (ViewId)obj);
             
         }
 
         public object Unpack(Packer packer) {
 
-            return UInt32Serializer.UnpackDirect(packer);
+            return (ViewId)UInt32Serializer.UnpackDirect(packer);
             
         }
 
@@ -49,13 +49,13 @@ namespace ME.ECS.Serializer {
 
         public void Pack(Packer packer, object obj) {
 
-            Int32Serializer.PackDirect(packer, (int)(RPCId)obj);
+            Int32Serializer.PackDirect(packer, (RPCId)obj);
             
         }
 
         public object Unpack(Packer packer) {
 
-            return Int32Serializer.UnpackDirect(packer);
+            return (RPCId)Int32Serializer.UnpackDirect(packer);
             
         }
 

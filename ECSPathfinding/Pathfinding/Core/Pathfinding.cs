@@ -48,7 +48,8 @@ namespace ME.ECS.Pathfinding {
 
         public bool clonePathfinding = true;
         
-        private HashSet<GraphDynamicModifier> dynamicModifiers = new HashSet<GraphDynamicModifier>();
+        private HashSet<GraphDynamicModifier> dynamicModifiersContains = new HashSet<GraphDynamicModifier>();
+        private HashSet<GraphDynamicModifier> dynamicModifiersList = new HashSet<GraphDynamicModifier>();
 
         private struct CopyGraph : IArrayElementCopy<Graph> {
 
@@ -71,7 +72,7 @@ namespace ME.ECS.Pathfinding {
             var instance = Object.Instantiate(this);
             for (int i = 0; i < this.graphs.Count; ++i) {
 
-                this.graphs[i].pathfinding = instance;
+                this.graphs[i].pathfindingLogLevel = instance.logLevel;
 
             }
             instance.CopyFrom(this);
@@ -124,10 +125,11 @@ namespace ME.ECS.Pathfinding {
         
         public void RegisterDynamic(GraphDynamicModifier modifier) {
 
-            if (this.dynamicModifiers.Contains(modifier) == false) {
+            if (this.dynamicModifiersContains.Contains(modifier) == false) {
 
-                if (this.dynamicModifiers.Add(modifier) == true) {
-                    
+                if (this.dynamicModifiersContains.Add(modifier) == true) {
+
+                    this.dynamicModifiersList.Add(modifier);
                     modifier.ApplyForced();
                     this.BuildAreas();
                     
@@ -139,10 +141,11 @@ namespace ME.ECS.Pathfinding {
 
         public void UnRegisterDynamic(GraphDynamicModifier modifier) {
 
-            if (this.dynamicModifiers.Contains(modifier) == true) {
+            if (this.dynamicModifiersContains.Contains(modifier) == true) {
 
-                if (this.dynamicModifiers.Remove(modifier) == true) {
-                    
+                if (this.dynamicModifiersContains.Remove(modifier) == true) {
+
+                    this.dynamicModifiersList.Remove(modifier);
                     modifier.ApplyForced(disabled: true);
                     this.BuildAreas();
 
@@ -155,7 +158,7 @@ namespace ME.ECS.Pathfinding {
         public void AdvanceTick(float deltaTime) {
 
             var anyUpdated = false;
-            foreach (var mod in this.dynamicModifiers) {
+            foreach (var mod in this.dynamicModifiersList) {
                 
                 anyUpdated |= mod.Apply();
                 
@@ -233,7 +236,7 @@ namespace ME.ECS.Pathfinding {
 
         public Path CalculatePath<TMod>(Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0) where TMod : IPathModifier {
 
-            return this.processor.Run(this, from, to, constraint, graph, pathModifier, threadIndex);
+            return this.processor.Run(this.logLevel, from, to, constraint, graph, pathModifier, threadIndex);
 
         }
 

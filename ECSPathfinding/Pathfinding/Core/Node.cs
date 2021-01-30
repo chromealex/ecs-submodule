@@ -34,6 +34,7 @@ namespace ME.ECS.Pathfinding {
 
         protected Node() {}
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public virtual void CopyFrom(Node other) {
 
             this.graph = other.graph;
@@ -47,6 +48,7 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public virtual void OnRecycle() {
 
             this.graph = null;
@@ -65,12 +67,14 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public virtual Connection[] GetConnections() {
 
             return null;
 
         }
         
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         internal virtual void Reset(int threadIndex) {
 
             this.parent[threadIndex] = null;
@@ -80,6 +84,7 @@ namespace ME.ECS.Pathfinding {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public virtual bool IsSuitable(Constraint constraint) {
 
             if (constraint.checkWalkability == true && this.walkable != constraint.walkable) return false;

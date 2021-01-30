@@ -13,27 +13,27 @@
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void ForEach(this Filter filter, R onEach) {
-            var entities = filter.ToArray();
-            for (int i = 0; i < entities.Length; ++i) { var e = entities.arr[i]; onEach.Invoke(in e); }
-            PoolArray<Entity>.Recycle(ref entities);
+            filter.GetBounds(out var min, out var max);
+            var entities = filter.world.currentState.storage.cache;
+            for (int i = min; i <= max; ++i) { var e = entities.arr[i]; onEach.Invoke(in e); }
         }
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void ForEach<TCustom0>(this Filter filter, in TCustom0 custom0, RCP0<TCustom0> onEach) {
-            var entities = filter.ToArray();
-            for (int i = 0; i < entities.Length; ++i) { var e = entities.arr[i]; onEach.Invoke(in custom0, in e); }
-            PoolArray<Entity>.Recycle(ref entities);
+            filter.GetBounds(out var min, out var max);
+            var entities = filter.world.currentState.storage.cache;
+            for (int i = min; i <= max; ++i) { var e = entities.arr[i]; onEach.Invoke(in custom0, in e); }
         }
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void ForEach<TCustom0, TCustom1>(this Filter filter, in TCustom0 custom0, in TCustom1 custom1, RCP0<TCustom0, TCustom1> onEach) {
-            var entities = filter.ToArray();
-            for (int i = 0; i < entities.Length; ++i) { var e = entities.arr[i]; onEach.Invoke(in custom0, in custom1, in e); }
-            PoolArray<Entity>.Recycle(ref entities);
+            filter.GetBounds(out var min, out var max);
+            var entities = filter.world.currentState.storage.cache;
+            for (int i = min; i <= max; ++i) { var e = entities.arr[i]; onEach.Invoke(in custom0, in custom1, in e); }
         }
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void ForEach<TCustom0, TCustom1, TCustom2>(this Filter filter, in TCustom0 custom0, in TCustom1 custom1, in TCustom2 custom2, RCP0<TCustom0, TCustom1, TCustom2> onEach) {
-            var entities = filter.ToArray();
-            for (int i = 0; i < entities.Length; ++i) { var e = entities.arr[i]; onEach.Invoke(in custom0, in custom1, in custom2, in e); }
-            PoolArray<Entity>.Recycle(ref entities);
+            filter.GetBounds(out var min, out var max);
+            var entities = filter.world.currentState.storage.cache;
+            for (int i = min; i <= max; ++i) { var e = entities.arr[i]; onEach.Invoke(in custom0, in custom1, in custom2, in e); }
         }
         
         #CONTENT#

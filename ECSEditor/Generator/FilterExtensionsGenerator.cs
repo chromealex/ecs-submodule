@@ -81,7 +81,7 @@ namespace ME.ECSEditor {
                         var itemsInit = string.Empty;
                         for (int i = 0; i < j; ++i) {
 
-                            itemsInit += "this.buffer" + i.ToString() + " = new DataBuffer<T" + i.ToString() + ">(world, arr);\n";
+                            itemsInit += "this.buffer" + i.ToString() + " = new DataBuffer<T" + i.ToString() + ">(world, arr, minIdx, maxIdx);\n";
 
                         }
                         

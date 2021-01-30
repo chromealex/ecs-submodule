@@ -1,35 +1,40 @@
 ﻿
+using ME.ECS.Collections;
+
 namespace ME.ECS {
 
-    #if UNITY_2020_OR_NEWER
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public readonly ref struct DataBuffer<T> where T : struct, IStructComponent {
+    public readonly struct DataBuffer<T> where T : struct, IStructComponent {
 
-        private readonly System.Span<T> data;
+        private readonly Unity.Collections.NativeSlice<T> data;
         private readonly int minIdx;
         
+        public readonly Unity.Collections.NativeArray<T> arr;
+        public readonly int Length;
+        
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public DataBuffer(World world, ME.ECS.Collections.BufferArray<Entity> arr) {
+        public DataBuffer(World world, ME.ECS.Collections.BufferArray<Entity> arr, int minIdx, int maxIdx) {
 
             var reg = (StructComponents<T>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T>()];
-            this.minIdx = 0;
-            var maxIdx = reg.components.Length;
-            for (int i = 0; i < arr.Length; ++i) {
+            this.minIdx = minIdx;
+            if (this.minIdx > maxIdx) {
 
-                var entity = arr.arr[i];
-                if (this.minIdx > entity.id) this.minIdx = entity.id;
-                if (maxIdx < entity.id) maxIdx = entity.id;
+                this.minIdx = 0;
+                maxIdx = 0;
 
             }
-
-            this.data = new System.Span<T>(reg.components.arr, this.minIdx, maxIdx);
+            if (this.minIdx < 0) this.minIdx = 0;
+            if (maxIdx >= reg.components.Length) maxIdx = reg.components.Length - 1;
+            this.Length = maxIdx - this.minIdx;
+            this.arr = new Unity.Collections.NativeArray<T>(reg.components.arr, Unity.Collections.Allocator.Persistent);
+            this.data = new Unity.Collections.NativeSlice<T>(this.arr, this.minIdx, maxIdx);
             
         }
-        
+
         public void Push(World world, ME.ECS.Collections.BufferArray<Entity> arr) {
         
             var reg = (StructComponents<T>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T>()];
@@ -46,44 +51,10 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public ref T Get(int entityId) {
 
-            return ref this.data[entityId - this.minIdx];
+            return ref this.data.GetRef(entityId - this.minIdx);
             
         }
 
     }
-    #else
-    public readonly ref struct DataBuffer<T> where T : struct, IStructComponent {
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public DataBuffer(World world, ME.ECS.Collections.BufferArray<Entity> arr) {
-
-            throw new System.Exception("To use Span please use Unity 2020 or newer");
-            
-        }
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public ref T Get(int entityId) {
-
-            throw new System.Exception("To use Span please use Unity 2020 or newer");
-            
-        }
-
-    }
-    #endif
-
-    /*public class Test {
-        
-        public struct A1 : IStructComponent {}
-        public struct A2 : IStructComponent {}
-        public struct A3 : IStructComponent {}
-        
-        public static void T() {
-
-            var a = new EntityBuffer<A1, A2, A3>();
-            
-
-        }
-
-    }*/
-
+    
 }

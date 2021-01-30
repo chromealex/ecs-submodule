@@ -240,6 +240,7 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override void GetNodesInBounds(ListCopyable<Node> result, Bounds bounds) {
 
             var min = bounds.min;
@@ -295,9 +296,9 @@ namespace ME.ECS.Pathfinding {
                 for (int j = 0; j < this.nodes.Count; ++j) {
 
                     var node = (GridNode)this.nodes[j];
-                    var x = node.position.z;
-                    var y = node.position.y;
-                    var z = node.position.x;
+                    //var x = node.position.z;
+                    //var y = node.position.y;
+                    //var z = node.position.x;
                     //var nodePosition = new Vector3(x * this.nodeSize + this.nodeSize * 0.5f, y * this.agentHeight + this.agentHeight * 0.5f, z * this.nodeSize + this.nodeSize * 0.5f);
                     var worldPos = node.worldPosition; //center + nodePosition;
 
@@ -663,6 +664,7 @@ namespace ME.ECS.Pathfinding {
 
     public static class GridGraphUtilities {
         
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void DirUp(Vector3Int size, GridNode node, ref int index) {
 
             if (index == -1) return;
@@ -672,6 +674,7 @@ namespace ME.ECS.Pathfinding {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void DirDown(Vector3Int size, GridNode node, ref int index) {
 
             if (index == -1) return;
@@ -681,6 +684,7 @@ namespace ME.ECS.Pathfinding {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void DirRight(Vector3Int size, GridNode node, ref int index) {
 
             if (index == -1) return;
@@ -690,6 +694,7 @@ namespace ME.ECS.Pathfinding {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void DirLeft(Vector3Int size, GridNode node, ref int index) {
 
             if (index == -1) return;
@@ -699,6 +704,7 @@ namespace ME.ECS.Pathfinding {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void DirForward(Vector3Int size, GridNode node, ref int index) {
 
             if (index == -1) return;
@@ -708,6 +714,7 @@ namespace ME.ECS.Pathfinding {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void DirBackward(Vector3Int size, GridNode node, ref int index) {
 
             if (index == -1) return;
@@ -717,12 +724,14 @@ namespace ME.ECS.Pathfinding {
             
         }
         
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool IsDiagonalDirection(GridGraph.Direction direction) {
 
             return (int)direction >= 6;
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int GetIndexByDirection(GridGraph graph, int sourceIndex, GridGraph.Direction direction) {
 
             var node = graph.GetNodeByIndex<GridNode>(sourceIndex);
@@ -827,6 +836,7 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int GetIndexByPosition(GridGraph graph, Vector3Int position) {
 
             var x = position.x;
@@ -846,12 +856,14 @@ namespace ME.ECS.Pathfinding {
 
         public readonly Connection[] connections = new Connection[6 + 4 + 4 + 4];
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override Connection[] GetConnections() {
 
             return this.connections;
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override void CopyFrom(Node other) {
             
             base.CopyFrom(other);
@@ -866,6 +878,7 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override void OnRecycle() {
             
             base.OnRecycle();
