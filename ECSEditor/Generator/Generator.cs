@@ -161,7 +161,7 @@ namespace ME.ECSEditor {
                 
                 for (int i = 0; i < data.references.Length; ++i) {
                     
-                    if (data.references[i].StartsWith("GUID:")) {
+                    if (data.references[i].StartsWith("GUID:") == true) {
                     
                         data.references[i] = data.references[i].Replace("GUID:", string.Empty);
                         
