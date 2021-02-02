@@ -15,7 +15,11 @@ namespace ME.ECS.Collections {
                 throw new ArgumentOutOfRangeException(nameof(index));
             unsafe {
                 var ptr = array.GetUnsafePtr();
+                #if UNITY_2020_1_OR_NEWER
                 return ref UnsafeUtility.ArrayElementAsRef<T>(ptr, index);
+                #else
+                throw new Exception("UnsafeUtility.ArrayElementAsRef");
+                #endif
             }
         }
 
@@ -24,7 +28,11 @@ namespace ME.ECS.Collections {
                 throw new ArgumentOutOfRangeException(nameof(index));
             unsafe {
                 var ptr = array.GetUnsafePtr();
+                #if UNITY_2020_1_OR_NEWER
                 return ref UnsafeUtility.ArrayElementAsRef<T>(ptr, index);
+                #else
+                throw new Exception("UnsafeUtility.ArrayElementAsRef");
+                #endif
             }
         }
 
