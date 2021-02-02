@@ -66,6 +66,7 @@ namespace ME.ECS.Serializer {
         
         HistoryEvent  = 227,
         Char  = 226,
+        View = 225,
     }
     
     [System.AttributeUsageAttribute(System.AttributeTargets.Field | System.AttributeTargets.Property)]
