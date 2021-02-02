@@ -154,20 +154,40 @@ namespace ME.ECSEditor {
         }
         
         private static string[] GetReferences(UnityEditorInternal.AssemblyDefinitionAsset asset) {
-
+            
             var data = UnityEngine.JsonUtility.FromJson<AsmDefAsset>(asset.text);
+            var allAssembliesGUIDs = AssetDatabase.FindAssets("t:asmdef");
             if (data.references != null) {
-
+                
                 for (int i = 0; i < data.references.Length; ++i) {
-
-                    data.references[i] = data.references[i].Replace("GUID:", string.Empty);
-
+                    
+                    if (data.references[i].StartsWith("GUID:")) {
+                    
+                        data.references[i] = data.references[i].Replace("GUID:", string.Empty);
+                        
+                    } else {
+                        
+                        foreach (var assemblyGUID in allAssembliesGUIDs) {
+                            
+                            var asmdefPath = AssetDatabase.GUIDToAssetPath(assemblyGUID);
+                            var definition = AssetDatabase.LoadAssetAtPath<UnityEditorInternal.AssemblyDefinitionAsset>(asmdefPath);
+                            var smdefData = UnityEngine.JsonUtility.FromJson<AsmDefAsset>(definition.text);
+                            if (smdefData.name == data.references[i]) {
+                                
+                                data.references[i] = assemblyGUID;
+                                break;
+                                
+                            }
+                            
+                        }
+                        
+                    }
+                    
                 }
-
+                
             }
-
             return data.references;
-
+            
         }
         
         private static void CompileDirectory(string dir) {
