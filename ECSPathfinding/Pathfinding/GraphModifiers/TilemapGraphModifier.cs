@@ -35,7 +35,7 @@ namespace ME.ECS.Pathfinding {
                 for (int i = 0; i < this.items.Length; ++i) {
 
                     var item = this.items[i];
-                    if (item.requiredTile == tile) {
+                    if (item.requiredTile == null || item.requiredTile == tile) {
 
                         var result = PoolListCopyable<Node>.Spawn(1);
                         graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize * 0.5f));
