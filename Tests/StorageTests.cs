@@ -116,6 +116,7 @@ namespace ME.ECS.Tests {
 
             st.Dealloc(entity);
             st.ApplyDead();
+            st.IncrementGeneration(entity);
 
             NUnit.Framework.Assert.IsTrue(st.IsAlive(entity.id, entity.generation) == false);
 
@@ -160,6 +161,7 @@ namespace ME.ECS.Tests {
                 for (int i = 0; i < list.Count; ++i) {
 
                     st.Dealloc(list[i]);
+                    st.IncrementGeneration(list[i]);
 
                 }
                 
@@ -179,6 +181,7 @@ namespace ME.ECS.Tests {
                 for (int i = 0; i < list.Count; ++i) {
 
                     st.Dealloc(list[i]);
+                    st.IncrementGeneration(list[i]);
 
                 }
 
