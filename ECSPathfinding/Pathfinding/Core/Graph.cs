@@ -187,26 +187,36 @@ namespace ME.ECS.Pathfinding {
             
         }
 
-        protected void FloodFillAreas(Node node, int area) {
+        protected void FloodFillAreas(Node rootNode, int area) {
 
-            var connections = node.GetConnections();
-            for (int j = 0; j < connections.Length; ++j) {
+            var list = PoolQueue<Node>.Spawn(this.nodes.Count);
+            list.Enqueue(rootNode);
+            while (list.Count > 0) {
+
+                var node = list.Dequeue();
                 
-                var connection = connections[j];
-                if (connection.index >= 0) {
+                var connections = node.GetConnections();
+                for (int j = 0; j < connections.Length; ++j) {
+                
+                    var connection = connections[j];
+                    if (connection.index >= 0) {
 
-                    var nb = this.nodes[connection.index];
-                    if (nb.area == 0 && nb.walkable == true) {
+                        var nb = this.nodes[connection.index];
+                        if (nb.area == 0 && nb.walkable == true) {
 
-                        nb.area = area;
-                        this.FloodFillAreas(nb, area);
+                            nb.area = area;
+                            //this.FloodFillAreas(nb, area);
+                            list.Enqueue(nb);
+
+                        }
 
                     }
 
                 }
 
             }
-
+            PoolQueue<Node>.Recycle(ref list);
+            
         }
 
         protected Color GetSColor() {
