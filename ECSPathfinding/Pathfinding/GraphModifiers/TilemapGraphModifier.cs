@@ -10,6 +10,9 @@ namespace ME.ECS.Pathfinding {
         public struct Item {
 
             public UnityEngine.Tilemaps.TileBase requiredTile;
+            public bool checkSprite;
+            public Sprite[] spriteOneOf;
+            
             public int tag;
             public int penaltyDelta;
             public float heightDelta;
@@ -37,6 +40,13 @@ namespace ME.ECS.Pathfinding {
                     var item = this.items[i];
                     if (item.requiredTile == null || item.requiredTile == tile) {
 
+                        if (item.checkSprite == true) {
+
+                            var idx = System.Array.IndexOf(item.spriteOneOf, this.tilemap.GetSprite(cellPos));
+                            if (idx < 0) continue;
+                            
+                        }
+                        
                         var result = PoolListCopyable<Node>.Spawn(1);
                         graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize * 0.5f));
                         foreach (var node in result) {
@@ -78,8 +88,15 @@ namespace ME.ECS.Pathfinding {
                     var item = this.items[i];
                     if (item.modifyWalkability == false) continue;
                     
-                    if (item.requiredTile == tile) {
+                    if (item.requiredTile == null || item.requiredTile == tile) {
+                        
+                        if (item.checkSprite == true) {
 
+                            var idx = System.Array.IndexOf(item.spriteOneOf, this.tilemap.GetSprite(cellPos));
+                            if (idx < 0) continue;
+                            
+                        }
+                        
                         var result = PoolListCopyable<Node>.Spawn(1);
                         graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize * 0.5f));
                         foreach (var node in result) {
