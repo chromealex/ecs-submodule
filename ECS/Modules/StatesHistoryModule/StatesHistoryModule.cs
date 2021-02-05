@@ -219,6 +219,8 @@ namespace ME.ECS.StatesHistory {
         void AddEvent(HistoryEvent historyEvent);
         void CancelEvent(HistoryEvent historyEvent);
 
+        HistoryEvent[] GetEvents();
+        
         void RecalculateFromResetState();
 
     }
@@ -530,6 +532,35 @@ namespace ME.ECS.StatesHistory {
         public void HardResetTo(Tick tick) {
 
             this.oldestTick = tick;
+
+        }
+
+        public HistoryEvent[] GetEvents() {
+
+            var count = 0;
+            foreach (var item in this.events) {
+
+                foreach (var k in item.Value.Values) {
+
+                    ++count;
+
+                }
+                
+            }
+            
+            var arr = new HistoryEvent[count];
+            count = 0;
+            foreach (var item in this.events) {
+
+                foreach (var k in item.Value.Values) {
+
+                    arr[count++] = k;
+
+                }
+                
+            }
+            
+            return arr;
 
         }
         
