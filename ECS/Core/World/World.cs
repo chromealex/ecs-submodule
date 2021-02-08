@@ -123,6 +123,7 @@ namespace ME.ECS {
         public bool isActive;
 
         public IContext currentSystemContext { get; internal set; }
+        public ISystemFilter currentSystemContextFilter { get; internal set; }
         public BufferArray<bool> currentSystemContextFiltersUsed;
         public bool currentSystemContextFiltersUsedAnyChanged;
 
@@ -2085,16 +2086,16 @@ namespace ME.ECS {
 
         private struct ForeachFilterJob : Unity.Jobs.IJobParallelFor {
 
-            public Unity.Collections.NativeArray<Entity> entities;
+            public Unity.Collections.NativeSlice<Entity> slice;
+            public int minIdx;
             public float deltaTime;
 
             void Unity.Jobs.IJobParallelFor.Execute(int index) {
 
-                if (Worlds.currentWorld.currentSystemContext is ISystemFilter systemContextBase) {
-
-                    systemContextBase.AdvanceTick(this.entities[index], in this.deltaTime);
-                    
-                }
+                var entity = this.slice[index];
+                if (entity.IsAlive() == false) return;
+                
+                Worlds.currentWorld.currentSystemContextFilter.AdvanceTick(entity, in this.deltaTime);
 
             }
 
@@ -2134,6 +2135,7 @@ namespace ME.ECS {
             this.currentState.storage.ApplyDead();
 
             this.currentSystemContext = null;
+            this.currentSystemContextFilter = null;
 
             if (this.currentSystemContextFiltersUsedAnyChanged == true) {
 
@@ -2356,6 +2358,8 @@ namespace ME.ECS {
                             if (systemBase is IAdvanceTickStep step && step.step % state.tick != 0) continue;
                             
                             if (systemBase is ISystemFilter system) {
+
+                                this.currentSystemContextFilter = system;
                                 
                                 #if CHECKPOINT_COLLECTOR
                                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
@@ -2412,29 +2416,38 @@ namespace ME.ECS {
 
                                         if (this.settings.useJobsForSystems == true && system.jobs == true) {
 
-                                            var arrEntities = system.filter.ToArray();
-                                            using (var arr = new Unity.Collections.NativeArray<Entity>(arrEntities.arr, Unity.Collections.Allocator.TempJob)) {
+                                            var arrEntities = this.currentState.storage.cache.arr;
+                                            system.filter.GetBounds(out var min, out var max);
+                                            if (min > max) {
 
-                                                var length = arrEntities.Length;
-                                                PoolArray<Entity>.Recycle(ref arrEntities);
+                                                min = 0;
+                                                max = -1;
+
+                                            }
+                                            if (min < 0) min = 0;
+                                            ++max;
+                                            if (max >= arrEntities.Length) max = arrEntities.Length - 1;
+                                            
+                                            using (var arr = new Unity.Collections.NativeArray<Entity>(arrEntities, Unity.Collections.Allocator.TempJob)) {
+
+                                                var slice = new Unity.Collections.NativeSlice<Entity>(arr, min, max - min);
+                                                
+                                                var length = max - min;
                                                 var job = new ForeachFilterJob() {
                                                     deltaTime = fixedDeltaTime,
-                                                    entities = arr
+                                                    slice = slice,
+                                                    minIdx = min,
                                                 };
                                                 var jobHandle = job.Schedule(length, system.jobsBatchCount);
                                                 jobHandle.Complete();
-
+                                                
                                             }
 
                                         } else {
 
-                                            {
+                                            foreach (var entity in system.filter) {
 
-                                                foreach (var entity in system.filter) {
-
-                                                    system.AdvanceTick(in entity, fixedDeltaTime);
-
-                                                }
+                                                system.AdvanceTick(in entity, fixedDeltaTime);
 
                                             }
 
@@ -2463,7 +2476,7 @@ namespace ME.ECS {
                                 #endif
                                 
                             } else if (systemBase is IAdvanceTick advanceTickSystem) {
-                                
+
                                 #if UNITY_EDITOR
                                 UnityEngine.Profiling.Profiler.BeginSample($"PrepareAdvanceTickForSystem");
                                 #endif
@@ -2503,7 +2516,6 @@ namespace ME.ECS {
                                 #endif
                             }
                             
-
                         }
 
                     }

@@ -1,10 +1,11 @@
-﻿using System;
+﻿#define BIT_MULTITHREAD_SUPPORT
+using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace ME.ECS {
 
-    using FieldType = UInt64;
+    using FieldType = Int64;
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
@@ -126,19 +127,63 @@ namespace ME.ECS {
             var mask = (FieldType)1 << bitIndex;
             switch (dataIndex) {
                 case 0:
-                    this.field0 |= mask;
+                {
+                    ref var f = ref this.field0;
+                    #if BIT_MULTITHREAD_SUPPORT
+                    while (true) {
+                        var oldFlags = f;
+                        var newFlags = f | mask;
+                        if (System.Threading.Interlocked.CompareExchange(ref f, newFlags, oldFlags) == oldFlags) break;
+                    }
+                    #else
+                    f |= mask;
+                    #endif
+                }
                     break;
 
                 case 1:
-                    this.field1 |= mask;
+                {
+                    ref var f = ref this.field1;
+                    #if BIT_MULTITHREAD_SUPPORT
+                    while (true) {
+                        var oldFlags = f;
+                        var newFlags = f | mask;
+                        if (System.Threading.Interlocked.CompareExchange(ref f, newFlags, oldFlags) == oldFlags) break;
+                    }
+                    #else
+                    f |= mask;
+                    #endif
+                }
                     break;
 
                 case 2:
-                    this.field2 |= mask;
+                {
+                    ref var f = ref this.field2;
+                    #if BIT_MULTITHREAD_SUPPORT
+                    while (true) {
+                        var oldFlags = f;
+                        var newFlags = f | mask;
+                        if (System.Threading.Interlocked.CompareExchange(ref f, newFlags, oldFlags) == oldFlags) break;
+                    }
+                    #else
+                    f |= mask;
+                    #endif
+                }
                     break;
 
                 case 3:
-                    this.field3 |= mask;
+                {
+                    ref var f = ref this.field3;
+                    #if BIT_MULTITHREAD_SUPPORT
+                    while (true) {
+                        var oldFlags = f;
+                        var newFlags = f | mask;
+                        if (System.Threading.Interlocked.CompareExchange(ref f, newFlags, oldFlags) == oldFlags) break;
+                    }
+                    #else
+                    f |= mask;
+                    #endif
+                }
                     break;
 
                 default:
@@ -177,21 +222,66 @@ namespace ME.ECS {
             var dataIndex = bit / BitMask.BITS_PER_FIELD;
             var bitIndex = bit % BitMask.BITS_PER_FIELD;
             var mask = (FieldType)1 << bitIndex;
+
             switch (dataIndex) {
                 case 0:
-                    this.field0 &= ~mask;
+                {
+                    ref var f = ref this.field0;
+                    #if BIT_MULTITHREAD_SUPPORT
+                    while (true) {
+                        var oldFlags = f;
+                        var newFlags = f & (~mask);
+                        if (System.Threading.Interlocked.CompareExchange(ref f, newFlags, oldFlags) == oldFlags) break;
+                    }
+                    #else
+                    f &= ~mask;
+                    #endif
+                }
                     break;
 
                 case 1:
-                    this.field1 &= ~mask;
+                {
+                    ref var f = ref this.field1;
+                    #if BIT_MULTITHREAD_SUPPORT
+                    while (true) {
+                        var oldFlags = f;
+                        var newFlags = f & (~mask);
+                        if (System.Threading.Interlocked.CompareExchange(ref f, newFlags, oldFlags) == oldFlags) break;
+                    }
+                    #else
+                    f &= ~mask;
+                    #endif
+                }
                     break;
 
                 case 2:
-                    this.field2 &= ~mask;
+                {
+                    ref var f = ref this.field2;
+                    #if BIT_MULTITHREAD_SUPPORT
+                    while (true) {
+                        var oldFlags = f;
+                        var newFlags = f & (~mask);
+                        if (System.Threading.Interlocked.CompareExchange(ref f, newFlags, oldFlags) == oldFlags) break;
+                    }
+                    #else
+                    f &= ~mask;
+                    #endif
+                }
                     break;
 
                 case 3:
-                    this.field3 &= ~mask;
+                {
+                    ref var f = ref this.field3;
+                    #if BIT_MULTITHREAD_SUPPORT
+                    while (true) {
+                        var oldFlags = f;
+                        var newFlags = f & (~mask);
+                        if (System.Threading.Interlocked.CompareExchange(ref f, newFlags, oldFlags) == oldFlags) break;
+                    }
+                    #else
+                    f &= ~mask;
+                    #endif
+                }
                     break;
                 
                 default:
@@ -316,6 +406,7 @@ namespace ME.ECS {
             return this.field0 == 0 && this.field1 == 0 && this.field2 == 0 && this.field3 == 0;
         }
 
+        /*
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -365,7 +456,7 @@ namespace ME.ECS {
             newBitMask.field3 = ~mask.field3;
             return newBitMask;
             
-        }
+        }*/
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
