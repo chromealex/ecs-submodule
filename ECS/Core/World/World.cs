@@ -349,7 +349,7 @@ namespace ME.ECS {
             #endif
 
             #if UNITY_EDITOR
-            Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobDebuggerEnabled = true;
+            Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobDebuggerEnabled = false;
             #endif
             
             this.currentSystemContextFiltersUsed = PoolArray<bool>.Spawn(World.FILTERS_CACHE_CAPACITY);
