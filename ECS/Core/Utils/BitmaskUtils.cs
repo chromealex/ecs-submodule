@@ -46,7 +46,7 @@ namespace ME.ECS {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             get {
                 var count = 0;
-                for (int i = 0; i < BitMask.MAX_BIT_INDEX; ++i) {
+                for (int i = 0; i <= BitMask.MAX_BIT_INDEX; ++i) {
                     if (this.HasBit(i) == true) ++count;
                 }
                 return count;

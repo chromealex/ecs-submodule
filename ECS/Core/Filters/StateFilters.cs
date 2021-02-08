@@ -17,6 +17,122 @@ namespace ME.ECS {
 
     }
 
+    public partial class World {
+        
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void UpdateFilterByStructComponent<T>(in Entity entity) where T : struct, IStructComponent {
+
+            var containsFilters = this.filtersTree.GetFiltersContainsFor<T>();
+            for (int i = 0; i < containsFilters.Length; ++i) {
+                
+                var filterId = containsFilters.arr[i];
+                var filter = this.GetFilter(filterId);
+                if (filter.IsForEntity(entity.id) == false) continue;
+                filter.OnUpdate(in entity);
+                
+            }
+            
+            var notContainsFilters = this.filtersTree.GetFiltersNotContainsFor<T>();
+            for (int i = 0; i < notContainsFilters.Length; ++i) {
+                
+                var filterId = notContainsFilters.arr[i];
+                var filter = this.GetFilter(filterId);
+                if (filter.IsForEntity(entity.id) == false) continue;
+                filter.OnUpdate(in entity);
+                
+            }
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void UpdateFilterByComponent<T>(in Entity entity) where T : class, IComponent {
+            
+            var containsFilters = this.filtersTree.GetFiltersContainsFor<T>();
+            for (int i = 0; i < containsFilters.Length; ++i) {
+                
+                var filterId = containsFilters.arr[i];
+                var filter = this.GetFilter(filterId);
+                if (filter.IsForEntity(entity.id) == false) continue;
+                filter.OnUpdate(in entity);
+                
+            }
+            
+            var notContainsFilters = this.filtersTree.GetFiltersNotContainsFor<T>();
+            for (int i = 0; i < notContainsFilters.Length; ++i) {
+                
+                var filterId = notContainsFilters.arr[i];
+                var filter = this.GetFilter(filterId);
+                if (filter.IsForEntity(entity.id) == false) continue;
+                filter.OnUpdate(in entity);
+                
+            }
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void AddComponentToFilter(in Entity entity) {
+            
+            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
+            if (dic.arr != null) {
+
+                for (int i = 0; i < dic.Length; ++i) {
+
+                    if (dic.arr[i] == false) continue;
+                    var filterId = i + 1;
+                    var filter = this.GetFilter(filterId);
+                    if (filter.IsForEntity(entity.id) == false) continue;
+                    filter.OnAddComponent(in entity);
+
+                }
+
+            }
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void RemoveComponentFromFilter(in Entity entity) {
+            
+            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
+            if (dic.arr != null) {
+
+                for (int i = 0; i < dic.Length; ++i) {
+
+                    if (dic.arr[i] == false) continue;
+                    var filterId = i + 1;
+                    var filter = this.GetFilter(filterId);
+                    if (filter.IsForEntity(entity.id) == false) continue;
+                    filter.OnRemoveComponent(in entity);
+
+                }
+
+            }
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        internal void RemoveFromFilters_INTERNAL(in Entity entity) {
+            
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
+            if (dic.arr != null) {
+
+                for (int i = 0; i < dic.Length; ++i) {
+
+                    if (dic.arr[i] == false) continue;
+                    var filterId = i + 1;
+                    var filter = this.GetFilter(filterId);
+                    filter.OnEntityDestroy(in entity);
+                    if (filter.IsForEntity(entity.id) == false) continue;
+                    filter.OnRemoveEntity(in entity);
+
+                }
+
+            }
+            
+        }
+
+    }
+    
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -63,7 +179,7 @@ namespace ME.ECS {
 
         }
 
-        public bool HasInFilters<TComponent>() {
+        public bool HasInAnyFilter<TComponent>() {
 
             return this.allFiltersArchetype.Has<TComponent>();
 
@@ -643,8 +759,8 @@ namespace ME.ECS {
             }
         }
         private BufferArray<IFilterNode> nodes;
-        private Archetype archetypeContains;
-        private Archetype archetypeNotContains;
+        internal Archetype archetypeContains;
+        internal Archetype archetypeNotContains;
         private int nodesCount;
         internal BufferArray<bool> dataContains;
         //private BufferArray<Entity> data;

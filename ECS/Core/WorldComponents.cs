@@ -48,7 +48,7 @@ namespace ME.ECS {
             TComponent data;
             data = PoolComponents.Spawn<TComponent>();
 
-            return this.AddComponent<TComponent>(entity, data);
+            return this.AddComponent(entity, data);
 
         }
 
@@ -77,7 +77,7 @@ namespace ME.ECS {
         /// <typeparam name="TEntity"></typeparam>
         /// <typeparam name="TComponent"></typeparam>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public TComponent AddComponent<TComponent>(Entity entity, TComponent data) where TComponent : class, IComponent {
+        public TComponent AddComponent<TComponent>(in Entity entity, TComponent data) where TComponent : class, IComponent {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -97,15 +97,19 @@ namespace ME.ECS {
 
             this.currentState.storage.versions.Increment(in entity);
             this.currentState.components.Add(entity.id, data);
-            if (this.currentState.filters.HasInFilters<TComponent>() == true) this.currentState.storage.archetypes.Set<TComponent>(in entity);
-            this.AddComponentToFilter(entity);
+            if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+                
+                this.currentState.storage.archetypes.Set<TComponent>(in entity);
+                this.UpdateFilterByComponent<TComponent>(in entity);
+                
+            }
             
             return data;
 
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        internal void AddComponent<TComponent>(Entity entity, TComponent data, int componentIndex) where TComponent : class, IComponent {
+        internal void AddComponent<TComponent>(in Entity entity, TComponent data, int componentIndex) where TComponent : class, IComponent {
             
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -137,7 +141,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public TComponent GetComponent<TComponent>(Entity entity) where TComponent : class, IComponent {
+        public TComponent GetComponent<TComponent>(in Entity entity) where TComponent : class, IComponent {
             
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -152,7 +156,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public ListCopyable<IComponent> ForEachComponent<TComponent>(Entity entity) where TComponent : class, IComponent {
+        public ListCopyable<IComponent> ForEachComponent<TComponent>(in Entity entity) where TComponent : class, IComponent {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -181,7 +185,7 @@ namespace ME.ECS {
         /// <typeparam name="TComponent"></typeparam>
         /// <returns></returns>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public bool HasComponent<TComponent>(Entity entity) where TComponent : class, IComponent {
+        public bool HasComponent<TComponent>(in Entity entity) where TComponent : class, IComponent {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -200,7 +204,7 @@ namespace ME.ECS {
         /// </summary>
         /// <param name="entity"></param>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void RemoveComponentsPredicate<TComponent, TComponentPredicate>(Entity entity, TComponentPredicate predicate) where TComponent : class, IComponent where TComponentPredicate : IComponentPredicate<TComponent> {
+        public void RemoveComponentsPredicate<TComponent, TComponentPredicate>(in Entity entity, TComponentPredicate predicate) where TComponent : class, IComponent where TComponentPredicate : IComponentPredicate<TComponent> {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -230,7 +234,7 @@ namespace ME.ECS {
                 
                 this.currentState.storage.versions.Increment(in entity);
                 this.currentState.storage.archetypes.Remove<TComponent>(in entity);
-                this.RemoveComponentFromFilter(in entity);
+                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) this.UpdateFilterByComponent<TComponent>(in entity);
 
             }
 
@@ -313,7 +317,7 @@ namespace ME.ECS {
                 
                 this.currentState.storage.versions.Increment(in entity);
                 this.currentState.storage.archetypes.Remove<TComponent>(in entity);
-                this.RemoveComponentFromFilter(in entity);
+                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) this.UpdateFilterByComponent<TComponent>(in entity);
 
             }
 

@@ -355,7 +355,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static bool Resize<T>(in int index, ref Unity.Collections.NativeArray<T> arr, bool resizeWithOffset = true, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : struct {
+        public static bool Resize<T>(int index, ref Unity.Collections.NativeArray<T> arr, bool resizeWithOffset = true, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : struct {
 
             var offset = (resizeWithOffset == true ? 2 : 1);
             
@@ -487,14 +487,17 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool Resize<T>(int index, ref BufferArray<T> arr, bool resizeWithOffset = false) {
 
-            var offset = (resizeWithOffset == true ? 2 : 1);
-            
-            if (arr.arr == null) arr = PoolArray<T>.Spawn(index * offset + 1);
             if (index < arr.Length) return false;
             
-            var newLength = arr.Length * offset + 1;
-            if (newLength == 0 || newLength <= index) newLength = index * offset + 1;
-
+            var offset = (resizeWithOffset == true ? 2 : 1);
+            if (arr.arr == null) {
+                
+                arr = PoolArray<T>.Spawn(index * offset + 1);
+                arr = new BufferArray<T>(arr.arr, index + 1);
+                
+            }
+            
+            var newLength = index + 1;
             if (newLength <= arr.arr.Length) {
 
                 System.Array.Clear(arr.arr, arr.Length, newLength - arr.Length);

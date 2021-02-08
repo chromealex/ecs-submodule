@@ -181,9 +181,13 @@ namespace ME.ECS {
                     
                 state = 0;
                 if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.components.arr[id] = default;
-                if (world.currentState.filters.HasInFilters<TComponent>() == true) world.currentState.storage.archetypes.Remove<TComponent>(in entity);
+                if (world.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+                    
+                    world.currentState.storage.archetypes.Remove<TComponent>(in entity);
+                    world.UpdateFilterByStructComponent<TComponent>(in entity);
+                    
+                }
                 --world.currentState.structComponents.count;
-                world.RemoveComponentFromFilter(in entity);
                 #if ENTITY_ACTIONS
                 world.RaiseEntityActionOnRemove<TComponent>(in entity);
                 #endif
@@ -387,11 +391,11 @@ namespace ME.ECS {
             if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.components.arr[to.id] = this.components.arr[from.id];
             if (this.componentsStates.arr[from.id] > 0) {
 
-                if (this.world.currentState.filters.HasInFilters<TComponent>() == true) this.world.currentState.storage.archetypes.Set<TComponent>(in to);
+                if (this.world.currentState.filters.HasInAnyFilter<TComponent>() == true) this.world.currentState.storage.archetypes.Set<TComponent>(in to);
 
             } else {
                 
-                if (this.world.currentState.filters.HasInFilters<TComponent>() == true) this.world.currentState.storage.archetypes.Remove<TComponent>(in to);
+                if (this.world.currentState.filters.HasInAnyFilter<TComponent>() == true) this.world.currentState.storage.archetypes.Remove<TComponent>(in to);
 
             }
 
@@ -1019,7 +1023,7 @@ namespace ME.ECS {
 
             this.currentState.storage.versions.Validate(in entity);
             this.currentState.structComponents.Validate<TComponent>(in entity, isTag);
-            if (this.currentState.filters.HasInFilters<TComponent>() == true && this.HasData<TComponent>(in entity) == true) {
+            if (this.currentState.filters.HasInAnyFilter<TComponent>() == true && this.HasData<TComponent>(in entity) == true) {
                 
                 this.currentState.storage.archetypes.Set<TComponent>(in entity);
                 
@@ -1068,9 +1072,13 @@ namespace ME.ECS {
                 
                 state = 1;
                 this.currentState.storage.versions.Increment(in entity);
-                if (this.currentState.filters.HasInFilters<TComponent>() == true) this.currentState.storage.archetypes.Set<TComponent>(in entity);
+                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+                    
+                    this.currentState.storage.archetypes.Set<TComponent>(in entity);
+                    this.UpdateFilterByStructComponent<TComponent>(in entity);
+                    
+                }
                 System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
-                this.AddComponentToFilter(entity);
                 #if ENTITY_ACTIONS
                 this.RaiseEntityActionOnAdd<TComponent>(in entity);
                 #endif
@@ -1109,10 +1117,14 @@ namespace ME.ECS {
 
                 state = 1;
                 this.currentState.storage.versions.Increment(in entity);
-                if (this.currentState.filters.HasInFilters<TComponent>() == true) this.currentState.storage.archetypes.Set<TComponent>(in entity);
+                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+                    
+                    this.currentState.storage.archetypes.Set<TComponent>(in entity);
+                    this.UpdateFilterByStructComponent<TComponent>(in entity);
+                    
+                }
                 System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
-                this.AddComponentToFilter(entity);
-
+                
             }
             #if ENTITY_ACTIONS
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
@@ -1156,9 +1168,14 @@ namespace ME.ECS {
 
                 state = 1;
                 this.currentState.storage.versions.Increment(in entity);
-                if (this.currentState.filters.HasInFilters<TComponent>() == true) this.currentState.storage.archetypes.Set<TComponent>(in entity);
+                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+                    
+                    this.currentState.storage.archetypes.Set<TComponent>(in entity);
+                    this.UpdateFilterByStructComponent<TComponent>(in entity);
+                    
+                }
                 System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
-                this.AddComponentToFilter(entity);
+                //this.AddComponentToFilter(entity);
 
             }
             #if ENTITY_ACTIONS
@@ -1167,37 +1184,6 @@ namespace ME.ECS {
 
             return ref state;
 
-        }
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        internal void SetData(in Entity entity, in IStructComponent data, int dataIndex, int componentIndex) {
-
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-            
-            // Inline all manually
-            ref var reg = ref this.currentState.structComponents.list.arr[dataIndex];
-            if (reg.SetObject(entity, data) == true) {
-
-                this.currentState.storage.versions.Increment(in entity);
-                if (this.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) this.currentState.storage.archetypes.Set(in entity, componentIndex);
-                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
-                
-            }
-            
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -1447,9 +1433,13 @@ namespace ME.ECS {
                 state = 0;
                 this.currentState.storage.versions.Increment(in entity);
                 if (WorldUtilities.IsComponentAsTag<TComponent>() == false) reg.components.arr[entity.id] = default;
-                if (this.currentState.filters.HasInFilters<TComponent>() == true) this.currentState.storage.archetypes.Remove<TComponent>(in entity);
+                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+                    
+                    this.currentState.storage.archetypes.Remove<TComponent>(in entity);
+                    this.UpdateFilterByStructComponent<TComponent>(in entity);
+                    
+                }
                 System.Threading.Interlocked.Decrement(ref this.currentState.structComponents.count);
-                this.RemoveComponentFromFilter(in entity);
                 #if ENTITY_ACTIONS
                 this.RaiseEntityActionOnRemove<TComponent>(in entity);
                 #endif
@@ -1459,7 +1449,38 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void RemoveData(in Entity entity, int dataIndex, int componentIndex) {
+        internal void SetData(in Entity entity, in IStructComponent data, int dataIndex, int componentIndex) {
+
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+            
+            // Inline all manually
+            ref var reg = ref this.currentState.structComponents.list.arr[dataIndex];
+            if (reg.SetObject(entity, data) == true) {
+
+                this.currentState.storage.versions.Increment(in entity);
+                if (this.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) this.currentState.storage.archetypes.Set(in entity, componentIndex);
+                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
+                
+            }
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        internal void RemoveData(in Entity entity, int dataIndex, int componentIndex) {
             
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {

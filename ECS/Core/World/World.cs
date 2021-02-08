@@ -170,6 +170,7 @@ namespace ME.ECS {
         
         private State resetState;
         internal State currentState;
+        internal FiltersTree filtersTree;
         private uint seed;
         private int cpf; // CPF = Calculations per frame
         internal int entitiesCapacity;
@@ -362,6 +363,7 @@ namespace ME.ECS {
             this.tickTime = default;
             this.timeSinceStart = default;
             this.entitiesCapacity = default;
+            this.filtersTree = default;
             
             this.features = PoolListCopyable<IFeatureBase>.Spawn(World.FEATURES_CAPACITY);
             //this.systems = PoolList<ISystemBase>.Spawn(World.SYSTEMS_CAPACITY);
@@ -409,6 +411,8 @@ namespace ME.ECS {
             PoolListCopyable<Entity>.Recycle(ref list);
             this.GetState().storage.ApplyDead();
 
+            this.filtersTree.Dispose();
+            
             PoolArray<bool>.Recycle(ref this.currentSystemContextFiltersUsed);
             this.currentSystemContextFiltersUsedAnyChanged = default;
 
@@ -1001,6 +1005,7 @@ namespace ME.ECS {
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];
             ArrayUtils.Resize(filterRef.id - 1, ref dic);
             dic.arr[filterRef.id - 1] = true;
+            this.filtersTree.Add(filterRef);
             
             if (this.entitiesCapacity > 0) filterRef.SetEntityCapacity(this.entitiesCapacity);
             
@@ -1347,92 +1352,6 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void AddComponentToFilter(in Entity entity) {
-            
-            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
-            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
-            if (dic.arr != null) {
-
-                for (int i = 0; i < dic.Length; ++i) {
-
-                    if (dic.arr[i] == false) continue;
-                    var filterId = i + 1;
-                    var filter = this.GetFilter(filterId);
-                    if (filter.IsForEntity(entity.id) == false) continue;
-                    filter.OnAddComponent(in entity);
-
-                }
-
-            }
-            
-        }
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void RemoveComponentFromFilter(in Entity entity) {
-            
-            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
-            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
-            if (dic.arr != null) {
-
-                for (int i = 0; i < dic.Length; ++i) {
-
-                    if (dic.arr[i] == false) continue;
-                    var filterId = i + 1;
-                    var filter = this.GetFilter(filterId);
-                    if (filter.IsForEntity(entity.id) == false) continue;
-                    filter.OnRemoveComponent(in entity);
-
-                }
-
-            }
-            
-        }
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void RemoveFromFilters_INTERNAL(in Entity entity) {
-            
-            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
-            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
-            if (dic.arr != null) {
-
-                for (int i = 0; i < dic.Length; ++i) {
-
-                    if (dic.arr[i] == false) continue;
-                    var filterId = i + 1;
-                    var filter = this.GetFilter(filterId);
-                    filter.OnEntityDestroy(in entity);
-                    if (filter.IsForEntity(entity.id) == false) continue;
-                    filter.OnRemoveEntity(in entity);
-
-                }
-
-            }
-            
-        }
-
-        /*public void AddToFilters<TEntity>(Entity entity) where TEntity : struct, IEntity {
-            
-            ref var dic = ref FiltersDirectCache<TState, TEntity>.dic;
-            HashSet<int> filters;
-            if (dic.TryGetValue(this.id, out filters) == true) {
-
-                foreach (var filterId in filters) {
-
-                    ((IFilterInternal)this.GetFilter<TEntity>(filterId)).OnAdd(entity);
-
-                }
-
-            }
-            
-        }*/
-
-        public void RemoveFromFilters(Entity data) {
-
-            this.RemoveFromFilters_INTERNAL(data);
-
-        }
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool IsAlive(int entityId, ushort generation) {
 
             // Inline manually
@@ -1549,7 +1468,7 @@ namespace ME.ECS {
             
             if (this.currentState.storage.Dealloc(in entity) == true) {
             
-                this.RemoveFromFilters(entity);
+                this.RemoveFromFilters_INTERNAL(entity);
                 this.DestroyEntityPlugins(in entity);
                 this.RemoveComponents(entity);
 
