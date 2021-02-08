@@ -479,7 +479,7 @@ namespace ME.ECS {
     #endif
     public struct Filter {
 
-        private int id;
+        internal int id;
         internal World world;
         private FilterData temp;
 
@@ -493,7 +493,7 @@ namespace ME.ECS {
             return this.world.GetFilter(this.id).GetMaxEntityId();
 
         }
-        
+
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool IsForEntity(int id) {
 
