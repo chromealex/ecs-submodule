@@ -98,9 +98,9 @@
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static Entity SetData<TComponent>(this in Entity entity, in ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
+        public static Entity SetData<TComponent>(this in Entity entity, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
 
-            Worlds.currentWorld.SetData<TComponent>(in entity, in lifetime);
+            Worlds.currentWorld.SetData<TComponent>(in entity, lifetime);
             return entity;
 
         }
@@ -114,9 +114,9 @@
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static Entity SetData<TComponent>(this in Entity entity, in TComponent data, in ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
+        public static Entity SetData<TComponent>(this in Entity entity, in TComponent data, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
 
-            Worlds.currentWorld.SetData(in entity, in data, in lifetime);
+            Worlds.currentWorld.SetData(in entity, in data, lifetime);
             return entity;
 
         }

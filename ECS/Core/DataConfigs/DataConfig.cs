@@ -27,13 +27,13 @@ namespace ME.ECS.DataConfigs {
             var world = Worlds.currentWorld;
             for (int i = 0; i < this.removeStructComponentsDataTypeIds.Length; ++i) {
 
-                world.RemoveData(in entity, in this.removeStructComponentsDataTypeIds[i], -1);
+                world.RemoveData(in entity, this.removeStructComponentsDataTypeIds[i], -1);
 
             }
 
             for (int i = 0; i < this.structComponents.Length; ++i) {
 
-                world.SetData(in entity, in this.structComponents[i], in this.structComponentsDataTypeIds[i], -1);
+                world.SetData(in entity, in this.structComponents[i], this.structComponentsDataTypeIds[i], -1);
 
             }
             

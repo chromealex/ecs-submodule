@@ -59,7 +59,7 @@ namespace ME.ECS {
         public abstract void CopyFrom(in Entity from, in Entity to);
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public abstract void Validate(in int capacity);
+        public abstract void Validate(int capacity);
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public abstract void Validate(in Entity entity);
@@ -176,7 +176,7 @@ namespace ME.ECS {
             ref var state = ref this.componentsStates.arr[id];
             if (state - 1 == step) {
                 
-                var entity = world.GetEntityById(in id);
+                var entity = world.GetEntityById(id);
                 if (entity.generation == 0) return;
                     
                 state = 0;
@@ -193,16 +193,16 @@ namespace ME.ECS {
         }
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public override void Validate(in int capacity) {
+        public override void Validate(int capacity) {
 
-            if (ArrayUtils.WillResize(in capacity, ref this.componentsStates) == true) {
+            if (ArrayUtils.WillResize(capacity, ref this.componentsStates) == true) {
 
-                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) ArrayUtils.Resize(in capacity, ref this.components);
-                ArrayUtils.Resize(in capacity, ref this.componentsStates);
+                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) ArrayUtils.Resize(capacity, ref this.components);
+                ArrayUtils.Resize(capacity, ref this.componentsStates);
                 
             }
 
-            this.world.currentState.storage.archetypes.Validate(in capacity);
+            this.world.currentState.storage.archetypes.Validate(capacity);
             
         }
 
@@ -210,10 +210,10 @@ namespace ME.ECS {
         public override void Validate(in Entity entity) {
 
             var index = entity.id;
-            if (ArrayUtils.WillResize(in index, ref this.componentsStates) == true) {
+            if (ArrayUtils.WillResize(index, ref this.componentsStates) == true) {
 
-                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) ArrayUtils.Resize(in index, ref this.components);
-                ArrayUtils.Resize(in index, ref this.componentsStates);
+                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) ArrayUtils.Resize(index, ref this.components);
+                ArrayUtils.Resize(index, ref this.componentsStates);
 
             }
 
@@ -285,7 +285,7 @@ namespace ME.ECS {
                 bucketState = 1;
 
                 var componentIndex = WorldUtilities.GetComponentTypeId<TComponent>();
-                if (this.world.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
+                if (this.world.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
 
                 return true;
 
@@ -315,7 +315,7 @@ namespace ME.ECS {
                 bucketState = 0;
                 
                 var componentIndex = WorldUtilities.GetComponentTypeId<TComponent>();
-                if (this.world.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
+                if (this.world.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
 
                 return true;
 
@@ -627,7 +627,7 @@ namespace ME.ECS {
         public void Validate<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent {
             
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
-            this.Validate<TComponent>(in code, isTag);
+            this.Validate<TComponent>(code, isTag);
             var reg = (StructComponents<TComponent>)this.list.arr[code];
             reg.Validate(in entity);
 
@@ -642,7 +642,7 @@ namespace ME.ECS {
             
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
-            this.Validate<TComponent>(in code, isTag);
+            this.Validate<TComponent>(code, isTag);
             
         }
 
@@ -652,7 +652,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        private void Validate<TComponent>(in int code, bool isTag) where TComponent : struct, IStructComponent {
+        private void Validate<TComponent>(int code, bool isTag) where TComponent : struct, IStructComponent {
 
             if (ArrayUtils.WillResize(code, ref this.list) == true) {
 
@@ -675,7 +675,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public bool HasBit(in Entity entity, in int bit) {
+        public bool HasBit(in Entity entity, int bit) {
 
             if (bit < 0 || bit >= this.list.Length) return false;
             var reg = this.list.arr[bit];
@@ -1009,9 +1009,9 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public bool HasDataBit(in Entity entity, in int bit) {
+        public bool HasDataBit(in Entity entity, int bit) {
 
-            return this.currentState.structComponents.HasBit(in entity, in bit);
+            return this.currentState.structComponents.HasBit(in entity, bit);
 
         }
 
@@ -1038,9 +1038,7 @@ namespace ME.ECS {
             }
             #endif
 
-            ref var r = ref this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
-            var reg = (StructComponents<TComponent>)r;
-            return reg.Has(in entity);
+            return this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()].Has(in entity);
 
         }
 
@@ -1056,8 +1054,7 @@ namespace ME.ECS {
             #endif
 
             // Inline all manually
-            ref var r = ref this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
-            var reg = (StructComponents<TComponent>)r;
+            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
             ref var state = ref reg.componentsStates.arr[entity.id];
             if (state == 0 && createIfNotExists == true) {
 
@@ -1105,8 +1102,7 @@ namespace ME.ECS {
             #endif
             
             // Inline all manually
-            ref var r = ref this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
-            var reg = (StructComponents<TComponent>)r;
+            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
             if (WorldUtilities.IsComponentAsTag<TComponent>() == false) reg.components.arr[entity.id] = default;
             ref var state = ref reg.componentsStates.arr[entity.id];
             if (state == 0) {
@@ -1153,8 +1149,7 @@ namespace ME.ECS {
             #endif
             
             // Inline all manually
-            ref var r = ref this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
-            var reg = (StructComponents<TComponent>)r;
+            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
             if (WorldUtilities.IsComponentAsTag<TComponent>() == false) reg.components.arr[entity.id] = data;
             ref var state = ref reg.componentsStates.arr[entity.id];
             if (state == 0) {
@@ -1175,7 +1170,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        internal void SetData(in Entity entity, in IStructComponent data, in int dataIndex, in int componentIndex) {
+        internal void SetData(in Entity entity, in IStructComponent data, int dataIndex, int componentIndex) {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -1198,7 +1193,7 @@ namespace ME.ECS {
             if (reg.SetObject(entity, data) == true) {
 
                 this.currentState.storage.versions.Increment(in entity);
-                if (this.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.currentState.storage.archetypes.Set(in entity, in componentIndex);
+                if (this.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) this.currentState.storage.archetypes.Set(in entity, componentIndex);
                 System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
                 
             }
@@ -1272,7 +1267,7 @@ namespace ME.ECS {
         }
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void SetData<TComponent>(in Entity entity, in ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
+        public void SetData<TComponent>(in Entity entity, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -1328,7 +1323,7 @@ namespace ME.ECS {
         }
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void SetData<TComponent>(in Entity entity, in TComponent data, in ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
+        public void SetData<TComponent>(in Entity entity, in TComponent data, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -1464,7 +1459,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void RemoveData(in Entity entity, in int dataIndex, in int componentIndex) {
+        public void RemoveData(in Entity entity, int dataIndex, int componentIndex) {
             
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -1486,7 +1481,7 @@ namespace ME.ECS {
             if (reg.RemoveObject(entity) == true) {
                 
                 this.currentState.storage.versions.Increment(in entity);
-                if (this.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.currentState.storage.archetypes.Remove(in entity, in componentIndex);
+                if (this.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) this.currentState.storage.archetypes.Remove(in entity, componentIndex);
                 System.Threading.Interlocked.Decrement(ref this.currentState.structComponents.count);
                 
             }

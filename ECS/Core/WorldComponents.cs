@@ -105,7 +105,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        internal void AddComponent<TComponent>(Entity entity, TComponent data, in int componentIndex) where TComponent : class, IComponent {
+        internal void AddComponent<TComponent>(Entity entity, TComponent data, int componentIndex) where TComponent : class, IComponent {
             
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -132,7 +132,7 @@ namespace ME.ECS {
             #endif
 
             this.currentState.components.Add(entity.id, data);
-            if (this.currentState.filters.allFiltersArchetype.HasBit(in componentIndex) == true) this.currentState.storage.archetypes.Set(in entity, in componentIndex);
+            if (this.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) this.currentState.storage.archetypes.Set(in entity, componentIndex);
             
         }
 

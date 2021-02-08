@@ -30,7 +30,7 @@
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static void SetRotation2D(this in Entity child, in float rotation) {
+        public static void SetRotation2D(this in Entity child, float rotation) {
 
             var container = Worlds.currentWorld.GetData<Container>(in child, createIfNotExists: false);
             if (container.entity.IsEmpty() == false) {
@@ -81,7 +81,7 @@
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static void SetLocalRotation2D(this in Entity child, in float rotation) {
+        public static void SetLocalRotation2D(this in Entity child, float rotation) {
 
             Worlds.currentWorld.SetData(in child, rotation.ToRotationStruct());
             
@@ -132,7 +132,7 @@
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static Rotation2D ToRotationStruct(this in float v) {
+        public static Rotation2D ToRotationStruct(this float v) {
             
             return new Rotation2D() { x = v };
             

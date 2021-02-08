@@ -453,7 +453,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static bool WillResize<T>(in int index, ref T[] arr) {
+        public static bool WillResize<T>(int index, ref T[] arr) {
 
             if (arr == null) return true;//arr = PoolArray<T>.Spawn(index + 1);
             if (index < arr.Length) return false;
@@ -462,7 +462,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static bool WillResize<T>(in int index, ref BufferArray<T> arr) {
+        public static bool WillResize<T>(int index, ref BufferArray<T> arr) {
 
             if (arr.arr == null) return true;//arr = PoolArray<T>.Spawn(index + 1);
             if (index < arr.Length) return false;
@@ -470,6 +470,7 @@ namespace ME.ECS {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void RawResize<T>(int index, ref BufferArray<T> arr) {
 
             var newSize = index * 2 + 1;
@@ -484,7 +485,7 @@ namespace ME.ECS {
         }
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static bool Resize<T>(in int index, ref BufferArray<T> arr, bool resizeWithOffset = false) {
+        public static bool Resize<T>(int index, ref BufferArray<T> arr, bool resizeWithOffset = false) {
 
             var offset = (resizeWithOffset == true ? 2 : 1);
             

@@ -51,7 +51,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public ref uint Get(in int entityId) {
+        public ref uint Get(int entityId) {
 
             return ref this.values.arr[entityId];
 

@@ -23,7 +23,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void Validate(in int capacity) {
+        public void Validate(int capacity) {
 
             ArrayUtils.Resize(capacity, ref this.types);
             ArrayUtils.Resize(capacity, ref this.prevTypes);
@@ -47,14 +47,14 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public ref Archetype GetPrevious(in int entityId) {
+        public ref Archetype GetPrevious(int entityId) {
 
             return ref this.prevTypes.arr[entityId];
 
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public ref Archetype Get(in int entityId) {
+        public ref Archetype Get(int entityId) {
 
             return ref this.types.arr[entityId];
 
@@ -88,13 +88,13 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void Set(in Entity entity, in int index) {
+        public void Set(in Entity entity, int index) {
 
             var id = entity.id;
             //ArrayUtils.Resize(id, ref this.types);
             //ArrayUtils.Resize(id, ref this.prevTypes);
             this.prevTypes.arr[id] = this.Get(in entity);
-            this.types.arr[id].AddBit(in index);
+            this.types.arr[id].AddBit(index);
 
         }
 
@@ -110,13 +110,13 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void Remove(in Entity entity, in int index) {
+        public void Remove(in Entity entity, int index) {
             
             var id = entity.id;
             //ArrayUtils.Resize(id, ref this.types);
             //ArrayUtils.Resize(id, ref this.prevTypes);
             this.prevTypes.arr[id] = this.Get(in entity);
-            this.types.arr[id].SubtractBit(in index);
+            this.types.arr[id].SubtractBit(index);
             
         }
 
@@ -248,7 +248,7 @@ namespace ME.ECS {
 
             var tId = WorldUtilities.GetComponentTypeId<T>();
             if (tId == -1) return false;
-            return this.value.HasBit(in tId);
+            return this.value.HasBit(tId);
             
         }
 
@@ -258,9 +258,9 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public bool HasBit(in int bit) {
+        public bool HasBit(int bit) {
 
-            return this.value.HasBit(in bit);
+            return this.value.HasBit(bit);
             
         }
 
@@ -294,9 +294,9 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void AddBit(in int bit) {
+        public void AddBit(int bit) {
 
-            this.value.AddBit(in bit);
+            this.value.AddBit(bit);
             
         }
 
@@ -306,9 +306,9 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void SubtractBit(in int bit) {
+        public void SubtractBit(int bit) {
             
-            this.value.SubtractBit(in bit);
+            this.value.SubtractBit(bit);
             
         }
         
@@ -322,7 +322,7 @@ namespace ME.ECS {
 
             var tId = WorldUtilities.GetComponentTypeId<T>();
             if (tId == -1) return;
-            this.value.SubtractBit(in tId);
+            this.value.SubtractBit(tId);
             
         }
 

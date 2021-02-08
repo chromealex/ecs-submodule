@@ -111,7 +111,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public ref FilterData Get(in int id) {
+        public ref FilterData Get(int id) {
 
             return ref this.filters.arr[id - 1];
 
@@ -928,13 +928,13 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public bool IsForEntity(in int entityId) {
+        public bool IsForEntity(int entityId) {
 
-            ref var previousArchetype = ref this.world.currentState.storage.archetypes.GetPrevious(in entityId);
-            if (previousArchetype.ContainsAll(in this.archetypeContains) == true && previousArchetype.NotContains(in this.archetypeNotContains) == true) return true;
+            ref var previousArchetype = ref this.world.currentState.storage.archetypes.GetPrevious(entityId);
+            if (previousArchetype.value.Has(in this.archetypeContains.value) == true && previousArchetype.value.HasNot(in this.archetypeNotContains.value) == true) return true;
             
-            ref var currentArchetype = ref this.world.currentState.storage.archetypes.Get(in entityId);
-            if (currentArchetype.ContainsAll(in this.archetypeContains) == true && currentArchetype.NotContains(in this.archetypeNotContains) == true) return true;
+            ref var currentArchetype = ref this.world.currentState.storage.archetypes.Get(entityId);
+            if (currentArchetype.value.Has(in this.archetypeContains.value) == true && currentArchetype.value.HasNot(in this.archetypeNotContains.value) == true) return true;
 
             return false;
 
@@ -1055,12 +1055,12 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool Contains(in Entity entity) {
 
-            return this.world.GetFilter(this.id).Contains_INTERNAL(in entity.id);
+            return this.world.GetFilter(this.id).Contains_INTERNAL(entity.id);
 
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        private bool Contains_INTERNAL(in int entityId) {
+        private bool Contains_INTERNAL(int entityId) {
 
             if (entityId >= this.dataContains.Length) return false;
             return this.dataContains.arr[entityId];
@@ -1113,7 +1113,7 @@ namespace ME.ECS {
             
             if (entity.generation == Entity.GENERATION_ZERO) return false;
 
-            var isExists = this.Contains_INTERNAL(in entity.id);
+            var isExists = this.Contains_INTERNAL(entity.id);
             if (isExists == true) {
 
                 return this.CheckRemove(in entity);
@@ -1147,7 +1147,7 @@ namespace ME.ECS {
 
             }
 
-            var isExists = this.Contains_INTERNAL(in entity.id);
+            var isExists = this.Contains_INTERNAL(entity.id);
             if (isExists == true) {
 
                 return this.CheckRemove(in entity);
@@ -1318,7 +1318,7 @@ namespace ME.ECS {
         private bool CheckAdd(in Entity entity) {
 
             // If entity doesn't exist in cache - try to add if entity's archetype fit with contains & notContains
-            ref var entArchetype = ref this.world.currentState.storage.archetypes.Get(in entity.id);
+            ref var entArchetype = ref this.world.currentState.storage.archetypes.Get(entity.id);
             if (entArchetype.ContainsAll(in this.archetypeContains) == false) return false;
             if (entArchetype.NotContains(in this.archetypeNotContains) == false) return false;
 
@@ -1346,7 +1346,7 @@ namespace ME.ECS {
         private bool CheckRemove(in Entity entity) {
 
             // If entity already exists in cache - try to remove if entity's archetype doesn't fit with contains & notContains
-            ref var entArchetype = ref this.world.currentState.storage.archetypes.Get(in entity.id);
+            ref var entArchetype = ref this.world.currentState.storage.archetypes.Get(entity.id);
             var allContains = entArchetype.ContainsAll(in this.archetypeContains);
             var allNotContains = entArchetype.NotContains(in this.archetypeNotContains);
             if (allContains == true && allNotContains == true) return false;

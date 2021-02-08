@@ -133,7 +133,7 @@ namespace ME.ECSEditor {
 
 	    public static Entity DrawEntitySelection(World world, in Entity entity, bool checkAlive, bool drawSelectButton = true) {
 		    
-		    var currentEntity = world.GetEntityById(in entity.id);
+		    var currentEntity = world.GetEntityById(entity.id);
 		    if (checkAlive == true && entity.IsAlive() == false) {
 
 			    EditorGUILayout.HelpBox("This entity version is already in pool, the list of components has been changed.", MessageType.Warning);

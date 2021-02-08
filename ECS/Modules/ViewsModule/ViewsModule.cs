@@ -809,7 +809,7 @@ namespace ME.ECS.Views {
         public void Register(IView instance) {
 
             var id = instance.entity.id;
-            ArrayUtils.Resize(in id, ref this.list);
+            ArrayUtils.Resize(id, ref this.list);
 
             this.list.arr[id].Add(instance);
             

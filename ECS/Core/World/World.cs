@@ -328,7 +328,7 @@ namespace ME.ECS {
         public int AddSystemGroup(ref SystemGroup group) {
 
             var index = this.systemGroupsLength++;
-            ArrayUtils.Resize(in index, ref this.systemGroups, resizeWithOffset: false);
+            ArrayUtils.Resize(index, ref this.systemGroups, resizeWithOffset: false);
             this.systemGroups.arr[index] = group;
             return index;
 
@@ -349,7 +349,7 @@ namespace ME.ECS {
             #endif
 
             #if UNITY_EDITOR
-            Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobDebuggerEnabled = false;
+            Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobDebuggerEnabled = true;
             #endif
             
             this.currentSystemContextFiltersUsed = PoolArray<bool>.Spawn(World.FILTERS_CACHE_CAPACITY);
@@ -373,8 +373,6 @@ namespace ME.ECS {
             this.systemGroupsLength = 0;
             this.filterActions = PoolList<FilterAction>.Spawn(4);
             
-            ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
-
             this.OnSpawnStructComponents();
             this.OnSpawnComponents();
             this.OnSpawnMarkers();
@@ -559,6 +557,8 @@ namespace ME.ECS {
                 this.id = ++World.registryWorldId;
                 
             }
+
+            ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
 
         }
 
@@ -754,7 +754,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public FilterData GetFilter(in int id) {
+        public FilterData GetFilter(int id) {
 
             return this.currentState.filters.filters.arr[id - 1];
 
@@ -774,7 +774,7 @@ namespace ME.ECS {
 
         public bool HasFilter(FilterData filterRef) {
             
-            ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];
             if (dic.arr != null) {
             
@@ -789,7 +789,7 @@ namespace ME.ECS {
         public bool HasFilter(int id) {
 
             var idx = id - 1;
-            ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];
             if (dic.arr != null && idx >= 0 && idx < dic.Length) {
             
@@ -997,7 +997,7 @@ namespace ME.ECS {
 
             ArrayUtils.Resize(filterRef.id, ref this.currentSystemContextFiltersUsed);
 
-            ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];
             ArrayUtils.Resize(filterRef.id - 1, ref dic);
             dic.arr[filterRef.id - 1] = true;
@@ -1039,7 +1039,7 @@ namespace ME.ECS {
 
                 //this.filtersStorage = filtersRef;
                 
-                ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+                //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
                 ref var dic = ref FiltersDirectCache.dic.arr[this.id];
                 if (dic.arr != null) {
                     
@@ -1235,7 +1235,7 @@ namespace ME.ECS {
 
         public void SetEntityCapacityInFilters(int capacity) {
 
-            ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];
             if (dic.arr != null) {
 
@@ -1243,7 +1243,7 @@ namespace ME.ECS {
 
                     if (dic.arr[i] == false) continue;
                     var filterId = i + 1;
-                    var filter = this.GetFilter(in filterId);
+                    var filter = this.GetFilter(filterId);
                     filter.SetEntityCapacity(capacity);
 
                 }
@@ -1254,7 +1254,7 @@ namespace ME.ECS {
         
         public void CreateEntityInFilters(Entity entity) {
 
-            ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];
             if (dic.arr != null) {
 
@@ -1262,7 +1262,7 @@ namespace ME.ECS {
 
                     if (dic.arr[i] == false) continue;
                     var filterId = i + 1;
-                    var filter = this.GetFilter(in filterId);
+                    var filter = this.GetFilter(filterId);
                     filter.OnEntityCreate(entity);
 
                 }
@@ -1273,7 +1273,7 @@ namespace ME.ECS {
         
         public void UpdateFiltersOnFilterCreate(Entity entity) {
 
-            ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];
             if (dic.arr != null) {
 
@@ -1281,9 +1281,9 @@ namespace ME.ECS {
 
                     if (dic.arr[i] == false) continue;
                     var filterId = i + 1;
-                    var filter = this.GetFilter(in filterId);
+                    var filter = this.GetFilter(filterId);
                     filter.OnEntityCreate(in entity);
-                    if (filter.IsForEntity(in entity.id) == false) continue;
+                    if (filter.IsForEntity(entity.id) == false) continue;
                     filter.OnUpdate(in entity);
 
                 }
@@ -1294,7 +1294,7 @@ namespace ME.ECS {
         
         public void UpdateFilters(in Entity entity) {
 
-            ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];
             if (dic.arr != null) {
 
@@ -1302,8 +1302,8 @@ namespace ME.ECS {
 
                     if (dic.arr[i] == false) continue;
                     var filterId = i + 1;
-                    var filter = this.GetFilter(in filterId);
-                    if (filter.IsForEntity(in entity.id) == false) continue;
+                    var filter = this.GetFilter(filterId);
+                    if (filter.IsForEntity(entity.id) == false) continue;
                     filter.OnUpdate(in entity);
 
                 }
@@ -1349,7 +1349,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void AddComponentToFilter(in Entity entity) {
             
-            ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];
             if (dic.arr != null) {
 
@@ -1357,8 +1357,8 @@ namespace ME.ECS {
 
                     if (dic.arr[i] == false) continue;
                     var filterId = i + 1;
-                    var filter = this.GetFilter(in filterId);
-                    if (filter.IsForEntity(in entity.id) == false) continue;
+                    var filter = this.GetFilter(filterId);
+                    if (filter.IsForEntity(entity.id) == false) continue;
                     filter.OnAddComponent(in entity);
 
                 }
@@ -1370,7 +1370,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void RemoveComponentFromFilter(in Entity entity) {
             
-            ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];
             if (dic.arr != null) {
 
@@ -1378,8 +1378,8 @@ namespace ME.ECS {
 
                     if (dic.arr[i] == false) continue;
                     var filterId = i + 1;
-                    var filter = this.GetFilter(in filterId);
-                    if (filter.IsForEntity(in entity.id) == false) continue;
+                    var filter = this.GetFilter(filterId);
+                    if (filter.IsForEntity(entity.id) == false) continue;
                     filter.OnRemoveComponent(in entity);
 
                 }
@@ -1391,7 +1391,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void RemoveFromFilters_INTERNAL(in Entity entity) {
             
-            ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];
             if (dic.arr != null) {
 
@@ -1399,9 +1399,9 @@ namespace ME.ECS {
 
                     if (dic.arr[i] == false) continue;
                     var filterId = i + 1;
-                    var filter = this.GetFilter(in filterId);
+                    var filter = this.GetFilter(filterId);
                     filter.OnEntityDestroy(in entity);
-                    if (filter.IsForEntity(in entity.id) == false) continue;
+                    if (filter.IsForEntity(entity.id) == false) continue;
                     filter.OnRemoveEntity(in entity);
 
                 }
@@ -1441,7 +1441,7 @@ namespace ME.ECS {
             
         }
 
-        public ref Entity GetEntityById(in int id) {
+        public ref Entity GetEntityById(int id) {
             
             ref var entitiesList = ref this.currentState.storage;
             ref var ent = ref entitiesList[id];
@@ -1900,8 +1900,8 @@ namespace ME.ECS {
 
                         if (this.modules[i] is IUpdate moduleBase) {
 
-                            moduleBase.Update(in deltaTime);
-
+                            moduleBase.Update(deltaTime);
+                            
                         }
 
                         #if UNITY_EDITOR
@@ -1967,7 +1967,7 @@ namespace ME.ECS {
                         UnityEngine.Profiling.Profiler.BeginSample($"VisualTick [{system}]");
                         #endif
 
-                        system.Update(in deltaTime);
+                        system.Update(deltaTime);
 
                         #if UNITY_EDITOR
                         UnityEngine.Profiling.Profiler.EndSample();
@@ -2046,7 +2046,6 @@ namespace ME.ECS {
 
             // Setup current static variables
             WorldUtilities.SetWorld(this);
-            Worlds.currentState = this.GetState();
 
             // Update time
             this.timeSinceStart += deltaTime;
@@ -2786,7 +2785,7 @@ namespace ME.ECS {
         partial void EndRestoreEntitiesPlugin9();
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        private void SetEntityCapacityPlugins(in int capacity) {
+        private void SetEntityCapacityPlugins(int capacity) {
             
             this.SetEntityCapacityPlugin1(capacity);
             this.SetEntityCapacityPlugin2(capacity);

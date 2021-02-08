@@ -71,7 +71,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public bool HasBit(in int bit) {
+        public bool HasBit(int bit) {
             
             if (bit < 0 || bit > BitMask.MAX_BIT_INDEX) {
                 //throw new Exception($"Attempted to set bit #{bit}, but the maximum is {BitMask.MAX_BIT_INDEX}");
@@ -114,7 +114,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void AddBit(in int bit) {
+        public void AddBit(int bit) {
             
             #if UNITY_EDITOR
             if (bit < 0 || bit > BitMask.MAX_BIT_INDEX) {
@@ -213,7 +213,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void SubtractBit(in int bit) {
+        public void SubtractBit(int bit) {
             
             if (bit < 0 || bit > BitMask.MAX_BIT_INDEX) {
                 throw new Exception($"Attempted to set bit #{bit}, but the maximum is {BitMask.MAX_BIT_INDEX}");
