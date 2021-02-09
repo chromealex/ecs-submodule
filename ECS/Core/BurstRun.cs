@@ -17,6 +17,7 @@ namespace ME.ECS {
     public static unsafe class Burst<T> where T : struct, IBurst {
 
         private static FunctionPointer<FunctionPointerDelegate> cache;
+        private static FunctionPointerDelegate cacheDelegate;
         
         [BurstCompile(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true, Debug = false)]
         private static void Method(ref void* data) {
@@ -36,10 +37,15 @@ namespace ME.ECS {
                 
             }
             #endif
-            
-            if (Burst<T>.cache.IsCreated == false) Burst<T>.cache = BurstCompiler.CompileFunctionPointer((FunctionPointerDelegate)Burst<T>.Method);
+
+            if (Burst<T>.cache.IsCreated == false) {
+                
+                Burst<T>.cache = BurstCompiler.CompileFunctionPointer((FunctionPointerDelegate)Burst<T>.Method);
+                Burst<T>.cacheDelegate = Burst<T>.cache.Invoke;
+
+            }
             var objAddr = UnsafeUtility.AddressOf(ref System.Runtime.CompilerServices.Unsafe.AsRef(data));
-            Burst<T>.cache.Invoke(ref objAddr);
+            Burst<T>.cacheDelegate.Invoke(ref objAddr);
 
         }
 
