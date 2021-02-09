@@ -568,99 +568,26 @@ namespace ME.ECS {
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public UnityEngine.Vector3 GetRandomInSphere(UnityEngine.Vector3 center, float maxRadius) {
-
-            #if WORLD_THREAD_CHECK
-            if (this.worldThread != System.Threading.Thread.CurrentThread) {
-                
-                WrongThreadException.Throw("Random", "this could cause sync problems");
-
-            }
-            #endif
-
-            #if UNITY_MATHEMATICS
-            var rnd = new Unity.Mathematics.Random(this.currentState.randomState);
-            var dir = ((UnityEngine.Vector3)rnd.NextFloat3(-1f, 1f)).normalized;
-            var spherePoint = dir * maxRadius;
-            this.currentState.randomState = rnd.state;
-            #else
-            UnityEngine.Random.state = this.currentState.randomState;
-            var spherePoint = UnityEngine.Random.insideUnitSphere * maxRadius;
-            this.currentState.randomState = UnityEngine.Random.state;
-            #endif
-            return spherePoint + center;
-
+            RandomUtils.ThreadCheck(this);
+            return this.currentState.randomState.GetRandomInSphere(center, maxRadius);
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public int GetRandomRange(int from, int to) {
-
-            #if WORLD_THREAD_CHECK
-            if (this.worldThread != System.Threading.Thread.CurrentThread) {
-                
-                WrongThreadException.Throw("Random", "this could cause sync problems");
-
-            }
-            #endif
-
-            #if UNITY_MATHEMATICS
-            var rnd = new Unity.Mathematics.Random(this.currentState.randomState);
-            var result = rnd.NextInt(from, to);
-            this.currentState.randomState = rnd.state;
-            #else
-            UnityEngine.Random.state = this.currentState.randomState;
-            var result = UnityEngine.Random.Range(from, to);
-            this.currentState.randomState = UnityEngine.Random.state;
-            #endif
-            return result;
-
+            RandomUtils.ThreadCheck(this);
+            return this.currentState.randomState.GetRandomRange(from, to);
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public float GetRandomRange(float from, float to) {
-
-            #if WORLD_THREAD_CHECK
-            if (this.worldThread != System.Threading.Thread.CurrentThread) {
-                
-                WrongThreadException.Throw("Random", "this could cause sync problems");
-
-            }
-            #endif
-
-            #if UNITY_MATHEMATICS
-            var rnd = new Unity.Mathematics.Random(this.currentState.randomState);
-            var result = rnd.NextFloat(from, to);
-            this.currentState.randomState = rnd.state;
-            #else
-            UnityEngine.Random.state = this.currentState.randomState;
-            var result = UnityEngine.Random.Range(from, to);
-            this.currentState.randomState = UnityEngine.Random.state;
-            #endif
-            return result;
-
+            RandomUtils.ThreadCheck(this);
+            return this.currentState.randomState.GetRandomRange(from, to);
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public float GetRandomValue() {
-
-            #if WORLD_THREAD_CHECK
-            if (this.worldThread != System.Threading.Thread.CurrentThread) {
-                
-                WrongThreadException.Throw("Random", "this could cause sync problems");
-
-            }
-            #endif
-
-            #if UNITY_MATHEMATICS
-            var rnd = new Unity.Mathematics.Random(this.currentState.randomState);
-            var result = rnd.NextFloat(0f, 1f);
-            this.currentState.randomState = rnd.state;
-            #else
-            UnityEngine.Random.state = this.currentState.randomState;
-            var result = UnityEngine.Random.value;
-            this.currentState.randomState = UnityEngine.Random.state;
-            #endif
-            return result;
-            
+            RandomUtils.ThreadCheck(this);
+            return this.currentState.randomState.GetRandomValue();
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -671,33 +598,9 @@ namespace ME.ECS {
         }
 
         public void SetSeed(uint seed) {
-
             this.seed = seed;
-
-            if (this.currentState != null) {
-
-                #if UNITY_MATHEMATICS
-                var rnd = new Unity.Mathematics.Random(this.seed);
-                this.currentState.randomState = rnd.state;
-                #else
-                UnityEngine.Random.InitState((int)this.seed);
-                this.currentState.randomState = UnityEngine.Random.state;
-                #endif
-
-            }
-
-            if (this.resetState != null) {
-                
-                #if UNITY_MATHEMATICS
-                var rnd = new Unity.Mathematics.Random(this.seed);
-                this.resetState.randomState = rnd.state;
-                #else
-                UnityEngine.Random.InitState((int)this.seed);
-                this.resetState.randomState = UnityEngine.Random.state;
-                #endif
-
-            }
-
+            this.currentState?.randomState.SetSeed(this.seed);
+            this.resetState?.randomState.SetSeed(this.seed);
         }
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
