@@ -1638,6 +1638,12 @@ namespace ME.ECS {
 
         }
 
+        public BufferArray<Entity> GetEntityStorage() {
+
+            return this.currentState.storage.cache;
+
+        }
+
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void UpdatePhysics(float deltaTime) {
         
