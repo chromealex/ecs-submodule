@@ -49,6 +49,32 @@ namespace ME.ECS {
 
         }
 
+        public static void RunNoCheck(ref T data) {
+
+            var objAddr = UnsafeUtility.AddressOf(ref System.Runtime.CompilerServices.Unsafe.AsRef(data));
+            Burst<T>.cacheDelegate.Invoke(ref objAddr);
+
+        }
+
+        public static void Prewarm() {
+
+            #if BURST_BLITTABLE_CHECK
+            if (UnsafeUtility.IsBlittable<T>() == false) {
+                
+                throw new System.Exception("T must be blittable");
+                
+            }
+            #endif
+
+            if (Burst<T>.cache.IsCreated == false) {
+                
+                Burst<T>.cache = BurstCompiler.CompileFunctionPointer((FunctionPointerDelegate)Burst<T>.Method);
+                Burst<T>.cacheDelegate = Burst<T>.cache.Invoke;
+
+            }
+
+        }
+
     }
 
 }
