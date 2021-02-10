@@ -387,6 +387,19 @@ namespace ME.ECS {
 
         public override void CopyFrom(in Entity from, in Entity to) {
 
+            if (typeof(TComponent) == typeof(ME.ECS.Views.ViewComponent)) {
+
+                var view = from.GetData<ME.ECS.Views.ViewComponent>(createIfNotExists: false);
+                if (view.viewInfo.entity == from) {
+                    
+                    to.InstantiateView(view.viewInfo.prefabSourceId);
+                    
+                }
+                
+                return;
+
+            }
+            
             this.componentsStates.arr[to.id] = this.componentsStates.arr[from.id];
             if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.components.arr[to.id] = this.components.arr[from.id];
             if (this.componentsStates.arr[from.id] > 0) {
@@ -1071,7 +1084,7 @@ namespace ME.ECS {
                 #endif
                 
                 state = 1;
-                this.currentState.storage.versions.Increment(in entity);
+                //this.currentState.storage.versions.Increment(in entity);
                 if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
                     
                     this.currentState.storage.archetypes.Set<TComponent>(in entity);
@@ -1086,6 +1099,7 @@ namespace ME.ECS {
             }
 
             if (WorldUtilities.IsComponentAsTag<TComponent>() == true) return ref reg.emptyComponent;
+            this.currentState.storage.versions.Increment(in entity);
             return ref reg.components.arr[entity.id];
             
         }

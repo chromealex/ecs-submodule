@@ -6,7 +6,6 @@ namespace ME.ECS {
         public static void InitTypeId() {
             
             WorldUtilities.InitComponentTypeId<ME.ECS.Views.ViewComponent>(false);
-            WorldUtilities.InitComponentTypeId<ME.ECS.Views.IViewComponent>(false);
             
             TransformComponentsInitializer.InitTypeId();
             NameComponentsInitializer.InitTypeId();
@@ -17,8 +16,7 @@ namespace ME.ECS {
         
         public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
             
-            WorldUtilities.InitComponentTypeId<ME.ECS.Views.ViewComponent>(false);
-            WorldUtilities.InitComponentTypeId<ME.ECS.Views.IViewComponent>(false);
+            structComponentsContainer.Validate<ME.ECS.Views.ViewComponent>(false);
 
             TransformComponentsInitializer.Init(ref structComponentsContainer);
             NameComponentsInitializer.Init(ref structComponentsContainer);

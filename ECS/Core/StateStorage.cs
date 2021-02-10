@@ -174,7 +174,7 @@ namespace ME.ECS {
         public void IncrementGeneration(in Entity entity) {
             
             // Make this entity not alive, but not completely destroyed at this time
-            this.cache.arr[entity.id] = new Entity(entity.id, (ushort)(entity.generation + 1));
+            this.cache.arr[entity.id] = new Entity(entity.id, unchecked((ushort)(entity.generation + 1)));
             
         }
 

@@ -11,7 +11,7 @@ namespace ME.ECS {
     public class EntityVersions : IPoolableRecycle {
 
         [ME.ECS.Serializer.SerializeField]
-        private BufferArray<uint> values;
+        private BufferArray<ushort> values;
 
         public override int GetHashCode() {
 
@@ -25,7 +25,7 @@ namespace ME.ECS {
 
         public void OnRecycle() {
 
-            PoolArray<uint>.Recycle(ref this.values);
+            PoolArray<ushort>.Recycle(ref this.values);
             
         }
 
@@ -51,14 +51,14 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public ref uint Get(int entityId) {
+        public ref ushort Get(int entityId) {
 
             return ref this.values.arr[entityId];
 
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public ref uint Get(in Entity entity) {
+        public ref ushort Get(in Entity entity) {
 
             var id = entity.id;
             return ref this.values.arr[id];
@@ -68,14 +68,16 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void Increment(in Entity entity) {
 
-            ++this.values.arr[entity.id];
+            unchecked {
+                ++this.values.arr[entity.id];
+            }
 
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void Reset(in Entity entity) {
 
-            this.values.arr[entity.id] = 0u;
+            this.values.arr[entity.id] = 0;
 
         }
 
@@ -83,7 +85,7 @@ namespace ME.ECS {
         public void Reset(int entityId) {
 
             this.Validate(entityId);
-            this.values.arr[entityId] = 0u;
+            this.values.arr[entityId] = 0;
 
         }
 

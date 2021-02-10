@@ -74,6 +74,7 @@ namespace ME.ECS.Views.Providers {
 
         public World world { get; private set; }
         public Entity entity { get; private set; }
+        public uint entityVersion { get; set; }
         public ViewId prefabSourceId { get; private set; }
         public Tick creationTick { get; private set; }
 
@@ -102,6 +103,7 @@ namespace ME.ECS.Views.Providers {
         public virtual void OnDeInitialize() { }
         public virtual void ApplyStateJob(float deltaTime, bool immediately) { }
         public virtual void ApplyState(float deltaTime, bool immediately) { }
+        public virtual void OnUpdate(float deltaTime) { }
         public virtual void ApplyPhysicsState(float deltaTime) { }
 
     }

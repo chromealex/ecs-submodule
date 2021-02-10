@@ -74,15 +74,15 @@ namespace ME.ECS.Serializer.Tests {
         public void BufferArraySerialization() {
             var test = new TestDataBufferArray {
                 viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23),
-                bufferComponents = new ME.ECS.Collections.BufferArray<ME.ECS.Views.ViewComponent>(new [] {
+                bufferComponents = new ME.ECS.Collections.BufferArray<object>(new object[] {
                     new ME.ECS.Views.ViewComponent { seed = 123u, viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23) }, 
-                    null,
-                    null,
-                    null,
-                    null,
+                    default,
+                    default,
+                    default,
+                    default,
                     new ME.ECS.Views.ViewComponent { seed = 123u, viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23) },
-                    null,
-                    null,
+                    default,
+                    default,
                 }, 6),
                 buffer = new ME.ECS.Collections.BufferArray<MyStruct>(new[] {
                     new MyStruct { bar = 1, foo = 2 },
@@ -177,7 +177,7 @@ namespace ME.ECS.Serializer.Tests {
 
             var comps = new Components();
             comps.Initialize(100);
-            comps.Add(1, new ME.ECS.Views.ViewComponent() { seed = 123u, viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23) });
+            //comps.Add(1, new ME.ECS.Views.ViewComponent() { seed = 123u, viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23) });
 
             var test = new TestState() {
                 components = comps
@@ -370,7 +370,7 @@ namespace ME.ECS.Serializer.Tests {
 
             public ME.ECS.Views.ViewInfo viewInfo;
             public ME.ECS.Collections.BufferArray<MyStruct> buffer;
-            public ME.ECS.Collections.BufferArray<ME.ECS.Views.ViewComponent> bufferComponents;
+            public ME.ECS.Collections.BufferArray<object> bufferComponents;
         }
 
         public struct TestDataArray {

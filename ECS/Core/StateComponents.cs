@@ -382,7 +382,7 @@ namespace ME.ECS {
                     var item = list[j];
                     if (item == null) continue;
 
-                    if (item is ME.ECS.Views.ViewComponent) continue;
+                    //if (item is ME.ECS.Views.ViewComponent) continue;
                     
                     IComponent newItem = null;
                     var copyComponent = new CopyComponent();
@@ -397,6 +397,7 @@ namespace ME.ECS {
 
             }
 
+            /*
             var allViews = from.ForEachComponent<ME.ECS.Views.ViewComponent>();
             if (allViews != null) {
 
@@ -407,7 +408,7 @@ namespace ME.ECS {
 
                 }
 
-            }
+            }*/
 
         }
         

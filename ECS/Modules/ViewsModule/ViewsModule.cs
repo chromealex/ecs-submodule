@@ -183,6 +183,7 @@ namespace ME.ECS.Views {
         
         World world { get; }
         Entity entity { get; }
+        uint entityVersion { get; set; }
         ViewId prefabSourceId { get; }
         Tick creationTick { get; }
 
@@ -194,6 +195,7 @@ namespace ME.ECS.Views {
         void DoDeInitialize();
         void ApplyState(float deltaTime, bool immediately);
         void ApplyPhysicsState(float deltaTime);
+        void OnUpdate(float deltaTime);
         
         void UpdateParticlesSimulation(float deltaTime);
         void SimulateParticles(float time, uint seed);
@@ -297,68 +299,13 @@ namespace ME.ECS.Views {
     /// <summary>
     /// Private component class to describe Views
     /// </summary>
-    #if ECS_COMPILE_IL2CPP_OPTIONS
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-    #endif
-    public sealed class ViewComponent : IComponentCopyable, IViewComponent {
+    public struct ViewComponent : IStructComponent {
 
         public ViewInfo viewInfo;
         public uint seed;
 
-        public ref ViewInfo GetViewInfo() {
-
-            return ref this.viewInfo;
-
-        }
-
-        void IPoolableRecycle.OnRecycle() {
-
-            this.viewInfo = default;
-            this.seed = default;
-
-        }
-
-        void IComponentCopyable.CopyFrom(IComponentCopyable other) {
-
-            var otherView = (ViewComponent)other;
-            this.viewInfo = otherView.viewInfo;
-            this.seed = otherView.seed;
-
-        }
-
     }
-
-    /// <summary>
-    /// Private predicate to filter components
-    /// </summary>
-    #if ECS_COMPILE_IL2CPP_OPTIONS
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-    #endif
-    public struct RemoveComponentViewPredicate : IComponentPredicate<ViewComponent> {
-
-        public int entityId;
-        public ViewId prefabSourceId;
-        public Tick creationTick;
-        
-        public bool Execute(ViewComponent data) {
-
-            if (data.viewInfo.creationTick == this.creationTick && data.viewInfo.entity.id == this.entityId && data.viewInfo.prefabSourceId == this.prefabSourceId) {
-
-                Worlds.currentWorld.currentState.storage.archetypes.Remove<ViewComponent>(in data.viewInfo.entity);
-                return true;
-
-            }
-
-            return false;
-
-        }
-        
-    }
-
+    
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -367,7 +314,6 @@ namespace ME.ECS.Views {
     public struct Views {
 
         public IView mainView;
-        public ListCopyable<IView> otherViews;
         public bool isNotEmpty;
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -380,7 +326,6 @@ namespace ME.ECS.Views {
             get {
                 var count = 0;
                 if (this.mainView != null) ++count;
-                if (this.otherViews != null) count += this.otherViews.Count;
                 return count;
             }
         }
@@ -393,8 +338,7 @@ namespace ME.ECS.Views {
         public IView this[int i] {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             get {
-                if (i == 0) return this.mainView;
-                return this.otherViews[i - 1];
+                return this.mainView;
             }
         }
 
@@ -410,16 +354,6 @@ namespace ME.ECS.Views {
 
                 this.mainView = view;
 
-            } else {
-
-                if (this.otherViews == null) {
-
-                    this.otherViews = PoolListCopyable<IView>.Spawn(1);
-                    
-                }
-
-                this.otherViews.Add(view);
-
             }
             
             this.isNotEmpty = true;
@@ -434,40 +368,11 @@ namespace ME.ECS.Views {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool Remove(IView view) {
 
-            if (this.otherViews != null) {
+            if (this.mainView == view) {
 
-                if (this.otherViews.Remove(view) == false) {
-
-                    if (this.mainView == view) {
-
-                        //this.mainView = null;
-                        if (this.otherViews.Count > 0) {
-                            
-                            this.mainView = this.otherViews[this.otherViews.Count - 1];
-                            this.otherViews.RemoveAt(this.otherViews.Count - 1);
-                            this.isNotEmpty = true;
-                            
-                        } else {
-
-                            this.mainView = null;
-                            this.isNotEmpty = false;
-
-                        }
-                        return true;
-
-                    }
-                    
-                }
-
-            } else {
-
-                if (this.mainView == view) {
-
-                    this.mainView = null;
-                    this.isNotEmpty = false;
-                    return true;
-
-                }
+                this.mainView = null;
+                this.isNotEmpty = false;
+                return true;
 
             }
 
@@ -543,14 +448,6 @@ namespace ME.ECS.Views {
             PoolDictionary<IView, ViewId>.Recycle(ref this.registryPrefabToId);
             
             PoolHashSet<ViewInfo>.Recycle(ref this.rendering);
-
-            for (int i = 0; i < this.list.Length; ++i) {
-
-                var views = this.list.arr[i];
-                if (views.otherViews != null) PoolListCopyable<IView>.Recycle(views.otherViews);
-                
-            }
-            //PoolDictionary<int, List<IView<TEntity>>>.Recycle(ref this.list);
             PoolArray<Views>.Recycle(ref this.list);
 
         }
@@ -605,32 +502,18 @@ namespace ME.ECS.Views {
 
             }
 
-            var viewInfo = new ViewInfo(entity, sourceId, this.world.GetStateTick());
-
-            var views = this.world.ForEachComponent<ViewComponent>(entity);
-            if (views != null) {
-
-                for (int i = 0; i < views.Count; ++i) {
-
-                    var view = (ViewComponent)views[i];
-                    if (view.viewInfo.prefabSourceId == viewInfo.prefabSourceId) {
-
-                        return;
-
-                    }
-
-                }
-
+            if (this.world.HasData<ViewComponent>(in entity) == true) {
+                
+                throw new System.Exception($"View is already exist on entity {entity}");
+                
             }
 
-            var component = this.world.AddComponent<ViewComponent>(entity);
-            component.viewInfo = viewInfo;
-            component.seed = (uint)this.world.GetSeedValue();
-
-            /*var request = this.world.AddComponent<CreateViewComponentRequest<TState>, IViewComponentRequest<TState>>(entity);
-            request.viewInfo = viewInfo;
-            request.seed = component.seed;*/
-
+            var viewInfo = new ViewInfo(entity, sourceId, this.world.GetStateTick());
+            this.world.SetData(in entity, new ViewComponent() {
+                viewInfo = viewInfo,
+                seed = (uint)this.world.GetSeedValue(),
+            });
+            
             this.isRequestsDirty = true;
             
         }
@@ -649,26 +532,19 @@ namespace ME.ECS.Views {
 
             if (instance.entity.IsAlive() == true) {
 
-                var predicate = new RemoveComponentViewPredicate();
-                predicate.entityId = instance.entity.id;
-                predicate.prefabSourceId = instance.prefabSourceId;
-                predicate.creationTick = instance.creationTick;
+                ref var view = ref instance.entity.GetData<ViewComponent>();
+                if (view.viewInfo.creationTick == instance.creationTick &&
+                    view.viewInfo.prefabSourceId == instance.prefabSourceId &&
+                    view.viewInfo.entity == instance.entity) {
 
-                this.world.RemoveComponentsPredicate<ViewComponent, RemoveComponentViewPredicate>(instance.entity, predicate);
+                    instance.entity.RemoveData<ViewComponent>();
 
+                }
+                
             }
 
             this.isRequestsDirty = true;
             
-            /*var viewInfo = new ViewInfo();
-            viewInfo.entity = instance.entity;
-            viewInfo.prefabSourceId = instance.prefabSourceId;
-            viewInfo.creationTick = instance.creationTick;
-
-            var request = this.world.AddComponent<DestroyViewComponentRequest<TState>, IViewComponentRequest<TState>>(instance.entity);
-            request.viewInfo = viewInfo;
-            request.viewInstance = instance;*/
-
             instance = null;
 
         }
@@ -709,7 +585,7 @@ namespace ME.ECS.Views {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void DestroyAllViews(in Entity entity) {
 
-            this.world.RemoveComponents<ViewComponent>(entity);
+            entity.RemoveData<ViewComponent>();
             this.isRequestsDirty = true;
             
         }
@@ -851,6 +727,7 @@ namespace ME.ECS.Views {
 
             // Call ApplyState with deltaTime = current time offset
             var dt = UnityEngine.Mathf.Max(0f, (this.world.GetCurrentTick() - viewInfo.creationTick) * this.world.GetTickTime());
+            instance.entityVersion = viewInfo.entity.GetVersion();
             instance.ApplyState(dt, immediately: true);
             // Simulate particle systems
             instance.SimulateParticles(dt, seed);
@@ -896,27 +773,22 @@ namespace ME.ECS.Views {
                 ref var entityId = ref allEntities[j];
 
                 aliveEntities.Add(entityId);
-                
-                var allViews = this.world.ForEachComponent<ViewComponent>(entityId);
-                if (allViews != null) {
 
-                    // Comparing current state views to current rendering
-                    foreach (var viewComponent in allViews) {
+                var ent = this.world.GetEntityById(entityId);
+                var view = ent.GetData<ViewComponent>(createIfNotExists: false);
+                if (view.viewInfo.entity != Entity.Empty) {
 
-                        var view = (ViewComponent)viewComponent;
-                        if (this.IsRenderingNow(in view.viewInfo) == true) {
+                    if (this.IsRenderingNow(in view.viewInfo) == true) {
 
-                            // is rendering now
-                            //this.prevList.Add(view.viewInfo);
+                        // is rendering now
+                        //this.prevList.Add(view.viewInfo);
 
-                        } else {
+                    } else {
 
-                            // is not rendering now
-                            // create required instance
-                            this.CreateVisualInstance(in view.seed, in view.viewInfo);
-                            hasChanged = true;
-
-                        }
+                        // is not rendering now
+                        // create required instance
+                        this.CreateVisualInstance(in view.seed, in view.viewInfo);
+                        hasChanged = true;
 
                     }
 
@@ -931,20 +803,6 @@ namespace ME.ECS.Views {
                 
                 if (aliveEntities.Contains(id) == false) {
 
-                    if (views.otherViews != null) {
-
-                        for (int i = 0, count = views.otherViews.Count; i < count; ++i) {
-
-                            var instance = views.otherViews[i];
-                            this.RecycleView_INTERNAL(ref instance);
-                            --i;
-                            --count;
-
-                        }
-                        views.otherViews.Clear();
-
-                    }
-
                     this.RecycleView_INTERNAL(ref views.mainView);
                     hasChanged = true;
 
@@ -954,44 +812,20 @@ namespace ME.ECS.Views {
                     for (int i = views.Length - 1; i >= 0; --i) {
 
                         var instance = views[i];
-                        var found = false;
                         if (instance.entity.IsAlive() == true) {
 
-                            var allViews = this.world.ForEachComponent<ViewComponent>(instance.entity);
-                            if (allViews != null) {
+                            var view = instance.entity.GetData<ViewComponent>(createIfNotExists: false);
+                            if (instance.prefabSourceId == view.viewInfo.prefabSourceId) {
 
-                                //ViewComponent viewFound = null;
-                                for (int index = 0, count = allViews.Count; index < count; ++index) {
-
-                                    var viewComponent = allViews[index];
-                                    var view = (ViewComponent)viewComponent;
-                                    if (instance.prefabSourceId == view.viewInfo.prefabSourceId) {
-
-                                        //viewFound = view;
-                                        found = true;
-                                        break;
-
-                                    }
-
-                                }
-
+                                continue;
+                                
                             }
-
+                            
                         }
 
-                        if (found == false) {
-                            
-                            this.RecycleView_INTERNAL(ref instance);
-                            hasChanged = true;
-                            //--i;
-                            //--count;
-                            
-                        } /*else {
-                            
-                            if (this.IsRenderingNow(in viewFound.viewInfo) == false) this.CreateVisualInstance(in viewFound.seed, in viewFound.viewInfo);
-                            
-                        }*/
-
+                        this.RecycleView_INTERNAL(ref instance);
+                        hasChanged = true;
+                        
                     }
                     
                 }
@@ -1037,7 +871,15 @@ namespace ME.ECS.Views {
 
                     var instance = list[i];
                     if (instance.entity.IsAlive() == false) continue;
-                    instance.ApplyState(deltaTime, immediately: false);
+                    
+                    var version = instance.entity.GetVersion();
+                    if (version != instance.entityVersion) {
+
+                        instance.entityVersion = version;
+                        instance.ApplyState(deltaTime, immediately: false);
+                        
+                    }
+                    instance.OnUpdate(deltaTime);
                     instance.UpdateParticlesSimulation(deltaTime);
 
                 }
