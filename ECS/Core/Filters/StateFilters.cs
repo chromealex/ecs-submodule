@@ -923,7 +923,7 @@ namespace ME.ECS {
 
         public void OnEditorFilterCreate() {
 
-            const int frameIndex = 2;
+            const int frameIndex = 3;
             var st = new System.Diagnostics.StackTrace(true);
             string currentFile = st.GetFrame(frameIndex).GetFileName(); 
             int currentLine = st.GetFrame(frameIndex).GetFileLineNumber();
