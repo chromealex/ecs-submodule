@@ -970,6 +970,7 @@ namespace ME.ECS {
             
         }
 
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public void Register(ref Components componentsRef, bool freeze, bool restore) {
             
             const int capacity = 4;
@@ -1241,13 +1242,11 @@ namespace ME.ECS {
 
             {
                 // Clear entity
-                this.RemoveComponents(in to);
                 this.RemoveData(in to);
             }
 
             {
                 // Copy data
-                this.currentState.components.CopyFrom(in from, in to);
                 this.currentState.structComponents.CopyFrom(in from, in to);
                 this.UpdateFilters(in to);
             }
@@ -1373,7 +1372,6 @@ namespace ME.ECS {
             
                 this.RemoveFromFilters_INTERNAL(entity);
                 this.DestroyEntityPlugins(in entity);
-                this.RemoveComponents(entity);
 
                 this.currentState.storage.IncrementGeneration(in entity);
                 

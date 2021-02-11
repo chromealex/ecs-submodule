@@ -78,7 +78,7 @@ namespace ME.ECS.Pathfinding.Features {
 
         public void SetPath(in Entity entity, ListCopyable<Node> nodes, PathCompleteState result, Constraint constraint, UnityEngine.Vector3 to) {
 
-            entity.RemoveComponents<ME.ECS.Pathfinding.Features.Pathfinding.Components.Path>();
+            entity.RemoveData<ME.ECS.Pathfinding.Features.Pathfinding.Components.Path>();
 
             var vPath = PoolListCopyable<UnityEngine.Vector3>.Spawn(nodes.Count);
             for (var i = 0; i < nodes.Count; ++i) {
@@ -110,12 +110,12 @@ namespace ME.ECS.Pathfinding.Features {
                 PoolListCopyable<UnityEngine.Vector3>.Recycle(ref vPath);
                 vPath = newPath;
             }
-            
-            var unitPath = entity.AddComponent<ME.ECS.Pathfinding.Features.Pathfinding.Components.Path>();
-            unitPath.result = result;
-            unitPath.path = ME.ECS.Collections.BufferArray<UnityEngine.Vector3>.From(vPath);
-            unitPath.nodes = ME.ECS.Collections.BufferArray<ME.ECS.Pathfinding.Node>.From(nodes);
 
+            entity.SetData(new ME.ECS.Pathfinding.Features.Pathfinding.Components.Path() {
+                result = result,
+                path = ME.ECS.Collections.BufferArray<UnityEngine.Vector3>.From(vPath),
+                nodes = ME.ECS.Collections.BufferArray<ME.ECS.Pathfinding.Node>.From(nodes),
+            });
             entity.SetData(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
                 
             PoolListCopyable<UnityEngine.Vector3>.Recycle(ref vPath);
@@ -124,7 +124,7 @@ namespace ME.ECS.Pathfinding.Features {
 
         public ME.ECS.Pathfinding.Path CalculatePath(UnityEngine.Vector3 from, UnityEngine.Vector3 to, Constraint constraint) {
             
-            var active = this.GetEntity().GetComponent<PathfindingInstance>().pathfinding;
+            var active = this.GetEntity().GetData<PathfindingInstance>().pathfinding;
             if (active == null) {
 
                 return default;
@@ -138,31 +138,31 @@ namespace ME.ECS.Pathfinding.Features {
         
         public void GetNodesInBounds(ListCopyable<Node> output, UnityEngine.Bounds bounds) {
          
-            this.pathfindingEntity.GetComponent<PathfindingInstance>().pathfinding.GetNodesInBounds(output, bounds);
+            this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding.GetNodesInBounds(output, bounds);
             
         }
 
         public bool BuildNodePhysics(Node node) {
 
-            return this.pathfindingEntity.GetComponent<PathfindingInstance>().pathfinding.BuildNodePhysics(node);
+            return this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding.BuildNodePhysics(node);
 
         }
         
         public T GetGraphByIndex<T>(int index) where T : Graph {
 
-            return this.pathfindingEntity.GetComponent<PathfindingInstance>().pathfinding.graphs[index] as T;
+            return this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding.graphs[index] as T;
 
         }
         
         public Node GetNearest(UnityEngine.Vector3 worldPosition) {
 
-            return this.pathfindingEntity.GetComponent<PathfindingInstance>().pathfinding.GetNearest(worldPosition, Constraint.Default);
+            return this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding.GetNearest(worldPosition, Constraint.Default);
 
         }
 
         public Node GetNearest(UnityEngine.Vector3 worldPosition, Constraint constraint) {
             
-            return this.pathfindingEntity.GetComponent<PathfindingInstance>().pathfinding.GetNearest(worldPosition, constraint);
+            return this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding.GetNearest(worldPosition, constraint);
             
         }
 

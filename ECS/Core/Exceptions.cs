@@ -27,6 +27,19 @@ namespace ME.ECS {
         
     }
 
+    public class DeprecatedException : System.Exception {
+
+        public DeprecatedException() : base("ME.ECS Exception") { }
+        public DeprecatedException(string message) : base(message) { }
+        
+        public static void Throw() {
+
+            throw new DeprecatedException("Deprecated");
+
+        }
+
+    }
+
     public class WrongThreadException : System.Exception {
 
         public WrongThreadException() : base("ME.ECS Exception") { }

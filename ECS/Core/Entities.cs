@@ -34,6 +34,7 @@
         public static readonly byte _;
         public static int typeId = -1;
         public static bool isTag = false;
+        public static bool isCopyable = false;
         public static bool isInHash = true;
 
     }
@@ -130,6 +131,15 @@
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static Entity ValidateDataCopyable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+
+            Worlds.currentWorld.ValidateDataCopyable<TComponent>(in entity, isTag);
+            return entity;
+
+        }
+
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool HasComponent<TComponent>(this Entity entity)
             where TComponent : class, IComponent {
 
@@ -137,6 +147,7 @@
 
         }
 
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static TComponent GetComponent<TComponent>(this Entity entity)
             where TComponent : class, IComponent {
@@ -145,6 +156,7 @@
 
         }
 
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static TComponent AddComponent<TComponent>(this Entity entity)
             where TComponent : class, IComponent, new() {
@@ -153,6 +165,7 @@
 
         }
 
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static TComponent AddOrGetComponent<TComponent>(this Entity entity)
             where TComponent : class, IComponent, new() {
@@ -161,6 +174,7 @@
 
         }
 
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static TComponent AddComponent<TComponent, TComponentType>(this Entity entity)
             where TComponentType : class, IComponent where TComponent : class, TComponentType, IComponent, new() {
@@ -169,6 +183,7 @@
 
         }
 
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void RemoveComponents<TComponent>(this Entity entity)
             where TComponent : class, IComponent {
@@ -177,6 +192,7 @@
 
         }
 
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static ListCopyable<IComponent> ForEachComponent<TComponent>(this Entity entity)
             where TComponent : class, IComponent {

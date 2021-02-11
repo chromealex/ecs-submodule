@@ -21,8 +21,6 @@ namespace ME.ECS {
         internal StructComponentsContainer structComponents;
         [ME.ECS.Serializer.SerializeField]
         internal Storage storage;
-        [ME.ECS.Serializer.SerializeField]
-        internal Components components;
         
         /// <summary>
         /// Return most unique hash
@@ -30,7 +28,7 @@ namespace ME.ECS {
         /// <returns></returns>
         public virtual int GetHash() {
 
-            return this.entityId ^ this.tick ^ this.components.GetHash() ^ this.structComponents.Count ^ this.randomState.GetHashCode() ^ this.storage.GetHashCode();//^ this.structComponents.GetCustomHash();
+            return this.entityId ^ this.tick ^ this.randomState.GetHashCode() ^ this.storage.GetHashCode();//^ this.structComponents.GetCustomHash();
 
         }
 
@@ -39,7 +37,6 @@ namespace ME.ECS {
             world.Register(ref this.filters, freeze, restore);
             world.Register(ref this.structComponents, freeze, restore);
             world.Register(ref this.storage, freeze, restore);
-            world.Register(ref this.components, freeze, restore);
 
         }
 
@@ -52,7 +49,6 @@ namespace ME.ECS {
             this.filters.CopyFrom(other.filters);
             this.structComponents.CopyFrom(other.structComponents);
             this.storage.CopyFrom(other.storage);
-            this.components.CopyFrom(other.components);
 
         }
 
@@ -61,7 +57,6 @@ namespace ME.ECS {
             WorldUtilities.Release(ref this.filters);
             WorldUtilities.Release(ref this.structComponents);
             WorldUtilities.Release(ref this.storage);
-            WorldUtilities.Release(ref this.components);
 
         }
 

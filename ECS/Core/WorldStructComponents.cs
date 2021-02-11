@@ -21,6 +21,15 @@ namespace ME.ECS {
 
     }
 
+    public interface IStructCopyableBase { }
+
+    public interface IStructCopyable<T> : IStructComponent, IStructCopyableBase where T : IStructCopyable<T> {
+
+        void CopyFrom(in T other);
+        void OnRecycle();
+
+    }
+
     public interface IStructRegistryBase {
 
         IStructComponent GetObject(Entity entity);
@@ -88,7 +97,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class StructComponents<TComponent> : StructRegistryBase where TComponent : struct, IStructComponent {
+    public class StructComponents<TComponent> : StructRegistryBase where TComponent : struct, IStructComponent {
 
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<TComponent> components;
@@ -139,10 +148,16 @@ namespace ME.ECS {
 
         public override StructRegistryBase Clone() {
 
-            var reg = PoolRegistries.Spawn<TComponent>();
+            var reg = this.SpawnInstance();
             reg.CopyFrom(this);
             return reg;
 
+        }
+
+        protected virtual StructRegistryBase SpawnInstance() {
+            
+            return PoolRegistries.Spawn<TComponent>();
+            
         }
 
         public override void OnRecycle() {
@@ -425,6 +440,53 @@ namespace ME.ECS {
 
     }
 
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
+    public sealed class StructComponentsCopyable<TComponent> : StructComponents<TComponent> where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+
+        private struct CopyItem : IArrayElementCopyWithIndex<TComponent> {
+
+            public BufferArray<byte> states;
+            
+            public void Copy(int index, TComponent @from, ref TComponent to) {
+                
+                if (this.states.arr[index] > 0) to.CopyFrom(from);
+                
+            }
+
+            public void Recycle(int index, ref TComponent item) {
+
+                if (this.states.arr[index] > 0) {
+                    
+                    item.OnRecycle();
+                    item = default;
+                    
+                }
+
+            }
+
+        }
+
+        protected override StructRegistryBase SpawnInstance() {
+            
+            return PoolRegistries.SpawnCopyable<TComponent>();
+            
+        }
+
+        public override void CopyFrom(StructRegistryBase other) {
+
+            var _other = (StructComponents<TComponent>)other;
+            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) ArrayUtils.CopyWithIndex( _other.components, ref this.components, new CopyItem() { states = _other.componentsStates });
+            ArrayUtils.Copy(in _other.componentsStates, ref this.componentsStates);
+            ArrayUtils.Copy(_other.lifetimeIndexes, ref this.lifetimeIndexes);
+            
+        }
+
+    }
+
     public interface IStructComponentsContainer {
 
         BufferArray<StructRegistryBase> GetAllRegistries();
@@ -655,12 +717,62 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
+        public void ValidateCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+            
+            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            this.ValidateCopyable<TComponent>(code, isTag);
+            var reg = (StructComponentsCopyable<TComponent>)this.list.arr[code];
+            reg.Validate(in entity);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
         public void Validate<TComponent>(bool isTag = false) where TComponent : struct, IStructComponent {
             
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
             this.Validate<TComponent>(code, isTag);
             
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public void ValidateCopyable<TComponent>(bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+            
+            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
+            this.ValidateCopyable<TComponent>(code, isTag);
+            
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private void ValidateCopyable<TComponent>(int code, bool isTag) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+
+            if (ArrayUtils.WillResize(code, ref this.list) == true) {
+
+                ArrayUtils.Resize(code, ref this.list);
+                
+            }
+
+            if (this.list.arr[code] == null) {
+
+                var instance = PoolRegistries.SpawnCopyable<TComponent>();
+                this.list.arr[code] = instance;
+
+            }
+
         }
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -679,7 +791,7 @@ namespace ME.ECS {
 
             if (this.list.arr[code] == null) {
 
-                var instance = (StructComponents<TComponent>)PoolRegistries.Spawn<TComponent>();
+                var instance = PoolRegistries.Spawn<TComponent>();
                 this.list.arr[code] = instance;
 
             }
@@ -998,9 +1110,9 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public ref TComponent GetSharedData<TComponent>() where TComponent : struct, IStructComponent {
+        public ref TComponent GetSharedData<TComponent>(bool createIfNotExists = true) where TComponent : struct, IStructComponent {
             
-            return ref this.GetData<TComponent>(in this.sharedEntity, createIfNotExists: true);
+            return ref this.GetData<TComponent>(in this.sharedEntity, createIfNotExists);
 
         }
 
@@ -1036,6 +1148,18 @@ namespace ME.ECS {
 
             this.currentState.storage.versions.Validate(in entity);
             this.currentState.structComponents.Validate<TComponent>(in entity, isTag);
+            if (this.currentState.filters.HasInAnyFilter<TComponent>() == true && this.HasData<TComponent>(in entity) == true) {
+                
+                this.currentState.storage.archetypes.Set<TComponent>(in entity);
+                
+            }
+
+        }
+
+        public void ValidateDataCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+
+            this.currentState.storage.versions.Validate(in entity);
+            this.currentState.structComponents.ValidateCopyable<TComponent>(in entity, isTag);
             if (this.currentState.filters.HasInAnyFilter<TComponent>() == true && this.HasData<TComponent>(in entity) == true) {
                 
                 this.currentState.storage.archetypes.Set<TComponent>(in entity);

@@ -418,7 +418,7 @@ namespace ME.ECS.Views {
             this.registryPrefabToProvider = PoolDictionary<ViewId, IViewsProvider>.Spawn(ViewsModule.REGISTRY_PROVIDERS_CAPACITY);
             this.registryPrefabToProviderInitializer = PoolDictionary<ViewId, IViewsProviderInitializerBase>.Spawn(ViewsModule.REGISTRY_PROVIDERS_CAPACITY);
 
-            Components.SetTypeInHash<ViewComponent>(false);
+            WorldUtilities.SetAllComponentInHash<ViewComponent>(false);
             
         }
 

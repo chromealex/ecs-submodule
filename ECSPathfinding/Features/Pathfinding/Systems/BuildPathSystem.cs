@@ -46,9 +46,9 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
 
         void IAdvanceTickPost.AdvanceTickPost(in float deltaTime) {
 
-            var instance = this.pathfindingFeature.GetEntity().GetComponent<PathfindingInstance>();
-            if (instance == null) return;
-
+            if (this.pathfindingFeature.GetEntity().HasData<PathfindingInstance>() == false) return;
+            
+            var instance = this.pathfindingFeature.GetEntity().GetData<PathfindingInstance>();
             var active = instance.pathfinding;
             if (active == null) return;
 
@@ -82,13 +82,13 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
         
         void ISystemFilter.AdvanceTick(in Entity entity, in float deltaTime) {
             
-            var instance = this.pathfindingFeature.GetEntity().GetComponent<PathfindingInstance>();
-            if (instance == null) return;
+            if (this.pathfindingFeature.GetEntity().HasData<PathfindingInstance>() == false) return;
 
+            var instance = this.pathfindingFeature.GetEntity().GetData<PathfindingInstance>();
             var active = instance.pathfinding;
             if (active == null) return;
 
-            entity.RemoveComponents<Path>();
+            entity.RemoveData<Path>();
 
             var request = entity.GetData<CalculatePath>();
             //UnityEngine.Debug.LogWarning("REQUEST PATH: " + request.@from.ToStringDec() + " to " + request.to.ToStringDec());

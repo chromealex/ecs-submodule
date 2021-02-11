@@ -8,7 +8,14 @@ namespace ME.ECS {
         void Recycle(T item);
 
     }
-    
+
+    public interface IArrayElementCopyWithIndex<T> {
+
+        void Copy(int index, T from, ref T to);
+        void Recycle(int index, ref T item);
+
+    }
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -70,6 +77,19 @@ namespace ME.ECS {
             for (int i = 0; i < item.Length; ++i) {
 
                 copy.Recycle(item.arr[i]);
+
+            }
+
+            PoolArray<T>.Recycle(ref item);
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void RecycleWithIndex<T, TCopy>(ref ME.ECS.Collections.BufferArray<T> item, TCopy copy) where TCopy : IArrayElementCopyWithIndex<T> {
+
+            for (int i = 0; i < item.Length; ++i) {
+
+                copy.Recycle(i, ref item.arr[i]);
 
             }
 
@@ -324,16 +344,7 @@ namespace ME.ECS {
 
             if (fromArr.arr == null) {
 
-                if (arr.arr != null) {
-
-                    for (int i = 0; i < arr.Length; ++i) {
-                        
-                        copy.Recycle(arr.arr[i]);
-                        
-                    }
-                    PoolArray<T>.Recycle(ref arr);
-                    
-                }
+                if (arr.arr != null) ArrayUtils.Recycle(ref arr, copy);
                 arr = BufferArray<T>.Empty;
                 return;
 
@@ -349,6 +360,32 @@ namespace ME.ECS {
             for (int i = 0; i < fromArr.Length; ++i) {
 
                 copy.Copy(fromArr.arr[i], ref arr.arr[i]);
+
+            }
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void CopyWithIndex<T, TCopy>(ME.ECS.Collections.BufferArray<T> fromArr, ref ME.ECS.Collections.BufferArray<T> arr, TCopy copy) where TCopy : IArrayElementCopyWithIndex<T> {
+
+            if (fromArr.arr == null) {
+
+                if (arr.arr != null) ArrayUtils.RecycleWithIndex(ref arr, copy);
+                arr = BufferArray<T>.Empty;
+                return;
+
+            }
+
+            if (arr.arr == null || fromArr.Length != arr.Length) {
+
+                if (arr.arr != null) ArrayUtils.RecycleWithIndex(ref arr, copy);
+                arr = PoolArray<T>.Spawn(fromArr.Length);
+
+            }
+
+            for (int i = 0; i < fromArr.Length; ++i) {
+
+                copy.Copy(i, fromArr.arr[i], ref arr.arr[i]);
 
             }
             

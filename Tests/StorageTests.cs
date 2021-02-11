@@ -8,6 +8,24 @@ namespace ME.ECS.Tests {
         private class TestState : State {}
         private struct TestComponent : IStructComponent {}
 
+        private struct TestComponentCopyable : IStructComponent, IStructCopyable<TestComponentCopyable> {
+
+            public int data;
+            
+            public void CopyFrom(in TestComponentCopyable other) {
+
+                this.data = other.data;
+
+            }
+
+            public void OnRecycle() {
+
+                this.data = default;
+
+            }
+
+        }
+
         private class TestSystem : ISystem, IAdvanceTick {
 
             public World world { get; set; }

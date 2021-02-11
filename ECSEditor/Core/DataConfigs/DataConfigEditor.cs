@@ -17,13 +17,6 @@ namespace ME.ECSEditor {
 
         }
 
-        public struct RegistryComponent {
-
-            public IComponent data;
-            public int index;
-
-        }
-
         private static readonly WorldsViewerEditor.WorldEditor multipleWorldEditor = new WorldsViewerEditor.WorldEditor();
         private static readonly System.Collections.Generic.Dictionary<Object, WorldsViewerEditor.WorldEditor> worldEditors = new System.Collections.Generic.Dictionary<Object, WorldsViewerEditor.WorldEditor>();
 
@@ -78,7 +71,6 @@ namespace ME.ECSEditor {
                         config
                     },
                     structComponentsDataTypeIds = config.structComponentsDataTypeIds,
-                    componentsTypeIds = config.componentsTypeIds
                 };
                 
             }
@@ -417,166 +409,6 @@ namespace ME.ECSEditor {
                     }
 
                 });
-
-            });
-
-            GUILayoutExt.Separator(6f);
-            GUILayoutExt.DrawHeader("Add Managed Components:");
-            GUILayoutExt.Separator();
-
-            GUILayoutExt.Padding(8f, () => {
-
-                var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
-
-                var kz = 0;
-                var registries = dataConfig.components;
-                var sortedRegistries = new System.Collections.Generic.SortedDictionary<int, RegistryComponent>(new WorldsViewerEditor.DuplicateKeyComparer<int>());
-                for (int i = 0; i < registries.Length; ++i) {
-
-                    var registry = registries[i];
-                    if (registry == null) {
-                        continue;
-                    }
-
-                    var component = registry;
-                    usedComponents.Add(component.GetType());
-
-                    var editor = WorldsViewerEditor.GetEditor(component, out var order);
-                    if (editor != null) {
-
-                        sortedRegistries.Add(order, new RegistryComponent() {
-                            index = i,
-                            data = component
-                        });
-
-                    } else {
-
-                        sortedRegistries.Add(0, new RegistryComponent() {
-                            index = i,
-                            data = component
-                        });
-
-                    }
-
-                }
-
-                foreach (var registryKv in sortedRegistries) {
-
-                    var registry = registryKv.Value;
-                    var component = registry.data;
-
-                    var backColor = GUI.backgroundColor;
-                    GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
-
-                    GUILayout.BeginVertical(backStyle);
-                    {
-                        GUI.backgroundColor = backColor;
-                        var editor = WorldsViewerEditor.GetEditor(component);
-                        if (editor != null) {
-
-                            EditorGUI.BeginChangeCheck();
-                            editor.OnDrawGUI();
-                            if (EditorGUI.EndChangeCheck() == true) {
-
-                                component = editor.GetTarget<IComponent>();
-                                dataConfig.components[registry.index] = component;
-                                this.Save(dataConfig);
-
-                            }
-
-                        } else {
-
-                            var componentName = component.GetType().Name;
-                            var fieldsCount = GUILayoutExt.GetFieldsCount(component);
-                            if (fieldsCount == 0) {
-
-                                EditorGUI.BeginDisabledGroup(true);
-                                EditorGUILayout.Toggle(componentName, true);
-                                EditorGUI.EndDisabledGroup();
-
-                            } else if (fieldsCount == 1) {
-
-                                var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component, componentName);
-                                if (changed == true) {
-
-                                    dataConfig.components[registry.index] = component;
-                                    this.Save(dataConfig);
-
-                                }
-
-                            } else {
-
-                                GUILayout.BeginHorizontal();
-                                {
-                                    GUILayout.Space(18f);
-                                    GUILayout.BeginVertical();
-                                    {
-
-                                        var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
-                                        var foldout = EditorPrefs.GetBool(key, true);
-                                        GUILayoutExt.FoldOut(ref foldout, componentName, () => {
-
-                                            var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component);
-                                            if (changed == true) {
-
-                                                dataConfig.components[registry.index] = component;
-                                                this.Save(dataConfig);
-
-                                            }
-
-                                        });
-                                        EditorPrefs.SetBool(key, foldout);
-
-                                    }
-                                    GUILayout.EndVertical();
-                                }
-                                GUILayout.EndHorizontal();
-
-                            }
-
-                        }
-
-                        GUILayoutExt.DrawComponentHelp(component.GetType());
-                        this.DrawComponentTemplatesUsage(dataConfig, component);
-
-                    }
-                    GUILayout.EndVertical();
-
-                    GUILayoutExt.Separator();
-
-                }
-
-                GUILayoutExt.DrawAddComponentMenu(usedComponents, (addType, isUsed) => {
-
-                    if (isUsed == true) {
-
-                        usedComponents.Remove(addType);
-                        for (int i = 0; i < dataConfig.components.Length; ++i) {
-
-                            if (dataConfig.components[i].GetType() == addType) {
-
-                                var list = dataConfig.components.ToList();
-                                list.RemoveAt(i);
-                                dataConfig.components = list.ToArray();
-                                dataConfig.OnScriptLoad();
-                                this.Save(dataConfig);
-                                break;
-
-                            }
-
-                        }
-
-                    } else {
-
-                        usedComponents.Add(addType);
-                        System.Array.Resize(ref dataConfig.components, dataConfig.components.Length + 1);
-                        dataConfig.components[dataConfig.components.Length - 1] = (IComponent)System.Activator.CreateInstance(addType);
-                        dataConfig.OnScriptLoad();
-                        this.Save(dataConfig);
-
-                    }
-
-                }, drawRefComponents: true);
 
             });
 

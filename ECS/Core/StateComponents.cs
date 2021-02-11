@@ -10,6 +10,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
+    [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
     public sealed class Components : IPoolableRecycle {
 
         public struct Bucket {
@@ -253,6 +254,7 @@ namespace ME.ECS {
 
         }
 
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public ListCopyable<IComponent> ForEach<TComponent>(int entityId) where TComponent : class, IComponent {
             
             var typeId = Components.GetTypeId<TComponent>();
@@ -269,6 +271,7 @@ namespace ME.ECS {
 
         }
 
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public bool Contains<TComponent>(int entityId) where TComponent : class, IComponent {
 
             var typeId = Components.GetTypeId<TComponent>();
@@ -285,6 +288,7 @@ namespace ME.ECS {
 
         }
 
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public IList<IComponentBase> GetData(int entityId) {
 
             var list = new List<IComponentBase>();

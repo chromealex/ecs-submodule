@@ -233,7 +233,6 @@ namespace ME.ECSEditor {
         }
 	    
 	    private static System.Type[] allStructComponents;
-	    private static System.Type[] allComponents;
 
 	    public static void DrawManageDataConfigTemplateMenu(System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate> usedComponents, System.Action<ME.ECS.DataConfigs.DataConfigTemplate, bool> onAdd) {
 		    
@@ -296,7 +295,7 @@ namespace ME.ECSEditor {
  
 	    }
 
-	    public static void DrawAddComponentMenu(System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool drawRefComponents = false) {
+	    public static void DrawAddComponentMenu(System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd) {
 		    
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
@@ -307,22 +306,16 @@ namespace ME.ECSEditor {
  
             var rect = GUILayoutUtility.GetLastRect();
  
-            if (GUILayout.Button(drawRefComponents == true ? "Edit Managed Components" : "Edit Components", style)) {
+            if (GUILayout.Button("Edit Components", style)) {
                 
                 rect.y += 26f;
                 rect.x += rect.width;
                 rect.width = style.fixedWidth;
                 //AddEquipmentBehaviourWindow.Show(rect, entity, usedComponents);
 
-                if (drawRefComponents == false && GUILayoutExt.allStructComponents == null) {
+                if (GUILayoutExt.allStructComponents == null) {
 
 	                GUILayoutExt.allStructComponents = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).Where(x => x.IsValueType == true && typeof(IStructComponent).IsAssignableFrom(x)).ToArray();
-
-                }
-
-                if (drawRefComponents == true && GUILayoutExt.allComponents == null) {
-
-	                GUILayoutExt.allComponents = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).Where(x => x.IsInterface == false && x.IsValueType == false && typeof(IComponent).IsAssignableFrom(x)).ToArray();
 
                 }
 
@@ -342,7 +335,6 @@ namespace ME.ECSEditor {
 	                
                 };
                 var arr = GUILayoutExt.allStructComponents;
-                if (drawRefComponents == true) arr = GUILayoutExt.allComponents;
                 foreach (var type in arr) {
 
 	                var isUsed = usedComponents.Contains(type);

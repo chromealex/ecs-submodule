@@ -16,22 +16,21 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
 
     public struct IsPathBuilt : IStructComponent {}
 
-    public class Path : IComponentCopyable {
+    public struct Path : IStructCopyable<Path> {
 
         public ME.ECS.Pathfinding.PathCompleteState result;
         public ME.ECS.Collections.BufferArray<UnityEngine.Vector3> path;
         public ME.ECS.Collections.BufferArray<ME.ECS.Pathfinding.Node> nodes;
 
-        public void CopyFrom(IComponentCopyable other) {
+        void IStructCopyable<Path>.CopyFrom(in Path other) {
 
-            var _other = (Path)other;
-            this.result = _other.result;
-            ArrayUtils.Copy(in _other.path, ref this.path); 
-            ArrayUtils.Copy(in _other.nodes, ref this.nodes); 
+            this.result = other.result;
+            ArrayUtils.Copy(in other.path, ref this.path); 
+            ArrayUtils.Copy(in other.nodes, ref this.nodes); 
 
         }
 
-        void IPoolableRecycle.OnRecycle() {
+        void IStructCopyable<Path>.OnRecycle() {
 
             this.result = default;
             PoolArray<UnityEngine.Vector3>.Recycle(ref this.path);
@@ -41,32 +40,31 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
 
     }
 
-    public class PathfindingInstance : IComponentCopyable {
+    public struct PathfindingInstance : IStructCopyable<PathfindingInstance> {
 
         public ME.ECS.Pathfinding.Pathfinding pathfinding;
         
-        public void CopyFrom(IComponentCopyable other) {
+        void IStructCopyable<PathfindingInstance>.CopyFrom(in PathfindingInstance other) {
 
-            var _other = (PathfindingInstance)other;
-            if (this.pathfinding == null && _other.pathfinding == null) {
+            if (this.pathfinding == null && other.pathfinding == null) {
 
                 return;
 
             }
 
-            if (this.pathfinding == null && _other.pathfinding != null) {
+            if (this.pathfinding == null && other.pathfinding != null) {
                 
-                this.pathfinding = (_other.pathfinding.clonePathfinding == true ? _other.pathfinding.Clone() : _other.pathfinding);
+                this.pathfinding = (other.pathfinding.clonePathfinding == true ? other.pathfinding.Clone() : other.pathfinding);
                 
             } else {
 
-                if (_other.pathfinding.clonePathfinding == true) {
+                if (other.pathfinding.clonePathfinding == true) {
                     
-                    this.pathfinding.CopyFrom(_other.pathfinding);
+                    this.pathfinding.CopyFrom(other.pathfinding);
                     
                 } else {
 
-                    this.pathfinding = _other.pathfinding;
+                    this.pathfinding = other.pathfinding;
 
                 }
 
@@ -74,7 +72,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
             
         }
 
-        void IPoolableRecycle.OnRecycle() {
+        void IStructCopyable<PathfindingInstance>.OnRecycle() {
 
             if (this.pathfinding != null && this.pathfinding.clonePathfinding == true) this.pathfinding.Recycle();
             this.pathfinding = null;

@@ -10,11 +10,8 @@ namespace ME.ECS.DataConfigs {
 
         [SerializeReference]
         public IStructComponent[] structComponents = new IStructComponent[0];
-        [SerializeReference]
-        public IComponent[] components = new IComponent[0];
 
         public int[] structComponentsDataTypeIds = new int[0];
-        public int[] componentsTypeIds = new int[0];
         
         [SerializeReference]
         public IStructComponent[] removeStructComponents = new IStructComponent[0];
@@ -34,12 +31,6 @@ namespace ME.ECS.DataConfigs {
             for (int i = 0; i < this.structComponents.Length; ++i) {
 
                 world.SetData(in entity, in this.structComponents[i], this.structComponentsDataTypeIds[i], -1);
-
-            }
-            
-            for (int i = 0; i < this.components.Length; ++i) {
-
-                world.AddComponent(entity, this.components[i], this.componentsTypeIds[i]);
 
             }
             
@@ -181,12 +172,6 @@ namespace ME.ECS.DataConfigs {
 
             }
 
-            for (var i = 0; i < template.components.Length; ++i) {
-
-                this.AddTo(ref this.components, template.components[i]);
-
-            }
-
             for (var i = 0; i < template.removeStructComponents.Length; ++i) {
 
                 this.AddTo(ref this.removeStructComponents, template.removeStructComponents[i]);
@@ -203,13 +188,6 @@ namespace ME.ECS.DataConfigs {
 
                 var hasOther = allTemplates.Any(x => x != template && x.HasByType(x.structComponents, template.structComponents[i]));
                 if (hasOther == false) this.RemoveFrom(ref this.structComponents, template.structComponents[i]);
-
-            }
-
-            for (var i = 0; i < template.components.Length; ++i) {
-
-                var hasOther = allTemplates.Any(x => x != template && x.HasByType(x.structComponents, template.structComponents[i]));
-                if (hasOther == false) this.RemoveFrom(ref this.components, template.components[i]);
 
             }
 
@@ -334,55 +312,6 @@ namespace ME.ECS.DataConfigs {
                         }
                         
                     }
-                    
-                    {
-
-                        if (this.componentsTypeIds == null || this.componentsTypeIds.Length != this.components.Length) {
-                            
-                            this.componentsTypeIds = new int[this.components.Length];
-                            changed = true;
-
-                        }
-
-                        for (int i = 0; i < this.components.Length; ++i) {
-
-                            var obj = this.components[i];
-                            if (obj == null) {
-
-                                if (this.componentsTypeIds[i] != -1) {
-                                    
-                                    this.componentsTypeIds[i] = -1;
-                                    changed = true;
-
-                                }
-                                continue;
-                                
-                            }
-                            
-                            var type = obj.GetType();
-                            if (ComponentTypesRegistry.typeId.TryGetValue(type, out var componentIndex) == true) {
-
-                                if (this.componentsTypeIds[i] != componentIndex) {
-                                    
-                                    this.componentsTypeIds[i] = componentIndex;
-                                    changed = true;
-
-                                }
-
-                            } else {
-
-                                if (this.componentsTypeIds[i] != -1) {
-                                    
-                                    this.componentsTypeIds[i] = -1;
-                                    changed = true;
-
-                                }
-
-                            }
-
-                        }
-                        
-                    }
                     break;
 
                 }
@@ -417,7 +346,6 @@ namespace ME.ECS.DataConfigs {
 
         public DataConfig[] configs;
         public int[] structComponentsDataTypeIds;
-        public int[] componentsTypeIds;
 
         public void Set(int typeId, IStructComponent[] components) {
 
@@ -472,44 +400,6 @@ namespace ME.ECS.DataConfigs {
 
             }
             
-            {
-
-                var listIdx = new Dictionary<int, int>();
-                for (int i = 0; i < configs.Length; ++i) {
-
-                    var config = configs[i];
-                    for (int j = 0; j < config.componentsTypeIds.Length; ++j) {
-
-                        var idx = config.componentsTypeIds[j];
-                        if (listIdx.TryGetValue(idx, out var count) == true) {
-
-                            listIdx[idx] = count + 1;
-
-                        } else {
-
-                            listIdx.Add(idx, 1);
-
-                        }
-
-                    }
-
-                }
-
-                var list = new List<int>();
-                foreach (var kv in listIdx) {
-
-                    if (kv.Value > 1) {
-
-                        list.Add(kv.Key);
-
-                    }
-
-                }
-
-                slice.componentsTypeIds = list.ToArray();
-
-            }
-
             return slice;
 
         }

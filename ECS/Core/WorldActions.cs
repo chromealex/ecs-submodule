@@ -183,20 +183,6 @@ namespace ME.ECS {
 
         }
 
-        public FilterAction WithComponent<TComponent>() where TComponent : class, IComponent {
-
-            this.filter.WithComponent<TComponent>();
-            return this;
-
-        }
-        
-        public FilterAction WithoutComponent<TComponent>() where TComponent : class, IComponent {
-
-            this.filter.WithoutComponent<TComponent>();
-            return this;
-
-        }
-
         public FilterAction WithStructComponent<TComponent>() where TComponent : struct, IStructComponent {
 
             this.filter.WithStructComponent<TComponent>();

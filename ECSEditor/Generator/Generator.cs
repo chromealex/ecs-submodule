@@ -202,7 +202,6 @@ namespace ME.ECSEditor {
             var asmNameMain  = splittedMain[splittedMain.Length - 1];
 
             var listEntities = new List<System.Type>();
-            var listComponents = new List<System.Type>();
             var asms = UnityEditor.AssetDatabase.FindAssets("t:asmdef", new[] { dir });
             foreach (var asm in asms) {
 
@@ -210,7 +209,6 @@ namespace ME.ECSEditor {
                 var output2 = string.Empty;
                 var output3 = string.Empty;
                 listEntities.Clear();
-                listComponents.Clear();
 
                 var asmPath = UnityEditor.AssetDatabase.GUIDToAssetPath(asm);
                 var asmNamePath = System.IO.Path.GetDirectoryName(asmPath);
@@ -308,17 +306,6 @@ namespace ME.ECSEditor {
 
                                 }
 
-                                if (@interface.IsAssignableFrom(typeof(ME.ECS.IComponent)) == true) {
-
-                                    if (listComponents.Contains(type) == false) {
-
-                                        listComponents.Add(type);
-                                        componentIndex.SetRef(type);
-                                        
-                                    }
-
-                                }
-
                             }
 
                         }
@@ -331,34 +318,21 @@ namespace ME.ECSEditor {
 
                 componentIndex.ApplyCurrent();
                 
-                foreach (var type in componentIndex.current.typesRefs) {
-
-                    if (itemStr3 != null) {
-
-                        var resItem3 = itemStr3;
-                        resItem3 = resItem3.Replace("#PROJECTNAME#", asmName);
-                        resItem3 = resItem3.Replace("#STATENAME#", asmName + "State");
-                        resItem3 = resItem3.Replace("#TYPENAME#", type);
-                        resItem3 = resItem3.Replace("#ISTAG#", "false");
-
-                        output3 += resItem3;
-
-                    }
-
-                }
-
                 for (var i = 0; i < componentIndex.current.typesStructs.Count; ++i) {
                     
                     var asmType = componentIndex.current.asmTypesStructs[i];
                     var entityType = componentIndex.current.typesStructs[i];
-                    var hasFields = (System.Type.GetType(entityType + ", " + asmType).GetFields(System.Reflection.BindingFlags.Default | System.Reflection.BindingFlags.Instance |
-                                                                                                System.Reflection.BindingFlags.Public).Length > 0);
-
+                    var type = System.Type.GetType(entityType + ", " + asmType);
+                    var hasFields = type.GetFields(System.Reflection.BindingFlags.Default | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 0;
+                    var isCopyable = typeof(ME.ECS.IStructCopyableBase).IsAssignableFrom(type);
+                    
                     var resItem = itemStr;
                     resItem = resItem.Replace("#PROJECTNAME#", asmName);
                     resItem = resItem.Replace("#STATENAME#", asmName + "State");
                     resItem = resItem.Replace("#TYPENAME#", entityType);
                     resItem = resItem.Replace("#ISTAG#", hasFields == true ? "false" : "true");
+                    resItem = resItem.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
+                    resItem = resItem.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
 
                     output += resItem;
 
@@ -369,6 +343,8 @@ namespace ME.ECSEditor {
                         resItem2 = resItem2.Replace("#STATENAME#", asmName + "State");
                         resItem2 = resItem2.Replace("#TYPENAME#", entityType);
                         resItem2 = resItem2.Replace("#ISTAG#", hasFields == true ? "false" : "true");
+                        resItem2 = resItem2.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
+                        resItem2 = resItem2.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
 
                         output2 += resItem2;
 
@@ -381,6 +357,8 @@ namespace ME.ECSEditor {
                         resItem3 = resItem3.Replace("#STATENAME#", asmName + "State");
                         resItem3 = resItem3.Replace("#TYPENAME#", entityType);
                         resItem3 = resItem3.Replace("#ISTAG#", hasFields == true ? "false" : "true");
+                        resItem3 = resItem3.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
+                        resItem3 = resItem3.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
 
                         output3 += resItem3;
 

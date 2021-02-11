@@ -33,7 +33,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
 
         void ISystemFilter.AdvanceTick(in Entity entity, in float deltaTime) {
             
-            entity.GetComponent<PathfindingInstance>().pathfinding.BuildAll();
+            entity.GetData<PathfindingInstance>().pathfinding.BuildAll();
 
             UnityEngine.Debug.Log("Graph built");
             entity.SetData(new IsAllGraphsBuilt(), ComponentLifetime.NotifyAllSystems);

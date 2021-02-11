@@ -9,7 +9,7 @@ namespace ME.ECS {
 	#endif
     public static class PoolRegistries {
 
-	    private static Dictionary<int, PoolInternalBase> pool = new Dictionary<int, PoolInternalBase>();
+	    private static Dictionary<long, PoolInternalBase> pool = new Dictionary<long, PoolInternalBase>();
 	    
 	    public static StructRegistryBase Spawn<T>() where T : struct, IStructComponent {
 
@@ -18,6 +18,16 @@ namespace ME.ECS {
 		    if (obj != null) return obj;
 
 		    return PoolInternalBase.Create<StructComponents<T>>(pool);
+
+	    }
+
+	    public static StructRegistryBase SpawnCopyable<T>() where T : struct, IStructComponent, IStructCopyable<T> {
+
+		    var key = WorldUtilities.GetAllComponentTypeId<T>();
+		    var obj = (StructComponentsCopyable<T>)PoolRegistries.Spawn_INTERNAL(key, out var pool);
+		    if (obj != null) return obj;
+
+		    return PoolInternalBase.Create<StructComponentsCopyable<T>>(pool);
 
 	    }
 
@@ -74,6 +84,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 	#endif
+	[System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
     public static class PoolComponents {
 
 	    private static Dictionary<int, PoolInternalBase> pool = new Dictionary<int, PoolInternalBase>();

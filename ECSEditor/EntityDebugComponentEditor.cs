@@ -25,7 +25,7 @@
 
                     }
 
-                    WorldsViewerEditor.DrawEntity(target.entity, worldEditor, worldEditor.GetEntitiesStorage(), worldEditor.GetStructComponentsStorage(), worldEditor.GetComponentsStorage(), worldEditor.GetModules());
+                    WorldsViewerEditor.DrawEntity(target.entity, worldEditor, worldEditor.GetEntitiesStorage(), worldEditor.GetStructComponentsStorage(), worldEditor.GetModules());
                     this.Repaint();
 
                 }

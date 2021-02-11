@@ -173,38 +173,6 @@ namespace ME.ECS.Serializer.Tests {
 		}
 
         [NUnit.Framework.TestAttribute]
-        public void StatesSerialization() {
-
-            var comps = new Components();
-            comps.Initialize(100);
-            //comps.Add(1, new ME.ECS.Views.ViewComponent() { seed = 123u, viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23) });
-
-            var test = new TestState() {
-                components = comps
-            };
-            
-            byte[] bytes;
-            {
-                var ser = new Serializers();
-                ser.Add(new BufferArraySerializer());
-
-                bytes = Serializer.Pack(test, ser);
-                ser.Dispose();
-            }
-
-            {
-                var ser = new Serializers();
-                ser.Add(new BufferArraySerializer());
-                
-                var testRes = Serializer.Unpack<TestState>(bytes, ser);
-                ser.Dispose();
-
-                NUnit.Framework.Assert.AreEqual(test.components.GetData(1).Count, testRes.components.GetData(1).Count);
-            }
-            
-        }
-
-        [NUnit.Framework.TestAttribute]
         public void ArraysSerialization() {
             var test = new TestDataArray {
                 buffer = new object[] { 1, 3, 5, 7, 9 },

@@ -459,17 +459,25 @@ MonoBehaviour:
 
         }
 
+        [UnityEditor.MenuItem("Assets/Create/ME.ECS/Component", priority = ScriptTemplates.CREATE_COMPONENT_STRUCT_PRIORITY)]
+        public static void CreateStructComponent() {
+
+            ScriptTemplates.Create("New Component.cs", "37-ComponentStructTemplate");
+
+        }
+
+        [UnityEditor.MenuItem("Assets/Create/ME.ECS/Component (Copyable)", priority = ScriptTemplates.CREATE_COMPONENT_STRUCT_PRIORITY)]
+        public static void CreateStructCopyableComponent() {
+
+            ScriptTemplates.Create("New Component.cs", "38-ComponentStructCopyableTemplate");
+
+        }
+
+        /*
         [UnityEditor.MenuItem("Assets/Create/ME.ECS/Component", priority = ScriptTemplates.CREATE_COMPONENT_PRIORITY)]
         public static void CreateComponent() {
 
             ScriptTemplates.Create("New Component.cs", "31-ComponentTemplate");
-
-        }
-
-        [UnityEditor.MenuItem("Assets/Create/ME.ECS/Component (struct)", priority = ScriptTemplates.CREATE_COMPONENT_STRUCT_PRIORITY)]
-        public static void CreateStructComponent() {
-
-            ScriptTemplates.Create("New Struct Component.cs", "37-ComponentStructTemplate");
 
         }
 
@@ -493,6 +501,7 @@ MonoBehaviour:
             ScriptTemplates.Create("New Shared Copyable Component.cs", "36-ComponentSharedCopyableTemplate");
 
         }
+        */
 
     }
 

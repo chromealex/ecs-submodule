@@ -44,6 +44,7 @@ namespace ME.ECS {
             
         }
 
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void UpdateFilterByComponent<T>(in Entity entity) where T : class, IComponent {
             
@@ -674,6 +675,7 @@ namespace ME.ECS {
 
         }
 
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public Filter WithComponent<TComponent>() where TComponent : class, IComponent {
 
@@ -682,6 +684,7 @@ namespace ME.ECS {
 
         }
         
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public Filter WithoutComponent<TComponent>() where TComponent : class, IComponent {
 
@@ -1602,6 +1605,7 @@ namespace ME.ECS {
 
         }
 
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public FilterData WithComponent<TComponent>() where TComponent : class, IComponent {
 
             WorldUtilities.SetComponentTypeId<TComponent>();
@@ -1613,6 +1617,7 @@ namespace ME.ECS {
 
         }
         
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public FilterData WithoutComponent<TComponent>() where TComponent : class, IComponent {
 
             WorldUtilities.SetComponentTypeId<TComponent>();

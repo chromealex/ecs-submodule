@@ -75,6 +75,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public static void Release(ref Components components) {
             
             PoolClass<Components>.Recycle(ref components);
@@ -203,6 +204,13 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool IsComponentAsCopyable<TComponent>() where TComponent : struct, IStructComponent {
+
+            return AllComponentTypes<TComponent>.isCopyable;
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void SetComponentAsTag<TComponent>() {
 
             AllComponentTypes<TComponent>.isTag = true;
@@ -210,9 +218,17 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static void InitComponentTypeId<TComponent>(bool isTag = false) {
+        public static void SetComponentAsCopyable<TComponent>() {
+
+            AllComponentTypes<TComponent>.isCopyable = true;
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void InitComponentTypeId<TComponent>(bool isTag = false, bool isCopyable = false) {
 
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
+            if (isCopyable == true) WorldUtilities.SetComponentAsCopyable<TComponent>();
             WorldUtilities.GetAllComponentTypeId<TComponent>();
 
         }

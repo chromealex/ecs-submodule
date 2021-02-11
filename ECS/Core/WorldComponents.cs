@@ -27,12 +27,12 @@ namespace ME.ECS {
         
         #region Regular Components
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public TComponent AddOrGetComponent<TComponent>(Entity entity) where TComponent : class, IComponent, new() {
 
-            var element = this.GetComponent<TComponent>(entity);
-            if (element != null) return element;
-            
-            return this.AddComponent<TComponent>(entity);
+            DeprecatedException.Throw();
+
+            return default;
 
         }
 
@@ -43,12 +43,12 @@ namespace ME.ECS {
         /// <typeparam name="TEntity"></typeparam>
         /// <typeparam name="TComponent"></typeparam>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public TComponent AddComponent<TComponent>(Entity entity) where TComponent : class, IComponent, new() {
 
-            TComponent data;
-            data = PoolComponents.Spawn<TComponent>();
+            DeprecatedException.Throw();
 
-            return this.AddComponent(entity, data);
+            return default;
 
         }
 
@@ -60,12 +60,12 @@ namespace ME.ECS {
         /// <typeparam name="TComponent"></typeparam>
         /// <typeparam name="TComponentType"></typeparam>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public TComponent AddComponent<TComponent, TComponentType>(Entity entity) where TComponentType : class, IComponent where TComponent : class, TComponentType, IComponent, new() {
 
-            TComponent data;
-            data = PoolComponents.Spawn<TComponent>();
+            DeprecatedException.Throw();
 
-            return (TComponent)this.AddComponent<TComponentType>(entity, data);
+            return default;
 
         }
 
@@ -77,103 +77,50 @@ namespace ME.ECS {
         /// <typeparam name="TEntity"></typeparam>
         /// <typeparam name="TComponent"></typeparam>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public TComponent AddComponent<TComponent>(in Entity entity, TComponent data) where TComponent : class, IComponent {
 
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+            DeprecatedException.Throw();
 
-                OutOfStateException.ThrowWorldStateCheck();
-
-            }
-            #endif
-
-            #if WORLD_THREAD_CHECK
-            if (this.worldThread != System.Threading.Thread.CurrentThread) {
-                
-                WrongThreadException.Throw("AddComponent");
-
-            }
-            #endif
-
-            this.currentState.storage.versions.Increment(in entity);
-            this.currentState.components.Add(entity.id, data);
-            if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
-                
-                this.currentState.storage.archetypes.Set<TComponent>(in entity);
-                this.UpdateFilterByComponent<TComponent>(in entity);
-                
-            }
-            
-            return data;
+            return default;
 
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         internal void AddComponent<TComponent>(in Entity entity, TComponent data, int componentIndex) where TComponent : class, IComponent {
             
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+            DeprecatedException.Throw();
 
-                OutOfStateException.ThrowWorldStateCheck();
-
-            }
-            #endif
-
-            #if WORLD_THREAD_CHECK
-            if (this.worldThread != System.Threading.Thread.CurrentThread) {
-                
-                WrongThreadException.Throw("AddComponent");
-
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            this.currentState.components.Add(entity.id, data);
-            if (this.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) this.currentState.storage.archetypes.Set(in entity, componentIndex);
-            
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public TComponent GetComponent<TComponent>(in Entity entity) where TComponent : class, IComponent {
             
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-            
-            return this.currentState.components.GetFirst<TComponent>(entity.id);
+            DeprecatedException.Throw();
+
+            return default;
 
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public ListCopyable<IComponent> ForEachComponent<TComponent>(in Entity entity) where TComponent : class, IComponent {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            DeprecatedException.Throw();
 
-            return this.currentState.components.ForEach<TComponent>(entity.id);
+            return default;
 
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         internal ListCopyable<IComponent> ForEachComponent<TComponent>(int entityId) where TComponent : class, IComponent {
 
-            return this.currentState.components.ForEach<TComponent>(entityId);
+            DeprecatedException.Throw();
+
+            return default;
 
         }
 
@@ -185,18 +132,13 @@ namespace ME.ECS {
         /// <typeparam name="TComponent"></typeparam>
         /// <returns></returns>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public bool HasComponent<TComponent>(in Entity entity) where TComponent : class, IComponent {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            DeprecatedException.Throw();
 
-            return this.currentState.components.Contains<TComponent>(entity.id);
-            
+            return default;
+
         }
 
         /// <summary>
@@ -204,39 +146,10 @@ namespace ME.ECS {
         /// </summary>
         /// <param name="entity"></param>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public void RemoveComponentsPredicate<TComponent, TComponentPredicate>(in Entity entity, TComponentPredicate predicate) where TComponent : class, IComponent where TComponentPredicate : IComponentPredicate<TComponent> {
 
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-
-            }
-            #endif
-
-            #if WORLD_THREAD_CHECK
-            if (this.worldThread != System.Threading.Thread.CurrentThread) {
-                
-                WrongThreadException.Throw("RemoveComponentsPredicate");
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            if (this.currentState.components.RemoveAllPredicate<TComponent, TComponentPredicate>(entity.id, predicate) > 0) {
-                
-                this.currentState.storage.versions.Increment(in entity);
-                this.currentState.storage.archetypes.Remove<TComponent>(in entity);
-                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) this.UpdateFilterByComponent<TComponent>(in entity);
-
-            }
+            DeprecatedException.Throw();
 
         }
 
@@ -245,40 +158,10 @@ namespace ME.ECS {
         /// </summary>
         /// <param name="entity"></param>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public void RemoveComponents(in Entity entity) {
 
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-
-            }
-            #endif
-
-            #if WORLD_THREAD_CHECK
-            if (this.worldThread != System.Threading.Thread.CurrentThread) {
-                
-                WrongThreadException.Throw("RemoveComponents");
-
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            if (this.currentState.components.RemoveAll(entity.id) > 0) {
-                
-                this.currentState.storage.versions.Increment(in entity);
-                this.currentState.storage.archetypes.RemoveAll(in entity);
-                ComponentsInitializerWorld.Init(in entity);
-                this.RemoveComponentFromFilter(in entity);
-
-            }
+            DeprecatedException.Throw();
 
         }
 
@@ -287,39 +170,10 @@ namespace ME.ECS {
         /// </summary>
         /// <param name="entity"></param>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public void RemoveComponents<TComponent>(Entity entity) where TComponent : class, IComponent {
 
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-
-            }
-            #endif
-
-            #if WORLD_THREAD_CHECK
-            if (this.worldThread != System.Threading.Thread.CurrentThread) {
-                
-                WrongThreadException.Throw("RemoveComponents");
-
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            if (this.currentState.components.RemoveAll<TComponent>(entity.id) > 0) {
-                
-                this.currentState.storage.versions.Increment(in entity);
-                this.currentState.storage.archetypes.Remove<TComponent>(in entity);
-                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) this.UpdateFilterByComponent<TComponent>(in entity);
-
-            }
+            DeprecatedException.Throw();
 
         }
 
@@ -329,35 +183,16 @@ namespace ME.ECS {
         /// </summary>
         /// <typeparam name="TComponent"></typeparam>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public void RemoveComponents<TComponent>() where TComponent : class, IComponent {
 
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-
-            }
-            #endif
-
-            #if WORLD_THREAD_CHECK
-            if (this.worldThread != System.Threading.Thread.CurrentThread) {
-                
-                WrongThreadException.Throw("RemoveComponents");
-
-            }
-            #endif
-
-            if (this.currentState.components.RemoveAll<TComponent>() > 0) {
-                
-                this.currentState.storage.archetypes.RemoveAll<TComponent>();
-                this.UpdateAllFilters();
-
-            }
+            DeprecatedException.Throw();
 
         }
         #endregion
 
         #region Shared Components
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public TComponent AddOrGetComponentShared<TComponent>() where TComponent : class, IComponent, new() {
 
             return this.AddOrGetComponent<TComponent>(this.sharedEntity);
@@ -365,6 +200,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public TComponent AddComponentShared<TComponent>() where TComponent : class, IComponent, new() {
 
             return this.AddComponent<TComponent>(this.sharedEntity);
@@ -372,6 +208,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public TComponent AddComponentShared<TComponent>(TComponent data) where TComponent : class, IComponent {
             
             return this.AddComponent<TComponent>(this.sharedEntity, data);
@@ -379,6 +216,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public TComponent GetComponentShared<TComponent>() where TComponent : class, IComponent {
 
             return this.GetComponent<TComponent>(this.sharedEntity);
@@ -386,6 +224,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public ListCopyable<IComponent> ForEachComponentShared<TComponent>(Entity entity) where TComponent : class, IComponent {
             
             return this.ForEachComponent<TComponent>(this.sharedEntity);
@@ -393,6 +232,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public bool HasComponentShared<TComponent>() where TComponent : class, IComponent {
 
             return this.HasComponent<TComponent>(this.sharedEntity);
@@ -400,6 +240,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public void RemoveComponentsShared<TComponent>() where TComponent : class, IComponent {
             
             this.RemoveComponents<TComponent>(this.sharedEntity);
@@ -407,6 +248,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         public void RemoveComponentsSharedPredicate<TComponent, TComponentPredicate>(TComponentPredicate predicate) where TComponent : class, IComponent where TComponentPredicate : IComponentPredicate<TComponent> {
             
             this.RemoveComponentsPredicate<TComponent, TComponentPredicate>(this.sharedEntity, predicate);

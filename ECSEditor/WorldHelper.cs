@@ -16,17 +16,6 @@ namespace ME.ECSEditor {
 
         }
 
-        public static ME.ECS.Components GetComponentsStorage(World world) {
-
-            return world.currentState.components;
-            
-            /*
-            var field = world.GetType().GetField("componentsCache", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            var dic = (ME.ECS.IComponentsBase)field.GetValue(world);
-            return dic;*/
-
-        }
-
         public static IStructComponentsContainer GetStructComponentsStorage(World world) {
 
             var field = world.currentState.structComponents;//.GetType().GetField("componentsStructCache", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
