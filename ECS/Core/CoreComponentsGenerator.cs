@@ -6,6 +6,7 @@ namespace ME.ECS {
         public static void InitTypeId() {
             
             WorldUtilities.InitComponentTypeId<ME.ECS.Views.ViewComponent>(false);
+            WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveListNode>(false);
             
             TransformComponentsInitializer.InitTypeId();
             NameComponentsInitializer.InitTypeId();
@@ -17,12 +18,25 @@ namespace ME.ECS {
         public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
             
             structComponentsContainer.Validate<ME.ECS.Views.ViewComponent>(false);
+            structComponentsContainer.Validate<ME.ECS.Collections.IntrusiveListNode>(false);
 
             TransformComponentsInitializer.Init(ref structComponentsContainer);
             NameComponentsInitializer.Init(ref structComponentsContainer);
             CameraComponentsInitializer.Init(ref structComponentsContainer);
             PhysicsComponentsInitializer.Init(ref structComponentsContainer);
             
+        }
+
+        public static void Init(in Entity entity) {
+            
+            entity.ValidateData<ME.ECS.Views.ViewComponent>(false);
+            entity.ValidateData<ME.ECS.Collections.IntrusiveListNode>(false);
+
+            TransformComponentsInitializer.Init(in entity);
+            NameComponentsInitializer.Init(in entity);
+            CameraComponentsInitializer.Init(in entity);
+            PhysicsComponentsInitializer.Init(in entity);
+
         }
 
     }
@@ -51,11 +65,8 @@ namespace ME.ECS {
 
         public static void Init(in Entity entity) {
             
-            TransformComponentsInitializer.Init(in entity);
-            NameComponentsInitializer.Init(in entity);
-            CameraComponentsInitializer.Init(in entity);
-            PhysicsComponentsInitializer.Init(in entity);
-
+            CoreComponentsInitializer.Init(in entity);
+            
             if (ComponentsInitializerWorld.onEntity != null) ComponentsInitializerWorld.onEntity.Invoke(entity);
             
         }

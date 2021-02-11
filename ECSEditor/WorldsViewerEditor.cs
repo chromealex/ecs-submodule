@@ -25,10 +25,9 @@ namespace ME.ECSEditor {
             private Dictionary<object, string> searchObjects = new Dictionary<object, string>();
             private HashSet<int> foldoutCustoms = new HashSet<int>();
             private Dictionary<object, List<int>> foldoutStorageFilters = new Dictionary<object, List<int>>();
-            private Dictionary<ME.ECS.IStorage, List<int>> foldoutStorageData = new Dictionary<ME.ECS.IStorage, List<int>>();
-            private Dictionary<ME.ECS.IStorage, List<int>> foldoutStorageComponents = new Dictionary<ME.ECS.IStorage, List<int>>();
-            private Dictionary<ME.ECS.IStorage, List<int>> foldoutStorageStructComponents = new Dictionary<ME.ECS.IStorage, List<int>>();
-            private Dictionary<ME.ECS.IStorage, List<int>> foldoutStorageViews = new Dictionary<ME.ECS.IStorage, List<int>>();
+            private Dictionary<object, List<int>> foldoutStorageData = new Dictionary<object, List<int>>();
+            private Dictionary<object, List<int>> foldoutStorageStructComponents = new Dictionary<object, List<int>>();
+            private Dictionary<object, List<int>> foldoutStorageViews = new Dictionary<object, List<int>>();
 
             public bool IsFoldOutCustom(object instance) {
 
@@ -94,7 +93,7 @@ namespace ME.ECSEditor {
 
             }
 
-            public bool IsFoldOutStructComponents(ME.ECS.IStorage storage, int entityId) {
+            public bool IsFoldOutStructComponents(object storage, int entityId) {
 
                 List<int> list;
                 if (this.foldoutStorageStructComponents.TryGetValue(storage, out list) == true) {
@@ -107,7 +106,7 @@ namespace ME.ECSEditor {
 
             }
 
-            public void SetFoldOutStructComponents(ME.ECS.IStorage storage, int entityId, bool state) {
+            public void SetFoldOutStructComponents(object storage, int entityId, bool state) {
 
                 List<int> list;
                 if (this.foldoutStorageStructComponents.TryGetValue(storage, out list) == true) {
@@ -136,7 +135,7 @@ namespace ME.ECSEditor {
 
             }
 
-            public bool IsFoldOutData(ME.ECS.IStorage storage, int entityId) {
+            public bool IsFoldOutData(object storage, int entityId) {
 
                 List<int> list;
                 if (this.foldoutStorageData.TryGetValue(storage, out list) == true) {
@@ -149,7 +148,7 @@ namespace ME.ECSEditor {
 
             }
 
-            public void SetFoldOutData(ME.ECS.IStorage storage, int entityId, bool state) {
+            public void SetFoldOutData(object storage, int entityId, bool state) {
 
                 List<int> list;
                 if (this.foldoutStorageData.TryGetValue(storage, out list) == true) {
@@ -178,7 +177,7 @@ namespace ME.ECSEditor {
 
             }
 
-            public bool IsFoldOutViews(ME.ECS.IStorage storage, int entityId) {
+            public bool IsFoldOutViews(object storage, int entityId) {
 
                 List<int> list;
                 if (this.foldoutStorageViews.TryGetValue(storage, out list) == true) {
@@ -191,7 +190,7 @@ namespace ME.ECSEditor {
 
             }
 
-            public void SetFoldOutViews(ME.ECS.IStorage storage, int entityId, bool state) {
+            public void SetFoldOutViews(object storage, int entityId, bool state) {
 
                 List<int> list;
                 if (this.foldoutStorageViews.TryGetValue(storage, out list) == true) {
@@ -220,13 +219,13 @@ namespace ME.ECSEditor {
 
             }
 
-            public bool IsFoldOut(ME.ECS.IStorage storage) {
+            public bool IsFoldOut(IStorage storage) {
 
                 return this.foldoutStorages.Contains(storage);
 
             }
 
-            public void SetFoldOut(ME.ECS.IStorage storage, bool state) {
+            public void SetFoldOut(IStorage storage, bool state) {
 
                 if (state == true) {
 
@@ -1169,7 +1168,7 @@ namespace ME.ECSEditor {
 
                         if (activeViews.Count > 0) {
 
-                            var foldoutViews = world.IsFoldOutViews(storage, entityData.id);
+                            var foldoutViews = world.IsFoldOutViews("Views", entityData.id);
                             GUILayoutExt.FoldOut(ref foldoutViews, string.Format("Views ({0})", activeViews.Count), () => {
                                 { // Draw views table
 
@@ -1195,7 +1194,7 @@ namespace ME.ECSEditor {
 
                                 }
                             });
-                            world.SetFoldOutViews(storage, entityData.id, foldoutViews);
+                            world.SetFoldOutViews("Views", entityData.id, foldoutViews);
 
                         }
 
