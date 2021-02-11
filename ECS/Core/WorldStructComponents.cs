@@ -330,7 +330,7 @@ namespace ME.ECS {
             ref var bucketState = ref this.componentsStates.arr[index];
             if (bucketState > 0) {
             
-                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.components.arr[index] = default;
+                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.RemoveData(in entity);
                 bucketState = 0;
                 
                 var componentIndex = WorldUtilities.GetComponentTypeId<TComponent>();
@@ -342,6 +342,12 @@ namespace ME.ECS {
 
             return false;
 
+        }
+
+        public virtual void RemoveData(in Entity entity) {
+            
+            this.components.arr[entity.id] = default;
+            
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -379,7 +385,7 @@ namespace ME.ECS {
             ref var bucketState = ref this.componentsStates.arr[index];
             if (bucketState > 0) {
             
-                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.components.arr[index] = default;
+                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.RemoveData(in entity);
                 bucketState = 0;
             
                 if (clearAll == true) {
@@ -452,8 +458,12 @@ namespace ME.ECS {
             public BufferArray<byte> states;
             
             public void Copy(int index, TComponent @from, ref TComponent to) {
-                
-                if (this.states.arr != null && index >= 0 && index < this.states.Length && this.states.arr[index] > 0) to.CopyFrom(from);
+
+                if (this.states.arr != null && index >= 0 && index < this.states.Length && this.states.arr[index] > 0) {
+
+                    to.CopyFrom(from);
+                    
+                }
                 
             }
 
@@ -468,6 +478,13 @@ namespace ME.ECS {
 
             }
 
+        }
+
+        public override void RemoveData(in Entity entity) {
+            
+            this.components.arr[entity.id].OnRecycle();
+            this.components.arr[entity.id] = default;
+            
         }
 
         protected override StructRegistryBase SpawnInstance() {
@@ -1249,7 +1266,7 @@ namespace ME.ECS {
             
             // Inline all manually
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) reg.components.arr[entity.id] = default;
+            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) reg.RemoveData(in entity);
             ref var state = ref reg.componentsStates.arr[entity.id];
             if (state == 0) {
 
@@ -1570,7 +1587,11 @@ namespace ME.ECS {
                 
                 state = 0;
                 this.currentState.storage.versions.Increment(in entity);
-                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) reg.components.arr[entity.id] = default;
+                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) {
+
+                    reg.RemoveData(in entity);
+                    
+                }
                 if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
                     
                     this.currentState.storage.archetypes.Remove<TComponent>(in entity);
