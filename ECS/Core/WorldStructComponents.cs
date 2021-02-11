@@ -453,13 +453,13 @@ namespace ME.ECS {
             
             public void Copy(int index, TComponent @from, ref TComponent to) {
                 
-                if (this.states.arr[index] > 0) to.CopyFrom(from);
+                if (this.states.arr != null && index >= 0 && index < this.states.Length && this.states.arr[index] > 0) to.CopyFrom(from);
                 
             }
 
             public void Recycle(int index, ref TComponent item) {
 
-                if (this.states.arr[index] > 0) {
+                if (this.states.arr != null && index >= 0 && index < this.states.Length && this.states.arr[index] > 0) {
                     
                     item.OnRecycle();
                     item = default;
