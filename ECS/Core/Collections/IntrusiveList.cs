@@ -345,8 +345,8 @@ namespace ME.ECS.Collections {
             var result = nextLink.next;
             while (nextLink.data != entityData && nextLink.next.IsAlive() == true) {
                 
-                nextLink = nextLink.next.GetData<IntrusiveListNode>();
                 result = nextLink.next;
+                nextLink = nextLink.next.GetData<IntrusiveListNode>();
                 
             }
 
