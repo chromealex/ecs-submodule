@@ -14,6 +14,7 @@ namespace ME.ECS.Collections {
         int Count { get; }
         
         void Add(in Entity entityData);
+        void AddFirst(in Entity entityData);
         bool Remove(in Entity entityData);
         bool Replace(in Entity entityData, int index);
         bool Insert(in Entity entityData, int onIndex);
