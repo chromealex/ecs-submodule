@@ -35,7 +35,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
             
             entity.GetData<PathfindingInstance>().pathfinding.BuildAll();
 
-            UnityEngine.Debug.Log("Graph built");
+            UnityEngine.Debug.Log($"Graph built tick: {this.world.GetCurrentTick()}");
             entity.SetData(new IsAllGraphsBuilt(), ComponentLifetime.NotifyAllSystems);
             entity.RemoveData<BuildAllGraphs>();
 

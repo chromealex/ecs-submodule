@@ -509,11 +509,18 @@ namespace ME.ECS.Views {
             }
 
             var viewInfo = new ViewInfo(entity, sourceId, this.world.GetStateTick());
-            this.world.SetData(in entity, new ViewComponent() {
+            var view = new ViewComponent() {
                 viewInfo = viewInfo,
                 seed = (uint)this.world.GetSeedValue(),
-            });
+            };
+            this.world.SetData(in entity, view);
             
+            if (this.world.HasResetState() == false) {
+                
+                this.CreateVisualInstance(in view.seed, in view.viewInfo);
+                
+            }
+
             this.isRequestsDirty = true;
             
         }
