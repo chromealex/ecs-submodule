@@ -20,12 +20,7 @@ namespace ME.ECSEditor {
         private const int CREATE_MODULE_PRIORITY = ScriptTemplates.CREATE_MENU_PRIORITY + 15;
         private const int CREATE_MARKER_PRIORITY = ScriptTemplates.CREATE_MENU_PRIORITY + 17;
         
-        private const int CREATE_COMPONENT_PRIORITY = ScriptTemplates.CREATE_MENU_PRIORITY + 40;
         private const int CREATE_COMPONENT_STRUCT_PRIORITY = ScriptTemplates.CREATE_MENU_PRIORITY + 40;
-        private const int CREATE_COMPONENT_SHARED_PRIORITY = ScriptTemplates.CREATE_MENU_PRIORITY + 42;
-        
-        private const int CREATE_COPYABLE_COMPONENT_PRIORITY = ScriptTemplates.CREATE_MENU_PRIORITY + 44 + 10;
-        private const int CREATE_COPYABLE_COMPONENT_SHARED_PRIORITY = ScriptTemplates.CREATE_MENU_PRIORITY + 45 + 10;
 
         internal class DoCreateScriptAsset : EndNameEditAction {
 
@@ -155,7 +150,7 @@ namespace ME.ECSEditor {
 
             }
             
-            var @namespace = path.Replace("Assets/", "").Replace("/", ".");
+            var @namespace = path.Replace("Assets/", "").Replace("/", ".").Replace("\\", ".");
             content = content.Replace(@"#NAMESPACE#", @namespace);
             content = content.Replace(@"#PROJECTNAME#", @namespace.Split('.')[0]);
             content = content.Replace(@"#STATENAME#", stateTypeStr);
@@ -472,36 +467,6 @@ MonoBehaviour:
             ScriptTemplates.Create("New Component.cs", "38-ComponentStructCopyableTemplate");
 
         }
-
-        /*
-        [UnityEditor.MenuItem("Assets/Create/ME.ECS/Component", priority = ScriptTemplates.CREATE_COMPONENT_PRIORITY)]
-        public static void CreateComponent() {
-
-            ScriptTemplates.Create("New Component.cs", "31-ComponentTemplate");
-
-        }
-
-        [UnityEditor.MenuItem("Assets/Create/ME.ECS/Shared Component", priority = ScriptTemplates.CREATE_COMPONENT_SHARED_PRIORITY)]
-        public static void CreateComponentShared() {
-
-            ScriptTemplates.Create("New Shared Component.cs", "32-ComponentSharedTemplate");
-
-        }
-
-        [UnityEditor.MenuItem("Assets/Create/ME.ECS/Component Copyable", priority = ScriptTemplates.CREATE_COPYABLE_COMPONENT_PRIORITY)]
-        public static void CreateComponentCopyable() {
-
-            ScriptTemplates.Create("New Copyable Component.cs", "35-ComponentCopyableTemplate");
-
-        }
-
-        [UnityEditor.MenuItem("Assets/Create/ME.ECS/Shared Component Copyable", priority = ScriptTemplates.CREATE_COPYABLE_COMPONENT_SHARED_PRIORITY)]
-        public static void CreateComponentSharedCopyable() {
-
-            ScriptTemplates.Create("New Shared Copyable Component.cs", "36-ComponentSharedCopyableTemplate");
-
-        }
-        */
 
     }
 
