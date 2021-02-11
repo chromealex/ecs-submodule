@@ -18,6 +18,7 @@ namespace ME.ECS.Collections {
         void Add(in Entity entityData);
         void AddFirst(in Entity entityData);
         bool Remove(in Entity entityData);
+        bool RemoveAll(in Entity entityData);
         bool Replace(in Entity entityData, int index);
         bool Insert(in Entity entityData, int onIndex);
         void Clear(bool destroyData = false);
@@ -302,6 +303,8 @@ namespace ME.ECS.Collections {
 
                 newNodeLink.next = node;
                 link.prev = newNode;
+
+                ++this.count;
                 
                 return true;
 
@@ -352,7 +355,35 @@ namespace ME.ECS.Collections {
             return false;
             
         }
-        
+
+        /// <summary>
+        /// Remove all nodes data from list.
+        /// </summary>
+        /// <param name="entityData"></param>
+        /// <returns>Returns TRUE if data was found</returns>
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public bool RemoveAll(in Entity entityData) {
+
+            ref var root = ref this.root;
+            var nextLink = root.GetData<IntrusiveListNode>();
+            var hasAny = false;
+            do {
+            
+                var result = nextLink.data;
+                nextLink = nextLink.next.GetData<IntrusiveListNode>();
+                if (result == entityData) {
+                    
+                    this.RemoveNode(nextLink.prev, destroyData: false);
+                    hasAny = true;
+
+                }
+
+            } while (nextLink.next.IsAlive() == true);
+            
+            return hasAny;
+            
+        }
+
         /// <summary>
         /// Add new data at the end of the list.
         /// </summary>
@@ -394,37 +425,54 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private Entity FindNode(in Entity entityData) {
             
-            ref var root = ref this.root;
-            var nextLink = root.GetData<IntrusiveListNode>();
-            var result = nextLink.next;
-            while (nextLink.data != entityData && nextLink.next.IsAlive() == true) {
-                
-                result = nextLink.next;
-                nextLink = nextLink.next.GetData<IntrusiveListNode>();
-                
-            }
+            if (this.count == 0) return Entity.Empty;
+            
+            var node = this.root;
+            do {
 
-            return result;
+                var nodeEntity = node;
+                var nodeLink = node.GetData<IntrusiveListNode>();
+                var nodeData = nodeLink.data;
+                if (nodeLink.next.IsAlive() == true) {
+                    node = nodeLink.next;
+                }
+                if (nodeData == entityData) {
 
+                    return nodeEntity;
+
+                }
+
+            } while (node.IsAlive() == true);
+            
+            return Entity.Empty;
+            
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private Entity FindNode(int index) {
             
             var idx = 0;
-            ref var root = ref this.root;
-            var nextLink = root.GetData<IntrusiveListNode>();
-            var result = nextLink.next;
-            while (idx != index && nextLink.next.IsAlive() == true) {
-                
-                result = nextLink.next;
-                nextLink = nextLink.next.GetData<IntrusiveListNode>();
+            var node = this.root;
+            do {
+
+                var nodeEntity = node;
+                var nodeLink = node.GetData<IntrusiveListNode>();
+                if (nodeLink.next.IsAlive() == true) {
+                    node = nodeLink.next;
+                }
+                if (idx == index) {
+
+                    return nodeEntity;
+
+                }
+
                 ++idx;
+                if (idx >= this.count) break;
 
-            }
+            } while (node.IsAlive() == true);
 
-            return result;
-
+            return Entity.Empty;
+            
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -452,6 +500,7 @@ namespace ME.ECS.Collections {
 
             if (destroyData == true) IntrusiveList.DestroyData(in node);
 
+            --this.count;
             node.Destroy();
             
         }
