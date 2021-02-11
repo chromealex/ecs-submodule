@@ -344,6 +344,7 @@ namespace ME.ECS {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public virtual void RemoveData(in Entity entity) {
             
             this.components.arr[entity.id] = default;
@@ -457,6 +458,7 @@ namespace ME.ECS {
 
             public BufferArray<byte> states;
             
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public void Copy(int index, TComponent @from, ref TComponent to) {
 
                 if (this.states.arr != null && index >= 0 && index < this.states.Length && this.states.arr[index] > 0) {
@@ -467,6 +469,7 @@ namespace ME.ECS {
                 
             }
 
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public void Recycle(int index, ref TComponent item) {
 
                 if (this.states.arr != null && index >= 0 && index < this.states.Length && this.states.arr[index] > 0) {
@@ -480,6 +483,7 @@ namespace ME.ECS {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override void RemoveData(in Entity entity) {
             
             this.components.arr[entity.id].OnRecycle();
@@ -487,12 +491,14 @@ namespace ME.ECS {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         protected override StructRegistryBase SpawnInstance() {
             
             return PoolRegistries.SpawnCopyable<TComponent>();
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override void CopyFrom(StructRegistryBase other) {
 
             var _other = (StructComponents<TComponent>)other;
@@ -1587,11 +1593,7 @@ namespace ME.ECS {
                 
                 state = 0;
                 this.currentState.storage.versions.Increment(in entity);
-                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) {
-
-                    reg.RemoveData(in entity);
-                    
-                }
+                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) reg.RemoveData(in entity);
                 if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
                     
                     this.currentState.storage.archetypes.Remove<TComponent>(in entity);
