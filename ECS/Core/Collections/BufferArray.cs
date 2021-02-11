@@ -33,7 +33,7 @@ namespace ME.ECS.Collections {
             
             public ref T this[int index] {
                 get {
-                    if (this.isCreated == false || index >= this.usedLength) throw new System.IndexOutOfRangeException();
+                    if (this.isCreated == false || index >= this.usedLength) throw new System.IndexOutOfRangeException("Tick: " + Worlds.currentWorld.GetCurrentTick());
                     return ref this.data[index];
                 }
             }

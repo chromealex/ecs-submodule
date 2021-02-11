@@ -170,7 +170,6 @@ namespace ME.ECS {
         
         private State resetState;
         internal State currentState;
-        internal FiltersTree filtersTree;
         private uint seed;
         private int cpf; // CPF = Calculations per frame
         internal int entitiesCapacity;
@@ -363,7 +362,6 @@ namespace ME.ECS {
             this.tickTime = default;
             this.timeSinceStart = default;
             this.entitiesCapacity = default;
-            this.filtersTree = default;
             
             this.features = PoolListCopyable<IFeatureBase>.Spawn(World.FEATURES_CAPACITY);
             //this.systems = PoolList<ISystemBase>.Spawn(World.SYSTEMS_CAPACITY);
@@ -411,8 +409,6 @@ namespace ME.ECS {
             PoolListCopyable<Entity>.Recycle(ref list);
             this.GetState().storage.ApplyDead();
 
-            this.filtersTree.Dispose();
-            
             PoolArray<bool>.Recycle(ref this.currentSystemContextFiltersUsed);
             this.currentSystemContextFiltersUsedAnyChanged = default;
 
@@ -908,7 +904,7 @@ namespace ME.ECS {
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];
             ArrayUtils.Resize(filterRef.id - 1, ref dic);
             dic.arr[filterRef.id - 1] = true;
-            this.filtersTree.Add(filterRef);
+            this.currentState.filters.filtersTree.Add(filterRef);
             
             if (this.entitiesCapacity > 0) filterRef.SetEntityCapacity(this.entitiesCapacity);
             

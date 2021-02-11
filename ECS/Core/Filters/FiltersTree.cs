@@ -33,15 +33,61 @@ namespace ME.ECS {
             public void Add(FilterData filterData) {
 
                 ArrayUtils.Resize(this.index, ref this.filters, resizeWithOffset: true);
-                this.filters.arr[this.index] = filterData.id;
-                ++this.index;
+                var idx = System.Array.IndexOf(this.filters.arr, filterData.id, 0, this.filters.Length);
+                if (idx == -1) {
+
+                    this.filters.arr[this.index] = filterData.id;
+                    ++this.index;
+
+                }
+
+            }
+
+            public void CopyFrom(Item other) {
+
+                this.isCreated = other.isCreated;
+                this.bit = other.bit;
+                this.index = other.index;
+                ArrayUtils.Copy(other.filters, ref this.filters);
+
+            }
+
+            public void Recycle() {
+
+                this.isCreated = default;
+                this.bit = default;
+                this.index = default;
+                this.filters.Dispose();
+
+            }
+
+        }
+
+        private struct CopyItem : IArrayElementCopy<Item> {
+
+            public void Copy(Item @from, ref Item to) {
                 
+                to.CopyFrom(from);
+                
+            }
+
+            public void Recycle(Item item) {
+
+                item.Recycle();
+
             }
 
         }
 
         private ME.ECS.Collections.BufferArray<Item> itemsContains;
         private ME.ECS.Collections.BufferArray<Item> itemsNotContains;
+
+        public void CopyFrom(FiltersTree other) {
+            
+            ArrayUtils.Copy(other.itemsContains, ref this.itemsContains, new CopyItem());
+            ArrayUtils.Copy(other.itemsNotContains, ref this.itemsNotContains, new CopyItem());
+            
+        }
 
         public void Dispose() {
 

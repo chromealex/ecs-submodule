@@ -22,7 +22,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void UpdateFilterByStructComponent<T>(in Entity entity) where T : struct, IStructComponent {
 
-            var containsFilters = this.filtersTree.GetFiltersContainsFor<T>();
+            var containsFilters = this.currentState.filters.filtersTree.GetFiltersContainsFor<T>();
             for (int i = 0; i < containsFilters.Length; ++i) {
                 
                 var filterId = containsFilters.arr[i];
@@ -32,7 +32,7 @@ namespace ME.ECS {
                 
             }
             
-            var notContainsFilters = this.filtersTree.GetFiltersNotContainsFor<T>();
+            var notContainsFilters = this.currentState.filters.filtersTree.GetFiltersNotContainsFor<T>();
             for (int i = 0; i < notContainsFilters.Length; ++i) {
                 
                 var filterId = notContainsFilters.arr[i];
@@ -48,7 +48,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void UpdateFilterByComponent<T>(in Entity entity) where T : class, IComponent {
             
-            var containsFilters = this.filtersTree.GetFiltersContainsFor<T>();
+            var containsFilters = this.currentState.filters.filtersTree.GetFiltersContainsFor<T>();
             for (int i = 0; i < containsFilters.Length; ++i) {
                 
                 var filterId = containsFilters.arr[i];
@@ -58,7 +58,7 @@ namespace ME.ECS {
                 
             }
             
-            var notContainsFilters = this.filtersTree.GetFiltersNotContainsFor<T>();
+            var notContainsFilters = this.currentState.filters.filtersTree.GetFiltersNotContainsFor<T>();
             for (int i = 0; i < notContainsFilters.Length; ++i) {
                 
                 var filterId = notContainsFilters.arr[i];
@@ -141,6 +141,7 @@ namespace ME.ECS {
     #endif
     public sealed class FiltersStorage : IPoolableRecycle {
 
+        internal FiltersTree filtersTree;
         internal BufferArray<FilterData> filters;
         private bool freeze;
         private int nextId;
@@ -196,6 +197,7 @@ namespace ME.ECS {
 
             this.nextId = default;
             this.freeze = default;
+            this.filtersTree.Dispose();
             
             for (int i = 0, count = this.filters.Length; i < count; ++i) {
                 
@@ -330,6 +332,7 @@ namespace ME.ECS {
 
             this.nextId = other.nextId;
             this.allFiltersArchetype = other.allFiltersArchetype;
+            this.filtersTree.CopyFrom(other.filtersTree);
             
             /*if (this.filters != null) {
 

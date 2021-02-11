@@ -1220,6 +1220,7 @@ namespace ME.ECS {
             // Inline all manually
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
             ref var state = ref reg.componentsStates.arr[entity.id];
+            var incrementVersion = createIfNotExists;
             if (state == 0 && createIfNotExists == true) {
 
                 #if WORLD_EXCEPTIONS
@@ -1229,7 +1230,8 @@ namespace ME.ECS {
 
                 }
                 #endif
-                
+
+                incrementVersion = true;
                 state = 1;
                 //this.currentState.storage.versions.Increment(in entity);
                 if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
@@ -1246,7 +1248,7 @@ namespace ME.ECS {
             }
 
             if (WorldUtilities.IsComponentAsTag<TComponent>() == true) return ref reg.emptyComponent;
-            this.currentState.storage.versions.Increment(in entity);
+            if (incrementVersion == true) this.currentState.storage.versions.Increment(in entity);
             return ref reg.components.arr[entity.id];
             
         }
