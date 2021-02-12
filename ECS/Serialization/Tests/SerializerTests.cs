@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using SerializerTestView = ECS.ECS.Serialization.Tests.Resources.SerializerTestView;
+using SerializerTestView = ECS.ECS.Serialization.Tests.SerializerTestView;
 
 namespace ME.ECS.Serializer.Tests {
 
@@ -320,7 +320,7 @@ namespace ME.ECS.Serializer.Tests {
                 pos += UnityEngine.Vector3.one;
                 entity.SetPosition(pos);
                 
-                entity.InstantiateView(this.viewId);
+                if (entity.HasData<ME.ECS.Views.ViewComponent>() == false) entity.InstantiateView(this.viewId);
                 
             }
 

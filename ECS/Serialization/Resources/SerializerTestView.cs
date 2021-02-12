@@ -1,6 +1,6 @@
 ﻿using ME.ECS;
 
-namespace ECS.ECS.Serialization.Tests.Resources {
+namespace ECS.ECS.Serialization.Tests {
     
     using ME.ECS.Views.Providers;
     
