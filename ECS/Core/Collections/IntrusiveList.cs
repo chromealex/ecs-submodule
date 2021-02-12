@@ -49,7 +49,6 @@ namespace ME.ECS.Collections {
 
             private readonly Entity root;
             private Entity head;
-            private readonly int count;
             public Entity Current { get; private set; }
 
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -57,7 +56,6 @@ namespace ME.ECS.Collections {
 
                 this.root = list.root;
                 this.head = list.root;
-                this.count = list.count;
                 this.Current = default;
                 
             }
