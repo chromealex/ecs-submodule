@@ -4,27 +4,26 @@
     
     public static class ECSTransformHierarchy {
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void OnEntityDestroy(in Entity entity) {
 
             if (entity.HasData<Childs>() == true) {
                 
-                var childs = entity.GetData<Childs>();
-                foreach (var child in childs.childs) {
-                    
-                    if (child.IsAlive() == true) child.Destroy();
-                    
-                }
+                ref var childs = ref entity.GetData<Childs>();
+                childs.childs.Clear(destroyData: true);
                 
             }
 
         }
         
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void SetParent(this in Entity child, in Entity root) {
             
             child.SetParent(in root, worldPositionStays: true);
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void SetParent(this in Entity child, in Entity root, bool worldPositionStays) {
 
             if (worldPositionStays == true) {
@@ -78,6 +77,23 @@
 
         }
         
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static Entity GetRoot(this in Entity child) {
+
+            var root = child;
+            var container = child;
+            do {
+
+                root = container;
+                container = container.GetData<Container>(false).entity;
+                
+            } while (container.IsAlive() == true);
+            
+            return root;
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private static bool FindInHierarchy(in Entity child, in Entity root) {
             
             ref var childChilds = ref child.GetData<Childs>(createIfNotExists: false);
@@ -94,22 +110,6 @@
             }
             
             return false;
-
-        }
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static Entity GetRoot(this in Entity child) {
-
-            var root = child;
-            var container = child;
-            do {
-
-                root = container;
-                container = container.GetData<Container>(false).entity;
-                
-            } while (container.IsAlive() == true);
-            
-            return root;
 
         }
 
