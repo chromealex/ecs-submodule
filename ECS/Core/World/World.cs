@@ -1366,6 +1366,7 @@ namespace ME.ECS {
             
             if (this.currentState.storage.Dealloc(in entity) == true) {
             
+                ECSTransformHierarchy.OnEntityDestroy(in entity);
                 this.RemoveFromFilters_INTERNAL(entity);
                 this.DestroyEntityPlugins(in entity);
 
