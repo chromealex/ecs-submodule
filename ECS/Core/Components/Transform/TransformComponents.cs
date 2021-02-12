@@ -8,7 +8,7 @@
 
     public struct Childs : IStructComponent {
 
-        public ME.ECS.Collections.StackArray50<Entity> childs;
+        public ME.ECS.Collections.IntrusiveList childs;
 
     }
 
