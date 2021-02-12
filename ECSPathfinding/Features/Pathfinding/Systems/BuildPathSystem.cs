@@ -68,6 +68,10 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
 
                         this.pathfindingFeature.SetPath(in task.entity, path, task.constraint, task.to);
 
+                    } else {
+
+                        task.entity.RemoveData<Path>();
+
                     }
 
                     path.Recycle();
@@ -88,7 +92,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
             var active = instance.pathfinding;
             if (active == null) return;
 
-            entity.RemoveData<Path>();
+            //entity.RemoveData<Path>();
 
             var request = entity.GetData<CalculatePath>();
             //UnityEngine.Debug.LogWarning("REQUEST PATH: " + request.@from.ToStringDec() + " to " + request.to.ToStringDec());
