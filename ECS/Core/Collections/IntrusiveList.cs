@@ -23,7 +23,7 @@ namespace ME.ECS.Collections {
         bool Insert(in Entity entityData, int onIndex);
         void Clear(bool destroyData = false);
         bool RemoveAt(int index, bool destroyData = false);
-        void RemoveRange(int from, int to, bool destroyData = false);
+        bool RemoveRange(int from, int to, bool destroyData = false);
         Entity GetValue(int index);
         bool Contains(in Entity entityData);
 
@@ -214,26 +214,38 @@ namespace ME.ECS.Collections {
         /// <summary>
         /// Remove nodes in range [from..to)
         /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
+        /// <param name="from">Must be exists in list, could not be out of list range</param>
+        /// <param name="to">May be out of list range, but greater than from</param>
         /// <param name="destroyData">Destroy also entity data</param>
+        /// <returns>Returns TRUE if any node was removed</returns>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void RemoveRange(int from, int to, bool destroyData = false) {
+        public bool RemoveRange(int from, int to, bool destroyData = false) {
 
-            while (from < to) {
+            var hasAny = false;
+            var node = this.FindNode(from);
+            if (node.IsAlive() == true) {
 
-                var node = this.FindNode(from);
-                if (node.IsAlive() == true) {
+                while (from < to) {
 
-                    this.RemoveNode(in node, destroyData);
+                    if (node.IsAlive() == true) {
+                        
+                        var next = node.GetData<IntrusiveListNode>().next;
+                        this.RemoveNode(in node, destroyData);
+                        node = next;
+                        hasAny = true;
+                        ++from;
+                        
+                    } else {
 
-                } else {
+                        break;
 
-                    ++from;
+                    }
 
                 }
 
             }
+            
+            return hasAny;
 
         }
 
@@ -431,9 +443,7 @@ namespace ME.ECS.Collections {
                 var nodeEntity = node;
                 var nodeLink = node.GetData<IntrusiveListNode>();
                 var nodeData = nodeLink.data;
-                if (nodeLink.next.IsAlive() == true) {
-                    node = nodeLink.next;
-                }
+                node = nodeLink.next;
                 if (nodeData == entityData) {
 
                     return nodeEntity;
@@ -455,9 +465,7 @@ namespace ME.ECS.Collections {
 
                 var nodeEntity = node;
                 var nodeLink = node.GetData<IntrusiveListNode>();
-                if (nodeLink.next.IsAlive() == true) {
-                    node = nodeLink.next;
-                }
+                node = nodeLink.next;
                 if (idx == index) {
 
                     return nodeEntity;
