@@ -1,7 +1,5 @@
 ﻿
-namespace ME.ECS.Tests {
-
-    using System.Linq;
+namespace ME.ECS.Collections.Tests {
 
     public class BufferArraySlicedTests {
         

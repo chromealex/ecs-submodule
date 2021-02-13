@@ -16,20 +16,12 @@ namespace ME.ECS.Collections {
 
         public readonly BufferArray<T> data;
         public readonly BufferArray<BufferArray<T>> tails;
+        public readonly int tailsLength;
         public readonly bool isCreated;
 
         public int Length {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            get {
-                var count = this.data.Length;
-                for (int i = 0; i < this.tails.Length; ++i) {
-
-                    var tail = this.tails.arr[i];
-                    count += tail.Length;
-
-                }
-                return count;
-            }
+            get => this.data.Length + this.tailsLength;
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -38,6 +30,7 @@ namespace ME.ECS.Collections {
             this.isCreated = true;
             this.data = arr;
             this.tails = default;
+            this.tailsLength = 0;
 
         }
 
@@ -47,6 +40,13 @@ namespace ME.ECS.Collections {
             this.isCreated = true;
             this.data = arr;
             this.tails = tails;
+            this.tailsLength = 0;
+            for (int i = 0; i < tails.Length; ++i) {
+            
+                var tail = tails.arr[i];
+                this.tailsLength += tail.Length;
+
+            }
 
         }
 
