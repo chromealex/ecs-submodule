@@ -157,7 +157,6 @@ namespace ME.ECS.Collections {
                 var tails = this.tails;
                 // Look into tails
                 var ptr = this.data.Length;
-                var foundTailIdx = -1;
                 for (int i = 0; i < tails.Length; ++i) {
 
                     // For each tail determine do we need to resize any tail to store index?
@@ -166,28 +165,19 @@ namespace ME.ECS.Collections {
                     if (index >= ptr) continue;
 
                     // We have found tail without resize needed
-                    foundTailIdx = i;
-                    break;
-
-                }
-
-                // Tail was found - we do not need to resize
-                if (foundTailIdx >= 0) {
-                    
+                    // Tail was found - we do not need to resize
                     return this;
-                    
-                } else {
-                    
-                    // Need to add new tail and resize tails container
-                    var idx = tails.Length;
-                    var size = this.Length;
-                    ArrayUtils.Resize(idx, ref tails, resizeWithOffset);
-                    var bucketSize = index + BufferArraySliced<T>.BUCKET_SIZE - size;
-                    tails.arr[idx] = PoolArray<T>.Spawn(bucketSize, realSize: true);
-                    return new BufferArraySliced<T>(this.data, tails);
 
                 }
-                    
+
+                // Need to add new tail and resize tails container
+                var idx = tails.Length;
+                var size = this.Length;
+                ArrayUtils.Resize(idx, ref tails, resizeWithOffset);
+                var bucketSize = index + BufferArraySliced<T>.BUCKET_SIZE - size;
+                tails.arr[idx] = PoolArray<T>.Spawn(bucketSize, realSize: true);
+                return new BufferArraySliced<T>(this.data, tails);
+
             }
             
             // We dont need to resize any
