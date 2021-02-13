@@ -248,6 +248,12 @@ namespace ME.ECS {
 
             this.world.currentState.storage.archetypes.Validate(in entity);
             
+            if (this.world.currentState.filters.HasInAnyFilter<TComponent>() == true && this.world.HasData<TComponent>(in entity) == true) {
+                
+                this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
+                
+            }
+
         }
 
         public override bool HasType(System.Type type) {
@@ -839,7 +845,7 @@ namespace ME.ECS {
                 this.list.arr[code] = instance;
 
             }
-
+            
         }
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -1190,26 +1196,14 @@ namespace ME.ECS {
 
         public void ValidateData<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent {
 
-            this.currentState.storage.versions.Validate(in entity);
             this.currentState.structComponents.Validate<TComponent>(in entity, isTag);
-            if (this.currentState.filters.HasInAnyFilter<TComponent>() == true && this.HasData<TComponent>(in entity) == true) {
-                
-                this.currentState.storage.archetypes.Set<TComponent>(in entity);
-                
-            }
-
+            
         }
 
         public void ValidateDataCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
 
-            this.currentState.storage.versions.Validate(in entity);
             this.currentState.structComponents.ValidateCopyable<TComponent>(in entity, isTag);
-            if (this.currentState.filters.HasInAnyFilter<TComponent>() == true && this.HasData<TComponent>(in entity) == true) {
-                
-                this.currentState.storage.archetypes.Set<TComponent>(in entity);
-                
-            }
-
+            
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

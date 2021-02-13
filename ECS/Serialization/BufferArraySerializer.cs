@@ -2,7 +2,7 @@ namespace ME.ECS.Serializer {
 
     public struct BufferArraySerializer : ITypeSerializer, ITypeSerializerInherit {
 
-        public byte GetTypeValue() => 0;
+        public byte GetTypeValue() => (byte)TypeValue.BufferArray;
 
         public System.Type GetTypeSerialized() => typeof(ME.ECS.Collections.IBufferArray);
 
@@ -72,7 +72,7 @@ namespace ME.ECS.Serializer {
             var instance = (ME.ECS.Collections.IBufferArray)System.Activator.CreateInstance(constructedType,
                                                                                             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
                                                                                             null, new object[] {
-                                                                                                p1, p2
+                                                                                                p1, p2, -1,
                                                                                             }, System.Globalization.CultureInfo.InvariantCulture);
 
             return instance;

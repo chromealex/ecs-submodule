@@ -1311,6 +1311,7 @@ namespace ME.ECS {
         
         public void UpdateEntity(in Entity entity) {
             
+            this.currentState.storage.versions.Validate(in entity);
             this.CreateEntityPlugins(entity);
             this.CreateEntityInFilters(entity);
             this.UpdateFilters(entity);

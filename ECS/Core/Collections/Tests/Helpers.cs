@@ -54,6 +54,8 @@ namespace ME.ECS.Collections.Tests {
             world.SetFromToTicks(0, 1);
             world.Update(1f);
 
+            WorldUtilities.ReleaseWorld<TestState>(ref world);
+
         }
 
     }

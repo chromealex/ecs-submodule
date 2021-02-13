@@ -7,6 +7,7 @@ namespace ME.ECS {
             
             WorldUtilities.InitComponentTypeId<ME.ECS.Views.ViewComponent>(false);
             WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveListNode>(false);
+            WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
             
             TransformComponentsInitializer.InitTypeId();
             NameComponentsInitializer.InitTypeId();
@@ -19,6 +20,7 @@ namespace ME.ECS {
             
             structComponentsContainer.Validate<ME.ECS.Views.ViewComponent>(false);
             structComponentsContainer.Validate<ME.ECS.Collections.IntrusiveListNode>(false);
+            structComponentsContainer.Validate<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
 
             TransformComponentsInitializer.Init(ref structComponentsContainer);
             NameComponentsInitializer.Init(ref structComponentsContainer);
@@ -31,6 +33,7 @@ namespace ME.ECS {
             
             entity.ValidateData<ME.ECS.Views.ViewComponent>(false);
             entity.ValidateData<ME.ECS.Collections.IntrusiveListNode>(false);
+            entity.ValidateData<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
 
             TransformComponentsInitializer.Init(in entity);
             NameComponentsInitializer.Init(in entity);

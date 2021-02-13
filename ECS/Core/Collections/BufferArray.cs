@@ -78,6 +78,28 @@ namespace ME.ECS.Collections {
         public readonly int Length;
         public readonly bool isCreated;
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        internal BufferArray(T[] arr, int length) : this(arr, length, -1) {
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        internal BufferArray(T[] arr, int length, int realLength) {
+            
+            this.Length = length;
+            this.isCreated = (length > 0 && arr != null);
+            
+            #if UNITY_EDITOR && EDITOR_ARRAY
+            this.arr.data = arr;
+            this.arr.Length = (arr != null ? arr.Length : 0);
+            this.arr.usedLength = (realLength >= 0 ? realLength : length);
+            this.arr.isCreated = this.isCreated;
+            #else
+            this.arr = arr;
+            #endif
+            
+        }
+
         public int Count {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             get {
@@ -191,23 +213,6 @@ namespace ME.ECS.Collections {
             ArrayUtils.Copy(arr, ref buffer);
             
             return buffer;
-            
-        }
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        internal BufferArray(T[] arr, int length, int realLength = -1) {
-            
-            this.Length = length;
-            this.isCreated = (length > 0 && arr != null);
-            
-            #if UNITY_EDITOR && EDITOR_ARRAY
-            this.arr.data = arr;
-            this.arr.Length = (arr != null ? arr.Length : 0);
-            this.arr.usedLength = (realLength >= 0 ? realLength : length);
-            this.arr.isCreated = this.isCreated;
-            #else
-            this.arr = arr;
-            #endif
             
         }
 

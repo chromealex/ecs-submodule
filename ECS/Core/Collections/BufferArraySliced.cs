@@ -4,13 +4,19 @@ using System.Collections.Generic;
 
 namespace ME.ECS.Collections {
 
+    public interface IBufferArraySliced {
+
+        int Length { get; }
+
+    }
+    
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     [System.Serializable]
-    public readonly struct BufferArraySliced<T> {
+    public readonly struct BufferArraySliced<T> : IBufferArraySliced {
 
         private const int BUCKET_SIZE = 4;
 

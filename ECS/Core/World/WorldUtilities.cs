@@ -225,11 +225,15 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static void InitComponentTypeId<TComponent>(bool isTag = false, bool isCopyable = false) {
+        public static bool InitComponentTypeId<TComponent>(bool isTag = false, bool isCopyable = false) {
 
+            var isNew = (AllComponentTypes<TComponent>.typeId == -1);
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
             if (isCopyable == true) WorldUtilities.SetComponentAsCopyable<TComponent>();
+            
             WorldUtilities.GetAllComponentTypeId<TComponent>();
+
+            return isNew;
 
         }
 

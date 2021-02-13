@@ -6,7 +6,7 @@ namespace ME.ECS.Collections {
     public struct IntrusiveListNode : IStructComponent {
 
         public Entity next;
-        public Entity prev;
+        public Entity prev; // We do not really use this pointer, but it is stay here because of future versions of api
         public Entity data;
 
     }
@@ -29,7 +29,7 @@ namespace ME.ECS.Collections {
 
         IEnumerator<Entity> GetRange(int from, int to);
         BufferArray<Entity> ToArray();
-        IntrusiveList.IntrusiveListEnumerator GetEnumerator();
+        IntrusiveList.Enumerator GetEnumerator();
 
     }
     
@@ -45,14 +45,14 @@ namespace ME.ECS.Collections {
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public struct IntrusiveListEnumerator : System.Collections.Generic.IEnumerator<Entity> {
+        public struct Enumerator : System.Collections.Generic.IEnumerator<Entity> {
 
             private readonly Entity root;
             private Entity head;
             public Entity Current { get; private set; }
 
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            public IntrusiveListEnumerator(IntrusiveList list) {
+            public Enumerator(IntrusiveList list) {
 
                 this.root = list.root;
                 this.head = list.root;
@@ -99,9 +99,9 @@ namespace ME.ECS.Collections {
         public int Count => this.count;
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public IntrusiveListEnumerator GetEnumerator() {
+        public Enumerator GetEnumerator() {
 
-            return new IntrusiveListEnumerator(this);
+            return new Enumerator(this);
 
         }
 
@@ -415,6 +415,28 @@ namespace ME.ECS.Collections {
         public void Add(in Entity entityData) {
 
             var node = IntrusiveList.CreateNode(in entityData);
+            if (this.count == 0) {
+
+                this.root = node;
+
+            } else {
+
+                ref var nodeLink = ref node.GetData<IntrusiveListNode>();
+                ref var headLink = ref this.head.GetData<IntrusiveListNode>();
+                headLink.next = node;
+                nodeLink.prev = this.head;
+
+            }
+
+            this.head = node;
+            ++this.count;
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void Add(in Entity entityData, out Entity node) {
+
+            node = IntrusiveList.CreateNode(in entityData);
             if (this.count == 0) {
 
                 this.root = node;

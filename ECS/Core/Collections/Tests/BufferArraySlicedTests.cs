@@ -66,6 +66,11 @@ namespace ME.ECS.Collections.Tests {
             UnityEngine.Debug.Assert(merged[5].value == "6");
             UnityEngine.Debug.Assert(merged[11].value == "12");
             UnityEngine.Debug.Assert(len == merged.Length);
+            
+            merged = merged.Resize(20, false);
+            
+            merged[16] = new ME.ECS.Name.Name() { value = "17" };
+            merged[17] = new ME.ECS.Name.Name() { value = "18" };
 
         }
 

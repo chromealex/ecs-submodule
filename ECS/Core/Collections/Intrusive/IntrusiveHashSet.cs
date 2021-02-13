@@ -18,7 +18,7 @@ namespace ME.ECS.Collections {
         bool Contains(in Entity entityData);
 
         BufferArray<Entity> ToArray();
-        IntrusiveHashSet.IntrusiveHashSetEnumerator GetEnumerator();
+        IntrusiveHashSet.Enumerator GetEnumerator();
 
     }
     
@@ -34,15 +34,15 @@ namespace ME.ECS.Collections {
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public struct IntrusiveHashSetEnumerator : System.Collections.Generic.IEnumerator<Entity> {
+        public struct Enumerator : System.Collections.Generic.IEnumerator<Entity> {
 
             private IntrusiveHashSet hashSet;
             private int bucketIndex;
-            private IntrusiveList.IntrusiveListEnumerator listEnumerator;
+            private IntrusiveList.Enumerator listEnumerator;
             public Entity Current => this.listEnumerator.Current;
 
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            public IntrusiveHashSetEnumerator(IntrusiveHashSet hashSet) {
+            public Enumerator(IntrusiveHashSet hashSet) {
 
                 this.hashSet = hashSet;
                 this.bucketIndex = 0;
@@ -102,9 +102,9 @@ namespace ME.ECS.Collections {
         public int Count => this.count;
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public IntrusiveHashSetEnumerator GetEnumerator() {
+        public Enumerator GetEnumerator() {
 
-            return new IntrusiveHashSetEnumerator(this);
+            return new Enumerator(this);
 
         }
 
@@ -135,7 +135,7 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool Contains(in Entity entityData) {
             
-            var bucket = entityData.GetHashCode() % this.buckets.Length;
+            var bucket = (entityData.GetHashCode() & 0x7fffffff) % this.buckets.Length;
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == false) return false;
             
@@ -174,7 +174,7 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool Remove(in Entity entityData) {
 
-            var bucket = entityData.GetHashCode() % this.buckets.Length;
+            var bucket = (entityData.GetHashCode() & 0x7fffffff) % this.buckets.Length;
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == false) return false;
             
@@ -198,7 +198,7 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public int RemoveAll(in Entity entityData) {
 
-            var bucket = entityData.GetHashCode() % this.buckets.Length;
+            var bucket = (entityData.GetHashCode() & 0x7fffffff) % this.buckets.Length;
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == false) return 0;
             
@@ -218,11 +218,25 @@ namespace ME.ECS.Collections {
 
             IntrusiveHashSet.Initialize(ref this);
 
-            var bucket = entityData.GetHashCode() % this.buckets.Length;
+            var bucket = (entityData.GetHashCode() & 0x7fffffff) % this.buckets.Length;
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == false) bucketEntity = this.buckets[bucket] = new Entity("IntrusiveHashSetBucket");
             ref var bucketList = ref bucketEntity.GetData<IntrusiveHashSetBucket>();
             bucketList.list.Add(entityData);
+            ++this.count;
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void Add(in Entity entityData, out Entity node) {
+
+            IntrusiveHashSet.Initialize(ref this);
+
+            var bucket = (entityData.GetHashCode() & 0x7fffffff) % this.buckets.Length;
+            var bucketEntity = this.buckets[bucket];
+            if (bucketEntity.IsAlive() == false) bucketEntity = this.buckets[bucket] = new Entity("IntrusiveHashSetBucket");
+            ref var bucketList = ref bucketEntity.GetData<IntrusiveHashSetBucket>();
+            bucketList.list.Add(entityData, out node);
             ++this.count;
 
         }
