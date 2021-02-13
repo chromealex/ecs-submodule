@@ -1,0 +1,76 @@
+﻿
+namespace ME.ECS.Tests {
+
+    using System.Linq;
+
+    public class BufferArraySlicedTests {
+        
+        private ME.ECS.Collections.BufferArraySliced<ME.ECS.Name.Name> Prepare() {
+
+            var data = new ME.ECS.Collections.BufferArraySliced<ME.ECS.Name.Name>(new ME.ECS.Collections.BufferArray<ME.ECS.Name.Name>());
+            data = data.Resize(2, false);
+            
+            data[0] = new ME.ECS.Name.Name() { value = "1" };
+            data[1] = new ME.ECS.Name.Name() { value = "2" };
+            
+            data = data.Resize(4, false);
+            data[2] = new ME.ECS.Name.Name() { value = "3" };
+            data[3] = new ME.ECS.Name.Name() { value = "4" };
+            
+            data = data.Resize(6, false);
+            data[4] = new ME.ECS.Name.Name() { value = "5" };
+            data[5] = new ME.ECS.Name.Name() { value = "6" };
+            
+            data = data.Resize(8, false);
+            data[6] = new ME.ECS.Name.Name() { value = "7" };
+            data[7] = new ME.ECS.Name.Name() { value = "8" };
+            
+            data = data.Resize(10, false);
+            data[8] = new ME.ECS.Name.Name() { value = "9" };
+            data[9] = new ME.ECS.Name.Name() { value = "10" };
+
+            data = data.Resize(12, false);
+            
+            data[10] = new ME.ECS.Name.Name() { value = "11" };
+            data[11] = new ME.ECS.Name.Name() { value = "12" };
+
+            return data;
+
+        }
+        
+        [NUnit.Framework.TestAttribute]
+        public void Change() {
+
+            var buffer = this.Prepare();
+            ref var data = ref buffer[5];
+            buffer = buffer.Resize(14, false);
+            data.value = "Test";
+            UnityEngine.Debug.Assert(buffer[5].value == data.value);
+            
+        }
+
+        [NUnit.Framework.TestAttribute]
+        public void Add() {
+
+            var buffer = this.Prepare();
+            UnityEngine.Debug.Assert(buffer[5].value == "6");
+            UnityEngine.Debug.Assert(buffer[11].value == "12");
+            UnityEngine.Debug.Assert(buffer.Length == 12);
+
+        }
+
+        [NUnit.Framework.TestAttribute]
+        public void Merge() {
+
+            var buffer = this.Prepare();
+            var len = buffer.Length;
+            var merged = buffer.Merge();
+            UnityEngine.Debug.Assert(merged[5].value == "6");
+            UnityEngine.Debug.Assert(merged[11].value == "12");
+            UnityEngine.Debug.Assert(len == merged.Length);
+
+        }
+
+    }
+
+}

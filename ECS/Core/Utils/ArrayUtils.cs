@@ -425,6 +425,21 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void CopyWithIndex<T, TCopy>(BufferArraySliced<T> fromArr, ref BufferArraySliced<T> arr, TCopy copy)
+            where TCopy : IArrayElementCopyWithIndex<T> {
+            
+            arr = arr.CopyFrom(in fromArr, copy);
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void Copy<T>(in ME.ECS.Collections.BufferArraySliced<T> fromArr, ref ME.ECS.Collections.BufferArraySliced<T> arr) {
+
+            arr = arr.CopyFrom(in fromArr);
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void Copy<T>(in ME.ECS.Collections.BufferArray<T> fromArr, ref ME.ECS.Collections.BufferArray<T> arr) {
 
             if (fromArr.arr == null) {
@@ -443,6 +458,28 @@ namespace ME.ECS {
             }
 
             System.Array.Copy(fromArr.arr, arr.arr, fromArr.Length);
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void Copy<T>(in ME.ECS.Collections.BufferArray<T> fromArr, int sourceIndex, ref ME.ECS.Collections.BufferArray<T> arr, int destIndex, int length) {
+
+            if (fromArr.arr == null) {
+                
+                if (arr.arr != null) PoolArray<T>.Recycle(ref arr);
+                arr = BufferArray<T>.Empty;
+                return;
+
+            }
+
+            if (arr.arr == null || fromArr.Length != arr.Length) {
+
+                if (arr.arr != null) PoolArray<T>.Recycle(ref arr);
+                arr = PoolArray<T>.Spawn(fromArr.Length);
+
+            }
+
+            System.Array.Copy(fromArr.arr, sourceIndex, arr.arr, destIndex, length);
             
         }
 
@@ -501,8 +538,21 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool WillResize<T>(int index, ref BufferArray<T> arr) {
 
-            if (arr.arr == null) return true;//arr = PoolArray<T>.Spawn(index + 1);
+            if (arr.arr == null) return true;
             if (index < arr.Length) return false;
+            
+            return true;
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool WillResizeWithBuffer<T>(int index, ref BufferArray<T> arr) {
+
+            if (arr.arr == null) return true;
+            if (index < arr.Length) return false;
+            var newLength = index + 1;
+            if (newLength <= arr.arr.Length) return false;
+            
             return true;
 
         }
@@ -520,7 +570,7 @@ namespace ME.ECS {
             }
 
         }
-        
+
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool Resize<T>(int index, ref BufferArray<T> arr, bool resizeWithOffset = false) {
 
@@ -543,20 +593,19 @@ namespace ME.ECS {
 
             }
 
-            /*#if UNITY_EDITOR
-            if (typeof(T).IsArray == true ||
-                typeof(System.Collections.IEnumerable).IsAssignableFrom(typeof(T)) == true) {
-                
-                UnityEngine.Debug.LogError("Resize of array in array is not supported");
-                
-            }
-            #endif*/
-            
             var newArr = PoolArray<T>.Spawn(newLength);
             System.Array.Copy(arr.arr, newArr.arr, arr.Length);
             if (arr != newArr) PoolArray<T>.Recycle(ref arr);
             arr = newArr;
 
+            return true;
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool Resize<T>(int index, ref BufferArraySliced<T> arr, bool resizeWithOffset = false) {
+
+            arr = arr.Resize(index, resizeWithOffset);
             return true;
 
         }

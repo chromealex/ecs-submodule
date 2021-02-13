@@ -61,6 +61,9 @@ namespace ME.ECS {
         public abstract bool RemoveObject(Entity entity);
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public abstract void Merge();
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public abstract void UseLifetimeStep(World world, byte step);
         
         public abstract void CopyFrom(StructRegistryBase other);
@@ -100,7 +103,7 @@ namespace ME.ECS {
     public class StructComponents<TComponent> : StructRegistryBase where TComponent : struct, IStructComponent {
 
         [ME.ECS.Serializer.SerializeField]
-        internal BufferArray<TComponent> components;
+        internal BufferArraySliced<TComponent> components;
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<byte> componentsStates;
         [ME.ECS.Serializer.SerializeField]
@@ -127,7 +130,7 @@ namespace ME.ECS {
 
                 for (int i = 0; i < this.components.Length; ++i) {
 
-                    var p = (ME.ECS.Transform.Position)(object)this.components.arr[i];
+                    var p = (ME.ECS.Transform.Position)(object)this.components[i];
                     hash ^= (int)(p.x * 100000f);
                     hash ^= (int)(p.y * 100000f);
                     hash ^= (int)(p.z * 100000f);
@@ -139,7 +142,14 @@ namespace ME.ECS {
             return hash;
 
         }
+        
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public override void Merge() {
 
+            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.components = this.components.Merge();
+        
+        }
+        
         public override void Recycle() {
             
             PoolRegistries.Recycle(this);
@@ -162,7 +172,7 @@ namespace ME.ECS {
 
         public override void OnRecycle() {
 
-            PoolArray<TComponent>.Recycle(ref this.components);
+            this.components = this.components.Dispose();
             PoolArray<byte>.Recycle(ref this.componentsStates);
             if (this.lifetimeIndexes != null) PoolListCopyable<int>.Recycle(ref this.lifetimeIndexes);
             
@@ -195,7 +205,7 @@ namespace ME.ECS {
                 if (entity.generation == 0) return;
                     
                 state = 0;
-                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.components.arr[id] = default;
+                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.components[id] = default;
                 if (world.currentState.filters.HasInAnyFilter<TComponent>() == true) {
                     
                     world.currentState.storage.archetypes.Remove<TComponent>(in entity);
@@ -229,9 +239,9 @@ namespace ME.ECS {
         public override void Validate(in Entity entity) {
 
             var index = entity.id;
+            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) ArrayUtils.Resize(index, ref this.components);
             if (ArrayUtils.WillResize(index, ref this.componentsStates) == true) {
 
-                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) ArrayUtils.Resize(index, ref this.components);
                 ArrayUtils.Resize(index, ref this.componentsStates);
 
             }
@@ -264,7 +274,7 @@ namespace ME.ECS {
 
                 if (WorldUtilities.IsComponentAsTag<TComponent>() == false) {
 
-                    var bucket = this.components.arr[index];
+                    var bucket = this.components[index];
                     return bucket;
 
                 } else {
@@ -294,7 +304,7 @@ namespace ME.ECS {
             //this.CheckResize(in index);
             if (WorldUtilities.IsComponentAsTag<TComponent>() == false) {
             
-                ref var bucket = ref this.components.arr[index];
+                ref var bucket = ref this.components[index];
                 bucket = (TComponent)data;
 
             }
@@ -347,7 +357,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public virtual void RemoveData(in Entity entity) {
             
-            this.components.arr[entity.id] = default;
+            this.components[entity.id] = default;
             
         }
 
@@ -423,7 +433,7 @@ namespace ME.ECS {
             }
             
             this.componentsStates.arr[to.id] = this.componentsStates.arr[from.id];
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.components.arr[to.id] = this.components.arr[from.id];
+            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.components[to.id] = this.components[from.id];
             if (this.componentsStates.arr[from.id] > 0) {
 
                 if (this.world.currentState.filters.HasInAnyFilter<TComponent>() == true) this.world.currentState.storage.archetypes.Set<TComponent>(in to);
@@ -486,8 +496,8 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override void RemoveData(in Entity entity) {
             
-            this.components.arr[entity.id].OnRecycle();
-            this.components.arr[entity.id] = default;
+            this.components[entity.id].OnRecycle();
+            this.components[entity.id] = default;
             
         }
 
@@ -502,7 +512,7 @@ namespace ME.ECS {
         public override void CopyFrom(StructRegistryBase other) {
 
             var _other = (StructComponents<TComponent>)other;
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) ArrayUtils.CopyWithIndex( _other.components, ref this.components, new CopyItem() { states = _other.componentsStates });
+            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) ArrayUtils.CopyWithIndex(_other.components, ref this.components, new CopyItem() { states = _other.componentsStates });
             ArrayUtils.Copy(in _other.componentsStates, ref this.componentsStates);
             ArrayUtils.Copy(_other.lifetimeIndexes, ref this.lifetimeIndexes);
             
@@ -613,6 +623,17 @@ namespace ME.ECS {
             ArrayUtils.Resize(100, ref this.list);
             this.isCreated = true;
 
+        }
+
+        public void Merge() {
+
+            for (int i = 0; i < this.list.Count; ++i) {
+
+                var item = this.list.arr[i];
+                if (item != null) item.Merge();
+
+            }
+                
         }
 
         public BufferArray<StructRegistryBase> GetAllRegistries() {
@@ -1249,7 +1270,7 @@ namespace ME.ECS {
 
             if (WorldUtilities.IsComponentAsTag<TComponent>() == true) return ref reg.emptyComponent;
             if (incrementVersion == true) this.currentState.storage.versions.Increment(in entity);
-            return ref reg.components.arr[entity.id];
+            return ref reg.components[entity.id];
             
         }
 
@@ -1325,7 +1346,7 @@ namespace ME.ECS {
             
             // Inline all manually
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) reg.components.arr[entity.id] = data;
+            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) reg.components[entity.id] = data;
             ref var state = ref reg.componentsStates.arr[entity.id];
             if (state == 0) {
 

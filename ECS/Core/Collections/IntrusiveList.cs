@@ -18,12 +18,12 @@ namespace ME.ECS.Collections {
         void Add(in Entity entityData);
         void AddFirst(in Entity entityData);
         bool Remove(in Entity entityData);
-        bool RemoveAll(in Entity entityData);
+        int RemoveAll(in Entity entityData);
         bool Replace(in Entity entityData, int index);
         bool Insert(in Entity entityData, int onIndex);
         void Clear(bool destroyData = false);
         bool RemoveAt(int index, bool destroyData = false);
-        bool RemoveRange(int from, int to, bool destroyData = false);
+        int RemoveRange(int from, int to, bool destroyData = false);
         Entity GetValue(int index);
         bool Contains(in Entity entityData);
 
@@ -63,12 +63,11 @@ namespace ME.ECS.Collections {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public bool MoveNext() {
 
-                if (this.head == Entity.Empty) return false;
+                if (this.head.IsAlive() == false) return false;
 
                 this.Current = this.head.GetData<IntrusiveListNode>().data;
                 
                 this.head = this.head.GetData<IntrusiveListNode>().next;
-                if (this.head.IsAlive() == false) return false;
                 return true;
 
             }
@@ -133,6 +132,8 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool Contains(in Entity entityData) {
             
+            if (this.count == 0) return false;
+
             var node = this.FindNode(in entityData);
             if (node.IsAlive() == true) {
 
@@ -199,6 +200,8 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool RemoveAt(int index, bool destroyData = false) {
 
+            if (this.count == 0) return false;
+
             var node = this.FindNode(index);
             if (node.IsAlive() == true) {
 
@@ -217,11 +220,13 @@ namespace ME.ECS.Collections {
         /// <param name="from">Must be exists in list, could not be out of list range</param>
         /// <param name="to">May be out of list range, but greater than from</param>
         /// <param name="destroyData">Destroy also entity data</param>
-        /// <returns>Returns TRUE if any node was removed</returns>
+        /// <returns>Returns count of removed elements</returns>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public bool RemoveRange(int from, int to, bool destroyData = false) {
+        public int RemoveRange(int from, int to, bool destroyData = false) {
 
-            var hasAny = false;
+            if (this.count == 0) return 0;
+
+            var count = 0;
             var node = this.FindNode(from);
             if (node.IsAlive() == true) {
 
@@ -232,7 +237,7 @@ namespace ME.ECS.Collections {
                         var next = node.GetData<IntrusiveListNode>().next;
                         this.RemoveNode(in node, destroyData);
                         node = next;
-                        hasAny = true;
+                        ++count;
                         ++from;
                         
                     } else {
@@ -245,7 +250,7 @@ namespace ME.ECS.Collections {
 
             }
             
-            return hasAny;
+            return count;
 
         }
 
@@ -257,6 +262,8 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public Entity GetValue(int index) {
             
+            if (this.count == 0) return Entity.Empty;
+
             var node = this.FindNode(index);
             if (node.IsAlive() == true) {
                 
@@ -333,6 +340,8 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool Replace(in Entity entityData, int index) {
 
+            if (this.count == 0) return false;
+
             var node = this.FindNode(index);
             if (node.IsAlive() == true) {
 
@@ -354,6 +363,8 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool Remove(in Entity entityData) {
 
+            if (this.count == 0) return false;
+
             var node = this.FindNode(in entityData);
             if (node.IsAlive() == true) {
 
@@ -370,27 +381,29 @@ namespace ME.ECS.Collections {
         /// Remove all nodes data from list.
         /// </summary>
         /// <param name="entityData"></param>
-        /// <returns>Returns TRUE if data was found</returns>
+        /// <returns>Returns count of removed elements</returns>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public bool RemoveAll(in Entity entityData) {
+        public int RemoveAll(in Entity entityData) {
 
-            ref var root = ref this.root;
-            var nextLink = root.GetData<IntrusiveListNode>();
-            var hasAny = false;
+            if (this.count == 0) return 0;
+
+            var root = this.root;
+            var count = 0;
             do {
-            
-                var result = nextLink.data;
-                nextLink = nextLink.next.GetData<IntrusiveListNode>();
-                if (result == entityData) {
-                    
-                    this.RemoveNode(nextLink.prev, destroyData: false);
-                    hasAny = true;
+
+                var nextLink = root.GetData<IntrusiveListNode>();
+                if (nextLink.data == entityData) {
+
+                    this.RemoveNode(root, destroyData: false);
+                    ++count;
 
                 }
 
-            } while (nextLink.next.IsAlive() == true);
+                root = nextLink.next;
+
+            } while (root.IsAlive() == true);
             
-            return hasAny;
+            return count;
             
         }
 

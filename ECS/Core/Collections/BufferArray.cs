@@ -195,7 +195,7 @@ namespace ME.ECS.Collections {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        internal BufferArray(T[] arr, int length) {
+        internal BufferArray(T[] arr, int length, int realLength = -1) {
             
             this.Length = length;
             this.isCreated = (length > 0 && arr != null);
@@ -203,7 +203,7 @@ namespace ME.ECS.Collections {
             #if UNITY_EDITOR && EDITOR_ARRAY
             this.arr.data = arr;
             this.arr.Length = (arr != null ? arr.Length : 0);
-            this.arr.usedLength = length;
+            this.arr.usedLength = (realLength >= 0 ? realLength : length);
             this.arr.isCreated = this.isCreated;
             #else
             this.arr = arr;

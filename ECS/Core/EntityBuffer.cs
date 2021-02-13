@@ -30,7 +30,7 @@ namespace ME.ECS {
             if (this.minIdx < 0) this.minIdx = 0;
             if (maxIdx >= reg.components.Length) maxIdx = reg.components.Length - 1;
             this.Length = maxIdx - this.minIdx;
-            this.arr = new Unity.Collections.NativeArray<T>(reg.components.arr, Unity.Collections.Allocator.Persistent);
+            this.arr = new Unity.Collections.NativeArray<T>(reg.components.data.arr, Unity.Collections.Allocator.Persistent);
             this.data = new Unity.Collections.NativeSlice<T>(this.arr, this.minIdx, maxIdx);
             
         }
@@ -41,7 +41,7 @@ namespace ME.ECS {
             for (int i = 0; i < arr.Length; ++i) {
 
                 var entity = arr.arr[i];
-                reg.components.arr[entity.id] = this.Get(entity.id);
+                reg.components[entity.id] = this.Get(entity.id);
                 reg.componentsStates.arr[entity.id] = 1;
 
             }

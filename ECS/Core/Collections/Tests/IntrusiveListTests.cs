@@ -1,58 +1,14 @@
 ﻿
-namespace ME.ECS.Tests {
+namespace ME.ECS.Collections.Tests {
 
     using System.Linq;
 
     public class IntrusiveListTests {
 
-        public class TestState : State {
-
-            
-
-        }
-
-        private World PrepareWorld() {
-            
-            World world = null;
-            WorldUtilities.CreateWorld<TestState>(ref world, 0.033f);
-            {
-                world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
-                {
-                    WorldUtilities.InitComponentTypeId<ME.ECS.Views.ViewComponent>(false);
-                    WorldUtilities.InitComponentTypeId<ME.ECS.Name.Name>(false);
-                    WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveListNode>(false);
-                    world.GetStructComponents().Validate<ME.ECS.Views.ViewComponent>();
-                    world.GetStructComponents().Validate<ME.ECS.Name.Name>();
-                    world.GetStructComponents().Validate<ME.ECS.Collections.IntrusiveListNode>();
-                    ComponentsInitializerWorld.Setup((e) => {
-                
-                        e.ValidateData<ME.ECS.Views.ViewComponent>();
-                        e.ValidateData<ME.ECS.Name.Name>();
-                        e.ValidateData<ME.ECS.Collections.IntrusiveListNode>();
-                
-                    });
-                }
-            }
-            
-            WorldUtilities.SetWorld(world);
-
-            return world;
-
-        }
-
-        private void CompleteWorld(World world) {
-            
-            world.SaveResetState<TestState>();
-            
-            world.SetFromToTicks(0, 1);
-            world.Update(1f);
-
-        }
-
         [NUnit.Framework.TestAttribute]
         public void Add() {
 
-            var world = this.PrepareWorld();
+            var world = Helpers.PrepareWorld();
             
             var list = new ME.ECS.Collections.IntrusiveList();
             list.Add(new Entity("data1"));
@@ -63,14 +19,14 @@ namespace ME.ECS.Tests {
             
             UnityEngine.Debug.Assert(list.Count == 5);
 
-            this.CompleteWorld(world);
+            Helpers.CompleteWorld(world);
 
         }
 
         [NUnit.Framework.TestAttribute]
         public void Remove() {
 
-            var world = this.PrepareWorld();
+            var world = Helpers.PrepareWorld();
 
             var first = new Entity("data1");
             var e = new Entity("data3");
@@ -92,14 +48,14 @@ namespace ME.ECS.Tests {
             list.Remove(last);
             UnityEngine.Debug.Assert(list.Count == 2);
 
-            this.CompleteWorld(world);
+            Helpers.CompleteWorld(world);
 
         }
 
         [NUnit.Framework.TestAttribute]
         public void Insert() {
 
-            var world = this.PrepareWorld();
+            var world = Helpers.PrepareWorld();
 
             var first = new Entity("data1");
             var e = new Entity("data3");
@@ -125,14 +81,14 @@ namespace ME.ECS.Tests {
             UnityEngine.Debug.Assert(list.Insert(insert, 10) == false);
             UnityEngine.Debug.Assert(list.Count == 8);
 
-            this.CompleteWorld(world);
+            Helpers.CompleteWorld(world);
 
         }
 
         [NUnit.Framework.TestAttribute]
         public void Clear() {
 
-            var world = this.PrepareWorld();
+            var world = Helpers.PrepareWorld();
 
             var first = new Entity("data1");
             var e = new Entity("data3");
@@ -148,14 +104,14 @@ namespace ME.ECS.Tests {
             list.Clear();
             UnityEngine.Debug.Assert(list.Count == 0);
 
-            this.CompleteWorld(world);
+            Helpers.CompleteWorld(world);
 
         }
 
         [NUnit.Framework.TestAttribute]
         public void Contains() {
 
-            var world = this.PrepareWorld();
+            var world = Helpers.PrepareWorld();
 
             var first = new Entity("data1");
             var e = new Entity("data3");
@@ -172,14 +128,14 @@ namespace ME.ECS.Tests {
             UnityEngine.Debug.Assert(list.Contains(e) == true);
             UnityEngine.Debug.Assert(list.Contains(notE) == false);
 
-            this.CompleteWorld(world);
+            Helpers.CompleteWorld(world);
 
         }
 
         [NUnit.Framework.TestAttribute]
         public void RemoveAll() {
 
-            var world = this.PrepareWorld();
+            var world = Helpers.PrepareWorld();
 
             var first = new Entity("data1");
             var e = new Entity("data3");
@@ -195,20 +151,20 @@ namespace ME.ECS.Tests {
             list.Add(e);
             list.Add(last);
 
-            UnityEngine.Debug.Assert(list.RemoveAll(notE) == false);
+            UnityEngine.Debug.Assert(list.RemoveAll(notE) == 0);
             UnityEngine.Debug.Assert(list.Count == 7);
 
-            UnityEngine.Debug.Assert(list.RemoveAll(e) == true);
+            UnityEngine.Debug.Assert(list.RemoveAll(e) == 3);
             UnityEngine.Debug.Assert(list.Count == 4);
 
-            this.CompleteWorld(world);
+            Helpers.CompleteWorld(world);
 
         }
 
         [NUnit.Framework.TestAttribute]
         public void RemoveAt() {
 
-            var world = this.PrepareWorld();
+            var world = Helpers.PrepareWorld();
 
             var first = new Entity("data1");
             var e = new Entity("data3");
@@ -232,14 +188,14 @@ namespace ME.ECS.Tests {
             UnityEngine.Debug.Assert(list.RemoveAt(0) == true);
             UnityEngine.Debug.Assert(list.Count == 5);
 
-            this.CompleteWorld(world);
+            Helpers.CompleteWorld(world);
 
         }
 
         [NUnit.Framework.TestAttribute]
         public void RemoveRange() {
 
-            var world = this.PrepareWorld();
+            var world = Helpers.PrepareWorld();
 
             var first = new Entity("data1");
             var e = new Entity("data3");
@@ -254,19 +210,57 @@ namespace ME.ECS.Tests {
             list.Add(e);
             list.Add(last);
 
-            UnityEngine.Debug.Assert(list.RemoveRange(0, 2) == true);
+            UnityEngine.Debug.Assert(list.RemoveRange(0, 2) == 2);
             UnityEngine.Debug.Assert(list.Count == 5);
 
-            UnityEngine.Debug.Assert(list.RemoveRange(-2, 2) == false);
+            UnityEngine.Debug.Assert(list.RemoveRange(-2, 2) == 0);
             UnityEngine.Debug.Assert(list.Count == 5);
 
-            UnityEngine.Debug.Assert(list.RemoveRange(-2, -1) == false);
+            UnityEngine.Debug.Assert(list.RemoveRange(-2, -1) == 0);
             UnityEngine.Debug.Assert(list.Count == 5);
 
-            UnityEngine.Debug.Assert(list.RemoveRange(3, 10) == true);
+            UnityEngine.Debug.Assert(list.RemoveRange(3, 10) == 2);
             UnityEngine.Debug.Assert(list.Count == 3);
 
-            this.CompleteWorld(world);
+            Helpers.CompleteWorld(world);
+
+        }
+
+        [NUnit.Framework.TestAttribute]
+        public void ForEach() {
+
+            var world = Helpers.PrepareWorld();
+
+            var e1 = new Entity("data1");
+            var e2 = new Entity("data2");
+            var e3 = new Entity("data3");
+            var e4 = new Entity("data4");
+            var e5 = new Entity("data5");
+            
+            var list = new ME.ECS.Collections.IntrusiveList();
+            list.Add(e1);
+            list.Add(e2);
+            list.Add(e3);
+            list.Add(e4);
+            list.Add(e5);
+            
+            UnityEngine.Debug.Assert(list.Count == 5);
+
+            var listArr = new Entity[5];
+            var i = 0;
+            foreach (var item in list) {
+
+                listArr[i++] = item;
+
+            }
+
+            UnityEngine.Debug.Assert(listArr[0] == e1);
+            UnityEngine.Debug.Assert(listArr[1] == e2);
+            UnityEngine.Debug.Assert(listArr[2] == e3);
+            UnityEngine.Debug.Assert(listArr[3] == e4);
+            UnityEngine.Debug.Assert(listArr[4] == e5);
+
+            Helpers.CompleteWorld(world);
 
         }
 

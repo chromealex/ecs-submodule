@@ -1062,6 +1062,8 @@ namespace ME.ECS {
             this.resetState = WorldUtilities.CreateState<TState>();
             this.resetState.Initialize(this, freeze: true, restore: false);
             this.resetState.CopyFrom(this.GetState());
+            
+            this.currentState.structComponents.Merge();
 
         }
 
@@ -1957,6 +1959,7 @@ namespace ME.ECS {
         private void PostAdvanceTickForSystem() {
             
             this.currentState.storage.ApplyDead();
+            this.currentState.structComponents.Merge();
 
             this.currentSystemContext = null;
             this.currentSystemContextFilter = null;

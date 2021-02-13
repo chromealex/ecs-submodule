@@ -307,13 +307,12 @@
 		}
 		
 		[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static BufferArray<T> Spawn(int length) {
+        public static BufferArray<T> Spawn(int length, bool realSize = false) {
 
-	        //return new BufferArray<T>(new T[length], length);
-	        
-	        //UnityEngine.Debug.Log("Spawn request: " + length);
-	        var buffer = new BufferArray<T>(PoolArray<T>.Claim(length), length);
-            System.Array.Clear(buffer.arr, 0, length);
+	        var arr = PoolArray<T>.Claim(length);
+	        var size = (realSize == true ? arr.Length : length);
+	        var buffer = new BufferArray<T>(arr, length, realSize == true ? arr.Length : -1);
+            System.Array.Clear(buffer.arr, 0, size);
 
             return buffer;
             
@@ -322,9 +321,6 @@
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void Recycle(ref BufferArray<T> buffer) {
 
-	        //buffer = new BufferArray<T>(null, 0);
-	        //return;
-	        
 	        T[] arr = buffer.arr;
 	        if (arr != null) System.Array.Clear(arr, 0, arr.Length);
 	        PoolArray<T>.Release(ref arr);
