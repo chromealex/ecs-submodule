@@ -26,6 +26,9 @@ namespace ME.ECS.Collections {
         int RemoveRange(int from, int to);
         T GetValue(int index);
         bool Contains(in T entityData);
+        T GetFirst();
+        T GetLast();
+        bool RemoveLast();
 
         IEnumerator<T> GetRange(int from, int to);
         BufferArray<T> ToArray();
@@ -464,6 +467,43 @@ namespace ME.ECS.Collections {
         public void AddFirst(in T entityData) {
 
             this.Insert(in entityData, 0);
+
+        }
+
+        /// <summary>
+        /// Returns first element.
+        /// </summary>
+        /// <returns>Returns instance, default if not found</returns>
+        public T GetFirst() {
+
+            if (this.root.IsAlive() == false) return default;
+            
+            return this.root.GetData<IntrusiveListGenericNode<T>>().data;
+
+        }
+
+        /// <summary>
+        /// Returns last element.
+        /// </summary>
+        /// <returns>Returns instance, default if not found</returns>
+        public T GetLast() {
+
+            if (this.head.IsAlive() == false) return default;
+            
+            return this.head.GetData<IntrusiveListGenericNode<T>>().data;
+
+        }
+
+        /// <summary>
+        /// Returns last element.
+        /// </summary>
+        /// <returns>Returns TRUE on success</returns>
+        public bool RemoveLast() {
+
+            if (this.head.IsAlive() == false) return false;
+            
+            this.RemoveNode(this.head);
+            return true;
 
         }
 
