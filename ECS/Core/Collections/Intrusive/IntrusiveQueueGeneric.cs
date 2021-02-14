@@ -129,7 +129,7 @@ namespace ME.ECS.Collections {
             if (this.list.Count == 0) return default;
 
             var first = this.list.GetFirst();
-            this.list.RemoveAt(0);
+            this.list.RemoveFirst();
             return first;
 
         }

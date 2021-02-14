@@ -6,7 +6,7 @@ namespace ME.ECS.Collections {
     public struct IntrusiveListNode : IStructComponent {
 
         public Entity next;
-        public Entity prev; // We do not really use this pointer, but it is stay here because of future versions of api
+        public Entity prev;
         public Entity data;
 
     }

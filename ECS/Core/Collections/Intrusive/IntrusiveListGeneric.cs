@@ -29,6 +29,7 @@ namespace ME.ECS.Collections {
         T GetFirst();
         T GetLast();
         bool RemoveLast();
+        bool RemoveFirst();
 
         IEnumerator<T> GetRange(int from, int to);
         BufferArray<T> ToArray();
@@ -503,6 +504,19 @@ namespace ME.ECS.Collections {
             if (this.head.IsAlive() == false) return false;
             
             this.RemoveNode(this.head);
+            return true;
+
+        }
+
+        /// <summary>
+        /// Returns last element.
+        /// </summary>
+        /// <returns>Returns TRUE on success</returns>
+        public bool RemoveFirst() {
+
+            if (this.head.IsAlive() == false) return false;
+            
+            this.RemoveNode(this.root);
             return true;
 
         }
