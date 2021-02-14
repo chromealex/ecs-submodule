@@ -12,7 +12,7 @@ namespace ME.ECS.Collections.Tests {
             }
 
             public override bool Equals(object obj) {
-                return obj is Data other && Equals(other);
+                return obj is Data other && this.Equals(other);
             }
 
             public override int GetHashCode() {
