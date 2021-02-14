@@ -26,6 +26,10 @@ namespace ME.ECS.Collections {
         int RemoveRange(int from, int to, bool destroyData = false);
         Entity GetValue(int index);
         bool Contains(in Entity entityData);
+        Entity GetFirst();
+        Entity GetLast();
+        bool RemoveLast(bool destroyData = false);
+        bool RemoveFirst(bool destroyData = false);
 
         IEnumerator<Entity> GetRange(int from, int to);
         BufferArray<Entity> ToArray();
@@ -463,6 +467,56 @@ namespace ME.ECS.Collections {
         public void AddFirst(in Entity entityData) {
 
             this.Insert(in entityData, 0);
+
+        }
+
+        /// <summary>
+        /// Returns first element.
+        /// </summary>
+        /// <returns>Returns instance, default if not found</returns>
+        public Entity GetFirst() {
+
+            if (this.root.IsAlive() == false) return Entity.Empty;
+            
+            return this.root.GetData<IntrusiveListNode>().data;
+
+        }
+
+        /// <summary>
+        /// Returns last element.
+        /// </summary>
+        /// <returns>Returns instance, default if not found</returns>
+        public Entity GetLast() {
+
+            if (this.head.IsAlive() == false) return Entity.Empty;
+            
+            return this.head.GetData<IntrusiveListNode>().data;
+
+        }
+
+        /// <summary>
+        /// Returns last element.
+        /// </summary>
+        /// <returns>Returns TRUE on success</returns>
+        public bool RemoveLast(bool destroyData = false) {
+
+            if (this.head.IsAlive() == false) return false;
+            
+            this.RemoveNode(in this.head, destroyData);
+            return true;
+
+        }
+
+        /// <summary>
+        /// Returns last element.
+        /// </summary>
+        /// <returns>Returns TRUE on success</returns>
+        public bool RemoveFirst(bool destroyData = false) {
+
+            if (this.head.IsAlive() == false) return false;
+            
+            this.RemoveNode(in this.root, destroyData);
+            return true;
 
         }
 

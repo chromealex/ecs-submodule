@@ -503,7 +503,7 @@ namespace ME.ECS.Collections {
 
             if (this.head.IsAlive() == false) return false;
             
-            this.RemoveNode(this.head);
+            this.RemoveNode(in this.head);
             return true;
 
         }
@@ -516,7 +516,7 @@ namespace ME.ECS.Collections {
 
             if (this.head.IsAlive() == false) return false;
             
-            this.RemoveNode(this.root);
+            this.RemoveNode(in this.root);
             return true;
 
         }
