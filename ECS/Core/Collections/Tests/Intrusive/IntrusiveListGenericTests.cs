@@ -1,8 +1,6 @@
 ﻿
 namespace ME.ECS.Collections.Tests {
 
-    using System.Linq;
-
     public class IntrusiveListGenericTests {
 
         public struct Data : System.IEquatable<Data> {

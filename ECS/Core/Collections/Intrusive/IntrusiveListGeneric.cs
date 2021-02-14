@@ -325,10 +325,11 @@ namespace ME.ECS.Collections {
                 var newNode = IntrusiveListGeneric<T>.CreateNode(in entityData);
                 ref var newNodeLink = ref newNode.GetData<IntrusiveListGenericNode<T>>();
                 
-                var link = node.GetData<IntrusiveListGenericNode<T>>();
+                ref var link = ref node.GetData<IntrusiveListGenericNode<T>>();
                 if (link.prev.IsAlive() == true) {
 
-                    link.prev.GetData<IntrusiveListGenericNode<T>>().next = newNode;
+                    ref var prevLink = ref link.prev.GetData<IntrusiveListGenericNode<T>>();
+                    prevLink.next = newNode;
                     newNodeLink.prev = link.prev;
 
                 } else {
@@ -502,7 +503,7 @@ namespace ME.ECS.Collections {
         public bool RemoveLast() {
 
             if (this.head.IsAlive() == false) return false;
-            
+
             this.RemoveNode(in this.head);
             return true;
 
@@ -573,7 +574,8 @@ namespace ME.ECS.Collections {
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private void RemoveNode(in Entity node) {
-            
+
+            var nodeToDestroy = node;
             var link = node.GetData<IntrusiveListGenericNode<T>>();
             if (link.prev.IsAlive() == true) {
                 ref var prev = ref link.prev.GetData<IntrusiveListGenericNode<T>>();
@@ -585,9 +587,9 @@ namespace ME.ECS.Collections {
                 next.prev = link.prev;
             }
 
-            if (node == this.root) this.root = link.next;
-            if (node == this.head) this.head = link.prev;
-            if (this.head == this.root && this.root == node) {
+            if (nodeToDestroy == this.root) this.root = link.next;
+            if (nodeToDestroy == this.head) this.head = link.prev;
+            if (this.head == this.root && this.root == nodeToDestroy) {
                     
                 this.root = Entity.Empty;
                 this.head = Entity.Empty;
@@ -595,7 +597,8 @@ namespace ME.ECS.Collections {
             }
 
             --this.count;
-            node.Destroy();
+            
+            nodeToDestroy.Destroy();
             
         }
 
@@ -605,7 +608,7 @@ namespace ME.ECS.Collections {
             var node = new Entity("IntrusiveListGenericNode<T>");
             ref var nodeLink = ref node.GetData<IntrusiveListGenericNode<T>>();
             nodeLink.data = data;
-
+            
             return node;
 
         }
