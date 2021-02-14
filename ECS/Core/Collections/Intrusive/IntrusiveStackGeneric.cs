@@ -5,8 +5,10 @@ namespace ME.ECS.Collections {
 
         int Count { get; }
         
-        void Enqueue(in T entityData);
-        T Dequeue();
+        void Push(in T entityData);
+        void PushBack(in T entityData);
+        T Pop();
+        bool TryPop(out T value);
         T Peek();
         void Clear();
         bool Contains(in T entityData);
@@ -119,11 +121,11 @@ namespace ME.ECS.Collections {
         }
 
         /// <summary>
-        /// Remove first data from list and remote it.
+        /// Remove last data from list and remote it.
         /// </summary>
         /// <returns>Returns next data, default if not found</returns>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public T Dequeue() {
+        public T Pop() {
 
             if (this.list.Count == 0) return default;
 
@@ -134,13 +136,43 @@ namespace ME.ECS.Collections {
         }
 
         /// <summary>
-        /// Add new data to the list.
+        /// Remove last data from list and remote it.
+        /// </summary>
+        /// <returns>Returns TRUE if count > 0 and outs the value</returns>
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public bool TryPop(out T value) {
+
+            if (this.list.Count == 0) {
+
+                value = default;
+                return false;
+                
+            }
+
+            value = this.Pop();
+            return true;
+
+        }
+
+        /// <summary>
+        /// Add new data to the list at the end.
         /// </summary>
         /// <param name="entityData"></param>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void Enqueue(in T entityData) {
+        public void Push(in T entityData) {
 
             this.list.Add(in entityData);
+            
+        }
+
+        /// <summary>
+        /// Add new data to the list at the beginning.
+        /// </summary>
+        /// <param name="entityData"></param>
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void PushBack(in T entityData) {
+
+            this.list.AddFirst(in entityData);
             
         }
 

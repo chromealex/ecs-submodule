@@ -7,6 +7,7 @@ namespace ME.ECS.Collections {
         
         void Enqueue(in T entityData);
         T Dequeue();
+        bool TryDequeue(out T value);
         T Peek();
         void Clear();
         bool Contains(in T entityData);
@@ -124,12 +125,31 @@ namespace ME.ECS.Collections {
         /// <returns>Returns next data, default if not found</returns>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public T Dequeue() {
-
+            
             if (this.list.Count == 0) return default;
 
             var first = this.list.GetFirst();
             this.list.RemoveAt(0);
             return first;
+
+        }
+
+        /// <summary>
+        /// Remove first data from list and remote it.
+        /// </summary>
+        /// <returns>Returns next data, default if not found</returns>
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public bool TryDequeue(out T value) {
+
+            if (this.list.Count == 0) {
+
+                value = default;
+                return false;
+                
+            }
+
+            value = this.Dequeue();
+            return true;
 
         }
 

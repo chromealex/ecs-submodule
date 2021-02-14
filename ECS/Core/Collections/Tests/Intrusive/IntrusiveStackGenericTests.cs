@@ -30,16 +30,16 @@ namespace ME.ECS.Collections.Tests {
         }
         
         [NUnit.Framework.TestAttribute]
-        public void Enqueue() {
+        public void Push() {
 
             var world = Helpers.PrepareWorld();
             
             var list = new ME.ECS.Collections.IntrusiveStackGeneric<Data>();
-            list.Enqueue(new Data("data1"));
-            list.Enqueue(new Data("data2"));
-            list.Enqueue(new Data("data3"));
-            list.Enqueue(new Data("data4"));
-            list.Enqueue(new Data("data5"));
+            list.Push(new Data("data1"));
+            list.Push(new Data("data2"));
+            list.Push(new Data("data3"));
+            list.Push(new Data("data4"));
+            list.Push(new Data("data5"));
             
             UnityEngine.Debug.Assert(list.Count == 5);
 
@@ -48,7 +48,28 @@ namespace ME.ECS.Collections.Tests {
         }
 
         [NUnit.Framework.TestAttribute]
-        public void Dequeue() {
+        public void PushBack() {
+
+            var world = Helpers.PrepareWorld();
+            var data = new Data("data6");
+            
+            var list = new ME.ECS.Collections.IntrusiveStackGeneric<Data>();
+            list.Push(new Data("data1"));
+            list.Push(new Data("data2"));
+            list.Push(new Data("data3"));
+            list.Push(new Data("data4"));
+            list.Push(data);
+            list.PushBack(new Data("data5"));
+
+            UnityEngine.Debug.Assert(list.Count == 6);
+            UnityEngine.Debug.Assert(list.Peek().a == data.a);
+
+            Helpers.CompleteWorld(world);
+
+        }
+
+        [NUnit.Framework.TestAttribute]
+        public void Pop() {
 
             var world = Helpers.PrepareWorld();
 
@@ -57,13 +78,13 @@ namespace ME.ECS.Collections.Tests {
             var last = new Data("data5");
             
             var list = new ME.ECS.Collections.IntrusiveStackGeneric<Data>();
-            list.Enqueue(first);
-            list.Enqueue(new Data("data2"));
-            list.Enqueue(e);
-            list.Enqueue(new Data("data4"));
-            list.Enqueue(last);
+            list.Push(first);
+            list.Push(new Data("data2"));
+            list.Push(e);
+            list.Push(new Data("data4"));
+            list.Push(last);
 
-            var element = list.Dequeue();
+            var element = list.Pop();
             UnityEngine.Debug.Assert(list.Count == 4);
             UnityEngine.Debug.Assert(element.a == last.a);
 
@@ -81,11 +102,11 @@ namespace ME.ECS.Collections.Tests {
             var last = new Data("data5");
             
             var list = new ME.ECS.Collections.IntrusiveStackGeneric<Data>();
-            list.Enqueue(first);
-            list.Enqueue(new Data("data2"));
-            list.Enqueue(e);
-            list.Enqueue(new Data("data4"));
-            list.Enqueue(last);
+            list.Push(first);
+            list.Push(new Data("data2"));
+            list.Push(e);
+            list.Push(new Data("data4"));
+            list.Push(last);
 
             list.Clear();
             UnityEngine.Debug.Assert(list.Count == 0);
@@ -105,11 +126,11 @@ namespace ME.ECS.Collections.Tests {
             var last = new Data("data5");
             
             var list = new ME.ECS.Collections.IntrusiveStackGeneric<Data>();
-            list.Enqueue(first);
-            list.Enqueue(new Data("data2"));
-            list.Enqueue(e);
-            list.Enqueue(new Data("data4"));
-            list.Enqueue(last);
+            list.Push(first);
+            list.Push(new Data("data2"));
+            list.Push(e);
+            list.Push(new Data("data4"));
+            list.Push(last);
 
             UnityEngine.Debug.Assert(list.Contains(e) == true);
             UnityEngine.Debug.Assert(list.Contains(notE) == false);
@@ -128,11 +149,11 @@ namespace ME.ECS.Collections.Tests {
             var last = new Data("data5");
             
             var list = new ME.ECS.Collections.IntrusiveStackGeneric<Data>();
-            list.Enqueue(first);
-            list.Enqueue(new Data("data2"));
-            list.Enqueue(e);
-            list.Enqueue(new Data("data4"));
-            list.Enqueue(last);
+            list.Push(first);
+            list.Push(new Data("data2"));
+            list.Push(e);
+            list.Push(new Data("data4"));
+            list.Push(last);
 
             UnityEngine.Debug.Assert(list.Peek().a == last.a);
 
@@ -152,11 +173,11 @@ namespace ME.ECS.Collections.Tests {
             var e5 = new Data("data5");
             
             var list = new ME.ECS.Collections.IntrusiveStackGeneric<Data>();
-            list.Enqueue(e1);
-            list.Enqueue(e2);
-            list.Enqueue(e3);
-            list.Enqueue(e4);
-            list.Enqueue(e5);
+            list.Push(e1);
+            list.Push(e2);
+            list.Push(e3);
+            list.Push(e4);
+            list.Push(e5);
             
             UnityEngine.Debug.Assert(list.Count == 5);
 
