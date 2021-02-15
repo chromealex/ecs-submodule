@@ -1258,7 +1258,7 @@ namespace ME.ECSEditor {
                                     var col2 = 50f;
                                     var col3 = 50f;
                                     var tableStyle = (GUIStyle)"Box";
-                                    var dataStyle = new GUIStyle(EditorStyles.label);
+                                    //var dataStyle = new GUIStyle(EditorStyles.label);
                                     GUILayoutExt.Padding(4f, () => {
 
                                         GUILayout.BeginHorizontal();
@@ -1278,6 +1278,7 @@ namespace ME.ECSEditor {
                                         for (int i = 0; i < systems.Length; ++i) {
 
                                             var group = systems.arr[i];
+                                            if (group.runtimeSystem.allSystems == null) continue;
                                             var foldoutObj = group.runtimeSystem.allSystems;
                                             var groupState = worldEditor.IsFoldOutCustom(foldoutObj);
                                             GUILayoutExt.FoldOut(ref groupState, group.name + " (" + group.runtimeSystem.allSystems.Count.ToString() + ")", () => {
