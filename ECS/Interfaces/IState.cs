@@ -9,8 +9,6 @@ namespace ME.ECS {
     public abstract class State : IPoolableRecycle {
 
         [ME.ECS.Serializer.SerializeField]
-        public int entityId;
-        [ME.ECS.Serializer.SerializeField]
         public Tick tick;
         [ME.ECS.Serializer.SerializeField]
         public RandomState randomState;
@@ -28,7 +26,7 @@ namespace ME.ECS {
         /// <returns></returns>
         public virtual int GetHash() {
 
-            return this.entityId ^ this.tick ^ this.structComponents.count ^ this.randomState.GetHashCode() ^ this.storage.GetHashCode();//^ this.structComponents.GetCustomHash();
+            return this.tick ^ this.structComponents.count ^ this.randomState.GetHashCode() ^ this.storage.GetHashCode();//^ this.structComponents.GetCustomHash();
 
         }
 
@@ -42,7 +40,6 @@ namespace ME.ECS {
 
         public virtual void CopyFrom(State other) {
             
-            this.entityId = other.entityId;
             this.tick = other.tick;
             this.randomState = other.randomState;
 

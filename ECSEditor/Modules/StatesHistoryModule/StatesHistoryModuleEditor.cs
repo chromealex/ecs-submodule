@@ -32,6 +32,20 @@ namespace ME.ECSEditor {
             UnityEngine.GUILayout.Label("<b>Events Added:</b> " + this.target.GetEventsAddedCount().ToString(), style);
             UnityEngine.GUILayout.Label("<b>Events Played:</b> " + this.target.GetEventsPlayedCount().ToString(), style);
 
+            if (UnityEngine.GUILayout.Button("Print Entities") == true) {
+
+                var str = string.Empty;
+                var world = Worlds.currentWorld;
+                for (int i = 0; i < world.currentState.storage.cache.Length; ++i) {
+
+                    var entity = world.currentState.storage.cache.arr[i];
+                    str += entity.ToString() + "\n";
+                    
+                }
+                UnityEngine.Debug.Log(str);
+
+            }
+
             if (UnityEngine.GUILayout.Button("Print Events") == true) {
 
                 foreach (System.Collections.DictionaryEntry ren in this.target.GetData()) {
@@ -59,7 +73,7 @@ namespace ME.ECSEditor {
 
                 var entry = entryData as ME.ECS.Network.IStatesHistoryEntry;
                 var state = entry.GetData() as State;
-                UnityEngine.GUILayout.Label("Tick: " + state.tick + ", State: " + state.entityId + ", Hash: " + state.GetHash());
+                UnityEngine.GUILayout.Label("Tick: " + state.tick + ", Hash: " + state.GetHash());
                 
             }
 

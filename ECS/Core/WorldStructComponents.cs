@@ -518,9 +518,9 @@ namespace ME.ECS {
         public override void CopyFrom(StructRegistryBase other) {
 
             var _other = (StructComponents<TComponent>)other;
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) ArrayUtils.CopyWithIndex(_other.components, ref this.components, new CopyItem() { states = _other.componentsStates });
             ArrayUtils.Copy(in _other.componentsStates, ref this.componentsStates);
             ArrayUtils.Copy(_other.lifetimeIndexes, ref this.lifetimeIndexes);
+            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) ArrayUtils.CopyWithIndex(_other.components, ref this.components, new CopyItem() { states = _other.componentsStates });
             
         }
 
@@ -1235,7 +1235,7 @@ namespace ME.ECS {
             // Inline all manually
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
             ref var state = ref reg.componentsStates.arr[entity.id];
-            var incrementVersion = createIfNotExists;
+            var incrementVersion = (this.HasStep(WorldStep.LogicTick) == true || this.HasResetState() == false);
             if (state == 0 && createIfNotExists == true) {
 
                 #if WORLD_EXCEPTIONS
