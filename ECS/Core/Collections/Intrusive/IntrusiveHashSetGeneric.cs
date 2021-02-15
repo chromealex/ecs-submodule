@@ -238,7 +238,12 @@ namespace ME.ECS.Collections {
 
             var bucket = (entityData.GetHashCode() & 0x7fffffff) % this.buckets.Length;
             var bucketEntity = this.buckets[bucket];
-            if (bucketEntity.IsAlive() == false) bucketEntity = this.buckets[bucket] = new Entity("IntrusiveHashSetBucketGeneric<T>");
+            if (bucketEntity.IsAlive() == false) {
+                
+                bucketEntity = this.buckets[bucket] = new Entity("IntrusiveHashSetBucketGeneric<T>");
+                bucketEntity.ValidateData<IntrusiveHashSetBucketGeneric<T>>();
+
+            }
             ref var bucketList = ref bucketEntity.GetData<IntrusiveHashSetBucketGeneric<T>>();
             bucketList.list.Add(entityData);
             ++this.count;

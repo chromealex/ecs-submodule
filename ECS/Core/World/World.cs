@@ -2042,7 +2042,7 @@ namespace ME.ECS {
                             if (module is IAdvanceTick moduleBase) {
 
                                 #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.BeginSample(moduleBase.ToString());
+                                UnityEngine.Profiling.Profiler.BeginSample(moduleBase.GetType().FullName);
                                 #endif
 
                                 moduleBase.AdvanceTick(in fixedDeltaTime);
@@ -2143,7 +2143,7 @@ namespace ME.ECS {
                             #endif
 
                             #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.BeginSample(system.ToString());
+                            UnityEngine.Profiling.Profiler.BeginSample(system.GetType().FullName);
                             #endif
 
                             system.AdvanceTickPre(fixedDeltaTime);
@@ -2204,7 +2204,7 @@ namespace ME.ECS {
                                 #endif
 
                                 #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.BeginSample(system.ToString());
+                                UnityEngine.Profiling.Profiler.BeginSample(system.GetType().FullName);
                                 #endif
 
                                 {
@@ -2383,7 +2383,7 @@ namespace ME.ECS {
                             #endif
 
                             #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.BeginSample(system.ToString());
+                            UnityEngine.Profiling.Profiler.BeginSample(system.GetType().FullName);
                             #endif
 
                             system.AdvanceTickPost(fixedDeltaTime);

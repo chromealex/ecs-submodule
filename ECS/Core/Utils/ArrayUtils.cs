@@ -428,6 +428,7 @@ namespace ME.ECS {
         public static void CopyWithIndex<T, TCopy>(BufferArraySliced<T> fromArr, ref BufferArraySliced<T> arr, TCopy copy)
             where TCopy : IArrayElementCopyWithIndex<T> {
             
+            arr = arr.Merge();
             arr = arr.CopyFrom(in fromArr, copy);
 
         }
@@ -435,6 +436,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void Copy<T>(in ME.ECS.Collections.BufferArraySliced<T> fromArr, ref ME.ECS.Collections.BufferArraySliced<T> arr) {
 
+            arr = arr.Merge();
             arr = arr.CopyFrom(in fromArr);
             
         }
@@ -605,8 +607,8 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool Resize<T>(int index, ref BufferArraySliced<T> arr, bool resizeWithOffset = false) {
 
-            arr = arr.Resize(index, resizeWithOffset);
-            return true;
+            arr = arr.Resize(index, resizeWithOffset, out var result);
+            return result;
 
         }
 

@@ -684,7 +684,7 @@ namespace ME.ECS.Network {
             if (sourceState == null) {
 
                 sourceState = this.world.GetResetState<TState>();
-                targetTick = tick;
+                if (targetTick < tick) targetTick = tick;
                 
             }
             //UnityEngine.Debug.Log("Rollback. Oldest: " + oldestEventTick + ", sourceTick: " + sourceTick + ", targetTick: " + targetTick);

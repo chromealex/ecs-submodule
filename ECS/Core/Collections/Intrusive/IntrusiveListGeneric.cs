@@ -606,6 +606,7 @@ namespace ME.ECS.Collections {
         private static Entity CreateNode(in T data) {
             
             var node = new Entity("IntrusiveListGenericNode<T>");
+            node.ValidateData<IntrusiveListGenericNode<T>>();
             ref var nodeLink = ref node.GetData<IntrusiveListGenericNode<T>>();
             nodeLink.data = data;
             

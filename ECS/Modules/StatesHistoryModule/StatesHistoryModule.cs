@@ -532,6 +532,7 @@ namespace ME.ECS.StatesHistory {
         public void HardResetTo(Tick tick) {
 
             this.oldestTick = tick;
+            if (this.oldestTick < Tick.Zero) this.oldestTick = Tick.Invalid;
 
         }
 

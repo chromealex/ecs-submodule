@@ -71,10 +71,10 @@ namespace ME.ECS {
         public abstract void CopyFrom(in Entity from, in Entity to);
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public abstract void Validate(int capacity);
+        public abstract bool Validate(int capacity);
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public abstract void Validate(in Entity entity);
+        public abstract bool Validate(in Entity entity);
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public abstract bool Has(in Entity entity);
@@ -222,24 +222,46 @@ namespace ME.ECS {
         }
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public override void Validate(int capacity) {
+        public override bool Validate(int capacity) {
 
+            var result = false;
+            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) {
+
+                if (ArrayUtils.Resize(capacity, ref this.components) == true) {
+                    
+                    // Add into dirty map
+                    result = true;
+
+                }
+                
+            }
             if (ArrayUtils.WillResize(capacity, ref this.componentsStates) == true) {
 
-                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) ArrayUtils.Resize(capacity, ref this.components);
                 ArrayUtils.Resize(capacity, ref this.componentsStates);
                 
             }
 
             this.world.currentState.storage.archetypes.Validate(capacity);
-            
+
+            return result;
+
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public override void Validate(in Entity entity) {
+        public override bool Validate(in Entity entity) {
 
+            var result = false;
             var index = entity.id;
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) ArrayUtils.Resize(index, ref this.components);
+            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) {
+
+                if (ArrayUtils.Resize(index, ref this.components) == true) {
+                    
+                    // Add into dirty map
+                    result = true;
+
+                }
+                
+            }
             if (ArrayUtils.WillResize(index, ref this.componentsStates) == true) {
 
                 ArrayUtils.Resize(index, ref this.componentsStates);
@@ -253,6 +275,8 @@ namespace ME.ECS {
                 this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
                 
             }
+
+            return result;
 
         }
 
@@ -615,6 +639,8 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         private bool isCreated;
 
+        private System.Collections.Generic.List<int> dirtyMap;
+
         public bool IsCreated() {
 
             return this.isCreated;
@@ -625,6 +651,7 @@ namespace ME.ECS {
             
             this.nextFrameTasks = PoolCCList<ITask>.Spawn();
             this.nextTickTasks = PoolCCList<ITask>.Spawn();
+            this.dirtyMap = PoolList<int>.Spawn(10);
             
             ArrayUtils.Resize(100, ref this.list);
             this.isCreated = true;
@@ -633,12 +660,14 @@ namespace ME.ECS {
 
         public void Merge() {
 
-            for (int i = 0; i < this.list.Count; ++i) {
+            for (int i = 0, count = this.dirtyMap.Count; i < count; ++i) {
 
-                var item = this.list.arr[i];
-                if (item != null) item.Merge();
+                var idx = this.dirtyMap[i];
+                this.list.arr[idx].Merge();
 
             }
+            
+            this.dirtyMap.Clear();
                 
         }
 
@@ -677,7 +706,15 @@ namespace ME.ECS {
             for (int i = 0, length = this.list.Length; i < length; ++i) {
 
                 var item = this.list.arr[i];
-                if (item != null) item.Validate(capacity);
+                if (item != null) {
+
+                    if (item.Validate(capacity) == true) {
+
+                        this.dirtyMap.Add(i);
+
+                    }
+                    
+                }
 
             }
 
@@ -694,7 +731,15 @@ namespace ME.ECS {
             for (int i = 0, length = this.list.Length; i < length; ++i) {
 
                 var item = this.list.arr[i];
-                if (item != null) item.Validate(in entity);
+                if (item != null) {
+
+                    if (item.Validate(in entity) == true) {
+                        
+                        this.dirtyMap.Add(i);
+                        
+                    }
+                    
+                }
 
             }
 
@@ -740,6 +785,7 @@ namespace ME.ECS {
                 var item = this.list.arr[i];
                 if (item != null) {
 
+                    item.Validate(in entity);
                     item.Remove(in entity, clearAll: true);
 
                 }
@@ -913,6 +959,8 @@ namespace ME.ECS {
             }
             
             PoolArray<StructRegistryBase>.Recycle(ref this.list);
+            
+            PoolList<int>.Recycle(ref this.dirtyMap);
             
             this.count = default;
             this.isCreated = default;
