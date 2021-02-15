@@ -46,7 +46,7 @@ namespace ME.ECS.Pathfinding {
 
         public LogLevel logLevel;
 
-        public bool clonePathfinding = true;
+        public bool clonePathfinding = false;
         
         private HashSet<GraphDynamicModifier> dynamicModifiersContains = new HashSet<GraphDynamicModifier>();
         private HashSet<GraphDynamicModifier> dynamicModifiersList = new HashSet<GraphDynamicModifier>();

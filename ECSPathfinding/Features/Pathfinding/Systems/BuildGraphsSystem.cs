@@ -12,9 +12,17 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
     #endif
     public sealed class BuildGraphsSystem : ISystemFilter {
 
+        private PathfindingFeature pathfindingFeature;
+        private bool isBuilt;
+
         public World world { get; set; }
 
-        void ISystemBase.OnConstruct() {}
+        void ISystemBase.OnConstruct() {
+
+            this.isBuilt = false;
+            this.pathfindingFeature = this.world.GetFeature<PathfindingFeature>();
+
+        }
         
         void ISystemBase.OnDeconstruct() {}
         
@@ -32,8 +40,15 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
         }
 
         void ISystemFilter.AdvanceTick(in Entity entity, in float deltaTime) {
-            
-            entity.GetData<PathfindingInstance>().pathfinding.BuildAll();
+
+            if (this.isBuilt == false) {
+
+                entity.GetData<PathfindingInstance>().pathfinding.BuildAll();
+                
+                var instance = this.pathfindingFeature.GetInstance();
+                this.isBuilt = (instance.clonePathfinding == false);
+
+            }
 
             UnityEngine.Debug.Log($"Graph built tick: {this.world.GetCurrentTick()}");
             entity.SetData(new IsAllGraphsBuilt(), ComponentLifetime.NotifyAllSystems);

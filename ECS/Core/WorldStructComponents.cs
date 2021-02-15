@@ -159,6 +159,7 @@ namespace ME.ECS {
         public override StructRegistryBase Clone() {
 
             var reg = this.SpawnInstance();
+            this.Merge();
             reg.CopyFrom(this);
             return reg;
 
@@ -479,9 +480,9 @@ namespace ME.ECS {
         public override void CopyFrom(StructRegistryBase other) {
 
             var _other = (StructComponents<TComponent>)other;
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) ArrayUtils.Copy(in _other.components, ref this.components);
             ArrayUtils.Copy(in _other.componentsStates, ref this.componentsStates);
             ArrayUtils.Copy(_other.lifetimeIndexes, ref this.lifetimeIndexes);
+            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) ArrayUtils.Copy(in _other.components, ref this.components);
             
         }
 
@@ -1026,6 +1027,7 @@ namespace ME.ECS {
                     
                 } else {
 
+                    from.Merge();
                     to.CopyFrom(from);
                     
                 }

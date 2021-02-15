@@ -902,13 +902,13 @@ namespace ME.ECS.StatesHistory {
 
         private void Prewarm() {
 
-            /*this.states.BeginSet();
-            for (uint i = 0; i < this.GetQueueCapacity(); ++i) {
+            //this.states.BeginSet();
+            /*for (uint i = 0; i < this.GetQueueCapacity(); ++i) {
                 
                 this.StoreState(i * this.GetTicksPerState(), isPrewarm: true);
                 
-            }
-            this.states.EndSet();*/
+            }*/
+            //this.states.EndSet();
 
         }
 
