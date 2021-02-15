@@ -786,8 +786,12 @@ namespace ME.ECS {
                 var item = this.list.arr[i];
                 if (item != null) {
 
+                    //var sw = new System.Diagnostics.Stopwatch();
+                    //sw.Start();
                     item.Validate(in entity);
                     item.Remove(in entity, clearAll: true);
+                    //sw.Stop();
+                    //if (sw.ElapsedMilliseconds > 10) UnityEngine.Debug.Log("REMOVE " + sw.ElapsedMilliseconds + " :: " + item.GetType());
 
                 }
 

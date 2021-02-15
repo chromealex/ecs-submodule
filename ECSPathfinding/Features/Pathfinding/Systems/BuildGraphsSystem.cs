@@ -41,9 +41,10 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
 
         void ISystemFilter.AdvanceTick(in Entity entity, in float deltaTime) {
 
+            var pathfinding = entity.GetData<PathfindingInstance>().pathfinding;
             if (this.isBuilt == false) {
 
-                entity.GetData<PathfindingInstance>().pathfinding.BuildAll();
+                pathfinding.BuildAll();
                 
                 var instance = this.pathfindingFeature.GetInstance();
                 this.isBuilt = (instance.clonePathfinding == false);
