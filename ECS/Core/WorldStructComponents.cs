@@ -661,6 +661,8 @@ namespace ME.ECS {
 
         public void Merge() {
 
+            if (this.dirtyMap == null) return;
+            
             for (int i = 0, count = this.dirtyMap.Count; i < count; ++i) {
 
                 var idx = this.dirtyMap[i];
@@ -965,7 +967,7 @@ namespace ME.ECS {
             
             PoolArray<StructRegistryBase>.Recycle(ref this.list);
             
-            PoolList<int>.Recycle(ref this.dirtyMap);
+            if (this.dirtyMap != null) PoolList<int>.Recycle(ref this.dirtyMap);
             
             this.count = default;
             this.isCreated = default;
@@ -1348,7 +1350,6 @@ namespace ME.ECS {
             if (state == 0) {
 
                 state = 1;
-                this.currentState.storage.versions.Increment(in entity);
                 if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
                     
                     this.currentState.storage.archetypes.Set<TComponent>(in entity);
@@ -1361,6 +1362,7 @@ namespace ME.ECS {
             #if ENTITY_ACTIONS
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
             #endif
+            this.currentState.storage.versions.Increment(in entity);
 
             return ref state;
 
@@ -1399,7 +1401,6 @@ namespace ME.ECS {
             if (state == 0) {
 
                 state = 1;
-                this.currentState.storage.versions.Increment(in entity);
                 if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
                     
                     this.currentState.storage.archetypes.Set<TComponent>(in entity);
@@ -1413,6 +1414,7 @@ namespace ME.ECS {
             #if ENTITY_ACTIONS
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
             #endif
+            this.currentState.storage.versions.Increment(in entity);
 
             return ref state;
 

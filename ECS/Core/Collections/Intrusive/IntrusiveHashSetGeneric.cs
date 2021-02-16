@@ -104,8 +104,6 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public Enumerator GetEnumerator() {
 
-            IntrusiveHashSetGeneric<T>.InitializeComponents();
-            IntrusiveHashSetGeneric<T>.Initialize(ref this);
             return new Enumerator(this);
 
         }
@@ -117,9 +115,6 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public BufferArray<T> ToArray() {
 
-            IntrusiveHashSetGeneric<T>.InitializeComponents();
-            IntrusiveHashSetGeneric<T>.Initialize(ref this);
-            
             var arr = PoolArray<T>.Spawn(this.count);
             var i = 0;
             foreach (var entity in this) {
@@ -140,9 +135,8 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool Contains(in T entityData) {
             
-            IntrusiveHashSetGeneric<T>.InitializeComponents();
             IntrusiveHashSetGeneric<T>.Initialize(ref this);
-            
+
             var bucket = (entityData.GetHashCode() & 0x7fffffff) % this.buckets.Length;
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == false) return false;
@@ -158,9 +152,6 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void Clear() {
 
-            IntrusiveHashSetGeneric<T>.InitializeComponents();
-            IntrusiveHashSetGeneric<T>.Initialize(ref this);
-            
             for (int i = 0; i < this.buckets.Length; ++i) {
 
                 var bucket = this.buckets[i];
@@ -185,9 +176,8 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool Remove(in T entityData) {
 
-            IntrusiveHashSetGeneric<T>.InitializeComponents();
             IntrusiveHashSetGeneric<T>.Initialize(ref this);
-            
+
             var bucket = (entityData.GetHashCode() & 0x7fffffff) % this.buckets.Length;
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == false) return false;
@@ -212,9 +202,8 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public int RemoveAll(in T entityData) {
             
-            IntrusiveHashSetGeneric<T>.InitializeComponents();
             IntrusiveHashSetGeneric<T>.Initialize(ref this);
-
+            
             var bucket = (entityData.GetHashCode() & 0x7fffffff) % this.buckets.Length;
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == false) return 0;
@@ -259,9 +248,8 @@ namespace ME.ECS.Collections {
         /// <returns></returns>
         public bool Get(int hashcode, T element, out T output) {
 
-            IntrusiveHashSetGeneric<T>.InitializeComponents();
             IntrusiveHashSetGeneric<T>.Initialize(ref this);
-
+            
             var bucket = (hashcode & 0x7fffffff) % this.buckets.Length;
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == true) {

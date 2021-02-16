@@ -105,8 +105,6 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public Enumerator GetEnumerator() {
 
-            IntrusiveListGeneric<T>.InitializeComponents();
-
             return new Enumerator(this);
 
         }
@@ -117,8 +115,6 @@ namespace ME.ECS.Collections {
         /// <returns>Buffer array from pool</returns>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public BufferArray<T> ToArray() {
-
-            IntrusiveListGeneric<T>.InitializeComponents();
 
             var arr = PoolArray<T>.Spawn(this.count);
             var i = 0;
@@ -142,8 +138,6 @@ namespace ME.ECS.Collections {
             
             if (this.count == 0) return false;
 
-            IntrusiveListGeneric<T>.InitializeComponents();
-
             var node = this.FindNode(in entityData);
             if (node.IsAlive() == true) {
 
@@ -160,8 +154,6 @@ namespace ME.ECS.Collections {
         /// </summary>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void Clear() {
-
-            IntrusiveListGeneric<T>.InitializeComponents();
 
             while (this.root.IsAlive() == true) {
 
@@ -184,8 +176,6 @@ namespace ME.ECS.Collections {
         /// <param name="to"></param>
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public IEnumerator<T> GetRange(int from, int to) {
-
-            IntrusiveListGeneric<T>.InitializeComponents();
 
             while (from < to) {
 
@@ -214,8 +204,6 @@ namespace ME.ECS.Collections {
 
             if (this.count == 0) return false;
 
-            IntrusiveListGeneric<T>.InitializeComponents();
-
             var node = this.FindNode(index);
             if (node.IsAlive() == true) {
 
@@ -238,8 +226,6 @@ namespace ME.ECS.Collections {
         public int RemoveRange(int from, int to) {
 
             if (this.count == 0) return 0;
-
-            IntrusiveListGeneric<T>.InitializeComponents();
 
             var count = 0;
             var node = this.FindNode(from);
@@ -278,8 +264,6 @@ namespace ME.ECS.Collections {
         public T GetValue(int index) {
             
             if (this.count == 0) return default;
-
-            IntrusiveListGeneric<T>.InitializeComponents();
 
             var node = this.FindNode(index);
             if (node.IsAlive() == true) {
@@ -362,8 +346,6 @@ namespace ME.ECS.Collections {
 
             if (this.count == 0) return false;
 
-            IntrusiveListGeneric<T>.InitializeComponents();
-
             var node = this.FindNode(index);
             if (node.IsAlive() == true) {
 
@@ -387,8 +369,6 @@ namespace ME.ECS.Collections {
 
             if (this.count == 0) return false;
 
-            IntrusiveListGeneric<T>.InitializeComponents();
-
             var node = this.FindNode(in entityData);
             if (node.IsAlive() == true) {
 
@@ -410,8 +390,6 @@ namespace ME.ECS.Collections {
         public int RemoveAll(in T entityData) {
 
             if (this.count == 0) return 0;
-
-            IntrusiveListGeneric<T>.InitializeComponents();
 
             var root = this.root;
             var count = 0;

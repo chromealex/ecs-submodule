@@ -18,7 +18,7 @@ namespace ME.ECS.Collections {
     [System.Serializable]
     public readonly struct BufferArraySliced<T> : IBufferArraySliced {
 
-        private const int BUCKET_SIZE = 32;
+        private const int BUCKET_SIZE = 4;
 
         public readonly BufferArray<T> data;
         public readonly BufferArray<BufferArray<T>> tails;
