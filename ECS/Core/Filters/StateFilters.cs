@@ -737,6 +737,22 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public Filter With<TComponent>() where TComponent : struct, IStructComponent {
+
+            this.temp.WithStructComponent<TComponent>();
+            return this;
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public Filter Without<TComponent>() where TComponent : struct, IStructComponent {
+            
+            this.temp.WithoutStructComponent<TComponent>();
+            return this;
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static Filter Create(string customName = null) {
 
             var filter = FilterData.Create(customName);
