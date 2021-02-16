@@ -1,8 +1,6 @@
 ﻿
 namespace ME.ECS.Tests {
 
-    using System.Linq;
-
     public class StorageTest {
         
         private class TestState : State {}

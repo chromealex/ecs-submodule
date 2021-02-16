@@ -401,7 +401,7 @@ namespace ME.ECS {
                 for (int i = 0; i < list.Count; ++i) {
 
                     ref var item = ref list[i];
-                    this.RemoveEntity(item);
+                    if (item.IsAlive() == true) this.RemoveEntity(item);
 
                 }
 
@@ -1700,6 +1700,62 @@ namespace ME.ECS {
             if (deltaTime < 0f) return;
 
             ////////////////
+            this.currentStep |= WorldStep.SystemsVisualTick;
+            ////////////////
+            {
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.VisualTick);
+                #endif
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"VisualTick-Pre [All Systems]");
+                #endif
+
+                for (int i = 0, count = this.systemGroupsLength; i < count; ++i) {
+
+                    ref var group = ref this.systemGroups.arr[i];
+                    if (group.runtimeSystem.systemUpdates == null) continue;
+                    for (int j = 0; j < group.runtimeSystem.systemUpdates.Count; ++j) {
+
+                        ref var system = ref group.runtimeSystem.systemUpdates[j];
+                        
+                        #if CHECKPOINT_COLLECTOR
+                        if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.VisualTick);
+                        #endif
+
+                        #if UNITY_EDITOR
+                        UnityEngine.Profiling.Profiler.BeginSample(system.GetType().FullName);
+                        #endif
+
+                        system.Update(deltaTime);
+
+                        #if UNITY_EDITOR
+                        UnityEngine.Profiling.Profiler.EndSample();
+                        #endif
+
+                        #if CHECKPOINT_COLLECTOR
+                        if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.VisualTick);
+                        #endif
+
+                    }
+
+                }
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.VisualTick);
+                #endif
+
+            }
+            ////////////////
+            this.currentStep &= ~WorldStep.SystemsVisualTick;
+            ////////////////
+            
+            ////////////////
             this.currentStep |= WorldStep.ModulesVisualTick;
             ////////////////
             {
@@ -1721,7 +1777,7 @@ namespace ME.ECS {
                         #endif
 
                         #if UNITY_EDITOR
-                        UnityEngine.Profiling.Profiler.BeginSample($"[{this.modules[i]}]");
+                        UnityEngine.Profiling.Profiler.BeginSample(this.modules[i].GetType().FullName);
                         #endif
 
                         if (this.modules[i] is IUpdate moduleBase) {
@@ -1774,7 +1830,7 @@ namespace ME.ECS {
                 #endif
 
                 #if UNITY_EDITOR
-                UnityEngine.Profiling.Profiler.BeginSample($"VisualTick-Post [All Modules]");
+                UnityEngine.Profiling.Profiler.BeginSample($"VisualTick-Post [All Systems]");
                 #endif
 
                 for (int i = 0, count = this.systemGroupsLength; i < count; ++i) {
@@ -1790,7 +1846,7 @@ namespace ME.ECS {
                         #endif
 
                         #if UNITY_EDITOR
-                        UnityEngine.Profiling.Profiler.BeginSample($"VisualTick [{system}]");
+                        UnityEngine.Profiling.Profiler.BeginSample(system.GetType().FullName);
                         #endif
 
                         system.Update(deltaTime);
@@ -1818,6 +1874,62 @@ namespace ME.ECS {
             }
             ////////////////
             this.currentStep &= ~WorldStep.SystemsVisualTick;
+            ////////////////
+            
+            ////////////////
+            this.currentStep |= WorldStep.ModulesVisualTick;
+            ////////////////
+            {
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.VisualTick);
+                #endif
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"VisualTick-Post [All Modules]");
+                #endif
+
+                for (int i = 0, count = this.modules.Count; i < count; ++i) {
+
+                    if (this.IsModuleActive(i) == true) {
+                        
+                        #if CHECKPOINT_COLLECTOR
+                        if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules[i], WorldStep.VisualTick);
+                        #endif
+
+                        #if UNITY_EDITOR
+                        UnityEngine.Profiling.Profiler.BeginSample(this.modules[i].GetType().FullName);
+                        #endif
+
+                        if (this.modules[i] is IUpdatePost moduleBase) {
+
+                            moduleBase.UpdatePost(deltaTime);
+                            
+                        }
+
+                        #if UNITY_EDITOR
+                        UnityEngine.Profiling.Profiler.EndSample();
+                        #endif
+
+                        #if CHECKPOINT_COLLECTOR
+                        if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules[i], WorldStep.VisualTick);
+                        #endif
+
+                    }
+
+                }
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.VisualTick);
+                #endif
+
+            }
+            ////////////////
+            this.currentStep &= ~WorldStep.ModulesVisualTick;
             ////////////////
             
             #if CHECKPOINT_COLLECTOR

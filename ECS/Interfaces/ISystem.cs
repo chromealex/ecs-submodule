@@ -49,6 +49,12 @@ namespace ME.ECS {
 
     }
 
+    public interface IUpdatePost : IContext {
+
+        void UpdatePost(in float deltaTime);
+
+    }
+
     public interface ISystemFilter : ISystem, IAdvanceTickBase {
 
         bool jobs { get; }

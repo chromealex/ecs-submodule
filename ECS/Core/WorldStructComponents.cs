@@ -1304,7 +1304,6 @@ namespace ME.ECS {
 
                 incrementVersion = true;
                 state = 1;
-                //this.currentState.storage.versions.Increment(in entity);
                 if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
                     
                     this.currentState.storage.archetypes.Set<TComponent>(in entity);

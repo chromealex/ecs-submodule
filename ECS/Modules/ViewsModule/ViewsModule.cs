@@ -205,6 +205,8 @@ namespace ME.ECS.Views {
     public interface IViewModuleBase : IModuleBase {
 
         BufferArray<Views> GetData();
+        HashSet<ViewInfo> GetRendering();
+        
         System.Collections.IDictionary GetViewSourceData();
         IViewsProviderBase GetViewSourceProvider(ViewId viewSourceId);
 
@@ -387,7 +389,7 @@ namespace ME.ECS.Views {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public partial class ViewsModule : IViewModule, IUpdate, IModulePhysicsUpdate {
+    public partial class ViewsModule : IViewModule, IUpdatePost, IModulePhysicsUpdate {
 
         private const int REGISTRY_PROVIDERS_CAPACITY = 100;
         private const int REGISTRY_CAPACITY = 100;
@@ -455,6 +457,12 @@ namespace ME.ECS.Views {
         BufferArray<Views> IViewModuleBase.GetData() {
 
             return this.list;
+
+        }
+
+        HashSet<ViewInfo> IViewModuleBase.GetRendering() {
+
+            return this.rendering;
 
         }
 
@@ -708,15 +716,16 @@ namespace ME.ECS.Views {
             
             instance.DoDeInitialize();
 
-            var id = instance.entity.id;
-            if (id < this.list.Length) {
-
+            var viewInfo = new ViewInfo(instance.entity, instance.prefabSourceId, instance.creationTick);
+            if (this.rendering.Remove(viewInfo) == true) {
+            
+                var id = instance.entity.id;
                 this.list.arr[id].Remove(instance);
+                return true;
 
             }
 
-            var viewInfo = new ViewInfo(instance.entity, instance.prefabSourceId, instance.creationTick);
-            return this.rendering.Remove(viewInfo);
+            return false;
 
         }
 
@@ -772,14 +781,42 @@ namespace ME.ECS.Views {
             this.isRequestsDirty = false;
 
             var hasChanged = false;
-            var aliveEntities = PoolHashSet<int>.Spawn(ViewsModule.INTERNAL_ENTITIES_CACHE_CAPACITY);
-            //var allEntities = PoolList<Entity>.Spawn(ViewsModule.INTERNAL_ENTITIES_CACHE_CAPACITY);
+
+            // Recycle all views that doesn't required
+            for (var id = this.list.Length - 1; id >= 0; --id) {
+                
+                ref var views = ref this.list.arr[id];
+                var currentViewInstance = views.mainView;
+                if (currentViewInstance == null) continue;
+
+                var entity = currentViewInstance.entity;
+                if (entity.IsAlive() == false) {
+
+                    // Entity has dead
+                    this.RecycleView_INTERNAL(ref currentViewInstance);
+                    hasChanged = true;
+
+                } else {
+                    
+                    // If entity is alive - check if view has changed
+                    var view = currentViewInstance.entity.GetData<ViewComponent>(createIfNotExists: false);
+                    if (currentViewInstance.prefabSourceId != view.viewInfo.prefabSourceId) {
+
+                        // Destroy current view
+                        this.RecycleView_INTERNAL(ref currentViewInstance);
+                        hasChanged = true;
+
+                    }
+                    
+                }
+
+            }
+
+            
             var allEntities = this.world.GetAliveEntities();
             for (int j = 0; j < allEntities.Count; ++j) {
 
                 ref var entityId = ref allEntities[j];
-
-                aliveEntities.Add(entityId);
 
                 var ent = this.world.GetEntityById(entityId);
                 var view = ent.GetData<ViewComponent>(createIfNotExists: false);
@@ -787,8 +824,7 @@ namespace ME.ECS.Views {
 
                     if (this.IsRenderingNow(in view.viewInfo) == true) {
 
-                        // is rendering now
-                        //this.prevList.Add(view.viewInfo);
+                        // is rendering now - skip
 
                     } else {
 
@@ -803,44 +839,6 @@ namespace ME.ECS.Views {
 
             }
             
-            for (var id = this.list.Length - 1; id >= 0; --id) {
-                
-                ref var views = ref this.list.arr[id];
-                if (views.mainView == null) continue;
-                
-                if (aliveEntities.Contains(id) == false) {
-
-                    this.RecycleView_INTERNAL(ref views.mainView);
-                    hasChanged = true;
-
-                } else {
-                    
-                    // If entity is alive - check if we are rendering needed view
-                    for (int i = views.Length - 1; i >= 0; --i) {
-
-                        var instance = views[i];
-                        if (instance.entity.IsAlive() == true) {
-
-                            var view = instance.entity.GetData<ViewComponent>(createIfNotExists: false);
-                            if (instance.prefabSourceId == view.viewInfo.prefabSourceId) {
-
-                                continue;
-                                
-                            }
-                            
-                        }
-
-                        this.RecycleView_INTERNAL(ref instance);
-                        hasChanged = true;
-                        
-                    }
-                    
-                }
-
-            }
-
-            PoolHashSet<int>.Recycle(ref aliveEntities);
-
             return hasChanged;
 
         }
@@ -863,7 +861,7 @@ namespace ME.ECS.Views {
             
         }
 
-        public void Update(in float deltaTime) {
+        public void UpdatePost(in float deltaTime) {
 
             if (this.world.settings.turnOffViews == true) return;
             
