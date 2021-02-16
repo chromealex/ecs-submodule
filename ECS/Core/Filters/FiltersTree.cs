@@ -82,10 +82,16 @@ namespace ME.ECS {
         private ME.ECS.Collections.BufferArray<Item> itemsContains;
         private ME.ECS.Collections.BufferArray<Item> itemsNotContains;
 
+        private ME.ECS.Collections.BufferArray<Item> itemsContainsVersioned;
+        private ME.ECS.Collections.BufferArray<Item> itemsNotContainsVersioned;
+
         public void CopyFrom(FiltersTree other) {
             
             ArrayUtils.Copy(other.itemsContains, ref this.itemsContains, new CopyItem());
             ArrayUtils.Copy(other.itemsNotContains, ref this.itemsNotContains, new CopyItem());
+
+            ArrayUtils.Copy(other.itemsContainsVersioned, ref this.itemsContainsVersioned, new CopyItem());
+            ArrayUtils.Copy(other.itemsNotContainsVersioned, ref this.itemsNotContainsVersioned, new CopyItem());
             
         }
 
@@ -104,6 +110,20 @@ namespace ME.ECS {
 
             }
             PoolArray<Item>.Recycle(ref this.itemsNotContains);
+
+            for (int i = 0; i < this.itemsContainsVersioned.Length; ++i) {
+
+                this.itemsContainsVersioned.arr[i].Dispose();
+
+            }
+            PoolArray<Item>.Recycle(ref this.itemsContainsVersioned);
+
+            for (int i = 0; i < this.itemsNotContainsVersioned.Length; ++i) {
+
+                this.itemsNotContainsVersioned.arr[i].Dispose();
+
+            }
+            PoolArray<Item>.Recycle(ref this.itemsNotContainsVersioned);
 
         }
         
@@ -136,16 +156,55 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public ME.ECS.Collections.BufferArray<int> GetFiltersContainsForVersioned<T>() {
+            
+            var idx = WorldUtilities.GetComponentTypeId<T>();
+            if (idx >= 0 && idx < this.itemsContainsVersioned.Length) {
+
+                return this.itemsContainsVersioned.arr[idx].filters;
+
+            }
+            
+            return new ME.ECS.Collections.BufferArray<int>(null, 0);
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public ME.ECS.Collections.BufferArray<int> GetFiltersNotContainsForVersioned<T>() {
+            
+            var idx = WorldUtilities.GetComponentTypeId<T>();
+            if (idx >= 0 && idx < this.itemsNotContainsVersioned.Length) {
+
+                return this.itemsNotContainsVersioned.arr[idx].filters;
+
+            }
+            
+            return new ME.ECS.Collections.BufferArray<int>(null, 0);
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void Add(FilterData filter) {
 
+            ref var contains = ref this.itemsContains;
+            ref var notContains = ref this.itemsNotContains;
+
+            if (filter.onVersionChangedOnly == true) {
+
+                contains = ref this.itemsContainsVersioned;
+                notContains = ref this.itemsNotContainsVersioned;
+
+            }
+            
             {
+
                 var bits = filter.archetypeContains.value.BitsCount;
                 for (int i = 0; i <= bits; ++i) {
 
                     if (filter.archetypeContains.value.HasBit(i) == true) {
 
-                        ArrayUtils.Resize(i, ref this.itemsContains, resizeWithOffset: true);
-                        ref var item = ref this.itemsContains.arr[i];
+                        ArrayUtils.Resize(i, ref contains, resizeWithOffset: true);
+                        ref var item = ref contains.arr[i];
                         if (item.isCreated == false) {
                             item = new Item() {
                                 isCreated = true,
@@ -159,16 +218,18 @@ namespace ME.ECS {
                     }
 
                 }
+                
             }
 
             {
+
                 var bits = filter.archetypeNotContains.value.BitsCount;
                 for (int i = 0; i <= bits; ++i) {
 
                     if (filter.archetypeNotContains.value.HasBit(i) == true) {
 
-                        ArrayUtils.Resize(i, ref this.itemsNotContains, resizeWithOffset: true);
-                        ref var item = ref this.itemsNotContains.arr[i];
+                        ArrayUtils.Resize(i, ref notContains, resizeWithOffset: true);
+                        ref var item = ref notContains.arr[i];
                         if (item.isCreated == false) {
                             item = new Item() {
                                 isCreated = true,
@@ -182,6 +243,7 @@ namespace ME.ECS {
                     }
 
                 }
+                
             }
 
         }

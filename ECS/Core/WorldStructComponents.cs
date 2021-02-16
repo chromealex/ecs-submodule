@@ -1318,7 +1318,12 @@ namespace ME.ECS {
             }
 
             if (WorldUtilities.IsComponentAsTag<TComponent>() == true) return ref reg.emptyComponent;
-            if (incrementVersion == true) this.currentState.storage.versions.Increment(in entity);
+            if (incrementVersion == true) {
+                
+                this.currentState.storage.versions.Increment(in entity);
+                this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
+                
+            }
             return ref reg.components[entity.id];
             
         }
@@ -1362,6 +1367,7 @@ namespace ME.ECS {
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
             #endif
             this.currentState.storage.versions.Increment(in entity);
+            this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
             return ref state;
 
@@ -1414,6 +1420,7 @@ namespace ME.ECS {
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
             #endif
             this.currentState.storage.versions.Increment(in entity);
+            this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
             return ref state;
 
@@ -1665,6 +1672,7 @@ namespace ME.ECS {
                 
                 state = 0;
                 this.currentState.storage.versions.Increment(in entity);
+                this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
                 if (WorldUtilities.IsComponentAsTag<TComponent>() == false) reg.RemoveData(in entity);
                 if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
                     

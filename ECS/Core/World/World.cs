@@ -2027,6 +2027,8 @@ namespace ME.ECS {
             [Unity.Collections.ReadOnlyAttribute] public Unity.Collections.NativeSlice<Entity> slice;
             [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
             [Unity.Collections.ReadOnlyAttribute] public Unity.Collections.NativeArray<bool> dataContains;
+            [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
+            [Unity.Collections.ReadOnlyAttribute] public Unity.Collections.NativeArray<bool> dataVersions;
             public float deltaTime;
 
             void Unity.Jobs.IJobParallelFor.Execute(int index) {
@@ -2034,7 +2036,7 @@ namespace ME.ECS {
                 var entity = this.slice[index];
                 if (entity.IsAlive() == false) return;
                 
-                if (this.dataContains[entity.id] == true) Worlds.currentWorld.currentSystemContextFilter.AdvanceTick(entity, in this.deltaTime);
+                if (this.dataContains[entity.id] == true && (this.dataVersions.IsCreated == false || this.dataVersions[entity.id] == true)) Worlds.currentWorld.currentSystemContextFilter.AdvanceTick(entity, in this.deltaTime);
 
             }
 
@@ -2370,20 +2372,26 @@ namespace ME.ECS {
 
                                             if (min < max) {
 
+                                                var filter = this.GetFilter(system.filter.id);
                                                 var arr = new Unity.Collections.NativeArray<Entity>(arrEntities, Unity.Collections.Allocator.TempJob);
-                                                var arrContains = new Unity.Collections.NativeArray<bool>(this.GetFilter(system.filter.id).dataContains.arr, Unity.Collections.Allocator.TempJob);
-                                        
+                                                var arrContains = new Unity.Collections.NativeArray<bool>(filter.dataContains.arr, Unity.Collections.Allocator.TempJob);
+                                                var arrVersions = (filter.onVersionChangedOnly == true ? new Unity.Collections.NativeArray<bool>(filter.dataVersions.arr, Unity.Collections.Allocator.TempJob) : default);
+
                                                 var length = max - min;
                                                 var job = new ForeachFilterJob() {
                                                     deltaTime = fixedDeltaTime,
                                                     slice = new Unity.Collections.NativeSlice<Entity>(arr, min, max - min),
                                                     dataContains = arrContains,
+                                                    dataVersions = arrVersions,
                                                 };
                                                 var jobHandle = job.Schedule(length, system.jobsBatchCount);
                                                 jobHandle.Complete();
 
                                                 arr.Dispose();
                                                 arrContains.Dispose();
+                                                if (arrVersions.IsCreated == true) arrVersions.Dispose();
+                                                
+                                                filter.UseVersioned();
 
                                             }
 
