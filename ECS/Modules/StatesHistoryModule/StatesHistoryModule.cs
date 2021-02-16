@@ -204,7 +204,7 @@ namespace ME.ECS.StatesHistory {
         void RunEvent(HistoryEvent historyEvent);
 
         void SetEventRunner(IEventRunner eventRunner);
-
+        
         //void Simulate(Tick currentTick, Tick targetTick);
         
         void SetSyncHash(int orderId, Tick tick, int hash);

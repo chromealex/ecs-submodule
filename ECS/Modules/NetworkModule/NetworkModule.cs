@@ -70,6 +70,8 @@ namespace ME.ECS.Network {
 
         int GetRPCOrder();
         
+        bool IsReverting();
+
         bool UnRegisterRPC(RPCId rpcId);
 
         RPCId RegisterRPC(System.Reflection.MethodInfo methodInfo, bool runLocalOnly = false);
@@ -115,7 +117,7 @@ namespace ME.ECS.Network {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public abstract class NetworkModule<TState> : INetworkModule<TState>, IUpdate, StatesHistory.IEventRunner, IModuleValidation where TState : State, new() {
+    public abstract class NetworkModule<TState> : INetworkModule<TState>, IUpdate, IUpdatePost, StatesHistory.IEventRunner, IModuleValidation where TState : State, new() {
 
         private static readonly RPCId CANCEL_EVENT_RPC_ID = -11;
         private static readonly RPCId PING_RPC_ID = -1;
@@ -137,11 +139,28 @@ namespace ME.ECS.Network {
 
         private double ping;
         
+        private float pingTime;
+        private float syncTime;
+        internal Tick syncedTick;
+        internal int syncHash;
+        private Tick syncTickSent;
+        
+        private bool isReverting;
+        private Tick revertingTo;
+
         void IModuleBase.OnConstruct() {
 
             this.localOrderIndex = 0;
             this.rpcId = 0;
             this.ping = 0d;
+
+            this.pingTime = 0f;
+            this.syncTime = 0f;
+            this.syncedTick = 0;
+            this.syncHash = 0;
+            this.syncTickSent = 0;
+            this.revertingTo = 0;
+            this.isReverting = false;
 
             this.registry = PoolDictionary<int, System.Reflection.MethodInfo>.Spawn(100);
             this.objectToKey = PoolDictionary<object, Key>.Spawn(100);
@@ -539,12 +558,6 @@ namespace ME.ECS.Network {
 
         }
 
-        private float pingTime;
-        private float syncTime;
-        internal Tick syncedTick;
-        internal int syncHash;
-        private Tick syncTickSent;
-
         public Tick GetSyncTick() {
 
             return this.syncedTick;
@@ -664,6 +677,12 @@ namespace ME.ECS.Network {
 
         }
 
+        public bool IsReverting() {
+            
+            return this.isReverting == true && this.world.GetCurrentTick() < this.revertingTo;
+            
+        }
+
         protected virtual void ApplyTicksByState() {
             
             var tick = this.world.GetCurrentTick();
@@ -691,15 +710,24 @@ namespace ME.ECS.Network {
 
             this.statesHistoryModule.InvalidateEntriesAfterTick(sourceTick);
 
+            this.isReverting = true;
+
             // Applying old state.
             var currentState = this.world.GetState();
+            this.revertingTo = currentState.tick;
             currentState.CopyFrom(sourceState);
             currentState.Initialize(this.world, freeze: false, restore: true);
             
             this.world.SetFromToTicks(sourceTick, targetTick);
             
         }
-        
+
+        public virtual void UpdatePost(in float deltaTime) {
+            
+            this.isReverting = false;
+            
+        }
+
         public virtual void Update(in float deltaTime) {
 
             if (this.GetNetworkType() != NetworkType.RunLocal) {

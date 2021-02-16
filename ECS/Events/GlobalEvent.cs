@@ -62,6 +62,21 @@ namespace ME.ECS {
 
         public void Execute(in Entity entity, World.GlobalEventType globalEventType) {
             
+            // If we are reverting - skip visual events
+            if (globalEventType == World.GlobalEventType.Visual) {
+
+                if (Worlds.currentWorld.HasResetState() == true) {
+
+                    if (Worlds.currentWorld.GetModule<ME.ECS.Network.INetworkModuleBase>().IsReverting() == true) {
+
+                        return;
+                        
+                    }
+
+                }
+
+            }
+            
             for (int i = 0; i < this.callOthers.Length; ++i) this.callOthers[i].Execute(in entity, globalEventType);
 
             Worlds.currentWorld.RegisterGlobalEvent(this, in entity, globalEventType);
