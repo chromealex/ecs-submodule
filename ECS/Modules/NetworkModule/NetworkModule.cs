@@ -117,7 +117,7 @@ namespace ME.ECS.Network {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public abstract class NetworkModule<TState> : INetworkModule<TState>, IUpdate, IUpdatePost, StatesHistory.IEventRunner, IModuleValidation where TState : State, new() {
+    public abstract class NetworkModule<TState> : INetworkModule<TState>, IUpdate, StatesHistory.IEventRunner, IModuleValidation where TState : State, new() {
 
         private static readonly RPCId CANCEL_EVENT_RPC_ID = -11;
         private static readonly RPCId PING_RPC_ID = -1;
@@ -689,6 +689,7 @@ namespace ME.ECS.Network {
             
             var timeSinceGameStart = (long)(this.world.GetTimeSinceStart() * 1000L);
             var targetTick = (Tick)System.Math.Floor(timeSinceGameStart / (this.world.GetTickTime() * 1000d));
+            var currentTargetTick = targetTick;
             var oldestEventTick = this.statesHistoryModule.GetAndResetOldestTick(tick);
             //UnityEngine.Debug.LogError("Tick: " + tick + ", timeSinceGameStart: " + timeSinceGameStart + ", targetTick: " + targetTick + ", oldestEventTick: " + oldestEventTick);
             if (oldestEventTick == Tick.Invalid || oldestEventTick >= tick) {
@@ -718,14 +719,13 @@ namespace ME.ECS.Network {
             currentState.CopyFrom(sourceState);
             currentState.Initialize(this.world, freeze: false, restore: true);
             
-            this.world.SetFromToTicks(sourceTick, targetTick);
+            //this.world.SetFromToTicks(sourceTick, targetTick);
             
-        }
-
-        public virtual void UpdatePost(in float deltaTime) {
-            
+            this.world.Simulate(sourceTick, targetTick);
             this.isReverting = false;
             
+            this.world.SetFromToTicks(tick, currentTargetTick);
+
         }
 
         public virtual void Update(in float deltaTime) {

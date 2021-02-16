@@ -585,15 +585,15 @@ namespace ME.ECS.StatesHistory {
 
             }
 
-            ME.ECS.Collections.SortedList<long, HistoryEvent> list;
-            if (this.events.TryGetValue(historyEvent.tick, out list) == true) {
+            var key = MathUtils.GetKey(historyEvent.order, historyEvent.localOrder);
+            if (this.events.TryGetValue(historyEvent.tick, out var list) == true) {
                 
-                list.Add(MathUtils.GetKey(historyEvent.order, historyEvent.localOrder), historyEvent);
+                list.Add(key, historyEvent);
 
             } else {
 
                 list = PoolSortedList<long, HistoryEvent>.Spawn(StatesHistoryModule<TState>.POOL_HISTORY_CAPACITY);
-                list.Add(MathUtils.GetKey(historyEvent.order, historyEvent.localOrder), historyEvent);
+                list.Add(key, historyEvent);
                 this.events.Add(historyEvent.tick, list);
 
             }
