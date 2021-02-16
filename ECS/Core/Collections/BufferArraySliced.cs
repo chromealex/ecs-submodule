@@ -50,7 +50,7 @@ namespace ME.ECS.Collections {
             for (int i = 0, length = this.tails.Length; i < length; ++i) {
             
                 var tail = tails.arr[i];
-                this.tailsLength += tail.Length;
+                this.tailsLength += tail.arr.Length;
 
             }
 
