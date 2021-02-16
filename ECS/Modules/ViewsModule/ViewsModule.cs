@@ -410,7 +410,7 @@ namespace ME.ECS.Views {
         public World world { get; set; }
         
         void IModuleBase.OnConstruct() {
-
+            
             this.isRequestsDirty = false;
             this.list = PoolArray<Views>.Spawn(ViewsModule.VIEWS_CAPACITY);
             this.rendering = PoolHashSet<ViewInfo>.Spawn(ViewsModule.VIEWS_CAPACITY);
@@ -867,28 +867,23 @@ namespace ME.ECS.Views {
             
             var hasChanged = this.UpdateRequests();
 
-            for (var id = 0; id < this.list.Length; ++id) {
+            for (var id = this.list.Length - 1; id >= 0; --id) {
                 
-                ref var list = ref this.list.arr[id];
-                if (list.mainView == null) continue;
+                ref var views = ref this.list.arr[id];
+                var currentViewInstance = views.mainView;
+                if (currentViewInstance == null) continue;
+                if (currentViewInstance.entity.IsAlive() == false) continue;
                 
-                for (int i = 0, count = list.Length; i < count; ++i) {
+                var version = currentViewInstance.entity.GetVersion();
+                if (version != currentViewInstance.entityVersion) {
 
-                    var instance = list[i];
-                    if (instance.entity.IsAlive() == false) continue;
+                    currentViewInstance.entityVersion = version;
+                    currentViewInstance.ApplyState(deltaTime, immediately: false);
                     
-                    var version = instance.entity.GetVersion();
-                    if (version != instance.entityVersion) {
-
-                        instance.entityVersion = version;
-                        instance.ApplyState(deltaTime, immediately: false);
-                        
-                    }
-                    instance.OnUpdate(deltaTime);
-                    instance.UpdateParticlesSimulation(deltaTime);
-
                 }
-                
+                currentViewInstance.OnUpdate(deltaTime);
+                currentViewInstance.UpdateParticlesSimulation(deltaTime);
+
             }
 
             // Update providers
