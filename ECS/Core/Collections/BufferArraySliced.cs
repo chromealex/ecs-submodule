@@ -57,7 +57,7 @@ namespace ME.ECS.Collections {
             for (int i = 0, length = this.tails.Length; i < length; ++i) {
 
                 var tail = tails.arr[i];
-                this.tailsLength += tail.arr.Length;
+                this.tailsLength += tail.Length;
 
             }
 
@@ -75,7 +75,7 @@ namespace ME.ECS.Collections {
                     for (int i = 0, length = this.tails.Length; i < length; ++i) {
 
                         ref var tail = ref this.tails.arr[i];
-                        var len = tail.arr.Length;
+                        var len = tail.Length;
                         if (index >= len) {
 
                             index -= len;
@@ -190,7 +190,7 @@ namespace ME.ECS.Collections {
 
                     // For each tail determine do we need to resize any tail to store index?
                     var tail = tails.arr[i];
-                    ptr += tail.arr.Length;
+                    ptr += tail.Length;
                     if (index >= ptr) continue;
 
                     // We have found tail without resize needed
@@ -205,7 +205,7 @@ namespace ME.ECS.Collections {
                 var size = this.Length;
                 ArrayUtils.Resize(idx, ref tails, resizeWithOffset);
                 var bucketSize = index + BufferArraySliced<T>.BUCKET_SIZE - size;
-                tails.arr[idx] = PoolArray<T>.Spawn(bucketSize, realSize: true);
+                tails.arr[idx] = PoolArray<T>.Spawn(bucketSize, realSize: false);
                 result = true;
                 return new BufferArraySliced<T>(this.data, tails);
 
@@ -236,8 +236,8 @@ namespace ME.ECS.Collections {
                 ref var tail = ref this.tails.arr[i];
                 if (tail.isCreated == false) continue;
 
-                System.Array.Copy(tail.arr, 0, arr.arr, ptr, tail.arr.Length);
-                ptr += tail.arr.Length;
+                System.Array.Copy(tail.arr, 0, arr.arr, ptr, tail.Length);
+                ptr += tail.Length;
 
             }
 

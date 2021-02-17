@@ -53,7 +53,7 @@ namespace ME.ECS.Collections.Tests {
             var buffer = this.Prepare();
             UnityEngine.Debug.Assert(buffer[5].value == "6");
             UnityEngine.Debug.Assert(buffer[11].value == "12");
-            UnityEngine.Debug.Assert(buffer.Length == 12);
+            UnityEngine.Debug.Assert(buffer.Length == 14);
 
         }
 
