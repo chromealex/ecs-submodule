@@ -729,7 +729,7 @@ namespace ME.ECS.Network {
             this.world.Simulate(sourceTick, targetTick);
             this.isReverting = false;
 
-            this.world.SetFromToTicks(tick, currentTargetTick);
+            this.world.SetFromToTicks(targetTick, currentTargetTick);
 
         }
 
