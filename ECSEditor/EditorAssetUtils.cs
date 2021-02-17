@@ -110,7 +110,11 @@ namespace ME.ECSEditor {
 
                         var asset = AssetDatabase.LoadAssetAtPath<T>(path);
 
-                        action(path, asset);
+                        try {
+                            action(path, asset);
+                        } catch (Exception ex) {
+                            Debug.LogException(ex);
+                        }
                     }
                 } catch (Exception any) {
                     Debug.LogException(any);

@@ -47,7 +47,7 @@ namespace ME.ECS.DataConfigs {
             var types = new System.Type[this.structComponents.Length];
             for (int i = 0; i < this.structComponents.Length; ++i) {
 
-                types[i] = this.structComponents[i].GetType();
+                types[i] = (this.structComponents[i] != null ? this.structComponents[i].GetType() : null);
 
             }
             

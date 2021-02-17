@@ -244,6 +244,10 @@ namespace ME.ECSEditor {
 
                     var registry = registries[i];
                     if (registry == null) {
+                        sortedRegistries.Add(0, new Registry() {
+                            index = i,
+                            data = null
+                        });
                         continue;
                     }
 
@@ -280,34 +284,24 @@ namespace ME.ECSEditor {
                     GUILayout.BeginVertical(backStyle, GUILayout.MinHeight(24f));
                     {
                         GUI.backgroundColor = backColor;
-                        var editor = WorldsViewerEditor.GetEditor(component);
-                        if (editor != null) {
-
-                            EditorGUI.BeginChangeCheck();
-                            editor.OnDrawGUI();
-                            if (EditorGUI.EndChangeCheck() == true) {
-
-                                component = editor.GetTarget<IStructComponent>();
-                                dataConfig.structComponents[registry.index] = component;
-                                this.Save(dataConfig);
-
-                            }
-
+                        if (component == null) {
+                            
+                            EditorGUI.BeginDisabledGroup(true);
+                            var styleLabel = new GUIStyle(EditorStyles.label);
+                            styleLabel.richText = true;
+                            EditorGUILayout.LabelField(new GUIContent("<color=#f77><i>MISSING</i></color>"), styleLabel);
+                            EditorGUI.EndDisabledGroup();
+                            
                         } else {
 
-                            var componentName = component.GetType().Name;
-                            var fieldsCount = GUILayoutExt.GetFieldsCount(component);
-                            if (fieldsCount == 0) {
+                            var editor = WorldsViewerEditor.GetEditor(component);
+                            if (editor != null) {
 
-                                EditorGUI.BeginDisabledGroup(true);
-                                EditorGUILayout.Toggle(componentName, true);
-                                EditorGUI.EndDisabledGroup();
+                                EditorGUI.BeginChangeCheck();
+                                editor.OnDrawGUI();
+                                if (EditorGUI.EndChangeCheck() == true) {
 
-                            } else if (fieldsCount == 1) {
-
-                                var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component, componentName);
-                                if (changed == true) {
-
+                                    component = editor.GetTarget<IStructComponent>();
                                     dataConfig.structComponents[registry.index] = component;
                                     this.Save(dataConfig);
 
@@ -315,39 +309,62 @@ namespace ME.ECSEditor {
 
                             } else {
 
-                                GUILayout.BeginHorizontal();
-                                {
-                                    GUILayout.BeginVertical();
-                                    {
+                                var componentName = component.GetType().Name;
+                                var fieldsCount = GUILayoutExt.GetFieldsCount(component);
+                                if (fieldsCount == 0) {
 
-                                        var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
-                                        var foldout = EditorPrefs.GetBool(key, true);
-                                        GUILayoutExt.FoldOut(ref foldout, componentName, () => {
+                                    EditorGUI.BeginDisabledGroup(true);
+                                    EditorGUILayout.Toggle(componentName, true);
+                                    EditorGUI.EndDisabledGroup();
 
-                                            ++EditorGUI.indentLevel;
-                                            var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component);
-                                            if (changed == true) {
+                                } else if (fieldsCount == 1) {
 
-                                                dataConfig.structComponents[registry.index] = component;
-                                                this.Save(dataConfig);
+                                    var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component, componentName);
+                                    if (changed == true) {
 
-                                            }
-                                            --EditorGUI.indentLevel;
-
-                                        });
-                                        EditorPrefs.SetBool(key, foldout);
+                                        dataConfig.structComponents[registry.index] = component;
+                                        this.Save(dataConfig);
 
                                     }
-                                    GUILayout.EndVertical();
+
+                                } else {
+
+                                    GUILayout.BeginHorizontal();
+                                    {
+                                        GUILayout.BeginVertical();
+                                        {
+
+                                            var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
+                                            var foldout = EditorPrefs.GetBool(key, true);
+                                            GUILayoutExt.FoldOut(ref foldout, componentName, () => {
+
+                                                ++EditorGUI.indentLevel;
+                                                var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component);
+                                                if (changed == true) {
+
+                                                    dataConfig.structComponents[registry.index] = component;
+                                                    this.Save(dataConfig);
+
+                                                }
+
+                                                --EditorGUI.indentLevel;
+
+                                            });
+                                            EditorPrefs.SetBool(key, foldout);
+
+                                        }
+                                        GUILayout.EndVertical();
+                                    }
+                                    GUILayout.EndHorizontal();
+
                                 }
-                                GUILayout.EndHorizontal();
 
                             }
 
+                            GUILayoutExt.DrawComponentHelp(component.GetType());
+                            this.DrawComponentTemplatesUsage(dataConfig, component);
+
                         }
-                        
-                        GUILayoutExt.DrawComponentHelp(component.GetType());
-                        this.DrawComponentTemplatesUsage(dataConfig, component);
 
                     }
                     GUILayout.EndVertical();
