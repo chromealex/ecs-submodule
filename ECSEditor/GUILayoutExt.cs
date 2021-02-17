@@ -1050,43 +1050,6 @@ namespace ME.ECSEditor {
 
 	            }
 	            
-            } else
-            #pragma warning disable
-            if (type == typeof(RefEntity)) {
-
-	            if (typeCheckOnly == false) {
-
-		            var entity = (Worlds.currentWorld != null) ? ((RefEntity)value).entity : Entity.Empty;
-		            GUILayout.BeginHorizontal();
-		            var buttonWidth = 50f;
-		            EditorGUILayout.LabelField(caption, GUILayout.Width(EditorGUIUtility.labelWidth));
-		            GUILayoutExt.Icon(new [] { "Assets/ECS/ECSEditor/EditorResources/icon-link.png", "Assets/ECS-submodule/ECSEditor/EditorResources/icon-link.png" }, 16f, 16f);
-		            if (entity == Entity.Empty) {
-			            
-						GUILayout.Label("Empty");
-						
-		            } else {
-			            
-			            var customName = (entity.IsAlive() == true ? entity.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value : string.Empty);
-			            GUILayout.BeginVertical();
-			            GUILayout.Label(string.IsNullOrEmpty(customName) == false ? customName : "Unnamed");
-			            GUILayout.Label(entity.ToSmallString(), EditorStyles.miniLabel);
-			            GUILayout.EndVertical();
-			            
-		            }
-
-		            GUILayout.FlexibleSpace();
-		            EditorGUI.BeginDisabledGroup(entity == Entity.Empty);
-		            if (GUILayout.Button("Select", GUILayout.Width(buttonWidth)) == true) {
-
-			            WorldsViewerEditor.SelectEntity(entity);
-
-		            }
-		            EditorGUI.EndDisabledGroup();
-		            GUILayout.EndHorizontal();
-		            
-	            }
-			#pragma warning restore
             } else if (type == typeof(Entity)) {
 
 	            if (typeCheckOnly == false) {
