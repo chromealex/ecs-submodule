@@ -9,8 +9,7 @@ namespace ME.ECSEditor {
             
             var paths = new System.Collections.Generic.List<string>();
             AssetUtils.ForEachAsset<ME.ECS.DataConfigs.DataConfig>((path, config) => {
-                config.OnValidate();
-                paths.Add(AssetDatabase.GetAssetPath(config));
+                if (config.OnScriptLoad() == true) paths.Add(AssetDatabase.GetAssetPath(config));
             });
 
             AssetDatabase.ForceReserializeAssets(paths, ForceReserializeAssetsOptions.ReserializeAssets);

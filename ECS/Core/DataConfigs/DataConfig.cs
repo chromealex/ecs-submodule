@@ -208,11 +208,11 @@ namespace ME.ECS.DataConfigs {
             
         }
 
-        public void OnScriptLoad() {
+        public bool OnScriptLoad() {
 
-            if (Application.isPlaying == true) return;
+            if (Application.isPlaying == true) return false;
             #if UNITY_EDITOR
-            if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode == true) return;
+            if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode == true) return false;
             #endif
 
             var str = string.Empty;
@@ -335,15 +335,22 @@ namespace ME.ECS.DataConfigs {
 
             }
 
+            return changed;
+
         }
         
         #if UNITY_EDITOR
         [UnityEditor.Callbacks.DidReloadScripts]
         public static void OnScriptsReloaded() {
 
-            var configs = Resources.FindObjectsOfTypeAll<DataConfig>();
-            foreach (var config in configs) config.OnScriptLoad();
+            var guids = UnityEditor.AssetDatabase.FindAssets("t:DataConfig");
+            foreach (var guid in guids) {
 
+                var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<DataConfig>(UnityEditor.AssetDatabase.GUIDToAssetPath(guid));
+                if (asset != null) asset.OnScriptLoad();
+
+            }
+            
         }
         #endif
 
