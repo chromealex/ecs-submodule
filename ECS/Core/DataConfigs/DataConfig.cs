@@ -232,6 +232,7 @@ namespace ME.ECS.DataConfigs {
 
                         if (this.removeStructComponentsDataTypeIds == null || this.removeStructComponentsDataTypeIds.Length != this.removeStructComponents.Length) {
                             
+                            str += $"removeStructComponentsDataTypeIds length changed: {(this.removeStructComponentsDataTypeIds != null ? this.removeStructComponentsDataTypeIds.Length : 0)} => {this.removeStructComponents.Length}";
                             this.removeStructComponentsDataTypeIds = new int[this.removeStructComponents.Length];
                             changed = true;
 
@@ -277,7 +278,7 @@ namespace ME.ECS.DataConfigs {
 
                         if (this.structComponentsDataTypeIds == null || this.structComponentsDataTypeIds.Length != this.structComponents.Length) {
                             
-                            str += $"structComponentsDataTypeIds length changed";
+                            str += $"structComponentsDataTypeIds length changed: {(this.structComponentsDataTypeIds != null ? this.structComponentsDataTypeIds.Length : 0)} => {this.structComponents.Length}";
                             this.structComponentsDataTypeIds = new int[this.structComponents.Length];
                             changed = true;
 
