@@ -387,6 +387,16 @@ namespace ME.ECSEditor {
                             menu.AddDisabledItem(new GUIContent("Move Down"));
                         }
 
+                        menu.AddItem(new GUIContent("Delete"), false, () => {
+                            
+                            var list = dataConfig.structComponents.ToList();
+                            list.RemoveAt(index);
+                            dataConfig.structComponents = list.ToArray();
+                            dataConfig.OnScriptLoad();
+                            this.Save(dataConfig);
+                            
+                        });
+                        
                         menu.ShowAsContext();
 
                     }
