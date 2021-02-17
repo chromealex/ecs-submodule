@@ -215,6 +215,7 @@ namespace ME.ECS.DataConfigs {
             if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode == true) return;
             #endif
 
+            var str = string.Empty;
             var changed = false;
             var allAsms = System.AppDomain.CurrentDomain.GetAssemblies();
             foreach (var asm in allAsms) {
@@ -242,7 +243,8 @@ namespace ME.ECS.DataConfigs {
                             if (obj == null) {
 
                                 if (this.removeStructComponentsDataTypeIds[i] != -1) {
-                                    
+
+                                    str += $"removeStructComponentsDataTypeIds changed on {i}: -1";
                                     this.removeStructComponentsDataTypeIds[i] = -1;
                                     changed = true;
                                     
@@ -261,6 +263,7 @@ namespace ME.ECS.DataConfigs {
                             var allId = ComponentTypesRegistry.allTypeId[type];
                             if (this.removeStructComponentsDataTypeIds[i] != allId) {
                                 
+                                str += $"removeStructComponentsDataTypeIds changed on {i}: {this.removeStructComponentsDataTypeIds[i]} => {allId}";
                                 this.removeStructComponentsDataTypeIds[i] = allId;
                                 changed = true;
 
@@ -274,6 +277,7 @@ namespace ME.ECS.DataConfigs {
 
                         if (this.structComponentsDataTypeIds == null || this.structComponentsDataTypeIds.Length != this.structComponents.Length) {
                             
+                            str += $"structComponentsDataTypeIds length changed";
                             this.structComponentsDataTypeIds = new int[this.structComponents.Length];
                             changed = true;
 
@@ -286,6 +290,7 @@ namespace ME.ECS.DataConfigs {
 
                                 if (this.structComponentsDataTypeIds[i] != -1) {
                                     
+                                    str += $"structComponentsDataTypeIds changed on {i}: -1";
                                     this.structComponentsDataTypeIds[i] = -1;
                                     changed = true;
                                     
@@ -304,6 +309,7 @@ namespace ME.ECS.DataConfigs {
                             var allId = ComponentTypesRegistry.allTypeId[type];
                             if (this.structComponentsDataTypeIds[i] != allId) {
                                 
+                                str += $"structComponentsDataTypeIds changed on {i}: {this.structComponentsDataTypeIds[i]} => {allId}";
                                 this.structComponentsDataTypeIds[i] = allId;
                                 changed = true;
 
@@ -324,7 +330,7 @@ namespace ME.ECS.DataConfigs {
                 UnityEditor.EditorUtility.SetDirty(this);
                 #endif
 
-                UnityEngine.Debug.Log("DataConfig " + this + " reloaded");
+                UnityEngine.Debug.Log("DataConfig " + this + " reloaded. Changes: " + str);
 
             }
 

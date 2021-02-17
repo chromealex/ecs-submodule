@@ -92,8 +92,18 @@ namespace ME.ECS.Extensions {
                     }
 
                     sw.Stop();
-                    UnityEngine.Debug.LogWarning(
-                        $"[Jitter] methods: {count} included generics: {countGenerics}, elapsed: {sw.ElapsedMilliseconds}ms (largest method: {methodTime}ms: {largestMethod} [{largestMethod.Module}])");
+
+                    if (largestMethod != null) {
+
+                        UnityEngine.Debug.LogWarning(
+                            $"[Jitter] methods: {count} included generics: {countGenerics}, elapsed: {sw.ElapsedMilliseconds}ms (largest method: {methodTime}ms: {largestMethod} [{largestMethod.Module}])");
+
+                    } else {
+                        
+                        UnityEngine.Debug.LogWarning(
+                            $"[Jitter] methods: {count} included generics: {countGenerics}, elapsed: {sw.ElapsedMilliseconds}ms");
+
+                    }
 
                 });
 
