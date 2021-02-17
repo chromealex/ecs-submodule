@@ -1,6 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
 using UnityEngine;
 
 namespace ME.ECS.Pathfinding {
@@ -12,7 +12,7 @@ namespace ME.ECS.Pathfinding {
         public struct Connection {
 
             public static Connection NoConnection => new Connection() { index = -1 };
-            
+
             public int index;
             public float cost;
 
@@ -32,9 +32,11 @@ namespace ME.ECS.Pathfinding {
         internal readonly bool[] isOpened = new bool[Pathfinding.THREADS_COUNT];
         internal readonly bool[] isClosed = new bool[Pathfinding.THREADS_COUNT];
 
-        protected Node() {}
+        protected Node() { }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public virtual void CopyFrom(Node other) {
 
             this.graph = other.graph;
@@ -48,7 +50,9 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public virtual void OnRecycle() {
 
             this.graph = null;
@@ -59,7 +63,7 @@ namespace ME.ECS.Pathfinding {
             this.area = default;
             this.tag = default;
             this.height = default;
-            
+
             System.Array.Clear(this.parent, 0, this.parent.Length);
             System.Array.Clear(this.startToCurNodeLen, 0, this.startToCurNodeLen.Length);
             System.Array.Clear(this.isOpened, 0, this.isOpened.Length);
@@ -67,24 +71,30 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public virtual Connection[] GetConnections() {
 
             return null;
 
         }
-        
+
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         internal virtual void Reset(int threadIndex) {
 
             this.parent[threadIndex] = null;
             this.startToCurNodeLen[threadIndex] = 0f;
             this.isOpened[threadIndex] = false;
             this.isClosed[threadIndex] = false;
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public virtual bool IsSuitable(Constraint constraint) {
 
             if (constraint.checkWalkability == true && this.walkable != constraint.walkable) return false;
@@ -107,14 +117,15 @@ namespace ME.ECS.Pathfinding {
                     if (node.IsSuitable(constraintErosion) == false) return false;
 
                 }
+
                 PoolListCopyable<Node>.Recycle(ref result);
 
             }
-                
+
             return true;
 
         }
-            
+
     }
 
 }

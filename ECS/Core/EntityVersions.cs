@@ -1,8 +1,11 @@
-﻿
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
 namespace ME.ECS {
 
     using Collections;
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -19,45 +22,54 @@ namespace ME.ECS {
             for (int i = 0; i < this.values.Length; ++i) {
                 hash ^= (int)(this.values.arr[i] + 100000u);
             }
+
             return hash;
-            
+
         }
 
         public void OnRecycle() {
 
             PoolArray<ushort>.Recycle(ref this.values);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Validate(int capacity) {
 
             ArrayUtils.Resize(capacity, ref this.values);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Validate(in Entity entity) {
 
             var id = entity.id;
             ArrayUtils.Resize(id, ref this.values);
-            
+
         }
 
         public void CopyFrom(EntityVersions other) {
-            
+
             ArrayUtils.Copy(in other.values, ref this.values);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ref ushort Get(int entityId) {
 
             return ref this.values.arr[entityId];
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ref ushort Get(in Entity entity) {
 
             var id = entity.id;
@@ -65,7 +77,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Increment(in Entity entity) {
 
             unchecked {
@@ -74,14 +88,18 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Reset(in Entity entity) {
 
             this.values.arr[entity.id] = 0;
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Reset(int entityId) {
 
             this.Validate(entityId);

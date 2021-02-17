@@ -1,6 +1,7 @@
-﻿#define EDITOR_ARRAY
-using System.Collections;
-using System.Collections.Generic;
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+#define EDITOR_ARRAY
 
 namespace ME.ECS.Collections {
 
@@ -9,7 +10,7 @@ namespace ME.ECS.Collections {
         int Length { get; }
 
     }
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
@@ -26,11 +27,15 @@ namespace ME.ECS.Collections {
         public readonly bool isCreated;
 
         public int Length {
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             get => this.data.Length + this.tailsLength;
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public BufferArraySliced(BufferArray<T> arr) {
 
             this.isCreated = true;
@@ -40,7 +45,9 @@ namespace ME.ECS.Collections {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private BufferArraySliced(BufferArray<T> arr, BufferArray<BufferArray<T>> tails) {
 
             this.isCreated = true;
@@ -48,7 +55,7 @@ namespace ME.ECS.Collections {
             this.tails = tails;
             this.tailsLength = 0;
             for (int i = 0, length = this.tails.Length; i < length; ++i) {
-            
+
                 var tail = tails.arr[i];
                 this.tailsLength += tail.arr.Length;
 
@@ -57,7 +64,9 @@ namespace ME.ECS.Collections {
         }
 
         public ref T this[int index] {
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             get {
                 if (this.tails.isCreated == true && index >= this.data.Length) {
 
@@ -68,16 +77,16 @@ namespace ME.ECS.Collections {
                         ref var tail = ref this.tails.arr[i];
                         var len = tail.arr.Length;
                         if (index >= len) {
-                            
+
                             index -= len;
                             continue;
-                            
+
                         }
-                        
+
                         return ref tail.arr[index];
-                        
+
                     }
-                    
+
                 }
 
                 return ref this.data.arr[index];
@@ -93,18 +102,22 @@ namespace ME.ECS.Collections {
 
             public TCopy elementCopy;
 
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Copy(BufferArray<T> from, ref BufferArray<T> to) {
-                
+
                 ArrayUtils.CopyWithIndex(from, ref to, this.elementCopy);
-                
+
             }
 
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Recycle(BufferArray<T> item) {
-                
+
                 ArrayUtils.RecycleWithIndex(ref item, this.elementCopy);
-                
+
             }
 
         }
@@ -115,35 +128,43 @@ namespace ME.ECS.Collections {
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
         private struct ArrayCopy : IArrayElementCopy<BufferArray<T>> {
-        
+
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Copy(BufferArray<T> from, ref BufferArray<T> to) {
-                
+
                 ArrayUtils.Copy(from, ref to);
-                
+
             }
 
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Recycle(BufferArray<T> item) {
 
                 item.Dispose();
 
             }
-            
+
         }
-        
+
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public BufferArraySliced<T> CopyFrom<TCopy>(in BufferArraySliced<T> other, in TCopy copy) where TCopy : IArrayElementCopyWithIndex<T> {
-            
+
             var data = this.data;
             //var tails = this.tails;
             ArrayUtils.CopyWithIndex(other.data, ref data, copy);
             //ArrayUtils.Copy(other.tails, ref tails, new ArrayCopy<TCopy>() { elementCopy = copy });
             return new BufferArraySliced<T>(data);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public BufferArraySliced<T> CopyFrom(in BufferArraySliced<T> other) {
 
             var data = this.data;
@@ -153,8 +174,10 @@ namespace ME.ECS.Collections {
             return new BufferArraySliced<T>(data);
 
         }
-        
+
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public BufferArraySliced<T> Resize(int index, bool resizeWithOffset, out bool result) {
 
             if (index >= this.Length) {
@@ -187,14 +210,16 @@ namespace ME.ECS.Collections {
                 return new BufferArraySliced<T>(this.data, tails);
 
             }
-            
+
             // We dont need to resize any
             result = false;
             return this;
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public BufferArraySliced<T> Merge() {
 
             if (this.tails.isCreated == false) {
@@ -210,7 +235,7 @@ namespace ME.ECS.Collections {
 
                 ref var tail = ref this.tails.arr[i];
                 if (tail.isCreated == false) continue;
-                
+
                 System.Array.Copy(tail.arr, 0, arr.arr, ptr, tail.arr.Length);
                 ptr += tail.arr.Length;
 
@@ -221,9 +246,11 @@ namespace ME.ECS.Collections {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public BufferArraySliced<T> Dispose() {
-            
+
             this.data.Dispose();
             for (int i = 0, length = this.tails.Length; i < length; ++i) {
 
@@ -231,12 +258,13 @@ namespace ME.ECS.Collections {
                 this.tails.arr[i] = tail.Dispose();
 
             }
+
             this.tails.Dispose();
-            
+
             return new BufferArraySliced<T>();
-            
+
         }
 
     }
-    
+
 }

@@ -1,4 +1,8 @@
-﻿namespace ME.ECS.Views {
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
+namespace ME.ECS.Views {
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
@@ -18,14 +22,14 @@
 
         public static ParticleSimulationSettings @default {
             get {
-                
+
                 return new ParticleSimulationSettings() {
                     simulationType = SimulationType.RestoreSoft,
                     minSimulationTime = 0.2f,
                     minEndingTime = 0.1f,
                     halfEnding = 0.5f,
                 };
-                
+
             }
         }
 
@@ -46,13 +50,13 @@
     public struct ParticleSimulationItem {
 
         public UnityEngine.ParticleSystem particleSystem;
-        
+
         private float simulateToTime;
         private float currentTime;
         private float simulateToTimeDuration;
         private bool customLifetime;
         private float customLifetimeValue;
-        
+
         public void SetAsCustomLifetime() {
 
             this.customLifetime = true;
@@ -64,13 +68,13 @@
             return this.customLifetimeValue;
 
         }
-        
+
         public void SimulateParticles(float time, uint seed, ParticleSimulationSettings settings) {
-            
+
             this.particleSystem.Stop(true, UnityEngine.ParticleSystemStopBehavior.StopEmittingAndClear);
             if (this.particleSystem.useAutoRandomSeed == true) this.particleSystem.useAutoRandomSeed = false;
             if (this.particleSystem.randomSeed != seed) this.particleSystem.randomSeed = seed;
-            
+
             if (settings.simulationType == ParticleSimulationSettings.SimulationType.RestoreSoft) {
 
                 if (time > settings.minSimulationTime) {
@@ -99,19 +103,19 @@
                     this.Simulate(0f);
 
                 } else {
-                    
+
                     this.Simulate(time);
-                    
+
                 }
 
             } else if (settings.simulationType == ParticleSimulationSettings.SimulationType.RestoreHard) {
-                
+
                 this.Simulate(time);
-                
+
             } else if (settings.simulationType == ParticleSimulationSettings.SimulationType.NoRestore) {
-                
+
                 this.Simulate(0f);
-                
+
             }
 
         }
@@ -122,9 +126,9 @@
 
                 this.currentTime += deltaTime / this.simulateToTimeDuration;
                 if (this.currentTime <= 1f) {
-                    
+
                     this.Simulate(this.currentTime * this.simulateToTime);
-                    
+
                 } else {
 
                     this.Reset();
@@ -140,7 +144,7 @@
         }
 
         private void Reset() {
-            
+
             this.simulateToTimeDuration = 0f;
             this.currentTime = 0f;
             this.simulateToTime = 0f;
@@ -171,51 +175,60 @@
     #endif
     [System.Serializable]
     public struct ParticleSystemSimulationItem {
-        
+
         public ParticleSimulationItem particleItem;
         public ParticleSimulationSettings settings;
 
-        [UnityEngine.SerializeField][UnityEngine.HideInInspector]
+        [UnityEngine.SerializeField]
+        [UnityEngine.HideInInspector]
         private bool hasDefault;
-        
+
         public void OnValidate(UnityEngine.ParticleSystem particleSystem) {
 
             if (this.hasDefault == false) {
-                
+
                 this.settings = ParticleSimulationSettings.@default;
                 this.hasDefault = true;
 
             }
-            
+
             this.particleItem = new ParticleSimulationItem();
             this.particleItem.particleSystem = particleSystem;
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void SetAsCustomLifetime() {
 
             this.particleItem.SetAsCustomLifetime();
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public float GetCustomLifetime() {
 
             return this.particleItem.GetCustomLifetime();
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void SimulateParticles(float time, uint seed) {
 
             this.particleItem.SimulateParticles(time, seed, this.settings);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool Update(float deltaTime) {
-            
+
             return this.particleItem.Update(deltaTime, this.settings);
 
         }
@@ -223,7 +236,7 @@
         public override string ToString() {
 
             return "Particle System Simulation Element";
-            
+
         }
 
     }
@@ -240,9 +253,10 @@
         public ParticleSimulationSettings settings;
         public bool hasElements;
 
-        [UnityEngine.SerializeField][UnityEngine.HideInInspector]
+        [UnityEngine.SerializeField]
+        [UnityEngine.HideInInspector]
         private bool hasDefault;
-        
+
         public void OnValidate(UnityEngine.ParticleSystem[] particleSystems) {
 
             if (this.particleItems == null || this.particleItems.Length != particleSystems.Length) {
@@ -268,11 +282,13 @@
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void SimulateParticles(float time, uint seed) {
 
             if (this.hasElements == false) return;
-            
+
             for (int i = 0, cnt = this.particleItems.Length; i < cnt; ++i) {
 
                 this.particleItems[i].SimulateParticles(time, seed, this.settings);
@@ -281,9 +297,11 @@
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Update(float deltaTime) {
-            
+
             if (this.hasElements == false) return;
 
             for (int i = 0, cnt = this.particleItems.Length; i < cnt; ++i) {
@@ -291,15 +309,15 @@
                 this.particleItems[i].Update(deltaTime, this.settings);
 
             }
-            
+
         }
 
         public override string ToString() {
 
             if (this.particleItems == null) return string.Empty;
-            
+
             return "Particle Systems Count: " + this.particleItems.Length.ToString();
-            
+
         }
 
     }
@@ -310,7 +328,7 @@
 
     }
 
-    public interface IViewsProviderInitializerBase : System.IComparable<IViewsProviderInitializerBase> {}
+    public interface IViewsProviderInitializerBase : System.IComparable<IViewsProviderInitializerBase> { }
 
     public interface IViewsProviderInitializer : IViewsProviderInitializerBase {
 
@@ -320,7 +338,7 @@
     }
 
     public interface IViewsProviderBase {
-        
+
         void OnConstruct();
         void OnDeconstruct();
 
@@ -349,9 +367,9 @@
             return 0;
 
         }
-        
+
         public World world { get; set; }
-        
+
         public abstract void OnConstruct();
         public abstract void OnDeconstruct();
 

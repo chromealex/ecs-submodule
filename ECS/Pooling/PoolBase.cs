@@ -1,77 +1,80 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
+using System.Collections.Generic;
 
 namespace ME.ECS {
 
-	#if ECS_COMPILE_IL2CPP_OPTIONS
+    #if ECS_COMPILE_IL2CPP_OPTIONS
 	[Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
 	 Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
 	 Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-	#endif
-	public static class PoolClass<T> where T : class, new() {
+    #endif
+    public static class PoolClass<T> where T : class, new() {
 
-		private static PoolInternalBase pool = new PoolInternalBase(typeof(T), () => new T(), null);
+        private static PoolInternalBase pool = new PoolInternalBase(typeof(T), () => new T(), null);
 
-		public static T Spawn() {
-		    
-			return (T)PoolClass<T>.pool.Spawn();
-		    
-		}
+        public static T Spawn() {
 
-		public static void Recycle(ref T instance) {
-		    
-			PoolClass<T>.pool.Recycle(instance);
-			instance = null;
+            return (T)PoolClass<T>.pool.Spawn();
 
-		}
+        }
 
-		public static void Recycle(T instance) {
-		    
-			PoolClass<T>.pool.Recycle(instance);
-		    
-		}
+        public static void Recycle(ref T instance) {
 
-	}
+            PoolClass<T>.pool.Recycle(instance);
+            instance = null;
 
-	#if ECS_COMPILE_IL2CPP_OPTIONS
+        }
+
+        public static void Recycle(T instance) {
+
+            PoolClass<T>.pool.Recycle(instance);
+
+        }
+
+    }
+
+    #if ECS_COMPILE_IL2CPP_OPTIONS
 	[Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
 	 Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
 	 Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-	#endif
-	public static class PoolClassMainThread<T> where T : class, new() {
+    #endif
+    public static class PoolClassMainThread<T> where T : class, new() {
 
-		private static PoolInternalBaseNoStackPool pool = new PoolInternalBaseNoStackPool(() => new T(), null);
+        private static PoolInternalBaseNoStackPool pool = new PoolInternalBaseNoStackPool(() => new T(), null);
 
-		public static T Spawn() {
-		    
-			return (T)PoolClassMainThread<T>.pool.Spawn();
-		    
-		}
+        public static T Spawn() {
 
-		public static void Recycle(ref T instance) {
-		    
-			PoolClassMainThread<T>.pool.Recycle(instance);
-			instance = null;
+            return (T)PoolClassMainThread<T>.pool.Spawn();
 
-		}
+        }
 
-		public static void Recycle(T instance) {
-		    
-			PoolClassMainThread<T>.pool.Recycle(instance);
-		    
-		}
+        public static void Recycle(ref T instance) {
 
-	}
+            PoolClassMainThread<T>.pool.Recycle(instance);
+            instance = null;
+
+        }
+
+        public static void Recycle(T instance) {
+
+            PoolClassMainThread<T>.pool.Recycle(instance);
+
+        }
+
+    }
 
     public interface IPoolableSpawn {
 
-	    void OnSpawn();
+        void OnSpawn();
 
     }
 
     public interface IPoolableRecycle {
 
-	    void OnRecycle();
+        void OnRecycle();
 
     }
 
@@ -82,146 +85,154 @@ namespace ME.ECS {
     #endif
     public class PoolInternalBaseNoStackPool {
 
-	    protected Stack<object> cache = new Stack<object>();
-	    protected System.Func<object> constructor;
-	    protected System.Action<object> desctructor;
-	    protected int poolAllocated;
-	    protected int poolDeallocated;
-	    protected int poolNewAllocated;
-	    protected int poolUsed;
+        protected Stack<object> cache = new Stack<object>();
+        protected System.Func<object> constructor;
+        protected System.Action<object> desctructor;
+        protected int poolAllocated;
+        protected int poolDeallocated;
+        protected int poolNewAllocated;
+        protected int poolUsed;
 
-	    public static int newAllocated;
-	    public static int allocated;
-	    public static int deallocated;
-	    public static int used;
+        public static int newAllocated;
+        public static int allocated;
+        public static int deallocated;
+        public static int used;
 
-	    private static List<PoolInternalBaseNoStackPool> list = new List<PoolInternalBaseNoStackPool>();
+        private static List<PoolInternalBaseNoStackPool> list = new List<PoolInternalBaseNoStackPool>();
 
-	    public override string ToString() {
-		    
-		    return "Allocated: " + this.poolAllocated + ", Deallocated: " + this.poolDeallocated + ", Used: " + this.poolUsed + ", cached: " + this.cache.Count + ", new: " + this.poolNewAllocated;
-		    
-	    }
+        public override string ToString() {
 
-	    public PoolInternalBaseNoStackPool(System.Func<object> constructor, System.Action<object> desctructor) {
+            return "Allocated: " + this.poolAllocated + ", Deallocated: " + this.poolDeallocated + ", Used: " + this.poolUsed + ", cached: " + this.cache.Count + ", new: " +
+                   this.poolNewAllocated;
 
-		    this.constructor = constructor;
-		    this.desctructor = desctructor;
-		    
-		    PoolInternalBaseNoStackPool.list.Add(this);
+        }
 
-	    }
+        public PoolInternalBaseNoStackPool(System.Func<object> constructor, System.Action<object> desctructor) {
 
-	    public static void Clear() {
+            this.constructor = constructor;
+            this.desctructor = desctructor;
 
-		    var pools = PoolInternalBaseNoStackPool.list;
-		    for (int i = 0; i < pools.Count; ++i) {
-			    
-			    var pool = pools[i];
-			    pool.cache.Clear();
-			    pool.constructor = null;
-			    pool.desctructor = null;
+            PoolInternalBaseNoStackPool.list.Add(this);
 
-		    }
-		    pools.Clear();
-		    
-	    }
-	    
-	    public static T Create<T>() where T : new() {
-		    
-		    var instance = new T();
-		    PoolInternalBaseNoStackPool.CallOnSpawn(instance);
+        }
 
-		    return instance;
+        public static void Clear() {
 
-	    }
+            var pools = PoolInternalBaseNoStackPool.list;
+            for (int i = 0; i < pools.Count; ++i) {
 
-	    public static void CallOnSpawn<T>(T instance) {
-		    
-		    if (instance is IPoolableSpawn poolable) {
-			    
-			    poolable.OnSpawn();
-			    
-		    }
-		    
-	    }
+                var pool = pools[i];
+                pool.cache.Clear();
+                pool.constructor = null;
+                pool.desctructor = null;
 
-	    [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	    public virtual void Prewarm(int count) {
+            }
 
-		    for (int i = 0; i < count; ++i) {
+            pools.Clear();
 
-			    this.Recycle(this.Spawn());
+        }
 
-		    }
+        public static T Create<T>() where T : new() {
 
-	    }
+            var instance = new T();
+            PoolInternalBaseNoStackPool.CallOnSpawn(instance);
 
-	    [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	    public virtual object Spawn() {
+            return instance;
 
-		    object item = null;
-		    if (this.cache.Count > 0) {
+        }
 
-			    item = this.cache.Pop();
+        public static void CallOnSpawn<T>(T instance) {
 
-		    }
-		    
-		    if (item == null) {
+            if (instance is IPoolableSpawn poolable) {
 
-			    ++PoolInternalBaseNoStackPool.newAllocated;
-			    ++this.poolNewAllocated;
+                poolable.OnSpawn();
 
-		    } else {
+            }
 
-			    ++PoolInternalBaseNoStackPool.used;
-			    ++this.poolUsed;
+        }
 
-		    }
-		    
-		    if (this.constructor != null && item == null) {
-			    
-			    item = this.constructor.Invoke();
-			    
-		    }
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public virtual void Prewarm(int count) {
 
-		    if (item is IPoolableSpawn poolable) {
-			    
-			    poolable.OnSpawn();
-			    
-		    }
+            for (int i = 0; i < count; ++i) {
 
-		    ++this.poolAllocated;
-		    ++PoolInternalBaseNoStackPool.allocated;
-		    
-		    return item;
+                this.Recycle(this.Spawn());
 
-	    }
+            }
 
-	    [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	    public virtual void Recycle(object instance) {
-		    
-		    ++this.poolDeallocated;
-		    ++PoolInternalBaseNoStackPool.deallocated;
+        }
 
-		    if (this.desctructor != null) {
-			    
-			    this.desctructor.Invoke(instance);
-			    
-		    }
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public virtual object Spawn() {
 
-		    if (instance is IPoolableRecycle poolable) {
-			    
-			    poolable.OnRecycle();
-			    
-		    }
+            object item = null;
+            if (this.cache.Count > 0) {
 
-		    this.cache.Push(instance);
+                item = this.cache.Pop();
 
-	    }
+            }
+
+            if (item == null) {
+
+                ++PoolInternalBaseNoStackPool.newAllocated;
+                ++this.poolNewAllocated;
+
+            } else {
+
+                ++PoolInternalBaseNoStackPool.used;
+                ++this.poolUsed;
+
+            }
+
+            if (this.constructor != null && item == null) {
+
+                item = this.constructor.Invoke();
+
+            }
+
+            if (item is IPoolableSpawn poolable) {
+
+                poolable.OnSpawn();
+
+            }
+
+            ++this.poolAllocated;
+            ++PoolInternalBaseNoStackPool.allocated;
+
+            return item;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public virtual void Recycle(object instance) {
+
+            ++this.poolDeallocated;
+            ++PoolInternalBaseNoStackPool.deallocated;
+
+            if (this.desctructor != null) {
+
+                this.desctructor.Invoke(instance);
+
+            }
+
+            if (instance is IPoolableRecycle poolable) {
+
+                poolable.OnRecycle();
+
+            }
+
+            this.cache.Push(instance);
+
+        }
 
     }
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -229,344 +240,353 @@ namespace ME.ECS {
     #endif
     public class PoolInternalBase {
 
-	    #if MULTITHREAD_SUPPORT
+        #if MULTITHREAD_SUPPORT
 	    protected CCStack<object> cache = new CCStack<object>(usePool: true);
-		#else
-		protected Stack<object> cache = new Stack<object>();
-		#endif
-		private HashSet<object> contains = new HashSet<object>();
-	    protected System.Func<object> constructor;
-	    protected System.Action<object> desctructor;
-	    protected System.Type poolType;
-	    protected int poolAllocated;
-	    protected int poolDeallocated;
-	    protected int poolNewAllocated;
-	    protected int poolUsed;
+        #else
+        protected Stack<object> cache = new Stack<object>();
+        #endif
+        private HashSet<object> contains = new HashSet<object>();
+        protected System.Func<object> constructor;
+        protected System.Action<object> desctructor;
+        protected System.Type poolType;
+        protected int poolAllocated;
+        protected int poolDeallocated;
+        protected int poolNewAllocated;
+        protected int poolUsed;
 
-	    private static List<PoolInternalBase> list = new List<PoolInternalBase>();
-	    
-	    #if UNITY_EDITOR
-	    private Dictionary<object, string> stackTraces;
-	    private static bool isStackTraceEnabled;
-	    private static bool isStackTraceEnabledSet;
-	    #endif
-	    
-	    public static int newAllocated;
-	    public static int allocated;
-	    public static int deallocated;
-	    public static int used;
+        private static List<PoolInternalBase> list = new List<PoolInternalBase>();
 
-	    public static void Clear() {
+        #if UNITY_EDITOR
+        private Dictionary<object, string> stackTraces;
+        private static bool isStackTraceEnabled;
+        private static bool isStackTraceEnabledSet;
+        #endif
 
-		    var pools = PoolInternalBase.list;
-		    for (int i = 0; i < pools.Count; ++i) {
-			    
-			    var pool = pools[i];
-			    pool.cache.Clear();
-			    pool.constructor = null;
-			    pool.desctructor = null;
+        public static int newAllocated;
+        public static int allocated;
+        public static int deallocated;
+        public static int used;
 
-		    }
-		    pools.Clear();
-		    
-	    }
+        public static void Clear() {
 
-	    #if UNITY_EDITOR
-	    [UnityEditor.MenuItem("ME.ECS/Debug/Enable Stack Trace", isValidateFunction: true)]
-	    public static bool StackTraceValidation() {
+            var pools = PoolInternalBase.list;
+            for (int i = 0; i < pools.Count; ++i) {
 
-		    var key = "ME.Pools.StackTraceEnabled";
-		    var flag = UnityEditor.EditorPrefs.GetBool(key, false);
-		    UnityEditor.Menu.SetChecked("ME.ECS/Debug/Enable Stack Trace", flag);
-		    return true;
+                var pool = pools[i];
+                pool.cache.Clear();
+                pool.constructor = null;
+                pool.desctructor = null;
 
-	    }
+            }
 
-	    [UnityEditor.MenuItem("ME.ECS/Debug/Enable Stack Trace")]
-	    public static void StackTrace() {
+            pools.Clear();
 
-		    var key = "ME.Pools.StackTraceEnabled";
-		    UnityEditor.EditorPrefs.SetBool(key, !UnityEditor.EditorPrefs.GetBool(key, false));
-				
-	    }
+        }
 
-	    public static bool IsStackTraceEnabled() {
+        #if UNITY_EDITOR
+        [UnityEditor.MenuItem("ME.ECS/Debug/Enable Stack Trace", isValidateFunction: true)]
+        public static bool StackTraceValidation() {
 
-		    if (PoolInternalBase.isStackTraceEnabledSet == true) return PoolInternalBase.isStackTraceEnabled;
-		    
-		    var key = "ME.Pools.StackTraceEnabled";
-		    PoolInternalBase.isStackTraceEnabled = UnityEditor.EditorPrefs.GetBool(key, false);
-		    PoolInternalBase.isStackTraceEnabledSet = true;
+            var key = "ME.Pools.StackTraceEnabled";
+            var flag = UnityEditor.EditorPrefs.GetBool(key, false);
+            UnityEditor.Menu.SetChecked("ME.ECS/Debug/Enable Stack Trace", flag);
+            return true;
 
-		    return PoolInternalBase.isStackTraceEnabled;
+        }
 
-	    }
+        [UnityEditor.MenuItem("ME.ECS/Debug/Enable Stack Trace")]
+        public static void StackTrace() {
 
-	    [UnityEditor.MenuItem("ME.ECS/Debug/Pools Info")]
-	    public static void Debug() {
-		    
-		    UnityEngine.Debug.Log("Allocated: " + PoolInternalBase.allocated + ", Deallocated: " + PoolInternalBase.deallocated + ", Used: " + PoolInternalBase.used + ", cached: " + (PoolInternalBase.deallocated - PoolInternalBase.allocated) + ", new: " + PoolInternalBase.newAllocated);
+            var key = "ME.Pools.StackTraceEnabled";
+            UnityEditor.EditorPrefs.SetBool(key, !UnityEditor.EditorPrefs.GetBool(key, false));
 
-		    PoolInternalBase maxCached = null;
-		    PoolInternalBase maxAlloc = null;
-		    int maxCountCache = 0;
-		    int maxCountAlloc = 0;
-		    for (int i = 0; i < PoolInternalBase.list.Count; ++i) {
+        }
 
-			    var item = PoolInternalBase.list[i];
-			    if (maxCountCache < item.cache.Count) {
+        public static bool IsStackTraceEnabled() {
 
-				    maxCountCache = item.cache.Count;
-				    maxCached = item;
+            if (PoolInternalBase.isStackTraceEnabledSet == true) return PoolInternalBase.isStackTraceEnabled;
 
-			    }
-			    
-			    if (maxCountAlloc < item.poolAllocated) {
+            var key = "ME.Pools.StackTraceEnabled";
+            PoolInternalBase.isStackTraceEnabled = UnityEditor.EditorPrefs.GetBool(key, false);
+            PoolInternalBase.isStackTraceEnabledSet = true;
 
-				    maxCountAlloc = item.poolAllocated;
-				    maxAlloc = item;
+            return PoolInternalBase.isStackTraceEnabled;
 
-			    }
+        }
 
-		    }
+        [UnityEditor.MenuItem("ME.ECS/Debug/Pools Info")]
+        public static void Debug() {
 
-		    if (maxCached != null) {
-			    
-			    UnityEngine.Debug.Log("Max cache type: " + maxCached.poolType + ", Pool:\n" + maxCached);
-			    
-		    }
+            UnityEngine.Debug.Log("Allocated: " + PoolInternalBase.allocated + ", Deallocated: " + PoolInternalBase.deallocated + ", Used: " + PoolInternalBase.used +
+                                  ", cached: " + (PoolInternalBase.deallocated - PoolInternalBase.allocated) + ", new: " + PoolInternalBase.newAllocated);
 
-		    if (maxAlloc != null) {
-			    
-			    UnityEngine.Debug.Log("Max alloc type: " + maxAlloc.poolType + ", Pool:\n" + maxAlloc);
-			    
-		    }
+            PoolInternalBase maxCached = null;
+            PoolInternalBase maxAlloc = null;
+            int maxCountCache = 0;
+            int maxCountAlloc = 0;
+            for (int i = 0; i < PoolInternalBase.list.Count; ++i) {
 
-		    for (int i = 0; i < PoolInternalBase.list.Count; ++i) {
+                var item = PoolInternalBase.list[i];
+                if (maxCountCache < item.cache.Count) {
 
-			    var item = PoolInternalBase.list[i];
-			    if (item.poolAllocated != item.poolDeallocated) {
+                    maxCountCache = item.cache.Count;
+                    maxCached = item;
 
-				    UnityEngine.Debug.LogWarning("Memory leak: " + item.poolType + ", Pool:\n" + item);
+                }
 
-				    if (PoolInternalBase.IsStackTraceEnabled() == true && item.stackTraces != null) {
+                if (maxCountAlloc < item.poolAllocated) {
 
-					    var max = 10;
-					    foreach (var stack in item.stackTraces) {
+                    maxCountAlloc = item.poolAllocated;
+                    maxAlloc = item;
 
-						    UnityEngine.Debug.Log(stack.Key.GetType() + "\n" + stack.Value);
-						    --max;
-						    if (max <= 0) break;
-						    
-					    }
+                }
 
-				    }
-				    
-			    }
-			    
-		    }
-		    
-	    }
-	    
-	    [UnityEditor.MenuItem("ME.ECS/Debug/Pools Reset Stats")]
-	    public static void DebugReset() {
+            }
 
-		    for (int i = 0; i < PoolInternalBase.list.Count; ++i) {
+            if (maxCached != null) {
 
-			    PoolInternalBase.list[i].ResetStat();
+                UnityEngine.Debug.Log("Max cache type: " + maxCached.poolType + ", Pool:\n" + maxCached);
 
-		    }
+            }
 
-		    PoolInternalBase.allocated = 0;
-		    PoolInternalBase.deallocated = 0;
-		    PoolInternalBase.used = 0;
-		    PoolInternalBase.newAllocated = 0;
+            if (maxAlloc != null) {
 
-	    }
-	    #endif
+                UnityEngine.Debug.Log("Max alloc type: " + maxAlloc.poolType + ", Pool:\n" + maxAlloc);
 
-	    public void ResetStat() {
+            }
 
-		    this.poolAllocated = 0;
-		    this.poolDeallocated = 0;
-		    this.poolUsed = 0;
-		    this.poolNewAllocated = 0;
+            for (int i = 0; i < PoolInternalBase.list.Count; ++i) {
 
-	    }
+                var item = PoolInternalBase.list[i];
+                if (item.poolAllocated != item.poolDeallocated) {
 
-	    public override string ToString() {
-		    
-		    return "Allocated: " + this.poolAllocated + ", Deallocated: " + this.poolDeallocated + ", Used: " + this.poolUsed + ", cached: " + this.cache.Count + ", new: " + this.poolNewAllocated;
-		    
-	    }
+                    UnityEngine.Debug.LogWarning("Memory leak: " + item.poolType + ", Pool:\n" + item);
 
-	    public PoolInternalBase(System.Type poolType, System.Func<object> constructor, System.Action<object> desctructor) {
+                    if (PoolInternalBase.IsStackTraceEnabled() == true && item.stackTraces != null) {
 
-		    this.poolType = poolType;
-		    this.constructor = constructor;
-		    this.desctructor = desctructor;
+                        var max = 10;
+                        foreach (var stack in item.stackTraces) {
 
-		    PoolInternalBase.list.Add(this);
-		    
-	    }
+                            UnityEngine.Debug.Log(stack.Key.GetType() + "\n" + stack.Value);
+                            --max;
+                            if (max <= 0) break;
 
-	    public static T Create<T>(PoolInternalBase pool) where T : new() {
-		    
-		    var instance = new T();
-		    PoolInternalBase.CallOnSpawn(instance, pool);
+                        }
 
-		    return instance;
+                    }
 
-	    }
+                }
 
-	    public static void CallOnSpawn<T>(T instance, PoolInternalBase pool) {
-		    
-		    if (instance is IPoolableSpawn poolable) {
-			    
-			    poolable.OnSpawn();
-			    
-		    }
+            }
 
-		    #if UNITY_EDITOR
-		    if (PoolInternalBase.IsStackTraceEnabled() == true) {
-			    
-			    pool.WriteStackTrace(instance);
-			    
-		    }
-		    #endif
-		    
-	    }
+        }
 
-	    [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	    public virtual void Prewarm(int count) {
+        [UnityEditor.MenuItem("ME.ECS/Debug/Pools Reset Stats")]
+        public static void DebugReset() {
 
-		    for (int i = 0; i < count; ++i) {
+            for (int i = 0; i < PoolInternalBase.list.Count; ++i) {
 
-			    this.Recycle(this.Spawn());
+                PoolInternalBase.list[i].ResetStat();
 
-		    }
+            }
 
-	    }
+            PoolInternalBase.allocated = 0;
+            PoolInternalBase.deallocated = 0;
+            PoolInternalBase.used = 0;
+            PoolInternalBase.newAllocated = 0;
 
-	    [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	    public virtual object Spawn() {
+        }
+        #endif
 
-			#if MULTITHREAD_SUPPORT
+        public void ResetStat() {
+
+            this.poolAllocated = 0;
+            this.poolDeallocated = 0;
+            this.poolUsed = 0;
+            this.poolNewAllocated = 0;
+
+        }
+
+        public override string ToString() {
+
+            return "Allocated: " + this.poolAllocated + ", Deallocated: " + this.poolDeallocated + ", Used: " + this.poolUsed + ", cached: " + this.cache.Count + ", new: " +
+                   this.poolNewAllocated;
+
+        }
+
+        public PoolInternalBase(System.Type poolType, System.Func<object> constructor, System.Action<object> desctructor) {
+
+            this.poolType = poolType;
+            this.constructor = constructor;
+            this.desctructor = desctructor;
+
+            PoolInternalBase.list.Add(this);
+
+        }
+
+        public static T Create<T>(PoolInternalBase pool) where T : new() {
+
+            var instance = new T();
+            PoolInternalBase.CallOnSpawn(instance, pool);
+
+            return instance;
+
+        }
+
+        public static void CallOnSpawn<T>(T instance, PoolInternalBase pool) {
+
+            if (instance is IPoolableSpawn poolable) {
+
+                poolable.OnSpawn();
+
+            }
+
+            #if UNITY_EDITOR
+            if (PoolInternalBase.IsStackTraceEnabled() == true) {
+
+                pool.WriteStackTrace(instance);
+
+            }
+            #endif
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public virtual void Prewarm(int count) {
+
+            for (int i = 0; i < count; ++i) {
+
+                this.Recycle(this.Spawn());
+
+            }
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public virtual object Spawn() {
+
+            #if MULTITHREAD_SUPPORT
 		    this.cache.TryPop(out object item);
-			#else
-			var item = (this.cache.Count > 0 ? this.cache.Pop() : null);
-			#endif
-		    if (item == null) {
+            #else
+            var item = (this.cache.Count > 0 ? this.cache.Pop() : null);
+            #endif
+            if (item == null) {
 
-			    ++PoolInternalBase.newAllocated;
-			    ++this.poolNewAllocated;
+                ++PoolInternalBase.newAllocated;
+                ++this.poolNewAllocated;
 
-		    } else {
+            } else {
 
-			    this.contains.Remove(item);
-			    ++PoolInternalBase.used;
-			    ++this.poolUsed;
+                this.contains.Remove(item);
+                ++PoolInternalBase.used;
+                ++this.poolUsed;
 
-		    }
-		    
-		    if (this.constructor != null && item == null) {
-			    
-			    item = this.constructor.Invoke();
-			    
-		    }
+            }
 
-		    if (item is IPoolableSpawn poolable) {
-			    
-			    poolable.OnSpawn();
-			    
-		    }
+            if (this.constructor != null && item == null) {
 
-		    ++this.poolAllocated;
-		    ++PoolInternalBase.allocated;
+                item = this.constructor.Invoke();
 
-		    #if UNITY_EDITOR
-		    if (PoolInternalBase.IsStackTraceEnabled() == true) {
+            }
 
-			    this.WriteStackTrace(item);
+            if (item is IPoolableSpawn poolable) {
 
-		    }
-		    
-		    if (item != null) {
-			    
-			    this.poolType = item.GetType();
-			    
-		    }
-		    #endif
-		    
-		    return item;
+                poolable.OnSpawn();
 
-	    }
+            }
 
-	    #if UNITY_EDITOR
-	    private void RemoveStackTrace(object obj) {
-		    
-		    if (obj == null) return;
-		    
-		    if (this.stackTraces == null) this.stackTraces = new Dictionary<object, string>();
-		    this.stackTraces.Remove(obj);
+            ++this.poolAllocated;
+            ++PoolInternalBase.allocated;
 
-	    }
-	    
-	    private void WriteStackTrace(object obj) {
+            #if UNITY_EDITOR
+            if (PoolInternalBase.IsStackTraceEnabled() == true) {
 
-		    if (obj == null) return;
-		    
-		    var stack = System.Environment.StackTrace;
-		    if (this.stackTraces == null) this.stackTraces = new Dictionary<object, string>();
-		    if (this.stackTraces.ContainsKey(obj) == false) this.stackTraces.Add(obj, stack);
-		    
-	    }
-	    #endif
+                this.WriteStackTrace(item);
 
-	    [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	    public virtual void Recycle(object instance) {
-		    
-		    #if UNITY_EDITOR
-		    if (PoolInternalBase.IsStackTraceEnabled() == true) {
+            }
 
-			    this.RemoveStackTrace(instance);
+            if (item != null) {
 
-		    }
+                this.poolType = item.GetType();
 
-		    if (instance != null) {
-			    
-			    this.poolType = instance.GetType();
-			    
-		    }
-		    #endif
+            }
+            #endif
 
-		    ++this.poolDeallocated;
-		    ++PoolInternalBase.deallocated;
+            return item;
 
-		    if (this.desctructor != null) {
-			    
-			    this.desctructor.Invoke(instance);
-			    
-		    }
+        }
 
-		    if (instance is IPoolableRecycle poolable) {
-			    
-			    poolable.OnRecycle();
-			    
-		    }
+        #if UNITY_EDITOR
+        private void RemoveStackTrace(object obj) {
 
-		    if (this.contains.Contains(instance) == false) {
+            if (obj == null) return;
 
-			    this.contains.Add(instance);
-			    this.cache.Push(instance);
+            if (this.stackTraces == null) this.stackTraces = new Dictionary<object, string>();
+            this.stackTraces.Remove(obj);
 
-		    } else {
-			    
-			    UnityEngine.Debug.LogError("You are trying to push instance " + instance + " that already in pool!");
-			    
-		    }
+        }
 
-	    }
+        private void WriteStackTrace(object obj) {
+
+            if (obj == null) return;
+
+            var stack = System.Environment.StackTrace;
+            if (this.stackTraces == null) this.stackTraces = new Dictionary<object, string>();
+            if (this.stackTraces.ContainsKey(obj) == false) this.stackTraces.Add(obj, stack);
+
+        }
+        #endif
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public virtual void Recycle(object instance) {
+
+            #if UNITY_EDITOR
+            if (PoolInternalBase.IsStackTraceEnabled() == true) {
+
+                this.RemoveStackTrace(instance);
+
+            }
+
+            if (instance != null) {
+
+                this.poolType = instance.GetType();
+
+            }
+            #endif
+
+            ++this.poolDeallocated;
+            ++PoolInternalBase.deallocated;
+
+            if (this.desctructor != null) {
+
+                this.desctructor.Invoke(instance);
+
+            }
+
+            if (instance is IPoolableRecycle poolable) {
+
+                poolable.OnRecycle();
+
+            }
+
+            if (this.contains.Contains(instance) == false) {
+
+                this.contains.Add(instance);
+                this.cache.Push(instance);
+
+            } else {
+
+                UnityEngine.Debug.LogError("You are trying to push instance " + instance + " that already in pool!");
+
+            }
+
+        }
 
     }
 

@@ -1,10 +1,13 @@
-﻿
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
 namespace ME.ECS.Collections {
 
     public interface IIntrusiveQueueGeneric<T> where T : struct, System.IEquatable<T> {
 
         int Count { get; }
-        
+
         void Enqueue(in T entityData);
         T Dequeue();
         bool TryDequeue(out T value);
@@ -16,7 +19,7 @@ namespace ME.ECS.Collections {
         IntrusiveQueueGeneric<T>.Enumerator GetEnumerator();
 
     }
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
@@ -34,23 +37,29 @@ namespace ME.ECS.Collections {
             private IntrusiveListGeneric<T>.Enumerator listEnumerator;
             public T Current => this.listEnumerator.Current;
 
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public Enumerator(IntrusiveQueueGeneric<T> hashSet) {
 
                 this.listEnumerator = hashSet.list.GetEnumerator();
-                
+
             }
 
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public bool MoveNext() {
 
                 return this.listEnumerator.MoveNext();
 
             }
 
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Reset() {
-                
+
                 this.listEnumerator = default;
 
             }
@@ -61,9 +70,7 @@ namespace ME.ECS.Collections {
                 }
             }
 
-            public void Dispose() {
-
-            }
+            public void Dispose() { }
 
         }
 
@@ -71,7 +78,9 @@ namespace ME.ECS.Collections {
 
         public int Count => this.list.Count;
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public Enumerator GetEnumerator() {
 
             return new Enumerator(this);
@@ -82,15 +91,17 @@ namespace ME.ECS.Collections {
         /// Put entity data into array.
         /// </summary>
         /// <returns>Buffer array from pool</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public BufferArray<T> ToArray() {
 
             var arr = PoolArray<T>.Spawn(this.Count);
             var i = 0;
             foreach (var entity in this) {
-                
+
                 arr.arr[i++] = entity;
-                
+
             }
 
             return arr;
@@ -102,17 +113,21 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="entityData"></param>
         /// <returns>Returns TRUE if data was found</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool Contains(in T entityData) {
-            
+
             return this.list.Contains(in entityData);
 
         }
-        
+
         /// <summary>
         /// Clear the list.
         /// </summary>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Clear() {
 
             this.list.Clear();
@@ -123,9 +138,11 @@ namespace ME.ECS.Collections {
         /// Remove first data from list and remote it.
         /// </summary>
         /// <returns>Returns next data, default if not found</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public T Dequeue() {
-            
+
             if (this.list.Count == 0) return default;
 
             var first = this.list.GetFirst();
@@ -138,14 +155,16 @@ namespace ME.ECS.Collections {
         /// Remove first data from list and remote it.
         /// </summary>
         /// <returns>Returns next data, default if not found</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool TryDequeue(out T value) {
 
             if (this.list.Count == 0) {
 
                 value = default;
                 return false;
-                
+
             }
 
             value = this.Dequeue();
@@ -157,18 +176,22 @@ namespace ME.ECS.Collections {
         /// Add new data at the end of the list.
         /// </summary>
         /// <param name="entityData"></param>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Enqueue(in T entityData) {
 
             this.list.Add(in entityData);
-            
+
         }
 
         /// <summary>
         /// Get first data.
         /// </summary>
         /// <returns>Returns next data, default if not found</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public T Peek() {
 
             if (this.list.Count == 0) return default;

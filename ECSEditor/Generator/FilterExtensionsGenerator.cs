@@ -74,7 +74,10 @@ namespace ME.ECSEditor {
                         var itemsMethods = string.Empty;
                         for (int i = 0; i < j; ++i) {
 
-                            itemsMethods += "[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)] public ref T" + i.ToString() + " GetT" + i.ToString() + "(int entityId) { return ref this.buffer" + i.ToString() + ".Get(entityId); }\n";
+                            itemsMethods += @"#if INLINE_METHODS
+[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+#endif
+public ref T" + i.ToString() + " GetT" + i.ToString() + "(int entityId) { return ref this.buffer" + i.ToString() + ".Get(entityId); }\n";
 
                         }
                         

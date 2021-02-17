@@ -1,9 +1,13 @@
-﻿#if GAMEOBJECT_VIEWS_MODULE_SUPPORT
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
+#if GAMEOBJECT_VIEWS_MODULE_SUPPORT
 namespace ME.ECS {
 
     using ME.ECS.Views;
     using ME.ECS.Views.Providers;
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -33,22 +37,26 @@ namespace ME.ECS {
     #endif
     public sealed partial class World {
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ViewId RegisterViewSource(UnityEngine.GameObject prefab) {
 
             return this.RegisterViewSource(new UnityGameObjectProviderInitializer(), prefab);
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ViewId RegisterViewSource(UnityGameObjectProviderInitializer providerInitializer, UnityEngine.GameObject prefab) {
 
             if (prefab == null) {
-                
+
                 ViewSourceIsNullException.Throw();
-                
+
             }
-            
+
             IView component;
             if (prefab.TryGetComponent(out component) == true) {
 
@@ -60,14 +68,18 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ViewId RegisterViewSource(MonoBehaviourViewBase prefab) {
 
             return this.RegisterViewSource(new UnityGameObjectProviderInitializer(), (IView)prefab);
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void InstantiateView(UnityEngine.GameObject prefab, Entity entity) {
 
             IView component;
@@ -79,7 +91,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void InstantiateView(MonoBehaviourViewBase prefab, Entity entity) {
 
             this.InstantiateView((IView)prefab, entity);
@@ -108,27 +122,33 @@ namespace ME.ECS.Views {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     public partial class ViewsModule {
-        
+
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ViewId RegisterViewSource(UnityEngine.GameObject prefab) {
 
             return this.RegisterViewSource(new UnityGameObjectProviderInitializer(), prefab.GetComponent<MonoBehaviourView>());
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void UnRegisterViewSource(UnityEngine.GameObject prefab) {
 
             this.UnRegisterViewSource(prefab.GetComponent<MonoBehaviourView>());
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void InstantiateView(UnityEngine.GameObject prefab, Entity entity) {
-            
+
             var viewSource = prefab.GetComponent<MonoBehaviourView>();
             this.InstantiateView(this.GetViewSourceId(viewSource), entity);
-            
+
         }
 
     }
@@ -159,11 +179,11 @@ namespace ME.ECS.Views.Providers {
 
             var world = Worlds.currentWorld;
             if (world.settings.useJobsForViews == false || world.settings.viewsSettings.unityGameObjectProviderDisableJobs == true) return false;
-            
+
             return this.applyStateJob;
 
         }
-        
+
         public virtual void ApplyStateJob(TransformAccess transform, float deltaTime, bool immediately) { }
 
         internal void InitializeTransform() {
@@ -173,34 +193,34 @@ namespace ME.ECS.Views.Providers {
         }
 
         public void SimulateParticles(float time, uint seed) {
-            
+
             this.particleSystemSimulation.SimulateParticles(time, seed);
-            
+
         }
 
         public void UpdateParticlesSimulation(float deltaTime) {
-            
+
             this.particleSystemSimulation.Update(deltaTime);
-            
+
         }
 
         [UnityEngine.ContextMenu("Validate")]
         public void DoValidate() {
-            
+
             this.particleSystemSimulation.OnValidate(this.GetComponentsInChildren<UnityEngine.ParticleSystem>(true));
-            
+
         }
 
         public virtual void OnValidate() {
-            
+
             this.DoValidate();
-            
+
         }
 
         public override string ToString() {
 
             return this.particleSystemSimulation.ToString();
-            
+
         }
 
     }
@@ -211,7 +231,7 @@ namespace ME.ECS.Views.Providers {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     public abstract class PhysicsView : MonoBehaviourView {
-        
+
         new public UnityEngine.Rigidbody rigidbody;
 
         public void OnCollisionEnter(UnityEngine.Collision other) {
@@ -219,7 +239,7 @@ namespace ME.ECS.Views.Providers {
             this.entity.SetData(new ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionEnter() {
                 collision = other
             });
-            
+
         }
 
         public void OnCollisionExit(UnityEngine.Collision other) {
@@ -227,7 +247,7 @@ namespace ME.ECS.Views.Providers {
             this.entity.SetData(new ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionExit() {
                 collision = other
             });
-            
+
         }
 
         public void OnCollisionStay(UnityEngine.Collision other) {
@@ -235,18 +255,18 @@ namespace ME.ECS.Views.Providers {
             this.entity.SetData(new ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionStay() {
                 collision = other
             });
-            
+
         }
-        
+
         public override void ApplyPhysicsState(float deltaTime) {
-            
+
             this.entity.SetPosition(this.rigidbody.position);
             this.entity.SetRotation(this.rigidbody.rotation);
-            
+
         }
 
     }
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -254,7 +274,9 @@ namespace ME.ECS.Views.Providers {
     #endif
     public abstract class MonoBehaviourView : MonoBehaviourViewBase, IView, IViewBaseInternal {
 
-        int System.IComparable<IView>.CompareTo(IView other) { return 0; }
+        int System.IComparable<IView>.CompareTo(IView other) {
+            return 0;
+        }
 
         public World world { get; private set; }
         public virtual Entity entity { get; private set; }
@@ -272,23 +294,23 @@ namespace ME.ECS.Views.Providers {
         }
 
         void IView.DoInitialize() {
-            
+
             this.InitializeTransform();
             this.OnInitialize();
-            
+
         }
 
         void IView.DoDeInitialize() {
-            
+
             this.OnDeInitialize();
-            
+
         }
-        
+
         public virtual void OnInitialize() { }
         public virtual void OnDeInitialize() { }
         public virtual void ApplyState(float deltaTime, bool immediately) { }
         public virtual void OnUpdate(float deltaTime) { }
-        public virtual void ApplyPhysicsState(float deltaTime) {}
+        public virtual void ApplyPhysicsState(float deltaTime) { }
 
         public override string ToString() {
 
@@ -297,11 +319,11 @@ namespace ME.ECS.Views.Providers {
             info += "Prefab Source Id: " + this.prefabSourceId + "\n";
             info += "Creation Tick: " + this.creationTick + "\n";
             return info + base.ToString();
-            
+
         }
 
     }
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -310,11 +332,11 @@ namespace ME.ECS.Views.Providers {
     public class UnityGameObjectProvider : ViewsProvider {
 
         private PoolGameObject<MonoBehaviourView> pool;
-        
+
         public override void OnConstruct() {
 
             this.pool = new PoolGameObject<MonoBehaviourView>();
-            
+
         }
 
         public override void OnDeconstruct() {
@@ -326,14 +348,14 @@ namespace ME.ECS.Views.Providers {
             if (this.tempList != null) PoolListCopyable<MonoBehaviourView>.Recycle(ref this.tempList);
 
         }
-        
+
         public override IView Spawn(IView prefab, ViewId prefabSourceId) {
 
             var view = this.pool.Spawn((MonoBehaviourView)prefab, prefabSourceId);
             if (this.world.debugSettings.showViewsOnScene == false || this.world.debugSettings.viewsSettings.unityGameObjectProviderShowOnScene == false) {
-                
+
                 view.gameObject.hideFlags = UnityEngine.HideFlags.HideInHierarchy;
-                
+
             }
 
             return view;
@@ -347,16 +369,16 @@ namespace ME.ECS.Views.Providers {
             instance = null;
 
         }
-        
+
         private struct Job : IJobParallelForTransform {
 
             public float deltaTime;
             public int length;
-            
+
             public void Execute(int index, TransformAccess transform) {
 
                 if (index >= this.length) return;
-                
+
                 UnityGameObjectProvider.resultList[index].ApplyStateJob(transform, this.deltaTime, immediately: false);
 
             }
@@ -371,10 +393,11 @@ namespace ME.ECS.Views.Providers {
         private BufferArray<UnityEngine.Transform> currentTransforms;
         private TransformAccessArray currentTransformArray;
         private ListCopyable<MonoBehaviourView> tempList;
+
         public override void Update(BufferArray<Views> list, float deltaTime, bool hasChanged) {
-            
+
             if (this.world.settings.useJobsForViews == false || this.world.settings.viewsSettings.unityGameObjectProviderDisableJobs == true) return;
-            
+
             if (list.isCreated == true) {
 
                 if (hasChanged == true) {
@@ -451,7 +474,7 @@ namespace ME.ECS.Views.Providers {
                     handle.Complete();
 
                 }
-                
+
             }
 
         }
@@ -465,10 +488,12 @@ namespace ME.ECS.Views.Providers {
     #endif
     public struct UnityGameObjectProviderInitializer : IViewsProviderInitializer {
 
-        int System.IComparable<IViewsProviderInitializerBase>.CompareTo(IViewsProviderInitializerBase other) { return 0; }
+        int System.IComparable<IViewsProviderInitializerBase>.CompareTo(IViewsProviderInitializerBase other) {
+            return 0;
+        }
 
         public IViewsProvider Create() {
-            
+
             return PoolClass<UnityGameObjectProvider>.Spawn();
 
         }
@@ -476,7 +501,7 @@ namespace ME.ECS.Views.Providers {
         public void Destroy(IViewsProvider instance) {
 
             PoolClass<UnityGameObjectProvider>.Recycle((UnityGameObjectProvider)instance);
-            
+
         }
 
     }

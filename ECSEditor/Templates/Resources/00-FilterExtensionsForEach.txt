@@ -1,4 +1,8 @@
-﻿namespace ME.ECS {
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
+namespace ME.ECS {
 
     using Filters;
     using Buffers;
@@ -11,25 +15,33 @@
     
     public static class StateFiltersForEachExtensions {
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void ForEach(this Filter filter, R onEach) {
             filter.GetBounds(out var min, out var max);
             var entities = filter.world.currentState.storage.cache;
             for (int i = min; i <= max; ++i) { var e = entities.arr[i]; onEach.Invoke(in e); }
         }
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void ForEach<TCustom0>(this Filter filter, in TCustom0 custom0, RCP0<TCustom0> onEach) {
             filter.GetBounds(out var min, out var max);
             var entities = filter.world.currentState.storage.cache;
             for (int i = min; i <= max; ++i) { var e = entities.arr[i]; onEach.Invoke(in custom0, in e); }
         }
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void ForEach<TCustom0, TCustom1>(this Filter filter, in TCustom0 custom0, in TCustom1 custom1, RCP0<TCustom0, TCustom1> onEach) {
             filter.GetBounds(out var min, out var max);
             var entities = filter.world.currentState.storage.cache;
             for (int i = min; i <= max; ++i) { var e = entities.arr[i]; onEach.Invoke(in custom0, in custom1, in e); }
         }
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void ForEach<TCustom0, TCustom1, TCustom2>(this Filter filter, in TCustom0 custom0, in TCustom1 custom1, in TCustom2 custom2, RCP0<TCustom0, TCustom1, TCustom2> onEach) {
             filter.GetBounds(out var min, out var max);
             var entities = filter.world.currentState.storage.cache;

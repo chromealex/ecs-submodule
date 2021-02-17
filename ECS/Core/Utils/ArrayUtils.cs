@@ -1,3 +1,7 @@
+#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
 namespace ME.ECS {
 
     using Collections;
@@ -23,21 +27,27 @@ namespace ME.ECS {
     #endif
     public static class ArrayUtils {
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Clear(System.Array arr) {
 
             if (arr != null) System.Array.Clear(arr, 0, arr.Length);
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Clear<T>(BufferArray<T> arr) {
 
             if (arr.arr != null) System.Array.Clear(arr.arr, 0, arr.Length);
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Recycle<T, TCopy>(ref ListCopyable<T> item, TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             if (item != null) {
@@ -54,7 +64,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Recycle<T, TCopy>(ref System.Collections.Generic.List<T> item, TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             if (item != null) {
@@ -71,7 +83,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Recycle<T, TCopy>(ref ME.ECS.Collections.BufferArray<T> item, TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             for (int i = 0; i < item.Length; ++i) {
@@ -81,10 +95,12 @@ namespace ME.ECS {
             }
 
             PoolArray<T>.Recycle(ref item);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void RecycleWithIndex<T, TCopy>(ref ME.ECS.Collections.BufferArray<T> item, TCopy copy) where TCopy : IArrayElementCopyWithIndex<T> {
 
             for (int i = 0; i < item.Length; ++i) {
@@ -94,10 +110,12 @@ namespace ME.ECS {
             }
 
             PoolArray<T>.Recycle(ref item);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T, TCopy>(System.Collections.Generic.List<T> fromArr, ref System.Collections.Generic.List<T> arr, TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             if (fromArr == null) {
@@ -105,12 +123,13 @@ namespace ME.ECS {
                 if (arr != null) {
 
                     for (int i = 0; i < arr.Count; ++i) {
-                        
+
                         copy.Recycle(arr[i]);
-                        
+
                     }
+
                     PoolList<T>.Recycle(ref arr);
-                    
+
                 }
 
                 arr = null;
@@ -132,9 +151,9 @@ namespace ME.ECS {
                 T item = (isDefault ? default : arr[i]);
                 copy.Copy(fromArr[i], ref item);
                 if (isDefault == true) {
-                    
+
                     arr.Add(item);
-                    
+
                 } else {
 
                     arr[i] = item;
@@ -142,18 +161,20 @@ namespace ME.ECS {
                 }
 
             }
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T>(ListCopyable<T> fromArr, ref ListCopyable<T> arr) where T : struct {
 
             if (fromArr == null) {
 
                 if (arr != null) {
-                    
+
                     PoolListCopyable<T>.Recycle(ref arr);
-                    
+
                 }
 
                 arr = null;
@@ -166,12 +187,14 @@ namespace ME.ECS {
                 arr = PoolListCopyable<T>.Spawn(fromArr.Count);
 
             }
-            
+
             arr.CopyFrom(fromArr);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T, TCopy>(CCList<T> fromArr, ref CCList<T> arr, TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             if (fromArr == null) {
@@ -179,12 +202,13 @@ namespace ME.ECS {
                 if (arr != null) {
 
                     for (int i = 0; i < arr.Count; ++i) {
-                        
+
                         copy.Recycle(arr[i]);
-                        
+
                     }
+
                     PoolCCList<T>.Recycle(ref arr);
-                    
+
                 }
 
                 arr = null;
@@ -203,32 +227,32 @@ namespace ME.ECS {
                 PoolCCList<T>.Recycle(ref arr);
 
             }
-            
+
             arr = PoolCCList<T>.Spawn();
             arr.InitialCopyOf(fromArr);
 
             for (int i = 0; i < fromArr.array.Length; ++i) {
 
                 if (fromArr.array[i] == null && arr.array[i] != null) {
-                    
+
                     for (int k = 0; k < arr.array[i].Length; ++k) {
-                        
+
                         copy.Recycle(arr.array[i][k]);
-                        
+
                     }
-                    
+
                     PoolArray<T>.Release(ref arr.array[i]);
-                    
+
                 } else if (fromArr.array[i] != null && arr.array[i] == null) {
 
                     arr.array[i] = PoolArray<T>.Claim(fromArr.array[i].Length);
 
                 } else if (fromArr.array[i] == null && arr.array[i] == null) {
-                    
+
                     continue;
-                    
+
                 }
-                
+
                 var cnt = fromArr.array[i].Length;
                 for (int j = 0; j < cnt; ++j) {
 
@@ -237,7 +261,7 @@ namespace ME.ECS {
                 }
 
             }
-            
+
             /*
             if (arr == null || fromArr.Count != arr.Count) {
 
@@ -288,10 +312,12 @@ namespace ME.ECS {
                 }
 
             }*/
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T, TCopy>(ListCopyable<T> fromArr, ref ListCopyable<T> arr, TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             if (fromArr == null) {
@@ -299,12 +325,13 @@ namespace ME.ECS {
                 if (arr != null) {
 
                     for (int i = 0; i < arr.Count; ++i) {
-                        
+
                         copy.Recycle(arr[i]);
-                        
+
                     }
+
                     PoolListCopyable<T>.Recycle(ref arr);
-                    
+
                 }
 
                 arr = null;
@@ -326,9 +353,9 @@ namespace ME.ECS {
                 T item = (isDefault ? default : arr[i]);
                 copy.Copy(fromArr[i], ref item);
                 if (isDefault == true) {
-                    
+
                     arr.Add(item);
-                    
+
                 } else {
 
                     arr[i] = item;
@@ -336,10 +363,12 @@ namespace ME.ECS {
                 }
 
             }
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T, TCopy>(ME.ECS.Collections.BufferArray<T> fromArr, ref ME.ECS.Collections.BufferArray<T> arr, TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             if (fromArr.arr == null) {
@@ -362,11 +391,14 @@ namespace ME.ECS {
                 copy.Copy(fromArr.arr[i], ref arr.arr[i]);
 
             }
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static void CopyWithIndex<T, TCopy>(ME.ECS.Collections.BufferArray<T> fromArr, ref ME.ECS.Collections.BufferArray<T> arr, TCopy copy) where TCopy : IArrayElementCopyWithIndex<T> {
+        #endif
+        public static void CopyWithIndex<T, TCopy>(ME.ECS.Collections.BufferArray<T> fromArr, ref ME.ECS.Collections.BufferArray<T> arr, TCopy copy)
+            where TCopy : IArrayElementCopyWithIndex<T> {
 
             if (fromArr.arr == null) {
 
@@ -388,20 +420,23 @@ namespace ME.ECS {
                 copy.Copy(i, fromArr.arr[i], ref arr.arr[i]);
 
             }
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static bool Resize<T>(int index, ref Unity.Collections.NativeArray<T> arr, bool resizeWithOffset = true, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : struct {
+        #endif
+        public static bool Resize<T>(int index, ref Unity.Collections.NativeArray<T> arr, bool resizeWithOffset = true,
+                                     Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : struct {
 
             var offset = (resizeWithOffset == true ? 2 : 1);
-            
+
             if (arr.IsCreated == false) arr = new Unity.Collections.NativeArray<T>(index * offset + 1, allocator);
             if (index < arr.Length) return false;
-            
+
             var newLength = arr.Length * offset + 1;
             if (newLength == 0 || newLength <= index) newLength = index * offset + 1;
-        
+
             var newArr = new Unity.Collections.NativeArray<T>(newLength, allocator);
             Unity.Collections.NativeArray<T>.Copy(arr, 0, newArr, 0, arr.Length);
             arr.Dispose();
@@ -411,39 +446,47 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T>(Unity.Collections.NativeArray<T> fromArr, ref Unity.Collections.NativeArray<T> arr) where T : struct {
-            
+
             if (arr == null || arr.IsCreated == false) {
 
                 arr = new Unity.Collections.NativeArray<T>(fromArr.Length, Unity.Collections.Allocator.Persistent, Unity.Collections.NativeArrayOptions.ClearMemory);
 
             }
-            
+
             Unity.Collections.NativeArray<T>.Copy(fromArr, arr, fromArr.Length);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void CopyWithIndex<T, TCopy>(BufferArraySliced<T> fromArr, ref BufferArraySliced<T> arr, TCopy copy)
             where TCopy : IArrayElementCopyWithIndex<T> {
-            
+
             arr = arr.CopyFrom(in fromArr, copy);
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T>(in ME.ECS.Collections.BufferArraySliced<T> fromArr, ref ME.ECS.Collections.BufferArraySliced<T> arr) {
 
             arr = arr.CopyFrom(in fromArr);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T>(in ME.ECS.Collections.BufferArray<T> fromArr, ref ME.ECS.Collections.BufferArray<T> arr) {
 
             if (fromArr.arr == null) {
-                
+
                 if (arr.arr != null) PoolArray<T>.Recycle(ref arr);
                 arr = BufferArray<T>.Empty;
                 return;
@@ -458,14 +501,16 @@ namespace ME.ECS {
             }
 
             System.Array.Copy(fromArr.arr, arr.arr, fromArr.Length);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T>(in ME.ECS.Collections.BufferArray<T> fromArr, int sourceIndex, ref ME.ECS.Collections.BufferArray<T> arr, int destIndex, int length) {
 
             if (fromArr.arr == null) {
-                
+
                 if (arr.arr != null) PoolArray<T>.Recycle(ref arr);
                 arr = BufferArray<T>.Empty;
                 return;
@@ -480,10 +525,12 @@ namespace ME.ECS {
             }
 
             System.Array.Copy(fromArr.arr, sourceIndex, arr.arr, destIndex, length);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T>(System.Collections.Generic.IList<T> fromArr, ref T[] arr) {
 
             if (fromArr == null) {
@@ -501,14 +548,16 @@ namespace ME.ECS {
             }
 
             fromArr.CopyTo(arr, 0);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T>(System.Collections.Generic.IList<T> fromArr, ref ME.ECS.Collections.BufferArray<T> arr) {
 
             if (fromArr == null) {
-                
+
                 if (arr != null) PoolArray<T>.Recycle(ref arr);
                 arr = new BufferArray<T>(null, 0);
                 return;
@@ -523,41 +572,49 @@ namespace ME.ECS {
             }
 
             fromArr.CopyTo(arr.arr, 0);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static bool WillResize<T>(int index, ref T[] arr) {
 
-            if (arr == null) return true;//arr = PoolArray<T>.Spawn(index + 1);
+            if (arr == null) return true; //arr = PoolArray<T>.Spawn(index + 1);
             if (index < arr.Length) return false;
             return true;
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static bool WillResize<T>(int index, ref BufferArray<T> arr) {
 
             if (arr.arr == null) return true;
             if (index < arr.Length) return false;
-            
+
             return true;
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static bool WillResizeWithBuffer<T>(int index, ref BufferArray<T> arr) {
 
             if (arr.arr == null) return true;
             if (index < arr.Length) return false;
             var newLength = index + 1;
             if (newLength <= arr.arr.Length) return false;
-            
+
             return true;
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void RawResize<T>(int index, ref BufferArray<T> arr) {
 
             var newSize = index * 2 + 1;
@@ -571,19 +628,21 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static bool Resize<T>(int index, ref BufferArray<T> arr, bool resizeWithOffset = false) {
 
             if (index < arr.Length) return false;
-            
+
             var offset = (resizeWithOffset == true ? 2 : 1);
             if (arr.arr == null) {
-                
+
                 arr = PoolArray<T>.Spawn(index * offset + 1);
                 arr = new BufferArray<T>(arr.arr, index + 1);
-                
+
             }
-            
+
             var newLength = index + 1;
             if (newLength <= arr.arr.Length) {
 
@@ -602,7 +661,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static bool Resize<T>(int index, ref BufferArraySliced<T> arr, bool resizeWithOffset = false) {
 
             arr = arr.Resize(index, resizeWithOffset, out var result);

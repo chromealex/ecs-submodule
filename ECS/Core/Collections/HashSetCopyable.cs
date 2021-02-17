@@ -1,3 +1,7 @@
+#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
 namespace ME.ECS.Collections {
 
     using System;
@@ -181,9 +185,9 @@ namespace ME.ECS.Collections {
 
         public HashSetCopyable(HashSetCopyable<T> other)
             : this(EqualityComparer<T>.Default) {
-            
+
             this.CopyFrom(other);
-            
+
         }
 
         public HashSetCopyable(IEqualityComparer<T> comparer) {
@@ -225,10 +229,10 @@ namespace ME.ECS.Collections {
             this.m_lastIndex = 0;
             this.m_freeList = -1;
             this.m_version = 0;
-            
+
             this.m_buckets = new BufferArray<int>(null, 0);
             this.m_slots = new BufferArray<Slot>(null, 0);
-            
+
         }
 
         public void OnRecycle() {
@@ -237,10 +241,10 @@ namespace ME.ECS.Collections {
             this.m_lastIndex = 0;
             this.m_freeList = -1;
             this.m_version = 0;
-            
+
             PoolArray<int>.Recycle(ref this.m_buckets);
             PoolArray<Slot>.Recycle(ref this.m_slots);
-            
+
         }
 
         /*public void CopyFrom(HashSetCopyable<T> other) {
@@ -254,7 +258,7 @@ namespace ME.ECS.Collections {
             this.m_version = other.m_version;
             
         }*/
-        
+
         public void CopyFrom(HashSetCopyable<T> other) {
 
             if (this.m_buckets.arr != null) {
@@ -306,7 +310,9 @@ namespace ME.ECS.Collections {
         /// Remove all items from this set. This clears the elements but not the underlying 
         /// buckets and slots array. Follow this call by TrimExcess to release these.
         /// </summary>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Clear() {
             if (this.m_lastIndex > 0) {
                 // clear the elements so that the gc can reclaim the references.
@@ -326,10 +332,12 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="item">item to check for containment</param>
         /// <returns>true if item contained; false if not</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool Contains(T item) {
             if (this.m_count > 0 && this.m_buckets.arr != null) {
-                var hashCode = this.m_comparer.GetHashCode(item) & HashSetCopyable<T>.Lower31BitMask;//this.InternalGetHashCode(item);
+                var hashCode = this.m_comparer.GetHashCode(item) & HashSetCopyable<T>.Lower31BitMask; //this.InternalGetHashCode(item);
                 // see note at "HashSet" level describing why "- 1" appears in for loop
                 for (var i = this.m_buckets.arr[hashCode % this.m_buckets.Length] - 1; i >= 0; i = this.m_slots.arr[i].next) {
                     if (this.m_slots.arr[i].hashCode == hashCode && this.m_comparer.Equals(this.m_slots.arr[i].value, item)) {
@@ -647,14 +655,16 @@ namespace ME.ECS.Collections {
         /// greater than or equal to capacity.
         /// </summary>
         /// <param name="capacity"></param>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private void Initialize(int capacity) {
 
             var size = HashSetCopyableHashHelpers.GetPrime(capacity);
 
             PoolArray<int>.Recycle(ref this.m_buckets);
             PoolArray<Slot>.Recycle(ref this.m_slots);
-            
+
             this.m_buckets = PoolArray<int>.Spawn(size);
             this.m_slots = PoolArray<Slot>.Spawn(size);
         }
@@ -666,7 +676,9 @@ namespace ME.ECS.Collections {
         /// AddIfNotPresent attempts to insert new elements in re-opened spots.
         /// </summary>
         /// <param name="sizeSuggestion"></param>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private void IncreaseCapacity() {
             var newSize = HashSetCopyableHashHelpers.ExpandPrime(this.m_count);
             if (newSize <= this.m_count) {
@@ -682,7 +694,9 @@ namespace ME.ECS.Collections {
         /// *must* be a prime.  It is very likely that you want to call IncreaseCapacity()
         /// instead of this method.
         /// </summary>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private void SetCapacity(int newSize, bool forceNewHashCodes) {
             var newSlots = PoolArray<Slot>.Spawn(newSize);
             if (this.m_slots.arr != null) {
@@ -719,7 +733,9 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="value">value to find</param>
         /// <returns></returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private bool AddIfNotPresent(T value) {
             if (this.m_buckets.arr == null) {
                 this.Initialize(0);
@@ -773,7 +789,9 @@ namespace ME.ECS.Collections {
 
         // Add value at known index with known hash code. Used only
         // when constructing from another HashSet.
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private void AddValue(int index, int hashCode, T value) {
             var bucket = hashCode % this.m_buckets.Length;
             this.m_slots.arr[index].hashCode = hashCode;
@@ -789,7 +807,9 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private bool ContainsAllElements(IEnumerable<T> other) {
             foreach (var element in other) {
                 if (!this.Contains(element)) {
@@ -813,7 +833,9 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private bool IsSubsetOfHashSetWithSameEC(HashSet<T> other) {
 
             foreach (var item in this) {
@@ -830,7 +852,9 @@ namespace ME.ECS.Collections {
         /// because we can use other's Contains
         /// </summary>
         /// <param name="other"></param>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private void IntersectWithHashSetWithSameEC(HashSet<T> other) {
             for (var i = 0; i < this.m_lastIndex; i++) {
                 if (this.m_slots.arr[i].hashCode >= 0) {
@@ -848,7 +872,9 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private int InternalIndexOf(T item) {
             var hashCode = this.InternalGetHashCode(item);
             for (var i = this.m_buckets.arr[hashCode % this.m_buckets.Length] - 1; i >= 0; i = this.m_slots.arr[i].next) {
@@ -869,7 +895,9 @@ namespace ME.ECS.Collections {
         /// same equality comparer.
         /// </summary>
         /// <param name="other"></param>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private void SymmetricExceptWithUniqueHashSet(HashSet<T> other) {
             foreach (var item in other) {
                 if (!this.Remove(item)) {
@@ -888,7 +916,9 @@ namespace ME.ECS.Collections {
         /// <param name="value"></param>
         /// <param name="location"></param>
         /// <returns></returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private bool AddOrGetLocation(T value, out int location) {
             var hashCode = this.InternalGetHashCode(value);
             var bucket = hashCode % this.m_buckets.Length;
@@ -928,7 +958,9 @@ namespace ME.ECS.Collections {
         /// Copies this to an array. Used for DebugView
         /// </summary>
         /// <returns></returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         internal T[] ToArray() {
             var newArray = new T[this.Count];
             this.CopyTo(newArray);
@@ -946,7 +978,9 @@ namespace ME.ECS.Collections {
         /// <param name="set2"></param>
         /// <param name="comparer"></param>
         /// <returns></returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         internal static bool HashSetEquals(HashSetCopyable<T> set1, HashSetCopyable<T> set2, IEqualityComparer<T> comparer) {
             // handle null cases first
             if (set1 == null) {
@@ -997,7 +1031,9 @@ namespace ME.ECS.Collections {
         /// <param name="set1"></param>
         /// <param name="set2"></param>
         /// <returns></returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private static bool AreEqualityComparersEqual(HashSetCopyable<T> set1, HashSetCopyable<T> set2) {
             return set1.Comparer.Equals(set2.Comparer);
         }
@@ -1007,7 +1043,9 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="item"></param>
         /// <returns>hash code</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private int InternalGetHashCode(T item) {
             return this.m_comparer.GetHashCode(item) & HashSetCopyable<T>.Lower31BitMask;
         }
@@ -1023,11 +1061,11 @@ namespace ME.ECS.Collections {
 
                 ++index;
             }
-            
+
             throw new System.Data.NoNullAllowedException();
-            
+
         }
-        
+
         public ref T Get(int index) {
 
             while (index < this.m_lastIndex) {
@@ -1104,15 +1142,14 @@ namespace ME.ECS.Collections {
         }
 
     }
-    
-    internal static class HashHelpers
-    {
- 
-#if FEATURE_RANDOMIZED_STRING_HASHING
+
+    internal static class HashHelpers {
+
+        #if FEATURE_RANDOMIZED_STRING_HASHING
         public const int HashCollisionThreshold = 100;
         public static bool s_UseRandomizedStringHashing = String.UseRandomizedHashing();
-#endif
- 
+        #endif
+
         internal const Int32 HashPrime = 101;
 
         // Table of prime numbers to use as hash table sizes. 
@@ -1131,66 +1168,59 @@ namespace ME.ECS.Collections {
             1103, 1327, 1597, 1931, 2333, 2801, 3371, 4049, 4861, 5839, 7013, 8419, 10103, 12143, 14591,
             17519, 21023, 25229, 30293, 36353, 43627, 52361, 62851, 75431, 90523, 108631, 130363, 156437,
             187751, 225307, 270371, 324449, 389357, 467237, 560689, 672827, 807403, 968897, 1162687, 1395263,
-            1674319, 2009191, 2411033, 2893249, 3471899, 4166287, 4999559, 5999471, 7199369};
- 
-        public static bool IsPrime(int candidate) 
-        {
-            if ((candidate & 1) != 0) 
-            {
-                int limit = (int)Math.Sqrt (candidate);
-                for (int divisor = 3; divisor <= limit; divisor+=2)
-                {
-                    if ((candidate % divisor) == 0)
-                        return false;
+            1674319, 2009191, 2411033, 2893249, 3471899, 4166287, 4999559, 5999471, 7199369
+        };
+
+        public static bool IsPrime(int candidate) {
+            if ((candidate & 1) != 0) {
+                int limit = (int)Math.Sqrt(candidate);
+                for (int divisor = 3; divisor <= limit; divisor += 2) {
+                    if ((candidate % divisor) == 0) return false;
                 }
+
                 return true;
             }
+
             return (candidate == 2);
         }
- 
-        public static int GetPrime(int min) 
-        {
-            for (int i = 0; i < primes.Length; i++) 
-            {
+
+        public static int GetPrime(int min) {
+            for (int i = 0; i < primes.Length; i++) {
                 int prime = primes[i];
                 if (prime >= min) return prime;
             }
- 
+
             //outside of our predefined table. 
             //compute the hard way. 
-            for (int i = (min | 1); i < Int32.MaxValue;i+=2) 
-            {
-                if (IsPrime(i) && ((i - 1) % HashHelpers.HashPrime != 0))
-                    return i;
+            for (int i = (min | 1); i < Int32.MaxValue; i += 2) {
+                if (IsPrime(i) && ((i - 1) % HashHelpers.HashPrime != 0)) return i;
             }
+
             return min;
         }
- 
-        public static int GetMinPrime() 
-        {
+
+        public static int GetMinPrime() {
             return primes[0];
         }
- 
+
         // Returns size of hashtable to grow to.
-        public static int ExpandPrime(int oldSize)
-        {
+        public static int ExpandPrime(int oldSize) {
             int newSize = 2 * oldSize;
- 
+
             // Allow the hashtables to grow to maximum possible size (~2G elements) before encoutering capacity overflow.
             // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
-            if ((uint)newSize > MaxPrimeArrayLength && MaxPrimeArrayLength > oldSize)
-            {
+            if ((uint)newSize > MaxPrimeArrayLength && MaxPrimeArrayLength > oldSize) {
                 return MaxPrimeArrayLength;
             }
- 
+
             return GetPrime(newSize);
         }
- 
- 
+
+
         // This is the maximum prime smaller than Array.MaxArrayLength
         public const int MaxPrimeArrayLength = 0x7FEFFFFD;
- 
-#if FEATURE_RANDOMIZED_STRING_HASHING
+
+        #if FEATURE_RANDOMIZED_STRING_HASHING
         public static bool IsWellKnownEqualityComparer(object comparer)
         {
             return (comparer == null || comparer == System.Collections.Generic.EqualityComparer<string>.Default || comparer is IWellKnownStringEqualityComparer); 
@@ -1266,7 +1296,8 @@ namespace ME.ECS.Collections {
                 return ret;
             }
         }
-#endif // FEATURE_RANDOMIZED_STRING_HASHING
+        #endif // FEATURE_RANDOMIZED_STRING_HASHING
+
     }
 
 }

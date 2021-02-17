@@ -1,12 +1,14 @@
-﻿using System.Collections;
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace ME.ECS.Pathfinding {
 
     using ME.ECS.Collections;
-    
+
     public enum BuildingState : byte {
 
         NotBuilt = 0,
@@ -14,7 +16,7 @@ namespace ME.ECS.Pathfinding {
         Built,
 
     }
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
@@ -23,10 +25,10 @@ namespace ME.ECS.Pathfinding {
     public abstract class Graph : MonoBehaviour {
 
         public LogLevel pathfindingLogLevel;
-        
+
         public int index;
         public string graphName;
-        
+
         public Vector3 graphCenter;
 
         public BuildingState buildingState;
@@ -50,11 +52,11 @@ namespace ME.ECS.Pathfinding {
             this.maxPenalty = default;
             this.minHeight = default;
             this.maxHeight = default;
-            
+
         }
 
         public abstract void Recycle();
-        
+
         public void CopyFrom(Graph other) {
 
             this.pathfindingLogLevel = other.pathfindingLogLevel;
@@ -66,9 +68,9 @@ namespace ME.ECS.Pathfinding {
             this.maxPenalty = other.maxPenalty;
             this.minHeight = other.minHeight;
             this.maxHeight = other.maxHeight;
-            
+
             this.OnCopyFrom(other);
-            
+
         }
 
         public abstract void OnCopyFrom(Graph other);
@@ -93,7 +95,7 @@ namespace ME.ECS.Pathfinding {
         public virtual void RemoveNode(ref Node node, bool bruteForceConnections = false) {
 
             if (bruteForceConnections == true) {
-                
+
                 // Brute force all connections from all nodes and remove them to this node
                 for (int i = 0; i < this.nodes.Count; ++i) {
 
@@ -106,11 +108,11 @@ namespace ME.ECS.Pathfinding {
                             connections[j] = Node.Connection.NoConnection;
 
                         }
-                        
+
                     }
-                    
+
                 }
-                
+
             } else {
 
                 // Remove all connections to this node from neighbours only
@@ -139,7 +141,7 @@ namespace ME.ECS.Pathfinding {
 
             // Remove node from list
             this.nodes.RemoveAt(node.index);
-            
+
         }
 
         public T GetNodeByIndex<T>(int index) where T : Node {
@@ -166,10 +168,13 @@ namespace ME.ECS.Pathfinding {
 
         public abstract T GetNearest<T>(Vector3 worldPosition, Constraint constraint) where T : Node;
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public abstract void GetNodesInBounds(ListCopyable<Node> output, Bounds bounds);
 
         private Dictionary<int, Color> areaColors = new Dictionary<int, Color>();
+
         protected Color GetAreaColor(int area) {
 
             if (this.areaColors.TryGetValue(area, out var color) == false) {
@@ -184,7 +189,7 @@ namespace ME.ECS.Pathfinding {
                 return this.areaColors[area];
 
             }
-            
+
         }
 
         protected void FloodFillAreas(Node rootNode, int area) {
@@ -194,10 +199,10 @@ namespace ME.ECS.Pathfinding {
             while (list.Count > 0) {
 
                 var node = list.Dequeue();
-                
+
                 var connections = node.GetConnections();
                 for (int j = 0; j < connections.Length; ++j) {
-                
+
                     var connection = connections[j];
                     if (connection.index >= 0) {
 
@@ -215,42 +220,44 @@ namespace ME.ECS.Pathfinding {
                 }
 
             }
+
             PoolQueue<Node>.Recycle(ref list);
-            
+
         }
 
         protected Color GetSColor() {
 
             var rgb = new Vector3Int();
-            rgb[0] = Random.Range(0, 256);  // red
-            rgb[1] = Random.Range(0, 256);  // green
-            rgb[2] = Random.Range(0, 256);  // blue
-            
+            rgb[0] = Random.Range(0, 256); // red
+            rgb[1] = Random.Range(0, 256); // green
+            rgb[2] = Random.Range(0, 256); // blue
+
             int max, min;
             if (rgb[0] > rgb[1]) {
-                
+
                 max = (rgb[0] > rgb[2]) ? 0 : 2;
                 min = (rgb[1] < rgb[2]) ? 1 : 2;
-                
+
             } else {
-                
+
                 max = (rgb[1] > rgb[2]) ? 1 : 2;
                 int notmax = 1 + max % 2;
                 min = (rgb[0] < rgb[notmax]) ? 0 : notmax;
-                
+
             }
+
             rgb[max] = 255;
             rgb[min] = 0;
 
             return new Color32((byte)rgb[0], (byte)rgb[1], (byte)rgb[2], 255);
 
         }
-        
+
         protected Color GetPenaltyColor(float penalty) {
 
             var min = this.minPenalty;
             var max = this.maxPenalty;
-            
+
             var from = new Color(0f, 1f, 0f, 0.05f);
             var to = new Color(1f, 0f, 0f, 0.05f);
 
@@ -263,7 +270,7 @@ namespace ME.ECS.Pathfinding {
 
             var min = this.minHeight;
             var max = this.maxHeight;
-            
+
             var from = new Color(0f, 0f, 0f, 0.05f);
             var to = new Color(1f, 1f, 1f, 0.05f);
 
@@ -275,12 +282,12 @@ namespace ME.ECS.Pathfinding {
         public void DoBuild() {
 
             var pathfindingLogLevel = this.pathfindingLogLevel;
-            
+
             System.Diagnostics.Stopwatch sw = null;
             if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) sw = System.Diagnostics.Stopwatch.StartNew();
-            
+
             this.buildingState = BuildingState.Building;
-            
+
             this.minPenalty = float.MaxValue;
             this.maxPenalty = float.MinValue;
 
@@ -299,9 +306,9 @@ namespace ME.ECS.Pathfinding {
             if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swBeforeConnections = System.Diagnostics.Stopwatch.StartNew();
 
             this.RunModifiersBeforeConnections();
-            
+
             if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swBeforeConnections.Stop();
-            
+
             System.Diagnostics.Stopwatch swBuildConnections = null;
             if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swBuildConnections = System.Diagnostics.Stopwatch.StartNew();
 
@@ -318,31 +325,34 @@ namespace ME.ECS.Pathfinding {
             }
 
             this.BuildConnections();
-            
+
             if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swBuildConnections.Stop();
 
             System.Diagnostics.Stopwatch swAfterConnections = null;
             if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swAfterConnections = System.Diagnostics.Stopwatch.StartNew();
 
             this.RunModifiersAfterConnections();
-            
+
             if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swAfterConnections.Stop();
 
             System.Diagnostics.Stopwatch swBuildAreas = null;
             if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swBuildAreas = System.Diagnostics.Stopwatch.StartNew();
 
             this.BuildAreas();
-            
+
             if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swBuildAreas.Stop();
 
             this.buildingState = BuildingState.Built;
-            
+
             if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) {
 
-                Logger.Log(string.Format("Graph built {0} nodes in {1}ms:\nBuild Nodes: {2}ms\nBefore Connections: {3}ms\nBuild Connections: {4}ms\nAfter Connections: {5}ms\nBuild Areas: {6}ms", this.nodes.Count, sw.ElapsedMilliseconds, swBuildNodes.ElapsedMilliseconds, swBeforeConnections.ElapsedMilliseconds, swBuildConnections.ElapsedMilliseconds, swAfterConnections.ElapsedMilliseconds, swBuildAreas.ElapsedMilliseconds));
+                Logger.Log(string.Format(
+                               "Graph built {0} nodes in {1}ms:\nBuild Nodes: {2}ms\nBefore Connections: {3}ms\nBuild Connections: {4}ms\nAfter Connections: {5}ms\nBuild Areas: {6}ms",
+                               this.nodes.Count, sw.ElapsedMilliseconds, swBuildNodes.ElapsedMilliseconds, swBeforeConnections.ElapsedMilliseconds,
+                               swBuildConnections.ElapsedMilliseconds, swAfterConnections.ElapsedMilliseconds, swBuildAreas.ElapsedMilliseconds));
 
             }
-            
+
         }
 
         public abstract bool BuildNodePhysics(Node node);
@@ -353,7 +363,7 @@ namespace ME.ECS.Pathfinding {
         protected abstract void RunModifiersAfterConnections();
 
         public virtual void BuildAreas() {
-            
+
             var area = 0;
             for (int i = 0; i < this.nodes.Count; ++i) {
 
@@ -369,7 +379,7 @@ namespace ME.ECS.Pathfinding {
                     var currentArea = ++area;
                     node.area = currentArea;
                     this.FloodFillAreas(node, currentArea);
-                    
+
                 }
 
             }
@@ -379,7 +389,7 @@ namespace ME.ECS.Pathfinding {
         public void DoDrawGizmos() {
 
             this.DrawGizmos();
-            
+
         }
 
         protected abstract void DrawGizmos();

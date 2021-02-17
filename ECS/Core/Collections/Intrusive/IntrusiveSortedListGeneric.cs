@@ -1,8 +1,11 @@
-﻿
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
 namespace ME.ECS.Collections {
 
     using System.Collections.Generic;
-    
+
     public struct IntrusiveSortedListGenericNode<T> : IStructComponent {
 
         public Entity next;
@@ -14,7 +17,7 @@ namespace ME.ECS.Collections {
     public interface IIntrusiveSortedListGeneric<T> where T : struct, System.IEquatable<T>, System.IComparable<T> {
 
         int Count { get; }
-        
+
         void Add(in T entityData);
         bool Remove(in T entityData);
         int RemoveAll(in T entityData);
@@ -33,7 +36,7 @@ namespace ME.ECS.Collections {
         IntrusiveSortedListGeneric<T>.Enumerator GetEnumerator();
 
     }
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
@@ -52,33 +55,39 @@ namespace ME.ECS.Collections {
             private Entity head;
             public T Current { get; private set; }
 
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public Enumerator(IntrusiveSortedListGeneric<T> list) {
 
                 this.root = list.root;
                 this.head = list.root;
                 this.Current = default;
-                
+
             }
 
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public bool MoveNext() {
 
                 if (this.head.IsAlive() == false) return false;
 
                 this.Current = this.head.GetData<IntrusiveSortedListGenericNode<T>>().data;
-                
+
                 this.head = this.head.GetData<IntrusiveSortedListGenericNode<T>>().next;
                 return true;
 
             }
 
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Reset() {
-                
+
                 this.head = this.root;
                 this.Current = default;
-                
+
             }
 
             object System.Collections.IEnumerator.Current {
@@ -87,9 +96,7 @@ namespace ME.ECS.Collections {
                 }
             }
 
-            public void Dispose() {
-
-            }
+            public void Dispose() { }
 
         }
 
@@ -109,7 +116,9 @@ namespace ME.ECS.Collections {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public Enumerator GetEnumerator() {
 
             IntrusiveSortedListGeneric<T>.InitializeComponents();
@@ -122,7 +131,9 @@ namespace ME.ECS.Collections {
         /// Put entity data into array.
         /// </summary>
         /// <returns>Buffer array from pool</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public BufferArray<T> ToArray() {
 
             IntrusiveSortedListGeneric<T>.InitializeComponents();
@@ -130,9 +141,9 @@ namespace ME.ECS.Collections {
             var arr = PoolArray<T>.Spawn(this.count);
             var i = 0;
             foreach (var entity in this) {
-                
+
                 arr.arr[i++] = entity;
-                
+
             }
 
             return arr;
@@ -144,9 +155,11 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="entityData"></param>
         /// <returns>Returns TRUE if data was found</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool Contains(in T entityData) {
-            
+
             if (this.count == 0) return false;
 
             IntrusiveSortedListGeneric<T>.InitializeComponents();
@@ -157,15 +170,17 @@ namespace ME.ECS.Collections {
                 return true;
 
             }
-            
+
             return false;
 
         }
-        
+
         /// <summary>
         /// Clear the list.
         /// </summary>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Clear() {
 
             IntrusiveSortedListGeneric<T>.InitializeComponents();
@@ -175,7 +190,7 @@ namespace ME.ECS.Collections {
                 var node = this.root;
                 this.root = this.root.GetData<IntrusiveSortedListGenericNode<T>>().next;
                 node.Destroy();
-                
+
             }
 
             this.root = Entity.Empty;
@@ -189,7 +204,9 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="from"></param>
         /// <param name="to"></param>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public IEnumerator<T> GetRange(int from, int to) {
 
             IntrusiveSortedListGeneric<T>.InitializeComponents();
@@ -216,7 +233,9 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="index"></param>
         /// <returns>Returns TRUE if data was found</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool RemoveAt(int index) {
 
             if (this.count == 0) return false;
@@ -241,7 +260,9 @@ namespace ME.ECS.Collections {
         /// <param name="from">Must be exists in list, could not be out of list range</param>
         /// <param name="to">May be out of list range, but greater than from</param>
         /// <returns>Returns count of removed elements</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public int RemoveRange(int from, int to) {
 
             if (this.count == 0) return 0;
@@ -255,13 +276,13 @@ namespace ME.ECS.Collections {
                 while (from < to) {
 
                     if (node.IsAlive() == true) {
-                        
+
                         var next = node.GetData<IntrusiveSortedListGenericNode<T>>().next;
                         this.RemoveNode(in node);
                         node = next;
                         ++count;
                         ++from;
-                        
+
                     } else {
 
                         break;
@@ -271,7 +292,7 @@ namespace ME.ECS.Collections {
                 }
 
             }
-            
+
             return count;
 
         }
@@ -281,30 +302,34 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="index"></param>
         /// <returns>Entity data. Entity.Empty if not found.</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public T GetValue(int index) {
-            
+
             if (this.count == 0) return default;
 
             IntrusiveSortedListGeneric<T>.InitializeComponents();
 
             var node = this.FindNode(index);
             if (node.IsAlive() == true) {
-                
+
                 return node.GetData<IntrusiveSortedListGenericNode<T>>().data;
-                
+
             }
-            
+
             return default;
-            
+
         }
-        
+
         /// <summary>
         /// Remove data from list.
         /// </summary>
         /// <param name="entityData"></param>
         /// <returns>Returns TRUE if data was found</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool Remove(in T entityData) {
 
             if (this.count == 0) return false;
@@ -320,7 +345,7 @@ namespace ME.ECS.Collections {
             }
 
             return false;
-            
+
         }
 
         /// <summary>
@@ -328,7 +353,9 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="entityData"></param>
         /// <returns>Returns count of removed elements</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public int RemoveAll(in T entityData) {
 
             if (this.count == 0) return 0;
@@ -341,7 +368,7 @@ namespace ME.ECS.Collections {
 
                 var nextLink = root.GetData<IntrusiveSortedListGenericNode<T>>();
                 if (entityData.Equals(nextLink.data) == true) {
-                    
+
                     this.RemoveNode(root);
                     ++count;
 
@@ -350,20 +377,22 @@ namespace ME.ECS.Collections {
                 root = nextLink.next;
 
             } while (root.IsAlive() == true);
-            
+
             return count;
-            
+
         }
 
         /// <summary>
         /// Add new data at the end of the list.
         /// </summary>
         /// <param name="entityData"></param>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Add(in T entityData) {
 
             IntrusiveSortedListGeneric<T>.InitializeComponents();
-            
+
             var node = IntrusiveSortedListGeneric<T>.CreateNode(in entityData);
             if (this.count == 0) {
 
@@ -378,16 +407,16 @@ namespace ME.ECS.Collections {
 
                     ref var nodeToAddBeforeLink = ref nodeToAddBefore.GetData<IntrusiveSortedListGenericNode<T>>();
                     if (nodeToAddBeforeLink.prev.IsAlive() == false) {
-                        
+
                         // Prev node is null - add current node before all nodes
                         ref var headLink = ref nodeToAddBefore.GetData<IntrusiveSortedListGenericNode<T>>();
                         nodeLink.next = nodeToAddBefore;
                         headLink.prev = node;
-                        
+
                         this.root = node;
 
                     } else {
-                    
+
                         // Connect node to prev node
                         ref var headLink = ref nodeToAddBeforeLink.prev.GetData<IntrusiveSortedListGenericNode<T>>();
                         headLink.next = node;
@@ -396,7 +425,7 @@ namespace ME.ECS.Collections {
                         nodeToAddBeforeLink.prev = node;
 
                     }
-                    
+
                 } else {
 
                     // Add node to the end
@@ -421,7 +450,7 @@ namespace ME.ECS.Collections {
         public T GetFirst() {
 
             if (this.root.IsAlive() == false) return default;
-            
+
             return this.root.GetData<IntrusiveSortedListGenericNode<T>>().data;
 
         }
@@ -433,7 +462,7 @@ namespace ME.ECS.Collections {
         public T GetLast() {
 
             if (this.head.IsAlive() == false) return default;
-            
+
             return this.head.GetData<IntrusiveSortedListGenericNode<T>>().data;
 
         }
@@ -445,7 +474,7 @@ namespace ME.ECS.Collections {
         public bool RemoveLast() {
 
             if (this.head.IsAlive() == false) return false;
-            
+
             this.RemoveNode(in this.head);
             return true;
 
@@ -458,18 +487,20 @@ namespace ME.ECS.Collections {
         public bool RemoveFirst() {
 
             if (this.head.IsAlive() == false) return false;
-            
+
             this.RemoveNode(in this.root);
             return true;
 
         }
 
         #region Helpers
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private Entity FindNodeToAddBefore(in T entityData) {
-            
+
             if (this.count == 0) return Entity.Empty;
-            
+
             var node = this.root;
             do {
 
@@ -478,7 +509,7 @@ namespace ME.ECS.Collections {
                 if ((this.descending == false && comparer > 0) || (this.descending == true && comparer < 0)) {
 
                     node = nodeLink.next;
-                    
+
                 } else {
 
                     return node;
@@ -486,16 +517,18 @@ namespace ME.ECS.Collections {
                 }
 
             } while (node.IsAlive() == true);
-            
+
             return Entity.Empty;
-            
+
         }
-        
+
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private Entity FindNode(in T entityData) {
-            
+
             if (this.count == 0) return Entity.Empty;
-            
+
             var node = this.root;
             do {
 
@@ -504,20 +537,22 @@ namespace ME.ECS.Collections {
                 var nodeData = nodeLink.data;
                 node = nodeLink.next;
                 if (entityData.Equals(nodeData) == true) {
-                
+
                     return nodeEntity;
 
                 }
 
             } while (node.IsAlive() == true);
-            
+
             return Entity.Empty;
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private Entity FindNode(int index) {
-            
+
             var idx = 0;
             var node = this.root;
             do {
@@ -537,12 +572,14 @@ namespace ME.ECS.Collections {
             } while (node.IsAlive() == true);
 
             return Entity.Empty;
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private void RemoveNode(in Entity node) {
-            
+
             var link = node.GetData<IntrusiveSortedListGenericNode<T>>();
             if (link.prev.IsAlive() == true) {
                 ref var prev = ref link.prev.GetData<IntrusiveSortedListGenericNode<T>>();
@@ -557,20 +594,22 @@ namespace ME.ECS.Collections {
             if (node == this.root) this.root = link.next;
             if (node == this.head) this.head = link.prev;
             if (this.head == this.root && this.root == node) {
-                    
+
                 this.root = Entity.Empty;
                 this.head = Entity.Empty;
-                    
+
             }
 
             --this.count;
             node.Destroy();
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private static Entity CreateNode(in T data) {
-            
+
             var node = new Entity("IntrusiveSortedListGenericNode<T>");
             node.ValidateData<IntrusiveSortedListGenericNode<T>>();
             ref var nodeLink = ref node.GetData<IntrusiveSortedListGenericNode<T>>();
@@ -586,13 +625,13 @@ namespace ME.ECS.Collections {
             ComponentInitializer.Init(ref Worlds.currentWorld.GetStructComponents());
 
         }
-        
+
         private static class ComponentInitializer {
-    
+
             public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
-    
+
                 structComponentsContainer.Validate<IntrusiveSortedListGenericNode<T>>(false);
-                
+
             }
 
         }

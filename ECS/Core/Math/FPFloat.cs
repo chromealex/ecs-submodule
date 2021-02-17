@@ -1,4 +1,8 @@
-﻿namespace ME.ECS {
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
+namespace ME.ECS {
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
@@ -271,7 +275,9 @@
             return new pfloat(sum);
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private static int CountLeadingZeroes(ulong x) {
             var result = 0;
             while ((x & 0xF000000000000000) == 0) {

@@ -1,19 +1,20 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
 using UnityEngine;
 
 namespace ME.ECS.Pathfinding {
 
     using ME.ECS.Collections;
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     public class GridGraph : Graph {
-        
+
         public enum Direction : byte {
 
             Up = 0,
@@ -22,22 +23,22 @@ namespace ME.ECS.Pathfinding {
             Right = 3,
             Backward = 4,
             Left = 5,
-            
+
             RightForward = 6,
             RightBackward = 7,
             LeftBackward = 8,
             LeftForward = 9,
-            
+
             RightUpForward = 10,
             RightUpBackward = 11,
             LeftUpBackward = 12,
             LeftUpForward = 13,
-            
+
             RightDownForward = 14,
             RightDownBackward = 15,
             LeftDownBackward = 16,
             LeftDownForward = 17,
-            
+
         }
 
         public enum DrawMode : byte {
@@ -59,17 +60,17 @@ namespace ME.ECS.Pathfinding {
             DirectionalIfHasDirect,
 
         }
-        
+
         public Vector3Int size = new Vector3Int(100, 100, 100);
         public float nodeSize = 1f;
-        
+
         public float initialPenalty = 100f;
         public float initialHeight = 0f;
         public float diagonalCostFactor = 1.41421f;
         public ConnectionsType connectionsType = ConnectionsType.All;
 
         public float agentHeight;
-        
+
         public LayerMask checkMask;
         public LayerMask collisionMask;
         public float collisionCheckRadius;
@@ -78,7 +79,7 @@ namespace ME.ECS.Pathfinding {
         public bool drawNonwalkableNodes;
         public bool drawConnections;
         public bool drawConnectionsToUnwalkable;
-        
+
         private struct CopyNode : IArrayElementCopy<Node> {
 
             public void Copy(Node from, ref Node to) {
@@ -92,7 +93,7 @@ namespace ME.ECS.Pathfinding {
 
                 var g = (GridNode)item;
                 PoolClass<GridNode>.Recycle(ref g);
-                
+
             }
 
         }
@@ -114,13 +115,13 @@ namespace ME.ECS.Pathfinding {
         }
 
         public override void Recycle() {
-            
+
             this.OnRecycle();
 
         }
 
         public override void OnCopyFrom(Graph other) {
-            
+
             var gg = (GridGraph)other;
             this.size = gg.size;
             this.nodeSize = gg.nodeSize;
@@ -132,21 +133,21 @@ namespace ME.ECS.Pathfinding {
             this.checkMask = gg.checkMask;
             this.collisionMask = gg.collisionMask;
             this.collisionCheckRadius = gg.collisionCheckRadius;
-            
+
             ArrayUtils.Copy(other.nodes, ref this.nodes, new CopyNode());
-            
+
         }
 
         public override float GetNodeMinDistance() {
 
             return this.nodeSize / 10f;
-            
+
         }
 
         public override void RemoveNode(ref Node node, bool bruteForceConnections = false) {
 
             base.RemoveNode(ref node, bruteForceConnections);
-            
+
             var g = (GridNode)node;
             PoolClass<GridNode>.Recycle(ref g);
             node = null;
@@ -154,7 +155,7 @@ namespace ME.ECS.Pathfinding {
         }
 
         public bool HasConnectionByDirection(int sourceIndex, Direction direction, bool walkableOnly = true) {
-            
+
             var node = this.GetNodeByIndex<GridNode>(sourceIndex);
             var conn = node.connections[(int)direction];
             var idx = conn.index;
@@ -175,7 +176,7 @@ namespace ME.ECS.Pathfinding {
         }
 
         public void ResetConnections(int sourceIndex) {
-            
+
             var connection = Node.Connection.NoConnection;
             var node = this.GetNodeByIndex<GridNode>(sourceIndex);
             for (int i = 0; i < node.connections.Length; ++i) {
@@ -183,21 +184,21 @@ namespace ME.ECS.Pathfinding {
                 node.connections[i] = connection;
 
             }
-            
+
         }
-        
+
         public void SetupConnectionByDirection(int sourceIndex, Direction direction) {
 
             var connection = Node.Connection.NoConnection;
             var node = this.GetNodeByIndex<GridNode>(sourceIndex);
             var target = GridGraphUtilities.GetIndexByDirection(this, sourceIndex, direction);
             if (target >= 0) {
-            
+
                 var targetNode = this.GetNodeByIndex<GridNode>(target);
                 var cost = (node.worldPosition - targetNode.worldPosition).sqrMagnitude;
                 connection.cost = (cost + targetNode.penalty) * (GridGraphUtilities.IsDiagonalDirection(direction) == true ? this.diagonalCostFactor : 1f);
                 connection.index = target;
-                
+
             }
 
             node.connections[(int)direction] = connection;
@@ -213,11 +214,13 @@ namespace ME.ECS.Pathfinding {
         public override T GetNearest<T>(Vector3 worldPosition, Constraint constraint) {
 
             if (this.nodes == null) return default;
-            
+
             var clamped = new Vector3(
-                Mathf.Clamp(worldPosition.x - this.graphCenter.x, -this.nodeSize * this.size.x * 0.5f + this.nodeSize * 0.5f, this.nodeSize * this.size.x * 0.5f - this.nodeSize * 0.5f),
+                Mathf.Clamp(worldPosition.x - this.graphCenter.x, -this.nodeSize * this.size.x * 0.5f + this.nodeSize * 0.5f,
+                            this.nodeSize * this.size.x * 0.5f - this.nodeSize * 0.5f),
                 Mathf.Clamp(worldPosition.y - this.graphCenter.y, -this.agentHeight * this.size.y * 0.5f, this.agentHeight * this.size.y * 0.5f),
-                Mathf.Clamp(worldPosition.z - this.graphCenter.z, -this.nodeSize * this.size.z * 0.5f + this.nodeSize * 0.5f, this.nodeSize * this.size.z * 0.5f - this.nodeSize * 0.5f));
+                Mathf.Clamp(worldPosition.z - this.graphCenter.z, -this.nodeSize * this.size.z * 0.5f + this.nodeSize * 0.5f,
+                            this.nodeSize * this.size.z * 0.5f - this.nodeSize * 0.5f));
 
             var x = (int)((clamped.x + this.nodeSize * this.size.x * 0.5f) / this.nodeSize);
             var y = (int)((clamped.y + this.agentHeight * this.size.y * 0.5f) / this.agentHeight);
@@ -240,7 +243,9 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public override void GetNodesInBounds(ListCopyable<Node> result, Bounds bounds) {
 
             var min = bounds.min;
@@ -250,7 +255,7 @@ namespace ME.ECS.Pathfinding {
             if (minNode == null) return;
             var maxNode = this.GetNearest<GridNode>(max + this.graphCenter, Constraint.Empty);
             if (maxNode == null) return;
-            
+
             for (int y = minNode.position.y; y <= maxNode.position.y; ++y) {
 
                 for (int x = minNode.position.x; x <= maxNode.position.x; ++x) {
@@ -278,9 +283,9 @@ namespace ME.ECS.Pathfinding {
         protected override void DrawGizmos() {
 
             if (this.nodes == null) return;
-            
+
             var center = this.graphCenter;
-            
+
             var borderColor = new Color(1f, 1f, 1f, 1f);
             Gizmos.color = borderColor;
             Gizmos.DrawWireCube(center, new Vector3(this.size.x * this.nodeSize, this.size.y * this.agentHeight, this.size.z * this.nodeSize));
@@ -392,7 +397,7 @@ namespace ME.ECS.Pathfinding {
             }
 
         }
-        
+
         protected override void Validate() {
 
             if (this.size.x <= 0) this.size.x = 1;
@@ -408,7 +413,7 @@ namespace ME.ECS.Pathfinding {
 
                 //if (i != this.size.x && i != 0 && i != this.nodes.Length - 1 && i != this.size.x - 1 && i != (50 + this.size.x * this.size.z) && i != (150 + this.size.x * this.size.z * 2) &&
                 //    i != this.size.z * this.size.x) continue;
-                
+
                 var node = this.nodes[i];
                 var connections = node.GetConnections();
                 this.ResetConnections(node.index);
@@ -453,7 +458,7 @@ namespace ME.ECS.Pathfinding {
                         this.SetupConnectionByDirection(node.index, Direction.RightForward);
 
                     }
-                    
+
                     if (this.HasConnectionByDirection(node.index, Direction.Backward) == true ||
                         this.HasConnectionByDirection(node.index, Direction.Right) == true) {
 
@@ -546,27 +551,27 @@ namespace ME.ECS.Pathfinding {
         }
 
         protected override void RunModifiersAfterConnections() {
-            
+
             for (var i = 0; i < this.modifiers.Count; ++i) {
-                
+
                 if (this.modifiers[i].enabled == true) this.modifiers[i].modifier.ApplyAfterConnections(this);
-                
+
             }
 
         }
 
         protected override void RunModifiersBeforeConnections() {
-            
+
             for (var i = 0; i < this.modifiers.Count; ++i) {
-                
+
                 if (this.modifiers[i].enabled == true) this.modifiers[i].modifier.ApplyBeforeConnections(this);
-                
+
             }
 
         }
 
         public override bool BuildNodePhysics(Node node) {
-             
+
             var worldPos = node.worldPosition;
 
             if (this.checkMask == 0) {
@@ -576,14 +581,14 @@ namespace ME.ECS.Pathfinding {
                 return true;
 
             }
-            
+
             #if WORLD_TICK_THREADED
             // Quit if threaded logic is active
             node.worldPosition = worldPos;
             node.walkable = true;
             return false;
             #else
-            
+
             var raycastResult = false;
             RaycastHit hit;
             if (this.collisionCheckRadius <= 0f) {
@@ -623,19 +628,20 @@ namespace ME.ECS.Pathfinding {
         }
 
         protected override void BuildNodes() {
-            
+
             this.nodes = PoolListCopyable<Node>.Spawn(this.size.x * this.size.y * this.size.z);
 
             var center = this.graphCenter - new Vector3(this.size.x * this.nodeSize * 0.5f, this.size.y * this.agentHeight * 0.5f, this.size.z * this.nodeSize * 0.5f);
-            
+
             var i = 0;
             for (int y = 0; y < this.size.y; ++y) {
 
                 for (int x = 0; x < this.size.x; ++x) {
-                
+
                     for (int z = 0; z < this.size.z; ++z) {
 
-                        var nodePosition = new Vector3(x * this.nodeSize + this.nodeSize * 0.5f, y * this.agentHeight + this.agentHeight * 0.5f, z * this.nodeSize + this.nodeSize * 0.5f);
+                        var nodePosition = new Vector3(x * this.nodeSize + this.nodeSize * 0.5f, y * this.agentHeight + this.agentHeight * 0.5f,
+                                                       z * this.nodeSize + this.nodeSize * 0.5f);
                         var worldPos = center + nodePosition;
 
                         var node = PoolClass<GridNode>.Spawn();
@@ -647,15 +653,15 @@ namespace ME.ECS.Pathfinding {
                         node.penalty = this.initialPenalty;
                         node.height = this.initialHeight;
                         this.nodes.Add(node);
-                        
+
                         this.BuildNodePhysics(node);
 
                         ++i;
 
                     }
-                    
+
                 }
-                
+
             }
 
         }
@@ -663,81 +669,97 @@ namespace ME.ECS.Pathfinding {
     }
 
     public static class GridGraphUtilities {
-        
+
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void DirUp(Vector3Int size, GridNode node, ref int index) {
 
             if (index == -1) return;
-            
+
             index += size.x * size.z;
             if (node.position.y >= size.y - 1) index = -1;
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void DirDown(Vector3Int size, GridNode node, ref int index) {
 
             if (index == -1) return;
-            
+
             index -= size.x * size.z;
             if (node.position.y <= 0) index = -1;
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void DirRight(Vector3Int size, GridNode node, ref int index) {
 
             if (index == -1) return;
-            
+
             index -= 1;
             if (node.position.x <= 0) index = -1;
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void DirLeft(Vector3Int size, GridNode node, ref int index) {
 
             if (index == -1) return;
-            
+
             index += 1;
             if (node.position.x >= size.z - 1) index = -1;
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void DirForward(Vector3Int size, GridNode node, ref int index) {
 
             if (index == -1) return;
-            
+
             index += size.z;
             if (node.position.z >= size.x - 1) index = -1;
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void DirBackward(Vector3Int size, GridNode node, ref int index) {
 
             if (index == -1) return;
-            
+
             index -= size.z;
             if (node.position.z <= 0) index = -1;
-            
+
         }
-        
+
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static bool IsDiagonalDirection(GridGraph.Direction direction) {
 
             return (int)direction >= 6;
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static int GetIndexByDirection(GridGraph graph, int sourceIndex, GridGraph.Direction direction) {
 
             var node = graph.GetNodeByIndex<GridNode>(sourceIndex);
-            
+
             switch (direction) {
-                
+
                 case GridGraph.Direction.LeftDownForward:
                     GridGraphUtilities.DirLeft(graph.size, node, ref sourceIndex);
                     GridGraphUtilities.DirDown(graph.size, node, ref sourceIndex);
@@ -831,12 +853,14 @@ namespace ME.ECS.Pathfinding {
                     break;
 
             }
-            
+
             return sourceIndex;
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static int GetIndexByPosition(GridGraph graph, Vector3Int position) {
 
             var x = position.x;
@@ -846,7 +870,7 @@ namespace ME.ECS.Pathfinding {
             return idx;
 
         }
-        
+
     }
 
     [System.Serializable]
@@ -856,16 +880,20 @@ namespace ME.ECS.Pathfinding {
 
         public readonly Connection[] connections = new Connection[6 + 4 + 4 + 4];
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public override Connection[] GetConnections() {
 
             return this.connections;
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public override void CopyFrom(Node other) {
-            
+
             base.CopyFrom(other);
 
             var g = (GridNode)other;
@@ -878,9 +906,11 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public override void OnRecycle() {
-            
+
             base.OnRecycle();
 
             this.position = default;
@@ -889,5 +919,5 @@ namespace ME.ECS.Pathfinding {
         }
 
     }
-    
+
 }

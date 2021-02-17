@@ -1,5 +1,10 @@
-﻿#if UNITY_MATHEMATICS
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
+#if UNITY_MATHEMATICS
 using RandomState = System.UInt32;
+
 #else
 using RandomState = UnityEngine.Random.State;
 #endif
@@ -9,7 +14,9 @@ namespace ME.ECS {
     public static class RandomUtils {
 
         /// <summary> Typical usage: RandomUtils.ThreadCheck(currentWorld.worldThread); </summary>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void ThreadCheck(World world) {
             #if WORLD_THREAD_CHECK
             if (world.worldThread != System.Threading.Thread.CurrentThread) {
@@ -18,7 +25,9 @@ namespace ME.ECS {
             #endif
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static UnityEngine.Vector3 GetRandomInSphere(this ref RandomState randomState, UnityEngine.Vector3 center, float maxRadius) {
             #if UNITY_MATHEMATICS
             var rnd = new Unity.Mathematics.Random(randomState);
@@ -33,7 +42,9 @@ namespace ME.ECS {
             return result;
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static int GetRandomRange(this ref RandomState randomState, int from, int to) {
             #if UNITY_MATHEMATICS
             var rnd = new Unity.Mathematics.Random(randomState);
@@ -47,7 +58,9 @@ namespace ME.ECS {
             return result;
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static float GetRandomRange(this ref RandomState randomState, float from, float to) {
             #if UNITY_MATHEMATICS
             var rnd = new Unity.Mathematics.Random(randomState);
@@ -61,7 +74,9 @@ namespace ME.ECS {
             return result;
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static float GetRandomValue(this ref RandomState randomState) {
             #if UNITY_MATHEMATICS
             var rnd = new Unity.Mathematics.Random(randomState);

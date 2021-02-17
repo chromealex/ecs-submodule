@@ -1,20 +1,23 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
 
 namespace ME.ECS {
-    
+
     using ME.ECS.Collections;
-    
+
     public interface IStorage : IPoolableRecycle {
 
         int AliveCount { get; }
         int DeadCount { get; }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         bool IsAlive(int id, ushort generation);
 
         bool ForEach(ListCopyable<Entity> results);
-        
+
         ref Entity Alloc();
         bool Dealloc(in Entity entity);
 
@@ -49,49 +52,57 @@ namespace ME.ECS {
         public override int GetHashCode() {
 
             if (this.versions == null) return 0;
-            
+
             return this.versions.GetHashCode() ^ this.aliveCount ^ this.entityId ^ this.dead.Count;
 
         }
 
         public int AliveCount {
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             get {
                 return this.aliveCount;
             }
         }
 
         public int DeadCount {
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             get {
                 return this.dead.Count;
             }
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ListCopyable<int> GetAlive() {
-            
+
             return this.alive;
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool ForEach(ListCopyable<Entity> results) {
-            
+
             results.Clear();
             for (int i = 0; i < this.alive.Count; ++i) {
 
                 var id = this.alive[i];
                 results.Add(this.cache.arr[id]);
-                
+
             }
 
             return true;
 
         }
-        
+
         public void Initialize(int capacity) {
-            
+
             this.cache = PoolArray<Entity>.Spawn(capacity);
             this.alive = PoolListCopyable<int>.Spawn(capacity);
             this.dead = PoolListCopyable<int>.Spawn(capacity);
@@ -102,7 +113,7 @@ namespace ME.ECS {
             this.versions = PoolClass<EntityVersions>.Spawn();
 
         }
-        
+
         void IPoolableRecycle.OnRecycle() {
 
             PoolArray<Entity>.Recycle(ref this.cache);
@@ -115,14 +126,17 @@ namespace ME.ECS {
             PoolClass<EntityVersions>.Recycle(ref this.versions);
 
         }
-        
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void SetFreeze(bool freeze) {
-        }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void SetFreeze(bool freeze) { }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void CopyFrom(Storage other) {
-            
+
             ArrayUtils.Copy(other.cache, ref this.cache);
             ArrayUtils.Copy(other.alive, ref this.alive);
             ArrayUtils.Copy(other.dead, ref this.dead);
@@ -133,23 +147,25 @@ namespace ME.ECS {
             this.versions.CopyFrom(other.versions);
 
         }
-        
+
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ref Entity Alloc() {
 
             int id = -1;
             if (this.dead.Count > 0) {
-                
+
                 id = this.dead[0];
                 this.dead.RemoveAtFast(0);
-                
+
             } else {
 
                 id = ++this.entityId;
                 ArrayUtils.Resize(id, ref this.cache, true);
 
             }
-            
+
             ++this.aliveCount;
             this.alive.Add(id);
             ref var e = ref this.cache.arr[id];
@@ -159,26 +175,32 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool Dealloc(in Entity entity) {
 
             if (this.IsAlive(entity.id, entity.generation) == false) return false;
 
             this.deadPrepared.Add(entity.id);
-            
+
             return true;
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void IncrementGeneration(in Entity entity) {
-            
+
             // Make this entity not alive, but not completely destroyed at this time
             this.cache.arr[entity.id] = new Entity(entity.id, unchecked((ushort)(entity.generation + 1)));
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void ApplyDead() {
 
             var cnt = this.deadPrepared.Count;
@@ -199,26 +221,30 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool IsAlive(int id, ushort generation) {
 
             return this.cache.arr[id].generation == generation;
 
         }
-        
+
         public ref Entity this[int id] {
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             get {
                 return ref this.cache.arr[id];
             }
         }
-        
+
         public override string ToString() {
-            
+
             return "Storage: dead(" + this.dead.Count + ") alive(" + this.aliveCount + ")";
-            
+
         }
-        
+
     }
 
 }

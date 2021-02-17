@@ -1,6 +1,10 @@
-﻿#if PARTICLES_VIEWS_MODULE_SUPPORT
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
+#if PARTICLES_VIEWS_MODULE_SUPPORT
 namespace ME.ECS {
-    
+
     using ME.ECS.Views;
     using ME.ECS.Views.Providers;
 
@@ -33,30 +37,34 @@ namespace ME.ECS {
     #endif
     public sealed partial class World {
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ViewId RegisterViewSource(ParticleViewSourceBase prefab) {
 
             if (prefab == null) {
-                
+
                 ViewSourceIsNullException.Throw();
-                
+
             }
-            
+
             return this.RegisterViewSource(new UnityParticlesProviderInitializer(), prefab.GetSource());
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void InstantiateView(ParticleViewSourceBase prefab, Entity entity) {
 
             if (prefab == null) {
-                
+
                 ViewSourceIsNullException.Throw();
-                
+
             }
-            
+
             this.InstantiateView(prefab.GetSource(), entity);
-            
+
         }
 
     }
@@ -64,9 +72,9 @@ namespace ME.ECS {
 }
 
 namespace ME.ECS.Views {
-    
+
     using ME.ECS.Views.Providers;
-    
+
     public partial interface IViewModule {
 
         ViewId RegisterViewSource(ParticleViewSourceBase prefab);
@@ -81,45 +89,51 @@ namespace ME.ECS.Views {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     public partial class ViewsModule {
-        
+
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ViewId RegisterViewSource(ParticleViewSourceBase prefab) {
 
             if (prefab == null) {
-                
+
                 ViewSourceIsNullException.Throw();
-                
+
             }
 
             return this.RegisterViewSource(new UnityParticlesProviderInitializer(), prefab.GetSource());
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void UnRegisterViewSource(ParticleViewSourceBase prefab) {
-            
+
             if (prefab == null) {
-                
+
                 ViewSourceIsNullException.Throw();
-                
+
             }
-            
+
             this.UnRegisterViewSource(prefab.GetSource());
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void InstantiateView(ParticleViewSourceBase prefab, Entity entity) {
-            
+
             if (prefab == null) {
-                
+
                 ViewSourceIsNullException.Throw();
-                
+
             }
 
             var viewSource = prefab.GetSource();
             this.InstantiateView(this.GetViewSourceId(viewSource), entity);
-            
+
         }
 
     }
@@ -130,7 +144,7 @@ namespace ME.ECS.Views.Providers {
 
     using Unity.Jobs;
     using Collections;
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -149,27 +163,31 @@ namespace ME.ECS.Views.Providers {
         public Item[] items;
 
         void IPoolableRecycle.OnRecycle() {
-            
+
             PoolArray<ParticleViewBase.Item>.Recycle(ref this.items);
-            
+
         }
 
         public virtual void ApplyStateJob(float deltaTime, bool immediately) { }
-        
+
         public override string ToString() {
-            
+
             return "Renderers Count: " + this.items.Length.ToString();
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ref UnityEngine.ParticleSystem.Particle GetRootData() {
 
             return ref this.items[0].particleData;
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void SetRootData(ref UnityEngine.ParticleSystem.Particle data) {
 
             this.items[0].particleData = data;
@@ -181,7 +199,7 @@ namespace ME.ECS.Views.Providers {
                 item.particleData.startSize3D = UnityEngine.Vector3.Scale(data.startSize3D, item.itemData.localScale);
 
             }
-            
+
         }
 
         public void OnValidate(
@@ -200,9 +218,9 @@ namespace ME.ECS.Views.Providers {
             }
 
             if (reset == true) {
-                
+
                 this.items = new Item[0];
-                
+
             }
 
             if (reset == true) {
@@ -248,7 +266,7 @@ namespace ME.ECS.Views.Providers {
                 this.items = itemsList.ToArray();
 
             }
-            
+
         }
 
         public void SimulateParticles(float time, uint seed) {
@@ -262,13 +280,13 @@ namespace ME.ECS.Views.Providers {
         }
 
         public void UpdateParticlesSimulation(float deltaTime) {
-            
+
             for (int i = 0; i < this.items.Length; ++i) {
 
                 this.items[i].itemData.UpdateParticlesSimulation(deltaTime);
 
             }
-            
+
         }
 
         public abstract void DoCopyFrom(ParticleViewBase source);
@@ -282,7 +300,9 @@ namespace ME.ECS.Views.Providers {
     #endif
     public abstract class ParticleView<T> : ParticleViewBase, IView, IViewBaseInternal where T : ParticleView<T> {
 
-        int System.IComparable<IView>.CompareTo(IView other) { return 0; }
+        int System.IComparable<IView>.CompareTo(IView other) {
+            return 0;
+        }
 
         public World world { get; private set; }
         public Entity entity { get; private set; }
@@ -300,15 +320,15 @@ namespace ME.ECS.Views.Providers {
         }
 
         void IView.DoInitialize() {
-            
+
             this.OnInitialize();
-            
+
         }
 
         void IView.DoDeInitialize() {
-            
+
             this.OnDeInitialize();
-            
+
         }
 
         public virtual void OnInitialize() { }
@@ -328,10 +348,10 @@ namespace ME.ECS.Views.Providers {
 
         }
 
-        protected virtual void CopyFrom(T source) {}
+        protected virtual void CopyFrom(T source) { }
 
     }
-    
+
     [System.Serializable]
     public struct ParticleSystemItem {
 
@@ -344,7 +364,7 @@ namespace ME.ECS.Views.Providers {
         public UnityEngine.Vector3 localPosition;
         public UnityEngine.Vector3 localRotation;
         public UnityEngine.Vector3 localScale;
-        
+
         // runtime
         [System.NonSerialized]
         public bool simulation;
@@ -363,7 +383,9 @@ namespace ME.ECS.Views.Providers {
         [System.NonSerialized]
         public UnityEngine.ParticleSystemRenderer psRenderer;
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public long GetKey() {
 
             if (this.psSource != null) {
@@ -374,8 +396,9 @@ namespace ME.ECS.Views.Providers {
 
             var shadowCastingMode = (this.meshRenderer != null ? this.meshRenderer.shadowCastingMode : UnityEngine.Rendering.ShadowCastingMode.Off);
             var receiveShadows = (this.meshRenderer != null ? (this.meshRenderer.receiveShadows == true ? 1 : 0) : 0);
-            return MathUtils.GetKey(this.material.GetInstanceID(), (this.mesh != null ? this.mesh.GetInstanceID() : this.meshFilter.GetInstanceID())) ^ (int)shadowCastingMode ^ receiveShadows;
-            
+            return MathUtils.GetKey(this.material.GetInstanceID(), (this.mesh != null ? this.mesh.GetInstanceID() : this.meshFilter.GetInstanceID())) ^ (int)shadowCastingMode ^
+                   receiveShadows;
+
         }
 
         public void SimulateParticles(float time, uint seed) {
@@ -392,9 +415,9 @@ namespace ME.ECS.Views.Providers {
                     this.simulation = true;
 
                 } else {
-                    
+
                     this.simulation = false;
-                    
+
                 }
 
             }
@@ -409,11 +432,11 @@ namespace ME.ECS.Views.Providers {
 
                     this.lifetime = this.startLifetime - this.psSimulation.GetCustomLifetime();
                     this.Resimulate();
-                    
+
                 }
 
             }
-            
+
         }
 
         private void Resimulate() {
@@ -449,7 +472,7 @@ namespace ME.ECS.Views.Providers {
 
             this.psItems = PoolDictionary<long, ParticleSystemItem>.Spawn(100);
             this.pool = new PoolInternalBase(typeof(ParticleViewBase), null, null);
-            
+
             UnityEngine.ParticleSystem particleSystem;
             UnityEngine.ParticleSystemRenderer particleSystemRenderer;
             this.CreateParticleSystemInstance("Main-" + this.GetType().ToString(), out particleSystem, out particleSystemRenderer);
@@ -459,7 +482,7 @@ namespace ME.ECS.Views.Providers {
 
             var subEmittersModule = particleSystem.subEmitters;
             subEmittersModule.enabled = false;
-            
+
             particleSystemRenderer.enabled = false;
             particleSystemRenderer.renderMode = UnityEngine.ParticleSystemRenderMode.Billboard;
 
@@ -472,26 +495,27 @@ namespace ME.ECS.Views.Providers {
 
             UnityObjectUtils.Destroy(this.mainParticleSystem);
             this.mainParticleSystem = null;
-            
+
             this.pool = null;
             PoolDictionary<long, ParticleSystemItem>.Recycle(ref this.psItems);
-            
+
         }
 
         private void CreateParticleSystemInstance(string key, out UnityEngine.ParticleSystem particleSystem, out UnityEngine.ParticleSystemRenderer particleSystemRenderer) {
-            
+
             particleSystem = new UnityEngine.GameObject("PS-Render-" + key, typeof(UnityEngine.ParticleSystem)).GetComponent<UnityEngine.ParticleSystem>();
             //particleSystem.gameObject.hideFlags = UnityEngine.HideFlags.HideAndDontSave;
             if (this.world.debugSettings.showViewsOnScene == false || this.world.debugSettings.viewsSettings.unityParticlesProviderShowOnScene == false) {
-                
+
                 particleSystem.gameObject.hideFlags = UnityEngine.HideFlags.HideInHierarchy;
-                
+
             }
+
             particleSystem.Pause(withChildren: true);
             particleSystem.Stop(withChildren: true);
             particleSystem.useAutoRandomSeed = false;
             particleSystem.randomSeed = 1u;
-            
+
             var main = particleSystem.main;
             main.loop = false;
             main.prewarm = false;
@@ -508,19 +532,19 @@ namespace ME.ECS.Views.Providers {
             #endif
             main.ringBufferMode = UnityEngine.ParticleSystemRingBufferMode.PauseUntilReplaced;
             main.simulationSpace = UnityEngine.ParticleSystemSimulationSpace.World;
-                    
+
             var emission = particleSystem.emission;
             emission.enabled = false;
-                    
+
             var shape = particleSystem.shape;
             shape.enabled = false;
-            
+
             particleSystemRenderer = particleSystem.GetComponent<UnityEngine.ParticleSystemRenderer>();
             particleSystemRenderer.alignment = UnityEngine.ParticleSystemRenderSpace.World;
-                    
+
             particleSystemRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
             particleSystemRenderer.receiveShadows = true;
-            
+
             #if UNITY_WEBGL
             particleSystemRenderer.enableGPUInstancing = false;
             #endif
@@ -528,26 +552,26 @@ namespace ME.ECS.Views.Providers {
             //particleSystem.Play(true);
 
         }
-        
+
         public override IView Spawn(IView prefab, ViewId prefabSourceId) {
 
             var prefabSource = (ParticleViewBase)prefab;
-            
+
             var obj = this.pool.Spawn();
             if (obj == null) {
-                
+
                 obj = System.Activator.CreateInstance(prefab.GetType());
-                
+
             }
 
             var particleViewBase = (ParticleViewBase)obj;
-            particleViewBase.items = new ParticleViewBase.Item[prefabSource.items.Length];//PoolArray<ParticleViewBase.Item>.Spawn(prefabSource.items.Length);
+            particleViewBase.items = new ParticleViewBase.Item[prefabSource.items.Length]; //PoolArray<ParticleViewBase.Item>.Spawn(prefabSource.items.Length);
             for (int i = 0; i < particleViewBase.items.Length; ++i) {
 
                 particleViewBase.items[i] = prefabSource.items[i];
 
             }
-            
+
             particleViewBase.DoCopyFrom(prefabSource);
 
             var maxParticleCount = 0;
@@ -560,7 +584,7 @@ namespace ME.ECS.Views.Providers {
                 key = source.itemData.GetKey();
                 ParticleSystemItem psItem;
                 if (this.psItems.TryGetValue(key, out psItem) == false) {
-                    
+
                     psItem = source.itemData;
 
                     var idx = -1;
@@ -580,7 +604,7 @@ namespace ME.ECS.Views.Providers {
                         );
 
                         var particleSystemInheritLifetime = UnityEngine.ParticleSystem.Instantiate(psItem.psSource, this.mainParticleSystem.transform);
-                        
+
                         idxInheritedLifetime = subEmittersModule.subEmittersCount;
                         subEmittersModule.AddSubEmitter(
                             particleSystemInheritLifetime,
@@ -595,7 +619,7 @@ namespace ME.ECS.Views.Providers {
 
                         UnityEngine.ParticleSystemRenderer particleSystemRenderer;
                         this.CreateParticleSystemInstance(key.ToString(), out particleSystem, out particleSystemRenderer);
-                        
+
                         particleSystemRenderer.alignment = UnityEngine.ParticleSystemRenderSpace.World;
                         particleSystemRenderer.renderMode = UnityEngine.ParticleSystemRenderMode.Mesh;
                         particleSystemRenderer.sharedMaterial = psItem.material;
@@ -609,13 +633,13 @@ namespace ME.ECS.Views.Providers {
                         emissionModule.rateOverDistance = new UnityEngine.ParticleSystem.MinMaxCurve(0f);
                         emissionModule.burstCount = 1;
                         emissionModule.SetBurst(0, new UnityEngine.ParticleSystem.Burst(0f, 1));*/
-                        
+
                         /*idx = subEmittersModule.subEmittersCount;
                         subEmittersModule.AddSubEmitter(
                             particleSystem,
                             UnityEngine.ParticleSystemSubEmitterType.Manual,
                             UnityEngine.ParticleSystemSubEmitterProperties.InheritNothing);*/
-                        
+
                         psItem.psRenderer = particleSystemRenderer;
 
                         psItem.ps = particleSystem;
@@ -625,14 +649,14 @@ namespace ME.ECS.Views.Providers {
                     psItem.subEmitterIdx = idx;
                     psItem.subEmitterIdxInheritedLifetime = idxInheritedLifetime;
                     this.psItems.Add(key, psItem);
-                    
+
                 }
 
                 if (psItem.psSource != null) {
-                    
+
                     psItem.lifetime = psItem.ps.main.startLifetime.constantMax;
                     psItem.startLifetime = psItem.lifetime;
-                    
+
                     this.mainParticleSystem.Emit(1);
 
                 } else {
@@ -642,7 +666,7 @@ namespace ME.ECS.Views.Providers {
                     psItem.ps.Emit(1);
 
                 }
-                
+
                 psItem.ps.Play();
 
                 psItem.r = 0;
@@ -651,7 +675,7 @@ namespace ME.ECS.Views.Providers {
                 particleViewBase.items[i].itemData = psItem;
 
             }
-            
+
             if (maxParticleCount > this.maxParticles) this.maxParticles = maxParticleCount;
 
             return (IView)obj;
@@ -672,18 +696,20 @@ namespace ME.ECS.Views.Providers {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private void ValidateParticles() {
 
             if (this.particles.arr == null || this.particles.Length < this.maxParticles) {
-                
+
                 PoolArray<UnityEngine.ParticleSystem.Particle>.Recycle(ref this.particles);
                 this.particles = PoolArray<UnityEngine.ParticleSystem.Particle>.Spawn(this.maxParticles);
-                
+
             }
 
             if (this.particlesStatic.arr == null || this.particlesStatic.Length < this.maxParticles) {
-                
+
                 PoolArray<UnityEngine.ParticleSystem.Particle>.Recycle(ref this.particlesStatic);
                 this.particlesStatic = PoolArray<UnityEngine.ParticleSystem.Particle>.Spawn(this.maxParticles);
 
@@ -694,27 +720,29 @@ namespace ME.ECS.Views.Providers {
         private struct Job : Unity.Jobs.IJobParallelFor {
 
             public float deltaTime;
-            
+
             public void Execute(int index) {
 
                 var list = UnityParticlesProvider.currentList.arr[index];
                 if (list.mainView == null) return;
-                
+
                 for (int i = 0, count = list.Length; i < count; ++i) {
 
                     var instance = list[i] as ParticleViewBase;
                     if (instance == null) continue;
-                    
+
                     instance.ApplyStateJob(this.deltaTime, immediately: false);
-                    
+
                 }
-                
+
             }
 
         }
 
         private static BufferArray<Views> currentList;
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private void UpdateViews(BufferArray<Views> list, float deltaTime) {
 
             if (this.world.settings.useJobsForViews == true && this.world.settings.viewsSettings.unityParticlesProviderDisableJobs == false) {
@@ -754,7 +782,7 @@ namespace ME.ECS.Views.Providers {
 
             this.UpdateViews(list, deltaTime);
             this.ValidateParticles();
-            
+
             var k = 0;
             //var kSize = this.mainParticleSystem.GetParticles(this.particles);
             foreach (var item in this.psItems) {
@@ -766,10 +794,10 @@ namespace ME.ECS.Views.Providers {
                 //psItem.psRenderer.mesh = psItem.GetMesh();
                 //ps.GetParticles(this.particles, this.maxParticles);
                 for (var id = 0; id < list.Length; ++id) {
-                    
+
                     var itemsList = list.arr[id];
                     if (itemsList.mainView == null) continue;
-                    
+
                     var count = itemsList.Length;
                     for (int i = 0; i < count; ++i) {
 
@@ -848,7 +876,7 @@ namespace ME.ECS.Views.Providers {
             }
 
             this.mainParticleSystem.SetParticles(this.particles.arr, k, 0);
-            
+
         }
 
     }
@@ -860,7 +888,9 @@ namespace ME.ECS.Views.Providers {
     #endif
     public struct UnityParticlesProviderInitializer : IViewsProviderInitializer {
 
-        int System.IComparable<IViewsProviderInitializerBase>.CompareTo(IViewsProviderInitializerBase other) { return 0; }
+        int System.IComparable<IViewsProviderInitializerBase>.CompareTo(IViewsProviderInitializerBase other) {
+            return 0;
+        }
 
         public IViewsProvider Create() {
 

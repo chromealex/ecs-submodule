@@ -1,14 +1,16 @@
-using System.Linq;
+#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
 
 namespace ME.ECS.Collections {
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     public sealed class RefList<T> : IPoolableRecycle, IPoolableSpawn {
-        
+
         [ME.ECS.Serializer.SerializeField]
         private BufferArray<T> arr;
         // TODO: Add int[] next array which determine next index in arr (useful for enumeration)
@@ -29,24 +31,24 @@ namespace ME.ECS.Collections {
         [ME.ECS.Serializer.SerializeField]
         private int initCapacity;
 
-        public RefList() : this(4) {}
+        public RefList() : this(4) { }
 
         public RefList(int capacity) {
 
             this.initCapacity = capacity;
             this.Init(capacity);
-            
+
         }
-        
+
         void IPoolableSpawn.OnSpawn() {
 
             var capacity = this.initCapacity;
             this.Init(capacity);
-            
+
         }
 
         private void Init(int capacity) {
-            
+
             if (capacity < 0) capacity = 0;
 
             this.count = 0;
@@ -64,44 +66,54 @@ namespace ME.ECS.Collections {
         }
 
         void IPoolableRecycle.OnRecycle() {
-            
+
             PoolArray<T>.Recycle(ref this.arr);
             PoolQueueCopyable<int>.Recycle(ref this.freePeek);
             PoolHashSetCopyable<int>.Recycle(ref this.free);
             PoolHashSetCopyable<int>.Recycle(ref this.freePrepared);
-            
+
         }
 
         public int UsedCount {
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             get {
                 return this.count;
             }
         }
 
         public int FromIndex {
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             get {
                 return this.fromIndex;
             }
         }
 
         public int SizeCount {
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             get {
                 return this.size;
             }
         }
 
         public int Capacity {
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             get {
                 return this.capacity;
             }
         }
 
         public ref T this[int index] {
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             get {
                 return ref this.arr.arr[index];
             }
@@ -130,12 +142,12 @@ namespace ME.ECS.Collections {
             for (int i = 0; i < this.size; ++i) {
 
                 if (this.free.Contains(i) == false) {
-                    
+
                     this.free.Add(i);
                     this.freePeek.Enqueue(i);
-                    
+
                 }
-                
+
             }
 
             this.freePrepared.Clear();
@@ -147,7 +159,9 @@ namespace ME.ECS.Collections {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private int PeekFree() {
 
             return this.freePeek.Peek();
@@ -155,16 +169,16 @@ namespace ME.ECS.Collections {
         }
 
         public int GetNextIndex() {
-            
+
             int nextIndex = -1;
             if (this.free.Count > 0) {
 
                 nextIndex = this.PeekFree();
-                
+
             } else {
 
                 nextIndex = this.size;
-                
+
             }
 
             return nextIndex;
@@ -172,29 +186,29 @@ namespace ME.ECS.Collections {
         }
 
         public int Add(T data) {
-            
+
             int nextIndex = -1;
             if (this.free.Count > 0) {
-                
+
                 nextIndex = this.PeekFree();
                 this.freePeek.Dequeue();
                 this.free.Remove(nextIndex);
-                
+
             } else {
-                
+
                 this.Resize_INTERNAL(this.size + 1);
                 nextIndex = this.PeekFree();
                 this.freePeek.Dequeue();
                 this.free.Remove(nextIndex);
 
             }
-            
+
             this.arr.arr[nextIndex] = data;
             this.UpdateFromTo(nextIndex);
             ++this.count;
-            
+
             return nextIndex;
-            
+
         }
 
         public void ApplyPrepared() {
@@ -205,12 +219,14 @@ namespace ME.ECS.Collections {
                 this.freePeek.Enqueue(item);
 
             }
-            
+
             this.freePrepared.Clear();
-            
+
         }
-        
+
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private void UpdateFromTo(int focusIndex) {
 
             this.size = (focusIndex >= this.size ? focusIndex + 1 : this.size);
@@ -218,7 +234,9 @@ namespace ME.ECS.Collections {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool IsFree(int index) {
 
             return this.free.Contains(index);
@@ -240,7 +258,7 @@ namespace ME.ECS.Collections {
                         --this.size;
 
                     }
-                    
+
                 }
 
                 var fromIndex = 0;
@@ -255,6 +273,7 @@ namespace ME.ECS.Collections {
                     fromIndex = 0;
 
                 }
+
                 this.fromIndex = fromIndex;
 
                 return true;
@@ -268,7 +287,7 @@ namespace ME.ECS.Collections {
         public void CopyFrom(RefList<T> other) {
 
             ArrayUtils.Copy(in other.arr, ref this.arr);
-            
+
             if (this.freePrepared != null) PoolHashSetCopyable<int>.Recycle(ref this.freePrepared);
             this.freePrepared = PoolHashSetCopyable<int>.Spawn(other.freePrepared.Count);
             this.freePrepared.CopyFrom(other.freePrepared);
@@ -289,16 +308,18 @@ namespace ME.ECS.Collections {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private void Resize_INTERNAL(int newLength) {
 
             if (newLength > this.capacity) {
-                
+
                 var oldCapacity = this.capacity;
                 if (this.capacity > 0) {
-                    
+
                     this.capacity *= 2;
-                    
+
                 } else {
 
                     this.capacity = newLength;
@@ -307,12 +328,12 @@ namespace ME.ECS.Collections {
                 }
 
                 ArrayUtils.Resize(this.capacity, ref this.arr);
-                
+
                 for (int i = oldCapacity; i < this.capacity; ++i) {
 
                     this.free.Add(i);
                     this.freePeek.Enqueue(i);
-                    
+
                 }
 
             }
@@ -320,9 +341,10 @@ namespace ME.ECS.Collections {
         }
 
         public override string ToString() {
-            
-            return "RefList(Used: " + this.UsedCount.ToString() + ", Size: [" + this.FromIndex.ToString() + "-" + this.SizeCount.ToString() + "], Capacity: " + this.Capacity.ToString() + ") ";
-            
+
+            return "RefList(Used: " + this.UsedCount.ToString() + ", Size: [" + this.FromIndex.ToString() + "-" + this.SizeCount.ToString() + "], Capacity: " +
+                   this.Capacity.ToString() + ") ";
+
         }
 
     }

@@ -1,20 +1,20 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
 
 namespace ME.ECS {
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     public struct FiltersTree {
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
         private struct Item {
 
@@ -24,15 +24,17 @@ namespace ME.ECS {
             public ME.ECS.Collections.BufferArray<int> filters;
 
             public void Dispose() {
-                
+
                 PoolArray<int>.Recycle(ref this.filters);
-                
+
             }
 
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Add(FilterData filterData) {
 
-                ArrayUtils.Resize(this.index, ref this.filters, resizeWithOffset: true);
+                ArrayUtils.Resize(this.index, ref this.filters, true);
                 var idx = System.Array.IndexOf(this.filters.arr, filterData.id, 0, this.filters.Length);
                 if (idx == -1) {
 
@@ -66,9 +68,9 @@ namespace ME.ECS {
         private struct CopyItem : IArrayElementCopy<Item> {
 
             public void Copy(Item @from, ref Item to) {
-                
+
                 to.CopyFrom(from);
-                
+
             }
 
             public void Recycle(Item item) {
@@ -86,104 +88,118 @@ namespace ME.ECS {
         private ME.ECS.Collections.BufferArray<Item> itemsNotContainsVersioned;
 
         public void CopyFrom(FiltersTree other) {
-            
+
             ArrayUtils.Copy(other.itemsContains, ref this.itemsContains, new CopyItem());
             ArrayUtils.Copy(other.itemsNotContains, ref this.itemsNotContains, new CopyItem());
 
             ArrayUtils.Copy(other.itemsContainsVersioned, ref this.itemsContainsVersioned, new CopyItem());
             ArrayUtils.Copy(other.itemsNotContainsVersioned, ref this.itemsNotContainsVersioned, new CopyItem());
-            
+
         }
 
         public void Dispose() {
 
-            for (int i = 0; i < this.itemsContains.Length; ++i) {
+            for (var i = 0; i < this.itemsContains.Length; ++i) {
 
                 this.itemsContains.arr[i].Dispose();
 
             }
+
             PoolArray<Item>.Recycle(ref this.itemsContains);
 
-            for (int i = 0; i < this.itemsNotContains.Length; ++i) {
+            for (var i = 0; i < this.itemsNotContains.Length; ++i) {
 
                 this.itemsNotContains.arr[i].Dispose();
 
             }
+
             PoolArray<Item>.Recycle(ref this.itemsNotContains);
 
-            for (int i = 0; i < this.itemsContainsVersioned.Length; ++i) {
+            for (var i = 0; i < this.itemsContainsVersioned.Length; ++i) {
 
                 this.itemsContainsVersioned.arr[i].Dispose();
 
             }
+
             PoolArray<Item>.Recycle(ref this.itemsContainsVersioned);
 
-            for (int i = 0; i < this.itemsNotContainsVersioned.Length; ++i) {
+            for (var i = 0; i < this.itemsNotContainsVersioned.Length; ++i) {
 
                 this.itemsNotContainsVersioned.arr[i].Dispose();
 
             }
+
             PoolArray<Item>.Recycle(ref this.itemsNotContainsVersioned);
 
         }
-        
+
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ME.ECS.Collections.BufferArray<int> GetFiltersContainsFor<T>() {
-            
+
             var idx = WorldUtilities.GetComponentTypeId<T>();
             if (idx >= 0 && idx < this.itemsContains.Length) {
 
                 return this.itemsContains.arr[idx].filters;
 
             }
-            
+
             return new ME.ECS.Collections.BufferArray<int>(null, 0);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ME.ECS.Collections.BufferArray<int> GetFiltersNotContainsFor<T>() {
-            
+
             var idx = WorldUtilities.GetComponentTypeId<T>();
             if (idx >= 0 && idx < this.itemsNotContains.Length) {
 
                 return this.itemsNotContains.arr[idx].filters;
 
             }
-            
+
             return new ME.ECS.Collections.BufferArray<int>(null, 0);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ME.ECS.Collections.BufferArray<int> GetFiltersContainsForVersioned<T>() {
-            
+
             var idx = WorldUtilities.GetComponentTypeId<T>();
             if (idx >= 0 && idx < this.itemsContainsVersioned.Length) {
 
                 return this.itemsContainsVersioned.arr[idx].filters;
 
             }
-            
+
             return new ME.ECS.Collections.BufferArray<int>(null, 0);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ME.ECS.Collections.BufferArray<int> GetFiltersNotContainsForVersioned<T>() {
-            
+
             var idx = WorldUtilities.GetComponentTypeId<T>();
             if (idx >= 0 && idx < this.itemsNotContainsVersioned.Length) {
 
                 return this.itemsNotContainsVersioned.arr[idx].filters;
 
             }
-            
+
             return new ME.ECS.Collections.BufferArray<int>(null, 0);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Add(FilterData filter) {
 
             ref var contains = ref this.itemsContains;
@@ -195,22 +211,18 @@ namespace ME.ECS {
                 notContains = ref this.itemsNotContainsVersioned;
 
             }
-            
+
             {
 
                 var bits = filter.archetypeContains.value.BitsCount;
-                for (int i = 0; i <= bits; ++i) {
+                for (var i = 0; i <= bits; ++i) {
 
                     if (filter.archetypeContains.value.HasBit(i) == true) {
 
-                        ArrayUtils.Resize(i, ref contains, resizeWithOffset: true);
+                        ArrayUtils.Resize(i, ref contains, true);
                         ref var item = ref contains.arr[i];
                         if (item.isCreated == false) {
-                            item = new Item() {
-                                isCreated = true,
-                                bit = i,
-                                index = 0,
-                            };
+                            item = new Item() { isCreated = true, bit = i, index = 0, };
                         }
 
                         item.Add(filter);
@@ -218,32 +230,28 @@ namespace ME.ECS {
                     }
 
                 }
-                
+
             }
 
             {
 
                 var bits = filter.archetypeNotContains.value.BitsCount;
-                for (int i = 0; i <= bits; ++i) {
+                for (var i = 0; i <= bits; ++i) {
 
                     if (filter.archetypeNotContains.value.HasBit(i) == true) {
 
-                        ArrayUtils.Resize(i, ref notContains, resizeWithOffset: true);
+                        ArrayUtils.Resize(i, ref notContains, true);
                         ref var item = ref notContains.arr[i];
                         if (item.isCreated == false) {
-                            item = new Item() {
-                                isCreated = true,
-                                bit = i,
-                                index = 0,
-                            };
+                            item = new Item() { isCreated = true, bit = i, index = 0, };
                         }
-                        
+
                         item.Add(filter);
 
                     }
 
                 }
-                
+
             }
 
         }

@@ -1,22 +1,25 @@
-﻿
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
 namespace ME.ECS.Collections {
 
     public interface IIntrusiveDictionary<TKey, TValue> where TKey : struct, System.IEquatable<TKey> where TValue : struct {
 
         int Count { get; }
         TValue this[TKey key] { get; set; }
-        
+
         bool Add(in TKey key, in TValue value);
         bool RemoveKey(in TKey key);
         bool TryGetValue(in TKey key, out TValue value);
         bool ContainsKey(in TKey key);
         void Clear();
-        
+
         BufferArray<IntrusiveDictionary<TKey, TValue>.Entry> ToArray();
         IntrusiveDictionary<TKey, TValue>.Enumerator GetEnumerator();
 
     }
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
@@ -34,23 +37,29 @@ namespace ME.ECS.Collections {
             private IntrusiveHashSetGeneric<Entry>.Enumerator listEnumerator;
             public Entry Current => this.listEnumerator.Current;
 
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public Enumerator(IntrusiveDictionary<TKey, TValue> hashSet) {
 
                 this.listEnumerator = hashSet.keys.GetEnumerator();
-                
+
             }
 
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public bool MoveNext() {
 
                 return this.listEnumerator.MoveNext();
 
             }
 
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Reset() {
-                
+
                 this.listEnumerator = default;
 
             }
@@ -61,9 +70,7 @@ namespace ME.ECS.Collections {
                 }
             }
 
-            public void Dispose() {
-
-            }
+            public void Dispose() { }
 
         }
 
@@ -95,6 +102,7 @@ namespace ME.ECS.Collections {
                 if (this.TryGetValue(in key, out var value) == true) {
                     return value;
                 }
+
                 return default;
             }
             set {
@@ -102,7 +110,9 @@ namespace ME.ECS.Collections {
             }
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public Enumerator GetEnumerator() {
 
             return new Enumerator(this);
@@ -113,25 +123,29 @@ namespace ME.ECS.Collections {
         /// Put entity data into array.
         /// </summary>
         /// <returns>Buffer array from pool</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public BufferArray<Entry> ToArray() {
 
             var arr = PoolArray<Entry>.Spawn(this.Count);
             var i = 0;
             foreach (var entity in this) {
-                
+
                 arr.arr[i++] = entity;
-                
+
             }
 
             return arr;
-            
+
         }
 
         /// <summary>
         /// Clear the dictionary.
         /// </summary>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Clear() {
 
             this.keys.Clear();
@@ -143,7 +157,9 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="key"></param>
         /// <returns>Returns TRUE if data was found</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool RemoveKey(in TKey key) {
 
             return this.keys.Remove(new Entry() { key = key });
@@ -155,11 +171,13 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="key"></param>
         /// <returns>Returns TRUE if data was found</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool ContainsKey(in TKey key) {
 
             return this.keys.Contains(new Entry() { key = key });
-            
+
         }
 
         /// <summary>
@@ -168,7 +186,9 @@ namespace ME.ECS.Collections {
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns>Returns FALSE if key already exists</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool Add(in TKey key, in TValue value) {
 
             var entry = new Entry() {
@@ -176,7 +196,7 @@ namespace ME.ECS.Collections {
                 value = value,
             };
             if (this.keys.Contains(entry) == false) {
-                
+
                 this.keys.Add(entry);
                 return true;
 
@@ -192,7 +212,9 @@ namespace ME.ECS.Collections {
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns>Returns FALSE if key doesn't exist</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool TryGetValue(in TKey key, out TValue value) {
 
             if (this.keys.Get(key.GetHashCode(), new Entry() { key = key }, out var result) == true) {

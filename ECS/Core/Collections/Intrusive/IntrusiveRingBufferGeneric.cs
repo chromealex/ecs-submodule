@@ -1,11 +1,14 @@
-﻿
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
 namespace ME.ECS.Collections {
 
     public interface IIntrusiveRingBufferGeneric<T> where T : struct, System.IEquatable<T> {
 
         int Capacity { get; }
         int Count { get; }
-        
+
         void Push(in T entityData);
         T GetValue(int index);
         void Clear();
@@ -15,7 +18,7 @@ namespace ME.ECS.Collections {
         IntrusiveRingBufferGeneric<T>.Enumerator GetEnumerator();
 
     }
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
@@ -35,23 +38,29 @@ namespace ME.ECS.Collections {
             private IntrusiveListGeneric<T>.Enumerator listEnumerator;
             public T Current => this.listEnumerator.Current;
 
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public Enumerator(IntrusiveRingBufferGeneric<T> hashSet) {
 
                 this.listEnumerator = hashSet.list.GetEnumerator();
-                
+
             }
 
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public bool MoveNext() {
 
                 return this.listEnumerator.MoveNext();
 
             }
 
+            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Reset() {
-                
+
                 this.listEnumerator = default;
 
             }
@@ -62,15 +71,13 @@ namespace ME.ECS.Collections {
                 }
             }
 
-            public void Dispose() {
-
-            }
+            public void Dispose() { }
 
         }
 
         private IntrusiveListGeneric<T> list;
         private readonly int capacity;
-        
+
         public int Capacity => this.capacity;
         public int Count => this.list.Count;
 
@@ -81,7 +88,9 @@ namespace ME.ECS.Collections {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public Enumerator GetEnumerator() {
 
             return new Enumerator(this);
@@ -92,15 +101,17 @@ namespace ME.ECS.Collections {
         /// Put entity data into array.
         /// </summary>
         /// <returns>Buffer array from pool</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public BufferArray<T> ToArray() {
 
             var arr = PoolArray<T>.Spawn(this.Count);
             var i = 0;
             foreach (var entity in this) {
-                
+
                 arr.arr[i++] = entity;
-                
+
             }
 
             return arr;
@@ -112,17 +123,21 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="entityData"></param>
         /// <returns>Returns TRUE if data was found</returns>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool Contains(in T entityData) {
-            
+
             return this.list.Contains(in entityData);
 
         }
-        
+
         /// <summary>
         /// Clear the list.
         /// </summary>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Clear() {
 
             this.list.Clear();
@@ -132,7 +147,9 @@ namespace ME.ECS.Collections {
         /// <summary>
         /// Gets the value by index.
         /// </summary>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public T GetValue(int index) {
 
             var idx = index % (this.capacity <= 0 ? IntrusiveRingBufferGeneric<T>.DEFAULT_CAPACTIY : this.capacity);
@@ -145,17 +162,19 @@ namespace ME.ECS.Collections {
         /// Add new data at the end of the list.
         /// </summary>
         /// <param name="entityData"></param>
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Push(in T entityData) {
 
             if (this.list.Count >= (this.capacity <= 0 ? IntrusiveRingBufferGeneric<T>.DEFAULT_CAPACTIY : this.capacity)) {
-                
+
                 this.list.RemoveLast();
 
             }
-            
+
             this.list.AddFirst(in entityData);
-            
+
         }
 
     }

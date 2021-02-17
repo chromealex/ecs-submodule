@@ -7,7 +7,9 @@ public readonly ref struct EntityBuffer<#ITEMS_TYPE#> #ITEMS_WHERE# {
 
     #ITEMS_BUFFER#
 
+    #if INLINE_METHODS
     [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+    #endif
     public EntityBuffer(World world, ME.ECS.Collections.BufferArray<Entity> arr, int minIdx, int maxIdx) {
         
         #ITEMS_INIT#

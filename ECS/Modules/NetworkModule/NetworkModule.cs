@@ -1,3 +1,7 @@
+#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
 #if STATES_HISTORY_MODULE_SUPPORT && NETWORK_MODULE_SUPPORT
 
 namespace ME.ECS {
@@ -11,12 +15,13 @@ namespace ME.ECS {
     public partial class World {
 
         private Network.INetworkModuleBase networkModule;
+
         public void SetNetworkModule(Network.INetworkModuleBase module) {
 
             this.networkModule = module;
 
         }
-        
+
     }
 
 }
@@ -29,7 +34,7 @@ namespace ME.ECS.Network {
         None = 0x0,
         SendToNet = 0x1,
         RunLocal = 0x2,
-        
+
     }
 
     public interface ITransporter {
@@ -38,20 +43,20 @@ namespace ME.ECS.Network {
         void Send(byte[] bytes);
         void SendSystem(byte[] bytes);
         byte[] Receive();
-        
+
         int GetEventsSentCount();
         int GetEventsBytesSentCount();
         int GetEventsReceivedCount();
         int GetEventsBytesReceivedCount();
 
-        
+
     }
 
     public interface ISerializer {
 
         ME.ECS.StatesHistory.HistoryStorage DeserializeStorage(byte[] bytes);
         byte[] SerializeStorage(ME.ECS.StatesHistory.HistoryStorage historyStorage);
-        
+
         byte[] Serialize(StatesHistory.HistoryEvent historyEvent);
         StatesHistory.HistoryEvent Deserialize(byte[] bytes);
 
@@ -63,26 +68,26 @@ namespace ME.ECS.Network {
     public interface INetworkModuleBase : IModuleBase {
 
         void LoadHistoryStorage(ME.ECS.StatesHistory.HistoryStorage storage);
-        
+
         void SetTransporter(ITransporter transporter);
         void SetSerializer(ISerializer serializer);
         ISerializer GetSerializer();
 
         int GetRPCOrder();
-        
+
         bool IsReverting();
 
         bool UnRegisterRPC(RPCId rpcId);
 
         RPCId RegisterRPC(System.Reflection.MethodInfo methodInfo, bool runLocalOnly = false);
         bool RegisterRPC(RPCId rpcId, System.Reflection.MethodInfo methodInfo, bool runLocalOnly = false);
-        
+
         bool RegisterObject(object obj, int objId, int groupId = 0);
         bool UnRegisterObject(object obj, int objId);
         bool UnRegisterGroup(int groupId);
 
         int GetRegistryCount();
-        
+
         double GetPing();
 
         int GetEventsSentCount();
@@ -95,9 +100,7 @@ namespace ME.ECS.Network {
 
     }
 
-    public interface INetworkModule<TState> : INetworkModuleBase, IModule where TState : State, new() {
-
-    }
+    public interface INetworkModule<TState> : INetworkModuleBase, IModule where TState : State, new() { }
 
     public struct Key {
 
@@ -108,7 +111,8 @@ namespace ME.ECS.Network {
 
     public class RegisterObjectMissingException : System.Exception {
 
-        public RegisterObjectMissingException(object instance, RPCId rpcId) : base("[NetworkModule] Object " + instance + " could not send RPC with id " + rpcId + " because RegisterObject() call should run before this call.") {}
+        public RegisterObjectMissingException(object instance, RPCId rpcId) : base("[NetworkModule] Object " + instance + " could not send RPC with id " + rpcId +
+                                                                                   " because RegisterObject() call should run before this call.") { }
 
     }
 
@@ -122,7 +126,7 @@ namespace ME.ECS.Network {
         private static readonly RPCId CANCEL_EVENT_RPC_ID = -11;
         private static readonly RPCId PING_RPC_ID = -1;
         private static readonly RPCId SYNC_RPC_ID = -2;
-        
+
         public World world { get; set; }
 
         private RPCId rpcId;
@@ -131,20 +135,20 @@ namespace ME.ECS.Network {
         private System.Collections.Generic.Dictionary<long, object> keyToObjects;
         private System.Collections.Generic.Dictionary<object, Key> objectToKey;
         private int currentObjectRegistryId;
-        
+
         private StatesHistory.IStatesHistoryModule<TState> statesHistoryModule;
         protected ITransporter transporter { get; private set; }
         protected ISerializer serializer { get; private set; }
         private int localOrderIndex;
 
         private double ping;
-        
+
         private float pingTime;
         private float syncTime;
         internal Tick syncedTick;
         internal int syncHash;
         private Tick syncTickSent;
-        
+
         private bool isReverting;
         private Tick revertingTo;
 
@@ -170,22 +174,22 @@ namespace ME.ECS.Network {
 
             this.statesHistoryModule = this.world.GetModule<StatesHistory.IStatesHistoryModule<TState>>();
             this.statesHistoryModule.SetEventRunner(this);
-            
+
             this.world.SetNetworkModule(this);
-            
+
             this.RegisterRPC(NetworkModule<TState>.CANCEL_EVENT_RPC_ID, new System.Action<byte[]>(this.CancelEvent_RPC).Method);
             this.RegisterRPC(NetworkModule<TState>.PING_RPC_ID, new System.Action<double, bool>(this.Ping_RPC).Method);
             this.RegisterRPC(NetworkModule<TState>.SYNC_RPC_ID, new System.Action<Tick, int>(this.Sync_RPC).Method);
             this.RegisterObject(this, -1, -1);
-            
+
             this.OnInitialize();
 
         }
 
         void IModuleBase.OnDeconstruct() {
-            
+
             this.OnDeInitialize();
-            
+
             this.UnRegisterObject(this, -1);
             this.currentObjectRegistryId = 1000;
 
@@ -193,9 +197,9 @@ namespace ME.ECS.Network {
             PoolDictionary<long, object>.Recycle(ref this.keyToObjects);
             PoolDictionary<object, Key>.Recycle(ref this.objectToKey);
             PoolDictionary<int, System.Reflection.MethodInfo>.Recycle(ref this.registry);
-            
+
         }
-        
+
         public ME.ECS.Network.ISerializer GetSerializer() {
 
             return this.serializer;
@@ -211,14 +215,14 @@ namespace ME.ECS.Network {
         private void CancelEvent_RPC(byte[] array) {
 
             try {
-                
+
                 var cancelEvent = this.serializer.Deserialize(array);
                 this.CancelEvent(cancelEvent);
-                
+
             } catch (System.Exception exception) {
-                
+
                 UnityEngine.Debug.LogException(exception);
-                
+
             }
 
         }
@@ -226,15 +230,15 @@ namespace ME.ECS.Network {
         private void Sync_RPC(Tick tick, int hash) {
 
             this.statesHistoryModule.SetSyncHash(this.GetCurrentHistoryEvent().order, tick, hash);
-            
+
         }
 
         private void Ping_RPC(double t, bool forward) {
-            
+
             if (forward == true) {
-                
+
                 this.SystemRPC(this, NetworkModule<TState>.PING_RPC_ID, t, false);
-                
+
             } else {
 
                 // Measure ping client to client
@@ -246,13 +250,9 @@ namespace ME.ECS.Network {
 
         }
 
-        protected virtual void OnInitialize() {
-            
-        }
+        protected virtual void OnInitialize() { }
 
-        protected virtual void OnDeInitialize() {
-            
-        }
+        protected virtual void OnDeInitialize() { }
 
         void INetworkModuleBase.SetTransporter(ITransporter transporter) {
 
@@ -309,7 +309,7 @@ namespace ME.ECS.Network {
         public bool RegisterObject(object obj, int objId = 0, int groupId = 0) {
 
             if (objId == 0) objId = ++this.currentObjectRegistryId;
-            
+
             var key = MathUtils.GetKey(groupId, objId);
             if (this.keyToObjects.ContainsKey(key) == false) {
 
@@ -376,15 +376,16 @@ namespace ME.ECS.Network {
                     }
 
                     if (foundInside == false) newObjectToKey.Add(item.Key, item.Value);
-                    
+
                 }
 
             }
+
             PoolDictionary<object, Key>.Recycle(ref this.objectToKey);
             this.objectToKey = newObjectToKey;
 
             return foundAny;
-            
+
         }
 
         public bool UnRegisterRPC(RPCId rpcId) {
@@ -412,13 +413,13 @@ namespace ME.ECS.Network {
         }
 
         private void CallRPC(object instance, RPCId rpcId, bool storeInHistory, object[] parameters) {
-            
+
             if (this.world.HasStep(WorldStep.LogicTick) == true) {
 
                 InStateException.ThrowWorldStateCheck();
 
             }
-            
+
             Key key;
             if (this.objectToKey.TryGetValue(instance, out key) == true) {
 
@@ -439,14 +440,14 @@ namespace ME.ECS.Network {
                     { // Apply data to current state
                         this.statesHistoryModule.RunEvent(evt);
                     }
-                    
+
                     var currentState = this.world.GetState();
                     var resetState = this.world.GetResetState();
                     this.world.SetStateDirect(resetState);
                     {
                         this.statesHistoryModule.RunEvent(evt);
                     }
-                    
+
                     foreach (var entry in this.statesHistoryModule.GetDataStates().GetEntries()) {
 
                         if (entry.isEmpty == false) {
@@ -457,6 +458,7 @@ namespace ME.ECS.Network {
                         }
 
                     }
+
                     this.world.SetStateDirect(currentState);
                     return;
 
@@ -466,50 +468,50 @@ namespace ME.ECS.Network {
                 evt.order = this.GetRPCOrder();
                 evt.localOrder = ++this.localOrderIndex;
                 evt.storeInHistory = storeInHistory;
-                
+
                 var storedInHistory = false;
                 if (this.GetNetworkType() == NetworkType.RunLocal && storeInHistory == true) {
-                    
+
                     this.statesHistoryModule.AddEvent(evt);
                     storedInHistory = true;
-                    
+
                 }
-                
+
                 if (storedInHistory == false && storeInHistory == true && (this.GetNetworkType() & NetworkType.RunLocal) != 0) {
- 
+
                     //var dEvt = this.serializer.Deserialize(this.serializer.Serialize(evt));
                     this.statesHistoryModule.AddEvent(evt);
                     storedInHistory = true;
- 
+
                 }
- 
+
                 if (this.transporter != null && this.transporter.IsConnected() == true) {
- 
+
                     if (runLocalOnly == false && (this.GetNetworkType() & NetworkType.SendToNet) != 0) {
- 
+
                         if (this.transporter != null && this.serializer != null) {
- 
+
                             if (storeInHistory == false) {
- 
+
                                 this.transporter.SendSystem(this.serializer.Serialize(evt));
- 
+
                             } else {
- 
+
                                 this.transporter.Send(this.serializer.Serialize(evt));
- 
+
                             }
- 
+
                         }
- 
+
                     }
- 
+
                 }
 
                 if (storedInHistory == false && parameters != null) {
-                    
+
                     // Return parameters into pool if we are not storing them locally
                     PoolArray<object>.Recycle(ref parameters);
-                    
+
                 }
 
             } else {
@@ -521,7 +523,7 @@ namespace ME.ECS.Network {
         }
 
         public System.Reflection.MethodInfo GetMethodInfo(RPCId rpcId) {
-            
+
             System.Reflection.MethodInfo methodInfo;
             if (this.registry.TryGetValue(rpcId, out methodInfo) == true) {
 
@@ -532,10 +534,11 @@ namespace ME.ECS.Network {
             return null;
 
         }
-        
+
         private ME.ECS.StatesHistory.HistoryEvent runCurrentEvent;
+
         void StatesHistory.IEventRunner.RunEvent(StatesHistory.HistoryEvent historyEvent) {
-            
+
             System.Reflection.MethodInfo methodInfo;
             if (this.registry.TryGetValue(historyEvent.rpcId, out methodInfo) == true) {
 
@@ -578,12 +581,13 @@ namespace ME.ECS.Network {
                 this.ApplyEvent(item);
 
             }
+
             this.statesHistoryModule.EndAddEvents();
-            
+
         }
 
         private bool ApplyEvent(ME.ECS.StatesHistory.HistoryEvent historyEvent) {
-            
+
             /*if (historyEvent.storeInHistory == true) {
                         
                 System.Reflection.MethodInfo methodInfo;
@@ -594,7 +598,7 @@ namespace ME.ECS.Network {
                 }
 
             }*/
-            
+
             if ((this.GetNetworkType() & NetworkType.RunLocal) != 0 && historyEvent.order == this.GetRPCOrder()) {
 
                 // Skip events from local owner is it was run already
@@ -619,14 +623,14 @@ namespace ME.ECS.Network {
 
         }
 
-        protected void CancelEvent(ME.ECS.StatesHistory.HistoryEvent historyEvent){
-			
+        protected void CancelEvent(ME.ECS.StatesHistory.HistoryEvent historyEvent) {
+
             this.statesHistoryModule.CancelEvent(historyEvent);
 
         }
 
         protected virtual void SendPing(float deltaTime) {
-            
+
             this.pingTime += deltaTime;
             if (this.pingTime >= 1f) {
 
@@ -638,7 +642,7 @@ namespace ME.ECS.Network {
         }
 
         protected virtual void SendSync(float deltaTime) {
-            
+
             this.syncTime += deltaTime;
             if (this.syncTime >= 2f) {
 
@@ -656,7 +660,7 @@ namespace ME.ECS.Network {
         }
 
         protected virtual void ReceiveEventsAndApply() {
-            
+
             if (this.transporter != null && this.serializer != null) {
 
                 this.statesHistoryModule.BeginAddEvents();
@@ -671,6 +675,7 @@ namespace ME.ECS.Network {
                     this.ApplyEvent(evt);
 
                 } while (true);
+
                 this.statesHistoryModule.EndAddEvents();
 
             }
@@ -678,15 +683,15 @@ namespace ME.ECS.Network {
         }
 
         public bool IsReverting() {
-            
+
             return this.isReverting == true && this.world.GetCurrentTick() < this.revertingTo;
-            
+
         }
 
         protected virtual void ApplyTicksByState() {
-            
+
             var tick = this.world.GetCurrentTick();
-            
+
             var timeSinceGameStart = (long)(this.world.GetTimeSinceStart() * 1000L);
             var targetTick = (Tick)System.Math.Floor(timeSinceGameStart / (this.world.GetTickTime() * 1000d));
             var currentTargetTick = targetTick;
@@ -705,7 +710,7 @@ namespace ME.ECS.Network {
 
                 sourceState = this.world.GetResetState<TState>();
                 if (targetTick < tick) targetTick = tick;
-                
+
             }
             //UnityEngine.Debug.Log("Rollback. Oldest: " + oldestEventTick + ", sourceTick: " + sourceTick + ", targetTick: " + targetTick);
 
@@ -718,12 +723,12 @@ namespace ME.ECS.Network {
             this.revertingTo = currentState.tick;
             currentState.CopyFrom(sourceState);
             currentState.Initialize(this.world, freeze: false, restore: true);
-            
+
             //this.world.SetFromToTicks(sourceTick, targetTick);
-            
+
             this.world.Simulate(sourceTick, targetTick);
             this.isReverting = false;
-            
+
             this.world.SetFromToTicks(tick, currentTargetTick);
 
         }
@@ -739,7 +744,7 @@ namespace ME.ECS.Network {
 
             this.ReceiveEventsAndApply();
             this.ApplyTicksByState();
-            
+
         }
 
         public RPCId RegisterRPC(System.Reflection.MethodInfo methodInfo, bool runLocalOnly = false) {
@@ -753,11 +758,11 @@ namespace ME.ECS.Network {
                         return reg.Key;
 
                     }
-                    
+
                 }
-                
+
             }
-            
+
             this.RegisterRPC(++this.rpcId, methodInfo, runLocalOnly);
             return this.rpcId;
 
@@ -777,40 +782,50 @@ namespace ME.ECS.Network {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void SystemRPC(object instance, RPCId rpcId, params object[] parameters) {
 
             this.CallRPC(instance, rpcId, false, parameters);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void RPC(object instance, RPCId rpcId) {
 
             this.CallRPC(instance, rpcId, true, null);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void RPC<T1>(object instance, RPCId rpcId, T1 p1) /*where T1 : struct*/ {
 
             var arr = new object[1];
             arr[0] = p1;
             this.CallRPC(instance, rpcId, true, arr);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void RPC<T1, T2>(object instance, RPCId rpcId, T1 p1, T2 p2) /*where T1 : struct where T2 : struct*/ {
 
             var arr = new object[2];
             arr[0] = p1;
             arr[1] = p2;
             this.CallRPC(instance, rpcId, true, arr);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void RPC<T1, T2, T3>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3) /*where T1 : struct where T2 : struct where T3 : struct*/ {
 
             var arr = new object[3];
@@ -818,10 +833,12 @@ namespace ME.ECS.Network {
             arr[1] = p2;
             arr[2] = p3;
             this.CallRPC(instance, rpcId, true, arr);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void RPC<T1, T2, T3, T4>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4) /*where T1 : struct where T2 : struct where T3 : struct where T4 : struct*/ {
 
             var arr = new object[4];
@@ -830,11 +847,15 @@ namespace ME.ECS.Network {
             arr[2] = p3;
             arr[3] = p4;
             this.CallRPC(instance, rpcId, true, arr);
-            
+
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void RPC<T1, T2, T3, T4, T5>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5) /*where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct*/ {
+        #endif
+        public void
+            RPC<T1, T2, T3, T4, T5>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4,
+                                    T5 p5) /*where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct*/ {
 
             var arr = new object[5];
             arr[0] = p1;
@@ -843,7 +864,7 @@ namespace ME.ECS.Network {
             arr[3] = p4;
             arr[4] = p5;
             this.CallRPC(instance, rpcId, true, arr);
-            
+
         }
 
     }

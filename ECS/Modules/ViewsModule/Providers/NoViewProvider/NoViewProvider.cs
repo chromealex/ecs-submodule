@@ -1,14 +1,18 @@
-﻿namespace ME.ECS {
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
+namespace ME.ECS {
 
     using ME.ECS.Views;
     using ME.ECS.Views.Providers;
-    
+
     public partial struct WorldViewsSettings {
 
         public bool unityNoViewProviderDisableJobs;
 
     }
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -16,14 +20,18 @@
     #endif
     public sealed partial class World {
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ViewId RegisterViewSource(NoViewBase prefab) {
 
             return this.RegisterViewSource(new NoViewProviderInitializer(), (IView)prefab);
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void InstantiateView(NoViewBase prefab, Entity entity) {
 
             this.InstantiateView((IView)prefab, entity);
@@ -47,18 +55,14 @@ namespace ME.ECS.Views.Providers {
     #endif
     public abstract class NoViewBase {
 
-        public void SimulateParticles(float time, uint seed) {
-            
-        }
+        public void SimulateParticles(float time, uint seed) { }
 
-        public void UpdateParticlesSimulation(float deltaTime) {
-            
-        }
+        public void UpdateParticlesSimulation(float deltaTime) { }
 
         public override string ToString() {
 
             return "NoView";
-            
+
         }
 
     }
@@ -70,7 +74,9 @@ namespace ME.ECS.Views.Providers {
     #endif
     public abstract class NoView : NoViewBase, IView, IViewBaseInternal {
 
-        int System.IComparable<IView>.CompareTo(IView other) { return 0; }
+        int System.IComparable<IView>.CompareTo(IView other) {
+            return 0;
+        }
 
         public World world { get; private set; }
         public Entity entity { get; private set; }
@@ -88,15 +94,15 @@ namespace ME.ECS.Views.Providers {
         }
 
         void IView.DoInitialize() {
-            
+
             this.OnInitialize();
-            
+
         }
 
         void IView.DoDeInitialize() {
-            
+
             this.OnDeInitialize();
-            
+
         }
 
         public virtual void OnInitialize() { }
@@ -107,7 +113,7 @@ namespace ME.ECS.Views.Providers {
         public virtual void ApplyPhysicsState(float deltaTime) { }
 
     }
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -116,33 +122,33 @@ namespace ME.ECS.Views.Providers {
     public class NoViewProvider : ViewsProvider {
 
         private PoolInternalBase pool;
-        
+
         public override void OnConstruct() {
 
             this.pool = new PoolInternalBase(typeof(NoView), null, null);
-            
+
         }
 
         public override void OnDeconstruct() {
-            
+
             this.pool = null;
-            
+
         }
-        
+
         public override IView Spawn(IView prefab, ViewId prefabSourceId) {
 
             var prefabSource = (NoView)prefab;
-            
+
             var obj = this.pool.Spawn();
             if (obj == null) {
-                
+
                 obj = System.Activator.CreateInstance(prefab.GetType());
-                
+
             }
-            
+
             var particleViewBase = (IViewBaseInternal)obj;
             particleViewBase.Setup(this.world, new ViewInfo(prefabSource.entity, prefabSource.prefabSourceId, prefabSource.creationTick));
-            
+
             return (IView)obj;
 
         }
@@ -151,38 +157,39 @@ namespace ME.ECS.Views.Providers {
 
             this.pool.Recycle(instance);
             instance = null;
-            
+
         }
 
         private struct Job : Unity.Jobs.IJobParallelFor {
 
             public float deltaTime;
-            
+
             public void Execute(int index) {
 
                 var list = NoViewProvider.currentList.arr[index];
                 if (list.mainView == null) return;
-                
+
                 for (int i = 0, count = list.Length; i < count; ++i) {
 
                     var instance = list[i] as NoView;
                     if (instance == null) continue;
-                    
+
                     instance.ApplyStateJob(this.deltaTime, immediately: false);
-                    
+
                 }
-                
+
             }
 
         }
 
         private static ME.ECS.Collections.BufferArray<Views> currentList;
+
         public override void Update(ME.ECS.Collections.BufferArray<Views> list, float deltaTime, bool hasChanged) {
-            
+
             if (this.world.settings.useJobsForViews == true && this.world.settings.viewsSettings.unityNoViewProviderDisableJobs == false) {
 
                 NoViewProvider.currentList = list;
-                
+
                 var job = new Job() {
                     deltaTime = deltaTime
                 };
@@ -200,11 +207,11 @@ namespace ME.ECS.Views.Providers {
                         if (instance == null) continue;
 
                         instance.ApplyStateJob(deltaTime, immediately: false);
-                    
+
                     }
-                    
+
                 }
-                
+
             }
 
         }
@@ -218,7 +225,9 @@ namespace ME.ECS.Views.Providers {
     #endif
     public struct NoViewProviderInitializer : IViewsProviderInitializer {
 
-        int System.IComparable<IViewsProviderInitializerBase>.CompareTo(IViewsProviderInitializerBase other) { return 0; }
+        int System.IComparable<IViewsProviderInitializerBase>.CompareTo(IViewsProviderInitializerBase other) {
+            return 0;
+        }
 
         public IViewsProvider Create() {
 
@@ -229,7 +238,7 @@ namespace ME.ECS.Views.Providers {
         public void Destroy(IViewsProvider instance) {
 
             PoolClass<NoViewProvider>.Recycle((NoViewProvider)instance);
-            
+
         }
 
     }
