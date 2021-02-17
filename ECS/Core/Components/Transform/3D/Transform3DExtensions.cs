@@ -22,7 +22,7 @@ namespace ME.ECS {
         #endif
         public static void SetPosition(this in Entity child, in UnityEngine.Vector3 position) {
 
-            var container = child.GetData<Container>(createIfNotExists: false);
+            ref readonly var container = ref child.ReadData<Container>();
             if (container.entity.IsEmpty() == false) {
 
                 var containerRotation = container.entity.GetRotation();
@@ -42,7 +42,7 @@ namespace ME.ECS {
         #endif
         public static void SetRotation(this in Entity child, in UnityEngine.Quaternion rotation) {
 
-            var container = Worlds.currentWorld.GetData<Container>(in child, createIfNotExists: false);
+            ref readonly var container = ref child.ReadData<Container>();
             if (container.entity.IsEmpty() == false) {
 
                 var containerRotation = container.entity.GetRotation();
@@ -71,13 +71,13 @@ namespace ME.ECS {
         #endif
         public static UnityEngine.Vector3 GetPosition(this in Entity child) {
 
-            var position = Worlds.currentWorld.GetData<Position>(in child, createIfNotExists: false).ToVector3();
-            var current = Worlds.currentWorld.GetData<Container>(in child, createIfNotExists: false).entity;
-            while (current.IsEmpty() == false) {
+            var position = child.ReadData<Position>().ToVector3();
+            ref readonly var container = ref child.ReadData<Container>();
+            while (container.entity.IsEmpty() == false) {
 
-                position = Worlds.currentWorld.GetData<Rotation>(in current, createIfNotExists: false).ToQuaternion() * position;
-                position += Worlds.currentWorld.GetData<Position>(in current, createIfNotExists: false).ToVector3();
-                current = Worlds.currentWorld.GetData<Container>(in current, createIfNotExists: false).entity;
+                position = container.entity.ReadData<Rotation>().ToQuaternion() * position;
+                position += container.entity.ReadData<Position>().ToVector3();
+                container = ref container.entity.ReadData<Container>();
 
             }
 
@@ -90,7 +90,7 @@ namespace ME.ECS {
         #endif
         public static UnityEngine.Vector3 GetLocalPosition(this in Entity child) {
 
-            return Worlds.currentWorld.GetData<Position>(in child, createIfNotExists: false).ToVector3();
+            return child.ReadData<Position>().ToVector3();
 
         }
 
@@ -108,7 +108,7 @@ namespace ME.ECS {
         #endif
         public static UnityEngine.Quaternion GetLocalRotation(this in Entity child) {
 
-            return Worlds.currentWorld.GetData<Rotation>(in child, createIfNotExists: false).ToQuaternion();
+            return child.ReadData<Rotation>().ToQuaternion();
 
         }
 
@@ -117,12 +117,12 @@ namespace ME.ECS {
         #endif
         public static UnityEngine.Quaternion GetRotation(this in Entity child) {
 
-            var worldRot = Worlds.currentWorld.GetData<Rotation>(in child, createIfNotExists: false).ToQuaternion(); //child.GetLocalRotation();
-            var current = Worlds.currentWorld.GetData<Container>(in child, createIfNotExists: false).entity;
-            while (current.IsEmpty() == false) {
+            var worldRot = child.ReadData<Rotation>().ToQuaternion();
+            ref readonly var container = ref child.ReadData<Container>();
+            while (container.entity.IsEmpty() == false) {
 
-                worldRot = Worlds.currentWorld.GetData<Rotation>(in current, createIfNotExists: false).ToQuaternion() * worldRot;
-                current = Worlds.currentWorld.GetData<Container>(in current, createIfNotExists: false).entity;
+                worldRot = container.entity.ReadData<Rotation>().ToQuaternion() * worldRot;
+                container = ref container.entity.ReadData<Container>();
 
             }
 
@@ -135,7 +135,7 @@ namespace ME.ECS {
         #endif
         public static UnityEngine.Vector3 GetLocalScale(this in Entity child) {
 
-            return Worlds.currentWorld.GetData<Scale>(in child, createIfNotExists: false).ToVector3();
+            return child.ReadData<Scale>().ToVector3();
 
         }
 

@@ -22,7 +22,7 @@ namespace ME.ECS {
         #endif
         public static void SetPosition2D(this in Entity child, in UnityEngine.Vector2 position) {
 
-            var container = child.GetData<Container>(createIfNotExists: false);
+            ref readonly var container = ref child.ReadData<Container>();
             if (container.entity.IsEmpty() == false) {
 
                 var containerRotation = UnityEngine.Quaternion.Euler(0f, 0f, container.entity.GetRotation2D());
@@ -42,7 +42,7 @@ namespace ME.ECS {
         #endif
         public static void SetRotation2D(this in Entity child, float rotation) {
 
-            var container = Worlds.currentWorld.GetData<Container>(in child, createIfNotExists: false);
+            ref readonly var container = ref child.ReadData<Container>();
             if (container.entity.IsEmpty() == false) {
 
                 var containerRotation = UnityEngine.Quaternion.Euler(0f, 0f, container.entity.GetRotation2D());
@@ -71,15 +71,15 @@ namespace ME.ECS {
         #endif
         public static UnityEngine.Vector2 GetPosition2D(this in Entity child) {
 
-            var position = Worlds.currentWorld.GetData<Position2D>(in child, createIfNotExists: false).ToVector2();
-            var current = Worlds.currentWorld.GetData<Container>(in child, createIfNotExists: false).entity;
-            while (current.IsEmpty() == false) {
+            var position = child.ReadData<Position2D>().ToVector2();
+            ref readonly var container = ref child.ReadData<Container>();
+            while (container.entity.IsEmpty() == false) {
 
-                var angle = Worlds.currentWorld.GetData<Rotation2D>(in current, createIfNotExists: false).ToQuaternion2D();
+                var angle = container.entity.ReadData<Rotation2D>().ToQuaternion2D();
                 position = UnityEngine.Quaternion.Euler(0f, angle, 0f) * position;
                 //position = UnityEngine.Vector2.Rotate(position, angle);
-                position += Worlds.currentWorld.GetData<Position2D>(in current, createIfNotExists: false).ToVector2();
-                current = Worlds.currentWorld.GetData<Container>(in current, createIfNotExists: false).entity;
+                position += container.entity.ReadData<Position2D>().ToVector2();
+                container = ref container.entity.ReadData<Container>();
 
             }
 
@@ -92,7 +92,7 @@ namespace ME.ECS {
         #endif
         public static UnityEngine.Vector2 GetLocalPosition2D(this in Entity child) {
 
-            return Worlds.currentWorld.GetData<Position2D>(in child, createIfNotExists: false).ToVector2();
+            return child.ReadData<Position2D>().ToVector2();
 
         }
 
@@ -110,7 +110,7 @@ namespace ME.ECS {
         #endif
         public static float GetLocalRotation2D(this in Entity child) {
 
-            return Worlds.currentWorld.GetData<Rotation2D>(in child, createIfNotExists: false).ToQuaternion2D();
+            return child.ReadData<Rotation2D>().ToQuaternion2D();
 
         }
 
@@ -119,12 +119,12 @@ namespace ME.ECS {
         #endif
         public static float GetRotation2D(this in Entity child) {
 
-            var worldRot = Worlds.currentWorld.GetData<Rotation2D>(in child, createIfNotExists: false).ToQuaternion2D(); //child.GetLocalRotation2D();
-            var current = Worlds.currentWorld.GetData<Container>(in child, createIfNotExists: false).entity;
-            while (current.IsEmpty() == false) {
+            var worldRot = child.ReadData<Rotation2D>().ToQuaternion2D(); //child.GetLocalRotation2D();
+            ref readonly var container = ref child.ReadData<Container>();
+            while (container.entity.IsEmpty() == false) {
 
-                worldRot = Worlds.currentWorld.GetData<Rotation2D>(in current, createIfNotExists: false).ToQuaternion2D() * worldRot;
-                current = Worlds.currentWorld.GetData<Container>(in current, createIfNotExists: false).entity;
+                worldRot = container.entity.ReadData<Rotation2D>().ToQuaternion2D() * worldRot;
+                container = ref container.entity.ReadData<Container>();
 
             }
 
@@ -137,7 +137,7 @@ namespace ME.ECS {
         #endif
         public static UnityEngine.Vector2 GetLocalScale2D(this in Entity child) {
 
-            return Worlds.currentWorld.GetData<Scale2D>(in child, createIfNotExists: false).ToVector2();
+            return child.ReadData<Scale2D>().ToVector2();
 
         }
 
