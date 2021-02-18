@@ -1345,7 +1345,7 @@ namespace ME.ECS {
             }
             #endif
 
-            return this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()].Has(in entity);
+            return ((StructComponents<TComponent>)this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()]).componentsStates.arr[entity.id] > 0;
 
         }
 
