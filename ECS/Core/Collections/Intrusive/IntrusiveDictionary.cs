@@ -35,7 +35,9 @@ namespace ME.ECS.Collections {
         public struct Enumerator : System.Collections.Generic.IEnumerator<Entry> {
 
             private IntrusiveHashSetGeneric<Entry>.Enumerator listEnumerator;
-            public Entry Current => this.listEnumerator.Current;
+            
+            Entry System.Collections.Generic.IEnumerator<Entry>.Current => this.listEnumerator.Current;
+            public ref Entry Current => ref this.listEnumerator.Current;
 
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
