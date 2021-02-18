@@ -42,18 +42,7 @@ namespace ME.ECS.Collections {
             private IntrusiveHashSet hashSet;
             private int bucketIndex;
             private IntrusiveList.Enumerator listEnumerator;
-            
-            Entity System.Collections.Generic.IEnumerator<Entity>.Current {
-                get {
-                    return this.listEnumerator.Current;
-                }
-            }
-            
-            public ref Entity Current {
-                get {
-                    return ref this.listEnumerator.Current;
-                }
-            }
+            public Entity Current => this.listEnumerator.Current;
 
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

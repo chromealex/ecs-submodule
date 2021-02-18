@@ -56,19 +56,7 @@ namespace ME.ECS.Collections {
 
             private readonly Entity root;
             private Entity head;
-            private int id;
-
-            Entity System.Collections.Generic.IEnumerator<Entity>.Current {
-                get {
-                    return Worlds.currentWorld.GetEntityById(this.id);
-                }
-            }
-            
-            public ref Entity Current {
-                get {
-                    return ref Worlds.currentWorld.GetEntityById(this.id);
-                }
-            }
+            public Entity Current { get; private set; }
 
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -77,7 +65,7 @@ namespace ME.ECS.Collections {
 
                 this.root = list.root;
                 this.head = list.root;
-                this.id = -1;
+                this.Current = default;
 
             }
 
@@ -88,7 +76,7 @@ namespace ME.ECS.Collections {
 
                 if (this.head.IsAlive() == false) return false;
 
-                this.id = this.head.GetData<IntrusiveListNode>().data.id;
+                this.Current = this.head.GetData<IntrusiveListNode>().data;
 
                 this.head = this.head.GetData<IntrusiveListNode>().next;
                 return true;
@@ -101,7 +89,7 @@ namespace ME.ECS.Collections {
             public void Reset() {
 
                 this.head = this.root;
-                this.id = default;
+                this.Current = default;
 
             }
 
