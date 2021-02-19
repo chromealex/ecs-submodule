@@ -34,20 +34,16 @@ namespace ME.ECS.Pathfinding {
 
             }
             
-            var integrationField = PoolArray<ushort>.Spawn(graph.nodes.Count);
-            this.CreateIntegrationField(graph, ref integrationField, visited, endNode, constraint, threadIndex);
+            this.CreateIntegrationField(graph, visited, endNode, constraint, threadIndex);
             var flowField = PoolArray<byte>.Spawn(graph.nodes.Count);
-            this.CreateFlowField(graph, ref flowField, ref integrationField, endNode, constraint, threadIndex);
-            //PoolArray<ushort>.Recycle(ref integrationField);
+            this.CreateFlowField(graph, ref flowField, endNode, constraint, threadIndex);
 
             var statVisited = visited.Count;
-            var statLength = 0;
             
             var path = new Path();
             path.graph = graph;
             path.result = PathCompleteState.Complete;
             path.flowField = flowField;
-            path.integrationField = integrationField;
             
             for (int i = 0; i < visited.Count; ++i) {
 
@@ -59,7 +55,7 @@ namespace ME.ECS.Pathfinding {
 
             if ((pathfindingLogLevel & LogLevel.Path) != 0) {
                 
-                Logger.Log(string.Format("Path result {0}, built in {1}ms. Path length: {2} (visited: {3})\nThread Index: {4}", path.result, swPath.ElapsedMilliseconds, statLength, statVisited, threadIndex));
+                Logger.Log(string.Format("Path result {0}, built in {1}ms. Path length: (visited: {2})\nThread Index: {3}", path.result, swPath.ElapsedMilliseconds, statVisited, threadIndex));
                 
             }
 
@@ -67,12 +63,12 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        private void CreateFlowField(Graph graph, ref BufferArray<byte> flowField, ref BufferArray<ushort> integrationField, Node endNode, Constraint constraint, int threadIndex) {
+        private void CreateFlowField(Graph graph, ref BufferArray<byte> flowField, Node endNode, Constraint constraint, int threadIndex) {
 
             // Create flow field
-            for (int i = 0; i < integrationField.Length; ++i) {
+            for (int i = 0, cnt = graph.nodes.Count; i < cnt; ++i) {
 
-                var ffCost = integrationField.arr[i];
+                var ffCost = graph.nodes[i].bestCost[threadIndex];
                 var node = graph.nodes[i];
                 var minCost = ffCost;
                 if (endNode == node) minCost = 0;
@@ -87,7 +83,7 @@ namespace ME.ECS.Pathfinding {
                     if (neighbour.index < 0) continue;
                     
                     var idx = neighbour.index;
-                    var cost = integrationField.arr[idx];
+                    var cost = graph.nodes[idx].bestCost[threadIndex];
 
                     if (cost < minCost) {
 
@@ -104,16 +100,15 @@ namespace ME.ECS.Pathfinding {
             
         }
         
-        private void CreateIntegrationField(Graph graph, ref BufferArray<ushort> integrationField, ListCopyable<Node> visited, Node endNode, Constraint constraint, int threadIndex) {
+        private void CreateIntegrationField(Graph graph, ListCopyable<Node> visited, Node endNode, Constraint constraint, int threadIndex) {
 
             // Create integration field
             var queue = PoolQueue<Node>.Spawn(500);
             queue.Enqueue(endNode);
 
-            integrationField.arr[endNode.index] = endNode.bestCost[threadIndex] = 0;
+            endNode.bestCost[threadIndex] = 0;
             visited.Add(endNode);
 
-            var notSuitable = PoolList<int>.Spawn(10);
             while (queue.Count > 0) {
 
                 var curNode = queue.Dequeue();
@@ -124,23 +119,17 @@ namespace ME.ECS.Pathfinding {
                     if (conn.index < 0) continue;
 
                     var neighbor = graph.nodes[conn.index];
-                    var cost = neighbor.penalty;
                     if (neighbor.IsSuitable(constraint) == false) {
 
-                        //integrationField.arr[neighbor.index] = float.MaxValue;
-                        //neighbor.bestCost[threadIndex] = ushort.MaxValue;
-
-                        cost = ushort.MaxValue / 2;//graph.maxPenalty * 2f;
-                        //neighbor.bestCost[threadIndex] = 0;
-                        notSuitable.Add(conn.index);
-                        //continue;
+                        continue;
 
                     }
 
-                    if (cost + curNode.bestCost[threadIndex] < neighbor.bestCost[threadIndex]) {
+                    var cost = neighbor.penalty;
+                    var endNodeCost = (ushort)(cost + curNode.bestCost[threadIndex]);
+                    if (endNodeCost < neighbor.bestCost[threadIndex]) {
 
-                        neighbor.bestCost[threadIndex] = (ushort)(cost + curNode.bestCost[threadIndex]);
-                        integrationField.arr[neighbor.index] = neighbor.bestCost[threadIndex];
+                        neighbor.bestCost[threadIndex] = endNodeCost;
                         queue.Enqueue(neighbor);
                         visited.Add(neighbor);
 
@@ -149,18 +138,7 @@ namespace ME.ECS.Pathfinding {
                 }
 
             }
-
-            for (int i = 0, cnt = notSuitable.Count; i < cnt; ++i) {
-
-                var idx = notSuitable[i];
-                var node = graph.nodes[idx];
-                node.bestCost[threadIndex] = ushort.MaxValue;
-                integrationField.arr[idx] = ushort.MaxValue;
-
-            }
-            PoolList<int>.Recycle(ref notSuitable);
             
-            integrationField.arr[endNode.index] = endNode.bestCost[threadIndex] = 0;
             PoolQueue<Node>.Recycle(ref queue);
 
         }

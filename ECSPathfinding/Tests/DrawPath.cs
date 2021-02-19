@@ -28,7 +28,7 @@ public class DrawPath : MonoBehaviour {
                 var graph = this.pathfinding.graphs[0] as ME.ECS.Pathfinding.GridGraph;
                 var nodeSize = graph.nodeSize;
 
-                var maxIntegrationCost = 0f;
+                /*var maxIntegrationCost = 0f;
                 for (int i = 0; i < path.integrationField.Length; ++i) {
 
                     if (maxIntegrationCost < path.integrationField.arr[i]) {
@@ -37,16 +37,16 @@ public class DrawPath : MonoBehaviour {
 
                     }
                     
-                }
+                }*/
 
                 for (int i = 0; i < path.flowField.Length; ++i) {
 
                     var dir = path.flowField.arr[i];
                     var node = graph.nodes[i];
 
-                    var ffCost = path.integrationField.arr[i];
+                    /*var ffCost = path.integrationField.arr[i];
                     Gizmos.color = Color.Lerp(new Color(0f, 1f, 0f, 0.5f), new Color(1f, 0f, 0f, 0.5f), ffCost >= 0f ? (maxIntegrationCost > 0 ? ffCost / (float)maxIntegrationCost : 0f) : 1f);
-                    Gizmos.DrawCube(node.worldPosition, new Vector3(5f, 0.1f, 5f));
+                    Gizmos.DrawCube(node.worldPosition, new Vector3(5f, 0.1f, 5f));*/
                     //UnityEditor.Handles.Label(node.worldPosition + Vector3.up * 0.5f, ffCost.ToString());
                     
                     //UnityEditor.Handles.Label(node.worldPosition, ((ME.ECS.Pathfinding.GridGraph.Direction)dir).ToString());

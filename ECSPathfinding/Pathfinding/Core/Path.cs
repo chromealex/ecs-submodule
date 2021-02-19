@@ -22,7 +22,6 @@ namespace ME.ECS.Pathfinding {
         public ListCopyable<Node> nodes;
         public ListCopyable<Node> nodesModified;
         public BufferArray<byte> flowField;
-        public BufferArray<ushort> integrationField;
 
         public void Recycle() {
             
