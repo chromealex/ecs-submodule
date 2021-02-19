@@ -232,7 +232,7 @@ namespace ME.ECS.DataConfigs {
 
                         if (this.removeStructComponentsDataTypeIds == null || this.removeStructComponentsDataTypeIds.Length != this.removeStructComponents.Length) {
                             
-                            str += $"removeStructComponentsDataTypeIds length changed: {(this.removeStructComponentsDataTypeIds != null ? this.removeStructComponentsDataTypeIds.Length : 0)} => {this.removeStructComponents.Length}";
+                            str += $"removeStructComponentsDataTypeIds length changed: {(this.removeStructComponentsDataTypeIds != null ? this.removeStructComponentsDataTypeIds.Length : 0)} => {this.removeStructComponents.Length}\n";
                             this.removeStructComponentsDataTypeIds = new int[this.removeStructComponents.Length];
                             changed = true;
 
@@ -245,7 +245,7 @@ namespace ME.ECS.DataConfigs {
 
                                 if (this.removeStructComponentsDataTypeIds[i] != -1) {
 
-                                    str += $"removeStructComponentsDataTypeIds changed on {i}: -1";
+                                    str += $"removeStructComponentsDataTypeIds changed on {i}: -1\n";
                                     this.removeStructComponentsDataTypeIds[i] = -1;
                                     changed = true;
                                     
@@ -264,7 +264,7 @@ namespace ME.ECS.DataConfigs {
                             var allId = ComponentTypesRegistry.allTypeId[type];
                             if (this.removeStructComponentsDataTypeIds[i] != allId) {
                                 
-                                str += $"removeStructComponentsDataTypeIds changed on {i}: {this.removeStructComponentsDataTypeIds[i]} => {allId}";
+                                str += $"removeStructComponentsDataTypeIds changed on {i}: {this.removeStructComponentsDataTypeIds[i]} => {allId}\n";
                                 this.removeStructComponentsDataTypeIds[i] = allId;
                                 changed = true;
 
@@ -278,7 +278,7 @@ namespace ME.ECS.DataConfigs {
 
                         if (this.structComponentsDataTypeIds == null || this.structComponentsDataTypeIds.Length != this.structComponents.Length) {
                             
-                            str += $"structComponentsDataTypeIds length changed: {(this.structComponentsDataTypeIds != null ? this.structComponentsDataTypeIds.Length : 0)} => {this.structComponents.Length}";
+                            str += $"structComponentsDataTypeIds length changed: {(this.structComponentsDataTypeIds != null ? this.structComponentsDataTypeIds.Length : 0)} => {this.structComponents.Length}\n";
                             this.structComponentsDataTypeIds = new int[this.structComponents.Length];
                             changed = true;
 
@@ -291,7 +291,7 @@ namespace ME.ECS.DataConfigs {
 
                                 if (this.structComponentsDataTypeIds[i] != -1) {
                                     
-                                    str += $"structComponentsDataTypeIds changed on {i}: -1";
+                                    str += $"structComponentsDataTypeIds changed on {i}: -1\n";
                                     this.structComponentsDataTypeIds[i] = -1;
                                     changed = true;
                                     
@@ -310,7 +310,7 @@ namespace ME.ECS.DataConfigs {
                             var allId = ComponentTypesRegistry.allTypeId[type];
                             if (this.structComponentsDataTypeIds[i] != allId) {
                                 
-                                str += $"structComponentsDataTypeIds changed on {i}: {this.structComponentsDataTypeIds[i]} => {allId}";
+                                str += $"structComponentsDataTypeIds changed on {i}: {this.structComponentsDataTypeIds[i]} => {allId}\n";
                                 this.structComponentsDataTypeIds[i] = allId;
                                 changed = true;
 
