@@ -23,6 +23,7 @@ namespace ME.ECS.Pathfinding {
 
         public struct Body {
 
+            public bool isStatic;
             public Vector2 position;
             public Vector2 velocity;
 
@@ -40,7 +41,7 @@ namespace ME.ECS.Pathfinding {
 
             for (int i = 0; i < bodies.Length; i++) {
                 ref var body = ref bodies.arr[i];
-                body.position += body.velocity * deltaTime;
+                if (body.isStatic == false) body.position += body.velocity * deltaTime;
             }
 
             for (int i = 0; i < bodies.Length; i++) {
