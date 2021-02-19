@@ -31,8 +31,10 @@ namespace ME.ECS.Pathfinding {
         internal readonly float[] startToCurNodeLen = new float[Pathfinding.THREADS_COUNT];
         internal readonly bool[] isOpened = new bool[Pathfinding.THREADS_COUNT];
         internal readonly bool[] isClosed = new bool[Pathfinding.THREADS_COUNT];
+        internal readonly ushort[] bestCost = new ushort[Pathfinding.THREADS_COUNT];
 
-        protected Node() { }
+        protected Node() {
+        }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -68,6 +70,7 @@ namespace ME.ECS.Pathfinding {
             System.Array.Clear(this.startToCurNodeLen, 0, this.startToCurNodeLen.Length);
             System.Array.Clear(this.isOpened, 0, this.isOpened.Length);
             System.Array.Clear(this.isClosed, 0, this.isClosed.Length);
+            System.Array.Clear(this.bestCost, 0, this.bestCost.Length);
 
         }
 
@@ -89,6 +92,7 @@ namespace ME.ECS.Pathfinding {
             this.startToCurNodeLen[threadIndex] = 0f;
             this.isOpened[threadIndex] = false;
             this.isClosed[threadIndex] = false;
+            this.bestCost[threadIndex] = ushort.MaxValue;
 
         }
 

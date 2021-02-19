@@ -21,12 +21,15 @@ namespace ME.ECS.Pathfinding {
         public Graph graph;
         public ListCopyable<Node> nodes;
         public ListCopyable<Node> nodesModified;
+        public BufferArray<byte> flowField;
+        public BufferArray<ushort> integrationField;
 
         public void Recycle() {
             
             if (this.nodes != null) PoolListCopyable<Node>.Recycle(ref this.nodes);
             if (this.nodesModified != null) PoolListCopyable<Node>.Recycle(ref this.nodesModified);
-            
+            if (this.flowField.arr != null) PoolArray<byte>.Recycle(ref this.flowField);
+
         }
 
     }

@@ -10,7 +10,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class BuildPathSystem : ISystemFilter, IAdvanceTickPost, IAdvanceTickPre {
+    public sealed class BuildFieldSystem : ISystemFilter, IAdvanceTickPost, IAdvanceTickPre {
 
         private PathfindingFeature pathfindingFeature;
         private Unity.Collections.NativeArray<PathTask> pathTasks;
@@ -31,7 +31,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
         Filter ISystemFilter.filter { get; set; }
         Filter ISystemFilter.CreateFilter() {
             
-            return Filter.Create("Filter-BuildPathSystem")
+            return Filter.Create("Filter-BuildFieldSystem")
                          .WithStructComponent<CalculatePath>()
                          .Push();
             
@@ -66,11 +66,11 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
                     //UnityEngine.Debug.Log("Path build: " + i + " :: " + path.result);
                     if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete) {
 
-                        this.pathfindingFeature.SetPath(in task.entity, path, task.constraint, task.to);
+                        this.pathfindingFeature.SetPathFlowField(in task.entity, path, task.constraint, task.to);
 
                     } else {
 
-                        task.entity.RemoveData<Path>();
+                        task.entity.RemoveData<PathFlowField>();
 
                     }
 
@@ -93,9 +93,9 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
             if (active == null) return;
 
             //entity.RemoveData<Path>();
-            
+
             ref readonly var request = ref entity.ReadData<CalculatePath>();
-            if (request.flowField == false) {
+            if (request.flowField == true) {
 
                 //UnityEngine.Debug.LogWarning("REQUEST PATH: " + request.@from.ToStringDec() + " to " + request.to.ToStringDec());
                 var constraint = request.constraint;
@@ -105,7 +105,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
                 entity.RemoveData<CalculatePath>();
 
             }
-
+            
         }
     
     }

@@ -754,6 +754,57 @@ namespace ME.ECS.Pathfinding {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static Vector3 GetDirection(GridGraph.Direction direction) {
+
+            var dir = Vector3.zero;
+            switch (direction) {
+                
+                case GridGraph.Direction.Backward:          dir = new Vector3(0f, 0f, -1f);
+                    break;
+                case GridGraph.Direction.Forward:           dir = new Vector3(0f, 0f, 1f);
+                    break;
+                case GridGraph.Direction.Left:              dir = new Vector3(-1f, 0f, 0f);
+                    break;
+                case GridGraph.Direction.Right:             dir = new Vector3(1f, 0f, 0f);
+                    break;
+                case GridGraph.Direction.LeftForward:       dir = new Vector3(-1f, 0f, 1f);
+                    break;
+                case GridGraph.Direction.RightForward:      dir = new Vector3(1f, 0f, 1f);
+                    break;
+                case GridGraph.Direction.LeftBackward:      dir = new Vector3(-1f, 0f, -1f);
+                    break;
+                case GridGraph.Direction.RightBackward:     dir = new Vector3(1f, 0f, -1f);
+                    break;
+                case GridGraph.Direction.Up:                dir = new Vector3(0f, 1f, 0f);
+                    break;
+                case GridGraph.Direction.Down:              dir = new Vector3(0f, -1f, 0f);
+                    break;
+                case GridGraph.Direction.LeftUpBackward:    dir = new Vector3(-1f, 1f, -1f);
+                    break;
+                case GridGraph.Direction.LeftDownBackward:  dir = new Vector3(-1f, -1f, -1f);
+                    break;
+                case GridGraph.Direction.RightUpBackward:   dir = new Vector3(1f, 1f, -1f);
+                    break;
+                case GridGraph.Direction.RightDownBackward: dir = new Vector3(1f, -1f, -1f);
+                    break;
+                case GridGraph.Direction.LeftUpForward:     dir = new Vector3(-1f, 1f, 1f);
+                    break;
+                case GridGraph.Direction.LeftDownForward:   dir = new Vector3(-1f, -1f, 1f);
+                    break;
+                case GridGraph.Direction.RightUpForward:    dir = new Vector3(1f, 1f, 1f);
+                    break;
+                case GridGraph.Direction.RightDownForward:  dir = new Vector3(1f, -1f, 1f);
+                    break;
+                
+            }
+
+            return new Vector3(dir.z, dir.y, -dir.x);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static int GetIndexByDirection(GridGraph graph, int sourceIndex, GridGraph.Direction direction) {
 
             var node = graph.GetNodeByIndex<GridNode>(sourceIndex);

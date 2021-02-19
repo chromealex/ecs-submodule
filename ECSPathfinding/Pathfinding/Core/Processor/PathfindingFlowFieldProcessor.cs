@@ -1,0 +1,170 @@
+﻿using UnityEngine;
+
+namespace ME.ECS.Pathfinding {
+    
+    using ME.ECS.Collections;
+
+    public class PathfindingFlowFieldProcessor : PathfindingProcessor {
+        
+        public override Path Run<TMod>(LogLevel pathfindingLogLevel, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0) {
+
+            if (threadIndex < 0) threadIndex = 0;
+            threadIndex = threadIndex % Pathfinding.THREADS_COUNT;
+
+            var constraintStart = constraint;
+            constraintStart.checkWalkability = true;
+            constraintStart.walkable = true;
+            var startNode = graph.GetNearest(from, constraintStart);
+            if (startNode == null) return new Path();
+
+            var constraintEnd = constraintStart;
+            constraintEnd.checkArea = true;
+            constraintEnd.areaMask = (1 << startNode.area);
+            
+            var endNode = graph.GetNearest(to, constraintEnd);
+            if (endNode == null) return new Path();
+            
+            var visited = PoolListCopyable<Node>.Spawn(10);
+            System.Diagnostics.Stopwatch swPath = null;
+            if ((pathfindingLogLevel & LogLevel.Path) != 0) swPath = System.Diagnostics.Stopwatch.StartNew();
+
+            for (int i = 0; i < graph.nodes.Count; ++i) {
+
+                graph.nodes[i].Reset(threadIndex);
+
+            }
+            
+            var integrationField = PoolArray<ushort>.Spawn(graph.nodes.Count);
+            this.CreateIntegrationField(graph, ref integrationField, visited, endNode, constraint, threadIndex);
+            var flowField = PoolArray<byte>.Spawn(graph.nodes.Count);
+            this.CreateFlowField(graph, ref flowField, ref integrationField, endNode, constraint, threadIndex);
+            //PoolArray<ushort>.Recycle(ref integrationField);
+
+            var statVisited = visited.Count;
+            var statLength = 0;
+            
+            var path = new Path();
+            path.graph = graph;
+            path.result = PathCompleteState.Complete;
+            path.flowField = flowField;
+            path.integrationField = integrationField;
+            
+            for (int i = 0; i < visited.Count; ++i) {
+
+                visited[i].Reset(threadIndex);
+
+            }
+
+            PoolListCopyable<Node>.Recycle(ref visited);
+
+            if ((pathfindingLogLevel & LogLevel.Path) != 0) {
+                
+                Logger.Log(string.Format("Path result {0}, built in {1}ms. Path length: {2} (visited: {3})\nThread Index: {4}", path.result, swPath.ElapsedMilliseconds, statLength, statVisited, threadIndex));
+                
+            }
+
+            return path;
+
+        }
+
+        private void CreateFlowField(Graph graph, ref BufferArray<byte> flowField, ref BufferArray<ushort> integrationField, Node endNode, Constraint constraint, int threadIndex) {
+
+            // Create flow field
+            for (int i = 0; i < integrationField.Length; ++i) {
+
+                var ffCost = integrationField.arr[i];
+                var node = graph.nodes[i];
+                var minCost = ffCost;
+                if (endNode == node) minCost = 0;
+
+                var connections = node.GetConnections();
+                var dir = 0;
+                var iterDir = 0;
+                foreach (var neighbour in connections) {
+                    
+                    ++iterDir;
+
+                    if (neighbour.index < 0) continue;
+                    
+                    var idx = neighbour.index;
+                    var cost = integrationField.arr[idx];
+
+                    if (cost < minCost) {
+
+                        minCost = cost;
+                        dir = iterDir - 1;
+
+                    }
+
+                }
+
+                flowField.arr[i] = (byte)dir;
+
+            }
+            
+        }
+        
+        private void CreateIntegrationField(Graph graph, ref BufferArray<ushort> integrationField, ListCopyable<Node> visited, Node endNode, Constraint constraint, int threadIndex) {
+
+            // Create integration field
+            var queue = PoolQueue<Node>.Spawn(500);
+            queue.Enqueue(endNode);
+
+            integrationField.arr[endNode.index] = endNode.bestCost[threadIndex] = 0;
+            visited.Add(endNode);
+
+            var notSuitable = PoolList<int>.Spawn(10);
+            while (queue.Count > 0) {
+
+                var curNode = queue.Dequeue();
+                var connections = curNode.GetConnections();
+                for (int i = 2; i <= 5; ++i) {
+
+                    var conn = connections[i];
+                    if (conn.index < 0) continue;
+
+                    var neighbor = graph.nodes[conn.index];
+                    var cost = neighbor.penalty;
+                    if (neighbor.IsSuitable(constraint) == false) {
+
+                        //integrationField.arr[neighbor.index] = float.MaxValue;
+                        //neighbor.bestCost[threadIndex] = ushort.MaxValue;
+
+                        cost = ushort.MaxValue / 2;//graph.maxPenalty * 2f;
+                        //neighbor.bestCost[threadIndex] = 0;
+                        notSuitable.Add(conn.index);
+                        //continue;
+
+                    }
+
+                    if (cost + curNode.bestCost[threadIndex] < neighbor.bestCost[threadIndex]) {
+
+                        neighbor.bestCost[threadIndex] = (ushort)(cost + curNode.bestCost[threadIndex]);
+                        integrationField.arr[neighbor.index] = neighbor.bestCost[threadIndex];
+                        queue.Enqueue(neighbor);
+                        visited.Add(neighbor);
+
+                    }
+
+                }
+
+            }
+
+            for (int i = 0, cnt = notSuitable.Count; i < cnt; ++i) {
+
+                var idx = notSuitable[i];
+                var node = graph.nodes[idx];
+                node.bestCost[threadIndex] = ushort.MaxValue;
+                integrationField.arr[idx] = ushort.MaxValue;
+
+            }
+            PoolList<int>.Recycle(ref notSuitable);
+            
+            integrationField.arr[endNode.index] = endNode.bestCost[threadIndex] = 0;
+            PoolQueue<Node>.Recycle(ref queue);
+
+        }
+        
+    }
+
+}

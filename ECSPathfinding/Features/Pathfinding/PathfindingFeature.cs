@@ -70,6 +70,17 @@ namespace ME.ECS.Pathfinding.Features {
             
         }
 
+        public void SetPathFlowField(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 to) {
+            
+            entity.SetData(new ME.ECS.Pathfinding.Features.Pathfinding.Components.PathFlowField() {
+                flowField = BufferArray<byte>.From(path.flowField),
+                from = entity.GetPosition(),
+                to = to,
+            });
+            entity.SetData(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
+            
+        }
+
         public void SetPath(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 to) {
             
             this.SetPath(in entity, path.nodesModified, path.result, constraint, to);

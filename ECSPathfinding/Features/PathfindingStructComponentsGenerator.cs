@@ -6,6 +6,8 @@ namespace ME.ECS {
         public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
     
             structComponentsContainer.Validate<ME.ECS.Pathfinding.Features.Pathfinding.Components.CalculatePath>();
+            structComponentsContainer.ValidateCopyable<ME.ECS.Pathfinding.Features.Pathfinding.Components.Path>();
+            structComponentsContainer.ValidateCopyable<ME.ECS.Pathfinding.Features.Pathfinding.Components.PathFlowField>();
             structComponentsContainer.Validate<ME.ECS.Pathfinding.Features.Pathfinding.Components.IsPathfinding>(true);
             structComponentsContainer.Validate<ME.ECS.Pathfinding.Features.Pathfinding.Components.BuildAllGraphs>(true);
             structComponentsContainer.Validate<ME.ECS.Pathfinding.Features.Pathfinding.Components.HasPathfindingInstance>(true);
@@ -16,6 +18,8 @@ namespace ME.ECS {
         public static void InitEntity(Entity entity) {
 
             entity.ValidateData<ME.ECS.Pathfinding.Features.Pathfinding.Components.CalculatePath>();
+            entity.ValidateData<ME.ECS.Pathfinding.Features.Pathfinding.Components.Path>();
+            entity.ValidateData<ME.ECS.Pathfinding.Features.Pathfinding.Components.PathFlowField>();
             entity.ValidateData<ME.ECS.Pathfinding.Features.Pathfinding.Components.IsPathfinding>(true);
             entity.ValidateData<ME.ECS.Pathfinding.Features.Pathfinding.Components.BuildAllGraphs>(true);
             entity.ValidateData<ME.ECS.Pathfinding.Features.Pathfinding.Components.HasPathfindingInstance>(true);

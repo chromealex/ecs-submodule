@@ -41,7 +41,7 @@ namespace ME.ECS.Pathfinding {
 
         public const int THREADS_COUNT = 8;
 
-        public PathfindingProcessor processor = new PathfindingProcessor();
+        public PathfindingProcessor processor = new PathfindingFlowFieldProcessor();
         public List<Graph> graphs;
 
         public LogLevel logLevel;

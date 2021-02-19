@@ -11,6 +11,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
         public UnityEngine.Vector3 from;
         public UnityEngine.Vector3 to;
         public ME.ECS.Pathfinding.Constraint constraint;
+        public bool flowField;
 
     }
 
@@ -24,7 +25,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
 
         void IStructCopyable<Path>.CopyFrom(in Path other) {
 
-            var val = other.path.arr[0];
+            //var val = other.path.arr[0];
             this.result = other.result;
             ArrayUtils.Copy(in other.path, ref this.path);
             ArrayUtils.Copy(in other.nodes, ref this.nodes);
