@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ME.ECS.Pathfinding {
@@ -10,6 +10,9 @@ namespace ME.ECS.Pathfinding {
         internal const float DEFAULT_BODY_MASS = 1f;
         internal const float DEFAULT_COLLISION_DUMPING = 0.65f;
         internal const float DEFAULT_DYNAMIC_DUMPING = 0.15f;
+
+        internal const int DEFAULT_COLLISION_LAYER = 1 << 0;
+        internal const int DEFAULT_COLLISION_MASK = -1;
 
         internal struct CollisionManifold {
 
@@ -30,10 +33,12 @@ namespace ME.ECS.Pathfinding {
             public float radius;
             public float mass;
 
+            public int layer;
+            public int collisionMask;
         }
 
         public static Body CreateBody(Vector2 position, Vector2 velocity, float radius = 1f, float mass = MotionSolver.DEFAULT_BODY_MASS) {
-            return new Body { position = position, velocity = velocity, radius = radius, mass = mass };
+            return new Body { position = position, velocity = velocity, radius = radius, mass = mass, layer = DEFAULT_COLLISION_LAYER, collisionMask = DEFAULT_COLLISION_MASK };
         }
 
         public static void Step(ME.ECS.Collections.BufferArray<Body> bodies, float deltaTime, float collisionDumping = MotionSolver.DEFAULT_COLLISION_DUMPING, float dynamicDumping = MotionSolver.DEFAULT_DYNAMIC_DUMPING) {
@@ -48,6 +53,10 @@ namespace ME.ECS.Pathfinding {
                 ref var a = ref bodies.arr[i];
                 for (int j = i + 1; j < bodies.Length; j++) {
                     ref var b = ref bodies.arr[j];
+
+                    if ((a.collisionMask & b.layer) == 0 && (b.layer & a.collisionMask) == 0) {
+                        continue;
+                    }
 
                     var collisionDistance = a.radius + b.radius;
                     var collisionDistanceSqr = collisionDistance * collisionDistance;
@@ -68,6 +77,7 @@ namespace ME.ECS.Pathfinding {
                 ref var b = ref bodies.arr[c.b];
 
                 var displace = c.depth * c.normal;
+
                 if (a.isStatic == true) {
                     b.position += displace * 2f;
                 } else if (b.isStatic == true) {
@@ -76,9 +86,6 @@ namespace ME.ECS.Pathfinding {
                     a.position -= displace;
                     b.position += displace;
                 }
-                
-                a.position -= displace;
-                b.position += displace;
 
                 if (Vector2.Dot(b.velocity - a.velocity, c.normal) > 0) {
                     continue;
