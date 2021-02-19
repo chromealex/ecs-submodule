@@ -12,6 +12,7 @@ namespace ME.ECS.Pathfinding {
         public Entity entity;
         public Vector3 from;
         public Vector3 to;
+        public bool alignToGraphNodes;
         public Constraint constraint;
         public PathCornersModifier pathCornersModifier;
         public bool isValid;
@@ -412,12 +413,13 @@ namespace ME.ECS.Pathfinding {
 
         }
         
-        public PathTask CalculatePathTask(Entity entity, Vector3 requestFrom, Vector3 requestTo, Constraint constraint, PathCornersModifier pathCornersModifier) {
+        public PathTask CalculatePathTask(Entity entity, Vector3 requestFrom, Vector3 requestTo, bool alignToGraphNodes, Constraint constraint, PathCornersModifier pathCornersModifier) {
 
             return new PathTask() {
                 entity = entity,
                 from = requestFrom,
                 to = requestTo,
+                alignToGraphNodes = alignToGraphNodes,
                 constraint = constraint,
                 pathCornersModifier = pathCornersModifier,
                 isValid = true,

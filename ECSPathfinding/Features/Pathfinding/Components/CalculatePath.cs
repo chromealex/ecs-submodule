@@ -10,6 +10,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
 
         public UnityEngine.Vector3 from;
         public UnityEngine.Vector3 to;
+        public bool alignToGraphNodes;
         public ME.ECS.Pathfinding.Constraint constraint;
         public bool flowField;
 
