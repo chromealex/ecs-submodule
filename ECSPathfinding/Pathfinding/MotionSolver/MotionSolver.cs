@@ -68,7 +68,15 @@ namespace ME.ECS.Pathfinding {
                 ref var b = ref bodies.arr[c.b];
 
                 var displace = c.depth * c.normal;
-
+                if (a.isStatic == true) {
+                    b.position += displace * 2f;
+                } else if (b.isStatic == true) {
+                    a.position -= displace * 2f;
+                } else {
+                    a.position -= displace;
+                    b.position += displace;
+                }
+                
                 a.position -= displace;
                 b.position += displace;
 

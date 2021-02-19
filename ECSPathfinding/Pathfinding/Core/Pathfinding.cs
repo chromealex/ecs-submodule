@@ -17,6 +17,58 @@ namespace ME.ECS.Pathfinding {
         public bool isValid;
 
     }
+
+    public struct GraphUpdateObject {
+
+        public long graphMask;
+        
+        public Vector3 center;
+        
+        public bool checkSize;
+        public Vector3 size;
+        
+        public bool checkRadius;
+        public float radius;
+
+        public bool changePenalty;
+        public int penaltyDelta;
+
+        public bool changeWalkability;
+        public bool walkable;
+
+        public Bounds GetBounds() {
+
+            if (this.checkRadius == true) {
+
+                return new Bounds(this.center, new Vector3(this.radius * 2f, this.radius * 2f, this.radius * 2f));
+
+            } else if (this.checkSize == true) {
+
+                return new Bounds(this.center, this.size);
+
+            }
+
+            return new Bounds(this.center, Vector3.zero);
+
+        }
+
+        public void Apply(Node node) {
+
+            if (this.changePenalty == true) {
+
+                node.penalty += this.penaltyDelta;
+
+            }
+
+            if (this.changeWalkability == true) {
+
+                node.walkable = this.walkable;
+
+            }
+
+        }
+
+    }
     
     [ExecuteInEditMode]
     #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -167,6 +219,23 @@ namespace ME.ECS.Pathfinding {
             if (anyUpdated == true) {
                 
                 this.BuildAreas();
+
+            }
+            
+        }
+
+        public void UpdateGraphs(GraphUpdateObject graphUpdateObject) {
+            
+            if (this.graphs != null) {
+
+                for (int i = 0; i < this.graphs.Count; ++i) {
+
+                    if (graphUpdateObject.graphMask >= 0 && (graphUpdateObject.graphMask & (1 << this.graphs[i].index)) == 0) continue;
+
+                    var graph = this.graphs[i];
+                    graph.UpdateGraph(graphUpdateObject);
+
+                }
 
             }
             

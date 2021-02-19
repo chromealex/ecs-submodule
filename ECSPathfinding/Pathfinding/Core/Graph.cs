@@ -152,6 +152,27 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        public virtual void UpdateGraph(GraphUpdateObject graphUpdateObject) {
+
+            var bounds = graphUpdateObject.GetBounds();
+            var nodes = PoolListCopyable<Node>.Spawn(10);
+            this.GetNodesInBounds(nodes, bounds);
+            for (int i = 0, cnt = nodes.Count; i < cnt; ++i) {
+
+                var node = nodes[i];
+                if (graphUpdateObject.checkRadius == true) {
+                    
+                    if ((node.worldPosition - graphUpdateObject.center).sqrMagnitude > graphUpdateObject.radius * graphUpdateObject.radius) continue;
+                    
+                }
+                
+                graphUpdateObject.Apply(node);
+
+            }
+            PoolListCopyable<Node>.Recycle(ref nodes);
+            
+        }
+
         public Node GetNearest(Vector3 worldPosition) {
 
             return this.GetNearest(worldPosition, Constraint.Default);

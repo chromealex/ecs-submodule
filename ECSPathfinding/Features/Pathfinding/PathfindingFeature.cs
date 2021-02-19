@@ -24,8 +24,7 @@ namespace ME.ECS.Pathfinding.Features {
         public bool usePathSmoothing = false;
         public int bezierCurveSubdivisions = 2;
         public float bezierTangentLength = 0.2f;
-
-
+        
         public void SetInstance(ME.ECS.Pathfinding.Pathfinding pathfinding) {
 
             this.pathfindingInstance = pathfinding;
@@ -147,6 +146,12 @@ namespace ME.ECS.Pathfinding.Features {
 
         }
         
+        public void UpdateGraphs(GraphUpdateObject graphUpdateObject) {
+            
+            this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding.UpdateGraphs(graphUpdateObject);
+            
+        }
+
         public void GetNodesInBounds(ListCopyable<Node> output, UnityEngine.Bounds bounds) {
          
             this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding.GetNodesInBounds(output, bounds);
