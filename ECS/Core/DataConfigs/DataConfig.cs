@@ -10,7 +10,6 @@ namespace ME.ECS.DataConfigs {
 
         [SerializeReference]
         public IStructComponent[] structComponents = new IStructComponent[0];
-
         public int[] structComponentsDataTypeIds = new int[0];
         
         [SerializeReference]
