@@ -385,6 +385,8 @@ namespace ME.ECS {
             this.OnSpawnComponents();
             this.OnSpawnMarkers();
 
+            this.InitializeGlobalEvents();
+
             this.isActive = true;
 
         }
@@ -402,6 +404,8 @@ namespace ME.ECS {
         }
 
         void IPoolableRecycle.OnRecycle() {
+
+            this.DisposeGlobalEvents();
 
             var list = PoolListCopyable<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
             if (this.ForEachEntity(list) == true) {
@@ -757,11 +761,31 @@ namespace ME.ECS {
 
         }
 
-        private List<GlobalEventFrameItem> globalEventFrameItems = new List<GlobalEventFrameItem>();
-        private HashSet<long> globalEventFrameEvents = new HashSet<long>();
+        private List<GlobalEventFrameItem> globalEventFrameItems;
+        private HashSet<long> globalEventFrameEvents;
 
-        private List<GlobalEventFrameItem> globalEventLogicItems = new List<GlobalEventFrameItem>();
-        private HashSet<long> globalEventLogicEvents = new HashSet<long>();
+        private List<GlobalEventFrameItem> globalEventLogicItems;
+        private HashSet<long> globalEventLogicEvents;
+
+        internal void InitializeGlobalEvents() {
+            
+            this.globalEventFrameItems = PoolList<GlobalEventFrameItem>.Spawn(10);
+            this.globalEventFrameEvents = PoolHashSet<long>.Spawn(10);
+
+            this.globalEventLogicItems = PoolList<GlobalEventFrameItem>.Spawn(10);
+            this.globalEventLogicEvents = PoolHashSet<long>.Spawn(10);
+            
+        }
+
+        internal void DisposeGlobalEvents() {
+            
+            this.globalEventFrameItems.Clear();
+            this.globalEventFrameEvents.Clear();
+
+            this.globalEventLogicItems.Clear();
+            this.globalEventLogicEvents.Clear();
+
+        }
 
         public void ProcessGlobalEvents(GlobalEventType globalEventType) {
 
@@ -1851,8 +1875,6 @@ namespace ME.ECS {
         #endif
         public void UpdateVisualPost(float deltaTime) {
 
-            this.ProcessGlobalEvents(GlobalEventType.Visual);
-
             if (deltaTime < 0f) return;
 
             ////////////////
@@ -1966,6 +1988,8 @@ namespace ME.ECS {
             ////////////////
             this.currentStep &= ~WorldStep.SystemsVisualTick;
             ////////////////
+
+            this.ProcessGlobalEvents(GlobalEventType.Visual);
 
             #if CHECKPOINT_COLLECTOR
             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
