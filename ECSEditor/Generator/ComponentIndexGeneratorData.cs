@@ -42,7 +42,9 @@ namespace ME.ECSEditor {
                 }
 
             }
-            
+
+            this.SetDirty();
+
         }
         
         public void SetStruct(System.Type type) {
@@ -54,8 +56,9 @@ namespace ME.ECSEditor {
                 
                 this.current.typesStructs.Add(name);
                 this.current.asmTypesStructs.Add(asmName);
-                UnityEditor.EditorUtility.SetDirty(this);
                 
+                this.SetDirty();
+
             }
             
         }
@@ -74,6 +77,14 @@ namespace ME.ECSEditor {
             
             return UnityEditor.AssetDatabase.LoadAssetAtPath<ComponentIndexGeneratorData>(path);
 
+        }
+
+        new private void SetDirty() {
+	        
+	        #if UNITY_EDITOR
+	        UnityEditor.EditorUtility.SetDirty(this);
+	        #endif
+	        
         }
 
     }
