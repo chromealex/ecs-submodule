@@ -275,6 +275,12 @@ namespace ME.ECSEditor {
                 if (System.IO.Directory.Exists(asmNamePath + "/gen") == true) {
 
                     componentIndex = ComponentIndexGeneratorData.Generate(asmNamePath);
+                    if (componentIndex == null) {
+	                    
+	                    UnityEngine.Debug.LogError($"Error while creating ComponentIndexGeneratorData in {asmNamePath}/gen");
+	                    return;
+	                    
+                    }
                     componentIndex.ResetCurrent();
 
                 } else {
