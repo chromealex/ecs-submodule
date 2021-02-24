@@ -1049,7 +1049,7 @@ namespace ME.ECSEditor {
                                         EditorGUILayout.Toggle(componentName, true);
                                         EditorGUI.EndDisabledGroup();
 
-                                    } else if (fieldsCount == 1) {
+                                    } else if (fieldsCount == 1 && GUILayoutExt.IsFirstFieldHasChilds(component) == false) {
 
                                         var changed = GUILayoutExt.DrawFields(world, component, componentName);
                                         if (changed == true) {

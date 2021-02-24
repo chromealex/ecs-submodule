@@ -36,6 +36,8 @@ namespace ME.ECS.Pathfinding {
             public int layer;
             public int collisionMask;
 
+            public int pushLayer;
+
         }
 
         public static Body CreateBody(Vector2 position, Vector2 velocity, float radius = 1f, float mass = MotionSolver.DEFAULT_BODY_MASS) {
@@ -81,8 +83,10 @@ namespace ME.ECS.Pathfinding {
                 ref var b = ref bodies.arr[c.b];
 
                 var displace = c.depth * c.normal;
-
-                if (a.isStatic == true) {
+                var pushAllow = (a.pushLayer == b.pushLayer);
+                if (pushAllow == false) {
+                    continue;
+                } else if (a.isStatic == true) {
                     b.position += displace * 2f;
                 } else if (b.isStatic == true) {
                     a.position -= displace * 2f;
