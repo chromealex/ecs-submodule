@@ -667,6 +667,25 @@ namespace ME.ECSEditor {
 
         }
 
+        public static bool IsFirstFieldHasChilds(object instance) {
+	        
+	        var fields = instance.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+	        if (fields.Length > 0) {
+
+		        var field = fields[0];
+		        if (field.FieldType.IsPrimitive == true || field.FieldType.IsEnum == true) return false;
+		        if (typeof(UnityEngine.Object).IsAssignableFrom(field.FieldType) == true) return false;
+		        if (field.FieldType.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 1) return true;
+		        if (GUILayoutExt.IsDefaultEditorType(field.FieldType) == true) return false;
+
+		        return true;
+
+	        }
+
+	        return false;
+
+        }
+        
         public static int GetFieldsCount(object instance) {
             
             var fields = instance.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
@@ -921,6 +940,23 @@ namespace ME.ECSEditor {
 	        }
 	        return newArray;
 	        
+        }
+
+        public static bool IsDefaultEditorType(System.Type type) {
+
+	        if (type == typeof(Entity)) return true;
+	        if (type == typeof(Color)) return true;
+	        if (type == typeof(Color32)) return true;
+	        if (type == typeof(Vector2)) return true;
+	        if (type == typeof(Vector3)) return true;
+	        if (type == typeof(FPVector2)) return true;
+	        if (type == typeof(FPVector3)) return true;
+	        if (type == typeof(Vector4)) return true;
+	        if (type == typeof(Quaternion)) return true;
+	        if (type == typeof(FPQuaternion)) return true;
+	        if (type == typeof(pfloat)) return true;
+	        return false;
+
         }
         
         private static System.Collections.Generic.Dictionary<System.Type, ICustomFieldEditor> customFieldEditors = null;

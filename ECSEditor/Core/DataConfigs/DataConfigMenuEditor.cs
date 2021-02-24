@@ -4,7 +4,7 @@ namespace ME.ECSEditor {
 
     public static class DataConfigUtils {
 
-        [MenuItem("ME.ECS/Data Configs/Force Update")]
+        /*[MenuItem("ME.ECS/Data Configs/Force Update")]
         public static void ForceUpdateConfigs() {
             
             var paths = new System.Collections.Generic.List<string>();
@@ -16,7 +16,7 @@ namespace ME.ECSEditor {
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             
-        }
+        }*/
         
     }
     

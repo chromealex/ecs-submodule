@@ -10,26 +10,78 @@ namespace ME.ECS.DataConfigs {
 
         [SerializeReference]
         public IStructComponent[] structComponents = new IStructComponent[0];
-        public int[] structComponentsDataTypeIds = new int[0];
+        //public int[] structComponentsDataTypeIds = new int[0];
         
         [SerializeReference]
         public IStructComponent[] removeStructComponents = new IStructComponent[0];
-        public int[] removeStructComponentsDataTypeIds = new int[0];
+        //public int[] removeStructComponentsDataTypeIds = new int[0];
 
         public string[] templates;
+        
+        [System.NonSerialized]
+        private int[] structComponentsDataTypeIds = new int[0];
+        [System.NonSerialized]
+        private int[] removeStructComponentsDataTypeIds = new int[0];
+        [System.NonSerialized]
+        private bool isPrewarmed;
 
+        private void Reset() {
+
+	        this.isPrewarmed = false;
+	        
+	        System.Array.Resize(ref this.removeStructComponentsDataTypeIds, this.removeStructComponents.Length);
+	        for (int i = 0; i < this.removeStructComponents.Length; ++i) {
+
+		        this.removeStructComponentsDataTypeIds[i] = -1;
+
+	        }
+	        
+	        System.Array.Resize(ref this.structComponentsDataTypeIds, this.structComponents.Length);
+	        for (int i = 0; i < this.structComponents.Length; ++i) {
+
+		        this.structComponentsDataTypeIds[i] = -1;
+
+	        }
+	        
+        }
+        
+        public void Prewarm() {
+
+	        if (this.isPrewarmed == true) return;
+	        
+	        System.Array.Resize(ref this.removeStructComponentsDataTypeIds, this.removeStructComponents.Length);
+	        for (int i = 0; i < this.removeStructComponents.Length; ++i) {
+
+		        this.removeStructComponentsDataTypeIds[i] = this.GetComponentDataIndexByType(this.removeStructComponents[i]);
+
+	        }
+
+	        System.Array.Resize(ref this.structComponentsDataTypeIds, this.structComponents.Length);
+	        for (int i = 0; i < this.structComponents.Length; ++i) {
+
+		        this.structComponentsDataTypeIds[i] = this.GetComponentDataIndexByType(this.structComponents[i]);
+
+	        }
+
+	        this.isPrewarmed = true;
+
+        }
+        
         public void Apply(in Entity entity) {
 
-            var world = Worlds.currentWorld;
-            for (int i = 0; i < this.removeStructComponentsDataTypeIds.Length; ++i) {
+	        //this.Reset();
+	        this.Prewarm();
 
-                world.RemoveData(in entity, this.removeStructComponentsDataTypeIds[i], -1);
+            var world = Worlds.currentWorld;
+            for (int i = 0; i < this.removeStructComponents.Length; ++i) {
+
+                world.RemoveData(in entity, this.GetComponentDataIndexByTypeWithCache(this.removeStructComponents[i], i), -1);
 
             }
 
             for (int i = 0; i < this.structComponents.Length; ++i) {
 
-                world.SetData(in entity, in this.structComponents[i], this.structComponentsDataTypeIds[i], -1);
+                world.SetData(in entity, in this.structComponents[i], this.GetComponentDataIndexByTypeWithCache(this.structComponents[i], i), -1);
 
             }
             
@@ -41,6 +93,41 @@ namespace ME.ECS.DataConfigs {
 
         }
 
+        public int GetComponentDataIndexByTypeWithCache(IStructComponent component, int idx) {
+
+	        if (this.structComponentsDataTypeIds[idx] >= 0) return this.structComponentsDataTypeIds[idx];
+	        
+	        if (ComponentTypesRegistry.allTypeId.TryGetValue(component.GetType(), out var index) == true) {
+
+		        this.structComponentsDataTypeIds[idx] = index;
+		        return index;
+
+	        }
+
+	        #if UNITY_EDITOR
+	        throw new System.Exception($"ComponentTypesRegistry has no type {component.GetType()} for DataConfig {this}.");
+	        #else
+	        return -1;
+	        #endif
+
+        }
+
+        public int GetComponentDataIndexByType(IStructComponent component) {
+
+	        if (ComponentTypesRegistry.allTypeId.TryGetValue(component.GetType(), out var index) == true) {
+
+		        return index;
+
+	        }
+
+	        #if UNITY_EDITOR
+	        throw new System.Exception($"ComponentTypesRegistry has no type {component.GetType()} for DataConfig {this}.");
+	        #else
+	        return -1;
+	        #endif
+
+        }
+        
         public System.Type[] GetStructComponentTypes() {
             
             var types = new System.Type[this.structComponents.Length];
@@ -54,51 +141,67 @@ namespace ME.ECS.DataConfigs {
 
         }
         
-        public void SetByTypeId(int typeId, IStructComponent component) {
-            
-            var idx = System.Array.IndexOf(this.structComponentsDataTypeIds, typeId);
-            if (idx >= 0) {
+        public void SetByType(IStructComponent component) {
 
-                this.structComponents[idx] = component;
+	        var type = component.GetType();
+	        for (int i = 0; i < this.structComponents.Length; ++i) {
 
-            }
+		        if (this.structComponents[i].GetType() == type) {
 
+			        this.structComponents[i] = component;
+			        return;
+
+		        }
+		        
+	        }
+	        
         }
         
-        public IStructComponent GetByTypeId(int typeId) {
+        public IStructComponent GetByType(System.Type type) {
             
-            var idx = System.Array.IndexOf(this.structComponentsDataTypeIds, typeId);
-            if (idx >= 0) {
+	        for (int i = 0; i < this.structComponents.Length; ++i) {
 
-                return this.structComponents[idx];
+		        if (this.structComponents[i].GetType() == type) {
 
-            }
+			        return this.structComponents[i];
 
+		        }
+		        
+	        }
+	        
             return null;
 
         }
 
         public bool Has<T>() where T : struct, IStructComponent {
+	        
+	        var type = typeof(T);
+	        for (int i = 0; i < this.structComponents.Length; ++i) {
 
-            var idx = System.Array.IndexOf(this.structComponentsDataTypeIds, AllComponentTypes<T>.typeId);
-            if (idx >= 0) {
+		        if (this.structComponents[i].GetType() == type) {
 
-                return true;
+			        return true;
 
-            }
-
+		        }
+		        
+	        }
+	        
             return false;
 
         }
 
         public T Get<T>() where T : struct, IStructComponent {
 
-            var idx = System.Array.IndexOf(this.structComponentsDataTypeIds, AllComponentTypes<T>.typeId);
-            if (idx >= 0) {
+	        var type = typeof(T);
+	        for (int i = 0; i < this.structComponents.Length; ++i) {
 
-                return (T)this.structComponents[idx];
+		        if (this.structComponents[i].GetType() == type) {
 
-            }
+			        return (T)this.structComponents[i];
+
+		        }
+		        
+	        }
 
             return default;
 
@@ -177,7 +280,7 @@ namespace ME.ECS.DataConfigs {
 
             }
 
-            this.OnScriptLoad();
+            //this.OnScriptLoad();
 
         }
 
@@ -197,11 +300,11 @@ namespace ME.ECS.DataConfigs {
 
             }
 
-            this.OnScriptLoad();
+            //this.OnScriptLoad();
 
         }
 
-        public void OnValidate() {
+        /*public void OnValidate() {
 
             this.OnScriptLoad();
             
@@ -352,19 +455,20 @@ namespace ME.ECS.DataConfigs {
             
         }
         #endif
+        */
 
     }
 
     public struct DataConfigSlice {
 
         public DataConfig[] configs;
-        public int[] structComponentsDataTypeIds;
+        public System.Type[] structComponentsTypes;
 
-        public void Set(int typeId, IStructComponent[] components) {
+        public void Set(IStructComponent[] components) {
 
             for (int i = 0; i < this.configs.Length; ++i) {
 
-                this.configs[i].SetByTypeId(typeId, components[i]);
+                this.configs[i].SetByType(components[i]);
 
             }
             
@@ -377,20 +481,20 @@ namespace ME.ECS.DataConfigs {
             
             {
 
-                var listIdx = new Dictionary<int, int>();
+                var listIdx = new Dictionary<System.Type, int>();
                 for (int i = 0; i < configs.Length; ++i) {
 
                     var config = configs[i];
-                    for (int j = 0; j < config.structComponentsDataTypeIds.Length; ++j) {
+                    for (int j = 0; j < config.structComponents.Length; ++j) {
 
-                        var idx = config.structComponentsDataTypeIds[j];
-                        if (listIdx.TryGetValue(idx, out var count) == true) {
+                        var type = config.structComponents[j].GetType();
+                        if (listIdx.TryGetValue(type, out var count) == true) {
 
-                            listIdx[idx] = count + 1;
+                            listIdx[type] = count + 1;
 
                         } else {
 
-                            listIdx.Add(idx, 1);
+                            listIdx.Add(type, 1);
 
                         }
 
@@ -398,7 +502,7 @@ namespace ME.ECS.DataConfigs {
 
                 }
 
-                var list = new List<int>();
+                var list = new List<System.Type>();
                 foreach (var kv in listIdx) {
 
                     if (kv.Value == configs.Length) {
@@ -409,7 +513,7 @@ namespace ME.ECS.DataConfigs {
 
                 }
 
-                slice.structComponentsDataTypeIds = list.ToArray();
+                slice.structComponentsTypes = list.ToArray();
 
             }
             

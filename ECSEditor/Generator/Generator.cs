@@ -80,7 +80,7 @@ namespace ME.ECSEditor {
 
             }
             
-            ME.ECS.DataConfigs.DataConfig.OnScriptsReloaded();
+            //ME.ECS.DataConfigs.DataConfig.OnScriptsReloaded();
 
         }
 

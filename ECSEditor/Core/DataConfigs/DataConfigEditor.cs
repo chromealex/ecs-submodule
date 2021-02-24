@@ -34,14 +34,9 @@ namespace ME.ECSEditor {
         public void MoveElement(ME.ECS.DataConfigs.DataConfig dataConfig, int from, int to) {
             
             var arr = dataConfig.structComponents;
-            var arr2 = dataConfig.structComponentsDataTypeIds;
             var old = arr[to];
             arr[to] = arr[from];
             arr[from] = old;
-
-            var old2 = arr2[to];
-            arr2[to] = arr2[from];
-            arr2[from] = old2;
 
             this.Save(dataConfig);
 
@@ -70,7 +65,7 @@ namespace ME.ECSEditor {
                     configs = new [] {
                         config
                     },
-                    structComponentsDataTypeIds = config.structComponentsDataTypeIds,
+                    structComponentsTypes = config.structComponents.Select(x => x.GetType()).ToArray(),
                 };
                 
             }
@@ -101,11 +96,11 @@ namespace ME.ECSEditor {
                 GUILayoutExt.Padding(8f, () => {
 
                     var kz = 0;
-                    for (int i = 0; i < slice.structComponentsDataTypeIds.Length; ++i) {
+                    for (int i = 0; i < slice.structComponentsTypes.Length; ++i) {
 
-                        var typeId = slice.structComponentsDataTypeIds[i];
-                        var component = slice.configs[0].GetByTypeId(typeId);
-                        var components = slice.configs.Select(x => x.GetByTypeId(typeId)).ToArray();
+                        var type = slice.structComponentsTypes[i];
+                        var component = slice.configs[0].GetByType(type);
+                        var components = slice.configs.Select(x => x.GetByType(type)).ToArray();
 
                         var backColor = GUI.backgroundColor;
                         GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
@@ -120,7 +115,7 @@ namespace ME.ECSEditor {
                                 editor.OnDrawGUI();
                                 if (EditorGUI.EndChangeCheck() == true) {
 
-                                    slice.Set(typeId, components);
+                                    slice.Set(components);
                                     this.Save(slice.configs);
 
                                 }
@@ -140,7 +135,7 @@ namespace ME.ECSEditor {
                                     var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, components, componentName);
                                     if (changed == true) {
 
-                                        slice.Set(typeId, components);
+                                        slice.Set(components);
                                         this.Save(slice.configs);
 
                                     }
@@ -160,7 +155,7 @@ namespace ME.ECSEditor {
                                                 var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, components);
                                                 if (changed == true) {
 
-                                                    slice.Set(typeId, components);
+                                                    slice.Set(components);
                                                     this.Save(slice.configs);
 
                                                 }
@@ -202,7 +197,7 @@ namespace ME.ECSEditor {
                                     var list = dataConfigInner.structComponents.ToList();
                                     list.RemoveAt(i);
                                     dataConfigInner.structComponents = list.ToArray();
-                                    dataConfigInner.OnScriptLoad();
+                                    //dataConfigInner.OnScriptLoad();
                                     this.Save(dataConfigInner);
                                     break;
 
@@ -215,7 +210,7 @@ namespace ME.ECSEditor {
                             usedComponentsAll.Add(addType);
                             System.Array.Resize(ref dataConfigInner.structComponents, dataConfigInner.structComponents.Length + 1);
                             dataConfigInner.structComponents[dataConfigInner.structComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
-                            dataConfigInner.OnScriptLoad();
+                            //dataConfigInner.OnScriptLoad();
                             this.Save(dataConfigInner);
 
                         }
@@ -317,7 +312,7 @@ namespace ME.ECSEditor {
                                     EditorGUILayout.Toggle(componentName, true);
                                     EditorGUI.EndDisabledGroup();
 
-                                } else if (fieldsCount == 1) {
+                                } else if (fieldsCount == 1 && GUILayoutExt.IsFirstFieldHasChilds(component) == false) {
 
                                     var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component, componentName);
                                     if (changed == true) {
@@ -392,7 +387,7 @@ namespace ME.ECSEditor {
                             var list = dataConfig.structComponents.ToList();
                             list.RemoveAt(index);
                             dataConfig.structComponents = list.ToArray();
-                            dataConfig.OnScriptLoad();
+                            //dataConfig.OnScriptLoad();
                             this.Save(dataConfig);
                             
                         });
@@ -417,7 +412,7 @@ namespace ME.ECSEditor {
                                 var list = dataConfig.structComponents.ToList();
                                 list.RemoveAt(i);
                                 dataConfig.structComponents = list.ToArray();
-                                dataConfig.OnScriptLoad();
+                                //dataConfig.OnScriptLoad();
                                 this.Save(dataConfig);
                                 break;
 
@@ -430,7 +425,7 @@ namespace ME.ECSEditor {
                         usedComponents.Add(addType);
                         System.Array.Resize(ref dataConfig.structComponents, dataConfig.structComponents.Length + 1);
                         dataConfig.structComponents[dataConfig.structComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
-                        dataConfig.OnScriptLoad();
+                        //dataConfig.OnScriptLoad();
                         this.Save(dataConfig);
 
                     }
@@ -449,16 +444,12 @@ namespace ME.ECSEditor {
                 var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
 
                 var kz = 0;
-                var registries = dataConfig.removeStructComponentsDataTypeIds;
+                var registries = dataConfig.removeStructComponents;
                 for (int i = 0; i < registries.Length; ++i) {
 
                     var registry = registries[i];
-                    var type = ComponentTypesRegistry.allTypeId.FirstOrDefault(x => x.Value == registry).Key;
+                    var type = registry.GetType();
                     
-                    if (type == null) {
-                        continue;
-                    }
-
                     usedComponents.Add(type);
 
                     var backColor = GUI.backgroundColor;
@@ -495,7 +486,7 @@ namespace ME.ECSEditor {
                                 var list = dataConfig.removeStructComponents.ToList();
                                 list.RemoveAt(i);
                                 dataConfig.removeStructComponents = list.ToArray();
-                                dataConfig.OnScriptLoad();
+                                //dataConfig.OnScriptLoad();
                                 this.Save(dataConfig);
                                 break;
 
@@ -508,7 +499,7 @@ namespace ME.ECSEditor {
                         usedComponents.Add(addType);
                         System.Array.Resize(ref dataConfig.removeStructComponents, dataConfig.removeStructComponents.Length + 1);
                         dataConfig.removeStructComponents[dataConfig.removeStructComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
-                        dataConfig.OnScriptLoad();
+                        //dataConfig.OnScriptLoad();
                         this.Save(dataConfig);
 
                     }
@@ -619,7 +610,7 @@ namespace ME.ECSEditor {
                     System.Array.Resize(ref dataConfig.templates, dataConfig.templates.Length + 1);
                     dataConfig.templates[dataConfig.templates.Length - 1] = guid;
                     dataConfig.AddTemplate(template);
-                    dataConfig.OnScriptLoad();
+                    //dataConfig.OnScriptLoad();
                     this.Save(dataConfig);
                     AssetDatabase.ForceReserializeAssets(new [] { AssetDatabase.GetAssetPath(dataConfig) }, ForceReserializeAssetsOptions.ReserializeAssetsAndMetadata);
                     AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(dataConfig), ImportAssetOptions.ForceUpdate);
@@ -682,7 +673,7 @@ namespace ME.ECSEditor {
             list.Remove(guid);
             dataConfig.templates = list.ToArray();
             dataConfig.RemoveTemplate(template, allTemplates);
-            dataConfig.OnScriptLoad();
+            //dataConfig.OnScriptLoad();
             this.Save(dataConfig);
             
         }
