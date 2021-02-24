@@ -108,7 +108,7 @@ namespace ME.ECS.Collections {
                 return default;
             }
             set {
-                this.Add(key, value);
+                this.Set(key, value);
             }
         }
 
@@ -205,6 +205,26 @@ namespace ME.ECS.Collections {
             }
 
             return false;
+
+        }
+        
+        /// <summary>
+        /// Set new value for the key.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Set(in TKey key, in TValue value) {
+
+            var entry = new Entry() {
+                key = key,
+                value = value,
+            };
+            
+            this.keys.Remove(entry);
+            this.keys.Add(entry);
 
         }
 
