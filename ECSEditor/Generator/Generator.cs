@@ -372,8 +372,16 @@ namespace ME.ECSEditor {
                     
                 }
 
-                ME.ECSEditor.ScriptTemplates.Create(asmNamePath, Generator.FILE_NAME, Generator.TEMPLATE,
-                                                    new Dictionary<string, string>() { { "CONTENT", output }, { "CONTENT2", output2 }, { "CONTENT3", output3 } }, false);
+                output = output.Replace("\r\n", "\n");
+                output2 = output2.Replace("\r\n", "\n");
+                output3 = output3.Replace("\r\n", "\n");
+                
+                if (ME.ECSEditor.ScriptTemplates.Create(asmNamePath, Generator.FILE_NAME, Generator.TEMPLATE,
+                                                        new Dictionary<string, string>() { { "CONTENT", output }, { "CONTENT2", output2 }, { "CONTENT3", output3 } }, false) == true) {
+
+                    UnityEngine.Debug.Log($"{Generator.FILE_NAME} successfully refreshed at path {asmNamePath}");
+
+                }
 
             }
 

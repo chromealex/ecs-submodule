@@ -118,7 +118,7 @@ namespace ME.ECSEditor {
             
         }
         
-        internal static void Create(string path, string fileName, string templateName, System.Collections.Generic.Dictionary<string, string> customDefines = null, bool allowRename = true, System.Action<Object> onCreated = null) {
+        internal static bool Create(string path, string fileName, string templateName, System.Collections.Generic.Dictionary<string, string> customDefines = null, bool allowRename = true, System.Action<Object> onCreated = null) {
 
             var stateTypeStr = "StateClassType";
             var projectName = path.Split('/');
@@ -135,7 +135,7 @@ namespace ME.ECSEditor {
             if (templatePath == null) {
                 
                 Debug.LogError("Template was not found at path " + templateName);
-                return;
+                return false;
 
             }
 
@@ -177,7 +177,7 @@ namespace ME.ECSEditor {
                 if (System.IO.File.Exists(fullDir) == true) {
 
                     var contentExists = System.IO.File.ReadAllText(fullDir);
-                    if (contentExists == content) return;
+                    if (contentExists == content) return false;
 
                 }
                 
@@ -186,14 +186,16 @@ namespace ME.ECSEditor {
                 content = content.Replace("#SCRIPTNAME#", withoutExtension);
 
                 var dir = System.IO.Path.GetDirectoryName(fullDir);
-                if (System.IO.Directory.Exists(dir) == false) return;
+                if (System.IO.Directory.Exists(dir) == false) return false;
                 
                 System.IO.File.WriteAllText(fullDir, content);
                 AssetDatabase.ImportAsset(fullDir, ImportAssetOptions.ForceSynchronousImport);
 
                 if (onCreated != null) onCreated.Invoke(AssetDatabase.LoadAssetAtPath<Object>(fullDir));
-                
+
             }
+            
+            return true;
 
         }
 

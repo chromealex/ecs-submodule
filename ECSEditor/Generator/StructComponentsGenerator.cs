@@ -20,6 +20,19 @@ namespace ME.ECSEditor {
             WorldUtilities.InitComponentTypeId<#TYPENAME#>(#ISTAG#, #ISCOPYABLE#);";
         private const bool AUTO_COMPILE_DEFAULT = true;
 
+        static StructComponentsGenerator() {
+
+            AssemblyReloadEvents.afterAssemblyReload += StructComponentsGenerator.OnAfterAssemblyReload;
+            
+            if (StructComponentsGenerator.IsFirstLaunch() == true) {
+
+                StructComponentsGenerator.SetFirstLaunch();
+                StructComponentsGenerator.OnAfterAssemblyReload();
+
+            }
+
+        }
+
         public static void Init() {
             
             Generator.Set(
@@ -34,6 +47,25 @@ namespace ME.ECSEditor {
                 StructComponentsGenerator.CONTENT_ITEM2,
                 StructComponentsGenerator.CONTENT_ITEM3);
             
+        }
+
+        public static bool IsFirstLaunch() {
+
+            return SessionState.GetBool("StructComponentsGenerator.IsFirstLaunch", true);
+
+        }
+
+        public static void SetFirstLaunch() {
+
+            SessionState.SetBool("StructComponentsGenerator.IsFirstLaunch", false);
+
+        }
+
+        public static void OnAfterAssemblyReload() {
+            
+            StructComponentsGenerator.Init();
+            Generator.OnAfterAssemblyReload(false);
+
         }
 
         public static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths) {
