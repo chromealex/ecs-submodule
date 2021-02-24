@@ -670,14 +670,15 @@ namespace ME.ECSEditor {
         public static bool IsFirstFieldHasChilds(object instance) {
 	        
 	        var fields = instance.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
-	        if (fields.Length > 0) {
+	        if (fields.Length == 1) {
 
 		        var field = fields[0];
-		        if (field.FieldType.IsPrimitive == true || field.FieldType.IsEnum == true) return false;
-		        if (typeof(UnityEngine.Object).IsAssignableFrom(field.FieldType) == true) return false;
-		        if (field.FieldType.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 1) return true;
 		        if (GUILayoutExt.IsDefaultEditorType(field.FieldType) == true) return false;
-
+		        if (typeof(UnityEngine.Object).IsAssignableFrom(field.FieldType) == true) return false;
+		        ME.ECSEditor.GUILayoutExt.CollectEditorsAll<ICustomFieldEditor, CustomFieldEditorAttribute>(ref GUILayoutExt.customFieldEditors);
+		        if (GUILayoutExt.customFieldEditors.TryGetValue(field.FieldType, out _) == true) return false;
+		        if (field.FieldType.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 1) return true;
+		        
 		        return true;
 
 	        }
@@ -944,6 +945,7 @@ namespace ME.ECSEditor {
 
         public static bool IsDefaultEditorType(System.Type type) {
 
+	        if (type.IsPrimitive == true || type.IsEnum == true) return true;
 	        if (type == typeof(Entity)) return true;
 	        if (type == typeof(Color)) return true;
 	        if (type == typeof(Color32)) return true;
