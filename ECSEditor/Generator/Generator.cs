@@ -271,7 +271,7 @@ namespace ME.ECSEditor {
 
                 }
 
-                ComponentIndexGeneratorData componentIndex = null;
+                /*ComponentIndexGeneratorData componentIndex = null;
                 if (System.IO.Directory.Exists(asmNamePath + "/gen") == true) {
 
                     componentIndex = ComponentIndexGeneratorData.Generate(asmNamePath);
@@ -287,7 +287,7 @@ namespace ME.ECSEditor {
 
                     return;
 
-                }
+                }*/
 
                 foreach (var assembly in assemblies) {
 
@@ -306,7 +306,7 @@ namespace ME.ECSEditor {
                                     if (listEntities.Contains(type) == false) {
                                         
                                         listEntities.Add(type);
-                                        componentIndex.SetStruct(type);
+                                        //componentIndex.SetStruct(type);
                                         
                                     }
 
@@ -322,13 +322,14 @@ namespace ME.ECSEditor {
 
                 }
 
-                componentIndex.ApplyCurrent();
+                //componentIndex.ApplyCurrent();
                 
-                for (var i = 0; i < componentIndex.current.typesStructs.Count; ++i) {
+                listEntities.Sort(new TypeComparer());
+                
+                for (var i = 0; i < listEntities.Count; ++i) {
                     
-                    var asmType = componentIndex.current.asmTypesStructs[i];
-                    var entityType = componentIndex.current.typesStructs[i];
-                    var type = System.Type.GetType(entityType + ", " + asmType);
+                    var type = listEntities[i];
+                    var entityType = type.FullName.Replace("+", ".");
                     var hasFields = type.GetFields(System.Reflection.BindingFlags.Default | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 0;
                     var isCopyable = typeof(ME.ECS.IStructCopyableBase).IsAssignableFrom(type);
                     
@@ -385,6 +386,16 @@ namespace ME.ECSEditor {
 
             }
 
+        }
+
+    }
+
+    internal class TypeComparer : IComparer<System.Type> {
+
+        public int Compare(System.Type x, System.Type y) {
+            
+            return string.Compare(x.FullName, y.FullName, System.StringComparison.InvariantCulture);
+            
         }
 
     }
