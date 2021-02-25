@@ -1178,6 +1178,7 @@ namespace ME.ECS {
             var filters = this.currentState.filters.GetData();
             for (int i = 0; i < filters.Length; ++i) {
 
+                if (filters.arr[i] == null) continue;
                 filters.arr[i].Update();
 
             }

@@ -1,4 +1,5 @@
-﻿#if INLINE_METHODS
+﻿/*
+#if INLINE_METHODS
 [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
 public static void ForEach<#ITEMS_TYPE#>(this Filter filter, R<#ITEMS_TYPE#> onEach) #ITEMS_WHERE# {
@@ -97,3 +98,4 @@ public static void ForEach<TCustom0, TCustom1, TCustom2, TCustom3, TCustom4, TCu
     var buffer = new EntityBuffer<#ITEMS_TYPE#>(filter.world, entities, min, max);
     for (int i = min; i <= max; ++i) { var e = entities.arr[i]; var id = e.id; onEach.Invoke(in custom0, in custom1, in custom2, in custom3, in custom4, in custom5, in custom6, in custom7, in custom8, in custom9, in e, #ITEMS_GET#); }
 }
+*/

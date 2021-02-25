@@ -1,4 +1,5 @@
 ﻿
+using Unity.Jobs;
 using TestView1 = ECS.submodule.Tests.TestView1;
 using TestView2 = ECS.submodule.Tests.TestView2;
 
@@ -8,7 +9,17 @@ namespace ME.ECS.Tests {
 
         private class TestState : State {}
 
-        public struct TestData : IStructComponent {} 
+        public struct TestData : IStructComponent {
+
+            public int a;
+
+        } 
+
+        public struct TestData2 : IStructComponent {
+
+            public int a;
+
+        } 
 
         private class TestSystem : ISystem, IAdvanceTick {
 
@@ -73,6 +84,119 @@ namespace ME.ECS.Tests {
             }
             world.SaveResetState<TestState>();
             
+            world.SetFromToTicks(0, 10);
+
+            world.PreUpdate(1f);
+            world.Update(1f);
+            world.LateUpdate(1f);
+
+        }
+
+        [Unity.Burst.BurstCompileAttribute]
+        public struct FilterBagJobTest : Unity.Jobs.IJob, IBurst {
+
+            public Buffers.FilterBag<TestData, TestData2> data;
+
+            public void Execute() {
+
+                while (this.data.MoveNext() == true) {
+
+                    ref var comp = ref this.data.GetT0();
+                    comp.a += 1;
+                    
+                    this.data.RemoveT1();
+
+                }
+                
+            }
+
+        }
+
+        [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true, Debug = false)]
+        private class TestJobSystem : ISystem, IAdvanceTick {
+
+            public World world { get; set; }
+
+            public Entity testEntity;
+
+            private Filter filter;
+            
+            public void OnConstruct() {
+                
+                this.filter = Filter.Create("Test").WithStructComponent<TestData>().Push();
+                
+            }
+
+            public void OnDeconstruct() {
+                
+            }
+
+            public void AdvanceTick(in float deltaTime) {
+
+                var job = new FilterBagJobTest() {
+                    data = new Buffers.FilterBag<TestData, TestData2>(this.filter, Unity.Collections.Allocator.TempJob),
+                };
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                sw.Start();
+                var handle = job.Schedule();
+                handle.Complete();
+                sw.Stop();
+                var step1 = sw.ElapsedMilliseconds;
+
+                sw = System.Diagnostics.Stopwatch.StartNew();
+                sw.Start();
+                job.data.Push();
+                
+                sw.Stop();
+                UnityEngine.Debug.Log(step1 + "ms, " + sw.ElapsedMilliseconds + "ms. Entities: " + this.filter.Count + ": " + this.testEntity + " has data: " + this.testEntity.ReadData<TestData>().a);
+
+            }
+
+        }
+
+        [NUnit.Framework.TestAttribute]
+        public void FilterBag() {
+
+            Entity testEntity;
+            World world = null;
+            WorldUtilities.CreateWorld<TestState>(ref world, 0.033f);
+            {
+                world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
+                {
+                    ref var str = ref world.GetStructComponents();
+                    CoreComponentsInitializer.InitTypeId();
+                    CoreComponentsInitializer.Init(ref str);
+                    WorldUtilities.InitComponentTypeId<TestData>();
+                    WorldUtilities.InitComponentTypeId<TestData2>();
+                    str.Validate<TestData>();
+                    str.Validate<TestData2>();
+
+                    testEntity = new Entity("Test");
+                    var group = new SystemGroup(world, "TestGroup");
+                    group.AddSystem(new TestJobSystem() { testEntity = testEntity });
+
+                    testEntity.SetData(new TestData());
+                    
+                }
+            }
+            
+            world.SetEntitiesCapacity(2000);
+            for (int i = 0; i < 2000; ++i) {
+                
+                var test = new Entity("Test");
+                test.SetData(new TestData());
+                
+            }
+            
+            for (int i = 200; i < 500; ++i) {
+
+                var ent = world.GetEntityById(i);
+                ent.Destroy();
+
+            }
+
+            world.SaveResetState<TestState>();
+
             world.SetFromToTicks(0, 10);
 
             world.PreUpdate(1f);

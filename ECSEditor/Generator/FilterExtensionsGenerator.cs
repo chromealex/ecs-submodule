@@ -71,23 +71,37 @@ namespace ME.ECSEditor {
                     
                     {
                     
+                        var itemMethods = UnityEngine.Resources.Load<UnityEngine.TextAsset>("00-FilterExtensionsBufferMethods").text;
                         var itemsMethods = string.Empty;
                         for (int i = 0; i < j; ++i) {
 
-                            itemsMethods += @"#if INLINE_METHODS
-[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-public ref T" + i.ToString() + " GetT" + i.ToString() + "(int entityId) { return ref this.buffer" + i.ToString() + ".Get(entityId); }\n";
+                            var text = itemMethods;
+                            text = text.Replace("#INDEX#", i.ToString());
+                            itemsMethods += text;
 
                         }
                         
                         var itemsInit = string.Empty;
                         for (int i = 0; i < j; ++i) {
 
-                            itemsInit += "this.buffer" + i.ToString() + " = new DataBuffer<T" + i.ToString() + ">(world, arr, minIdx, maxIdx);\n";
+                            itemsInit += "this.buffer" + i.ToString() + " = new DataBuffer<T" + i.ToString() + ">(world, arrEntities, min, max, max - min, allocator);\n";
 
                         }
-                        
+
+                        var itemsPush = string.Empty;
+                        for (int i = 0; i < j; ++i) {
+
+                            itemsPush += $"changedCount += this.buffer{i.ToString()}.Push(world, world.currentState.storage.cache, this.max, this.inFilter);\n";
+
+                        }
+
+                        var itemsDispose = string.Empty;
+                        for (int i = 0; i < j; ++i) {
+
+                            itemsDispose += $"this.buffer{i.ToString()}.Dispose();\n";
+
+                        }
+
                         var itemsWhere = " where T0:struct,IStructComponent";
                         for (int i = 1; i < j; ++i) {
 
@@ -95,10 +109,10 @@ public ref T" + i.ToString() + " GetT" + i.ToString() + "(int entityId) { return
 
                         }
         
-                        var itemsBuffer = "private readonly DataBuffer<T0> buffer0;";
+                        var itemsBuffer = "private DataBuffer<T0> buffer0;";
                         for (int i = 1; i < j; ++i) {
 
-                            itemsBuffer += "private readonly DataBuffer<T" + i.ToString() + "> buffer" + i.ToString() + ";";
+                            itemsBuffer += "private DataBuffer<T" + i.ToString() + "> buffer" + i.ToString() + ";";
 
                         }
         
@@ -107,6 +121,8 @@ public ref T" + i.ToString() + " GetT" + i.ToString() + "(int entityId) { return
                         res = res.Replace("#ITEMS_WHERE#", itemsWhere);
                         res = res.Replace("#ITEMS_METHODS#", itemsMethods);
                         res = res.Replace("#ITEMS_INIT#", itemsInit);
+                        res = res.Replace("#ITEMS_PUSH#", itemsPush);
+                        res = res.Replace("#ITEMS_DISPOSE#", itemsDispose);
                         res = res.Replace("#ITEMS_BUFFER#", itemsBuffer);
                         res = res.Replace("#INDEX#", j.ToString());
                         buffers += res + "\n";

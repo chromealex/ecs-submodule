@@ -1,0 +1,4 @@
+public void SetT#INDEX#(in T#INDEX# data) { this.buffer#INDEX#.Set(this.index, in data); }
+public ref T#INDEX# GetT#INDEX#() { return ref this.buffer#INDEX#.Get(this.index); }
+public void RemoveT#INDEX#() { this.buffer#INDEX#.Remove(this.index); }
+public ref readonly T#INDEX# ReadT#INDEX#() { return ref this.buffer#INDEX#.Read(this.index); }

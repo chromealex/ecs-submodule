@@ -11,55 +11,124 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public readonly struct DataBuffer<T> where T : struct, IStructComponent {
+    public struct DataBuffer<T> where T : struct, IStructComponent {
 
-        private readonly Unity.Collections.NativeSlice<T> data;
+        private Unity.Collections.NativeArray<T> arr;
+        private Unity.Collections.NativeArray<byte> ops;
         private readonly int minIdx;
-
-        public readonly Unity.Collections.NativeArray<T> arr;
-        public readonly int Length;
-
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public DataBuffer(World world, ME.ECS.Collections.BufferArray<Entity> arr, int minIdx, int maxIdx) {
+        public DataBuffer(World world, ME.ECS.Collections.BufferArray<Entity> arr, int minIdx, int maxIdx, int length, Unity.Collections.Allocator allocator) {
 
             var reg = (StructComponents<T>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T>()];
             this.minIdx = minIdx;
-            if (this.minIdx > maxIdx) {
-
-                this.minIdx = 0;
-                maxIdx = 0;
-
-            }
-
-            if (this.minIdx < 0) this.minIdx = 0;
-            if (maxIdx >= reg.components.Length) maxIdx = reg.components.Length - 1;
-            this.Length = maxIdx - this.minIdx;
-            this.arr = new Unity.Collections.NativeArray<T>(reg.components.data.arr, Unity.Collections.Allocator.Persistent);
-            this.data = new Unity.Collections.NativeSlice<T>(this.arr, this.minIdx, maxIdx);
-
-        }
-
-        public void Push(World world, ME.ECS.Collections.BufferArray<Entity> arr) {
-
-            var reg = (StructComponents<T>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T>()];
-            for (int i = 0; i < arr.Length; ++i) {
-
-                var entity = arr.arr[i];
-                reg.components[entity.id] = this.Get(entity.id);
-                reg.componentsStates.arr[entity.id] = 1;
-
-            }
+            this.arr = new Unity.Collections.NativeArray<T>(reg.components.data.arr, allocator);
+            this.ops = new Unity.Collections.NativeArray<byte>(reg.components.data.arr.Length, allocator);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public DataBuffer(World world, ME.ECS.Collections.BufferArray<Entity> arr, int minIdx, int maxIdx) : this(world, arr, minIdx, maxIdx, maxIdx - minIdx, Unity.Collections.Allocator.Persistent) {}
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public int Push(World world, ME.ECS.Collections.BufferArray<Entity> arr, int max, Unity.Collections.NativeArray<bool> inFilter) {
+
+            var changedCount = 0;
+            var isTag = WorldUtilities.IsComponentAsTag<T>();
+            var reg = (StructComponents<T>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T>()];
+            for (int i = this.minIdx; i <= max; ++i) {
+
+                if (inFilter[i] == false) continue;
+                if (this.ops[i] == 0) continue;
+
+                var entity = arr.arr[i];
+                if (this.ops[i] == 1) {
+
+                    if (isTag == false) reg.components[entity.id] = this.arr[entity.id];
+                    ref var state = ref reg.componentsStates.arr[entity.id];
+                    if (state == 0) {
+
+                        state = 1;
+                        if (world.currentState.filters.HasInAnyFilter<T>() == true) {
+
+                            world.currentState.storage.archetypes.Set<T>(in entity);
+
+                        }
+
+                        System.Threading.Interlocked.Increment(ref world.currentState.structComponents.count);
+
+                    }
+
+                    world.currentState.storage.versions.Increment(in entity);
+                    ++changedCount;
+
+                } else if (this.ops[i] == 2) {
+
+                    if (isTag == false) reg.components[entity.id] = default;
+                    ref var state = ref reg.componentsStates.arr[entity.id];
+                    if (state > 0) {
+
+                        state = 0;
+                        if (world.currentState.filters.HasInAnyFilter<T>() == true) {
+
+                            world.currentState.storage.archetypes.Remove<T>(in entity);
+
+                        }
+
+                        System.Threading.Interlocked.Decrement(ref world.currentState.structComponents.count);
+                        
+                    }
+                    
+                    world.currentState.storage.versions.Increment(in entity);
+                    ++changedCount;
+                    
+                }
+                
+            }
+            
+            this.Dispose();
+
+            return changedCount;
+
+        }
+
+        public void Dispose() {
+            
+            this.arr.Dispose();
+            this.ops.Dispose();
+            
+        }
+
+        public void Remove(int entityId) {
+
+            this.ops[entityId] = 2;
+            
+        }
+
+        public void Set(int entityId, in T data) {
+
+            this.ops[entityId] = 1;
+            this.arr[entityId] = data;
+            
+        }
+
         public ref T Get(int entityId) {
 
-            return ref this.data.GetRef(entityId - this.minIdx);
+            this.ops[entityId] = 1;
+            return ref this.arr.GetRef(entityId);
+
+        }
+
+        public ref readonly T Read(int entityId) {
+
+            this.ops[entityId] = 0;
+            return ref this.arr.GetRef(entityId);
 
         }
 

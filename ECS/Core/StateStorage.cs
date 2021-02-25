@@ -35,7 +35,7 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<Entity> cache;
         [ME.ECS.Serializer.SerializeField]
-        private ListCopyable<int> alive;
+        internal ListCopyable<int> alive;
         [ME.ECS.Serializer.SerializeField]
         private ListCopyable<int> dead;
         [ME.ECS.Serializer.SerializeField]

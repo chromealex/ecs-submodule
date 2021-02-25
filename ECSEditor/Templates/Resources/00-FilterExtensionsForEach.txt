@@ -13,6 +13,7 @@ namespace ME.ECS {
 
     }
     
+    /*
     public static class StateFiltersForEachExtensions {
 
         #if INLINE_METHODS
@@ -47,9 +48,10 @@ namespace ME.ECS {
             var entities = filter.world.currentState.storage.cache;
             for (int i = min; i <= max; ++i) { var e = entities.arr[i]; onEach.Invoke(in custom0, in custom1, in custom2, in e); }
         }
-        
+        */
         #CONTENT#
-        
+        /*
     }
+    */
 
 }
