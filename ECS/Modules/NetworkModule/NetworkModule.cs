@@ -723,9 +723,6 @@ namespace ME.ECS.Network {
             this.revertingTo = currentState.tick;
             currentState.CopyFrom(sourceState);
             currentState.Initialize(this.world, freeze: false, restore: true);
-
-            //this.world.SetFromToTicks(sourceTick, targetTick);
-
             this.world.Simulate(sourceTick, targetTick);
             this.isReverting = false;
 

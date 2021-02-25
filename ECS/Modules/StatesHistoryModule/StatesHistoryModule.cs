@@ -193,6 +193,8 @@ namespace ME.ECS.StatesHistory {
         void BeginAddEvents();
         void EndAddEvents();
 
+        void HardResetTo(Tick tick);
+
         State GetOldestState();
         HistoryStorage GetHistoryStorage();
         HistoryStorage GetHistoryStorage(Tick from, Tick to);

@@ -181,6 +181,7 @@ namespace ME.ECS {
         internal int entitiesCapacity;
         private bool isLoading;
         private bool isLoaded;
+        public bool isPaused { private set; get; }
 
         /// <summary>
         /// Returns last frame CPF
@@ -351,6 +352,8 @@ namespace ME.ECS {
         #endif
 
         void IPoolableSpawn.OnSpawn() {
+
+            this.isPaused = false;
 
             #if WORLD_THREAD_CHECK
             this.worldThread = System.Threading.Thread.CurrentThread;
@@ -670,6 +673,45 @@ namespace ME.ECS {
 
             this.timeSinceStart = time;
 
+        }
+
+        public void RewindTo(Tick tick) {
+
+            if (tick <= 0) tick = 1;
+            this.timeSinceStart = (float)tick * this.GetTickTime();
+            this.GetModule<ME.ECS.StatesHistory.IStatesHistoryModuleBase>().HardResetTo(tick);
+            this.Refresh();
+
+        }
+
+        public void Refresh() {
+
+            var pausedState = this.isPaused;
+            this.isPaused = false;
+            this.PreUpdate(0f);
+            this.Update(0f);
+            this.LateUpdate(0f);
+            this.isPaused = pausedState;
+            
+        }
+
+        public void Stop() {
+            
+            this.RewindTo(0);
+            this.Pause();
+            
+        }
+
+        public void Pause() {
+            
+            this.isPaused = true;
+            
+        }
+
+        public void Play() {
+            
+            this.isPaused = false;
+            
         }
 
         partial void OnSpawnMarkers();
@@ -2036,6 +2078,7 @@ namespace ME.ECS {
 
         public void Update(float deltaTime) {
 
+            if (this.isPaused == true) return;
             if (deltaTime < 0f) return;
 
             #if CHECKPOINT_COLLECTOR
