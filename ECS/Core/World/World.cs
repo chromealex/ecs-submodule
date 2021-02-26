@@ -916,7 +916,7 @@ namespace ME.ECS {
                     this.globalEventFrameEvents.Add(key);
                     this.globalEventFrameItems.Add(new GlobalEventFrameItem() {
                         globalEvent = globalEvent,
-                        data = entity
+                        data = entity,
                     });
 
                 }
@@ -928,7 +928,7 @@ namespace ME.ECS {
                     this.globalEventLogicEvents.Add(key);
                     this.globalEventLogicItems.Add(new GlobalEventFrameItem() {
                         globalEvent = globalEvent,
-                        data = entity
+                        data = entity,
                     });
 
                 }

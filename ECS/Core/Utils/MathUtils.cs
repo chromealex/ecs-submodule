@@ -501,6 +501,18 @@ namespace ME.ECS {
 
         }
 
+        public static bool IsTargetInCone(in Vector2 position, in Vector2 direction, in Vector2 target, float coneAngle) {
+
+            if (coneAngle <= 0f) return true;
+            
+            var dir = (target - position).normalized;
+            var dot = Vector2.Dot(direction.normalized, dir);
+            var angle = Mathf.Acos(dot);
+
+            return angle <= (coneAngle * 0.5f);
+
+        }
+
     }
 
 }
