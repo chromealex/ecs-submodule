@@ -19,7 +19,7 @@ namespace ME.ECSEditor {
                 var outputForEach = string.Empty;
                 var buffers = string.Empty;
                 
-                var count = 20;
+                var count = 10;
                 for (int j = 1; j < count; ++j) {
 
                     var itemsType = "T0";
