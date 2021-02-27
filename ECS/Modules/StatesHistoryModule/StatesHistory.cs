@@ -5,6 +5,8 @@
 
     public interface IStatesHistoryEntry {
 
+        Tick tick { get; }
+        bool isEmpty { get; }
         object GetData();
 
     }
@@ -12,6 +14,7 @@
     public interface IStatesHistory {
 
         ICollection GetEntries();
+        State GetOldestState();
 
     }
 

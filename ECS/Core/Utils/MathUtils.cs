@@ -13,6 +13,18 @@ namespace ME.ECS {
     #endif
     public static class VectorExt {
 
+        public static string ToFullString(this Vector2 vec) {
+
+            return $"{vec.x};{vec.y}";
+
+        }
+
+        public static string ToFullString(this Vector3 vec) {
+
+            return $"{vec.x};{vec.y};{vec.z}";
+
+        }
+
         public static FPVector2 Abs(FPVector2 v) {
 
             return new FPVector2(FPMath.Abs(v.x), FPMath.Abs(v.y));

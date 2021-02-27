@@ -12,7 +12,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public static void SetLocalPosition(this in Entity child, in UnityEngine.Vector3 position) {
-
+            
             Worlds.currentWorld.SetData(in child, new Position() { x = position.x, y = position.y, z = position.z });
 
         }

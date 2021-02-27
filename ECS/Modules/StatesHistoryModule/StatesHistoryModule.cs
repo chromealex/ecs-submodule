@@ -32,9 +32,15 @@ namespace ME.ECS {
 
         }
 
-        partial void PlayPlugin1ForTick(Tick tick) {
+        partial void PlayPlugin1ForTickPre(Tick tick) {
             
-            if (this.statesHistoryModule != null) this.statesHistoryModule.PlayEventsForTick(tick);
+            if (this.statesHistoryModule != null) this.statesHistoryModule.PlayEventsForTickPre(tick);
+            
+        }
+
+        partial void PlayPlugin1ForTickPost(Tick tick) {
+            
+            if (this.statesHistoryModule != null) this.statesHistoryModule.PlayEventsForTickPost(tick);
             
         }
 
@@ -202,7 +208,8 @@ namespace ME.ECS.StatesHistory {
         System.Collections.IDictionary GetData();
         ME.ECS.Network.IStatesHistory GetDataStates();
 
-        void PlayEventsForTick(Tick tick);
+        void PlayEventsForTickPre(Tick tick);
+        void PlayEventsForTickPost(Tick tick);
         void RunEvent(HistoryEvent historyEvent);
 
         void SetEventRunner(IEventRunner eventRunner);
@@ -501,11 +508,9 @@ namespace ME.ECS.StatesHistory {
             this.statesHistory.Clear();
             
             var targetTick = this.world.GetCurrentTick();
-            this.HardResetTo(Tick.Zero);
-            this.world.GetModule<ME.ECS.Network.NetworkModule<TState>>().Update(0f);
-            this.world.simulationToTick = targetTick;
-            this.world.UpdateLogic(0f);
-
+            this.world.RewindTo(Tick.Zero, doVisualUpdate: false);
+            this.world.RewindTo(targetTick, doVisualUpdate: true);
+            
         }
         
         public void Reset() {
@@ -834,18 +839,10 @@ namespace ME.ECS.StatesHistory {
             return result;
 
         }
-        
-        public void PlayEventsForTick(Tick tick) {
 
-            if (tick > this.lastSavedStateTick && tick > Tick.Zero && tick % this.GetTicksPerState() == 0L) {
-
-                this.StoreState(tick);
-                this.lastSavedStateTick = tick;
-
-            }
+        public void PlayEventsForTickPre(Tick tick) {
             
-            ME.ECS.Collections.SortedList<long, HistoryEvent> list;
-            if (this.events.TryGetValue(tick, out list) == true) {
+            if (this.events.TryGetValue(tick, out var list) == true) {
 
                 var values = list.Values;
                 for (int i = 0, count = values.Count; i < count; ++i) {
@@ -856,6 +853,17 @@ namespace ME.ECS.StatesHistory {
 
             }
 
+        }
+
+        public void PlayEventsForTickPost(Tick tick) {
+
+            if (tick > this.lastSavedStateTick && tick > Tick.Zero && tick % this.GetTicksPerState() == 0L) {
+
+                this.StoreState(tick);
+                this.lastSavedStateTick = tick;
+
+            }
+            
             this.CheckHash(tick);
 
         }
@@ -936,7 +944,7 @@ namespace ME.ECS.StatesHistory {
                 this.states.Set(tick, newState);*/
 
                 this.statesHistory.Store(tick, this.world.GetState<TState>());
-
+                
             }
 
         }

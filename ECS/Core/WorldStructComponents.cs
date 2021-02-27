@@ -691,7 +691,7 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         private bool isCreated;
 
-        private System.Collections.Generic.List<int> dirtyMap;
+        private ListCopyable<int> dirtyMap;
 
         public bool IsCreated() {
 
@@ -703,7 +703,7 @@ namespace ME.ECS {
 
             this.nextFrameTasks = PoolCCList<ITask>.Spawn();
             this.nextTickTasks = PoolCCList<ITask>.Spawn();
-            this.dirtyMap = PoolList<int>.Spawn(10);
+            this.dirtyMap = PoolListCopyable<int>.Spawn(10);
 
             ArrayUtils.Resize(100, ref this.list);
             this.isCreated = true;
@@ -717,6 +717,10 @@ namespace ME.ECS {
             for (int i = 0, count = this.dirtyMap.Count; i < count; ++i) {
 
                 var idx = this.dirtyMap[i];
+                if (idx < 0 || idx >= this.list.Count) {
+                    UnityEngine.Debug.LogError($"DirtyMap: Idx {idx} is out of range [0..{this.list.Count})");
+                    continue;
+                }
                 this.list.arr[idx].Merge();
 
             }
@@ -1027,7 +1031,7 @@ namespace ME.ECS {
 
             PoolArray<StructRegistryBase>.Recycle(ref this.list);
 
-            if (this.dirtyMap != null) PoolList<int>.Recycle(ref this.dirtyMap);
+            if (this.dirtyMap != null) PoolListCopyable<int>.Recycle(ref this.dirtyMap);
 
             this.count = default;
             this.isCreated = default;
@@ -1117,6 +1121,8 @@ namespace ME.ECS {
 
             //this.OnRecycle();
 
+            ArrayUtils.Copy(other.dirtyMap, ref this.dirtyMap);
+            
             this.count = other.count;
             this.isCreated = other.isCreated;
 
@@ -1272,6 +1278,19 @@ namespace ME.ECS {
         public bool HasSharedData<TComponent>() where TComponent : struct, IStructComponent {
 
             return this.HasData<TComponent>(in this.sharedEntity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref 
+            #if UNITY_EDITOR
+            readonly
+            #endif
+            TComponent ReadSharedData<TComponent>() where TComponent : struct, IStructComponent {
+
+            return ref this.ReadData<TComponent>(in this.sharedEntity);
 
         }
 

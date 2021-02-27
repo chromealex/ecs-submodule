@@ -31,13 +31,13 @@ namespace ME.ECS.Pathfinding.Features {
             
         }
 
-        internal ME.ECS.Pathfinding.Pathfinding GetInstance() {
+        public ME.ECS.Pathfinding.Pathfinding GetInstance() {
 
             return this.pathfindingInstance;
 
         }
 
-        internal Entity GetEntity() {
+        public Entity GetEntity() {
 
             return this.pathfindingEntity;
 

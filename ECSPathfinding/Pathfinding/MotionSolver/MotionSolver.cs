@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-
 using UnityEngine;
 
 namespace ME.ECS.Pathfinding {
@@ -38,7 +37,7 @@ namespace ME.ECS.Pathfinding {
             public int layer;
             public int collisionMask;
 
-            public int pushLayer;
+            public uint pushLayer;
 
         }
 

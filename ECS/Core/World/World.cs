@@ -675,7 +675,7 @@ namespace ME.ECS {
 
         }
 
-        public void RewindTo(Tick tick) {
+        public void RewindTo(Tick tick, bool doVisualUpdate = true) {
 
             if (tick <= 0) tick = 1;
             this.timeSinceStart = (float)tick * this.GetTickTime();
@@ -684,13 +684,13 @@ namespace ME.ECS {
 
         }
 
-        public void Refresh() {
+        public void Refresh(bool doVisualUpdate = true) {
 
             var pausedState = this.isPaused;
             this.isPaused = false;
             this.PreUpdate(0f);
             this.Update(0f);
-            this.LateUpdate(0f);
+            if (doVisualUpdate == true) this.LateUpdate(0f);
             this.isPaused = pausedState;
             
         }
@@ -1136,6 +1136,8 @@ namespace ME.ECS {
             this.resetState = WorldUtilities.CreateState<TState>();
             this.resetState.Initialize(this, freeze: true, restore: false);
             this.resetState.CopyFrom(this.GetState());
+            this.resetState.tick = -1;
+            this.resetState.structComponents.Merge();
 
             this.currentState.structComponents.Merge();
 
@@ -2243,6 +2245,34 @@ namespace ME.ECS {
                 #endif
 
                 ////////////////
+                this.currentStep |= WorldStep.PluginsLogicTick;
+                ////////////////
+                {
+
+                    #if CHECKPOINT_COLLECTOR
+                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTickPre", WorldStep.None);
+                    #endif
+
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.BeginSample($"PlayPluginsForTickPre");
+                    #endif
+
+                    this.PlayPluginsForTickPre(state.tick);
+
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.EndSample();
+                    #endif
+
+                    #if CHECKPOINT_COLLECTOR
+                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTickPre", WorldStep.None);
+                    #endif
+
+                }
+                ////////////////
+                this.currentStep &= ~WorldStep.PluginsLogicTick;
+                ////////////////
+
+                ////////////////
                 this.currentStep |= WorldStep.ModulesLogicTick;
                 ////////////////
                 {
@@ -2299,34 +2329,6 @@ namespace ME.ECS {
                 }
                 ////////////////
                 this.currentStep &= ~WorldStep.ModulesLogicTick;
-                ////////////////
-
-                ////////////////
-                this.currentStep |= WorldStep.PluginsLogicTick;
-                ////////////////
-                {
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTick", WorldStep.None);
-                    #endif
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.BeginSample($"PlayPluginsForTick");
-                    #endif
-
-                    this.PlayPluginsForTick(state.tick);
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.EndSample();
-                    #endif
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTick", WorldStep.None);
-                    #endif
-
-                }
-                ////////////////
-                this.currentStep &= ~WorldStep.PluginsLogicTick;
                 ////////////////
 
                 ////////////////
@@ -2653,16 +2655,6 @@ namespace ME.ECS {
                 this.currentStep &= ~WorldStep.SystemsLogicTick;
                 ////////////////
 
-                /*#if CHECKPOINT_COLLECTOR
-                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveComponentsOnce", WorldStep.None);
-                #endif
-
-                this.RemoveComponentsOnce<IComponentOnce>();
-
-                #if CHECKPOINT_COLLECTOR
-                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveComponentsOnce", WorldStep.None);
-                #endif*/
-
                 #if UNITY_EDITOR
                 UnityEngine.Profiling.Profiler.BeginSample($"UseLifetimeStep NotifyAllSystemsBelow");
                 #endif
@@ -2682,6 +2674,34 @@ namespace ME.ECS {
                 #if UNITY_EDITOR
                 UnityEngine.Profiling.Profiler.EndSample();
                 #endif
+
+                ////////////////
+                this.currentStep |= WorldStep.PluginsLogicTick;
+                ////////////////
+                {
+
+                    #if CHECKPOINT_COLLECTOR
+                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTickPost", WorldStep.None);
+                    #endif
+
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.BeginSample($"PlayPluginsForTickPost");
+                    #endif
+
+                    this.PlayPluginsForTickPost(state.tick);
+
+                    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.EndSample();
+                    #endif
+
+                    #if CHECKPOINT_COLLECTOR
+                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTickPost", WorldStep.None);
+                    #endif
+
+                }
+                ////////////////
+                this.currentStep &= ~WorldStep.PluginsLogicTick;
+                ////////////////
 
                 #if UNITY_EDITOR
                 UnityEngine.Profiling.Profiler.EndSample();
@@ -2732,17 +2752,34 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void PlayPluginsForTick(Tick tick) {
+        private void PlayPluginsForTickPre(Tick tick) {
 
-            this.PlayPlugin1ForTick(tick);
-            this.PlayPlugin2ForTick(tick);
-            this.PlayPlugin3ForTick(tick);
-            this.PlayPlugin4ForTick(tick);
-            this.PlayPlugin5ForTick(tick);
-            this.PlayPlugin6ForTick(tick);
-            this.PlayPlugin7ForTick(tick);
-            this.PlayPlugin8ForTick(tick);
-            this.PlayPlugin9ForTick(tick);
+            this.PlayPlugin1ForTickPre(tick);
+            this.PlayPlugin2ForTickPre(tick);
+            this.PlayPlugin3ForTickPre(tick);
+            this.PlayPlugin4ForTickPre(tick);
+            this.PlayPlugin5ForTickPre(tick);
+            this.PlayPlugin6ForTickPre(tick);
+            this.PlayPlugin7ForTickPre(tick);
+            this.PlayPlugin8ForTickPre(tick);
+            this.PlayPlugin9ForTickPre(tick);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        private void PlayPluginsForTickPost(Tick tick) {
+
+            this.PlayPlugin1ForTickPost(tick);
+            this.PlayPlugin2ForTickPost(tick);
+            this.PlayPlugin3ForTickPost(tick);
+            this.PlayPlugin4ForTickPost(tick);
+            this.PlayPlugin5ForTickPost(tick);
+            this.PlayPlugin6ForTickPost(tick);
+            this.PlayPlugin7ForTickPost(tick);
+            this.PlayPlugin8ForTickPost(tick);
+            this.PlayPlugin9ForTickPost(tick);
 
         }
 
@@ -2943,15 +2980,25 @@ namespace ME.ECS {
         partial void RegisterPlugin8ModuleForEntity();
         partial void RegisterPlugin9ModuleForEntity();
 
-        partial void PlayPlugin1ForTick(Tick tick);
-        partial void PlayPlugin2ForTick(Tick tick);
-        partial void PlayPlugin3ForTick(Tick tick);
-        partial void PlayPlugin4ForTick(Tick tick);
-        partial void PlayPlugin5ForTick(Tick tick);
-        partial void PlayPlugin6ForTick(Tick tick);
-        partial void PlayPlugin7ForTick(Tick tick);
-        partial void PlayPlugin8ForTick(Tick tick);
-        partial void PlayPlugin9ForTick(Tick tick);
+        partial void PlayPlugin1ForTickPre(Tick tick);
+        partial void PlayPlugin2ForTickPre(Tick tick);
+        partial void PlayPlugin3ForTickPre(Tick tick);
+        partial void PlayPlugin4ForTickPre(Tick tick);
+        partial void PlayPlugin5ForTickPre(Tick tick);
+        partial void PlayPlugin6ForTickPre(Tick tick);
+        partial void PlayPlugin7ForTickPre(Tick tick);
+        partial void PlayPlugin8ForTickPre(Tick tick);
+        partial void PlayPlugin9ForTickPre(Tick tick);
+
+        partial void PlayPlugin1ForTickPost(Tick tick);
+        partial void PlayPlugin2ForTickPost(Tick tick);
+        partial void PlayPlugin3ForTickPost(Tick tick);
+        partial void PlayPlugin4ForTickPost(Tick tick);
+        partial void PlayPlugin5ForTickPost(Tick tick);
+        partial void PlayPlugin6ForTickPost(Tick tick);
+        partial void PlayPlugin7ForTickPost(Tick tick);
+        partial void PlayPlugin8ForTickPost(Tick tick);
+        partial void PlayPlugin9ForTickPost(Tick tick);
 
         partial void SimulatePlugin1ForTicks(Tick from, Tick to);
         partial void SimulatePlugin2ForTicks(Tick from, Tick to);

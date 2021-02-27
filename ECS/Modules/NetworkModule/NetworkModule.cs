@@ -705,25 +705,28 @@ namespace ME.ECS.Network {
 
             }
 
+            if (oldestEventTick > targetTick) oldestEventTick = targetTick;
+            
             var sourceState = this.statesHistoryModule.GetStateBeforeTick(oldestEventTick, out var sourceTick);
             if (sourceState == null) {
 
                 sourceState = this.world.GetResetState<TState>();
-                if (targetTick < tick) targetTick = tick;
+                //if (targetTick < tick) targetTick = tick;
 
             }
-            //UnityEngine.Debug.Log("Rollback. Oldest: " + oldestEventTick + ", sourceTick: " + sourceTick + ", targetTick: " + targetTick);
+            //UnityEngine.Debug.LogWarning("Rollback. Oldest: " + oldestEventTick + ", sourceTick: " + sourceTick + ", targetTick: " + targetTick);
 
             this.statesHistoryModule.InvalidateEntriesAfterTick(sourceTick);
 
-            this.isReverting = true;
-
             // Applying old state.
-            var currentState = this.world.GetState();
-            this.revertingTo = currentState.tick;
-            currentState.CopyFrom(sourceState);
-            currentState.Initialize(this.world, freeze: false, restore: true);
-            this.world.Simulate(sourceTick, targetTick);
+            this.isReverting = true;
+            {
+                var currentState = this.world.GetState();
+                this.revertingTo = currentState.tick;
+                currentState.CopyFrom(sourceState);
+                currentState.Initialize(this.world, freeze: false, restore: true);
+                this.world.Simulate(sourceTick + 1, targetTick);
+            }
             this.isReverting = false;
 
             this.world.SetFromToTicks(targetTick, currentTargetTick);

@@ -73,7 +73,7 @@ namespace ME.ECSEditor {
 
                 var entry = entryData as ME.ECS.Network.IStatesHistoryEntry;
                 var state = entry.GetData() as State;
-                UnityEngine.GUILayout.Label("Tick: " + state.tick + ", Hash: " + state.GetHash());
+                UnityEngine.GUILayout.Label(entry.isEmpty == true ? "None" : "Tick: " + state.tick + ", Hash: " + state.GetHash());
                 
             }
 

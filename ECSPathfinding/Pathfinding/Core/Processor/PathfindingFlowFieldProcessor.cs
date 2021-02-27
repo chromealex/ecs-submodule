@@ -126,7 +126,7 @@ namespace ME.ECS.Pathfinding {
                     }
 
                     var cost = neighbor.penalty;
-                    var endNodeCost = (ushort)(cost + curNode.bestCost[threadIndex]);
+                    var endNodeCost = (float)(cost + curNode.bestCost[threadIndex]);
                     if (endNodeCost < neighbor.bestCost[threadIndex]) {
 
                         neighbor.bestCost[threadIndex] = endNodeCost;

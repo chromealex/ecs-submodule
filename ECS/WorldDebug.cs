@@ -125,7 +125,7 @@ namespace ME.ECS {
             
         }
 
-        partial void PlayPlugin5ForTick(Tick tick) {
+        partial void PlayPlugin5ForTickPost(Tick tick) {
 
             if (this.debugSettings.createGameObjectsRepresentation == true) {
 

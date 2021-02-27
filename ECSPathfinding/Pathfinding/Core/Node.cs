@@ -31,7 +31,7 @@ namespace ME.ECS.Pathfinding {
         internal readonly float[] startToCurNodeLen = new float[Pathfinding.THREADS_COUNT];
         internal readonly bool[] isOpened = new bool[Pathfinding.THREADS_COUNT];
         internal readonly bool[] isClosed = new bool[Pathfinding.THREADS_COUNT];
-        internal readonly ushort[] bestCost = new ushort[Pathfinding.THREADS_COUNT];
+        internal readonly float[] bestCost = new float[Pathfinding.THREADS_COUNT];
 
         protected Node() {
         }
@@ -92,7 +92,7 @@ namespace ME.ECS.Pathfinding {
             this.startToCurNodeLen[threadIndex] = 0f;
             this.isOpened[threadIndex] = false;
             this.isClosed[threadIndex] = false;
-            this.bestCost[threadIndex] = ushort.MaxValue;
+            this.bestCost[threadIndex] = float.MaxValue;
 
         }
 
