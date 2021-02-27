@@ -37,9 +37,9 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         internal ListCopyable<int> alive;
         [ME.ECS.Serializer.SerializeField]
-        private ListCopyable<int> dead;
+        internal ListCopyable<int> dead;
         [ME.ECS.Serializer.SerializeField]
-        private ListCopyable<int> deadPrepared;
+        internal ListCopyable<int> deadPrepared;
         [ME.ECS.Serializer.SerializeField]
         private int aliveCount;
         [ME.ECS.Serializer.SerializeField]
@@ -171,6 +171,7 @@ namespace ME.ECS {
             ref var e = ref this.cache.arr[id];
             if (e.generation == 0) e = new Entity(id, 1);
             this.versions.Reset(id);
+            e = ref this.IncrementGeneration(in e);
             return ref e;
 
         }
@@ -191,10 +192,11 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void IncrementGeneration(in Entity entity) {
+        public ref Entity IncrementGeneration(in Entity entity) {
 
             // Make this entity not alive, but not completely destroyed at this time
             this.cache.arr[entity.id] = new Entity(entity.id, unchecked((ushort)(entity.generation + 1)));
+            return ref this.cache.arr[entity.id];
 
         }
 

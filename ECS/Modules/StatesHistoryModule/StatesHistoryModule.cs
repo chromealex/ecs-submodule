@@ -194,6 +194,12 @@ namespace ME.ECS.StatesHistory {
 
     public interface IStatesHistoryModuleBase : IModuleBase {
 
+        void PauseStoreStateSinceTick(Tick tick);
+        void ResumeStoreState();
+        
+        Tick GetCacheSize();
+        Tick GetTicksPerState();
+        
         uint GetEventForwardTick();
         
         void BeginAddEvents();
@@ -202,6 +208,7 @@ namespace ME.ECS.StatesHistory {
         void HardResetTo(Tick tick);
 
         State GetOldestState();
+        State GetLatestState();
         HistoryStorage GetHistoryStorage();
         HistoryStorage GetHistoryStorage(Tick from, Tick to);
         
@@ -279,12 +286,15 @@ namespace ME.ECS.StatesHistory {
         private Tick oldestTick;
         private Tick lastSavedStateTick;
         
+        private Tick pauseStoreStateSinceTick;
+        
         public World world { get; set; }
         
         void IModuleBase.OnConstruct() {
 
             this.oldestTick = Tick.Invalid;
             this.lastSavedStateTick = Tick.Invalid;
+            this.pauseStoreStateSinceTick = Tick.Invalid;
             
             this.statesHistory = new ME.ECS.Network.StatesHistory<TState>(this.world, this.GetQueueCapacity());
             //this.states = new StatesCircularQueue<TState>(this.GetTicksPerState(), this.GetQueueCapacity());
@@ -307,6 +317,7 @@ namespace ME.ECS.StatesHistory {
             this.statPlayedEvents = 0;
             this.oldestTick = Tick.Invalid;
             this.lastSavedStateTick = Tick.Invalid;
+            this.pauseStoreStateSinceTick = Tick.Invalid;
             
             this.statesHistory.DiscardAll();
             
@@ -362,6 +373,24 @@ namespace ME.ECS.StatesHistory {
         public State GetOldestState() {
 
             return this.statesHistory.GetOldestState();
+
+        }
+
+        public State GetLatestState() {
+
+            return this.statesHistory.GetLatestState();
+
+        }
+
+        Tick IStatesHistoryModuleBase.GetTicksPerState() {
+
+            return this.GetTicksPerState();
+
+        }
+        
+        public Tick GetCacheSize() {
+
+            return this.GetQueueCapacity() * this.GetTicksPerState();
 
         }
 
@@ -922,8 +951,26 @@ namespace ME.ECS.StatesHistory {
 
         }
 
+        public void PauseStoreStateSinceTick(Tick tick) {
+            
+            this.pauseStoreStateSinceTick = tick;
+            
+        }
+
+        public void ResumeStoreState() {
+            
+            this.pauseStoreStateSinceTick = Tick.Invalid;
+            
+        }
+
         private void StoreState(Tick tick, bool isPrewarm = false) {
 
+            if (tick < this.pauseStoreStateSinceTick) {
+
+                return;
+
+            }
+            
             /*if (isPrewarm == false) {
                 
                 UnityEngine.Debug.LogWarning("StoreState: " + this.world.id + ", tick: " + tick);

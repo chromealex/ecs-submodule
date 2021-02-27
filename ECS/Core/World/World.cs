@@ -675,12 +675,87 @@ namespace ME.ECS {
 
         }
 
+        public enum RewindAsyncState {
+
+            CacheBackwardRewind,
+            LongBackwardRewind,
+            ShortForwardRewind,
+            LongForwardRewind,
+
+        }
+
+        private RewindAsyncState GetRewindState(Tick targetTick, float maxSimulationTime) {
+
+            var currentTick = this.GetCurrentTick();
+            if (currentTick > targetTick) {
+
+                var delta = targetTick - currentTick;
+                var duration = delta * this.GetTickTime();
+                return duration > maxSimulationTime ? RewindAsyncState.LongForwardRewind : RewindAsyncState.ShortForwardRewind;
+
+            } else {
+
+                var cacheSize = this.statesHistoryModule.GetCacheSize();
+                var delta = currentTick - targetTick;
+                if (delta <= cacheSize) return RewindAsyncState.CacheBackwardRewind;
+
+            }
+
+            return RewindAsyncState.LongBackwardRewind;
+
+        }
+        
+        public System.Collections.IEnumerator RewindToAsync(Tick tick, bool doVisualUpdate = true, System.Action<RewindAsyncState> onState = null, float maxSimulationTime = 1f) {
+
+            var rewindState = this.GetRewindState(tick, maxSimulationTime);
+            onState?.Invoke(rewindState);
+            if (rewindState == RewindAsyncState.LongBackwardRewind ||
+                rewindState == RewindAsyncState.LongForwardRewind) {
+
+                var isPaused = this.isPaused;
+                this.Pause();
+                {
+                    var currentTick = tick;
+                    var prevStateTick = currentTick - currentTick % this.statesHistoryModule.GetTicksPerState();
+                    var cacheSize = this.statesHistoryModule.GetCacheSize();
+                    this.statesHistoryModule.PauseStoreStateSinceTick(prevStateTick - cacheSize);
+
+                    if (tick <= 0) tick = 1;
+                    this.timeSinceStart = (float)tick * this.GetTickTime();
+                    this.statesHistoryModule.HardResetTo(tick);
+
+                    this.networkModule.SetAsyncMode(true);
+                    this.PreUpdate(0f);
+                    yield return this.SimulateAsync(this.simulationFromTick, this.simulationToTick, maxSimulationTime);
+                    this.networkModule.SetAsyncMode(false);
+                    if (doVisualUpdate == true) this.LateUpdate(0f);
+
+                    this.statesHistoryModule.ResumeStoreState();
+                }
+                if (isPaused == false) this.Play();
+
+            } else {
+                
+                // Sync rewind
+                this.RewindTo(tick, doVisualUpdate);
+                
+            }
+
+        }
+
         public void RewindTo(Tick tick, bool doVisualUpdate = true) {
 
+            var currentTick = this.GetCurrentTick();
+            var prevStateTick = currentTick - currentTick % this.statesHistoryModule.GetTicksPerState();
+            var cacheSize = this.statesHistoryModule.GetCacheSize();
+            this.statesHistoryModule.PauseStoreStateSinceTick(prevStateTick - cacheSize);
+            
             if (tick <= 0) tick = 1;
             this.timeSinceStart = (float)tick * this.GetTickTime();
-            this.GetModule<ME.ECS.StatesHistory.IStatesHistoryModuleBase>().HardResetTo(tick);
-            this.Refresh();
+            this.statesHistoryModule.HardResetTo(tick);
+            this.Refresh(doVisualUpdate);
+
+            this.statesHistoryModule.ResumeStoreState();
 
         }
 
@@ -2209,11 +2284,570 @@ namespace ME.ECS {
 
         }
 
+        public System.Collections.IEnumerator SimulateAsync(Tick from, Tick to, float maxTime = 1f) {
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.BeginSample($"PlayTasksForFrame");
+            #endif
+
+            this.PlayTasksForFrame();
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.EndSample();
+            #endif
+
+            if (from > to) {
+
+                //UnityEngine.Debug.LogError( UnityEngine.Time.frameCount + " From: " + from + ", To: " + to);
+                yield break;
+
+            }
+
+            if (from < Tick.Zero) from = Tick.Zero;
+
+            var state = this.GetState();
+
+            //UnityEngine.Debug.Log("Simulate " + from + " to " + to);
+            this.cpf = to - from;
+            var maxTickTime = this.cpf / maxTime;
+            if (maxTickTime < this.GetTickTime()) maxTickTime = this.GetTickTime();
+            var fixedDeltaTime = this.GetTickTime();
+            var sw = PoolClass<System.Diagnostics.Stopwatch>.Spawn();
+            sw.Reset();
+            sw.Start();
+            for (state.tick = from; state.tick < to; ++state.tick) {
+
+                if (sw.ElapsedMilliseconds >= maxTickTime) {
+                
+                    yield return null;
+                    sw.Restart();
+                    
+                }
+
+                this.RunTick(state.tick, fixedDeltaTime);
+
+            }
+            PoolClass<System.Diagnostics.Stopwatch>.Recycle(ref sw);
+
+            ////////////////
+            this.currentStep |= WorldStep.PluginsLogicSimulate;
+            ////////////////
+            {
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("SimulatePluginsForTicks", WorldStep.None);
+                #endif
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"SimulatePluginsForTicks");
+                #endif
+
+                this.SimulatePluginsForTicks(from, to);
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("SimulatePluginsForTicks", WorldStep.None);
+                #endif
+
+            }
+            ////////////////
+            this.currentStep &= ~WorldStep.PluginsLogicSimulate;
+            ////////////////
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.BeginSample($"UseLifetimeStep NotifyAllModulesBelow");
+            #endif
+
+            this.UseLifetimeStep(ComponentLifetime.NotifyAllModulesBelow);
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.EndSample();
+            #endif
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        private void RunTick(Tick tick, float fixedDeltaTime) {
+            
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.BeginSample(tick.ToString());
+            #endif
+
+            ////////////////
+            this.currentStep |= WorldStep.PluginsLogicTick;
+            ////////////////
+            {
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTickPre", WorldStep.None);
+                #endif
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"PlayPluginsForTickPre");
+                #endif
+
+                this.PlayPluginsForTickPre(tick);
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTickPre", WorldStep.None);
+                #endif
+
+            }
+            ////////////////
+            this.currentStep &= ~WorldStep.PluginsLogicTick;
+            ////////////////
+
+            ////////////////
+            this.currentStep |= WorldStep.ModulesLogicTick;
+            ////////////////
+            {
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.LogicTick);
+                #endif
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [All Modules]");
+                #endif
+
+                for (int i = 0, count = this.modules.Count; i < count; ++i) {
+
+                    if (this.IsModuleActive(i) == true) {
+
+                        #if CHECKPOINT_COLLECTOR
+                        if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules[i], WorldStep.LogicTick);
+                        #endif
+
+                        var module = this.modules[i];
+                        if (module is IAdvanceTickStep step && step.step % tick != 0) continue;
+
+                        if (module is IAdvanceTick moduleBase) {
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.BeginSample(moduleBase.GetType().FullName);
+                            #endif
+
+                            moduleBase.AdvanceTick(in fixedDeltaTime);
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.EndSample();
+                            #endif
+
+                        }
+
+                        #if CHECKPOINT_COLLECTOR
+                        if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules[i], WorldStep.LogicTick);
+                        #endif
+
+                    }
+
+                }
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.LogicTick);
+                #endif
+
+            }
+            ////////////////
+            this.currentStep &= ~WorldStep.ModulesLogicTick;
+            ////////////////
+
+            ////////////////
+            this.currentStep |= WorldStep.SystemsLogicTick;
+            ////////////////
+            {
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.LogicTick);
+                #endif
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"PlayTasksForTick");
+                #endif
+
+                this.PlayTasksForTick();
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPre", WorldStep.LogicTick);
+                #endif
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [AdvanceTickPre]");
+                #endif
+
+                for (int i = 0, count = this.systemGroupsLength; i < count; ++i) {
+
+                    ref var group = ref this.systemGroups.arr[i];
+                    if (group.runtimeSystem.systemAdvanceTickPre == null) continue;
+                    for (int j = 0; j < group.runtimeSystem.systemAdvanceTickPre.Count; ++j) {
+
+                        ref var system = ref group.runtimeSystem.systemAdvanceTickPre[j];
+                        if (system is IAdvanceTickStep step && step.step % tick != 0) continue;
+
+                        #if CHECKPOINT_COLLECTOR
+                        if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
+                        #endif
+
+                        #if UNITY_EDITOR
+                        UnityEngine.Profiling.Profiler.BeginSample(system.GetType().FullName);
+                        #endif
+
+                        system.AdvanceTickPre(fixedDeltaTime);
+
+                        #if UNITY_EDITOR
+                        UnityEngine.Profiling.Profiler.EndSample();
+                        #endif
+
+                        #if CHECKPOINT_COLLECTOR
+                        if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
+                        #endif
+
+                    }
+
+                }
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPre", WorldStep.LogicTick);
+                #endif
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickFilters", WorldStep.LogicTick);
+                #endif
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [AdvanceTickFilters]");
+                #endif
+
+                for (int i = 0, count = this.systemGroupsLength; i < count; ++i) {
+
+                    ref var group = ref this.systemGroups.arr[i];
+                    if (group.runtimeSystem.systemAdvanceTick == null) continue;
+                    for (int j = 0; j < group.runtimeSystem.systemAdvanceTick.Count; ++j) {
+
+                        ref var systemBase = ref group.runtimeSystem.systemAdvanceTick[j];
+                        if (systemBase is IAdvanceTickStep step && step.step % tick != 0) continue;
+
+                        if (systemBase is ISystemFilter system) {
+
+                            this.currentSystemContextFilter = system;
+
+                            #if CHECKPOINT_COLLECTOR
+                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
+                            #endif
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.BeginSample($"PrepareAdvanceTickForSystem");
+                            #endif
+
+                            this.PrepareAdvanceTickForSystem(system);
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.EndSample();
+                            #endif
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.BeginSample(system.GetType().FullName);
+                            #endif
+
+                            {
+
+                                /*if (sysFilter is IAdvanceTickBurst advTick) {
+
+                                    // Under the development process
+                                    // This should not used right now
+                                    
+                                    var functionPointer = Unity.Burst.BurstCompiler.CompileFunctionPointer(advTick.GetAdvanceTickForBurst());
+                                    var arrEntities = sysFilter.filter.GetArray();
+                                    using (var arr = new Unity.Collections.NativeArray<Entity>(arrEntities.arr, Unity.Collections.Allocator.TempJob)) {
+
+                                        var length = arrEntities.Length;
+                                        var burstWorldStructComponentsAccess = new BurstWorldStructComponentsAccess();
+                                        unsafe {
+
+                                            var bws = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AddressOf(ref burstWorldStructComponentsAccess);
+                                            PoolArray<Entity>.Recycle(ref arrEntities);
+                                            var job = new ForeachFilterJobBurst() {
+                                                deltaTime = fixedDeltaTime,
+                                                entities = arr,
+                                                function = functionPointer,
+                                                bws = bws
+                                            };
+                                            var jobHandle = job.Schedule(length, sysFilter.jobsBatchCount);
+                                            jobHandle.Complete();
+                                            
+                                        }
+
+                                    }
+                                    
+                                }*/
+
+                                system.filter = (system.filter.IsAlive() == true ? system.filter : system.CreateFilter());
+                                if (system.filter.IsAlive() == true) {
+
+                                    if (this.settings.useJobsForSystems == true && system.jobs == true) {
+
+                                        var arrEntities = this.currentState.storage.cache.arr;
+                                        system.filter.GetBounds(out var min, out var max);
+                                        if (min > max) {
+
+                                            min = 0;
+                                            max = -1;
+
+                                        }
+
+                                        if (min < 0) min = 0;
+                                        ++max;
+                                        if (max >= arrEntities.Length) max = arrEntities.Length - 1;
+
+                                        if (min < max) {
+
+                                            var filter = this.GetFilter(system.filter.id);
+                                            var arr = new Unity.Collections.NativeArray<Entity>(arrEntities, Unity.Collections.Allocator.TempJob);
+                                            var arrContains = new Unity.Collections.NativeArray<bool>(filter.dataContains.arr, Unity.Collections.Allocator.TempJob);
+                                            var arrVersions = (filter.onVersionChangedOnly == true
+                                                                   ? new Unity.Collections.NativeArray<bool>(filter.dataVersions.arr, Unity.Collections.Allocator.TempJob)
+                                                                   : default);
+
+                                            var length = max - min;
+                                            var job = new ForeachFilterJob() {
+                                                deltaTime = fixedDeltaTime,
+                                                slice = new Unity.Collections.NativeSlice<Entity>(arr, min, max - min),
+                                                dataContains = arrContains,
+                                                dataVersions = arrVersions,
+                                            };
+                                            var jobHandle = job.Schedule(length, system.jobsBatchCount);
+                                            jobHandle.Complete();
+
+                                            arr.Dispose();
+                                            arrContains.Dispose();
+                                            if (arrVersions.IsCreated == true) arrVersions.Dispose();
+
+                                            filter.UseVersioned();
+
+                                        }
+
+                                    } else {
+
+                                        foreach (var entity in system.filter) {
+
+                                            system.AdvanceTick(in entity, fixedDeltaTime);
+
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.EndSample();
+                            #endif
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.BeginSample($"PostAdvanceTickForSystem");
+                            #endif
+
+                            this.PostAdvanceTickForSystem();
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.EndSample();
+                            #endif
+
+                            #if CHECKPOINT_COLLECTOR
+                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
+                            #endif
+
+                        } else if (systemBase is IAdvanceTick advanceTickSystem) {
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.BeginSample($"PrepareAdvanceTickForSystem");
+                            #endif
+
+                            this.PrepareAdvanceTickForSystem(advanceTickSystem);
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.EndSample();
+                            #endif
+
+                            #if CHECKPOINT_COLLECTOR
+                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(advanceTickSystem, WorldStep.LogicTick);
+                            #endif
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.BeginSample($"AdvanceTick");
+                            #endif
+
+                            advanceTickSystem.AdvanceTick(fixedDeltaTime);
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.EndSample();
+                            #endif
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.BeginSample($"PostAdvanceTickForSystem");
+                            #endif
+
+                            this.PostAdvanceTickForSystem();
+
+                            #if UNITY_EDITOR
+                            UnityEngine.Profiling.Profiler.EndSample();
+                            #endif
+
+                            #if CHECKPOINT_COLLECTOR
+                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(advanceTickSystem, WorldStep.LogicTick);
+                            #endif
+                        }
+
+                    }
+
+                }
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickFilters", WorldStep.LogicTick);
+                #endif
+
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPost", WorldStep.LogicTick);
+                #endif
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [AdvanceTickPost]");
+                #endif
+
+                for (int i = 0, count = this.systemGroupsLength; i < count; ++i) {
+
+                    ref var group = ref this.systemGroups.arr[i];
+                    if (group.runtimeSystem.systemAdvanceTickPost == null) continue;
+                    for (int j = 0; j < group.runtimeSystem.systemAdvanceTickPost.Count; ++j) {
+
+                        ref var system = ref group.runtimeSystem.systemAdvanceTickPost[j];
+                        if (system is IAdvanceTickStep step && step.step % tick != 0) continue;
+
+                        #if CHECKPOINT_COLLECTOR
+                        if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
+                        #endif
+
+                        #if UNITY_EDITOR
+                        UnityEngine.Profiling.Profiler.BeginSample(system.GetType().FullName);
+                        #endif
+
+                        system.AdvanceTickPost(fixedDeltaTime);
+
+                        #if UNITY_EDITOR
+                        UnityEngine.Profiling.Profiler.EndSample();
+                        #endif
+
+                        #if CHECKPOINT_COLLECTOR
+                        if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
+                        #endif
+
+                    }
+
+                }
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPost", WorldStep.LogicTick);
+                #endif
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.LogicTick);
+                #endif
+
+            }
+            ////////////////
+            this.currentStep &= ~WorldStep.SystemsLogicTick;
+            ////////////////
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.BeginSample($"UseLifetimeStep NotifyAllSystemsBelow");
+            #endif
+
+            this.UseLifetimeStep(ComponentLifetime.NotifyAllSystemsBelow);
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.EndSample();
+            #endif
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.BeginSample($"ProcessGlobalEvents [Logic]");
+            #endif
+
+            this.ProcessGlobalEvents(GlobalEventType.Logic);
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.EndSample();
+            #endif
+
+            ////////////////
+            this.currentStep |= WorldStep.PluginsLogicTick;
+            ////////////////
+            {
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTickPost", WorldStep.None);
+                #endif
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"PlayPluginsForTickPost");
+                #endif
+
+                this.PlayPluginsForTickPost(tick);
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTickPost", WorldStep.None);
+                #endif
+
+            }
+            ////////////////
+            this.currentStep &= ~WorldStep.PluginsLogicTick;
+            ////////////////
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.EndSample();
+            #endif
+            
+        }
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public void Simulate(Tick from, Tick to) {
-
+            
             #if UNITY_EDITOR
             UnityEngine.Profiling.Profiler.BeginSample($"PlayTasksForFrame");
             #endif
@@ -2240,472 +2874,7 @@ namespace ME.ECS {
             var fixedDeltaTime = this.GetTickTime();
             for (state.tick = from; state.tick < to; ++state.tick) {
 
-                #if UNITY_EDITOR
-                UnityEngine.Profiling.Profiler.BeginSample(from.ToString());
-                #endif
-
-                ////////////////
-                this.currentStep |= WorldStep.PluginsLogicTick;
-                ////////////////
-                {
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTickPre", WorldStep.None);
-                    #endif
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.BeginSample($"PlayPluginsForTickPre");
-                    #endif
-
-                    this.PlayPluginsForTickPre(state.tick);
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.EndSample();
-                    #endif
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTickPre", WorldStep.None);
-                    #endif
-
-                }
-                ////////////////
-                this.currentStep &= ~WorldStep.PluginsLogicTick;
-                ////////////////
-
-                ////////////////
-                this.currentStep |= WorldStep.ModulesLogicTick;
-                ////////////////
-                {
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.LogicTick);
-                    #endif
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [All Modules]");
-                    #endif
-
-                    for (int i = 0, count = this.modules.Count; i < count; ++i) {
-
-                        if (this.IsModuleActive(i) == true) {
-
-                            #if CHECKPOINT_COLLECTOR
-                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules[i], WorldStep.LogicTick);
-                            #endif
-
-                            var module = this.modules[i];
-                            if (module is IAdvanceTickStep step && step.step % state.tick != 0) continue;
-
-                            if (module is IAdvanceTick moduleBase) {
-
-                                #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.BeginSample(moduleBase.GetType().FullName);
-                                #endif
-
-                                moduleBase.AdvanceTick(in fixedDeltaTime);
-
-                                #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.EndSample();
-                                #endif
-
-                            }
-
-                            #if CHECKPOINT_COLLECTOR
-                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules[i], WorldStep.LogicTick);
-                            #endif
-
-                        }
-
-                    }
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.EndSample();
-                    #endif
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.LogicTick);
-                    #endif
-
-                }
-                ////////////////
-                this.currentStep &= ~WorldStep.ModulesLogicTick;
-                ////////////////
-
-                ////////////////
-                this.currentStep |= WorldStep.SystemsLogicTick;
-                ////////////////
-                {
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.LogicTick);
-                    #endif
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.BeginSample($"PlayTasksForTick");
-                    #endif
-
-                    this.PlayTasksForTick();
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.EndSample();
-                    #endif
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPre", WorldStep.LogicTick);
-                    #endif
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [AdvanceTickPre]");
-                    #endif
-
-                    for (int i = 0, count = this.systemGroupsLength; i < count; ++i) {
-
-                        ref var group = ref this.systemGroups.arr[i];
-                        if (group.runtimeSystem.systemAdvanceTickPre == null) continue;
-                        for (int j = 0; j < group.runtimeSystem.systemAdvanceTickPre.Count; ++j) {
-
-                            ref var system = ref group.runtimeSystem.systemAdvanceTickPre[j];
-                            if (system is IAdvanceTickStep step && step.step % state.tick != 0) continue;
-
-                            #if CHECKPOINT_COLLECTOR
-                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
-                            #endif
-
-                            #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.BeginSample(system.GetType().FullName);
-                            #endif
-
-                            system.AdvanceTickPre(fixedDeltaTime);
-
-                            #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.EndSample();
-                            #endif
-
-                            #if CHECKPOINT_COLLECTOR
-                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
-                            #endif
-
-                        }
-
-                    }
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.EndSample();
-                    #endif
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPre", WorldStep.LogicTick);
-                    #endif
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickFilters", WorldStep.LogicTick);
-                    #endif
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [AdvanceTickFilters]");
-                    #endif
-
-                    for (int i = 0, count = this.systemGroupsLength; i < count; ++i) {
-
-                        ref var group = ref this.systemGroups.arr[i];
-                        if (group.runtimeSystem.systemAdvanceTick == null) continue;
-                        for (int j = 0; j < group.runtimeSystem.systemAdvanceTick.Count; ++j) {
-
-                            ref var systemBase = ref group.runtimeSystem.systemAdvanceTick[j];
-                            if (systemBase is IAdvanceTickStep step && step.step % state.tick != 0) continue;
-
-                            if (systemBase is ISystemFilter system) {
-
-                                this.currentSystemContextFilter = system;
-
-                                #if CHECKPOINT_COLLECTOR
-                                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
-                                #endif
-
-                                #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.BeginSample($"PrepareAdvanceTickForSystem");
-                                #endif
-
-                                this.PrepareAdvanceTickForSystem(system);
-
-                                #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.EndSample();
-                                #endif
-
-                                #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.BeginSample(system.GetType().FullName);
-                                #endif
-
-                                {
-
-                                    /*if (sysFilter is IAdvanceTickBurst advTick) {
-    
-                                        // Under the development process
-                                        // This should not used right now
-                                        
-                                        var functionPointer = Unity.Burst.BurstCompiler.CompileFunctionPointer(advTick.GetAdvanceTickForBurst());
-                                        var arrEntities = sysFilter.filter.GetArray();
-                                        using (var arr = new Unity.Collections.NativeArray<Entity>(arrEntities.arr, Unity.Collections.Allocator.TempJob)) {
-    
-                                            var length = arrEntities.Length;
-                                            var burstWorldStructComponentsAccess = new BurstWorldStructComponentsAccess();
-                                            unsafe {
-    
-                                                var bws = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AddressOf(ref burstWorldStructComponentsAccess);
-                                                PoolArray<Entity>.Recycle(ref arrEntities);
-                                                var job = new ForeachFilterJobBurst() {
-                                                    deltaTime = fixedDeltaTime,
-                                                    entities = arr,
-                                                    function = functionPointer,
-                                                    bws = bws
-                                                };
-                                                var jobHandle = job.Schedule(length, sysFilter.jobsBatchCount);
-                                                jobHandle.Complete();
-                                                
-                                            }
-    
-                                        }
-                                        
-                                    }*/
-
-                                    system.filter = (system.filter.IsAlive() == true ? system.filter : system.CreateFilter());
-                                    if (system.filter.IsAlive() == true) {
-
-                                        if (this.settings.useJobsForSystems == true && system.jobs == true) {
-
-                                            var arrEntities = this.currentState.storage.cache.arr;
-                                            system.filter.GetBounds(out var min, out var max);
-                                            if (min > max) {
-
-                                                min = 0;
-                                                max = -1;
-
-                                            }
-
-                                            if (min < 0) min = 0;
-                                            ++max;
-                                            if (max >= arrEntities.Length) max = arrEntities.Length - 1;
-
-                                            if (min < max) {
-
-                                                var filter = this.GetFilter(system.filter.id);
-                                                var arr = new Unity.Collections.NativeArray<Entity>(arrEntities, Unity.Collections.Allocator.TempJob);
-                                                var arrContains = new Unity.Collections.NativeArray<bool>(filter.dataContains.arr, Unity.Collections.Allocator.TempJob);
-                                                var arrVersions = (filter.onVersionChangedOnly == true
-                                                                       ? new Unity.Collections.NativeArray<bool>(filter.dataVersions.arr, Unity.Collections.Allocator.TempJob)
-                                                                       : default);
-
-                                                var length = max - min;
-                                                var job = new ForeachFilterJob() {
-                                                    deltaTime = fixedDeltaTime,
-                                                    slice = new Unity.Collections.NativeSlice<Entity>(arr, min, max - min),
-                                                    dataContains = arrContains,
-                                                    dataVersions = arrVersions,
-                                                };
-                                                var jobHandle = job.Schedule(length, system.jobsBatchCount);
-                                                jobHandle.Complete();
-
-                                                arr.Dispose();
-                                                arrContains.Dispose();
-                                                if (arrVersions.IsCreated == true) arrVersions.Dispose();
-
-                                                filter.UseVersioned();
-
-                                            }
-
-                                        } else {
-
-                                            foreach (var entity in system.filter) {
-
-                                                system.AdvanceTick(in entity, fixedDeltaTime);
-
-                                            }
-
-                                        }
-
-                                    }
-
-                                }
-
-                                #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.EndSample();
-                                #endif
-
-                                #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.BeginSample($"PostAdvanceTickForSystem");
-                                #endif
-
-                                this.PostAdvanceTickForSystem();
-
-                                #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.EndSample();
-                                #endif
-
-                                #if CHECKPOINT_COLLECTOR
-                                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
-                                #endif
-
-                            } else if (systemBase is IAdvanceTick advanceTickSystem) {
-
-                                #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.BeginSample($"PrepareAdvanceTickForSystem");
-                                #endif
-
-                                this.PrepareAdvanceTickForSystem(advanceTickSystem);
-
-                                #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.EndSample();
-                                #endif
-
-                                #if CHECKPOINT_COLLECTOR
-                                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(advanceTickSystem, WorldStep.LogicTick);
-                                #endif
-
-                                #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.BeginSample($"AdvanceTick");
-                                #endif
-
-                                advanceTickSystem.AdvanceTick(fixedDeltaTime);
-
-                                #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.EndSample();
-                                #endif
-
-                                #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.BeginSample($"PostAdvanceTickForSystem");
-                                #endif
-
-                                this.PostAdvanceTickForSystem();
-
-                                #if UNITY_EDITOR
-                                UnityEngine.Profiling.Profiler.EndSample();
-                                #endif
-
-                                #if CHECKPOINT_COLLECTOR
-                                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(advanceTickSystem, WorldStep.LogicTick);
-                                #endif
-                            }
-
-                        }
-
-                    }
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.EndSample();
-                    #endif
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickFilters", WorldStep.LogicTick);
-                    #endif
-
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPost", WorldStep.LogicTick);
-                    #endif
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.BeginSample($"LogicTick [AdvanceTickPost]");
-                    #endif
-
-                    for (int i = 0, count = this.systemGroupsLength; i < count; ++i) {
-
-                        ref var group = ref this.systemGroups.arr[i];
-                        if (group.runtimeSystem.systemAdvanceTickPost == null) continue;
-                        for (int j = 0; j < group.runtimeSystem.systemAdvanceTickPost.Count; ++j) {
-
-                            ref var system = ref group.runtimeSystem.systemAdvanceTickPost[j];
-                            if (system is IAdvanceTickStep step && step.step % state.tick != 0) continue;
-
-                            #if CHECKPOINT_COLLECTOR
-                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
-                            #endif
-
-                            #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.BeginSample(system.GetType().FullName);
-                            #endif
-
-                            system.AdvanceTickPost(fixedDeltaTime);
-
-                            #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.EndSample();
-                            #endif
-
-                            #if CHECKPOINT_COLLECTOR
-                            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
-                            #endif
-
-                        }
-
-                    }
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.EndSample();
-                    #endif
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("AdvanceTickPost", WorldStep.LogicTick);
-                    #endif
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.LogicTick);
-                    #endif
-
-                }
-                ////////////////
-                this.currentStep &= ~WorldStep.SystemsLogicTick;
-                ////////////////
-
-                #if UNITY_EDITOR
-                UnityEngine.Profiling.Profiler.BeginSample($"UseLifetimeStep NotifyAllSystemsBelow");
-                #endif
-
-                this.UseLifetimeStep(ComponentLifetime.NotifyAllSystemsBelow);
-
-                #if UNITY_EDITOR
-                UnityEngine.Profiling.Profiler.EndSample();
-                #endif
-
-                #if UNITY_EDITOR
-                UnityEngine.Profiling.Profiler.BeginSample($"ProcessGlobalEvents [Logic]");
-                #endif
-
-                this.ProcessGlobalEvents(GlobalEventType.Logic);
-
-                #if UNITY_EDITOR
-                UnityEngine.Profiling.Profiler.EndSample();
-                #endif
-
-                ////////////////
-                this.currentStep |= WorldStep.PluginsLogicTick;
-                ////////////////
-                {
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTickPost", WorldStep.None);
-                    #endif
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.BeginSample($"PlayPluginsForTickPost");
-                    #endif
-
-                    this.PlayPluginsForTickPost(state.tick);
-
-                    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.EndSample();
-                    #endif
-
-                    #if CHECKPOINT_COLLECTOR
-                    if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTickPost", WorldStep.None);
-                    #endif
-
-                }
-                ////////////////
-                this.currentStep &= ~WorldStep.PluginsLogicTick;
-                ////////////////
-
-                #if UNITY_EDITOR
-                UnityEngine.Profiling.Profiler.EndSample();
-                #endif
+                this.RunTick(state.tick, fixedDeltaTime);
 
             }
 

@@ -1481,6 +1481,30 @@ namespace ME.ECSEditor {
 
                                         }
                                         GUILayout.EndVertical();
+                                        
+                                        GUILayout.BeginVertical();
+                                        {
+                                            GUILayoutExt.DrawHeader("Current");
+                                            foreach (var ent in storage.cache) {
+                                                GUILayoutExt.DataLabel(ent.ToString());
+                                            }
+                                            
+                                            GUILayoutExt.DrawHeader("Dead");
+                                            foreach (var ent in storage.dead) {
+                                                GUILayoutExt.DataLabel(ent.ToString());
+                                            }
+                                            
+                                            GUILayoutExt.DrawHeader("Dead (Prepared)");
+                                            foreach (var ent in storage.deadPrepared) {
+                                                GUILayoutExt.DataLabel(ent.ToString());
+                                            }
+                                            
+                                            GUILayoutExt.DrawHeader("Alive");
+                                            foreach (var ent in storage.alive) {
+                                                GUILayoutExt.DataLabel(ent.ToString());
+                                            }
+                                        }
+                                        GUILayout.EndVertical();
 
                                     });
 

@@ -67,6 +67,9 @@ namespace ME.ECS.Network {
 
     public interface INetworkModuleBase : IModuleBase {
 
+        void SetAsyncMode(bool state);
+        void SetInvalidateEntriesAfterTargetTick(bool state);
+
         void LoadHistoryStorage(ME.ECS.StatesHistory.HistoryStorage storage);
 
         void SetTransporter(ITransporter transporter);
@@ -152,7 +155,13 @@ namespace ME.ECS.Network {
         private bool isReverting;
         private Tick revertingTo;
 
+        private bool asyncMode;
+        private bool invalidateEntriesAfterTargetTick;
+
         void IModuleBase.OnConstruct() {
+
+            this.invalidateEntriesAfterTargetTick = true;
+            this.asyncMode = false;
 
             this.localOrderIndex = 0;
             this.rpcId = 0;
@@ -688,6 +697,18 @@ namespace ME.ECS.Network {
 
         }
 
+        public void SetAsyncMode(bool state) {
+            
+            this.asyncMode = state;
+            
+        }
+
+        public void SetInvalidateEntriesAfterTargetTick(bool state) {
+            
+            this.invalidateEntriesAfterTargetTick = state;
+            
+        }
+
         protected virtual void ApplyTicksByState() {
 
             var tick = this.world.GetCurrentTick();
@@ -697,7 +718,7 @@ namespace ME.ECS.Network {
             var currentTargetTick = targetTick;
             var oldestEventTick = this.statesHistoryModule.GetAndResetOldestTick(tick);
             //UnityEngine.Debug.LogError("Tick: " + tick + ", timeSinceGameStart: " + timeSinceGameStart + ", targetTick: " + targetTick + ", oldestEventTick: " + oldestEventTick);
-            if (oldestEventTick == Tick.Invalid || oldestEventTick >= tick) {
+            if (this.invalidateEntriesAfterTargetTick == true && (oldestEventTick == Tick.Invalid || oldestEventTick >= tick)) {
 
                 // No events found
                 this.world.SetFromToTicks(tick, targetTick);
@@ -710,13 +731,19 @@ namespace ME.ECS.Network {
             var sourceState = this.statesHistoryModule.GetStateBeforeTick(oldestEventTick, out var sourceTick);
             if (sourceState == null) {
 
+                if (this.invalidateEntriesAfterTargetTick == false && (oldestEventTick == Tick.Invalid || oldestEventTick >= tick)) {
+
+                    this.world.SetFromToTicks(tick, targetTick);
+                    return;
+
+                }
                 sourceState = this.world.GetResetState<TState>();
                 //if (targetTick < tick) targetTick = tick;
 
             }
             //UnityEngine.Debug.LogWarning("Rollback. Oldest: " + oldestEventTick + ", sourceTick: " + sourceTick + ", targetTick: " + targetTick);
 
-            this.statesHistoryModule.InvalidateEntriesAfterTick(sourceTick);
+            if (this.invalidateEntriesAfterTargetTick == true) this.statesHistoryModule.InvalidateEntriesAfterTick(sourceTick);
 
             // Applying old state.
             this.isReverting = true;
@@ -725,11 +752,19 @@ namespace ME.ECS.Network {
                 this.revertingTo = currentState.tick;
                 currentState.CopyFrom(sourceState);
                 currentState.Initialize(this.world, freeze: false, restore: true);
-                this.world.Simulate(sourceTick + 1, targetTick);
+                if (this.asyncMode == false) this.world.Simulate(sourceTick + 1, targetTick);
             }
             this.isReverting = false;
 
-            this.world.SetFromToTicks(targetTick, currentTargetTick);
+            if (this.asyncMode == true) {
+                
+                this.world.SetFromToTicks(sourceTick + 1, currentTargetTick);
+                
+            } else {
+
+                this.world.SetFromToTicks(targetTick, currentTargetTick);
+
+            }
 
         }
 

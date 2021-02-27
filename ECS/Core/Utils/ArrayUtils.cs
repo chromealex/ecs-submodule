@@ -167,6 +167,34 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void Copy<T>(HashSetCopyable<T> fromArr, ref HashSetCopyable<T> arr) where T : struct {
+
+            if (fromArr == null) {
+
+                if (arr != null) {
+
+                    PoolHashSetCopyable<T>.Recycle(ref arr);
+
+                }
+
+                arr = null;
+                return;
+
+            }
+
+            if (arr == null) {
+
+                arr = PoolHashSetCopyable<T>.Spawn(fromArr.Count);
+
+            }
+
+            arr.CopyFrom(fromArr);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T>(ListCopyable<T> fromArr, ref ListCopyable<T> arr) where T : struct {
 
             if (fromArr == null) {

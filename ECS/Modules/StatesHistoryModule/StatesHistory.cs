@@ -227,6 +227,25 @@
 
         }
 
+        public State GetLatestState() {
+
+            State state = null;
+            var maxTick = Tick.Zero;
+            foreach (var entry in this.entries) {
+
+                if (entry.tick >= maxTick && entry.isEmpty == false) {
+
+                    state = entry.state;
+                    maxTick = entry.tick;
+
+                }
+                
+            }
+            
+            return state;
+
+        }
+
         public State GetOldestState() {
 
             State state = null;
