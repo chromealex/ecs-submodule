@@ -1111,14 +1111,10 @@ namespace ME.ECS {
 
                 filtersRef = PoolClass<FiltersStorage>.Spawn();
                 filtersRef.Initialize(capacity);
-                filtersRef.SetFreeze(freeze);
-
-            } else {
-
-                filtersRef.SetFreeze(freeze);
 
             }
-
+            filtersRef.SetFreeze(freeze);
+            
             if (freeze == false) {
 
                 //this.filtersStorage = filtersRef;
