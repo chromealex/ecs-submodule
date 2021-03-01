@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+
 using UnityEngine;
 
 namespace ME.ECS.Pathfinding {
@@ -15,14 +16,28 @@ namespace ME.ECS.Pathfinding {
         public const int DEFAULT_COLLISION_LAYER = 1 << 0;
         public const int DEFAULT_COLLISION_MASK = -1;
 
+        public static readonly SimulationConfig defaultSimulationConfig = new SimulationConfig {
+            collisionDumping = DEFAULT_COLLISION_DUMPING,
+            dynamicDumping = DEFAULT_DYNAMIC_DUMPING,
+            substeps = 1
+        };
+
         internal struct CollisionManifold {
 
-            public int a;
-            public int b;
+            public Entity a;
+            public Entity b;
 
             public Vector2 normal;
             public float depth;
 
+        }
+
+        [System.Serializable]
+        public struct SimulationConfig {
+            public float collisionDumping;
+            public float dynamicDumping;
+
+            public int substeps;
         }
 
         public struct Body : IStructComponent {
@@ -37,7 +52,7 @@ namespace ME.ECS.Pathfinding {
             public int layer;
             public int collisionMask;
 
-            public uint pushLayer;
+            public int pushLayer;
 
         }
 
@@ -52,100 +67,145 @@ namespace ME.ECS.Pathfinding {
             return new Body { position = position, velocity = velocity, radius = radius, mass = mass, layer = MotionSolver.DEFAULT_COLLISION_LAYER, collisionMask = MotionSolver.DEFAULT_COLLISION_MASK };
         }
 
-        public static void Step(ME.ECS.Collections.BufferArray<Body> bodies, float deltaTime,
-                                float collisionDumping = MotionSolver.DEFAULT_COLLISION_DUMPING,
-                                float dynamicDumping = MotionSolver.DEFAULT_DYNAMIC_DUMPING) {
+        public static void Step(Filter bodies, float deltaTime, in SimulationConfig config) {
 
-            MotionSolver.Step(bodies, ME.ECS.Collections.BufferArray<Obstacle>.Empty, deltaTime, collisionDumping, dynamicDumping);
+            MotionSolver.Step(bodies, Filter.Empty, deltaTime, config);
         }
 
-        public static void Step(ME.ECS.Collections.BufferArray<Body> bodies, ME.ECS.Collections.BufferArray<Obstacle> obstacles, float deltaTime,
-                                float collisionDumping = MotionSolver.DEFAULT_COLLISION_DUMPING,
-                                float dynamicDumping = MotionSolver.DEFAULT_DYNAMIC_DUMPING) {
+        public static void Step(Filter bodies, Filter obstacles, float deltaTime, in SimulationConfig config) {
+
             MotionSolver.bodyVsBodyCollisionsBuffer.Clear();
             MotionSolver.bodyVsObstacleCollisionsBuffer.Clear();
 
-            for (var i = 0; i < bodies.Length; i++) {
-                ref var body = ref bodies.arr[i];
-                if (body.isStatic == false) {
-                    body.position += body.velocity * deltaTime;
-                }
+            int bodyMin = 0, bodyMax = -1, obstacleMin = 0, obstacleMax = -1;
+
+            if (bodies.IsAlive() == true && bodies.Count > 0) {
+                bodies.GetBounds(out bodyMin, out bodyMax);
             }
 
-            for (var i = 0; i < bodies.Length; i++) {
-                ref var a = ref bodies.arr[i];
+            if (obstacles.IsAlive() == true && obstacles.Count > 0) {
+                obstacles.GetBounds(out obstacleMin, out obstacleMax);
+            }
 
-                for (int m = 0; m < obstacles.Length; m++) {
-                    ref var b = ref obstacles.arr[m];
+            var world = Worlds.currentWorld;
 
-                    var difference = a.position - b.position;
-                    var closest = new Vector2(b.position.x + Mathf.Clamp(difference.x, -b.extents.x, b.extents.x), b.position.y + Mathf.Clamp(difference.y, -b.extents.y, b.extents.y));
-                    difference = closest - a.position;
+            var substepDeltaTime = deltaTime / (float)config.substeps;
 
-                    if (difference.sqrMagnitude < a.radius * a.radius) {
-                        var distance = difference.magnitude;
-                        var normal = distance > 0f ? difference / distance : Vector2.right;
-                        var depth = Mathf.Abs(distance - a.radius);
+            for (int substep = 0; substep < config.substeps; substep++) {
+                for (var i = bodyMin; i <= bodyMax; i++) {
+                    ref var entity = ref world.GetEntityById(i);
 
-                        MotionSolver.bodyVsObstacleCollisionsBuffer.Add(new CollisionManifold { a = i, b = m, depth = depth, normal = normal });
+                    if (entity.IsEmpty() == false) {
+                        ref var body = ref entity.GetData<Body>(createIfNotExists: false);
+                        if (body.isStatic == false) {
+                            body.position += body.velocity * substepDeltaTime;
+                        }
                     }
                 }
 
-                for (var j = i + 1; j < bodies.Length; j++) {
-                    ref var b = ref bodies.arr[j];
+                for (var i = bodyMin; i <= bodyMax; i++) {
+                    ref var entityA = ref world.GetEntityById(i);
 
-                    if ((a.collisionMask & b.layer) == 0 && (b.layer & a.collisionMask) == 0) {
+                    if (entityA.IsEmpty() == true) {
                         continue;
                     }
 
-                    var collisionDistance = a.radius + b.radius;
-                    var collisionDistanceSqr = collisionDistance * collisionDistance;
-                    var difference = b.position - a.position;
+                    ref var a = ref entityA.GetData<Body>(createIfNotExists: false);
 
-                    if (difference.sqrMagnitude < collisionDistanceSqr) {
-                        var distance = difference.magnitude;
-                        var normal = distance > 0f ? difference / distance : Vector2.right;
-                        var depth = Mathf.Abs(distance - collisionDistance);
+                    for (int m = obstacleMin; m <= obstacleMax; m++) {
+                        ref var entityB = ref world.GetEntityById(m);
 
-                        MotionSolver.bodyVsBodyCollisionsBuffer.Add(new CollisionManifold { a = i, b = j, depth = depth, normal = normal });
+                        if (entityB.IsEmpty() == true) {
+                            continue;
+                        }
+
+                        ref var b = ref entityB.GetData<Obstacle>(createIfNotExists: false);
+
+                        var difference = a.position - b.position;
+                        var closest = new Vector2(b.position.x + Mathf.Clamp(difference.x, -b.extents.x, b.extents.x), b.position.y + Mathf.Clamp(difference.y, -b.extents.y, b.extents.y));
+                        difference = closest - a.position;
+
+                        if (difference.sqrMagnitude < a.radius * a.radius) {
+                            var distance = difference.magnitude;
+                            var normal = distance > 0f ? difference / distance : Vector2.right;
+                            var depth = Mathf.Abs(distance - a.radius);
+
+                            MotionSolver.bodyVsObstacleCollisionsBuffer.Add(new CollisionManifold { a = entityA, b = entityB, depth = depth, normal = normal });
+                        }
+                    }
+
+                    for (var j = i + 1; j <= bodyMax; j++) {
+
+                        ref var entityB = ref world.GetEntityById(j);
+
+                        if (entityB.IsEmpty() == true) {
+                            continue;
+                        }
+
+                        ref var b = ref entityB.GetData<Body>(createIfNotExists: false);
+
+                        if ((a.collisionMask & b.layer) == 0 && (b.layer & a.collisionMask) == 0) {
+                            continue;
+                        }
+
+                        var collisionDistance = a.radius + b.radius;
+                        var collisionDistanceSqr = collisionDistance * collisionDistance;
+                        var difference = b.position - a.position;
+
+                        if (difference.sqrMagnitude < collisionDistanceSqr) {
+                            var distance = difference.magnitude;
+                            var normal = distance > 0f ? difference / distance : Vector2.right;
+                            var depth = Mathf.Abs(distance - collisionDistance);
+
+                            MotionSolver.bodyVsBodyCollisionsBuffer.Add(new CollisionManifold { a = entityA, b = entityB, depth = depth, normal = normal });
+                        }
                     }
                 }
-            }
 
-            for (var i = 0; i < MotionSolver.bodyVsBodyCollisionsBuffer.Count; i++) {
-                var c = MotionSolver.bodyVsBodyCollisionsBuffer[i];
-                ref var a = ref bodies.arr[c.a];
-                ref var b = ref bodies.arr[c.b];
+                for (var i = 0; i < MotionSolver.bodyVsBodyCollisionsBuffer.Count; i++) {
+                    var c = MotionSolver.bodyVsBodyCollisionsBuffer[i];
+                    ref var a = ref c.a.GetData<Body>(createIfNotExists: false);
+                    ref var b = ref c.b.GetData<Body>(createIfNotExists: false);
 
-                MotionSolver.ResolveCollision(ref a, ref b, c.depth, c.normal, collisionDumping);
-            }
-
-            for (var i = 0; i < MotionSolver.bodyVsObstacleCollisionsBuffer.Count; i++) {
-                var c = MotionSolver.bodyVsObstacleCollisionsBuffer[i];
-                ref var a = ref bodies.arr[c.a];
-                ref var b = ref obstacles.arr[c.b];
-
-                MotionSolver.ResolveCollision(ref a, ref b, c.depth, c.normal, collisionDumping);
-            }
-
-            if (dynamicDumping > 0f) {
-                var velocityDumping = Mathf.Pow(dynamicDumping, deltaTime);
-
-                for (var i = 0; i < bodies.Length; i++) {
-                    ref var body = ref bodies.arr[i];
-                    body.velocity *= velocityDumping;
+                    MotionSolver.ResolveCollision(ref a, ref b, c.depth, c.normal, config.collisionDumping);
                 }
-            }
+
+                for (var i = 0; i < MotionSolver.bodyVsObstacleCollisionsBuffer.Count; i++) {
+                    var c = MotionSolver.bodyVsObstacleCollisionsBuffer[i];
+                    ref var a = ref c.a.GetData<Body>(createIfNotExists: false);
+                    ref var b = ref c.b.GetData<Obstacle>(createIfNotExists: false);
+
+                    MotionSolver.ResolveCollision(ref a, ref b, c.depth, c.normal, config.collisionDumping);
+                }
+
+                if (config.dynamicDumping > 0f) {
+                    var velocityDumping = Mathf.Pow(config.dynamicDumping, substepDeltaTime);
+
+                    for (var i = bodyMin; i <= bodyMax; i++) {
+                        ref var entity = ref world.GetEntityById(i);
+
+                        if (entity.IsEmpty() == false) {
+                            ref var body = ref entity.GetData<Body>(createIfNotExists: false);
+                            body.velocity *= velocityDumping;
+                        }
+                    }
+                }
+            } 
         }
 
         private static void ResolveCollision(ref Body a, ref Body b, float depth, Vector2 normal, float collisionDumping) {
-            var pushAllow = (a.pushLayer == b.pushLayer);
-            if (pushAllow == false) {
-                return;
-            } else if (a.isStatic == true) {
+
+            if (a.isStatic == true) {
                 b.position += depth * normal;
             } else if (b.isStatic == true) {
                 a.position -= depth * normal;
+            } else if (a.pushLayer != b.pushLayer) {
+                if (a.velocity.sqrMagnitude > b.velocity.sqrMagnitude) {
+                    a.position -= depth * normal;
+                } else {
+                    b.position += depth * normal;
+                }
+                return;
             } else {
                 var displace = 0.5f * depth * normal;
 
