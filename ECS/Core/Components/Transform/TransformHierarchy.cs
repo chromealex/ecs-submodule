@@ -13,11 +13,38 @@ namespace ME.ECS {
         #endif
         public static void OnEntityDestroy(in Entity entity) {
 
+            if (entity.HasData<Container>() == true) {
+                
+                entity.SetParent(in Entity.Empty);
+                
+            }
+            
             if (entity.HasData<Childs>() == true) {
 
+                // TODO: Possible stack overflow while using Clear(true) because of OnEntityDestroy call
                 ref var childs = ref entity.GetData<Childs>();
                 childs.childs.Clear(destroyData: true);
 
+            }
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void OnEntityVersionChanged(in Entity entity) {
+
+            if (entity.HasData<Childs>() == true) {
+
+                var world = Worlds.currentWorld;
+                ref readonly var childs = ref entity.ReadData<Childs>();
+                foreach (var item in childs.childs) {
+
+                    // TODO: Possible stack overflow while using IncrementEntityVersion because of OnEntityVersionChanged call
+                    world.IncrementEntityVersion(in item);
+
+                }
+                
             }
 
         }

@@ -675,6 +675,15 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public float GetTimeFromTick(Tick tick) {
+
+            return (float)tick * this.tickTime;
+
+        }
+
         public enum RewindAsyncState {
 
             CacheBackwardRewind,
@@ -1494,32 +1503,14 @@ namespace ME.ECS {
 
         }
 
-        /*public bool HasEntity<TEntity>(int entityId) where TEntity : struct, IEntity {
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void OnEntityVersionChanged(in Entity entity) {
             
-            var key = MathUtils.GetKey(this.id, entityId);
-            return EntitiesDirectCache<TState, TEntity>.dataByint.ContainsKey(key);
-
-        }*/
-
-        /*public void RemoveEntities<TEntity>(TEntity data) where TEntity : struct, IEntity {
-
-            var key = MathUtils.GetKey(this.id, data.entity.id);
-            if (EntitiesDirectCache<TState, TEntity>.dataByint.Remove(key) == true) {
-
-                this.RemoveFromFilters(data);
-                
-                RefList<TEntity> listEntities;
-                if (EntitiesDirectCache<TState, TEntity>.entitiesList.TryGetValue(this.id, out listEntities) == true) {
-                
-                    this.DestroyEntityPlugins<TEntity>(data.entity);
-                    listEntities.Remove(data);
-                    this.RemoveComponents(data.entity);
-
-                }
-
-            }
-
-        }*/
+            ECSTransformHierarchy.OnEntityVersionChanged(in entity);
+            
+        }
 
         public bool RemoveEntity(in Entity entity) {
 

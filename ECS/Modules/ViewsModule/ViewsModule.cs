@@ -872,7 +872,7 @@ namespace ME.ECS.Views {
                 } else {
 
                     // If entity is alive - check if view has changed
-                    var view = currentViewInstance.entity.GetData<ViewComponent>(createIfNotExists: false);
+                    ref readonly var view = ref currentViewInstance.entity.ReadData<ViewComponent>();
                     if (currentViewInstance.prefabSourceId != view.viewInfo.prefabSourceId) {
 
                         // Destroy current view
@@ -892,7 +892,7 @@ namespace ME.ECS.Views {
                 ref var entityId = ref allEntities[j];
 
                 var ent = this.world.GetEntityById(entityId);
-                var view = ent.GetData<ViewComponent>(createIfNotExists: false);
+                ref readonly var view = ref ent.ReadData<ViewComponent>();
                 if (view.viewInfo.entity != Entity.Empty) {
 
                     if (this.IsRenderingNow(in view.viewInfo) == true) {

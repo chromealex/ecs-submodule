@@ -85,6 +85,8 @@ namespace ME.ECS {
             unchecked {
                 ++this.values.arr[entity.id];
             }
+            
+            Worlds.currentWorld.OnEntityVersionChanged(in entity);
 
         }
 

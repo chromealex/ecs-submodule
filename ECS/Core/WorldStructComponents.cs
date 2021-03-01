@@ -1247,6 +1247,12 @@ namespace ME.ECS {
 
         partial void OnRecycleStructComponents() { }
 
+        public void IncrementEntityVersion(in Entity entity) {
+
+            this.currentState.storage.versions.Increment(in entity);
+            
+        }
+
         partial void SetEntityCapacityPlugin1(int capacity) {
 
             this.currentState.structComponents.SetEntityCapacity(capacity);
