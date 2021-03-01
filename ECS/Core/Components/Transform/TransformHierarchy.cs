@@ -40,8 +40,9 @@ namespace ME.ECS {
                 ref readonly var childs = ref entity.ReadData<Childs>();
                 foreach (var item in childs.childs) {
 
-                    // TODO: Possible stack overflow while using IncrementEntityVersion because of OnEntityVersionChanged call
                     world.IncrementEntityVersion(in item);
+                    // TODO: Possible stack overflow while using OnEntityVersionChanged call
+                    world.OnEntityVersionChanged(in item);
 
                 }
                 

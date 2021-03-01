@@ -86,8 +86,6 @@ namespace ME.ECS {
                 ++this.values.arr[entity.id];
             }
             
-            Worlds.currentWorld.OnEntityVersionChanged(in entity);
-
         }
 
         #if INLINE_METHODS
