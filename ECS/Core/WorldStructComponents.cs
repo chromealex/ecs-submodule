@@ -167,7 +167,7 @@ namespace ME.ECS {
         #endif
         public override void Merge() {
 
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.components = this.components.Merge();
+            if (AllComponentTypes<TComponent>.isTag == false) this.components = this.components.Merge();
 
         }
 
@@ -232,7 +232,7 @@ namespace ME.ECS {
                 if (entity.generation == 0) return;
 
                 state = 0;
-                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.components[id] = default;
+                if (AllComponentTypes<TComponent>.isTag == false) this.components[id] = default;
                 if (world.currentState.filters.HasInAnyFilter<TComponent>() == true) {
 
                     world.currentState.storage.archetypes.Remove<TComponent>(in entity);
@@ -255,7 +255,7 @@ namespace ME.ECS {
         public override bool Validate(int capacity) {
 
             var result = false;
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) {
+            if (AllComponentTypes<TComponent>.isTag == false) {
 
                 if (ArrayUtils.Resize(capacity, ref this.components) == true) {
 
@@ -285,7 +285,7 @@ namespace ME.ECS {
 
             var result = false;
             var index = entity.id;
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) {
+            if (AllComponentTypes<TComponent>.isTag == false) {
 
                 if (ArrayUtils.Resize(index, ref this.components) == true) {
 
@@ -336,7 +336,7 @@ namespace ME.ECS {
             var bucketState = this.componentsStates.arr[index];
             if (bucketState > 0) {
 
-                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) {
+                if (AllComponentTypes<TComponent>.isTag == false) {
 
                     var bucket = this.components[index];
                     return bucket;
@@ -366,7 +366,7 @@ namespace ME.ECS {
             //var bucketId = this.GetBucketId(in entity.id, out var index);
             var index = entity.id;
             //this.CheckResize(in index);
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) {
+            if (AllComponentTypes<TComponent>.isTag == false) {
 
                 ref var bucket = ref this.components[index];
                 bucket = (TComponent)data;
@@ -378,7 +378,7 @@ namespace ME.ECS {
 
                 bucketState = 1;
 
-                var componentIndex = WorldUtilities.GetComponentTypeId<TComponent>();
+                var componentIndex = ComponentTypes<TComponent>.typeId;
                 if (this.world.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
 
                 return true;
@@ -405,10 +405,10 @@ namespace ME.ECS {
             ref var bucketState = ref this.componentsStates.arr[index];
             if (bucketState > 0) {
 
-                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.RemoveData(in entity);
+                if (AllComponentTypes<TComponent>.isTag == false) this.RemoveData(in entity);
                 bucketState = 0;
 
-                var componentIndex = WorldUtilities.GetComponentTypeId<TComponent>();
+                var componentIndex = ComponentTypes<TComponent>.typeId;
                 if (this.world.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
 
                 return true;
@@ -467,7 +467,7 @@ namespace ME.ECS {
             ref var bucketState = ref this.componentsStates.arr[index];
             if (bucketState > 0) {
 
-                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.RemoveData(in entity);
+                if (AllComponentTypes<TComponent>.isTag == false) this.RemoveData(in entity);
                 bucketState = 0;
 
                 if (clearAll == true) {
@@ -504,7 +504,7 @@ namespace ME.ECS {
             }
 
             this.componentsStates.arr[to.id] = this.componentsStates.arr[from.id];
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) this.components[to.id] = this.components[from.id];
+            if (AllComponentTypes<TComponent>.isTag == false) this.components[to.id] = this.components[from.id];
             if (this.componentsStates.arr[from.id] > 0) {
 
                 if (this.world.currentState.filters.HasInAnyFilter<TComponent>() == true) this.world.currentState.storage.archetypes.Set<TComponent>(in to);
@@ -522,7 +522,7 @@ namespace ME.ECS {
             var _other = (StructComponents<TComponent>)other;
             ArrayUtils.Copy(in _other.componentsStates, ref this.componentsStates);
             ArrayUtils.Copy(_other.lifetimeIndexes, ref this.lifetimeIndexes);
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) ArrayUtils.Copy(in _other.components, ref this.components);
+            if (AllComponentTypes<TComponent>.isTag == false) ArrayUtils.Copy(in _other.components, ref this.components);
 
         }
 
@@ -595,8 +595,7 @@ namespace ME.ECS {
             var _other = (StructComponents<TComponent>)other;
             ArrayUtils.Copy(in _other.componentsStates, ref this.componentsStates);
             ArrayUtils.Copy(_other.lifetimeIndexes, ref this.lifetimeIndexes);
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == false)
-                ArrayUtils.CopyWithIndex(_other.components, ref this.components, new CopyItem() { states = _other.componentsStates });
+            if (AllComponentTypes<TComponent>.isTag == false) ArrayUtils.CopyWithIndex(_other.components, ref this.components, new CopyItem() { states = _other.componentsStates });
 
         }
 
@@ -1295,9 +1294,9 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public ref 
-            #if UNITY_EDITOR
+            //#if UNITY_EDITOR
             readonly
-            #endif
+            //#endif
             TComponent ReadSharedData<TComponent>() where TComponent : struct, IStructComponent {
 
             return ref this.ReadData<TComponent>(in this.sharedEntity);
@@ -1358,206 +1357,6 @@ namespace ME.ECS {
         public void ValidateDataCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
 
             this.currentState.structComponents.ValidateCopyable<TComponent>(in entity, isTag);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public bool HasData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            return ((StructComponents<TComponent>)this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()]).componentsStates.arr[entity.id] > 0;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public ref 
-            #if UNITY_EDITOR
-            readonly
-            #endif
-            TComponent ReadData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            // Inline all manually
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == true) return ref reg.emptyComponent;
-            return ref reg.components[entity.id];
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public ref TComponent GetData<TComponent>(in Entity entity, bool createIfNotExists = true) where TComponent : struct, IStructComponent {
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            // Inline all manually
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
-            ref var state = ref reg.componentsStates.arr[entity.id];
-            var incrementVersion = (this.HasStep(WorldStep.LogicTick) == true || this.HasResetState() == false);
-            if (state == 0 && createIfNotExists == true) {
-
-                #if WORLD_EXCEPTIONS
-                if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                    OutOfStateException.ThrowWorldStateCheck();
-
-                }
-                #endif
-
-                incrementVersion = true;
-                state = 1;
-                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
-
-                    this.currentState.storage.archetypes.Set<TComponent>(in entity);
-                    this.UpdateFilterByStructComponent<TComponent>(in entity);
-
-                }
-
-                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
-                #if ENTITY_ACTIONS
-                this.RaiseEntityActionOnAdd<TComponent>(in entity);
-                #endif
-
-            }
-
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == true) return ref reg.emptyComponent;
-            if (incrementVersion == true) {
-
-                this.currentState.storage.versions.Increment(in entity);
-                this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-
-            }
-
-            return ref reg.components[entity.id];
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public ref byte SetData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
-
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            // Inline all manually
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) reg.RemoveData(in entity);
-            ref var state = ref reg.componentsStates.arr[entity.id];
-            if (state == 0) {
-
-                state = 1;
-                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
-
-                    this.currentState.storage.archetypes.Set<TComponent>(in entity);
-                    this.UpdateFilterByStructComponent<TComponent>(in entity);
-
-                }
-
-                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
-
-            }
-            #if ENTITY_ACTIONS
-            this.RaiseEntityActionOnAdd<TComponent>(in entity);
-            #endif
-            this.currentState.storage.versions.Increment(in entity);
-            this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-
-            return ref state;
-
-        }
-
-        /// <summary>
-        /// Lifetime default is Infinite
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="data"></param>
-        /// <typeparam name="TComponent"></typeparam>
-        /// <returns></returns>
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public ref byte SetData<TComponent>(in Entity entity, in TComponent data) where TComponent : struct, IStructComponent {
-
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            // Inline all manually
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
-            if (WorldUtilities.IsComponentAsTag<TComponent>() == false) reg.components[entity.id] = data;
-            ref var state = ref reg.componentsStates.arr[entity.id];
-            if (state == 0) {
-
-                state = 1;
-                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
-
-                    this.currentState.storage.archetypes.Set<TComponent>(in entity);
-                    this.UpdateFilterByStructComponent<TComponent>(in entity);
-
-                }
-
-                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
-                //this.AddComponentToFilter(entity);
-
-            }
-            #if ENTITY_ACTIONS
-            this.RaiseEntityActionOnAdd<TComponent>(in entity);
-            #endif
-            this.currentState.storage.versions.Increment(in entity);
-            this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-
-            return ref state;
 
         }
 
@@ -1638,6 +1437,206 @@ namespace ME.ECS {
             var reg = (StructComponents<TComponent>)r;
             if (reg.lifetimeIndexes == null) reg.lifetimeIndexes = PoolListCopyable<int>.Spawn(10);
             reg.lifetimeIndexes.Add(entity.id);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool HasData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            return ((StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId]).componentsStates.arr[entity.id] > 0;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref 
+            //#if UNITY_EDITOR
+            readonly
+            //#endif
+            TComponent ReadData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            // Inline all manually
+            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            if (AllComponentTypes<TComponent>.isTag == true) return ref reg.emptyComponent;
+            return ref reg.components[entity.id];
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref TComponent GetData<TComponent>(in Entity entity, bool createIfNotExists = true) where TComponent : struct, IStructComponent {
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            // Inline all manually
+            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            ref var state = ref reg.componentsStates.arr[entity.id];
+            var incrementVersion = (this.HasStep(WorldStep.LogicTick) == true || this.HasResetState() == false);
+            if (state == 0 && createIfNotExists == true) {
+
+                #if WORLD_EXCEPTIONS
+                if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                    OutOfStateException.ThrowWorldStateCheck();
+
+                }
+                #endif
+
+                incrementVersion = true;
+                state = 1;
+                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+
+                    this.currentState.storage.archetypes.Set<TComponent>(in entity);
+                    this.UpdateFilterByStructComponent<TComponent>(in entity);
+
+                }
+
+                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
+                #if ENTITY_ACTIONS
+                this.RaiseEntityActionOnAdd<TComponent>(in entity);
+                #endif
+
+            }
+
+            if (AllComponentTypes<TComponent>.isTag == true) return ref reg.emptyComponent;
+            if (incrementVersion == true) {
+
+                this.currentState.storage.versions.Increment(in entity);
+                if (ComponentTypes<TComponent>.isVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
+
+            }
+
+            return ref reg.components[entity.id];
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref byte SetData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
+
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            // Inline all manually
+            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            if (AllComponentTypes<TComponent>.isTag == false) reg.RemoveData(in entity);
+            ref var state = ref reg.componentsStates.arr[entity.id];
+            if (state == 0) {
+
+                state = 1;
+                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+
+                    this.currentState.storage.archetypes.Set<TComponent>(in entity);
+                    this.UpdateFilterByStructComponent<TComponent>(in entity);
+
+                }
+
+                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
+
+            }
+            #if ENTITY_ACTIONS
+            this.RaiseEntityActionOnAdd<TComponent>(in entity);
+            #endif
+            this.currentState.storage.versions.Increment(in entity);
+            if (ComponentTypes<TComponent>.isVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
+
+            return ref state;
+
+        }
+
+        /// <summary>
+        /// Lifetime default is Infinite
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="TComponent"></typeparam>
+        /// <returns></returns>
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref byte SetData<TComponent>(in Entity entity, in TComponent data) where TComponent : struct, IStructComponent {
+
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            // Inline all manually
+            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            if (AllComponentTypes<TComponent>.isTag == false) reg.components[entity.id] = data;
+            ref var state = ref reg.componentsStates.arr[entity.id];
+            if (state == 0) {
+
+                state = 1;
+                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+
+                    this.currentState.storage.archetypes.Set<TComponent>(in entity);
+                    this.UpdateFilterByStructComponent<TComponent>(in entity);
+
+                }
+
+                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
+                //this.AddComponentToFilter(entity);
+
+            }
+            #if ENTITY_ACTIONS
+            this.RaiseEntityActionOnAdd<TComponent>(in entity);
+            #endif
+            this.currentState.storage.versions.Increment(in entity);
+            if (ComponentTypes<TComponent>.isVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
+
+            return ref state;
 
         }
 
@@ -1823,14 +1822,14 @@ namespace ME.ECS {
             }
             #endif
 
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<TComponent>()];
+            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             ref var state = ref reg.componentsStates.arr[entity.id];
             if (state > 0) {
 
                 state = 0;
                 this.currentState.storage.versions.Increment(in entity);
-                this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-                if (WorldUtilities.IsComponentAsTag<TComponent>() == false) reg.RemoveData(in entity);
+                if (ComponentTypes<TComponent>.isVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
+                if (AllComponentTypes<TComponent>.isTag == false) reg.RemoveData(in entity);
                 if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
 
                     this.currentState.storage.archetypes.Remove<TComponent>(in entity);

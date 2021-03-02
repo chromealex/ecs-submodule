@@ -25,91 +25,135 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static FPVector2 Abs(FPVector2 v) {
 
             return new FPVector2(FPMath.Abs(v.x), FPMath.Abs(v.y));
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static FPVector3 XY(this FPVector2 v, float z = 0f) {
 
             return new FPVector3(v.x, v.y, z);
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static FPVector3 XZ(this FPVector2 v, float y = 0f) {
 
             return new FPVector3(v.x, y, v.y);
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static FPVector2 XY(this FPVector3 v) {
 
             return new FPVector2(v.x, v.y);
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static FPVector2 XZ(this FPVector3 v) {
 
             return new FPVector2(v.x, v.z);
 
         }
-
-
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Vector2 Abs(Vector2 v) {
 
             return new Vector2(Mathf.Abs(v.x), Mathf.Abs(v.y));
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Vector3 XY(this Vector2 v, float z = 0f) {
 
             return new Vector3(v.x, v.y, z);
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Vector3 XZ(this Vector2 v, float y = 0f) {
 
             return new Vector3(v.x, y, v.y);
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Vector2 XY(this Vector3 v) {
 
             return new Vector2(v.x, v.y);
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Vector2 XZ(this Vector3 v) {
 
             return new Vector2(v.x, v.z);
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Vector3Int XY(this Vector2Int v, int z = 0) {
 
             return new Vector3Int(v.x, v.y, z);
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Vector3Int XZ(this Vector2Int v, int y = 0) {
 
             return new Vector3Int(v.x, y, v.y);
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Vector2Int XY(this Vector3Int v) {
 
             return new Vector2Int(v.x, v.y);
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Vector2Int XZ(this Vector3Int v) {
 
             return new Vector2Int(v.x, v.z);
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Vector2 Rotate(this Vector2 v, float degrees) {
 
             float radians = degrees * Mathf.Deg2Rad;

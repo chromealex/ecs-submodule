@@ -108,14 +108,13 @@ namespace ME.ECS {
     public abstract class WorldBase {
 
         internal WorldStep currentStep;
-        internal ListCopyable<IFeatureBase> features;
+        internal Dictionary<System.Type, IFeatureBase> features;
         internal ListCopyable<IModuleBase> modules;
         internal BufferArray<SystemGroup> systemGroups;
         internal int systemGroupsLength;
 
         internal List<FilterAction> filterActions;
 
-        internal ListCopyable<ModuleState> statesFeatures;
         internal ListCopyable<ModuleState> statesModules;
 
         internal ICheckpointCollector checkpointCollector;
@@ -191,6 +190,17 @@ namespace ME.ECS {
 
             return this.cpf;
 
+        }
+
+        /// <summary>
+        /// Calculates constant operation
+        /// Useful for matching servers
+        /// </summary>
+        /// <returns></returns>
+        public float GetIEEEFloat() {
+            
+            return -16.3f / 4.1f;
+            
         }
 
         public bool IsLoaded() {
@@ -374,11 +384,8 @@ namespace ME.ECS {
             this.timeSinceStart = default;
             this.entitiesCapacity = default;
 
-            this.features = PoolListCopyable<IFeatureBase>.Spawn(World.FEATURES_CAPACITY);
-            //this.systems = PoolList<ISystemBase>.Spawn(World.SYSTEMS_CAPACITY);
+            this.features = PoolDictionary<System.Type, IFeatureBase>.Spawn(World.FEATURES_CAPACITY);
             this.modules = PoolListCopyable<IModuleBase>.Spawn(World.MODULES_CAPACITY);
-            this.statesFeatures = PoolListCopyable<ModuleState>.Spawn(World.FEATURES_CAPACITY);
-            //this.statesSystems = PoolList<ModuleState>.Spawn(World.SYSTEMS_CAPACITY);
             this.statesModules = PoolListCopyable<ModuleState>.Spawn(World.MODULES_CAPACITY);
             this.systemGroups = PoolArray<SystemGroup>.Spawn(World.FEATURES_CAPACITY);
             this.systemGroupsLength = 0;
@@ -447,7 +454,7 @@ namespace ME.ECS {
 
             PoolArray<bool>.Recycle(ref FiltersDirectCache.dic.arr[this.id]);
 
-            PoolListCopyable<IFeatureBase>.Recycle(ref this.features);
+            PoolDictionary<System.Type, IFeatureBase>.Recycle(ref this.features);
 
             for (int i = 0; i < this.systemGroupsLength; ++i) {
 
@@ -465,9 +472,7 @@ namespace ME.ECS {
             }
 
             PoolListCopyable<IModuleBase>.Recycle(ref this.modules);
-
             PoolListCopyable<ModuleState>.Recycle(ref this.statesModules);
-            PoolListCopyable<ModuleState>.Recycle(ref this.statesFeatures);
 
             //PoolInternalBaseNoStackPool.Clear();
             //PoolInternalBase.Clear();
@@ -497,30 +502,6 @@ namespace ME.ECS {
             #if CHECKPOINT_COLLECTOR
             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(interestObj, this.currentStep);
             #endif
-
-        }
-
-        public void SetFeatureState(IFeatureBase feature, ModuleState state) {
-
-            var index = this.features.IndexOf(feature);
-            if (index >= 0) {
-
-                this.statesFeatures[index] = state;
-
-            }
-
-        }
-
-        public ModuleState GetFeatureState(IFeatureBase feature) {
-
-            var index = this.features.IndexOf(feature);
-            if (index >= 0) {
-
-                return this.statesFeatures[index];
-
-            }
-
-            return ModuleState.AllActive;
 
         }
 
@@ -1216,7 +1197,7 @@ namespace ME.ECS {
             this.resetState = WorldUtilities.CreateState<TState>();
             this.resetState.Initialize(this, freeze: true, restore: false);
             this.resetState.CopyFrom(this.GetState());
-            this.resetState.tick = -1;
+            this.resetState.tick = Tick.Zero;
             this.resetState.structComponents.Merge();
 
             this.currentState.structComponents.Merge();
@@ -1660,21 +1641,15 @@ namespace ME.ECS {
 
         public bool HasFeature<TFeature>() where TFeature : class, IFeatureBase, new() {
 
-            for (int i = 0, count = this.features.Count; i < count; ++i) {
-
-                if (this.features[i] is TFeature) return true;
-
-            }
-
-            return false;
-
+            return this.features.ContainsKey(typeof(TFeature));
+            
         }
 
         public TFeature GetFeature<TFeature>() where TFeature : IFeatureBase {
 
-            for (int i = 0, count = this.features.Count; i < count; ++i) {
+            if (this.features.TryGetValue(typeof(TFeature), out var feature) == true) {
 
-                if (this.features[i] is TFeature) return (TFeature)this.features[i];
+                return (TFeature)feature;
 
             }
 
@@ -1704,8 +1679,7 @@ namespace ME.ECS {
 
             }
 
-            this.features.Add(instance);
-            this.statesFeatures.Add(ModuleState.AllActive);
+            this.features.Add(instance.GetType(), instance);
             if (doConstruct == true) ((FeatureBase)instance).DoConstruct();
 
             return true;
@@ -1721,11 +1695,8 @@ namespace ME.ECS {
 
             if (this.isActive == false) return;
 
-            var idx = this.features.IndexOf(instance);
-            if (idx >= 0) {
-
-                this.features.RemoveAt(idx);
-                this.statesFeatures.RemoveAt(idx);
+            if (this.features.Remove(instance.GetType()) == true) {
+                
                 ((FeatureBase)instance).DoDeconstruct();
 
             }

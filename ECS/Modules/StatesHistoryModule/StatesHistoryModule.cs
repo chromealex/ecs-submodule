@@ -882,10 +882,6 @@ namespace ME.ECS.StatesHistory {
 
             }
 
-        }
-
-        public void PlayEventsForTickPost(Tick tick) {
-
             if (tick > this.lastSavedStateTick && tick > Tick.Zero && tick % this.GetTicksPerState() == 0L) {
 
                 this.StoreState(tick);
@@ -894,6 +890,10 @@ namespace ME.ECS.StatesHistory {
             }
             
             this.CheckHash(tick);
+
+        }
+
+        public void PlayEventsForTickPost(Tick tick) {
 
         }
 

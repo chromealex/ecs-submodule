@@ -1,4 +1,6 @@
-﻿#define BURST_BLITTABLE_CHECK
+﻿#if UNITY_EDITOR
+#define BURST_BLITTABLE_CHECK
+#endif
 
 namespace ME.ECS {
 
@@ -64,6 +66,7 @@ namespace ME.ECS {
 
         private static FunctionPointer<FunctionPointerDelegate> cache;
         private static FunctionPointerDelegate cacheDelegate;
+        private static bool isCreated;
         
         [BurstCompile(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true, Debug = false)]
         private static void Method(ref void* data) {
@@ -84,9 +87,10 @@ namespace ME.ECS {
             }
             #endif
 
-            if (Burst<T>.cache.IsCreated == false) {
+            if (Burst<T>.isCreated == false) {
                 
                 Burst<T>.cache = BurstCompiler.CompileFunctionPointer((FunctionPointerDelegate)Burst<T>.Method);
+                Burst<T>.isCreated = true;
                 Burst<T>.cacheDelegate = Burst<T>.cache.Invoke;
 
             }
@@ -112,9 +116,10 @@ namespace ME.ECS {
             }
             #endif
 
-            if (Burst<T>.cache.IsCreated == false) {
+            if (Burst<T>.isCreated == false) {
                 
                 Burst<T>.cache = BurstCompiler.CompileFunctionPointer((FunctionPointerDelegate)Burst<T>.Method);
+                Burst<T>.isCreated = true;
                 Burst<T>.cacheDelegate = Burst<T>.cache.Invoke;
 
             }

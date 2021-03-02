@@ -709,6 +709,7 @@ namespace ME.ECS {
             }
         }
 
+        private System.Action<FilterData> setupVersioned;
         private BufferArray<IFilterNode> nodes;
         internal Archetype archetypeContains;
         internal Archetype archetypeNotContains;
@@ -1633,6 +1634,8 @@ namespace ME.ECS {
                     this.id = world.currentState.filters.AllocateNextId();
 
                     filter = this;
+                    filter.setupVersioned?.Invoke(filter);
+                    filter.setupVersioned = null;
                     world.currentState.filters.RegisterInAllArchetype(in this.archetypeContains);
                     world.currentState.filters.RegisterInAllArchetype(in this.archetypeNotContains);
                     world.Register(this);
@@ -1692,6 +1695,7 @@ namespace ME.ECS {
         public FilterData WithStructComponent<TComponent>() where TComponent : struct, IStructComponent {
 
             WorldUtilities.SetComponentTypeId<TComponent>();
+            this.setupVersioned += (f) => WorldUtilities.SetComponentVersioned<TComponent>(f.onVersionChangedOnly);
             this.archetypeContains.Add<TComponent>();
             #if UNITY_EDITOR
             this.AddTypeToEditorWith<TComponent>();
@@ -1704,6 +1708,7 @@ namespace ME.ECS {
         public FilterData WithoutStructComponent<TComponent>() where TComponent : struct, IStructComponent {
 
             WorldUtilities.SetComponentTypeId<TComponent>();
+            this.setupVersioned += (f) => WorldUtilities.SetComponentVersioned<TComponent>(f.onVersionChangedOnly);
             this.archetypeNotContains.Add<TComponent>();
             #if UNITY_EDITOR
             this.AddTypeToEditorWithout<TComponent>();
@@ -1716,6 +1721,7 @@ namespace ME.ECS {
 
             var nextId = Worlds.currentWorld.currentState.filters.GetNextId();
             var f = PoolFilters.Spawn<FilterData>();
+            f.setupVersioned = null;
             f.id = nextId;
             f.AddAlias(customName);
             f.tempNodes = PoolList<IFilterNode>.Spawn(0);

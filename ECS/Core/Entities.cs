@@ -30,6 +30,7 @@ namespace ME.ECS {
 
         public static readonly byte _;
         public static int typeId = -1;
+        public static bool isVersioned = false;
 
     }
 
@@ -91,9 +92,9 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public static ref
-            #if UNITY_EDITOR
+            //#if UNITY_EDITOR
             readonly
-            #endif
+            //#endif
             TComponent ReadData<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
 
             return ref Worlds.currentWorld.ReadData<TComponent>(in entity);

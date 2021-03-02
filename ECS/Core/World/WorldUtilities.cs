@@ -180,19 +180,25 @@ namespace ME.ECS {
 
             if (AllComponentTypes<TComponent>.typeId < 0) {
 
-                AllComponentTypes<TComponent>.typeId = ++AllComponentTypesCounter.counter;
-                ComponentTypesRegistry.allTypeId.Add(typeof(TComponent), AllComponentTypes<TComponent>.typeId);
-
-                ComponentTypesRegistry.reset += () => {
-
-                    AllComponentTypes<TComponent>.typeId = -1;
-                    AllComponentTypes<TComponent>.isTag = false;
-
-                };
+                WorldUtilities.CacheAllComponentTypeId<TComponent>();
 
             }
 
             return AllComponentTypes<TComponent>.typeId;
+
+        }
+
+        private static void CacheAllComponentTypeId<TComponent>() {
+            
+            AllComponentTypes<TComponent>.typeId = ++AllComponentTypesCounter.counter;
+            ComponentTypesRegistry.allTypeId.Add(typeof(TComponent), AllComponentTypes<TComponent>.typeId);
+
+            ComponentTypesRegistry.reset += () => {
+
+                AllComponentTypes<TComponent>.typeId = -1;
+                AllComponentTypes<TComponent>.isTag = false;
+
+            };
 
         }
 
@@ -202,6 +208,24 @@ namespace ME.ECS {
         public static int GetComponentTypeId<TComponent>() {
 
             return ComponentTypes<TComponent>.typeId;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static bool IsVersioned<TComponent>() {
+
+            return ComponentTypes<TComponent>.isVersioned;
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void SetComponentVersioned<TComponent>(bool state) {
+
+            ComponentTypes<TComponent>.isVersioned = state;
 
         }
 
