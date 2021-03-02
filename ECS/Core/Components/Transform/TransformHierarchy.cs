@@ -23,6 +23,9 @@ namespace ME.ECS {
 
                 // TODO: Possible stack overflow while using Clear(true) because of OnEntityDestroy call
                 ref var childs = ref entity.GetData<Childs>();
+                foreach (var child in childs.childs) {
+                    child.RemoveData<Container>();
+                }
                 childs.childs.Clear(destroyData: true);
 
             }
