@@ -91,8 +91,8 @@ namespace ME.ECS {
             if (root == Entity.Empty) {
 
                 ref var childs = ref container.entity.GetData<Childs>();
-                childs.childs.Remove(child);
                 child.RemoveData<Container>();
+                childs.childs.Remove(child);
                 return;
 
             }

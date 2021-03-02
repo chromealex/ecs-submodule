@@ -45,7 +45,7 @@ namespace ME.ECSEditor.Collections {
                 
             }
 
-            return false;
+            return true;
 
         }
 

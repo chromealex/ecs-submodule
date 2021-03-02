@@ -931,7 +931,7 @@ namespace ME.ECSEditor {
 
             EditorGUIUtility.wideMode = true;
             
-            var name = (entityData.HasData<ME.ECS.Name.Name>() == true ? entityData.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value : "Unnamed");
+            var name = (entityData.HasData<ME.ECS.Name.Name>() == true ? entityData.ReadData<ME.ECS.Name.Name>().value : "Unnamed");
             GUILayoutExt.DrawHeader("Entity " + entityData.id.ToString() + " (" + entityData.generation.ToString() + ") " + name);
             {
 
