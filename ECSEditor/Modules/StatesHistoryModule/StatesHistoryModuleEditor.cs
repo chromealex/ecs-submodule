@@ -34,15 +34,8 @@ namespace ME.ECSEditor {
 
             if (UnityEngine.GUILayout.Button("Print Entities") == true) {
 
-                var str = string.Empty;
                 var world = Worlds.currentWorld;
-                for (int i = 0; i < world.currentState.storage.cache.Length; ++i) {
-
-                    var entity = world.currentState.storage.cache.arr[i];
-                    str += entity.ToString() + "\n";
-                    
-                }
-                UnityEngine.Debug.Log(str);
+                this.PrintEntities(world.currentState);
 
             }
 
@@ -73,12 +66,38 @@ namespace ME.ECSEditor {
 
                 var entry = entryData as ME.ECS.Network.IStatesHistoryEntry;
                 var state = entry.GetData() as State;
-                UnityEngine.GUILayout.Label(entry.isEmpty == true ? "None" : "Tick: " + state.tick + ", Hash: " + state.GetHash());
+                UnityEngine.GUILayout.BeginHorizontal();
+                {
+                    UnityEngine.GUILayout.Label(entry.isEmpty == true ? "None" : "Tick: " + state.tick + ", Hash: " + state.GetHash());
+                    if (entry.isEmpty == false) {
+
+                        if (UnityEngine.GUILayout.Button("Print Entities") == true) {
+
+                            this.PrintEntities(state);
+
+                        }
+
+                    }
+                }
+                UnityEngine.GUILayout.EndHorizontal();
                 
             }
 
             return false;
 
+        }
+
+        private void PrintEntities(State state) {
+            
+            var str = "Tick: " + state.tick + ", hash: " + state.GetHash() + "\n";
+            for (int i = 0; i < state.storage.cache.Length; ++i) {
+
+                var entity = state.storage.cache.arr[i];
+                str += entity.ToStringNoVersion() + " (Ver: " + state.storage.versions.Get(entity).ToString() + ")\n";
+                
+            }
+            UnityEngine.Debug.Log(str);
+            
         }
 
     }

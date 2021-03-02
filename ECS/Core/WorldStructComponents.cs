@@ -690,7 +690,9 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         private bool isCreated;
 
+        [ME.ECS.Serializer.SerializeField]
         internal HashSetCopyable<int> listLifetime;
+        [ME.ECS.Serializer.SerializeField]
         private ListCopyable<int> dirtyMap;
 
         public bool IsCreated() {

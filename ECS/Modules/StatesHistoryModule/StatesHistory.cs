@@ -173,37 +173,57 @@
         }
 
 
-		public bool FindClosestEntry(Tick maxTick, out TState state, out Tick tick) {
+		public bool FindClosestEntry(Tick maxTick, out TState state, out Tick tick, bool lookupAll = false) {
 
             state = null;
             tick = Tick.Invalid;
-
+            
             var marker = this.currentEntryNode;
             marker = this.IterateBackward(marker);
 
-            while (marker != this.currentEntryNode) {
+            if (lookupAll == true) {
 
-                var entry = marker.Value;
+                while (marker != this.currentEntryNode) {
 
-                if (entry.tick == Tick.Invalid) {
+                    var entry = marker.Value;
+                    if (entry.tick >= tick && entry.tick <= maxTick) {
 
-                    return false;
+                        state = entry.state;
+                        tick = entry.tick;
+
+                    }
+
+                    marker = this.IterateBackward(marker);
 
                 }
+                
+                return tick != Tick.Invalid;
 
-                if (entry.tick <= maxTick) {
+            } else {
+                
+                while (marker != this.currentEntryNode) {
 
-                    state = entry.state;
-                    tick = entry.tick;
+                    var entry = marker.Value;
+                    if (entry.isEmpty == true) {
+
+                        return false;
+
+                    }
                     
-                    return true;
+                    if (entry.tick <= maxTick) {
+
+                        state = entry.state;
+                        tick = entry.tick;
+                        return true;
+
+                    }
+
+                    marker = this.IterateBackward(marker);
 
                 }
-
-                marker = this.IterateBackward(marker);
 
             }
-
+            
             return false;
 
         }

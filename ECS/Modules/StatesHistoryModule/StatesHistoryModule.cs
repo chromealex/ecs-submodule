@@ -246,9 +246,10 @@ namespace ME.ECS.StatesHistory {
         new ME.ECS.Network.IStatesHistory<TState> GetDataStates();
         Tick GetAndResetOldestTick(Tick tick);
         void InvalidateEntriesAfterTick(Tick tick);
+        void SetLastSavedTick(Tick tick);
         
         Tick GetTickByTime(double seconds);
-        TState GetStateBeforeTick(Tick tick, out Tick targetTick);
+        TState GetStateBeforeTick(Tick tick, out Tick targetTick, bool lookupAll);
 
     }
 
@@ -813,15 +814,21 @@ namespace ME.ECS.StatesHistory {
         public void InvalidateEntriesAfterTick(Tick tick) {
             
             this.statesHistory.InvalidateEntriesAfterTick(tick);
+            this.SetLastSavedTick(tick);
+            
+        }
+
+        public void SetLastSavedTick(Tick tick) {
+            
             this.lastSavedStateTick = tick;
             
         }
 
-        public TState GetStateBeforeTick(Tick tick, out Tick targetTick) {
+        public TState GetStateBeforeTick(Tick tick, out Tick targetTick, bool lookupAll = false) {
 
             this.ValidatePrewarm();
 
-            if (this.statesHistory.FindClosestEntry(tick, out var state, out targetTick) == true) {
+            if (this.statesHistory.FindClosestEntry(tick, out var state, out targetTick, lookupAll) == true) {
 
                 return state;
 
@@ -871,6 +878,13 @@ namespace ME.ECS.StatesHistory {
 
         public void PlayEventsForTickPre(Tick tick) {
             
+            if (tick > this.lastSavedStateTick && tick > Tick.Zero && tick % this.GetTicksPerState() == 0L) {
+
+                this.StoreState(tick);
+                this.SetLastSavedTick(tick);
+
+            }
+
             if (this.events.TryGetValue(tick, out var list) == true) {
 
                 var values = list.Values;
@@ -882,13 +896,6 @@ namespace ME.ECS.StatesHistory {
 
             }
 
-            if (tick > this.lastSavedStateTick && tick > Tick.Zero && tick % this.GetTicksPerState() == 0L) {
-
-                this.StoreState(tick);
-                this.lastSavedStateTick = tick;
-
-            }
-            
             this.CheckHash(tick);
 
         }
@@ -991,11 +998,11 @@ namespace ME.ECS.StatesHistory {
                 this.states.Set(tick, newState);*/
 
                 this.statesHistory.Store(tick, this.world.GetState<TState>());
-                
+
             }
-
+            
         }
-
+        
     }
 
 }

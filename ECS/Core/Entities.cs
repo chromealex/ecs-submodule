@@ -359,6 +359,12 @@ namespace ME.ECS {
 
         }
 
+        public string ToStringNoVersion() {
+
+            return "Entity Id: " + this.id.ToString() + " Gen: " + this.generation.ToString();
+
+        }
+
         public override string ToString() {
 
             return "Entity Id: " + this.id.ToString() + " Gen: " + this.generation.ToString() + " Ver: " + this.GetVersion().ToString();

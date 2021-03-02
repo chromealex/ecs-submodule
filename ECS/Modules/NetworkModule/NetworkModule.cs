@@ -124,7 +124,7 @@ namespace ME.ECS.Network {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public abstract class NetworkModule<TState> : INetworkModule<TState>, IUpdate, StatesHistory.IEventRunner, IModuleValidation where TState : State, new() {
+    public abstract class NetworkModule<TState> : INetworkModule<TState>, IUpdate, IUpdatePost, StatesHistory.IEventRunner, IModuleValidation where TState : State, new() {
 
         private static readonly RPCId CANCEL_EVENT_RPC_ID = -11;
         private static readonly RPCId PING_RPC_ID = -1;
@@ -727,8 +727,8 @@ namespace ME.ECS.Network {
             }
 
             if (oldestEventTick > targetTick) oldestEventTick = targetTick;
-            
-            var sourceState = this.statesHistoryModule.GetStateBeforeTick(oldestEventTick, out var sourceTick);
+
+            var sourceState = this.statesHistoryModule.GetStateBeforeTick(oldestEventTick, out var sourceTick, lookupAll: this.replayMode);
             if (sourceState == null) {
 
                 if (this.replayMode == true && (oldestEventTick == Tick.Invalid || oldestEventTick >= tick)) {
@@ -741,9 +741,20 @@ namespace ME.ECS.Network {
                 if (this.replayMode == false && targetTick < tick) targetTick = tick;
 
             }
-            //UnityEngine.Debug.LogWarning("Rollback. Oldest: " + oldestEventTick + ", sourceTick: " + sourceTick + ", targetTick: " + targetTick);
+            //UnityEngine.Debug.LogWarning("Rollback. Oldest: " + oldestEventTick + ", sourceTick: " + sourceTick + ", targetTick: " + targetTick + "\n" + str);
+            
+            this.statesHistoryModule.InvalidateEntriesAfterTick(sourceTick);
 
-            if (this.replayMode == false) this.statesHistoryModule.InvalidateEntriesAfterTick(sourceTick);
+            /*
+            if (this.replayMode == false) {
+                
+                this.statesHistoryModule.InvalidateEntriesAfterTick(sourceTick);
+                
+            } else {
+
+                this.statesHistoryModule.SetLastSavedTick(sourceTick);
+
+            }*/
 
             // Applying old state.
             this.isReverting = true;
@@ -768,8 +779,8 @@ namespace ME.ECS.Network {
 
         }
 
-        public virtual void Update(in float deltaTime) {
-
+        public virtual void UpdatePost(in float deltaTime) {
+            
             if (this.GetNetworkType() != NetworkType.RunLocal) {
 
                 this.SendPing(deltaTime);
@@ -779,6 +790,10 @@ namespace ME.ECS.Network {
 
             this.ReceiveEventsAndApply();
             this.ApplyTicksByState();
+
+        }
+
+        public virtual void Update(in float deltaTime) {
 
         }
 

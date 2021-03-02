@@ -677,7 +677,7 @@ namespace ME.ECS {
         private RewindAsyncState GetRewindState(Tick targetTick, float maxSimulationTime) {
 
             var currentTick = this.GetCurrentTick();
-            if (currentTick > targetTick) {
+            if (currentTick < targetTick) {
 
                 var delta = targetTick - currentTick;
                 var duration = delta * this.GetTickTime();
@@ -736,10 +736,14 @@ namespace ME.ECS {
         public void RewindTo(Tick tick, bool doVisualUpdate = true) {
 
             var currentTick = this.GetCurrentTick();
-            var prevStateTick = currentTick - currentTick % this.statesHistoryModule.GetTicksPerState();
-            var cacheSize = this.statesHistoryModule.GetCacheSize();
-            this.statesHistoryModule.PauseStoreStateSinceTick(prevStateTick - cacheSize);
-            
+            if (tick >= currentTick) {
+                
+                var prevStateTick = currentTick - currentTick % this.statesHistoryModule.GetTicksPerState();
+                var cacheSize = this.statesHistoryModule.GetCacheSize();
+                this.statesHistoryModule.PauseStoreStateSinceTick(prevStateTick - cacheSize);
+                
+            }
+
             if (tick <= 0) tick = 1;
             this.timeSinceStart = (float)tick * this.GetTickTime();
             this.statesHistoryModule.HardResetTo(tick);

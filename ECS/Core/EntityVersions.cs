@@ -85,7 +85,7 @@ namespace ME.ECS {
             unchecked {
                 ++this.values.arr[entity.id];
             }
-            
+
         }
 
         #if INLINE_METHODS
