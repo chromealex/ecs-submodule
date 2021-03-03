@@ -249,7 +249,7 @@ namespace ME.ECS.StatesHistory {
         void SetLastSavedTick(Tick tick);
         
         Tick GetTickByTime(double seconds);
-        TState GetStateBeforeTick(Tick tick, out Tick targetTick, bool lookupAll);
+        TState GetStateBeforeTick(Tick tick, out Tick targetTick, bool lookupAll = false);
 
     }
 
