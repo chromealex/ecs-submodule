@@ -722,7 +722,12 @@ namespace ME.ECS {
                     this.PreUpdate(0f);
                     yield return this.SimulateAsync(this.simulationFromTick, this.simulationToTick, maxSimulationTime);
                     this.networkModule.SetAsyncMode(false);
-                    if (doVisualUpdate == true) this.LateUpdate(0f);
+                    if (doVisualUpdate == true) {
+                        
+                        this.GetModule<ME.ECS.Views.ViewsModule>().SetRequestsAsDirty();
+                        this.LateUpdate(0f);
+                        
+                    }
 
                     this.statesHistoryModule.ResumeStoreState();
                 }
@@ -751,6 +756,7 @@ namespace ME.ECS {
             if (tick <= 0) tick = 1;
             this.timeSinceStart = (float)tick * this.GetTickTime();
             this.statesHistoryModule.HardResetTo(tick);
+            this.GetModule<ME.ECS.Views.ViewsModule>().SetRequestsAsDirty();
             this.Refresh(doVisualUpdate);
 
             this.statesHistoryModule.ResumeStoreState();

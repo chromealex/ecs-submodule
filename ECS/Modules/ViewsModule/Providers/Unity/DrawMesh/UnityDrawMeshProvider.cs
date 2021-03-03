@@ -374,7 +374,7 @@ namespace ME.ECS.Views.Providers {
 
         }
 
-        public override IView Spawn(IView prefab, ViewId prefabSourceId) {
+        public override IView Spawn(IView prefab, ViewId prefabSourceId, in Entity targetEntity) {
 
             var obj = this.pool.Spawn();
             if (obj == null) {

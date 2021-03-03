@@ -553,7 +553,7 @@ namespace ME.ECS.Views.Providers {
 
         }
 
-        public override IView Spawn(IView prefab, ViewId prefabSourceId) {
+        public override IView Spawn(IView prefab, ViewId prefabSourceId, in Entity targetEntity) {
 
             var prefabSource = (ParticleViewBase)prefab;
 

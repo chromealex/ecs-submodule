@@ -267,15 +267,33 @@ namespace ME.ECS.Views.Providers {
 
     }
 
+    [System.Serializable]
+    public struct CacheSettings {
+
+        public bool useCache;
+        [UnityEngine.Tooltip("Time to get ready this instance to be used again after it has been despawned.")]
+        public float cacheTimeout;
+
+    }
+    
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public abstract class MonoBehaviourView : MonoBehaviourViewBase, IView, IViewBaseInternal {
+    public abstract class MonoBehaviourView : MonoBehaviourViewBase, IView, IViewRespawnTime, IViewBaseInternal {
 
         int System.IComparable<IView>.CompareTo(IView other) {
             return 0;
+        }
+
+        public CacheSettings cacheSettings;
+        
+        float IViewRespawnTime.respawnTime { get; set; }
+        bool IViewRespawnTime.hasCache {
+            get {
+                return this.cacheSettings.useCache;
+            }
         }
 
         public World world { get; private set; }
@@ -349,9 +367,9 @@ namespace ME.ECS.Views.Providers {
 
         }
 
-        public override IView Spawn(IView prefab, ViewId prefabSourceId) {
+        public override IView Spawn(IView prefab, ViewId prefabSourceId, in Entity targetEntity) {
 
-            var view = this.pool.Spawn((MonoBehaviourView)prefab, prefabSourceId);
+            var view = this.pool.Spawn((MonoBehaviourView)prefab, prefabSourceId, in targetEntity);
             if (this.world.debugSettings.showViewsOnScene == false || this.world.debugSettings.viewsSettings.unityGameObjectProviderShowOnScene == false) {
 
                 view.gameObject.hideFlags = UnityEngine.HideFlags.HideInHierarchy;
@@ -365,7 +383,7 @@ namespace ME.ECS.Views.Providers {
         public override void Destroy(ref IView instance) {
 
             var instanceTyped = (MonoBehaviourView)instance;
-            this.pool.Recycle(ref instanceTyped);
+            this.pool.Recycle(ref instanceTyped, instanceTyped.cacheSettings.useCache == true ? instanceTyped.cacheSettings.cacheTimeout : 0f);
             instance = null;
 
         }

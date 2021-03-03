@@ -348,7 +348,7 @@ namespace ME.ECS.Views {
 
         World world { get; set; }
 
-        IView Spawn(IView prefab, ViewId prefabSourceId);
+        IView Spawn(IView prefab, ViewId prefabSourceId, in Entity targetEntity);
         void Destroy(ref IView instance);
 
         void Update(ME.ECS.Collections.BufferArray<Views> list, float deltaTime, bool hasChanged);
@@ -373,7 +373,7 @@ namespace ME.ECS.Views {
         public abstract void OnConstruct();
         public abstract void OnDeconstruct();
 
-        public abstract IView Spawn(IView prefab, ViewId prefabSourceId);
+        public abstract IView Spawn(IView prefab, ViewId prefabSourceId, in Entity targetEntity);
         public abstract void Destroy(ref IView instance);
 
         public abstract void Update(ME.ECS.Collections.BufferArray<Views> list, float deltaTime, bool hasChanged);

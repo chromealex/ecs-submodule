@@ -15,6 +15,7 @@ namespace ME.ECS {
 
         [ME.ECS.Serializer.SerializeField]
         private BufferArray<ushort> values;
+        private ushort defaultValue;
 
         public override int GetHashCode() {
 
@@ -73,6 +74,7 @@ namespace ME.ECS {
         public ref ushort Get(in Entity entity) {
 
             var id = entity.id;
+            if (id >= this.values.Length) return ref this.defaultValue;
             return ref this.values.arr[id];
 
         }

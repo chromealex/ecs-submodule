@@ -225,6 +225,13 @@ namespace ME.ECS.Views {
 
     }
 
+    public interface IViewRespawnTime {
+
+        float respawnTime { get; set; }
+        bool hasCache { get; }
+
+    }
+
     public interface IView : IViewBase, System.IComparable<IView> {
 
         void DoInitialize();
@@ -624,7 +631,7 @@ namespace ME.ECS.Views {
             IViewsProvider provider;
             if (this.registryPrefabToProvider.TryGetValue(viewInfo.prefabSourceId, out provider) == true) {
 
-                var instance = provider.Spawn(this.GetViewSource(viewInfo.prefabSourceId), viewInfo.prefabSourceId);
+                var instance = provider.Spawn(this.GetViewSource(viewInfo.prefabSourceId), viewInfo.prefabSourceId, in viewInfo.entity);
                 var instanceInternal = (IViewBaseInternal)instance;
                 instanceInternal.Setup(this.world, viewInfo);
                 this.Register(instance);
