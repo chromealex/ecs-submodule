@@ -928,7 +928,7 @@ namespace ME.ECS {
         #endif
         public BufferArray<Entity> ToArray() {
 
-            int customCount = -1;
+            int customCount = 0;
             if (this.onVersionChangedOnly == true) {
 
                 for (int i = this.min; i <= this.max; ++i) {
