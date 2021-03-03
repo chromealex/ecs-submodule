@@ -267,34 +267,32 @@ namespace ME.ECS.Views.Providers {
 
     }
 
-    [System.Serializable]
-    public struct CacheSettings {
-
-        public bool useCache;
-        [UnityEngine.Tooltip("Time to get ready this instance to be used again after it has been despawned.")]
-        public float cacheTimeout;
-
-    }
-    
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public abstract class MonoBehaviourView : MonoBehaviourViewBase, IView, IViewRespawnTime, IViewBaseInternal {
+    public abstract class MonoBehaviourView : MonoBehaviourViewBase, IView, IViewRespawnTime, IViewPool, IViewBaseInternal {
 
         int System.IComparable<IView>.CompareTo(IView other) {
             return 0;
         }
 
-        public CacheSettings cacheSettings;
-        
         float IViewRespawnTime.respawnTime { get; set; }
-        bool IViewRespawnTime.hasCache {
-            get {
-                return this.cacheSettings.useCache;
-            }
-        }
+
+        /// <summary>
+        /// Do you want to use custom pool id?
+        /// Useful if you want to store unique instance of the same prefab source in different storages.
+        /// </summary>
+        public virtual uint customViewId => 0u;
+        /// <summary>
+        /// Do you want to use cache pooling for this view?
+        /// </summary>
+        public virtual bool useCache => false;
+        /// <summary>
+        /// Time to get ready this instance to be used again after it has been despawned.
+        /// </summary>
+        public virtual float cacheTimeout => Worlds.currentWorld.GetModule<ME.ECS.StatesHistory.IStatesHistoryModuleBase>().GetCacheSize();
 
         public World world { get; private set; }
         public virtual Entity entity { get; private set; }
@@ -369,7 +367,8 @@ namespace ME.ECS.Views.Providers {
 
         public override IView Spawn(IView prefab, ViewId prefabSourceId, in Entity targetEntity) {
 
-            var view = this.pool.Spawn((MonoBehaviourView)prefab, prefabSourceId, in targetEntity);
+            var sourceTyped = (MonoBehaviourView)prefab;
+            var view = this.pool.Spawn(sourceTyped, prefabSourceId, sourceTyped.customViewId, in targetEntity);
             if (this.world.debugSettings.showViewsOnScene == false || this.world.debugSettings.viewsSettings.unityGameObjectProviderShowOnScene == false) {
 
                 view.gameObject.hideFlags = UnityEngine.HideFlags.HideInHierarchy;
@@ -383,7 +382,7 @@ namespace ME.ECS.Views.Providers {
         public override void Destroy(ref IView instance) {
 
             var instanceTyped = (MonoBehaviourView)instance;
-            this.pool.Recycle(ref instanceTyped, instanceTyped.cacheSettings.useCache == true ? instanceTyped.cacheSettings.cacheTimeout : 0f);
+            this.pool.Recycle(ref instanceTyped, instanceTyped.customViewId, instanceTyped.useCache == true ? instanceTyped.cacheTimeout : 0f);
             instance = null;
 
         }

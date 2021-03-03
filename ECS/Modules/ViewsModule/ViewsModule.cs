@@ -228,7 +228,14 @@ namespace ME.ECS.Views {
     public interface IViewRespawnTime {
 
         float respawnTime { get; set; }
-        bool hasCache { get; }
+        float cacheTimeout { get; }
+        bool useCache { get; }
+
+    }
+
+    public interface IViewPool {
+
+        uint customViewId { get; }
 
     }
 

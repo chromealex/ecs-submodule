@@ -11,7 +11,7 @@ namespace ME.ECS.Views {
     #endif
     public class PoolGameObject<T> where T : Component, IViewBase, IViewRespawnTime {
 
-        private Dictionary<ViewId, HashSet<T>> prefabToInstances = new Dictionary<ViewId, HashSet<T>>();
+        private Dictionary<ulong, HashSet<T>> prefabToInstances = new Dictionary<ulong, HashSet<T>>();
 
         private static float GetCurrentTime() {
 
@@ -34,19 +34,25 @@ namespace ME.ECS.Views {
             this.prefabToInstances.Clear();
             
         }
+
+        private ulong GetKey(uint key1, uint key2) {
+
+            return MathUtils.GetKey(key1, key2);
+
+        }
         
-        public T Spawn(T source, ViewId sourceId, in Entity targetEntity) {
+        public T Spawn(T source, ViewId sourceId, uint customViewId, in Entity targetEntity) {
 
             T instance = default;
             var found = false;
-            var key = sourceId;
+            var key = this.GetKey(sourceId, customViewId);
             HashSet<T> list;
             if (this.prefabToInstances.TryGetValue(key, out list) == true) {
 
                 if (list.Count > 0) {
 
                     var foundRespawned = false;
-                    if (source is IViewRespawnTime sourceRespawn && sourceRespawn.hasCache == true) {
+                    if (source is IViewRespawnTime sourceRespawn && sourceRespawn.useCache == true) {
 
                         foreach (var item in list) {
                             
@@ -112,15 +118,15 @@ namespace ME.ECS.Views {
             }
 
             var instanceInternal = (IViewBaseInternal)instance;
-            instanceInternal.Setup(instance.world, new ViewInfo(instance.entity, key, instance.creationTick));
+            instanceInternal.Setup(instance.world, new ViewInfo(instance.entity, sourceId, instance.creationTick));
             instance.gameObject.SetActive(true);
             return instance;
 
         }
 
-        public void Recycle(ref T instance, float timeout) {
+        public void Recycle(ref T instance, uint customViewId, float timeout) {
             
-            var key = instance.prefabSourceId;
+            var key = this.GetKey(instance.prefabSourceId, customViewId);
             HashSet<T> list;
             if (this.prefabToInstances.TryGetValue(key, out list) == true) {
 
