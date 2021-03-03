@@ -709,7 +709,7 @@ namespace ME.ECS.Network {
             
         }
 
-        protected virtual void OnRevertingBegin() {}
+        protected virtual void OnRevertingBegin(Tick sourceTick) {}
         protected virtual void OnRevertingEnd() {}
         
         protected virtual void ApplyTicksByState() {
@@ -759,7 +759,7 @@ namespace ME.ECS.Network {
 
             }*/
 
-            this.OnRevertingBegin();
+            this.OnRevertingBegin(sourceTick);
             // Applying old state.
             this.isReverting = true;
             {
