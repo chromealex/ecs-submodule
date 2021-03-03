@@ -741,7 +741,7 @@ namespace ME.ECS.Network {
                 if (this.replayMode == false && targetTick < tick) targetTick = tick;
 
             }
-            //UnityEngine.Debug.LogWarning("Rollback. Oldest: " + oldestEventTick + ", sourceTick: " + sourceTick + ", targetTick: " + targetTick + "\n" + str);
+            //UnityEngine.Debug.LogWarning("Rollback. Oldest: " + oldestEventTick + ", sourceTick: " + sourceTick + ", targetTick: " + targetTick + ", currenTick: " + tick + " (" + currentTargetTick + "), timeSinceGameStart: " + timeSinceGameStart);
             
             this.statesHistoryModule.InvalidateEntriesAfterTick(sourceTick);
 
