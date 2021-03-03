@@ -709,6 +709,9 @@ namespace ME.ECS.Network {
             
         }
 
+        protected virtual void OnRevertingBegin() {}
+        protected virtual void OnRevertingEnd() {}
+        
         protected virtual void ApplyTicksByState() {
 
             var tick = this.world.GetCurrentTick();
@@ -756,6 +759,7 @@ namespace ME.ECS.Network {
 
             }*/
 
+            this.OnRevertingBegin();
             // Applying old state.
             this.isReverting = true;
             {
@@ -766,6 +770,7 @@ namespace ME.ECS.Network {
                 if (this.asyncMode == false) this.world.Simulate(sourceTick, targetTick);
             }
             this.isReverting = false;
+            this.OnRevertingEnd();
 
             if (this.asyncMode == true) {
                 
