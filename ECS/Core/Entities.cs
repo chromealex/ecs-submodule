@@ -231,7 +231,23 @@ namespace ME.ECS {
 
             // Inline manually
             return Worlds.currentWorld.currentState.storage.cache.arr[this.id].generation == this.generation;
-            //return Worlds.currentWorld.IsAlive(this.id, this.generation);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool IsAliveWithBoundsCheck() {
+
+            // Inline manually
+            var arr = Worlds.currentWorld.currentState.storage.cache;
+            if (this.id >= arr.Length) return false;
+            return arr.arr[this.id].generation == this.generation;
 
         }
 

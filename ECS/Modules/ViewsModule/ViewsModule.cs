@@ -863,7 +863,7 @@ namespace ME.ECS.Views {
                 if (currentViewInstance == null) continue;
 
                 var entity = currentViewInstance.entity;
-                if (entity.IsAlive() == false) {
+                if (entity.IsAliveWithBoundsCheck() == false) {
 
                     // Entity has dead
                     this.RecycleView_INTERNAL(ref currentViewInstance);
@@ -945,7 +945,7 @@ namespace ME.ECS.Views {
                 ref var views = ref this.list.arr[id];
                 var currentViewInstance = views.mainView;
                 if (currentViewInstance == null) continue;
-                if (currentViewInstance.entity.IsAlive() == false) continue;
+                if (currentViewInstance.entity.IsAliveWithBoundsCheck() == false) continue;
 
                 var version = currentViewInstance.entity.GetVersion();
                 if (version != currentViewInstance.entityVersion) {
