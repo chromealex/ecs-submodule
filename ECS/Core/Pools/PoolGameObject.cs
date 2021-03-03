@@ -45,6 +45,7 @@ namespace ME.ECS.Views {
 
                 if (list.Count > 0) {
 
+                    var foundRespawned = false;
                     if (source is IViewRespawnTime sourceRespawn && sourceRespawn.hasCache == true) {
 
                         foreach (var item in list) {
@@ -54,6 +55,7 @@ namespace ME.ECS.Views {
                                 instance = item;
                                 list.Remove(instance);
                                 found = true;
+                                foundRespawned = true;
                                 break;
                                 
                             }
@@ -69,6 +71,7 @@ namespace ME.ECS.Views {
                                     instance = item;
                                     list.Remove(instance);
                                     found = true;
+                                    foundRespawned = true;
                                     break;
 
                                 }
@@ -77,7 +80,9 @@ namespace ME.ECS.Views {
 
                         }
 
-                    } else {
+                    }
+                    
+                    if (foundRespawned == false) {
 
                         foreach (var item in list) {
 
