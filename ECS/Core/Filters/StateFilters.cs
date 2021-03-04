@@ -390,8 +390,8 @@ namespace ME.ECS {
         private int index;
 
         private readonly bool onVersionChangedOnly;
-        private readonly BufferArray<bool> dataContains;
-        private readonly BufferArray<bool> dataVersions;
+        //private readonly BufferArray<bool> dataContains;
+        //private readonly BufferArray<bool> dataVersions;
         private readonly BufferArray<Entity> cache;
 
         internal FilterEnumerator(FilterData set) {
@@ -408,8 +408,8 @@ namespace ME.ECS {
 
             this.cache = this.set.world.currentState.storage.cache;
             this.onVersionChangedOnly = this.set.onVersionChangedOnly;
-            this.dataContains = this.set.dataContains;
-            this.dataVersions = this.set.dataVersions;
+            //this.dataContains = this.set.dataContains;
+            //this.dataVersions = this.set.dataVersions;
             this.set.SetForEachMode(true);
 
         }
@@ -424,8 +424,8 @@ namespace ME.ECS {
         #endif
         public void Dispose() {
 
-            this.set.dataContains = this.dataContains;
-            this.set.dataVersions = this.dataVersions;
+            //this.set.dataContains = this.dataContains;
+            //this.set.dataVersions = this.dataVersions;
             this.set.SetForEachMode(false);
 
         }
@@ -444,8 +444,8 @@ namespace ME.ECS {
 
                 ++this.index;
                 if (this.index > this.max) return false;
-                if (this.dataContains.arr[this.index] != true) continue;
-                if (this.onVersionChangedOnly == true && this.dataVersions.arr[this.index] == false) continue;
+                if (this.set.dataContains.arr[this.index] != true) continue;
+                if (this.onVersionChangedOnly == true && this.set.dataVersions.arr[this.index] == false) continue;
                 
                 break;
 
@@ -453,7 +453,7 @@ namespace ME.ECS {
 
             if (this.onVersionChangedOnly == true) {
 
-                this.dataVersions.arr[this.index] = false;
+                this.set.dataVersions.arr[this.index] = false;
 
             }
 
