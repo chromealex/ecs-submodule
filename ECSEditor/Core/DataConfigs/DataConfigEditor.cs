@@ -65,7 +65,7 @@ namespace ME.ECSEditor {
                     configs = new [] {
                         config
                     },
-                    structComponentsTypes = config.structComponents.Select(x => x.GetType()).ToArray(),
+                    structComponentsTypes = config.structComponents.Where(x => x != null).Select(x => x.GetType()).ToArray(),
                 };
                 
             }

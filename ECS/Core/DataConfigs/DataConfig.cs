@@ -146,7 +146,7 @@ namespace ME.ECS.DataConfigs {
 	        var type = component.GetType();
 	        for (int i = 0; i < this.structComponents.Length; ++i) {
 
-		        if (this.structComponents[i].GetType() == type) {
+		        if (this.structComponents[i] != null && this.structComponents[i].GetType() == type) {
 
 			        this.structComponents[i] = component;
 			        return;
@@ -161,7 +161,7 @@ namespace ME.ECS.DataConfigs {
             
 	        for (int i = 0; i < this.structComponents.Length; ++i) {
 
-		        if (this.structComponents[i].GetType() == type) {
+		        if (this.structComponents[i] != null && this.structComponents[i].GetType() == type) {
 
 			        return this.structComponents[i];
 
@@ -178,7 +178,7 @@ namespace ME.ECS.DataConfigs {
 	        var type = typeof(T);
 	        for (int i = 0; i < this.structComponents.Length; ++i) {
 
-		        if (this.structComponents[i].GetType() == type) {
+		        if (this.structComponents[i] != null && this.structComponents[i].GetType() == type) {
 
 			        return true;
 
@@ -487,6 +487,7 @@ namespace ME.ECS.DataConfigs {
                     var config = configs[i];
                     for (int j = 0; j < config.structComponents.Length; ++j) {
 
+                        if (config.structComponents[j] == null) continue;
                         var type = config.structComponents[j].GetType();
                         if (listIdx.TryGetValue(type, out var count) == true) {
 

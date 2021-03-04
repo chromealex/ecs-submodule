@@ -934,15 +934,12 @@ namespace ME.ECS.Views {
 
             for (var id = 0; id < this.list.Length; ++id) {
 
-                ref var list = ref this.list.arr[id];
-                if (list.mainView == null) continue;
+                ref var views = ref this.list.arr[id];
+                var currentViewInstance = views.mainView;
+                if (currentViewInstance == null) continue;
+                if (currentViewInstance.entity.IsAliveWithBoundsCheck() == false) continue;
 
-                for (int i = 0, count = list.Length; i < count; ++i) {
-
-                    var instance = list[i];
-                    if (instance != null) instance.ApplyPhysicsState(deltaTime);
-
-                }
+                currentViewInstance.ApplyPhysicsState(deltaTime);
 
             }
 
