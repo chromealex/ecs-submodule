@@ -389,10 +389,10 @@ namespace ME.ECS {
         private readonly int max;
         private int index;
 
-        private readonly bool onVersionChangedOnly;
+        //private readonly bool onVersionChangedOnly;
         //private readonly BufferArray<bool> dataContains;
         //private readonly BufferArray<bool> dataVersions;
-        private readonly BufferArray<Entity> cache;
+        //private readonly BufferArray<Entity> cache;
 
         internal FilterEnumerator(FilterData set) {
 
@@ -406,8 +406,8 @@ namespace ME.ECS {
 
             }
 
-            this.cache = this.set.world.currentState.storage.cache;
-            this.onVersionChangedOnly = this.set.onVersionChangedOnly;
+            //this.cache = this.set.world.currentState.storage.cache;
+            //this.onVersionChangedOnly = this.set.onVersionChangedOnly;
             //this.dataContains = this.set.dataContains;
             //this.dataVersions = this.set.dataVersions;
             this.set.SetForEachMode(true);
@@ -445,13 +445,13 @@ namespace ME.ECS {
                 ++this.index;
                 if (this.index > this.max) return false;
                 if (this.set.dataContains.arr[this.index] != true) continue;
-                if (this.onVersionChangedOnly == true && this.set.dataVersions.arr[this.index] == false) continue;
+                if (this.set.onVersionChangedOnly == true && this.set.dataVersions.arr[this.index] == false) continue;
                 
                 break;
 
             } while (true);
 
-            if (this.onVersionChangedOnly == true) {
+            if (this.set.onVersionChangedOnly == true) {
 
                 this.set.dataVersions.arr[this.index] = false;
 
@@ -471,7 +471,7 @@ namespace ME.ECS {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             get {
-                return this.cache.arr[this.index];
+                return this.set.world.currentState.storage.cache.arr[this.index];
             }
         }
 
@@ -485,7 +485,7 @@ namespace ME.ECS {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             get {
-                return ref this.cache.arr[this.index];
+                return ref this.set.world.currentState.storage.cache.arr[this.index];
             }
         }
 
