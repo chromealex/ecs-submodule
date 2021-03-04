@@ -196,6 +196,8 @@ namespace ME.ECS.StatesHistory {
 
         void PauseStoreStateSinceTick(Tick tick);
         void ResumeStoreState();
+
+        Dictionary<Tick, Dictionary<int, int>> GetSyncHashTable();
         
         Tick GetCacheSize();
         Tick GetTicksPerState();
@@ -690,30 +692,12 @@ namespace ME.ECS.StatesHistory {
 
         }
 
-        /*public void Simulate(Tick currentTick, Tick targetTick) {
+        public Dictionary<Tick, Dictionary<int, int>> GetSyncHashTable() {
 
-            TState state;
-            var historyState = this.GetStateBeforeTick(currentTick);
-            if (historyState != null) {
-                
-                // State found - simulate from this state to current tick
-                state = historyState;
-                
-            } else {
-                
-                // Previous state was not found - need to rewind from initial state
-                state = this.world.GetResetState();
-                this.statPlayedEvents = 0;
-                
-            }
-            
-            this.world.GetState().CopyFrom(state);
-            this.world.GetState().tick = targetTick;
-            this.world.Simulate(state.tick, targetTick);
-            this.world.SetFrameStartTick(targetTick);
+            return this.syncHashTable;
 
-        }*/
-
+        }
+        
         public void SetSyncHash(int orderId, Tick tick, int hash) {
 
             //UnityEngine.Debug.Log("SetSyncHash: " + orderId + " :: " + tick + " :: " + hash);
