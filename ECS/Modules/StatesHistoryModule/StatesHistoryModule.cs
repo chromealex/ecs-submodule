@@ -637,7 +637,10 @@ namespace ME.ECS.StatesHistory {
 
             this.oldestTick = (this.oldestTick == Tick.Invalid || historyEvent.tick < this.oldestTick ? (Tick)historyEvent.tick : this.oldestTick);
             
-            /*if (this.currentTick >= historyEvent.tick) {
+            ++this.beginAddEventsCount;
+            
+            /*
+            if (this.currentTick >= historyEvent.tick) {
 
                 if (this.beginAddEvents == false) {
 
@@ -645,7 +648,6 @@ namespace ME.ECS.StatesHistory {
 
                 } else {
 
-                    ++this.beginAddEventsCount;
                     if (this.beginAddEventsTick > historyEvent.tick) {
 
                         this.beginAddEventsTick = historyEvent.tick;
@@ -745,7 +747,7 @@ namespace ME.ECS.StatesHistory {
                     
             }
             
-            this.CleanUpHashTable(tick - 1000L);
+            this.CleanUpHashTable(tick - this.GetCacheSize());
             
         }
 
