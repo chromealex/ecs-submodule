@@ -385,9 +385,14 @@ namespace ME.ECS {
     #endif
     public struct FilterEnumerator : IEnumerator<Entity> {
 
-        internal readonly FilterData set;
-        internal readonly int max;
-        internal int index;
+        private readonly FilterData set;
+        private readonly int max;
+        private int index;
+
+        private readonly bool onVersionChangedOnly;
+        private readonly BufferArray<bool> dataContains;
+        private readonly BufferArray<bool> dataVersions;
+        private readonly BufferArray<Entity> cache;
 
         internal FilterEnumerator(FilterData set) {
 
@@ -401,6 +406,10 @@ namespace ME.ECS {
 
             }
 
+            this.cache = this.set.world.currentState.storage.cache;
+            this.onVersionChangedOnly = this.set.onVersionChangedOnly;
+            this.dataContains = this.set.dataContains;
+            this.dataVersions = this.set.dataVersions;
             this.set.SetForEachMode(true);
 
         }
@@ -415,6 +424,8 @@ namespace ME.ECS {
         #endif
         public void Dispose() {
 
+            this.set.dataContains = this.dataContains;
+            this.set.dataVersions = this.dataVersions;
             this.set.SetForEachMode(false);
 
         }
@@ -433,16 +444,16 @@ namespace ME.ECS {
 
                 ++this.index;
                 if (this.index > this.max) return false;
-                if (this.set.dataContains.arr[this.index] != true) continue;
-                if (this.set.onVersionChangedOnly == true && this.set.dataVersions.arr[this.index] == false) continue;
+                if (this.dataContains.arr[this.index] != true) continue;
+                if (this.onVersionChangedOnly == true && this.dataVersions.arr[this.index] == false) continue;
                 
                 break;
 
             } while (true);
 
-            if (this.set.onVersionChangedOnly == true) {
+            if (this.onVersionChangedOnly == true) {
 
-                this.set.dataVersions.arr[this.index] = false;
+                this.dataVersions.arr[this.index] = false;
 
             }
 
@@ -460,7 +471,7 @@ namespace ME.ECS {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             get {
-                return this.set.world.currentState.storage.cache.arr[this.index]; //this.arr.arr[this.index]; //this.setEnumerator.Current;
+                return this.cache.arr[this.index];
             }
         }
 
@@ -474,7 +485,7 @@ namespace ME.ECS {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             get {
-                return ref this.set.world.currentState.storage.cache.arr[this.index]; //this.arr.arr[this.index]; //this.setEnumerator.Current;
+                return ref this.cache.arr[this.index];
             }
         }
 
