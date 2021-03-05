@@ -38,18 +38,24 @@ namespace #NAMESPACE# {
                     
                     // Create new state
                     this.world.SetState<TState>(WorldUtilities.CreateState<TState>());
+                    this.world.SetSeed(1u);
                     ComponentsInitializer.DoInit();
                     this.Initialize(this.world);
 
                     // Add your custom systems here
                     
                 }
-                // Save initialization state
-                this.world.SaveResetState<TState>();
+                
+                this.world.Load(() => {
+                
+                    // Save initialization state
+                    this.world.SaveResetState<TState>();
+
+                });
 
             }
 
-            if (this.world != null) {
+            if (this.world != null && this.world.IsLoaded() == true) {
 
                 var dt = Time.deltaTime;
                 this.world.PreUpdate(dt);
@@ -61,7 +67,7 @@ namespace #NAMESPACE# {
 
         public void LateUpdate() {
             
-            if (this.world != null) this.world.LateUpdate(Time.deltaTime);
+            if (this.world != null && this.world.IsLoaded() == true) this.world.LateUpdate(Time.deltaTime);
             
         }
 
