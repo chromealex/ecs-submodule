@@ -367,8 +367,10 @@ namespace ME.ECS {
         #endif
         public uint GetVersion() {
 
-            if (Worlds.currentWorld == null) {
+            if (Worlds.currentWorld == null || this == Entity.Empty) {
+                
                 return 0u;
+                
             }
 
             return Worlds.currentWorld.currentState.storage.versions.Get(this);
@@ -377,19 +379,19 @@ namespace ME.ECS {
 
         public string ToStringNoVersion() {
 
-            return "Entity Id: " + this.id.ToString() + " Gen: " + this.generation.ToString();
+            return $"Entity Id: {this.id} Gen: {this.generation}";
 
         }
 
         public override string ToString() {
 
-            return "Entity Id: " + this.id.ToString() + " Gen: " + this.generation.ToString() + " Ver: " + this.GetVersion().ToString();
+            return $"Entity Id: {this.id} Gen: {this.generation} Ver: {this.GetVersion().ToString()}";
 
         }
 
         public string ToSmallString() {
 
-            return "Id: " + this.id.ToString() + "#" + this.generation.ToString() + " (" + this.GetVersion().ToString() + ")";
+            return $"Id: {this.id}#{this.generation} ({this.GetVersion().ToString()})";
 
         }
 

@@ -4,7 +4,6 @@
 
 #if UNITY_MATHEMATICS
 using RandomState = System.UInt32;
-
 #else
 using RandomState = UnityEngine.Random.State;
 #endif

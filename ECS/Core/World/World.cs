@@ -2345,6 +2345,9 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         private void RunTick(Tick tick, float fixedDeltaTime) {
+
+            // Pick random number
+            this.GetRandomValue();
             
             #if UNITY_EDITOR
             UnityEngine.Profiling.Profiler.BeginSample(tick.ToString());

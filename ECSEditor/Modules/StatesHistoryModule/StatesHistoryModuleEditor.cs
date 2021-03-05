@@ -64,7 +64,7 @@ namespace ME.ECSEditor {
                 var margin = 2f;
                 var col1 = 60f;
                 var col2 = 70f;
-                var cellHeight = 18f;
+                var cellHeight = 22f;
                 var tableStyle = (GUIStyle)"Box";
 
                 GUILayout.BeginHorizontal();
@@ -93,9 +93,9 @@ namespace ME.ECSEditor {
 
                         GUILayout.BeginHorizontal();
                         {
-                            GUILayoutExt.DataLabel(string.Empty, GUILayout.Width(col1));
-                            GUILayoutExt.DataLabel(kv.Key.ToString(), GUILayout.Width(col2));
-                            GUILayoutExt.DataLabel(kv.Value.ToString(), GUILayout.ExpandWidth(true));
+                            GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.DataLabel(string.Empty); }, tableStyle, GUILayout.Width(col1), GUILayout.Height(cellHeight));
+                            GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.DataLabel(kv.Key.ToString()); }, tableStyle, GUILayout.Width(col2), GUILayout.Height(cellHeight));
+                            GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.DataLabel(kv.Value.ToString()); }, tableStyle, GUILayout.ExpandWidth(true), GUILayout.Height(cellHeight));
                         }
                         GUILayout.EndHorizontal();
 
@@ -110,17 +110,24 @@ namespace ME.ECSEditor {
             val = this.statesHistoryFoldState;
             GUILayoutExt.FoldOut(ref val, "States History", () => {
 
+                var padding = 2f;
+                var margin = 2f;
+                var col1 = 60f;
+                var col2 = 70f;
+                var cellHeight = 22f;
+                var tableStyle = (GUIStyle)"Box";
+                
                 UnityEngine.GUILayout.BeginHorizontal();
                 {
 
-                    if (UnityEngine.GUILayout.Button("Print Entities", UnityEditor.EditorStyles.miniButtonLeft) == true) {
+                    if (UnityEngine.GUILayout.Button("Entities", UnityEditor.EditorStyles.miniButtonLeft) == true) {
 
                         var world = Worlds.currentWorld;
                         this.PrintEntities(world.currentState);
 
                     }
 
-                    if (UnityEngine.GUILayout.Button("Print Events", UnityEditor.EditorStyles.miniButtonMid) == true) {
+                    if (UnityEngine.GUILayout.Button("Events", UnityEditor.EditorStyles.miniButtonMid) == true) {
 
                         foreach (System.Collections.DictionaryEntry ren in this.target.GetData()) {
 
@@ -135,7 +142,7 @@ namespace ME.ECSEditor {
 
                     }
 
-                    if (UnityEngine.GUILayout.Button("Recalc from Reset State", UnityEditor.EditorStyles.miniButtonRight) == true) {
+                    if (UnityEngine.GUILayout.Button("Reset State", UnityEditor.EditorStyles.miniButtonRight) == true) {
 
                         this.target.RecalculateFromResetState();
 
@@ -144,6 +151,20 @@ namespace ME.ECSEditor {
                 }
                 UnityEngine.GUILayout.EndHorizontal();
 
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.TableCaption("Tick", EditorStyles.miniBoldLabel); }, tableStyle,
+                                     GUILayout.Width(col1),
+                                     GUILayout.Height(cellHeight));
+                    GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.TableCaption("Hash", EditorStyles.miniBoldLabel); }, tableStyle,
+                                     GUILayout.ExpandWidth(true),
+                                     GUILayout.Height(cellHeight));
+                    GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.TableCaption("Actions", EditorStyles.miniBoldLabel); }, tableStyle,
+                                     GUILayout.Width(col2),
+                                     GUILayout.Height(cellHeight));
+                }
+                GUILayout.EndHorizontal();
+                
                 var dataStates = this.target.GetDataStates();
                 var entries = dataStates.GetEntries();
                 foreach (var entryData in entries) {
@@ -152,16 +173,21 @@ namespace ME.ECSEditor {
                     var state = entry.GetData() as State;
                     UnityEngine.GUILayout.BeginHorizontal();
                     {
-                        UnityEngine.GUILayout.Label(entry.isEmpty == true ? "None" : "Tick: " + state.tick + ", Hash: " + state.GetHash());
-                        if (entry.isEmpty == false) {
+                        
+                        GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.DataLabel(entry.isEmpty == true ? "-" : state.tick.ToString()); }, tableStyle, GUILayout.Width(col1), GUILayout.Height(cellHeight));
+                        GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.DataLabel(entry.isEmpty == true ? "-" : state.GetHash().ToString()); }, tableStyle, GUILayout.ExpandWidth(true), GUILayout.Height(cellHeight));
+                        GUILayoutExt.Box(padding, margin, () => {
 
-                            if (UnityEngine.GUILayout.Button("Print Entities", UnityEngine.GUILayout.Width(80f)) == true) {
+                            EditorGUI.BeginDisabledGroup(entry.isEmpty == true);
+                            if (UnityEngine.GUILayout.Button("Entities") == true) {
 
                                 this.PrintEntities(state);
 
                             }
+                            EditorGUI.EndDisabledGroup();
 
-                        }
+                        }, tableStyle, GUILayout.Width(col2), GUILayout.Height(cellHeight));
+
                     }
                     UnityEngine.GUILayout.EndHorizontal();
                 

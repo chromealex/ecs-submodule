@@ -1486,7 +1486,7 @@ namespace ME.ECSEditor {
                                         {
                                             GUILayoutExt.DrawHeader("Current");
                                             foreach (var ent in storage.cache) {
-                                                GUILayoutExt.DataLabel(ent.ToString());
+                                                GUILayoutExt.DataLabel(ent == Entity.Empty ? Entity.Empty.ToString() : ent.ToString());
                                             }
                                             
                                             GUILayoutExt.DrawHeader("Dead");
