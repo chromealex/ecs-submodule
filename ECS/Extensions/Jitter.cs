@@ -34,7 +34,7 @@ namespace ME.ECS.Extensions {
             }
 
             var threads = UnityEngine.SystemInfo.processorCount - 1;
-            UnityEngine.Debug.Log($"[Jitter] Initialized with thread count {threads} while processor count {UnityEngine.SystemInfo.processorCount} (including main thread)");
+            using (NoStackTrace.All) UnityEngine.Debug.Log($"[Jitter] Initialized with thread count {threads} while processor count {UnityEngine.SystemInfo.processorCount} (including main thread)");
             if (threads < 1) threads = 1;
             this.jitterThreads = new System.Threading.Thread[threads];
             var countPerThread = list.Count / threads;
@@ -95,13 +95,11 @@ namespace ME.ECS.Extensions {
 
                     if (largestMethod != null) {
 
-                        UnityEngine.Debug.LogWarning(
-                            $"[Jitter] methods: {count} included generics: {countGenerics}, elapsed: {sw.ElapsedMilliseconds}ms (largest method: {methodTime}ms: {largestMethod} [{largestMethod.Module}])");
+                        UnityEngine.Debug.LogWarning($"[Jitter] methods: {count} included generics: {countGenerics}, elapsed: {sw.ElapsedMilliseconds}ms (largest method: {methodTime}ms: {largestMethod} [{largestMethod.Module}])");
 
                     } else {
                         
-                        UnityEngine.Debug.LogWarning(
-                            $"[Jitter] methods: {count} included generics: {countGenerics}, elapsed: {sw.ElapsedMilliseconds}ms");
+                        UnityEngine.Debug.LogWarning($"[Jitter] methods: {count} included generics: {countGenerics}, elapsed: {sw.ElapsedMilliseconds}ms");
 
                     }
 
