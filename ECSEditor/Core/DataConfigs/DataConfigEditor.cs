@@ -10,7 +10,7 @@ namespace ME.ECSEditor {
     [CanEditMultipleObjects]
     public class DataConfigEditor : Editor {
 
-        public struct Registry {
+        private struct Registry {
 
             public IStructComponent data;
             public int index;
@@ -20,8 +20,6 @@ namespace ME.ECSEditor {
         private static readonly WorldsViewerEditor.WorldEditor multipleWorldEditor = new WorldsViewerEditor.WorldEditor();
         private static readonly System.Collections.Generic.Dictionary<Object, WorldsViewerEditor.WorldEditor> worldEditors = new System.Collections.Generic.Dictionary<Object, WorldsViewerEditor.WorldEditor>();
 
-        private UnityEditorInternal.ReorderableList list;
-        
         protected virtual void OnEnable() {
 
             foreach (var target in this.targets) {
@@ -41,7 +39,7 @@ namespace ME.ECSEditor {
             
         }
 
-        public bool CanMove(ME.ECS.DataConfigs.DataConfig dataConfig, int from, int to) {
+        private bool CanMove(ME.ECS.DataConfigs.DataConfig dataConfig, int from, int to) {
 
             var arr = dataConfig.structComponents;
             if (to < 0 || to >= arr.Length) return false;
@@ -50,7 +48,7 @@ namespace ME.ECSEditor {
 
         }
         
-        public void MoveElement(ME.ECS.DataConfigs.DataConfig dataConfig, int from, int to) {
+        private void MoveElement(ME.ECS.DataConfigs.DataConfig dataConfig, int from, int to) {
             
             var arr = dataConfig.structComponents;
             var old = arr[to];
@@ -62,97 +60,78 @@ namespace ME.ECSEditor {
         }
 
         public override void OnInspectorGUI() {
+            
+            {
+                var style = new GUIStyle(EditorStyles.toolbar);
+                style.fixedHeight = 0f;
+                style.stretchHeight = true;
 
-            var style = new GUIStyle(EditorStyles.toolbar);
-            style.fixedHeight = 0f;
-            style.stretchHeight = true;
+                var backStyle = new GUIStyle(EditorStyles.label);
+                backStyle.normal.background = Texture2D.whiteTexture;
 
-            var backStyle = new GUIStyle(EditorStyles.label);
-            backStyle.normal.background = Texture2D.whiteTexture;
+                var slice = new ME.ECS.DataConfigs.DataConfigSlice();
+                var isMultiple = false;
+                if (this.targets.Length > 1) {
 
-            var slice = new ME.ECS.DataConfigs.DataConfigSlice();
-            var isMultiple = false;
-            if (this.targets.Length > 1) {
+                    slice = ME.ECS.DataConfigs.DataConfigSlice.Distinct(this.targets.Cast<ME.ECS.DataConfigs.DataConfig>().ToArray());
+                    isMultiple = true;
 
-                slice = ME.ECS.DataConfigs.DataConfigSlice.Distinct(this.targets.Cast<ME.ECS.DataConfigs.DataConfig>().ToArray());
-                isMultiple = true;
+                } else {
 
-            } else {
-
-                var config = (ME.ECS.DataConfigs.DataConfig)this.target;
-                slice = new ME.ECS.DataConfigs.DataConfigSlice() {
-                    configs = new [] {
-                        config
-                    },
-                    structComponentsTypes = config.structComponents.Where(x => x != null).Select(x => x.GetType()).ToArray(),
-                };
-                
-            }
-
-            var usedComponentsAll = new System.Collections.Generic.HashSet<System.Type>();
-            foreach (var cfg in slice.configs) {
-
-                var componentTypes = cfg.GetStructComponentTypes();
-                foreach (var cType in componentTypes) {
-                    
-                    if (usedComponentsAll.Contains(cType) == false) usedComponentsAll.Add(cType);
-                    
-                }
-                
-                if (DataConfigEditor.worldEditors.TryGetValue(cfg, out var worldEditor) == false) {
-
-                    worldEditor = new WorldsViewerEditor.WorldEditor();
-                    DataConfigEditor.worldEditors.Add(cfg, worldEditor);
+                    var config = (ME.ECS.DataConfigs.DataConfig)this.target;
+                    slice = new ME.ECS.DataConfigs.DataConfigSlice() {
+                        configs = new[] {
+                            config
+                        },
+                        structComponentsTypes = config.structComponents.Where(x => x != null).Select(x => x.GetType()).ToArray(),
+                    };
 
                 }
-                
-            }
 
-            if (isMultiple == true) {
+                var usedComponentsAll = new System.Collections.Generic.HashSet<System.Type>();
+                foreach (var cfg in slice.configs) {
 
-                GUILayoutExt.DrawHeader("The Same Components:");
+                    var componentTypes = cfg.GetStructComponentTypes();
+                    foreach (var cType in componentTypes) {
 
-                GUILayoutExt.Padding(8f, () => {
+                        if (usedComponentsAll.Contains(cType) == false) usedComponentsAll.Add(cType);
 
-                    var kz = 0;
-                    for (int i = 0; i < slice.structComponentsTypes.Length; ++i) {
+                    }
 
-                        var type = slice.structComponentsTypes[i];
-                        var component = slice.configs[0].GetByType(slice.configs[0].structComponents, type);
-                        var components = slice.configs.Select(x => x.GetByType(x.structComponents, type)).ToArray();
+                    if (DataConfigEditor.worldEditors.TryGetValue(cfg, out var worldEditor) == false) {
 
-                        var backColor = GUI.backgroundColor;
-                        GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
+                        worldEditor = new WorldsViewerEditor.WorldEditor();
+                        DataConfigEditor.worldEditors.Add(cfg, worldEditor);
 
-                        GUILayout.BeginVertical(backStyle);
-                        {
-                            GUI.backgroundColor = backColor;
-                            var editor = WorldsViewerEditor.GetEditor(components);
-                            if (editor != null) {
+                    }
 
-                                EditorGUI.BeginChangeCheck();
-                                editor.OnDrawGUI();
-                                if (EditorGUI.EndChangeCheck() == true) {
+                }
 
-                                    slice.Set(components);
-                                    this.Save(slice.configs);
+                if (isMultiple == true) {
 
-                                }
+                    GUILayoutExt.DrawHeader("The Same Components:");
 
-                            } else {
+                    GUILayoutExt.Padding(4f, () => {
 
-                                var componentName = GUILayoutExt.GetStringCamelCaseSpace(component.GetType().Name);
-                                var fieldsCount = GUILayoutExt.GetFieldsCount(component);
-                                if (fieldsCount == 0) {
+                        var kz = 0;
+                        for (int i = 0; i < slice.structComponentsTypes.Length; ++i) {
 
-                                    EditorGUI.BeginDisabledGroup(true);
-                                    EditorGUILayout.Toggle(componentName, true);
-                                    EditorGUI.EndDisabledGroup();
+                            var type = slice.structComponentsTypes[i];
+                            var component = slice.configs[0].GetByType(slice.configs[0].structComponents, type);
+                            var components = slice.configs.Select(x => x.GetByType(x.structComponents, type)).ToArray();
 
-                                } else if (fieldsCount == 1) {
+                            var backColor = GUI.backgroundColor;
+                            GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
 
-                                    var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, components, componentName);
-                                    if (changed == true) {
+                            GUILayout.BeginVertical(backStyle);
+                            {
+                                GUI.backgroundColor = backColor;
+                                var editor = WorldsViewerEditor.GetEditor(components);
+                                if (editor != null) {
+
+                                    EditorGUI.BeginChangeCheck();
+                                    editor.OnDrawGUI();
+                                    if (EditorGUI.EndChangeCheck() == true) {
 
                                         slice.Set(components);
                                         this.Save(slice.configs);
@@ -161,64 +140,303 @@ namespace ME.ECSEditor {
 
                                 } else {
 
-                                    GUILayout.BeginHorizontal();
-                                    {
-                                        GUILayout.Space(18f);
-                                        GUILayout.BeginVertical();
-                                        {
+                                    var componentName = GUILayoutExt.GetStringCamelCaseSpace(component.GetType().Name);
+                                    var fieldsCount = GUILayoutExt.GetFieldsCount(component);
+                                    if (fieldsCount == 0) {
 
-                                            var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
-                                            var foldout = EditorPrefs.GetBool(key, true);
-                                            GUILayoutExt.FoldOut(ref foldout, componentName, () => {
+                                        EditorGUI.BeginDisabledGroup(true);
+                                        EditorGUILayout.Toggle(componentName, true);
+                                        EditorGUI.EndDisabledGroup();
 
-                                                var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, components);
-                                                if (changed == true) {
+                                    } else if (fieldsCount == 1) {
 
-                                                    slice.Set(components);
-                                                    this.Save(slice.configs);
+                                        var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, components, componentName);
+                                        if (changed == true) {
 
-                                                }
-
-                                            });
-                                            EditorPrefs.SetBool(key, foldout);
+                                            slice.Set(components);
+                                            this.Save(slice.configs);
 
                                         }
-                                        GUILayout.EndVertical();
+
+                                    } else {
+
+                                        GUILayout.BeginHorizontal();
+                                        {
+                                            GUILayout.Space(18f);
+                                            GUILayout.BeginVertical();
+                                            {
+
+                                                var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
+                                                var foldout = EditorPrefs.GetBool(key, true);
+                                                GUILayoutExt.FoldOut(ref foldout, componentName, () => {
+
+                                                    var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, components);
+                                                    if (changed == true) {
+
+                                                        slice.Set(components);
+                                                        this.Save(slice.configs);
+
+                                                    }
+
+                                                });
+                                                EditorPrefs.SetBool(key, foldout);
+
+                                            }
+                                            GUILayout.EndVertical();
+                                        }
+                                        GUILayout.EndHorizontal();
+
                                     }
-                                    GUILayout.EndHorizontal();
 
                                 }
 
+                                GUILayoutExt.DrawComponentHelp(component.GetType());
+
                             }
-                            
-                            GUILayoutExt.DrawComponentHelp(component.GetType());
+                            GUILayout.EndVertical();
+
+                            GUILayoutExt.Separator();
+
+                        }
+
+                    });
+
+                    GUILayoutExt.DrawAddComponentMenu(usedComponentsAll, (addType, isUsed) => {
+
+                        foreach (var dataConfigInner in slice.configs) {
+
+                            if (isUsed == true) {
+
+                                this.OnRemoveComponent(addType);
+                                usedComponentsAll.Remove(addType);
+                                for (int i = 0; i < dataConfigInner.structComponents.Length; ++i) {
+
+                                    if (dataConfigInner.structComponents[i].GetType() == addType) {
+
+                                        var list = dataConfigInner.structComponents.ToList();
+                                        list.RemoveAt(i);
+                                        dataConfigInner.structComponents = list.ToArray();
+                                        //dataConfigInner.OnScriptLoad();
+                                        this.Save(dataConfigInner);
+                                        break;
+
+                                    }
+
+                                }
+
+                            } else {
+
+                                usedComponentsAll.Add(addType);
+                                System.Array.Resize(ref dataConfigInner.structComponents, dataConfigInner.structComponents.Length + 1);
+                                dataConfigInner.structComponents[dataConfigInner.structComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
+                                //dataConfigInner.OnScriptLoad();
+                                this.Save(dataConfigInner);
+                                this.OnAddComponent(addType);
+
+                            }
+
+                        }
+
+                    });
+
+                    return;
+
+                }
+
+                GUILayoutExt.DrawHeader("Add Struct Components:");
+                GUILayoutExt.Separator();
+
+                var dataConfig = (ME.ECS.DataConfigs.DataConfig)this.target;
+                GUILayoutExt.Padding(4f, () => {
+
+                    var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
+
+                    var kz = 0;
+                    var registries = dataConfig.structComponents;
+                    var sortedRegistries = new System.Collections.Generic.SortedDictionary<int, Registry>(new WorldsViewerEditor.DuplicateKeyComparer<int>());
+                    for (int i = 0; i < registries.Length; ++i) {
+
+                        var registry = registries[i];
+                        if (registry == null) {
+                            sortedRegistries.Add(0, new Registry() {
+                                index = i,
+                                data = null
+                            });
+                            continue;
+                        }
+
+                        var component = registry;
+                        usedComponents.Add(component.GetType());
+
+                        var editor = WorldsViewerEditor.GetEditor(component, out var order);
+                        if (editor != null) {
+
+                            sortedRegistries.Add(order, new Registry() {
+                                index = i,
+                                data = component
+                            });
+
+                        } else {
+
+                            sortedRegistries.Add(0, new Registry() {
+                                index = i,
+                                data = component
+                            });
+
+                        }
+
+                    }
+
+                    foreach (var registryKv in sortedRegistries) {
+
+                        var registry = registryKv.Value;
+                        var component = registry.data;
+
+                        var backColor = GUI.backgroundColor;
+                        GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
+
+                        GUILayout.BeginVertical(backStyle, GUILayout.MinHeight(24f));
+                        {
+                            GUI.backgroundColor = backColor;
+                            if (component == null) {
+
+                                EditorGUI.BeginDisabledGroup(true);
+                                var styleLabel = new GUIStyle(EditorStyles.label);
+                                styleLabel.richText = true;
+                                EditorGUILayout.LabelField(new GUIContent("<color=#f77><i>MISSING</i></color>"), styleLabel);
+                                EditorGUI.EndDisabledGroup();
+
+                            } else {
+
+                                var editor = WorldsViewerEditor.GetEditor(component);
+                                if (editor != null) {
+
+                                    EditorGUI.BeginChangeCheck();
+                                    editor.OnDrawGUI();
+                                    if (EditorGUI.EndChangeCheck() == true) {
+
+                                        component = editor.GetTarget<IStructComponent>();
+                                        dataConfig.structComponents[registry.index] = component;
+                                        this.Save(dataConfig);
+
+                                    }
+
+                                } else {
+
+                                    var componentName = component.GetType().Name;
+                                    var fieldsCount = GUILayoutExt.GetFieldsCount(component);
+                                    if (fieldsCount == 0) {
+
+                                        EditorGUI.BeginDisabledGroup(true);
+                                        EditorGUILayout.Toggle(componentName, true);
+                                        EditorGUI.EndDisabledGroup();
+
+                                    } else if (fieldsCount == 1 && GUILayoutExt.IsFirstFieldHasChilds(component) == false) {
+
+                                        var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component, componentName);
+                                        if (changed == true) {
+
+                                            dataConfig.structComponents[registry.index] = component;
+                                            this.Save(dataConfig, true);
+
+                                        }
+
+                                    } else {
+
+                                        GUILayout.BeginHorizontal();
+                                        {
+                                            GUILayout.BeginVertical();
+                                            {
+
+                                                var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
+                                                var foldout = EditorPrefs.GetBool(key, true);
+                                                GUILayoutExt.FoldOut(ref foldout, componentName, () => {
+
+                                                    ++EditorGUI.indentLevel;
+                                                    var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component);
+                                                    if (changed == true) {
+
+                                                        dataConfig.structComponents[registry.index] = component;
+                                                        this.Save(dataConfig, true);
+
+                                                    }
+
+                                                    --EditorGUI.indentLevel;
+
+                                                });
+                                                EditorPrefs.SetBool(key, foldout);
+
+                                            }
+                                            GUILayout.EndVertical();
+                                        }
+                                        GUILayout.EndHorizontal();
+
+                                    }
+
+                                }
+
+                                GUILayoutExt.DrawComponentHelp(component.GetType());
+                                this.DrawComponentTemplatesUsage(dataConfig, component);
+
+                            }
 
                         }
                         GUILayout.EndVertical();
+
+                        var lastRect = GUILayoutUtility.GetLastRect();
+                        if (Event.current.type == EventType.ContextClick && lastRect.Contains(Event.current.mousePosition) == true) {
+
+                            var index = registry.index;
+
+                            var menu = new GenericMenu();
+                            if (this.CanMove(dataConfig, index, index - 1) == true) {
+                                menu.AddItem(new GUIContent("Move Up"), false, () => { this.MoveElement(dataConfig, index, index - 1); });
+                            } else {
+                                menu.AddDisabledItem(new GUIContent("Move Up"));
+                            }
+
+                            if (this.CanMove(dataConfig, index, index + 1) == true) {
+                                menu.AddItem(new GUIContent("Move Down"), false, () => { this.MoveElement(dataConfig, index, index + 1); });
+                            } else {
+                                menu.AddDisabledItem(new GUIContent("Move Down"));
+                            }
+
+                            menu.AddItem(new GUIContent("Delete"), false, () => {
+
+                                var list = dataConfig.structComponents.ToList();
+                                this.OnRemoveComponent(list[index].GetType());
+                                list.RemoveAt(index);
+                                dataConfig.structComponents = list.ToArray();
+                                //dataConfig.OnScriptLoad();
+                                this.Save(dataConfig);
+
+                            });
+
+                            this.OnComponentMenu(menu, index);
+
+                            menu.ShowAsContext();
+
+                        }
 
                         GUILayoutExt.Separator();
 
                     }
 
-                });
-
-                GUILayoutExt.DrawAddComponentMenu(usedComponentsAll, (addType, isUsed) => {
-
-                    foreach (var dataConfigInner in slice.configs) {
+                    GUILayoutExt.DrawAddComponentMenu(usedComponents, (addType, isUsed) => {
 
                         if (isUsed == true) {
 
                             this.OnRemoveComponent(addType);
-                            usedComponentsAll.Remove(addType);
-                            for (int i = 0; i < dataConfigInner.structComponents.Length; ++i) {
+                            usedComponents.Remove(addType);
+                            for (int i = 0; i < dataConfig.structComponents.Length; ++i) {
 
-                                if (dataConfigInner.structComponents[i].GetType() == addType) {
+                                if (dataConfig.structComponents[i].GetType() == addType) {
 
-                                    var list = dataConfigInner.structComponents.ToList();
+                                    var list = dataConfig.structComponents.ToList();
                                     list.RemoveAt(i);
-                                    dataConfigInner.structComponents = list.ToArray();
-                                    //dataConfigInner.OnScriptLoad();
-                                    this.Save(dataConfigInner);
+                                    dataConfig.structComponents = list.ToArray();
+                                    //dataConfig.OnScriptLoad();
+                                    this.Save(dataConfig);
                                     break;
 
                                 }
@@ -227,317 +445,98 @@ namespace ME.ECSEditor {
 
                         } else {
 
-                            usedComponentsAll.Add(addType);
-                            System.Array.Resize(ref dataConfigInner.structComponents, dataConfigInner.structComponents.Length + 1);
-                            dataConfigInner.structComponents[dataConfigInner.structComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
-                            //dataConfigInner.OnScriptLoad();
-                            this.Save(dataConfigInner);
+                            usedComponents.Add(addType);
+                            System.Array.Resize(ref dataConfig.structComponents, dataConfig.structComponents.Length + 1);
+                            dataConfig.structComponents[dataConfig.structComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
+                            //dataConfig.OnScriptLoad();
+                            this.Save(dataConfig);
                             this.OnAddComponent(addType);
 
                         }
 
-                    }
+                    });
 
                 });
-                
-                return;
+
+                GUILayoutExt.DrawHeader("Remove Struct Components:");
+                GUILayoutExt.Separator();
+
+                // Remove struct components
+                GUILayoutExt.Padding(4f, () => {
+
+                    var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
+
+                    var kz = 0;
+                    var registries = dataConfig.removeStructComponents;
+                    for (int i = 0; i < registries.Length; ++i) {
+
+                        var registry = registries[i];
+                        var type = registry.GetType();
+
+                        usedComponents.Add(type);
+
+                        var backColor = GUI.backgroundColor;
+                        GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
+
+                        GUILayout.BeginVertical(backStyle);
+                        {
+                            GUI.backgroundColor = backColor;
+                            var componentName = GUILayoutExt.GetStringCamelCaseSpace(type.Name);
+
+                            EditorGUI.BeginDisabledGroup(true);
+                            EditorGUILayout.Toggle(componentName, true);
+                            EditorGUI.EndDisabledGroup();
+
+                            GUILayoutExt.DrawComponentHelp(type);
+                            this.DrawComponentTemplatesUsage(dataConfig, dataConfig.removeStructComponents[i]);
+
+                        }
+                        GUILayout.EndVertical();
+
+                        GUILayoutExt.Separator();
+
+                    }
+
+                    GUILayoutExt.DrawAddComponentMenu(usedComponents, (addType, isUsed) => {
+
+                        if (isUsed == true) {
+
+                            this.OnRemoveComponentFromRemoveList(addType);
+                            usedComponents.Remove(addType);
+                            for (int i = 0; i < dataConfig.removeStructComponents.Length; ++i) {
+
+                                if (dataConfig.removeStructComponents[i].GetType() == addType) {
+
+                                    var list = dataConfig.removeStructComponents.ToList();
+                                    list.RemoveAt(i);
+                                    dataConfig.removeStructComponents = list.ToArray();
+                                    //dataConfig.OnScriptLoad();
+                                    this.Save(dataConfig);
+                                    break;
+
+                                }
+
+                            }
+
+                        } else {
+
+                            usedComponents.Add(addType);
+                            System.Array.Resize(ref dataConfig.removeStructComponents, dataConfig.removeStructComponents.Length + 1);
+                            dataConfig.removeStructComponents[dataConfig.removeStructComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
+                            //dataConfig.OnScriptLoad();
+                            this.Save(dataConfig);
+                            this.OnAddComponentFromRemoveList(addType);
+
+                        }
+
+                    });
+
+                });
+
+                if ((dataConfig is ME.ECS.DataConfigs.DataConfigTemplate) == false) this.DrawTemplates(dataConfig);
 
             }
             
-            GUILayoutExt.Separator(6f);
-            GUILayoutExt.DrawHeader("Add Struct Components:");
-            GUILayoutExt.Separator();
-
-            var dataConfig = (ME.ECS.DataConfigs.DataConfig)this.target;
-            GUILayoutExt.Padding(8f, () => {
-
-                var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
-
-                var kz = 0;
-                var registries = dataConfig.structComponents;
-                var sortedRegistries = new System.Collections.Generic.SortedDictionary<int, Registry>(new WorldsViewerEditor.DuplicateKeyComparer<int>());
-                for (int i = 0; i < registries.Length; ++i) {
-
-                    var registry = registries[i];
-                    if (registry == null) {
-                        sortedRegistries.Add(0, new Registry() {
-                            index = i,
-                            data = null
-                        });
-                        continue;
-                    }
-
-                    var component = registry;
-                    usedComponents.Add(component.GetType());
-
-                    var editor = WorldsViewerEditor.GetEditor(component, out var order);
-                    if (editor != null) {
-
-                        sortedRegistries.Add(order, new Registry() {
-                            index = i,
-                            data = component
-                        });
-
-                    } else {
-
-                        sortedRegistries.Add(0, new Registry() {
-                            index = i,
-                            data = component
-                        });
-
-                    }
-
-                }
-
-                foreach (var registryKv in sortedRegistries) {
-
-                    var registry = registryKv.Value;
-                    var component = registry.data;
-
-                    var backColor = GUI.backgroundColor;
-                    GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
-
-                    GUILayout.BeginVertical(backStyle, GUILayout.MinHeight(24f));
-                    {
-                        GUI.backgroundColor = backColor;
-                        if (component == null) {
-                            
-                            EditorGUI.BeginDisabledGroup(true);
-                            var styleLabel = new GUIStyle(EditorStyles.label);
-                            styleLabel.richText = true;
-                            EditorGUILayout.LabelField(new GUIContent("<color=#f77><i>MISSING</i></color>"), styleLabel);
-                            EditorGUI.EndDisabledGroup();
-                            
-                        } else {
-
-                            var editor = WorldsViewerEditor.GetEditor(component);
-                            if (editor != null) {
-
-                                EditorGUI.BeginChangeCheck();
-                                editor.OnDrawGUI();
-                                if (EditorGUI.EndChangeCheck() == true) {
-
-                                    component = editor.GetTarget<IStructComponent>();
-                                    dataConfig.structComponents[registry.index] = component;
-                                    this.Save(dataConfig);
-
-                                }
-
-                            } else {
-
-                                var componentName = component.GetType().Name;
-                                var fieldsCount = GUILayoutExt.GetFieldsCount(component);
-                                if (fieldsCount == 0) {
-
-                                    EditorGUI.BeginDisabledGroup(true);
-                                    EditorGUILayout.Toggle(componentName, true);
-                                    EditorGUI.EndDisabledGroup();
-
-                                } else if (fieldsCount == 1 && GUILayoutExt.IsFirstFieldHasChilds(component) == false) {
-
-                                    var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component, componentName);
-                                    if (changed == true) {
-
-                                        dataConfig.structComponents[registry.index] = component;
-                                        this.Save(dataConfig, true);
-
-                                    }
-
-                                } else {
-
-                                    GUILayout.BeginHorizontal();
-                                    {
-                                        GUILayout.BeginVertical();
-                                        {
-
-                                            var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
-                                            var foldout = EditorPrefs.GetBool(key, true);
-                                            GUILayoutExt.FoldOut(ref foldout, componentName, () => {
-
-                                                ++EditorGUI.indentLevel;
-                                                var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, component);
-                                                if (changed == true) {
-
-                                                    dataConfig.structComponents[registry.index] = component;
-                                                    this.Save(dataConfig, true);
-
-                                                }
-
-                                                --EditorGUI.indentLevel;
-
-                                            });
-                                            EditorPrefs.SetBool(key, foldout);
-
-                                        }
-                                        GUILayout.EndVertical();
-                                    }
-                                    GUILayout.EndHorizontal();
-
-                                }
-
-                            }
-
-                            GUILayoutExt.DrawComponentHelp(component.GetType());
-                            this.DrawComponentTemplatesUsage(dataConfig, component);
-
-                        }
-
-                    }
-                    GUILayout.EndVertical();
-
-                    var lastRect = GUILayoutUtility.GetLastRect();
-                    if (Event.current.type == EventType.ContextClick && lastRect.Contains(Event.current.mousePosition) == true) {
-
-                        var index = registry.index;
-                        
-                        var menu = new GenericMenu();
-                        if (this.CanMove(dataConfig, index, index - 1) == true) {
-                            menu.AddItem(new GUIContent("Move Up"), false, () => { this.MoveElement(dataConfig, index, index - 1); });
-                        } else {
-                            menu.AddDisabledItem(new GUIContent("Move Up"));
-                        }
-
-                        if (this.CanMove(dataConfig, index, index + 1) == true) {
-                            menu.AddItem(new GUIContent("Move Down"), false, () => { this.MoveElement(dataConfig, index, index + 1); });
-                        } else {
-                            menu.AddDisabledItem(new GUIContent("Move Down"));
-                        }
-
-                        menu.AddItem(new GUIContent("Delete"), false, () => {
-                            
-                            var list = dataConfig.structComponents.ToList();
-                            this.OnRemoveComponent(list[index].GetType());
-                            list.RemoveAt(index);
-                            dataConfig.structComponents = list.ToArray();
-                            //dataConfig.OnScriptLoad();
-                            this.Save(dataConfig);
-                            
-                        });
-
-                        this.OnComponentMenu(menu, index);
-                        
-                        menu.ShowAsContext();
-
-                    }
-
-                    GUILayoutExt.Separator();
-
-                }
-
-                GUILayoutExt.DrawAddComponentMenu(usedComponents, (addType, isUsed) => {
-
-                    if (isUsed == true) {
-
-                        this.OnRemoveComponent(addType);
-                        usedComponents.Remove(addType);
-                        for (int i = 0; i < dataConfig.structComponents.Length; ++i) {
-
-                            if (dataConfig.structComponents[i].GetType() == addType) {
-
-                                var list = dataConfig.structComponents.ToList();
-                                list.RemoveAt(i);
-                                dataConfig.structComponents = list.ToArray();
-                                //dataConfig.OnScriptLoad();
-                                this.Save(dataConfig);
-                                break;
-
-                            }
-
-                        }
-
-                    } else {
-
-                        usedComponents.Add(addType);
-                        System.Array.Resize(ref dataConfig.structComponents, dataConfig.structComponents.Length + 1);
-                        dataConfig.structComponents[dataConfig.structComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
-                        //dataConfig.OnScriptLoad();
-                        this.Save(dataConfig);
-                        this.OnAddComponent(addType);
-
-                    }
-
-                });
-
-            });
-
-            GUILayoutExt.Separator(6f);
-            GUILayoutExt.DrawHeader("Remove Struct Components:");
-            GUILayoutExt.Separator();
-
-            // Remove struct components
-            GUILayoutExt.Padding(8f, () => {
-             
-                var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
-
-                var kz = 0;
-                var registries = dataConfig.removeStructComponents;
-                for (int i = 0; i < registries.Length; ++i) {
-
-                    var registry = registries[i];
-                    var type = registry.GetType();
-                    
-                    usedComponents.Add(type);
-
-                    var backColor = GUI.backgroundColor;
-                    GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
-
-                    GUILayout.BeginVertical(backStyle);
-                    {
-                        GUI.backgroundColor = backColor;
-                        var componentName = GUILayoutExt.GetStringCamelCaseSpace(type.Name);
-                        
-                        EditorGUI.BeginDisabledGroup(true);
-                        EditorGUILayout.Toggle(componentName, true);
-                        EditorGUI.EndDisabledGroup();
-
-                        GUILayoutExt.DrawComponentHelp(type);
-                        this.DrawComponentTemplatesUsage(dataConfig, dataConfig.removeStructComponents[i]);
-
-                    }
-                    GUILayout.EndVertical();
-
-                    GUILayoutExt.Separator();
-
-                }
-
-                GUILayoutExt.DrawAddComponentMenu(usedComponents, (addType, isUsed) => {
-
-                    if (isUsed == true) {
-
-                        this.OnRemoveComponentFromRemoveList(addType);
-                        usedComponents.Remove(addType);
-                        for (int i = 0; i < dataConfig.removeStructComponents.Length; ++i) {
-
-                            if (dataConfig.removeStructComponents[i].GetType() == addType) {
-
-                                var list = dataConfig.removeStructComponents.ToList();
-                                list.RemoveAt(i);
-                                dataConfig.removeStructComponents = list.ToArray();
-                                //dataConfig.OnScriptLoad();
-                                this.Save(dataConfig);
-                                break;
-
-                            }
-
-                        }
-
-                    } else {
-
-                        usedComponents.Add(addType);
-                        System.Array.Resize(ref dataConfig.removeStructComponents, dataConfig.removeStructComponents.Length + 1);
-                        dataConfig.removeStructComponents[dataConfig.removeStructComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
-                        //dataConfig.OnScriptLoad();
-                        this.Save(dataConfig);
-                        this.OnAddComponentFromRemoveList(addType);
-
-                    }
-
-                });
-
-            });
-
-            if ((dataConfig is ME.ECS.DataConfigs.DataConfigTemplate) == false) this.DrawTemplates(dataConfig);
-
         }
 
         protected virtual void OnComponentMenu(GenericMenu menu, int index) { }
@@ -548,7 +547,6 @@ namespace ME.ECSEditor {
 
         private void DrawTemplates(ME.ECS.DataConfigs.DataConfig dataConfig) {
 
-            GUILayoutExt.Separator(6f);
             GUILayoutExt.DrawHeader("Used Templates:");
             GUILayoutExt.Separator();
 

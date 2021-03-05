@@ -83,6 +83,27 @@ namespace ME.ECSEditor {
 
 	    }
 
+	    public struct GUIBackgroundAlphaUsing : IDisposable {
+
+		    private Color oldColor;
+
+		    public GUIBackgroundAlphaUsing(float alpha) {
+
+			    this.oldColor = GUI.backgroundColor;
+			    var c = this.oldColor;
+			    c.a = alpha;
+			    GUI.backgroundColor = c;
+
+		    }
+		    
+		    public void Dispose() {
+
+			    GUI.backgroundColor = this.oldColor;
+
+		    }
+
+	    }
+
 	    public static void DrawGradient(float height, Color from, Color to, string labelFrom, string labelTo) {
 	        
 		    var tex = new Texture2D(2, 1, TextureFormat.RGBA32, false);
@@ -561,20 +582,23 @@ namespace ME.ECSEditor {
         
         public static void DrawHeader(string caption) {
 
-            var style = GUIStyle.none;//new GUIStyle("In BigTitle");
-            //new Editor().DrawHeader();
+            var backStyle = new GUIStyle(EditorStyles.label);
+            backStyle.normal.background = Texture2D.whiteTexture;
             
+            var backColor = GUI.backgroundColor;
             GUILayout.Space(4f);
-            GUILayoutExt.Separator();
+            GUI.backgroundColor = new Color(0f, 0f, 0f, 0.07f);
+            GUILayoutExt.Separator(new Color(0f, 0f, 0f, 0.4f), 1f);
             GUILayoutExt.Padding(
                 8f, 4f,
                 () => {
                     
                     GUILayout.Label(caption, EditorStyles.boldLabel);
                     
-                }, style);
-            GUILayoutExt.Separator(new Color(0.2f, 0.2f, 0.2f, 1f));
-            
+                }, backStyle);
+            GUILayoutExt.Separator(new Color(0f, 0f, 0f, 0.4f), 1f);
+            GUI.backgroundColor = backColor;
+
         }
 
         public static void SmallLabel(string text) {
@@ -1384,8 +1408,8 @@ namespace ME.ECSEditor {
 
             Rect rect = EditorGUILayout.GetControlRect(false, lineHeight);
             rect.height = lineHeight;
-            rect.width += 4f;
-            rect.x -= 2f;
+            //rect.width += 4f;
+            //rect.x -= 2f;
             rect.y -= lineHeight * 0.5f;
             EditorGUI.DrawRect(rect, color);
 
@@ -1465,27 +1489,30 @@ namespace ME.ECSEditor {
             GUIStyle style = null,
             System.Action<Rect> menuAction = null,
             GUIStyle menuIcon = null) {
-            //if (EditorGUIUtility.hierarchyMode) position.xMin -= (float)(EditorStyles.inspectorDefaultMargins.padding.left - EditorStyles.inspectorDefaultMargins.padding.right);
-            if (style == null) style = EditorStyles.foldoutHeader;
-            Rect position1 = new Rect() {
-                x = (float)((double)position.xMax - (double)style.padding.right - 16.0),
-                y = position.y + (float)style.padding.top,
-                size = Vector2.one * 16f
-            };
-            bool isHover = position1.Contains(Event.current.mousePosition);
-            bool isActive = isHover && Event.current.type == EventType.MouseDown && Event.current.button == 0;
-            if (menuAction != null && isActive) {
-                menuAction(position1);
-                Event.current.Use();
-            }
 
-            foldout = GUI.Toggle(position, foldout, content, style);
-            if (menuAction != null && Event.current.type == EventType.Repaint) {
-                if (menuIcon == null) menuIcon = EditorStyles.foldoutHeaderIcon;
-                menuIcon.Draw(position1, isHover, isActive, false, false);
-            }
+	        using (new GUIBackgroundAlphaUsing(0.35f)) {
+		        //if (EditorGUIUtility.hierarchyMode) position.xMin -= (float)(EditorStyles.inspectorDefaultMargins.padding.left - EditorStyles.inspectorDefaultMargins.padding.right);
+		        if (style == null) style = EditorStyles.foldoutHeader;
+		        Rect position1 = new Rect() {
+			        x = (float)((double)position.xMax - (double)style.padding.right - 16.0),
+			        y = position.y + (float)style.padding.top,
+			        size = Vector2.one * 16f
+		        };
+		        bool isHover = position1.Contains(Event.current.mousePosition);
+		        bool isActive = isHover && Event.current.type == EventType.MouseDown && Event.current.button == 0;
+		        if (menuAction != null && isActive) {
+			        menuAction(position1);
+			        Event.current.Use();
+		        }
 
-            return foldout;
+		        foldout = GUI.Toggle(position, foldout, content, style);
+		        if (menuAction != null && Event.current.type == EventType.Repaint) {
+			        if (menuIcon == null) menuIcon = EditorStyles.foldoutHeaderIcon;
+			        menuIcon.Draw(position1, isHover, isActive, false, false);
+		        }
+	        }
+
+	        return foldout;
         }
 
         public static void Box(float padding, float margin, System.Action onContent, GUIStyle style = null, params GUILayoutOption[] options) {
@@ -1531,23 +1558,21 @@ namespace ME.ECSEditor {
 
         public static void Padding(float paddingX, float paddingY, System.Action onContent, GUIStyle style, params GUILayoutOption[] options) {
 
-            GUILayout.BeginVertical(style, options);
-            {
-                GUILayout.Space(paddingY);
-                GUILayout.BeginHorizontal(options);
-                {
-                    GUILayout.Space(paddingX);
+	        GUILayout.BeginHorizontal(style, options);
+	        {
+		        GUILayout.Space(paddingX);
+	            GUILayout.BeginVertical(options);
+	            {
+	                GUILayout.Space(paddingY);
                     {
-                        GUILayout.BeginVertical(options);
                         onContent.Invoke();
-                        GUILayout.EndVertical();
                     }
-                    GUILayout.Space(paddingX);
-                }
-                GUILayout.EndHorizontal();
-                GUILayout.Space(paddingY);
-            }
-            GUILayout.EndVertical();
+	                GUILayout.Space(paddingY);
+	            }
+	            GUILayout.EndVertical();
+	            GUILayout.Space(paddingX);
+	        }
+	        GUILayout.EndHorizontal();
 
         }
 
