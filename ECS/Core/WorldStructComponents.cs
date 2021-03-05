@@ -691,7 +691,9 @@ namespace ME.ECS {
         private bool isCreated;
 
         [ME.ECS.Serializer.SerializeField]
-        internal HashSetCopyable<int> listLifetime;
+        internal HashSetCopyable<int> listLifetimeTick;
+        [ME.ECS.Serializer.SerializeField]
+        internal HashSetCopyable<int> listLifetimeFrame;
         [ME.ECS.Serializer.SerializeField]
         private ListCopyable<int> dirtyMap;
 
@@ -706,7 +708,8 @@ namespace ME.ECS {
             this.nextFrameTasks = PoolCCList<ITask>.Spawn();
             this.nextTickTasks = PoolCCList<ITask>.Spawn();
             this.dirtyMap = PoolListCopyable<int>.Spawn(10);
-            this.listLifetime = PoolHashSetCopyable<int>.Spawn(10);
+            this.listLifetimeTick = PoolHashSetCopyable<int>.Spawn(10);
+            this.listLifetimeFrame = PoolHashSetCopyable<int>.Spawn(10);
 
             ArrayUtils.Resize(100, ref this.list);
             this.isCreated = true;
@@ -1035,7 +1038,8 @@ namespace ME.ECS {
             PoolArray<StructRegistryBase>.Recycle(ref this.list);
 
             if (this.dirtyMap != null) PoolListCopyable<int>.Recycle(ref this.dirtyMap);
-            if (this.listLifetime != null) PoolHashSetCopyable<int>.Recycle(ref this.listLifetime);
+            if (this.listLifetimeTick != null) PoolHashSetCopyable<int>.Recycle(ref this.listLifetimeTick);
+            if (this.listLifetimeFrame != null) PoolHashSetCopyable<int>.Recycle(ref this.listLifetimeFrame);
 
             this.count = default;
             this.isCreated = default;
@@ -1126,7 +1130,8 @@ namespace ME.ECS {
             //this.OnRecycle();
 
             ArrayUtils.Copy(other.dirtyMap, ref this.dirtyMap);
-            ArrayUtils.Copy(other.listLifetime, ref this.listLifetime);
+            ArrayUtils.Copy(other.listLifetimeTick, ref this.listLifetimeTick);
+            ArrayUtils.Copy(other.listLifetimeFrame, ref this.listLifetimeFrame);
             
             this.count = other.count;
             this.isCreated = other.isCreated;
@@ -1413,10 +1418,16 @@ namespace ME.ECS {
         #endif
         private void UseLifetimeStep(ComponentLifetime step) {
 
-            if (this.currentState.structComponents.listLifetime.Count > 0) {
+            var list = this.currentState.structComponents.listLifetimeTick;
+            if (step == ComponentLifetime.NotifyAllModules || step == ComponentLifetime.NotifyAllModulesBelow) {
+
+                list = this.currentState.structComponents.listLifetimeFrame;
+
+            }
+            if (list.Count > 0) {
 
                 var bStep = (byte)step;
-                foreach (var idx in this.currentState.structComponents.listLifetime) {
+                foreach (var idx in list) {
 
                     ref var reg = ref this.currentState.structComponents.list.arr[idx];
                     if (reg == null) continue;
@@ -1425,17 +1436,24 @@ namespace ME.ECS {
 
                 }
 
-                this.currentState.structComponents.listLifetime.Clear();
+                list.Clear();
 
             }
             
         }
 
-        private void AddToLifetimeIndex<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
+        private void AddToLifetimeIndex<TComponent>(in Entity entity, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
+            
+            var list = this.currentState.structComponents.listLifetimeTick;
+            if (lifetime == ComponentLifetime.NotifyAllModules || lifetime == ComponentLifetime.NotifyAllModulesBelow) {
+
+                list = this.currentState.structComponents.listLifetimeFrame;
+
+            }
             
             var idx = WorldUtilities.GetAllComponentTypeId<TComponent>();
             ref var r = ref this.currentState.structComponents.list.arr[idx];
-            if (this.currentState.structComponents.listLifetime.Contains(idx) == false) this.currentState.structComponents.listLifetime.Add(idx);
+            if (list.Contains(idx) == false) list.Add(idx);
             var reg = (StructComponents<TComponent>)r;
             if (reg.lifetimeIndexes == null) reg.lifetimeIndexes = PoolListCopyable<int>.Spawn(10);
             reg.lifetimeIndexes.Add(entity.id);
@@ -1694,7 +1712,7 @@ namespace ME.ECS {
                 if (lifetime == ComponentLifetime.Infinite) return;
                 state = (byte)(lifetime + 1);
 
-                this.AddToLifetimeIndex<TComponent>(in entity);
+                this.AddToLifetimeIndex<TComponent>(in entity, lifetime);
 
             }
 
@@ -1752,7 +1770,7 @@ namespace ME.ECS {
                 if (lifetime == ComponentLifetime.Infinite) return;
                 state = (byte)(lifetime + 1);
 
-                this.AddToLifetimeIndex<TComponent>(in entity);
+                this.AddToLifetimeIndex<TComponent>(in entity, lifetime);
 
             }
 

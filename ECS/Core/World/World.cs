@@ -175,7 +175,7 @@ namespace ME.ECS {
 
         private State resetState;
         internal State currentState;
-        private uint seed;
+        //private uint seed;
         private int cpf; // CPF = Calculations per frame
         internal int entitiesCapacity;
         private bool isLoading;
@@ -571,32 +571,72 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public UnityEngine.Vector3 GetRandomInSphere(UnityEngine.Vector3 center, float maxRadius) {
+        
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+
             RandomUtils.ThreadCheck(this);
             return this.currentState.randomState.GetRandomInSphere(center, maxRadius);
+            
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public int GetRandomRange(int from, int to) {
+            
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+
             RandomUtils.ThreadCheck(this);
             return this.currentState.randomState.GetRandomRange(from, to);
+            
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public float GetRandomRange(float from, float to) {
+        
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+
             RandomUtils.ThreadCheck(this);
             return this.currentState.randomState.GetRandomRange(from, to);
+            
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public float GetRandomValue() {
+            
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+
             RandomUtils.ThreadCheck(this);
             return this.currentState.randomState.GetRandomValue();
+            
         }
 
         #if INLINE_METHODS
@@ -609,9 +649,19 @@ namespace ME.ECS {
         }
 
         public void SetSeed(uint seed) {
-            this.seed = seed;
-            this.currentState?.randomState.SetSeed(this.seed);
-            this.resetState?.randomState.SetSeed(this.seed);
+            
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+
+            //this.seed = seed;
+            this.currentState?.randomState.SetSeed(seed);
+            //this.resetState?.randomState.SetSeed(this.seed);
+            
         }
 
         #if INLINE_METHODS
@@ -655,7 +705,6 @@ namespace ME.ECS {
         #endif
         public void SetTimeSinceStart(double time) {
 
-            UnityEngine.Debug.Log("SetTimeSinceStart: " + time);
             this.timeSinceStart = time;
 
         }
@@ -703,8 +752,8 @@ namespace ME.ECS {
 
             var rewindState = this.GetRewindState(tick, maxSimulationTime);
             onState?.Invoke(rewindState);
-            if (rewindState == RewindAsyncState.LongBackwardRewind ||
-                rewindState == RewindAsyncState.LongForwardRewind) {
+            if (false/*rewindState == RewindAsyncState.LongBackwardRewind ||
+                rewindState == RewindAsyncState.LongForwardRewind*/) {
 
                 var isPaused = this.isPaused;
                 this.Pause();
@@ -1245,7 +1294,7 @@ namespace ME.ECS {
             this.currentState = state;
             state.Initialize(this, freeze: false, restore: true);
 
-            this.SetSeed(this.seed);
+            //this.SetSeed(this.seed);
 
         }
 
@@ -2346,9 +2395,6 @@ namespace ME.ECS {
         #endif
         private void RunTick(Tick tick, float fixedDeltaTime) {
 
-            // Pick random number
-            this.GetRandomValue();
-            
             #if UNITY_EDITOR
             UnityEngine.Profiling.Profiler.BeginSample(tick.ToString());
             #endif
@@ -2444,6 +2490,9 @@ namespace ME.ECS {
             this.currentStep |= WorldStep.SystemsLogicTick;
             ////////////////
             {
+
+                // Pick random number
+                this.GetRandomValue();
 
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.LogicTick);

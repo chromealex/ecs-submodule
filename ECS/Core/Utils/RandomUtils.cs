@@ -16,12 +16,11 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        [System.Diagnostics.Conditional("WORLD_THREAD_CHECK")]
         public static void ThreadCheck(World world) {
-            #if WORLD_THREAD_CHECK
             if (world.worldThread != System.Threading.Thread.CurrentThread) {
                 WrongThreadException.Throw("Random", "this could cause sync problems");
             }
-            #endif
         }
 
         #if INLINE_METHODS
@@ -47,8 +46,8 @@ namespace ME.ECS {
         public static int GetRandomRange(this ref RandomState randomState, int from, int to) {
             #if UNITY_MATHEMATICS
             var rnd = new Unity.Mathematics.Random(randomState);
-            randomState = rnd.state;
             var result = rnd.NextInt(from, to);
+            randomState = rnd.state;
             #else
             UnityEngine.Random.state = randomState;
             var result = UnityEngine.Random.Range(from, to);
@@ -63,8 +62,8 @@ namespace ME.ECS {
         public static float GetRandomRange(this ref RandomState randomState, float from, float to) {
             #if UNITY_MATHEMATICS
             var rnd = new Unity.Mathematics.Random(randomState);
-            randomState = rnd.state;
             var result = rnd.NextFloat(from, to);
+            randomState = rnd.state;
             #else
             UnityEngine.Random.state = randomState;
             var result = UnityEngine.Random.Range(from, to);
@@ -79,8 +78,8 @@ namespace ME.ECS {
         public static float GetRandomValue(this ref RandomState randomState) {
             #if UNITY_MATHEMATICS
             var rnd = new Unity.Mathematics.Random(randomState);
-            randomState = rnd.state;
             var result = rnd.NextFloat(0f, 1f);
+            randomState = rnd.state;
             #else
             UnityEngine.Random.state = randomState;
             var result = UnityEngine.Random.value;
