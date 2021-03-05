@@ -223,8 +223,6 @@ namespace ME.ECS.StatesHistory {
 
         void SetEventRunner(IEventRunner eventRunner);
         
-        //void Simulate(Tick currentTick, Tick targetTick);
-        
         void SetSyncHash(int orderId, Tick tick, int hash);
 
         int GetEventsAddedCount();
@@ -240,6 +238,7 @@ namespace ME.ECS.StatesHistory {
         HistoryEvent[] GetEvents();
         
         void RecalculateFromResetState();
+        State GetStateBeforeTick(Tick tick);
 
     }
 
@@ -808,6 +807,20 @@ namespace ME.ECS.StatesHistory {
             
             this.lastSavedStateTick = tick;
             
+        }
+
+        public State GetStateBeforeTick(Tick tick) {
+
+            this.ValidatePrewarm();
+
+            if (this.statesHistory.FindClosestEntry(tick, out var state, out _, lookupAll: true) == true) {
+
+                return state;
+
+            }
+
+            return default;
+
         }
 
         public TState GetStateBeforeTick(Tick tick, out Tick targetTick, bool lookupAll = false) {

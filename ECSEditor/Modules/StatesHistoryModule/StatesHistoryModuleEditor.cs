@@ -9,6 +9,8 @@ namespace ME.ECSEditor {
     [ComponentCustomEditor(typeof(IStatesHistoryModuleBase))]
     public class StatesHistoryModuleEditor : ME.ECSEditor.IGUIEditor<IStatesHistoryModuleBase> {
 
+        public static readonly GUIStyle syncBoxStyle = "OL ToggleWhite";
+
         private bool syncTableFoldState {
             get {
                 return EditorPrefs.GetBool("ME.ECS.StatesHistoryModuleEditor.foldouts.syncTableFoldState", false);
@@ -63,7 +65,8 @@ namespace ME.ECSEditor {
                 var padding = 2f;
                 var margin = 2f;
                 var col1 = 60f;
-                var col2 = 70f;
+                var col2 = 50f;
+                var col3 = 22f;
                 var cellHeight = 22f;
                 var tableStyle = (GUIStyle)"Box";
 
@@ -78,24 +81,83 @@ namespace ME.ECSEditor {
                     GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.TableCaption("Hash", EditorStyles.miniBoldLabel); }, tableStyle,
                                      GUILayout.ExpandWidth(true),
                                      GUILayout.Height(cellHeight));
+                    GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.TableCaption(string.Empty, EditorStyles.miniBoldLabel); }, tableStyle,
+                                     GUILayout.Width(col3),
+                                     GUILayout.Height(cellHeight));
                 }
                 GUILayout.EndHorizontal();
 
                 var syncHashTable = this.target.GetSyncHashTable();
+                /*if (syncHashTable.ContainsKey(20) == false) syncHashTable.Add(20, new System.Collections.Generic.Dictionary<int, int>() {
+                    { 100, 1234 }
+                });
+                if (syncHashTable.ContainsKey(100) == false) syncHashTable.Add(100, new System.Collections.Generic.Dictionary<int, int>() {
+                    { 100, 1902832914 },
+                    { 101, 1902832914 },
+                    { 102, 1902832915 },
+                });
+                if (syncHashTable.ContainsKey(2000) == false) syncHashTable.Add(2000, new System.Collections.Generic.Dictionary<int, int>() {
+                    { 100, 2345 }
+                });*/
                 foreach (var item in syncHashTable) {
+
+                    var tick = item.Key;
+                    var state = this.target.GetStateBeforeTick(tick);
+                    int localHash = -1;
+                    if (state != null && state.tick == tick) {
+                        
+                        localHash = state.GetHash();
+                        
+                    }
 
                     GUILayout.BeginHorizontal();
                     {
-                        GUILayoutExt.DataLabel(item.Key.ToString(), GUILayout.Width(col1));
+                        GUILayoutExt.DataLabel(tick.ToString(), GUILayout.Width(col1));
                     }
                     GUILayout.EndHorizontal();
                     foreach (var kv in item.Value) {
 
+                        var playerId = kv.Key;
                         GUILayout.BeginHorizontal();
                         {
                             GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.DataLabel(string.Empty); }, tableStyle, GUILayout.Width(col1), GUILayout.Height(cellHeight));
-                            GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.DataLabel(kv.Key.ToString()); }, tableStyle, GUILayout.Width(col2), GUILayout.Height(cellHeight));
+                            GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.DataLabel(playerId.ToString()); }, tableStyle, GUILayout.Width(col2), GUILayout.Height(cellHeight));
                             GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.DataLabel(kv.Value.ToString()); }, tableStyle, GUILayout.ExpandWidth(true), GUILayout.Height(cellHeight));
+                            GUILayoutExt.Box(padding, margin, () => {
+
+                                GUILayout.BeginHorizontal();
+                                GUILayout.FlexibleSpace();
+                                
+                                if (localHash == kv.Value) {
+
+                                    using (new GUILayoutExt.GUIColorUsing(Color.green)) {
+
+                                        GUILayout.Toggle(true, new GUIContent(string.Empty, $"Local hash synced with player #{playerId}."), StatesHistoryModuleEditor.syncBoxStyle);
+
+                                    }
+
+                                } else if (localHash != -1) {
+                                    
+                                    using (new GUILayoutExt.GUIColorUsing(Color.red)) {
+
+                                        GUILayout.Toggle(true, new GUIContent(string.Empty, $"Local hash is not the same as player #{playerId} has, your server must resync that player."), StatesHistoryModuleEditor.syncBoxStyle);
+
+                                    }
+
+                                } else {
+
+                                    using (new GUILayoutExt.GUIColorUsing(Color.yellow)) {
+
+                                        GUILayout.Toggle(false, new GUIContent(string.Empty, $"Local hash is not sync yet with player #{playerId}, current tick is less than remote."), StatesHistoryModuleEditor.syncBoxStyle);
+
+                                    }
+
+                                }
+                                
+                                GUILayout.FlexibleSpace();
+                                GUILayout.EndHorizontal();
+                                
+                            }, tableStyle, GUILayout.Width(col3), GUILayout.Height(cellHeight));
                         }
                         GUILayout.EndHorizontal();
 
