@@ -360,17 +360,18 @@ namespace ME.ECSEditor {
 
 	                } else {
 
-		                var spName = name.Split('.');
-		                var component = spName[spName.Length - 1];
-		                spName = name.Split(new[] { ".Features." }, StringSplitOptions.RemoveEmptyEntries);
-		                var rootName = spName[0];
+		                //var spName = name.Split('.');
+		                //var component = spName[spName.Length - 1];
+		                var spName = name.Split(new[] { ".Features." }, StringSplitOptions.RemoveEmptyEntries);
+		                //var rootName = spName[0];
 		                name = spName[spName.Length - 1];
-		                spName = name.Split(new[] { ".Components." }, StringSplitOptions.RemoveEmptyEntries);
+		                /*spName = name.Split(new[] { ".Components." }, StringSplitOptions.RemoveEmptyEntries);
 		                var feature = spName[0];
-						fixName = rootName + "." + feature + "." + component;
+						fixName = rootName + "." + feature + "." + component;*/
+		                fixName = name;
 
 	                }
-
+	                
 	                System.Action<PopupWindowAnim.PopupItem> onItemSelect = (item) => {
 		                
 		                isUsed = usedComponents.Contains(type);

@@ -21,6 +21,25 @@ namespace ME.ECSEditor {
         private static readonly System.Collections.Generic.Dictionary<Object, WorldsViewerEditor.WorldEditor> worldEditors = new System.Collections.Generic.Dictionary<Object, WorldsViewerEditor.WorldEditor>();
 
         private UnityEditorInternal.ReorderableList list;
+        
+        protected virtual void OnEnable() {
+
+            foreach (var target in this.targets) {
+
+                var config = (ME.ECS.DataConfigs.DataConfig)target;
+                foreach (var guid in config.templates) {
+
+                    var path = AssetDatabase.GUIDToAssetPath(guid);
+                    if (string.IsNullOrEmpty(path) == true) continue;
+                    
+                    var template = AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfigTemplate>(path);
+                    if (template != null) template.Use(config);
+
+                }
+
+            }
+            
+        }
 
         public bool CanMove(ME.ECS.DataConfigs.DataConfig dataConfig, int from, int to) {
 
@@ -41,7 +60,7 @@ namespace ME.ECSEditor {
             this.Save(dataConfig);
 
         }
-        
+
         public override void OnInspectorGUI() {
 
             var style = new GUIStyle(EditorStyles.toolbar);
@@ -91,7 +110,7 @@ namespace ME.ECSEditor {
 
             if (isMultiple == true) {
 
-                GUILayoutExt.DrawHeader("The same components:");
+                GUILayoutExt.DrawHeader("The Same Components:");
 
                 GUILayoutExt.Padding(8f, () => {
 
@@ -99,8 +118,8 @@ namespace ME.ECSEditor {
                     for (int i = 0; i < slice.structComponentsTypes.Length; ++i) {
 
                         var type = slice.structComponentsTypes[i];
-                        var component = slice.configs[0].GetByType(type);
-                        var components = slice.configs.Select(x => x.GetByType(type)).ToArray();
+                        var component = slice.configs[0].GetByType(slice.configs[0].structComponents, type);
+                        var components = slice.configs.Select(x => x.GetByType(x.structComponents, type)).ToArray();
 
                         var backColor = GUI.backgroundColor;
                         GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
@@ -189,6 +208,7 @@ namespace ME.ECSEditor {
 
                         if (isUsed == true) {
 
+                            this.OnRemoveComponent(addType);
                             usedComponentsAll.Remove(addType);
                             for (int i = 0; i < dataConfigInner.structComponents.Length; ++i) {
 
@@ -212,6 +232,7 @@ namespace ME.ECSEditor {
                             dataConfigInner.structComponents[dataConfigInner.structComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
                             //dataConfigInner.OnScriptLoad();
                             this.Save(dataConfigInner);
+                            this.OnAddComponent(addType);
 
                         }
 
@@ -385,12 +406,15 @@ namespace ME.ECSEditor {
                         menu.AddItem(new GUIContent("Delete"), false, () => {
                             
                             var list = dataConfig.structComponents.ToList();
+                            this.OnRemoveComponent(list[index].GetType());
                             list.RemoveAt(index);
                             dataConfig.structComponents = list.ToArray();
                             //dataConfig.OnScriptLoad();
                             this.Save(dataConfig);
                             
                         });
+
+                        this.OnComponentMenu(menu, index);
                         
                         menu.ShowAsContext();
 
@@ -404,6 +428,7 @@ namespace ME.ECSEditor {
 
                     if (isUsed == true) {
 
+                        this.OnRemoveComponent(addType);
                         usedComponents.Remove(addType);
                         for (int i = 0; i < dataConfig.structComponents.Length; ++i) {
 
@@ -427,6 +452,7 @@ namespace ME.ECSEditor {
                         dataConfig.structComponents[dataConfig.structComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
                         //dataConfig.OnScriptLoad();
                         this.Save(dataConfig);
+                        this.OnAddComponent(addType);
 
                     }
 
@@ -478,6 +504,7 @@ namespace ME.ECSEditor {
 
                     if (isUsed == true) {
 
+                        this.OnRemoveComponentFromRemoveList(addType);
                         usedComponents.Remove(addType);
                         for (int i = 0; i < dataConfig.removeStructComponents.Length; ++i) {
 
@@ -501,6 +528,7 @@ namespace ME.ECSEditor {
                         dataConfig.removeStructComponents[dataConfig.removeStructComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
                         //dataConfig.OnScriptLoad();
                         this.Save(dataConfig);
+                        this.OnAddComponentFromRemoveList(addType);
 
                     }
 
@@ -511,6 +539,12 @@ namespace ME.ECSEditor {
             if ((dataConfig is ME.ECS.DataConfigs.DataConfigTemplate) == false) this.DrawTemplates(dataConfig);
 
         }
+
+        protected virtual void OnComponentMenu(GenericMenu menu, int index) { }
+        protected virtual void OnAddComponentFromRemoveList(System.Type type) { }
+        protected virtual void OnRemoveComponentFromRemoveList(System.Type type) { }
+        protected virtual void OnAddComponent(System.Type type) { }
+        protected virtual void OnRemoveComponent(System.Type type) { }
 
         private void DrawTemplates(ME.ECS.DataConfigs.DataConfig dataConfig) {
 
@@ -612,10 +646,7 @@ namespace ME.ECSEditor {
                     dataConfig.AddTemplate(template);
                     //dataConfig.OnScriptLoad();
                     this.Save(dataConfig);
-                    AssetDatabase.ForceReserializeAssets(new [] { AssetDatabase.GetAssetPath(dataConfig) }, ForceReserializeAssetsOptions.ReserializeAssetsAndMetadata);
-                    AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(dataConfig), ImportAssetOptions.ForceUpdate);
-                    AssetDatabase.SaveAssets();
-
+                    
                 }
 
             });
@@ -678,16 +709,16 @@ namespace ME.ECSEditor {
             
         }
 
-        private void Save(ME.ECS.DataConfigs.DataConfig dataConfig) {
+        protected void Save(ME.ECS.DataConfigs.DataConfig dataConfig) {
             
-            EditorUtility.SetDirty(dataConfig);
+            dataConfig.Save();
             
         }
 
-        private void Save(ME.ECS.DataConfigs.DataConfig[] dataConfigs) {
-            
-            foreach (var dataConfig in dataConfigs) EditorUtility.SetDirty(dataConfig);
-            
+        protected void Save(ME.ECS.DataConfigs.DataConfig[] dataConfigs) {
+
+            foreach (var dataConfig in dataConfigs) dataConfig.Save();
+
         }
 
     }

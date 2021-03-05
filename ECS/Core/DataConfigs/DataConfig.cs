@@ -157,19 +157,19 @@ namespace ME.ECS.DataConfigs {
 	        
         }
         
-        public IStructComponent GetByType(System.Type type) {
+        public T GetByType<T>(T[] arr, System.Type type) {
             
-	        for (int i = 0; i < this.structComponents.Length; ++i) {
+	        for (int i = 0; i < arr.Length; ++i) {
 
-		        if (this.structComponents[i] != null && this.structComponents[i].GetType() == type) {
+		        if (arr[i] != null && arr[i].GetType() == type) {
 
-			        return this.structComponents[i];
+			        return arr[i];
 
 		        }
 		        
 	        }
 	        
-            return null;
+            return default;
 
         }
 
@@ -225,7 +225,7 @@ namespace ME.ECS.DataConfigs {
             if (found == false) {
                 
                 System.Array.Resize(ref arr, arr.Length + 1);
-                arr[arr.Length - 1] = component; //(T)((object)component).DeepClone();
+                arr[arr.Length - 1] = component;
 
             }
             
@@ -233,10 +233,16 @@ namespace ME.ECS.DataConfigs {
         
         public bool HasByType<T>(T[] arr, object component) {
 
+            return this.HasByType(arr, component.GetType());
+
+        }
+
+        public bool HasByType<T>(T[] arr, System.Type componentType) {
+
             for (int i = 0; i < arr.Length; ++i) {
 
                 var comp = arr[i];
-                if (comp.GetType() == component.GetType()) {
+                if (comp.GetType() == componentType) {
 
                     return true;
 
@@ -247,13 +253,19 @@ namespace ME.ECS.DataConfigs {
             return false;
 
         }
-        
+
         public void RemoveFrom<T>(ref T[] arr, object component) {
+
+            this.RemoveFrom(ref arr, component.GetType());
+
+        }
+
+        public void RemoveFrom<T>(ref T[] arr, System.Type componentType) {
 
             for (int i = 0; i < arr.Length; ++i) {
 
                 var comp = arr[i];
-                if (comp.GetType() == component.GetType()) {
+                if (comp.GetType() == componentType) {
 
                     var list = arr.ToList();
                     list.RemoveAt(i);
@@ -266,7 +278,102 @@ namespace ME.ECS.DataConfigs {
 
         }
 
+        public bool UpdateValue(IStructComponent component) {
+
+            var componentType = component.GetType();
+            if (this.HasByType(this.structComponents, componentType) == false) {
+                
+                return false;
+                
+            }
+
+            for (int i = 0; i < this.structComponents.Length; ++i) {
+
+                var comp = this.structComponents[i];
+                if (comp.GetType() == componentType) {
+
+                    this.structComponents[i] = component;
+                    break;
+
+                }
+
+            }
+            
+            this.Save();
+
+            return true;
+
+        }
+
+        public bool OnAddToTemplate(DataConfigTemplate template, System.Type componentType) {
+            
+            if (this.HasByType(this.structComponents, componentType) == true) {
+                
+                return false;
+                
+            }
+
+            var data = template.GetByType(template.structComponents, componentType);
+            this.AddTo(ref this.structComponents, data);
+
+            this.Save();
+
+            return true;
+            
+        }
+
+        public bool OnRemoveFromTemplate(DataConfigTemplate template, System.Type componentType) {
+            
+            if (this.HasByType(this.structComponents, componentType) == false) {
+                
+                return false;
+                
+            }
+
+            this.RemoveFrom(ref this.structComponents, componentType);
+
+            this.Save();
+
+            return true;
+            
+        }
+
+        public bool OnAddToTemplateRemoveList(DataConfigTemplate template, System.Type componentType) {
+            
+            if (this.HasByType(this.removeStructComponents, componentType) == true) {
+                
+                return false;
+                
+            }
+
+            var data = template.GetByType(template.removeStructComponents, componentType);
+            this.AddTo(ref this.removeStructComponents, data);
+
+            this.Save();
+
+            return true;
+            
+        }
+
+        public bool OnRemoveFromTemplateRemoveList(DataConfigTemplate template, System.Type componentType) {
+            
+            if (this.HasByType(this.removeStructComponents, componentType) == false) {
+                
+                return false;
+                
+            }
+
+            this.RemoveFrom(ref this.removeStructComponents, componentType);
+
+            this.Save();
+
+            return true;
+            
+        }
+
         public void AddTemplate(DataConfigTemplate template) {
+
+            template.Use(this);
 
             for (var i = 0; i < template.structComponents.Length; ++i) {
 
@@ -280,12 +387,14 @@ namespace ME.ECS.DataConfigs {
 
             }
 
-            //this.OnScriptLoad();
+            this.Save();
 
         }
 
         public void RemoveTemplate(DataConfigTemplate template, System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate> allTemplates) {
             
+            template.UnUse(this);
+
             for (var i = 0; i < template.structComponents.Length; ++i) {
 
                 var hasOther = allTemplates.Any(x => x != template && x.HasByType(x.structComponents, template.structComponents[i]));
@@ -300,162 +409,18 @@ namespace ME.ECS.DataConfigs {
 
             }
 
-            //this.OnScriptLoad();
+            this.Save();
 
         }
 
-        /*public void OnValidate() {
-
-            this.OnScriptLoad();
+        public void Save() {
             
-        }
-
-        public bool OnScriptLoad() {
-
-            if (Application.isPlaying == true) return false;
             #if UNITY_EDITOR
-            if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode == true) return false;
+            UnityEditor.EditorUtility.SetDirty(this);
+            UnityEditor.AssetDatabase.ForceReserializeAssets(new [] { UnityEditor.AssetDatabase.GetAssetPath(this) }, UnityEditor.ForceReserializeAssetsOptions.ReserializeAssetsAndMetadata);
             #endif
-
-            var str = string.Empty;
-            var changed = false;
-            var allAsms = System.AppDomain.CurrentDomain.GetAssemblies();
-            foreach (var asm in allAsms) {
-
-                var asmType = asm.GetType("ME.ECS.ComponentsInitializer");
-                if (asmType != null) {
-
-                    var m = asmType.GetMethod("InitTypeId", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
-                    if (m == null) continue;
-                    
-                    m.Invoke(null, null);
-                    
-                    {
-
-                        if (this.removeStructComponentsDataTypeIds == null || this.removeStructComponentsDataTypeIds.Length != this.removeStructComponents.Length) {
-                            
-                            str += $"removeStructComponentsDataTypeIds length changed: {(this.removeStructComponentsDataTypeIds != null ? this.removeStructComponentsDataTypeIds.Length : 0)} => {this.removeStructComponents.Length}\n";
-                            this.removeStructComponentsDataTypeIds = new int[this.removeStructComponents.Length];
-                            changed = true;
-
-                        }
-                        
-                        for (int i = 0; i < this.removeStructComponents.Length; ++i) {
-
-                            var obj = this.removeStructComponents[i];
-                            if (obj == null) {
-
-                                if (this.removeStructComponentsDataTypeIds[i] != -1) {
-
-                                    str += $"removeStructComponentsDataTypeIds changed on {i}: -1\n";
-                                    this.removeStructComponentsDataTypeIds[i] = -1;
-                                    changed = true;
-                                    
-                                }
-                                continue;
-                                
-                            }
-                            
-                            var type = obj.GetType();
-                            if (ComponentTypesRegistry.allTypeId.ContainsKey(type) == false) {
-                                
-                                UnityEngine.Debug.LogWarning("Type was not found: " + type + " on config " + this, this);
-                                continue;
-                                
-                            }
-                            var allId = ComponentTypesRegistry.allTypeId[type];
-                            if (this.removeStructComponentsDataTypeIds[i] != allId) {
-                                
-                                str += $"removeStructComponentsDataTypeIds changed on {i}: {this.removeStructComponentsDataTypeIds[i]} => {allId}\n";
-                                this.removeStructComponentsDataTypeIds[i] = allId;
-                                changed = true;
-
-                            }
-
-                        }
-                        
-                    }
-                    
-                    {
-
-                        if (this.structComponentsDataTypeIds == null || this.structComponentsDataTypeIds.Length != this.structComponents.Length) {
-                            
-                            str += $"structComponentsDataTypeIds length changed: {(this.structComponentsDataTypeIds != null ? this.structComponentsDataTypeIds.Length : 0)} => {this.structComponents.Length}\n";
-                            this.structComponentsDataTypeIds = new int[this.structComponents.Length];
-                            changed = true;
-
-                        }
-                        
-                        for (int i = 0; i < this.structComponents.Length; ++i) {
-
-                            var obj = this.structComponents[i];
-                            if (obj == null) {
-
-                                if (this.structComponentsDataTypeIds[i] != -1) {
-                                    
-                                    str += $"structComponentsDataTypeIds changed on {i}: -1\n";
-                                    this.structComponentsDataTypeIds[i] = -1;
-                                    changed = true;
-                                    
-                                }
-                                continue;
-                                
-                            }
-                            
-                            var type = obj.GetType();
-                            if (ComponentTypesRegistry.allTypeId.ContainsKey(type) == false) {
-                                
-                                UnityEngine.Debug.LogWarning("Type was not found: " + type + " on config " + this, this);
-                                continue;
-                                
-                            }
-                            var allId = ComponentTypesRegistry.allTypeId[type];
-                            if (this.structComponentsDataTypeIds[i] != allId) {
-                                
-                                str += $"structComponentsDataTypeIds changed on {i}: {this.structComponentsDataTypeIds[i]} => {allId}\n";
-                                this.structComponentsDataTypeIds[i] = allId;
-                                changed = true;
-
-                            }
-
-                        }
-                        
-                    }
-                    break;
-
-                }
-
-            }
-
-            if (changed == true) {
-
-                #if UNITY_EDITOR
-                UnityEditor.EditorUtility.SetDirty(this);
-                #endif
-
-                UnityEngine.Debug.Log("DataConfig " + this + " reloaded. Changes: " + str);
-
-            }
-
-            return changed;
-
-        }
-        
-        #if UNITY_EDITOR
-        [UnityEditor.Callbacks.DidReloadScripts]
-        public static void OnScriptsReloaded() {
-
-            var guids = UnityEditor.AssetDatabase.FindAssets("t:DataConfig");
-            foreach (var guid in guids) {
-
-                var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<DataConfig>(UnityEditor.AssetDatabase.GUIDToAssetPath(guid));
-                if (asset != null) asset.OnScriptLoad();
-
-            }
             
         }
-        #endif
-        */
 
     }
 
@@ -521,7 +486,7 @@ namespace ME.ECS.DataConfigs {
             return slice;
 
         }
-        
+
     }
     
 }

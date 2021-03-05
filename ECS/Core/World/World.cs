@@ -752,8 +752,8 @@ namespace ME.ECS {
 
             var rewindState = this.GetRewindState(tick, maxSimulationTime);
             onState?.Invoke(rewindState);
-            if (false/*rewindState == RewindAsyncState.LongBackwardRewind ||
-                rewindState == RewindAsyncState.LongForwardRewind*/) {
+            if (rewindState == RewindAsyncState.LongBackwardRewind ||
+                rewindState == RewindAsyncState.LongForwardRewind) {
 
                 var isPaused = this.isPaused;
                 this.Pause();
