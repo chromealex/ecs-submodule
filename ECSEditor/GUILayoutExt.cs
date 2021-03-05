@@ -433,6 +433,8 @@ namespace ME.ECSEditor {
 	    public static void CollectEditors<TEditor, TAttribute>(ref System.Collections.Generic.Dictionary<System.Type, TEditor> dic,
 	                                                           System.Reflection.Assembly searchAssembly = null)
 		    where TEditor : IGUIEditorBase where TAttribute : CustomEditorAttribute {
+
+		    if (dic != null) return;
 		    
 		    var assembly = (searchAssembly == null ? System.Reflection.Assembly.GetExecutingAssembly() : searchAssembly);
 		    CollectEditors<TEditor, TAttribute>(ref dic, new [] { assembly });
@@ -441,7 +443,7 @@ namespace ME.ECSEditor {
 
 	    public static void CollectEditorsAll<TEditor, TAttribute>(ref System.Collections.Generic.Dictionary<System.Type, TEditor> dic) where TEditor : IGUIEditorBase where TAttribute : CustomEditorAttribute {
 		    
-		    CollectEditors<TEditor, TAttribute>(ref dic, System.AppDomain.CurrentDomain.GetAssemblies());
+		    if (dic == null) CollectEditors<TEditor, TAttribute>(ref dic, System.AppDomain.CurrentDomain.GetAssemblies());
 		    
 	    }
 

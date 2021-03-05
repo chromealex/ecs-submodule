@@ -339,7 +339,7 @@ namespace ME.ECSEditor {
                                     if (changed == true) {
 
                                         dataConfig.structComponents[registry.index] = component;
-                                        this.Save(dataConfig);
+                                        this.Save(dataConfig, true);
 
                                     }
 
@@ -359,7 +359,7 @@ namespace ME.ECSEditor {
                                                 if (changed == true) {
 
                                                     dataConfig.structComponents[registry.index] = component;
-                                                    this.Save(dataConfig);
+                                                    this.Save(dataConfig, true);
 
                                                 }
 
@@ -709,15 +709,15 @@ namespace ME.ECSEditor {
             
         }
 
-        protected void Save(ME.ECS.DataConfigs.DataConfig dataConfig) {
+        protected void Save(ME.ECS.DataConfigs.DataConfig dataConfig, bool dirtyOnly = false) {
             
-            dataConfig.Save();
+            dataConfig.Save(dirtyOnly);
             
         }
 
-        protected void Save(ME.ECS.DataConfigs.DataConfig[] dataConfigs) {
+        protected void Save(ME.ECS.DataConfigs.DataConfig[] dataConfigs, bool dirtyOnly = false) {
 
-            foreach (var dataConfig in dataConfigs) dataConfig.Save();
+            foreach (var dataConfig in dataConfigs) dataConfig.Save(dirtyOnly);
 
         }
 
