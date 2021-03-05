@@ -144,32 +144,32 @@ namespace ME.ECSEditor {
                 }
                 UnityEngine.GUILayout.EndHorizontal();
 
+                var dataStates = this.target.GetDataStates();
+                var entries = dataStates.GetEntries();
+                foreach (var entryData in entries) {
+
+                    var entry = entryData as ME.ECS.Network.IStatesHistoryEntry;
+                    var state = entry.GetData() as State;
+                    UnityEngine.GUILayout.BeginHorizontal();
+                    {
+                        UnityEngine.GUILayout.Label(entry.isEmpty == true ? "None" : "Tick: " + state.tick + ", Hash: " + state.GetHash());
+                        if (entry.isEmpty == false) {
+
+                            if (UnityEngine.GUILayout.Button("Print Entities", UnityEngine.GUILayout.Width(80f)) == true) {
+
+                                this.PrintEntities(state);
+
+                            }
+
+                        }
+                    }
+                    UnityEngine.GUILayout.EndHorizontal();
+                
+                }
+
             });
             this.statesHistoryFoldState = val;
             GUILayoutExt.Separator();
-
-            var dataStates = this.target.GetDataStates();
-            var entries = dataStates.GetEntries();
-            foreach (var entryData in entries) {
-
-                var entry = entryData as ME.ECS.Network.IStatesHistoryEntry;
-                var state = entry.GetData() as State;
-                UnityEngine.GUILayout.BeginHorizontal();
-                {
-                    UnityEngine.GUILayout.Label(entry.isEmpty == true ? "None" : "Tick: " + state.tick + ", Hash: " + state.GetHash());
-                    if (entry.isEmpty == false) {
-
-                        if (UnityEngine.GUILayout.Button("Print Entities", UnityEngine.GUILayout.Width(80f)) == true) {
-
-                            this.PrintEntities(state);
-
-                        }
-
-                    }
-                }
-                UnityEngine.GUILayout.EndHorizontal();
-                
-            }
 
             return false;
 
