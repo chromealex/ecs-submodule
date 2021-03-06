@@ -128,6 +128,12 @@
             
         }
 
+        public BufferArray<T> GetArray() {
+
+            return this.innerArray;
+
+        }
+        
         public T[] ToArray() {
             var retArray = new T[this.Count];
             System.Array.Copy(this.innerArray.arr, 0, retArray, 0, this.Count);
