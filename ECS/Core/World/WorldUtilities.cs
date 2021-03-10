@@ -216,7 +216,7 @@ namespace ME.ECS {
         #endif
         public static bool IsVersioned<TComponent>() {
 
-            return ComponentTypes<TComponent>.isVersioned;
+            return ComponentTypes<TComponent>.isFilterVersioned;
 
         }
         
@@ -225,7 +225,7 @@ namespace ME.ECS {
         #endif
         public static void SetComponentVersioned<TComponent>(bool state) {
 
-            ComponentTypes<TComponent>.isVersioned = state;
+            ComponentTypes<TComponent>.isFilterVersioned = state;
 
         }
 
@@ -273,6 +273,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void SetComponentAsVersioned<TComponent>() {
+
+            AllComponentTypes<TComponent>.isVersioned = true;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void SetComponentAsCopyable<TComponent>() {
 
             AllComponentTypes<TComponent>.isCopyable = true;
@@ -282,10 +291,11 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static bool InitComponentTypeId<TComponent>(bool isTag = false, bool isCopyable = false) {
+        public static bool InitComponentTypeId<TComponent>(bool isTag = false, bool isCopyable = false, bool isVersioned = false) {
 
             var isNew = (AllComponentTypes<TComponent>.typeId == -1);
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
+            if (isVersioned == true) WorldUtilities.SetComponentAsVersioned<TComponent>();
             if (isCopyable == true) WorldUtilities.SetComponentAsCopyable<TComponent>();
 
             WorldUtilities.GetAllComponentTypeId<TComponent>();

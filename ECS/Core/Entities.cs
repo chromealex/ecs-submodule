@@ -30,7 +30,7 @@ namespace ME.ECS {
 
         public static readonly byte _;
         public static int typeId = -1;
-        public static bool isVersioned = false;
+        public static bool isFilterVersioned = false;
 
     }
 
@@ -39,6 +39,7 @@ namespace ME.ECS {
         public static readonly byte _;
         public static int typeId = -1;
         public static bool isTag = false;
+        public static bool isVersioned = false;
         public static bool isCopyable = false;
         public static bool isInHash = true;
 
@@ -98,6 +99,15 @@ namespace ME.ECS {
             TComponent ReadData<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
 
             return ref Worlds.currentWorld.ReadData<TComponent>(in entity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static long GetDataVersion<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
+
+            return Worlds.currentWorld.GetDataVersion<TComponent>(in entity);
 
         }
 

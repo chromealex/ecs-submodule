@@ -22,6 +22,8 @@ namespace ME.ECS {
 
     public interface IStructComponent { }
 
+    public interface IVersioned { }
+
     public interface IStructCopyableBase { }
 
     public interface IStructCopyable<T> : IStructComponent, IStructCopyableBase where T : IStructCopyable<T> {
@@ -56,6 +58,8 @@ namespace ME.ECS {
         public abstract int GetTypeBit();
         public abstract int GetAllTypeBit();
 
+        public abstract void UpdateVersion(in Entity entity);
+        
         public abstract bool HasType(System.Type type);
         public abstract IStructComponent GetObject(Entity entity);
         public abstract bool SetObject(Entity entity, IStructComponent data);
@@ -127,9 +131,17 @@ namespace ME.ECS {
         internal BufferArray<byte> componentsStates;
         [ME.ECS.Serializer.SerializeField]
         internal ListCopyable<int> lifetimeIndexes;
+        [ME.ECS.Serializer.SerializeField]
+        internal BufferArray<long> versions;
 
         internal TComponent emptyComponent;
 
+        public long GetVersion(in Entity entity) {
+
+            return this.versions.arr[entity.id];
+
+        }
+        
         public override int GetTypeBit() {
 
             return WorldUtilities.GetComponentTypeId<TComponent>();
@@ -159,6 +171,15 @@ namespace ME.ECS {
             }
 
             return hash;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public override void UpdateVersion(in Entity entity) {
+
+            if (AllComponentTypes<TComponent>.isVersioned == true) this.versions.arr[entity.id] = this.world.GetCurrentTick();
 
         }
 
@@ -272,6 +293,8 @@ namespace ME.ECS {
 
             }
 
+            if (AllComponentTypes<TComponent>.isVersioned == true) ArrayUtils.Resize(capacity, ref this.versions);
+            
             this.world.currentState.storage.archetypes.Validate(capacity);
 
             return result;
@@ -301,6 +324,8 @@ namespace ME.ECS {
                 ArrayUtils.Resize(index, ref this.componentsStates);
 
             }
+
+            if (AllComponentTypes<TComponent>.isVersioned == true) ArrayUtils.Resize(index, ref this.versions);
 
             this.world.currentState.storage.archetypes.Validate(in entity);
 
@@ -338,8 +363,7 @@ namespace ME.ECS {
 
                 if (AllComponentTypes<TComponent>.isTag == false) {
 
-                    var bucket = this.components[index];
-                    return bucket;
+                    return this.components[index];
 
                 } else {
 
@@ -522,6 +546,7 @@ namespace ME.ECS {
             var _other = (StructComponents<TComponent>)other;
             ArrayUtils.Copy(in _other.componentsStates, ref this.componentsStates);
             ArrayUtils.Copy(_other.lifetimeIndexes, ref this.lifetimeIndexes);
+            if (AllComponentTypes<TComponent>.isVersioned == true) ArrayUtils.Copy(_other.versions, ref this.versions);
             if (AllComponentTypes<TComponent>.isTag == false) ArrayUtils.Copy(in _other.components, ref this.components);
 
         }
@@ -1504,6 +1529,44 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public IStructComponent ReadData(in Entity entity, int registryIndex) {
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            // Inline all manually
+            var reg = this.currentState.structComponents.list.arr[registryIndex];
+            return reg.GetObject(entity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public long GetDataVersion<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
+            
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            if (AllComponentTypes<TComponent>.isVersioned == false) return 0L;
+            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            return reg.versions.arr[entity.id];
+            
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ref TComponent GetData<TComponent>(in Entity entity, bool createIfNotExists = true) where TComponent : struct, IStructComponent {
 
             #if WORLD_EXCEPTIONS
@@ -1548,7 +1611,8 @@ namespace ME.ECS {
             if (incrementVersion == true) {
 
                 this.currentState.storage.versions.Increment(in entity);
-                if (ComponentTypes<TComponent>.isVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
+                if (AllComponentTypes<TComponent>.isVersioned == true) reg.versions.arr[entity.id] = this.GetCurrentTick();
+                if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
             }
 
@@ -1598,7 +1662,8 @@ namespace ME.ECS {
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
             #endif
             this.currentState.storage.versions.Increment(in entity);
-            if (ComponentTypes<TComponent>.isVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
+            if (AllComponentTypes<TComponent>.isVersioned == true) reg.versions.arr[entity.id] = this.GetCurrentTick();
+            if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
             return ref state;
 
@@ -1654,7 +1719,8 @@ namespace ME.ECS {
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
             #endif
             this.currentState.storage.versions.Increment(in entity);
-            if (ComponentTypes<TComponent>.isVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
+            if (AllComponentTypes<TComponent>.isVersioned == true) reg.versions.arr[entity.id] = this.GetCurrentTick();
+            if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
             return ref state;
 
@@ -1848,7 +1914,7 @@ namespace ME.ECS {
 
                 state = 0;
                 this.currentState.storage.versions.Increment(in entity);
-                if (ComponentTypes<TComponent>.isVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
+                if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
                 if (AllComponentTypes<TComponent>.isTag == false) reg.RemoveData(in entity);
                 if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
 
@@ -1869,7 +1935,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal void SetData(in Entity entity, in IStructComponent data, int dataIndex, int componentIndex) {
+        public void SetData(in Entity entity, in IStructComponent data, int dataIndex, int componentIndex) {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -1892,7 +1958,13 @@ namespace ME.ECS {
             if (reg.SetObject(entity, data) == true) {
 
                 this.currentState.storage.versions.Increment(in entity);
-                if (this.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) this.currentState.storage.archetypes.Set(in entity, componentIndex);
+                reg.UpdateVersion(in entity);
+                if (this.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) {
+
+                    this.currentState.storage.archetypes.Set(in entity, componentIndex);
+                    this.UpdateFilterByStructComponent(in entity, componentIndex);
+
+                }
                 System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
 
             }
@@ -1902,7 +1974,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal void RemoveData(in Entity entity, int dataIndex, int componentIndex) {
+        public void RemoveData(in Entity entity, int dataIndex, int componentIndex) {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -1924,7 +1996,12 @@ namespace ME.ECS {
             if (reg.RemoveObject(entity) == true) {
 
                 this.currentState.storage.versions.Increment(in entity);
-                if (this.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) this.currentState.storage.archetypes.Remove(in entity, componentIndex);
+                if (this.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) {
+                    
+                    this.currentState.storage.archetypes.Remove(in entity, componentIndex);
+                    this.UpdateFilterByStructComponent(in entity, componentIndex);
+                    
+                }
                 System.Threading.Interlocked.Decrement(ref this.currentState.structComponents.count);
 
             }

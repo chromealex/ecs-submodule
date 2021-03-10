@@ -17,7 +17,7 @@ namespace ME.ECSEditor {
         private const string CONTENT_ITEM2 = @"
             entity.ValidateData#COPYABLE#<#TYPENAME#>(#ISTAG#);";
         private const string CONTENT_ITEM3 = @"
-            WorldUtilities.InitComponentTypeId<#TYPENAME#>(#ISTAG#, #ISCOPYABLE#);";
+            WorldUtilities.InitComponentTypeId<#TYPENAME#>(#ISTAG#, #ISCOPYABLE#, #ISVERSIONED#);";
         private const bool AUTO_COMPILE_DEFAULT = true;
 
         static StructComponentsGenerator() {
@@ -83,6 +83,14 @@ namespace ME.ECSEditor {
             StructComponentsGenerator.Init();
             Generator.OnAfterAssemblyReload(false);
             
+        }
+
+        [UnityEditor.MenuItem(StructComponentsGenerator.MENU_ITEM_AUTO, true)]
+        public static bool AutoGenerateValidateFunc() {
+            
+            StructComponentsGenerator.Init();
+            return Generator.AutoGenerateValidate();
+
         }
 
         [UnityEditor.MenuItem(StructComponentsGenerator.MENU_ITEM_AUTO)]

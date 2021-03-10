@@ -43,6 +43,46 @@ namespace ME.ECSEditor {
 
     public static class GUILayoutExt {
 
+	    public struct HandlesAlphaUsing : IDisposable {
+
+		    private Color oldColor;
+
+		    public HandlesAlphaUsing(float alpha) {
+
+			    this.oldColor = Handles.color;
+			    var c = this.oldColor;
+			    c.a = alpha;
+			    Handles.color = c;
+
+		    }
+		    
+		    public void Dispose() {
+
+			    Handles.color = this.oldColor;
+
+		    }
+
+	    }
+	    
+	    public struct HandlesColorUsing : IDisposable {
+
+		    private Color oldColor;
+
+		    public HandlesColorUsing(Color color) {
+
+			    this.oldColor = Handles.color;
+			    Handles.color = color;
+
+		    }
+		    
+		    public void Dispose() {
+
+			    Handles.color = this.oldColor;
+
+		    }
+
+	    }
+
 	    public struct GUIColorUsing : IDisposable {
 
 		    private Color oldColor;
@@ -313,6 +353,105 @@ namespace ME.ECSEditor {
             }
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
+ 
+	    }
+
+	    public static void DrawAddComponentMenu(Rect rect, System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd) {
+		    
+            GUIStyle style = new GUIStyle(GUI.skin.button);
+            style.fontSize = 12;
+            style.fixedWidth = 130f;
+            style.fixedHeight = 23f;
+
+            var offset = (rect.width - style.fixedWidth) * 0.5f;
+            rect.width = style.fixedWidth;
+            rect.height = style.fixedHeight;
+            rect.x += offset;
+            if (GUI.Button(rect, "Edit Components", style)) {
+                
+                rect.y += 26f;
+                rect.x += rect.width;
+                rect.width = style.fixedWidth;
+                //AddEquipmentBehaviourWindow.Show(rect, entity, usedComponents);
+
+                if (GUILayoutExt.allStructComponents == null) {
+
+	                GUILayoutExt.allStructComponents = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).Where(x => x.IsValueType == true && typeof(IStructComponent).IsAssignableFrom(x)).ToArray();
+
+                }
+
+                //var lastRect = GUILayoutUtility.GetLastRect();
+                //lastRect.height = 200f;
+                var v2 = GUIUtility.GUIToScreenPoint(new Vector2(rect.x, rect.y));
+                rect.x = v2.x - rect.width;
+                rect.y = v2.y;
+                rect.width = 230f;
+                rect.height = 320f;
+                
+                var popup = new Popup() {
+	                title = "Components",
+	                autoHeight = false,
+	                screenRect = rect,
+	                searchText = string.Empty,
+	                separator = '.',
+	                
+                };
+                var arr = GUILayoutExt.allStructComponents;
+                foreach (var type in arr) {
+
+	                var isUsed = usedComponents.Contains(type);
+
+	                var addType = type;
+	                var name = type.FullName;
+	                var fixName = string.Empty;
+
+	                if (name.StartsWith("ME.ECS") == true) {
+		                
+		                var spName = name.Split('.');
+		                var p1 = spName[spName.Length - 2];
+		                var p2 = spName[spName.Length - 1];
+		                if (p1 == p2) {
+			                
+			                fixName = "ECS." + p2;
+
+		                } else {
+
+			                fixName = "ECS." + p1 + "." + p2;
+
+		                }
+
+	                } else {
+
+		                //var spName = name.Split('.');
+		                //var component = spName[spName.Length - 1];
+		                var spName = name.Split(new[] { ".Features." }, StringSplitOptions.RemoveEmptyEntries);
+		                //var rootName = spName[0];
+		                name = spName[spName.Length - 1];
+		                /*spName = name.Split(new[] { ".Components." }, StringSplitOptions.RemoveEmptyEntries);
+		                var feature = spName[0];
+						fixName = rootName + "." + feature + "." + component;*/
+		                fixName = name;
+
+	                }
+	                
+	                System.Action<PopupWindowAnim.PopupItem> onItemSelect = (item) => {
+		                
+		                isUsed = usedComponents.Contains(type);
+		                onAdd.Invoke(addType, isUsed);
+		                
+		                isUsed = usedComponents.Contains(type);
+		                var tex = isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0];
+		                item.image = tex;
+		                
+	                };
+	                
+	                if (isUsed == true) popup.Item("Used." + type.Name, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect, searchable: false);
+	                popup.Item(fixName, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect);
+
+                }
+                popup.Show();
+
+            }
  
 	    }
 

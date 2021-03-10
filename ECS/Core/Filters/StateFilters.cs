@@ -77,6 +77,33 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void UpdateFilterByStructComponent(in Entity entity, int componentIndex) {
+
+            var containsFilters = this.currentState.filters.filtersTree.GetFiltersContainsFor(componentIndex);
+            for (int i = 0; i < containsFilters.Length; ++i) {
+
+                var filterId = containsFilters.arr[i];
+                var filter = this.GetFilter(filterId);
+                if (filter.IsForEntity(entity.id) == false) continue;
+                filter.OnUpdate(in entity);
+
+            }
+
+            var notContainsFilters = this.currentState.filters.filtersTree.GetFiltersNotContainsFor(componentIndex);
+            for (int i = 0; i < notContainsFilters.Length; ++i) {
+
+                var filterId = notContainsFilters.arr[i];
+                var filter = this.GetFilter(filterId);
+                if (filter.IsForEntity(entity.id) == false) continue;
+                filter.OnUpdate(in entity);
+
+            }
+
+        }
+
         [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -544,6 +571,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public bool Contains(in Entity entity) {
+
+            return this.world.GetFilter(this.id).Contains(in entity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public FilterEnumerator GetEnumerator() {
 
             return new FilterEnumerator(this.world.GetFilter(this.id));
@@ -655,20 +691,6 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Filter Create(string customName = null) {
-
-            var filter = FilterData.Create(customName);
-            return new Filter() {
-                id = filter.id,
-                world = Worlds.currentWorld,
-                temp = filter
-            };
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public void GetBounds(out int min, out int max) {
 
             this.world.GetFilter(this.id).GetBounds(out min, out max);
@@ -690,6 +712,36 @@ namespace ME.ECS {
         public void UseVersioned() {
 
             this.world.GetFilter(this.id).UseVersioned();
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Filter Create(string customName = null) {
+
+            var filter = FilterData.Create(customName);
+            return new Filter() {
+                id = filter.id,
+                world = Worlds.currentWorld,
+                temp = filter
+            };
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Filter CreateFromData(FilterDataTypes filterDataTypes, string customName = null) {
+
+            var filter = FilterData.Create(customName).With(filterDataTypes.with).Without(filterDataTypes.without);
+            var f = new Filter() {
+                id = filter.id,
+                world = Worlds.currentWorld,
+                temp = filter,
+            };
+
+            return f;
 
         }
 
@@ -875,23 +927,35 @@ namespace ME.ECS {
 
         }
 
-        public void AddTypeToEditorWith<TComponent>() {
+        private void AddTypeToEditorWith<TComponent>() {
 
-            var idx = (this.editorTypes != null ? this.editorTypes.Length : 0);
-            System.Array.Resize(ref this.editorTypes, idx + 1);
-            this.editorTypes[idx] = "W<" + typeof(TComponent).Name + ">";
+            this.AddTypeToEditorWith(typeof(TComponent));
 
         }
 
-        public void AddTypeToEditorWithout<TComponent>() {
+        private void AddTypeToEditorWithout<TComponent>() {
 
-            var idx = (this.editorTypes != null ? this.editorTypes.Length : 0);
-            System.Array.Resize(ref this.editorTypes, idx + 1);
-            this.editorTypes[idx] = "WO<" + typeof(TComponent).Name + ">";
+            this.AddTypeToEditorWithout(typeof(TComponent));
 
         }
 
-        public void OnEditorFilterCreate() {
+        private void AddTypeToEditorWith(System.Type type) {
+
+            var idx = (this.editorTypes != null ? this.editorTypes.Length : 0);
+            System.Array.Resize(ref this.editorTypes, idx + 1);
+            this.editorTypes[idx] = "W<" + type.Name + ">";
+
+        }
+
+        private void AddTypeToEditorWithout(System.Type type) {
+
+            var idx = (this.editorTypes != null ? this.editorTypes.Length : 0);
+            System.Array.Resize(ref this.editorTypes, idx + 1);
+            this.editorTypes[idx] = "WO<" + type.Name + ">";
+
+        }
+
+        private void OnEditorFilterCreate() {
 
             const int frameIndex = 3;
             var st = new System.Diagnostics.StackTrace(true);
@@ -1697,6 +1761,48 @@ namespace ME.ECS {
         public FilterData OnVersionChangedOnly() {
 
             this.onVersionChangedOnly = true;
+
+            return this;
+
+        }
+
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public FilterData With(IStructComponent[] components) {
+
+            for (int i = 0; i < components.Length; ++i) {
+
+                var type = components[i].GetType();
+                if (ComponentTypesRegistry.allTypeId.TryGetValue(type, out var bit) == true) {
+                
+                    this.archetypeContains.AddBit(bit);
+                    #if UNITY_EDITOR
+                    this.AddTypeToEditorWith(type);
+                    #endif
+                    
+                }
+
+            }
+
+            return this;
+
+        }
+
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public FilterData Without(IStructComponent[] components) {
+
+            for (int i = 0; i < components.Length; ++i) {
+
+                var type = components[i].GetType();
+                if (ComponentTypesRegistry.allTypeId.TryGetValue(type, out var bit) == true) {
+                
+                    this.archetypeNotContains.AddBit(bit);
+                    #if UNITY_EDITOR
+                    this.AddTypeToEditorWithout(type);
+                    #endif
+                    
+                }
+
+            }
 
             return this;
 

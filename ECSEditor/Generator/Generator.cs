@@ -50,7 +50,7 @@ namespace ME.ECSEditor {
 
         protected static void OnAfterAssemblyReload(bool delete) {
 
-            if (Generator.AutoGenerateValidate() == false) {
+            if (Generator.IsAutoGenerateEnabled() == false) {
                 return;
             }
 
@@ -84,17 +84,24 @@ namespace ME.ECSEditor {
 
         }
 
-        private static bool AutoGenerateValidate() {
+        protected static bool AutoGenerateValidate() {
 
-            Menu.SetChecked(Generator.MENU_ITEM_AUTO, EditorPrefs.GetBool(Generator.PREFS_KEY, Generator.AUTO_COMPILE_DEFAULT));
+            var isEnabled = Generator.IsAutoGenerateEnabled();
+            Menu.SetChecked(Generator.MENU_ITEM_AUTO, isEnabled);
+            return true;
+
+        }
+
+        protected static bool IsAutoGenerateEnabled() {
+
             return EditorPrefs.GetBool(Generator.PREFS_KEY, Generator.AUTO_COMPILE_DEFAULT);
 
         }
 
         protected static void AutoGenerateCheck() {
 
-            EditorPrefs.SetBool(Generator.PREFS_KEY, !Generator.AutoGenerateValidate());
-            Menu.SetChecked(Generator.MENU_ITEM_AUTO, Generator.AutoGenerateValidate());
+            EditorPrefs.SetBool(Generator.PREFS_KEY, !Generator.IsAutoGenerateEnabled());
+            //Menu.SetChecked(Generator.MENU_ITEM_AUTO, Generator.AutoGenerateValidate());
 
         }
 
@@ -332,6 +339,7 @@ namespace ME.ECSEditor {
                     var entityType = type.FullName.Replace("+", ".");
                     var hasFields = type.GetFields(System.Reflection.BindingFlags.Default | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 0;
                     var isCopyable = typeof(ME.ECS.IStructCopyableBase).IsAssignableFrom(type);
+                    var isVersioned = typeof(ME.ECS.IVersioned).IsAssignableFrom(type);
                     
                     var resItem = itemStr;
                     resItem = resItem.Replace("#PROJECTNAME#", asmName);
@@ -339,6 +347,7 @@ namespace ME.ECSEditor {
                     resItem = resItem.Replace("#TYPENAME#", entityType);
                     resItem = resItem.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                     resItem = resItem.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
+                    resItem = resItem.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
                     resItem = resItem.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
 
                     output += resItem;
@@ -351,6 +360,7 @@ namespace ME.ECSEditor {
                         resItem2 = resItem2.Replace("#TYPENAME#", entityType);
                         resItem2 = resItem2.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                         resItem2 = resItem2.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
+                        resItem2 = resItem2.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
                         resItem2 = resItem2.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
 
                         output2 += resItem2;
@@ -365,6 +375,7 @@ namespace ME.ECSEditor {
                         resItem3 = resItem3.Replace("#TYPENAME#", entityType);
                         resItem3 = resItem3.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                         resItem3 = resItem3.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
+                        resItem3 = resItem3.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
 
                         output3 += resItem3;

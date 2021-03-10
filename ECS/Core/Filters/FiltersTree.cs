@@ -168,6 +168,38 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public ME.ECS.Collections.BufferArray<int> GetFiltersContainsFor(int componentIndex) {
+
+            var idx = componentIndex;
+            if (idx >= 0 && idx < this.itemsContains.Length) {
+
+                return this.itemsContains.arr[idx].filters;
+
+            }
+
+            return new ME.ECS.Collections.BufferArray<int>(null, 0);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ME.ECS.Collections.BufferArray<int> GetFiltersNotContainsFor(int componentIndex) {
+
+            var idx = componentIndex;
+            if (idx >= 0 && idx < this.itemsNotContains.Length) {
+
+                return this.itemsNotContains.arr[idx].filters;
+
+            }
+
+            return new ME.ECS.Collections.BufferArray<int>(null, 0);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ME.ECS.Collections.BufferArray<int> GetFiltersContainsForVersioned<T>() {
 
             var idx = WorldUtilities.GetComponentTypeId<T>();
