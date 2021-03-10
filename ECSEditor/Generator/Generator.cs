@@ -197,7 +197,7 @@ namespace ME.ECSEditor {
             
         }
         
-        private static void CompileDirectory(string dir) {
+        public static void CompileDirectory(string dir) {
 
             if (System.IO.Directory.Exists(dir) == false) return;
             
