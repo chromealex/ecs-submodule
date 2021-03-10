@@ -84,8 +84,18 @@ namespace ME.ECSEditor.BlackBox {
 
             } else {
 
-                FieldDataContainerDrawer.GetTypeFromManagedReferenceFullTypeName(value.managedReferenceFullTypename, out var propSysType);
-                var propType = this.GetPropertyType(propSysType);
+                UnityEditor.SerializedPropertyType propType = UnityEditor.SerializedPropertyType.Generic;
+                if (value.propertyType == UnityEditor.SerializedPropertyType.ManagedReference) {
+
+                    FieldDataContainerDrawer.GetTypeFromManagedReferenceFullTypeName(value.managedReferenceFullTypename, out var propSysType);
+                    propType = this.GetPropertyType(propSysType);
+                    
+                } else if (value.isArray == true) {
+
+                    propType = UnityEditor.SerializedPropertyType.ArraySize;
+
+                }
+
                 var box = property.objectReferenceValue as BoxVariable;
                 if (box != null) {
 
@@ -94,7 +104,7 @@ namespace ME.ECSEditor.BlackBox {
                         FieldDataContainerDrawer.varsToType.Add(box, propType);
 
                     } else {
-                        
+
                         FieldDataContainerDrawer.varsToType[box] = propType;
 
                     }

@@ -255,9 +255,10 @@ namespace ME.ECSEditor.BlackBox {
         private SerializedObject containerSerialized;
         private Blueprint blueprint;
         private SerializedObject blueprintSerialized;
+        private SerializedObject outputSerialized;
         private Rect rect;
         private Rect localRect;
-        private Vector2 scrollPosition;
+        public Vector2 scrollPosition;
 
         private float zoom {
             get {
@@ -312,7 +313,8 @@ namespace ME.ECSEditor.BlackBox {
 
         private void DrawMiniMap() {
 
-            if (Event.current.alt == true) {
+            if (Event.current.alt == true ||
+                Event.current.button == 2) {
 
                 using (new GUILayoutExt.GUIAlphaUsing(0.3f)) {
                     
@@ -441,11 +443,104 @@ namespace ME.ECSEditor.BlackBox {
 
         }
 
+        private void DrawExitNode(Vector2 offset) {
+
+            if (this.container != null) return;
+            if (this.blueprint.outputItem.box == null) return;
+
+            var style = new GUIStyle("Box");
+            var tex = Resources.Load<Texture2D>("BlackBox/BoxExit");
+            style.normal.background = tex;
+            style.normal.scaledBackgrounds = new Texture2D[] { tex };
+
+            var styleHeader = new GUIStyle("Box");
+            styleHeader.fontStyle = FontStyle.Bold;
+            var texHeader = Resources.Load<Texture2D>("BlackBox/BoxExitHeader");
+            styleHeader.normal.background = texHeader;
+            styleHeader.normal.scaledBackgrounds = new Texture2D[] { texHeader };
+
+            var so = this.outputSerialized;
+            var blueprint = this.blueprintSerialized;
+            var boxObj = (so.targetObject as Box);
+            var width = boxObj.width;
+            var padding = boxObj.padding;
+            var item = blueprint.FindProperty("outputItem");
+            var position = item.FindPropertyRelative("position");
+            var rectProp = item.FindPropertyRelative("rect");
+            var pos = position.vector2Value;
+            var rect = this.DrawNode(styleHeader, style, false, padding, so, true, new Rect(pos.x + offset.x, pos.y + offset.y, width, 200f), "Output", (r) => {
+
+                var h = 0f;
+                if (this.container != null) {
+                    
+                    var iterBlueprint = this.blueprintSerialized.GetIterator();
+                    iterBlueprint.NextVisible(true);
+                    iterBlueprint.NextVisible(false);
+                    do {
+                        h += EditorGUI.GetPropertyHeight(iterBlueprint, includeChildren: true);
+                    } while (iterBlueprint.NextVisible(false) == true);
+                    
+                }
+                var iter = so.GetIterator();
+                iter.NextVisible(true);
+                iter.NextVisible(false);
+                do {
+                    h += EditorGUI.GetPropertyHeight(iter, includeChildren: true);
+                } while (iter.NextVisible(false) == true);
+                return h;
+                
+            }, (r) => {
+
+                if (this.container != null) {
+                    
+                    this.blueprintSerialized.Update();
+
+                    var iterBlueprint = this.blueprintSerialized.GetIterator();
+                    iterBlueprint.NextVisible(true);
+                    iterBlueprint.NextVisible(false);
+                    do {
+                        var h = EditorGUI.GetPropertyHeight(iterBlueprint, includeChildren: true);
+                        r.height = h;
+                        EditorGUI.PropertyField(r, iterBlueprint, includeChildren: true);
+                        r.y += h;
+                    } while (iterBlueprint.NextVisible(false) == true);
+                    
+                    this.blueprintSerialized.ApplyModifiedProperties();
+
+                }
+                
+                so.Update();
+
+                var iter = so.GetIterator();
+                iter.NextVisible(true);
+                iter.NextVisible(false);
+                do {
+                    var h = EditorGUI.GetPropertyHeight(iter, includeChildren: true);
+                    r.height = h;
+                    EditorGUI.PropertyField(r, iter, includeChildren: true);
+                    r.y += h;
+                } while (iter.NextVisible(false) == true);
+                
+                so.ApplyModifiedProperties();
+                
+            });
+
+            if (rectProp.rectValue != rect) {
+
+                this.blueprintSerialized.Update();
+                rectProp.rectValue = rect;
+                this.blueprintSerialized.ApplyModifiedProperties();
+
+            }
+
+        }
+
         private void DrawGraph() {
 
             var offset = this.scrollPosition;
 
             this.DrawRootNode(offset);
+            this.DrawExitNode(offset);
             
             var boxes = this.blueprintSerialized.FindProperty("boxes");
             for (int i = 0; i < boxes.arraySize; ++i) {
@@ -508,7 +603,7 @@ namespace ME.ECSEditor.BlackBox {
         }
 
         private Rect DrawNode(bool isRoot, float padding, SerializedObject so, bool drawLinkIn, Rect rect, string caption, System.Func<Rect, float> getHeight, System.Action<Rect> onDraw) {
-            
+
             var style = new GUIStyle("Box");
             var tex = (isRoot == true ? Resources.Load<Texture2D>("BlackBox/BoxRoot") : Resources.Load<Texture2D>("BlackBox/Box"));
             style.normal.background = tex;
@@ -520,6 +615,12 @@ namespace ME.ECSEditor.BlackBox {
             styleHeader.normal.background = texHeader;
             styleHeader.normal.scaledBackgrounds = new Texture2D[] { texHeader };
             //style.border = new RectOffset(6, 6, 6, 6);
+
+            return this.DrawNode(styleHeader, style, isRoot, padding, so, drawLinkIn, rect, caption, getHeight, onDraw);
+
+        }
+        
+        private Rect DrawNode(GUIStyle headerStyle, GUIStyle bodyStyle, bool avoidDraggable, float padding, SerializedObject so, bool drawLinkIn, Rect rect, string caption, System.Func<Rect, float> getHeight, System.Action<Rect> onDraw) {
 
             var rectHeader = rect;
             rectHeader.height = 26f;
@@ -551,14 +652,14 @@ namespace ME.ECSEditor.BlackBox {
 
             }
 
-            GUI.Box(rect, string.Empty, style);
-            EditorGUI.LabelField(rectHeader, caption, styleHeader);
+            GUI.Box(rect, string.Empty, bodyStyle);
+            EditorGUI.LabelField(rectHeader, caption, headerStyle);
 
             if (drawLinkIn == true) this.DrawLink(so, rectHeader.x, rectHeader.y, drawIn: true);
             
             onDraw.Invoke(new Rect(rect.x + padding, rect.y + padding + rectHeader.height, rect.width - padding * 2f, rect.height));
 
-            if (isRoot == false) {
+            if (avoidDraggable == false) {
 
                 if (so != null &&
                     rectHeader.Contains(Event.current.mousePosition) == true &&
@@ -781,7 +882,7 @@ namespace ME.ECSEditor.BlackBox {
                 if (pair != null) {
 
                     var obj = prop as SerializedObject;
-                    var type = obj.GetType();
+                    var type = obj.targetObject.GetType();
                     if ((linkParameters.boxType == null) ||
                         (type.IsAssignableFrom(linkParameters.boxType) == true)) {
 
@@ -841,6 +942,7 @@ namespace ME.ECSEditor.BlackBox {
                 blueprint.name = "MainBlueprint";
                 AssetDatabase.AddObjectToAsset(blueprint, container);
                 container.blueprint = blueprint;
+                EditorUtility.SetDirty(container);
 
             }
             if (container != null) this.SetBlueprint(container.blueprint);
@@ -850,8 +952,32 @@ namespace ME.ECSEditor.BlackBox {
         private void SetBlueprint(Blueprint container) {
 
             this.blueprint = container;
-            if (this.blueprint != null) this.blueprintSerialized = new SerializedObject(this.blueprint);
+            if (this.blueprint != null) {
+                
+                this.blueprintSerialized = new SerializedObject(this.blueprint);
 
+                if (this.container == null) {
+
+                    if (this.blueprint.outputItem.box == null) {
+
+                        var output = Blueprint.CreateInstance<OutputVariable>();
+                        output.name = "Output";
+                        AssetDatabase.AddObjectToAsset(output, this.blueprint);
+                        this.blueprint.outputItem = new Blueprint.Item() {
+                            box = output,
+                            position = new Vector2(100f, 100f),
+                            rect = new Rect(300f, 0f, 200f, 200f),
+                        };
+                        EditorUtility.SetDirty(this.blueprint);
+
+                    }
+
+                    if (this.blueprint.outputItem.box != null) this.outputSerialized = new SerializedObject(this.blueprint.outputItem.box);
+
+                }
+
+            }
+            
         }
 
         private void Pair(string from, SerializedObject fromSo, SerializedObject to) {

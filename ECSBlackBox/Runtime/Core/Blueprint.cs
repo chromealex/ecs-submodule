@@ -3,6 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace ME.ECS.BlackBox {
+
+    public interface IBlueprintContainerOutput {
+
+        ref Blueprint.Item GetOutputItem(Box box, out Vector2 position);
+
+    }
+
+    [System.Serializable]
+    public struct BlueprintInfo {
+
+        public Blueprint link;
+        public Vector2 outputPosition;
+
+    }
     
     [CreateAssetMenu(menuName = "ME.ECS/BlackBox/Blueprint")]
     public class Blueprint : ScriptableObject {
@@ -18,7 +32,11 @@ namespace ME.ECS.BlackBox {
 
         [HideInInspector]
         public Item[] boxes;
-        private Item defaultItem;
+        [HideInInspector][System.NonSerialized]
+        public static Item defaultItem;
+
+        [HideInInspector]
+        public Item outputItem;
         
         [BoxLink]
         public Box root;
@@ -60,6 +78,13 @@ namespace ME.ECS.BlackBox {
         }
         
         public void UpdatePosition(Box box, float x, float y) {
+
+            if (this.outputItem.box == box) {
+                
+                this.outputItem.position = new Vector2(x, y);
+                return;
+                
+            }
             
             for (int i = 0; i < this.boxes.Length; ++i) {
 
@@ -75,8 +100,15 @@ namespace ME.ECS.BlackBox {
             
         }
 
+        private Item tempInnerItem;
         public ref Item GetItem(Box box) {
 
+            if (this.outputItem.box == box) {
+
+                return ref this.outputItem;
+
+            }
+            
             for (int i = 0; i < this.boxes.Length; ++i) {
 
                 if (this.boxes[i].box == box) {
@@ -84,10 +116,23 @@ namespace ME.ECS.BlackBox {
                     return ref this.boxes[i];
 
                 }
+
+                if (this.boxes[i].box is IBlueprintContainerOutput blueprintContainer) {
+                    
+                    var inner = blueprintContainer.GetOutputItem(box, out var pos);
+                    if (inner.box == box) {
+                        
+                        this.tempInnerItem = inner;
+                        this.tempInnerItem.position = pos;
+                        return ref this.tempInnerItem;
+                        
+                    }
+
+                }
                 
             }
 
-            return ref this.defaultItem;
+            return ref Blueprint.defaultItem;
 
         }
 
