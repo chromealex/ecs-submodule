@@ -1812,7 +1812,7 @@ namespace ME.ECS {
         public FilterData WithStructComponent<TComponent>() where TComponent : struct, IStructComponent {
 
             WorldUtilities.SetComponentTypeId<TComponent>();
-            this.setupVersioned += (f) => WorldUtilities.SetComponentVersioned<TComponent>(f.onVersionChangedOnly);
+            this.setupVersioned += (f) => WorldUtilities.SetComponentAsFilterVersioned<TComponent>(f.onVersionChangedOnly);
             this.archetypeContains.Add<TComponent>();
             #if UNITY_EDITOR
             this.AddTypeToEditorWith<TComponent>();
@@ -1825,7 +1825,7 @@ namespace ME.ECS {
         public FilterData WithoutStructComponent<TComponent>() where TComponent : struct, IStructComponent {
 
             WorldUtilities.SetComponentTypeId<TComponent>();
-            this.setupVersioned += (f) => WorldUtilities.SetComponentVersioned<TComponent>(f.onVersionChangedOnly);
+            this.setupVersioned += (f) => WorldUtilities.SetComponentAsFilterVersioned<TComponent>(f.onVersionChangedOnly);
             this.archetypeNotContains.Add<TComponent>();
             #if UNITY_EDITOR
             this.AddTypeToEditorWithout<TComponent>();

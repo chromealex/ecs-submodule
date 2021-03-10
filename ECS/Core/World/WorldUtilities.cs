@@ -223,9 +223,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void SetComponentVersioned<TComponent>(bool state) {
+        public static void SetComponentAsFilterVersioned<TComponent>(bool state) {
 
-            ComponentTypes<TComponent>.isFilterVersioned = state;
+            if (state == true) ComponentTypes<TComponent>.isFilterVersioned = state;
 
         }
 
