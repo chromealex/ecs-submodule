@@ -6,6 +6,21 @@ namespace ME.ECSEditor.BlackBox {
     
     public static class PropertyHelper {
 
+        public static bool GetTypeFromManagedReferenceFullTypeName(string managedReferenceFullTypename, out System.Type managedReferenceInstanceType) {
+            
+            managedReferenceInstanceType = null;
+
+            var parts = managedReferenceFullTypename.Split(' ');
+            if (parts.Length == 2) {
+                var assemblyPart = parts[0];
+                var nsClassnamePart = parts[1];
+                managedReferenceInstanceType = System.Type.GetType($"{nsClassnamePart}, {assemblyPart}");
+            }
+
+            return managedReferenceInstanceType != null;
+            
+        }
+
         public static RefType GetRefType(UnityEditor.SerializedPropertyType type) {
 
             return (RefType)(int)type;

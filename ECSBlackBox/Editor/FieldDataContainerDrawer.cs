@@ -84,7 +84,7 @@ namespace ME.ECSEditor.BlackBox {
                 var propType = RefType.Generic;
                 if (value.propertyType == UnityEditor.SerializedPropertyType.ManagedReference) {
 
-                    FieldDataContainerDrawer.GetTypeFromManagedReferenceFullTypeName(value.managedReferenceFullTypename, out var propSysType);
+                    PropertyHelper.GetTypeFromManagedReferenceFullTypeName(value.managedReferenceFullTypename, out var propSysType);
                     propType = PropertyHelper.GetRefType(PropertyHelper.GetPropertyType(propSysType));
                     
                 } else if (value.isArray == true) {
@@ -101,31 +101,12 @@ namespace ME.ECSEditor.BlackBox {
                     
                 }
                 
-                var style = new UnityEngine.GUIStyle(UnityEditor.EditorStyles.miniBoldLabel);
-                style.alignment = UnityEngine.TextAnchor.MiddleRight;
-                UnityEditor.EditorGUI.LabelField(position, "var", style);
                 if (BlackBoxContainerEditor.active != null) BlackBoxContainerEditor.active.DrawLink(property, position.x + position.width, position.y, drawIn: false);
                 UnityEditor.EditorGUI.LabelField(new UnityEngine.Rect(position.x + position.width + 20f, position.y, position.width, 20f), propType.ToString(), UnityEditor.EditorStyles.miniLabel);
 
             }
             
         }
-        
-        internal static bool GetTypeFromManagedReferenceFullTypeName(string managedReferenceFullTypename, out System.Type managedReferenceInstanceType) {
-            
-            managedReferenceInstanceType = null;
-
-            var parts = managedReferenceFullTypename.Split(' ');
-            if (parts.Length == 2) {
-                var assemblyPart = parts[0];
-                var nsClassnamePart = parts[1];
-                managedReferenceInstanceType = System.Type.GetType($"{nsClassnamePart}, {assemblyPart}");
-            }
-
-            return managedReferenceInstanceType != null;
-            
-        }
-
         
     }
 
