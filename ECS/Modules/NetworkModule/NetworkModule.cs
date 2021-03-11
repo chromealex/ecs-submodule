@@ -721,7 +721,7 @@ namespace ME.ECS.Network {
             var currentTargetTick = targetTick;
             var oldestEventTick = this.statesHistoryModule.GetAndResetOldestTick(tick);
             //UnityEngine.Debug.LogError("Tick: " + tick + ", timeSinceGameStart: " + timeSinceGameStart + ", targetTick: " + targetTick + ", oldestEventTick: " + oldestEventTick);
-            if (this.replayMode == false && (oldestEventTick == Tick.Invalid || oldestEventTick >= tick)) {
+            if (oldestEventTick == Tick.Invalid || oldestEventTick >= tick) {
 
                 // No events found
                 this.world.SetFromToTicks(tick, targetTick);
