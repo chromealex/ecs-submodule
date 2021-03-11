@@ -68,12 +68,29 @@ namespace ME.ECS.BlackBox {
             var fields = component.GetType().GetCachedFields();
             if (this.data == null || this.data.Length != fields.Length) this.data = new FieldData[fields.Length];
             if (this.captions == null || this.captions.Length != this.data.Length) this.captions = new string[this.data.Length];
+            if (this.boxVars == null) this.boxVars = new BoxVariable[this.data.Length];
+            if (this.boxVars.Length != this.data.Length) {
+                
+                System.Array.Resize(ref this.boxVars, this.data.Length);
+                
+            }
+            
             for (int i = 0; i < this.data.Length; ++i) {
 
-                var val = fields[i].GetValue(component);
                 this.captions[i] = fields[i].Name;
-                var valType = val.GetType();
-                if (valType.IsArray == true) {
+                var val = fields[i].GetValue(component);
+                System.Type type = null;
+                if (val == null) {
+                    
+                    type = fields[i].FieldType;
+                    
+                } else {
+                    
+                    type = val.GetType();
+                    
+                }
+                
+                if (type.IsArray == true) {
                         
                     this.data[i].value = null;
                     this.data[i].valueArr = ((System.Collections.IList)val).Cast<object>().ToArray();
@@ -89,13 +106,6 @@ namespace ME.ECS.BlackBox {
                     
             }
             
-            if (this.boxVars == null) this.boxVars = new BoxVariable[this.data.Length];
-            if (this.boxVars.Length != this.data.Length) {
-                
-                System.Array.Resize(ref this.boxVars, this.data.Length);
-                
-            }
-
         }
 
     }

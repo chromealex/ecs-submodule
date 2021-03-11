@@ -6,8 +6,6 @@ namespace ME.ECSEditor.BlackBox {
     [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.BlackBox.FieldDataContainer))]
     public class FieldDataContainerDrawer : UnityEditor.PropertyDrawer {
 
-        private static readonly System.Collections.Generic.Dictionary<BoxVariable, UnityEditor.SerializedPropertyType> varsToType = new System.Collections.Generic.Dictionary<BoxVariable, UnityEditor.SerializedPropertyType>();
-        
         public override float GetPropertyHeight(UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
             
             var isInput = property.FindPropertyRelative("isInput").boolValue;
@@ -58,18 +56,14 @@ namespace ME.ECSEditor.BlackBox {
 
                 var lastDraw = ComponentDataEditor.lastDraw;
                 var info = lastDraw[index];
-                var propType = info.so.FindProperty(info.property).propertyType;
+                var propType = PropertyHelper.GetRefType(info.so.FindProperty(info.property).propertyType);
                 
-                var elemType = UnityEditor.SerializedPropertyType.Generic;
+                var elemType = RefType.Generic;
                 var box = (property.objectReferenceValue as BoxVariable);
                 if (box != null) {
 
-                    if (FieldDataContainerDrawer.varsToType.TryGetValue(box, out elemType) == false) {
+                    elemType = box.type;
 
-                        elemType = UnityEditor.SerializedPropertyType.Generic;
-
-                    }
-                    
                 }
 
                 position = info.position;
@@ -81,73 +75,40 @@ namespace ME.ECSEditor.BlackBox {
                         boxType = typeof(ME.ECS.BlackBox.BoxVariable),
                     });
                 }
+                var labelStyle = new UnityEngine.GUIStyle(UnityEditor.EditorStyles.miniLabel);
+                labelStyle.alignment = UnityEngine.TextAnchor.MiddleRight;
+                UnityEditor.EditorGUI.LabelField(new UnityEngine.Rect(position.x - position.width - 20f, position.y, position.width, 20f), propType.ToString(), labelStyle);
 
             } else {
 
-                UnityEditor.SerializedPropertyType propType = UnityEditor.SerializedPropertyType.Generic;
+                var propType = RefType.Generic;
                 if (value.propertyType == UnityEditor.SerializedPropertyType.ManagedReference) {
 
                     FieldDataContainerDrawer.GetTypeFromManagedReferenceFullTypeName(value.managedReferenceFullTypename, out var propSysType);
-                    propType = this.GetPropertyType(propSysType);
+                    propType = PropertyHelper.GetRefType(PropertyHelper.GetPropertyType(propSysType));
                     
                 } else if (value.isArray == true) {
 
-                    propType = UnityEditor.SerializedPropertyType.ArraySize;
+                    propType = RefType.ArraySize;
 
                 }
 
                 var box = property.objectReferenceValue as BoxVariable;
                 if (box != null) {
 
-                    if (FieldDataContainerDrawer.varsToType.ContainsKey(box) == false) {
-
-                        FieldDataContainerDrawer.varsToType.Add(box, propType);
-
-                    } else {
-
-                        FieldDataContainerDrawer.varsToType[box] = propType;
-
-                    }
-
+                    box.type = propType;
+                    UnityEditor.EditorUtility.SetDirty(box);
+                    
                 }
                 
                 var style = new UnityEngine.GUIStyle(UnityEditor.EditorStyles.miniBoldLabel);
                 style.alignment = UnityEngine.TextAnchor.MiddleRight;
                 UnityEditor.EditorGUI.LabelField(position, "var", style);
                 if (BlackBoxContainerEditor.active != null) BlackBoxContainerEditor.active.DrawLink(property, position.x + position.width, position.y, drawIn: false);
+                UnityEditor.EditorGUI.LabelField(new UnityEngine.Rect(position.x + position.width + 20f, position.y, position.width, 20f), propType.ToString(), UnityEditor.EditorStyles.miniLabel);
 
             }
             
-        }
-        
-        internal UnityEditor.SerializedPropertyType GetPropertyType(System.Type type) {
-
-            if (type == null) return UnityEditor.SerializedPropertyType.Generic;
-            if (type == typeof(int)) return UnityEditor.SerializedPropertyType.Integer;
-            if (type == typeof(bool)) return UnityEditor.SerializedPropertyType.Boolean;
-            if (type == typeof(float)) return UnityEditor.SerializedPropertyType.Float;
-            if (type == typeof(string)) return UnityEditor.SerializedPropertyType.String;
-            if (type == typeof(UnityEngine.Color)) return UnityEditor.SerializedPropertyType.Color;
-            if (type == typeof(UnityEngine.Color32)) return UnityEditor.SerializedPropertyType.Color;
-            if (type.IsAssignableFrom(typeof(UnityEngine.Object)) == true) return UnityEditor.SerializedPropertyType.ObjectReference;
-            if (type == typeof(UnityEngine.LayerMask)) return UnityEditor.SerializedPropertyType.LayerMask;
-            if (type.IsEnum == true) return UnityEditor.SerializedPropertyType.Enum;
-            if (type == typeof(UnityEngine.Vector2)) return UnityEditor.SerializedPropertyType.Vector2;
-            if (type == typeof(UnityEngine.Vector3)) return UnityEditor.SerializedPropertyType.Vector3;
-            if (type == typeof(UnityEngine.Vector4)) return UnityEditor.SerializedPropertyType.Vector4;
-            if (type == typeof(UnityEngine.Vector2Int)) return UnityEditor.SerializedPropertyType.Vector2Int;
-            if (type == typeof(UnityEngine.Vector3Int)) return UnityEditor.SerializedPropertyType.Vector3Int;
-            if (type == typeof(UnityEngine.Rect)) return UnityEditor.SerializedPropertyType.Rect;
-            if (type == typeof(UnityEngine.RectInt)) return UnityEditor.SerializedPropertyType.RectInt;
-            if (type == typeof(char)) return UnityEditor.SerializedPropertyType.Character;
-            if (type == typeof(UnityEngine.Bounds)) return UnityEditor.SerializedPropertyType.Bounds;
-            if (type == typeof(UnityEngine.BoundsInt)) return UnityEditor.SerializedPropertyType.BoundsInt;
-            if (type == typeof(UnityEngine.AnimationCurve)) return UnityEditor.SerializedPropertyType.AnimationCurve;
-            if (type == typeof(UnityEngine.Gradient)) return UnityEditor.SerializedPropertyType.Gradient;
-            if (type == typeof(UnityEngine.Quaternion)) return UnityEditor.SerializedPropertyType.Quaternion;
-
-            return UnityEditor.SerializedPropertyType.Generic;
-
         }
         
         internal static bool GetTypeFromManagedReferenceFullTypeName(string managedReferenceFullTypename, out System.Type managedReferenceInstanceType) {

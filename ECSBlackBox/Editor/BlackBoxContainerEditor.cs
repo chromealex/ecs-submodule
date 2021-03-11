@@ -7,7 +7,26 @@ namespace ME.ECSEditor.BlackBox {
     using ME.ECS.BlackBox;
     using UnityEditor;
     using UnityEngine;
-    
+
+    public class BBCustomEditor : System.Attribute {
+
+        public System.Type type;
+
+        public BBCustomEditor(System.Type type) {
+            
+            this.type = type;
+            
+        }
+
+    }
+
+    public interface ICustomEditor {
+
+        float GetHeight(SerializedObject obj);
+        void OnGUI(Rect rect, SerializedObject obj);
+
+    }
+
     public class BlackBoxContainerEditor : EditorWindow {
 
         public const float BOX_PADDING = 10f;
@@ -227,8 +246,8 @@ namespace ME.ECSEditor.BlackBox {
                 if (asset != null) {
 
                     var window = BlackBoxContainerEditor.Open();
-                    window.SetBlueprint(asset);
                     window.SetContainer(null);
+                    window.SetBlueprint(asset);
                     window.titleContent = new UnityEngine.GUIContent("Black Box [" + asset.name + "]");
                     return true;
 
@@ -251,13 +270,14 @@ namespace ME.ECSEditor.BlackBox {
 
         }
 
-        private Container container;
+        public Container container;
         private SerializedObject containerSerialized;
-        private Blueprint blueprint;
+        public Blueprint blueprint;
         private SerializedObject blueprintSerialized;
         private SerializedObject outputSerialized;
-        private Rect rect;
-        private Rect localRect;
+        
+        public Rect rect;
+        public Rect localRect;
         public Vector2 scrollPosition;
 
         private float zoom {
@@ -275,10 +295,34 @@ namespace ME.ECSEditor.BlackBox {
             
         }
 
+        public void OnEnable() {
+
+            this.CollectEditors();
+
+        }
+
         private void OnGUI() {
 
             Styles.Init();
 
+            if ((this.blueprint != null && this.blueprintSerialized == null) || (this.container != null && this.containerSerialized == null)) {
+
+                if (this.container != null) {
+                    
+                    this.SetContainer(this.container);
+                    return;
+                    
+                }
+
+                if (this.blueprint != null) {
+                    
+                    this.SetBlueprint(this.blueprint);
+                    return;
+                    
+                }
+
+            }
+            
             if (this.blueprint == null || this.blueprintSerialized == null) {
                 
                 this.DrawContainerChooser();
@@ -309,6 +353,50 @@ namespace ME.ECSEditor.BlackBox {
             
             BlackBoxContainerEditor.active = null;
 
+        }
+
+        private readonly System.Collections.Generic.Dictionary<System.Type, ICustomEditor> customEditors = new System.Collections.Generic.Dictionary<System.Type, ICustomEditor>();
+
+        public ICustomEditor GetEditor(System.Type type) {
+
+            if (this.customEditors.TryGetValue(type, out var ed) == true) return ed;
+            return null;
+
+        }
+        
+        public void CollectEditors() {
+
+            var searchAssemblies = System.AppDomain.CurrentDomain.GetAssemblies();
+            this.customEditors.Clear();
+            foreach (var asm in searchAssemblies) {
+
+                var types = asm.GetTypes();
+                foreach (var type in types) {
+
+                    var attrs = type.GetCustomAttributes(typeof(BBCustomEditor), inherit: true);
+                    if (attrs.Length > 0) {
+
+                        if (attrs[0] is BBCustomEditor attr) {
+
+                            if (typeof(ICustomEditor).IsAssignableFrom(type) == true) {
+
+                                var editor = (ICustomEditor)System.Activator.CreateInstance(type);
+                                if (this.customEditors.ContainsKey(attr.type) == false) {
+
+                                    this.customEditors.Add(attr.type, editor);
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+            
         }
 
         private void DrawMiniMap() {
@@ -383,61 +471,80 @@ namespace ME.ECSEditor.BlackBox {
         private void DrawRootNode(Vector2 offset) {
 
             var so = this.container != null ? this.containerSerialized : this.blueprintSerialized;
+            var editor = this.GetEditor(so.targetObject.GetType());
             var width = (this.container != null ? 260f : 80f);
             this.DrawNode(true, BlackBoxContainerEditor.BOX_PADDING, so, false, new Rect(offset.x, offset.y, width, 200f), "Input", (r) => {
 
                 var h = 0f;
-                if (this.container != null) {
-                    
-                    var iterBlueprint = this.blueprintSerialized.GetIterator();
-                    iterBlueprint.NextVisible(true);
-                    iterBlueprint.NextVisible(false);
+                if (editor != null) {
+
+                    h = editor.GetHeight(so);
+
+                } else {
+
+                    if (this.container != null) {
+
+                        var iterBlueprint = this.blueprintSerialized.GetIterator();
+                        iterBlueprint.NextVisible(true);
+                        iterBlueprint.NextVisible(false);
+                        do {
+                            h += EditorGUI.GetPropertyHeight(iterBlueprint, includeChildren: true);
+                        } while (iterBlueprint.NextVisible(false) == true);
+
+                    }
+
+                    var iter = so.GetIterator();
+                    iter.NextVisible(true);
+                    iter.NextVisible(false);
                     do {
-                        h += EditorGUI.GetPropertyHeight(iterBlueprint, includeChildren: true);
-                    } while (iterBlueprint.NextVisible(false) == true);
-                    
+                        h += EditorGUI.GetPropertyHeight(iter, includeChildren: true);
+                    } while (iter.NextVisible(false) == true);
+
                 }
-                var iter = so.GetIterator();
-                iter.NextVisible(true);
-                iter.NextVisible(false);
-                do {
-                    h += EditorGUI.GetPropertyHeight(iter, includeChildren: true);
-                } while (iter.NextVisible(false) == true);
+
                 return h;
                 
             }, (r) => {
 
-                if (this.container != null) {
-                    
-                    this.blueprintSerialized.Update();
+                if (editor != null) {
 
-                    var iterBlueprint = this.blueprintSerialized.GetIterator();
-                    iterBlueprint.NextVisible(true);
-                    iterBlueprint.NextVisible(false);
+                    editor.OnGUI(r, so);
+
+                } else {
+
+                    if (this.container != null) {
+
+                        this.blueprintSerialized.Update();
+
+                        var iterBlueprint = this.blueprintSerialized.GetIterator();
+                        iterBlueprint.NextVisible(true);
+                        iterBlueprint.NextVisible(false);
+                        do {
+                            var h = EditorGUI.GetPropertyHeight(iterBlueprint, includeChildren: true);
+                            r.height = h;
+                            EditorGUI.PropertyField(r, iterBlueprint, includeChildren: true);
+                            r.y += h;
+                        } while (iterBlueprint.NextVisible(false) == true);
+
+                        this.blueprintSerialized.ApplyModifiedProperties();
+
+                    }
+
+                    so.Update();
+
+                    var iter = so.GetIterator();
+                    iter.NextVisible(true);
+                    iter.NextVisible(false);
                     do {
-                        var h = EditorGUI.GetPropertyHeight(iterBlueprint, includeChildren: true);
+                        var h = EditorGUI.GetPropertyHeight(iter, includeChildren: true);
                         r.height = h;
-                        EditorGUI.PropertyField(r, iterBlueprint, includeChildren: true);
+                        EditorGUI.PropertyField(r, iter, includeChildren: true);
                         r.y += h;
-                    } while (iterBlueprint.NextVisible(false) == true);
-                    
-                    this.blueprintSerialized.ApplyModifiedProperties();
+                    } while (iter.NextVisible(false) == true);
+
+                    so.ApplyModifiedProperties();
 
                 }
-                
-                so.Update();
-
-                var iter = so.GetIterator();
-                iter.NextVisible(true);
-                iter.NextVisible(false);
-                do {
-                    var h = EditorGUI.GetPropertyHeight(iter, includeChildren: true);
-                    r.height = h;
-                    EditorGUI.PropertyField(r, iter, includeChildren: true);
-                    r.y += h;
-                } while (iter.NextVisible(false) == true);
-                
-                so.ApplyModifiedProperties();
 
             });
 
@@ -468,61 +575,80 @@ namespace ME.ECSEditor.BlackBox {
             var position = item.FindPropertyRelative("position");
             var rectProp = item.FindPropertyRelative("rect");
             var pos = position.vector2Value;
+            var editor = this.GetEditor(so.targetObject.GetType());
             var rect = this.DrawNode(styleHeader, style, false, padding, so, true, new Rect(pos.x + offset.x, pos.y + offset.y, width, 200f), "Output", (r) => {
 
                 var h = 0f;
-                if (this.container != null) {
-                    
-                    var iterBlueprint = this.blueprintSerialized.GetIterator();
-                    iterBlueprint.NextVisible(true);
-                    iterBlueprint.NextVisible(false);
+                if (editor != null) {
+
+                    h = editor.GetHeight(so);
+
+                } else {
+
+                    if (this.container != null) {
+
+                        var iterBlueprint = this.blueprintSerialized.GetIterator();
+                        iterBlueprint.NextVisible(true);
+                        iterBlueprint.NextVisible(false);
+                        do {
+                            h += EditorGUI.GetPropertyHeight(iterBlueprint, includeChildren: true);
+                        } while (iterBlueprint.NextVisible(false) == true);
+
+                    }
+
+                    var iter = so.GetIterator();
+                    iter.NextVisible(true);
+                    iter.NextVisible(false);
                     do {
-                        h += EditorGUI.GetPropertyHeight(iterBlueprint, includeChildren: true);
-                    } while (iterBlueprint.NextVisible(false) == true);
-                    
+                        h += EditorGUI.GetPropertyHeight(iter, includeChildren: true);
+                    } while (iter.NextVisible(false) == true);
+
                 }
-                var iter = so.GetIterator();
-                iter.NextVisible(true);
-                iter.NextVisible(false);
-                do {
-                    h += EditorGUI.GetPropertyHeight(iter, includeChildren: true);
-                } while (iter.NextVisible(false) == true);
+
                 return h;
                 
             }, (r) => {
 
-                if (this.container != null) {
-                    
-                    this.blueprintSerialized.Update();
+                if (editor != null) {
 
-                    var iterBlueprint = this.blueprintSerialized.GetIterator();
-                    iterBlueprint.NextVisible(true);
-                    iterBlueprint.NextVisible(false);
+                    editor.OnGUI(r, so);
+
+                } else {
+
+                    if (this.container != null) {
+
+                        this.blueprintSerialized.Update();
+
+                        var iterBlueprint = this.blueprintSerialized.GetIterator();
+                        iterBlueprint.NextVisible(true);
+                        iterBlueprint.NextVisible(false);
+                        do {
+                            var h = EditorGUI.GetPropertyHeight(iterBlueprint, includeChildren: true);
+                            r.height = h;
+                            EditorGUI.PropertyField(r, iterBlueprint, includeChildren: true);
+                            r.y += h;
+                        } while (iterBlueprint.NextVisible(false) == true);
+
+                        this.blueprintSerialized.ApplyModifiedProperties();
+
+                    }
+
+                    so.Update();
+
+                    var iter = so.GetIterator();
+                    iter.NextVisible(true);
+                    iter.NextVisible(false);
                     do {
-                        var h = EditorGUI.GetPropertyHeight(iterBlueprint, includeChildren: true);
+                        var h = EditorGUI.GetPropertyHeight(iter, includeChildren: true);
                         r.height = h;
-                        EditorGUI.PropertyField(r, iterBlueprint, includeChildren: true);
+                        EditorGUI.PropertyField(r, iter, includeChildren: true);
                         r.y += h;
-                    } while (iterBlueprint.NextVisible(false) == true);
-                    
-                    this.blueprintSerialized.ApplyModifiedProperties();
+                    } while (iter.NextVisible(false) == true);
+
+                    so.ApplyModifiedProperties();
 
                 }
-                
-                so.Update();
 
-                var iter = so.GetIterator();
-                iter.NextVisible(true);
-                iter.NextVisible(false);
-                do {
-                    var h = EditorGUI.GetPropertyHeight(iter, includeChildren: true);
-                    r.height = h;
-                    EditorGUI.PropertyField(r, iter, includeChildren: true);
-                    r.y += h;
-                } while (iter.NextVisible(false) == true);
-                
-                so.ApplyModifiedProperties();
-                
             });
 
             if (rectProp.rectValue != rect) {
@@ -552,6 +678,7 @@ namespace ME.ECSEditor.BlackBox {
                 if (box.objectReferenceValue == null) continue;
                 var so = new SerializedObject(box.objectReferenceValue);
                 var boxObj = (box.objectReferenceValue as Box);
+                var customEditor = this.GetEditor(boxObj.GetType());
                 
                 var width = boxObj.width;
                 var padding = boxObj.padding;
@@ -559,10 +686,18 @@ namespace ME.ECSEditor.BlackBox {
                 var rect = this.DrawNode(false, padding, so, true, new Rect(pos.x + offset.x, pos.y + offset.y, width, 200f), box.objectReferenceValue.name, (r) => {
 
                     var h = 0f;
-                    var iter = so.GetIterator();
-                    iter.NextVisible(true);
-                    while (iter.NextVisible(false) == true) {
-                        h += EditorGUI.GetPropertyHeight(iter, includeChildren: true);
+                    if (customEditor != null) {
+                        
+                        h = customEditor.GetHeight(so);
+                        
+                    } else {
+
+                        var iter = so.GetIterator();
+                        iter.NextVisible(true);
+                        while (iter.NextVisible(false) == true) {
+                            h += EditorGUI.GetPropertyHeight(iter, includeChildren: true);
+                        }
+
                     }
 
                     return h;
@@ -571,15 +706,23 @@ namespace ME.ECSEditor.BlackBox {
 
                     so.Update();
                     
-                    var iter = so.GetIterator();
-                    iter.NextVisible(true);
-                    while (iter.NextVisible(false) == true) {
-                        var h = EditorGUI.GetPropertyHeight(iter, includeChildren: true);
-                        r.height = h;
-                        EditorGUI.PropertyField(r, iter, includeChildren: true);
-                        r.y += h;
+                    if (customEditor != null) {
+                        
+                        customEditor.OnGUI(r, so);
+                        
+                    } else {
+
+                        var iter = so.GetIterator();
+                        iter.NextVisible(true);
+                        while (iter.NextVisible(false) == true) {
+                            var h = EditorGUI.GetPropertyHeight(iter, includeChildren: true);
+                            r.height = h;
+                            EditorGUI.PropertyField(r, iter, includeChildren: true);
+                            r.y += h;
+                        }
+
                     }
-                    
+
                     so.ApplyModifiedProperties();
                     
                 });
@@ -923,8 +1066,12 @@ namespace ME.ECSEditor.BlackBox {
         
         private void DrawContainerChooser() {
 
-            this.SetContainer(EditorGUILayout.ObjectField(new UnityEngine.GUIContent("Container"), this.blueprint, typeof(Container), allowSceneObjects: false) as Container);
+            EditorGUI.LabelField(this.localRect, "Double-click on any Container or Blueprint", EditorStyles.centeredGreyMiniLabel);
+            
+            /*
+            this.SetContainer(EditorGUILayout.ObjectField(new UnityEngine.GUIContent("Container"), this.container, typeof(Container), allowSceneObjects: false) as Container);
             this.SetBlueprint(EditorGUILayout.ObjectField(new UnityEngine.GUIContent("Blueprint"), this.blueprint, typeof(Blueprint), allowSceneObjects: false) as Blueprint);
+            */
             
         }
 
@@ -935,6 +1082,8 @@ namespace ME.ECSEditor.BlackBox {
                 this.containerSerialized = new SerializedObject(this.container);
             } else {
                 this.containerSerialized = null;
+                this.blueprint = null;
+                this.blueprintSerialized = null;
             }
             if (container != null && container.blueprint == null) {
 
@@ -972,9 +1121,9 @@ namespace ME.ECSEditor.BlackBox {
 
                     }
 
-                    if (this.blueprint.outputItem.box != null) this.outputSerialized = new SerializedObject(this.blueprint.outputItem.box);
-
                 }
+
+                if (this.blueprint.outputItem.box != null) this.outputSerialized = new SerializedObject(this.blueprint.outputItem.box);
 
             }
             
@@ -1284,6 +1433,8 @@ namespace ME.ECSEditor.BlackBox {
             var types = System.AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes().Where(y => y.IsAbstract == false && typeof(Box).IsAssignableFrom(y))).ToArray();
             foreach (var type in types) {
 
+                if (type.GetCustomAttributes(typeof(HideInMenuAttribute), true).Length > 0) continue;
+                
                 var categoryPath = string.Empty;
                 var category = type.GetCustomAttributes(typeof(CategoryAttribute), true);
                 if (category.Length == 1) {

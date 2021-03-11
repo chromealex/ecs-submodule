@@ -37,11 +37,15 @@ namespace ME.ECSEditor.BlackBox {
                 if (BlackBoxContainerEditor.active != null) offset = BlackBoxContainerEditor.active.scrollPosition;
                 var outPos = property.FindPropertyRelative("outputPosition");
                 outPos.vector2Value = new UnityEngine.Vector2(position.x - offset.x + position.width, position.y - offset.y);
+
+                var boxSo = new SerializedObject(boxProp.objectReferenceValue);
+                var propType = outputVariable.type;
                 
                 var style = new UnityEngine.GUIStyle(UnityEditor.EditorStyles.miniBoldLabel);
                 style.alignment = UnityEngine.TextAnchor.MiddleRight;
                 UnityEditor.EditorGUI.LabelField(position, "output", style);
-                if (BlackBoxContainerEditor.active != null) BlackBoxContainerEditor.active.DrawLink(new SerializedObject(boxProp.objectReferenceValue), position.x + position.width, position.y, drawIn: true);
+                if (BlackBoxContainerEditor.active != null) BlackBoxContainerEditor.active.DrawLink(boxSo, position.x + position.width, position.y, drawIn: true);
+                UnityEditor.EditorGUI.LabelField(new UnityEngine.Rect(position.x + position.width + 20f, position.y, position.width, 20f), propType.ToString(), UnityEditor.EditorStyles.miniLabel);
 
             }
 

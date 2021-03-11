@@ -2,6 +2,48 @@
 
 namespace ME.ECSEditor.BlackBox {
 
+    using ME.ECS.BlackBox;
+    
+    public static class PropertyHelper {
+
+        public static RefType GetRefType(UnityEditor.SerializedPropertyType type) {
+
+            return (RefType)(int)type;
+
+        }
+        
+        public static UnityEditor.SerializedPropertyType GetPropertyType(System.Type type) {
+
+            if (type == null) return UnityEditor.SerializedPropertyType.Generic;
+            if (type == typeof(int)) return UnityEditor.SerializedPropertyType.Integer;
+            if (type == typeof(bool)) return UnityEditor.SerializedPropertyType.Boolean;
+            if (type == typeof(float)) return UnityEditor.SerializedPropertyType.Float;
+            if (type == typeof(string)) return UnityEditor.SerializedPropertyType.String;
+            if (type == typeof(UnityEngine.Color)) return UnityEditor.SerializedPropertyType.Color;
+            if (type == typeof(UnityEngine.Color32)) return UnityEditor.SerializedPropertyType.Color;
+            if (type.IsAssignableFrom(typeof(UnityEngine.Object)) == true) return UnityEditor.SerializedPropertyType.ObjectReference;
+            if (type == typeof(UnityEngine.LayerMask)) return UnityEditor.SerializedPropertyType.LayerMask;
+            if (type.IsEnum == true) return UnityEditor.SerializedPropertyType.Enum;
+            if (type == typeof(UnityEngine.Vector2)) return UnityEditor.SerializedPropertyType.Vector2;
+            if (type == typeof(UnityEngine.Vector3)) return UnityEditor.SerializedPropertyType.Vector3;
+            if (type == typeof(UnityEngine.Vector4)) return UnityEditor.SerializedPropertyType.Vector4;
+            if (type == typeof(UnityEngine.Vector2Int)) return UnityEditor.SerializedPropertyType.Vector2Int;
+            if (type == typeof(UnityEngine.Vector3Int)) return UnityEditor.SerializedPropertyType.Vector3Int;
+            if (type == typeof(UnityEngine.Rect)) return UnityEditor.SerializedPropertyType.Rect;
+            if (type == typeof(UnityEngine.RectInt)) return UnityEditor.SerializedPropertyType.RectInt;
+            if (type == typeof(char)) return UnityEditor.SerializedPropertyType.Character;
+            if (type == typeof(UnityEngine.Bounds)) return UnityEditor.SerializedPropertyType.Bounds;
+            if (type == typeof(UnityEngine.BoundsInt)) return UnityEditor.SerializedPropertyType.BoundsInt;
+            if (type == typeof(UnityEngine.AnimationCurve)) return UnityEditor.SerializedPropertyType.AnimationCurve;
+            if (type == typeof(UnityEngine.Gradient)) return UnityEditor.SerializedPropertyType.Gradient;
+            if (type == typeof(UnityEngine.Quaternion)) return UnityEditor.SerializedPropertyType.Quaternion;
+
+            return UnityEditor.SerializedPropertyType.Generic;
+
+        }
+
+    }
+    
     public static class RectExtensions {
 
         public static Vector2 TopLeft(this Rect rect) {

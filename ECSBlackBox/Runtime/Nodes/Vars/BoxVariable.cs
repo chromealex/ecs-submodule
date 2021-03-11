@@ -6,6 +6,7 @@
         public override float width => 120f;
         public override float padding => 3f;
 
+        public RefType type = RefType.Undefined;
         [UnityEngine.TextAreaAttribute(1, 1)]
         public string caption;
         [UnityEngine.HideInInspector]
