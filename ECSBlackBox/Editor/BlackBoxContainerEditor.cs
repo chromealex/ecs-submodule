@@ -329,6 +329,10 @@ namespace ME.ECSEditor.BlackBox {
                 return;
                 
             }
+
+            /*if (Event.current.shift == true) {
+                Debug.Log(Compiler.Make(this.container));
+            }*/
             
             BlackBoxContainerEditor.active = this;
             this.blueprintSerialized = new SerializedObject(this.blueprint);
