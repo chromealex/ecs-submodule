@@ -17,8 +17,9 @@ namespace ME.ECS {
 public struct FilterBag<T0>  where T0:struct,IStructComponent {
 
     public readonly int Length;
-    private int index;
+    public int index;
     private readonly int max;
+    private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
     
     private DataBuffer<T0> buffer0;
@@ -40,6 +41,7 @@ public struct FilterBag<T0>  where T0:struct,IStructComponent {
         if (max >= arrEntities.Length) max = arrEntities.Length - 1;
         this.index = min - 1;
         this.Length = filter.Count;
+        this.min = min;
         this.max = max;
         
         this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
@@ -69,6 +71,18 @@ public struct FilterBag<T0>  where T0:struct,IStructComponent {
 
     }
 
+    public ref Entity Get() {
+
+        return ref Worlds.currentWorld.GetEntityById(this.index);
+
+    }
+
+    public void Reset() {
+
+        this.index = this.min - 1;
+
+    }
+    
     public bool MoveNext() {
         
         ++this.index;
@@ -89,8 +103,10 @@ public struct FilterBag<T0>  where T0:struct,IStructComponent {
     }
 
     #region API
+    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
     public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+    public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+    public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
 public void RemoveT0() { this.buffer0.Remove(this.index); }
 public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
 
@@ -108,6 +124,7 @@ public struct FilterBag<T0,T1>  where T0:struct,IStructComponent where T1:struct
     public readonly int Length;
     private int index;
     private readonly int max;
+    private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;
@@ -129,6 +146,7 @@ public struct FilterBag<T0,T1>  where T0:struct,IStructComponent where T1:struct
         if (max >= arrEntities.Length) max = arrEntities.Length - 1;
         this.index = min - 1;
         this.Length = filter.Count;
+        this.min = min;
         this.max = max;
         
         this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
@@ -161,6 +179,18 @@ this.buffer1.Dispose();
 
     }
 
+    public ref Entity Get() {
+
+        return ref Worlds.currentWorld.GetEntityById(this.index);
+
+    }
+
+    public void Reset() {
+
+        this.index = this.min - 1;
+
+    }
+    
     public bool MoveNext() {
         
         ++this.index;
@@ -204,6 +234,7 @@ public struct FilterBag<T0,T1,T2>  where T0:struct,IStructComponent where T1:str
     public readonly int Length;
     private int index;
     private readonly int max;
+    private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;
@@ -225,6 +256,7 @@ public struct FilterBag<T0,T1,T2>  where T0:struct,IStructComponent where T1:str
         if (max >= arrEntities.Length) max = arrEntities.Length - 1;
         this.index = min - 1;
         this.Length = filter.Count;
+        this.min = min;
         this.max = max;
         
         this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
@@ -260,6 +292,18 @@ this.buffer2.Dispose();
 
     }
 
+    public ref Entity Get() {
+
+        return ref Worlds.currentWorld.GetEntityById(this.index);
+
+    }
+
+    public void Reset() {
+
+        this.index = this.min - 1;
+
+    }
+    
     public bool MoveNext() {
         
         ++this.index;
@@ -307,6 +351,7 @@ public struct FilterBag<T0,T1,T2,T3>  where T0:struct,IStructComponent where T1:
     public readonly int Length;
     private int index;
     private readonly int max;
+    private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;
@@ -328,6 +373,7 @@ public struct FilterBag<T0,T1,T2,T3>  where T0:struct,IStructComponent where T1:
         if (max >= arrEntities.Length) max = arrEntities.Length - 1;
         this.index = min - 1;
         this.Length = filter.Count;
+        this.min = min;
         this.max = max;
         
         this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
@@ -366,6 +412,18 @@ this.buffer3.Dispose();
 
     }
 
+    public ref Entity Get() {
+
+        return ref Worlds.currentWorld.GetEntityById(this.index);
+
+    }
+
+    public void Reset() {
+
+        this.index = this.min - 1;
+
+    }
+    
     public bool MoveNext() {
         
         ++this.index;
@@ -417,6 +475,7 @@ public struct FilterBag<T0,T1,T2,T3,T4>  where T0:struct,IStructComponent where 
     public readonly int Length;
     private int index;
     private readonly int max;
+    private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;
@@ -438,6 +497,7 @@ public struct FilterBag<T0,T1,T2,T3,T4>  where T0:struct,IStructComponent where 
         if (max >= arrEntities.Length) max = arrEntities.Length - 1;
         this.index = min - 1;
         this.Length = filter.Count;
+        this.min = min;
         this.max = max;
         
         this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
@@ -479,6 +539,18 @@ this.buffer4.Dispose();
 
     }
 
+    public ref Entity Get() {
+
+        return ref Worlds.currentWorld.GetEntityById(this.index);
+
+    }
+
+    public void Reset() {
+
+        this.index = this.min - 1;
+
+    }
+    
     public bool MoveNext() {
         
         ++this.index;
@@ -534,6 +606,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:struct,IStructComponent whe
     public readonly int Length;
     private int index;
     private readonly int max;
+    private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;private DataBuffer<T5> buffer5;
@@ -555,6 +628,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:struct,IStructComponent whe
         if (max >= arrEntities.Length) max = arrEntities.Length - 1;
         this.index = min - 1;
         this.Length = filter.Count;
+        this.min = min;
         this.max = max;
         
         this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
@@ -599,6 +673,18 @@ this.buffer5.Dispose();
 
     }
 
+    public ref Entity Get() {
+
+        return ref Worlds.currentWorld.GetEntityById(this.index);
+
+    }
+
+    public void Reset() {
+
+        this.index = this.min - 1;
+
+    }
+    
     public bool MoveNext() {
         
         ++this.index;
@@ -658,6 +744,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:struct,IStructComponent 
     public readonly int Length;
     private int index;
     private readonly int max;
+    private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;private DataBuffer<T5> buffer5;private DataBuffer<T6> buffer6;
@@ -679,6 +766,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:struct,IStructComponent 
         if (max >= arrEntities.Length) max = arrEntities.Length - 1;
         this.index = min - 1;
         this.Length = filter.Count;
+        this.min = min;
         this.max = max;
         
         this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
@@ -726,6 +814,18 @@ this.buffer6.Dispose();
 
     }
 
+    public ref Entity Get() {
+
+        return ref Worlds.currentWorld.GetEntityById(this.index);
+
+    }
+
+    public void Reset() {
+
+        this.index = this.min - 1;
+
+    }
+    
     public bool MoveNext() {
         
         ++this.index;
@@ -789,6 +889,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:struct,IStructCompone
     public readonly int Length;
     private int index;
     private readonly int max;
+    private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;private DataBuffer<T5> buffer5;private DataBuffer<T6> buffer6;private DataBuffer<T7> buffer7;
@@ -810,6 +911,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:struct,IStructCompone
         if (max >= arrEntities.Length) max = arrEntities.Length - 1;
         this.index = min - 1;
         this.Length = filter.Count;
+        this.min = min;
         this.max = max;
         
         this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
@@ -860,6 +962,18 @@ this.buffer7.Dispose();
 
     }
 
+    public ref Entity Get() {
+
+        return ref Worlds.currentWorld.GetEntityById(this.index);
+
+    }
+
+    public void Reset() {
+
+        this.index = this.min - 1;
+
+    }
+    
     public bool MoveNext() {
         
         ++this.index;
@@ -927,6 +1041,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:struct,IStructComp
     public readonly int Length;
     private int index;
     private readonly int max;
+    private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;private DataBuffer<T5> buffer5;private DataBuffer<T6> buffer6;private DataBuffer<T7> buffer7;private DataBuffer<T8> buffer8;
@@ -948,6 +1063,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:struct,IStructComp
         if (max >= arrEntities.Length) max = arrEntities.Length - 1;
         this.index = min - 1;
         this.Length = filter.Count;
+        this.min = min;
         this.max = max;
         
         this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
@@ -1001,6 +1117,18 @@ this.buffer8.Dispose();
 
     }
 
+    public ref Entity Get() {
+
+        return ref Worlds.currentWorld.GetEntityById(this.index);
+
+    }
+
+    public void Reset() {
+
+        this.index = this.min - 1;
+
+    }
+    
     public bool MoveNext() {
         
         ++this.index;

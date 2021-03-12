@@ -48,27 +48,7 @@ namespace ME.ECS {
                 if (this.ops[i] == 0) continue;
 
                 var entity = arr.arr[i];
-                if (this.ops[i] == 1) {
-
-                    if (isTag == false) reg.components[entity.id] = this.arr[entity.id];
-                    ref var state = ref reg.componentsStates.arr[entity.id];
-                    if (state == 0) {
-
-                        state = 1;
-                        if (world.currentState.filters.HasInAnyFilter<T>() == true) {
-
-                            world.currentState.storage.archetypes.Set<T>(in entity);
-
-                        }
-
-                        System.Threading.Interlocked.Increment(ref world.currentState.structComponents.count);
-
-                    }
-
-                    world.currentState.storage.versions.Increment(in entity);
-                    ++changedCount;
-
-                } else if (this.ops[i] == 2) {
+                if ((this.ops[i] & 0x4) != 0) {
 
                     if (isTag == false) reg.components[entity.id] = default;
                     ref var state = ref reg.componentsStates.arr[entity.id];
@@ -88,6 +68,26 @@ namespace ME.ECS {
                     world.currentState.storage.versions.Increment(in entity);
                     ++changedCount;
                     
+                } else if ((this.ops[i] & 0x2) != 0) {
+
+                    if (isTag == false) reg.components[entity.id] = this.arr[entity.id];
+                    ref var state = ref reg.componentsStates.arr[entity.id];
+                    if (state == 0) {
+
+                        state = 1;
+                        if (world.currentState.filters.HasInAnyFilter<T>() == true) {
+
+                            world.currentState.storage.archetypes.Set<T>(in entity);
+
+                        }
+
+                        System.Threading.Interlocked.Increment(ref world.currentState.structComponents.count);
+
+                    }
+
+                    world.currentState.storage.versions.Increment(in entity);
+                    ++changedCount;
+
                 }
                 
             }
@@ -107,27 +107,27 @@ namespace ME.ECS {
 
         public void Remove(int entityId) {
 
-            this.ops[entityId] = 2;
+            this.ops[entityId] |= 0x4;
             
         }
 
         public void Set(int entityId, in T data) {
 
-            this.ops[entityId] = 1;
+            this.ops[entityId] |= 0x2;
             this.arr[entityId] = data;
             
         }
 
         public ref T Get(int entityId) {
 
-            this.ops[entityId] = 1;
+            this.ops[entityId] |= 0x2;
             return ref this.arr.GetRef(entityId);
 
         }
 
         public ref readonly T Read(int entityId) {
 
-            this.ops[entityId] = 0;
+            this.ops[entityId] |= 0x1;
             return ref this.arr.GetRef(entityId);
 
         }
