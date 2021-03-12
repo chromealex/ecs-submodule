@@ -2240,8 +2240,9 @@ namespace ME.ECS {
                 var entity = this.slice[index];
                 if (entity.IsAlive() == false) return;
 
-                if (this.dataContains[entity.id] == true && (this.dataVersions.IsCreated == false || this.dataVersions[entity.id] == true))
+                if (this.dataContains[entity.id] == true && (this.dataVersions.IsCreated == false || this.dataVersions[entity.id] == true)) {
                     Worlds.currentWorld.currentSystemContextFilter.AdvanceTick(entity, in this.deltaTime);
+                }
 
             }
 
@@ -2629,7 +2630,15 @@ namespace ME.ECS {
                                 system.filter = (system.filter.IsAlive() == true ? system.filter : system.CreateFilter());
                                 if (system.filter.IsAlive() == true) {
 
-                                    if (this.settings.useJobsForSystems == true && system.jobs == true) {
+                                    #pragma warning disable
+                                    var jobs = system.jobs;
+                                    var batch = system.jobsBatchCount;
+                                    if (system is ISystemJobs systemJobs) {
+                                        jobs = true;
+                                        batch = systemJobs.jobsBatchCount;
+                                    }
+                                    #pragma warning restore
+                                    if (this.settings.useJobsForSystems == true && jobs == true) {
 
                                         var arrEntities = this.currentState.storage.cache.arr;
                                         system.filter.GetBounds(out var min, out var max);
@@ -2660,12 +2669,12 @@ namespace ME.ECS {
                                                 dataContains = arrContains,
                                                 dataVersions = arrVersions,
                                             };
-                                            var jobHandle = job.Schedule(length, system.jobsBatchCount);
+                                            var jobHandle = job.Schedule(length, batch);
                                             jobHandle.Complete();
 
                                             arr.Dispose();
                                             arrContains.Dispose();
-                                            if (arrVersions.IsCreated == true) arrVersions.Dispose();
+                                            if (filter.onVersionChangedOnly == true) arrVersions.Dispose();
 
                                             filter.UseVersioned();
 

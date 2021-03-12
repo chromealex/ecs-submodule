@@ -20,8 +20,10 @@ namespace #NAMESPACE# {
         
         void ISystemBase.OnDeconstruct() {}
         
+        #if !CSHARP_8_OR_NEWER
         bool ISystemFilter.jobs => false;
         int ISystemFilter.jobsBatchCount => 64;
+        #endif
         Filter ISystemFilter.filter { get; set; }
         Filter ISystemFilter.CreateFilter() {
             
