@@ -40,6 +40,7 @@ namespace ME.ECS {
         public static int typeId = -1;
         public static bool isTag = false;
         public static bool isVersioned = false;
+        public static bool isVersionedNoState = false;
         public static bool isCopyable = false;
         public static bool isInHash = true;
 
@@ -108,6 +109,15 @@ namespace ME.ECS {
         public static long GetDataVersion<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
 
             return Worlds.currentWorld.GetDataVersion<TComponent>(in entity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static uint GetDataVersionNoState<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
+
+            return Worlds.currentWorld.GetDataVersionNoState<TComponent>(in entity);
 
         }
 

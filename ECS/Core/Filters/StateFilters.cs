@@ -538,8 +538,21 @@ namespace ME.ECS {
         private FilterData temp;
 
         public static Filter Empty => new Filter();
+        internal static System.Action<Filter> injections;
 
         public int Count => this.world.GetFilter(this.id).Count;
+
+        public static void RegisterInject(System.Action<Filter> onFilter) {
+
+            Filter.injections += onFilter;
+
+        }
+
+        public static void UnregisterInject(System.Action<Filter> onFilter) {
+
+            Filter.injections -= onFilter;
+            
+        }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -629,6 +642,8 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public Filter Push(ref Filter filter) {
+
+            if (Filter.injections != null) Filter.injections.Invoke(this);
 
             FilterData filterData = null;
             this.temp.Push(ref filterData);

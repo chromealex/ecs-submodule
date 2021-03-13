@@ -24,6 +24,8 @@ namespace ME.ECS {
 
     public interface IVersioned { }
 
+    public interface IVersionedNoState { }
+
     public interface IStructCopyableBase { }
 
     public interface IStructCopyable<T> : IStructComponent, IStructCopyableBase where T : IStructCopyable<T> {
@@ -59,6 +61,7 @@ namespace ME.ECS {
         public abstract int GetAllTypeBit();
 
         public abstract void UpdateVersion(in Entity entity);
+        public abstract void UpdateVersionNoState(in Entity entity);
         
         public abstract bool HasType(System.Type type);
         public abstract IStructComponent GetObject(Entity entity);
@@ -133,6 +136,8 @@ namespace ME.ECS {
         internal ListCopyable<int> lifetimeIndexes;
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<long> versions;
+        
+        internal BufferArray<uint> versionsNoState;
 
         internal TComponent emptyComponent;
 
@@ -141,7 +146,13 @@ namespace ME.ECS {
             return this.versions.arr[entity.id];
 
         }
-        
+
+        public uint GetVersionNotStated(in Entity entity) {
+
+            return this.versionsNoState.arr[entity.id];
+
+        }
+
         public override int GetTypeBit() {
 
             return WorldUtilities.GetComponentTypeId<TComponent>();
@@ -186,6 +197,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public override void UpdateVersionNoState(in Entity entity) {
+
+            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++this.versionsNoState.arr[entity.id];
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public override void Merge() {
 
             if (AllComponentTypes<TComponent>.isTag == false) this.components = this.components.Merge();
@@ -217,6 +237,8 @@ namespace ME.ECS {
 
             this.components = this.components.Dispose();
             PoolArray<byte>.Recycle(ref this.componentsStates);
+            if (AllComponentTypes<TComponent>.isVersioned == true) PoolArray<long>.Recycle(ref this.versions);
+            if (AllComponentTypes<TComponent>.isVersionedNoState == true) PoolArray<uint>.Recycle(ref this.versionsNoState);
             if (this.lifetimeIndexes != null) PoolListCopyable<int>.Recycle(ref this.lifetimeIndexes);
 
         }
@@ -294,6 +316,7 @@ namespace ME.ECS {
             }
 
             if (AllComponentTypes<TComponent>.isVersioned == true) ArrayUtils.Resize(capacity, ref this.versions);
+            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(capacity, ref this.versionsNoState);
             
             this.world.currentState.storage.archetypes.Validate(capacity);
 
@@ -326,6 +349,7 @@ namespace ME.ECS {
             }
 
             if (AllComponentTypes<TComponent>.isVersioned == true) ArrayUtils.Resize(index, ref this.versions);
+            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(index, ref this.versionsNoState);
 
             this.world.currentState.storage.archetypes.Validate(in entity);
 
@@ -547,6 +571,7 @@ namespace ME.ECS {
             ArrayUtils.Copy(in _other.componentsStates, ref this.componentsStates);
             ArrayUtils.Copy(_other.lifetimeIndexes, ref this.lifetimeIndexes);
             if (AllComponentTypes<TComponent>.isVersioned == true) ArrayUtils.Copy(_other.versions, ref this.versions);
+            if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
             if (AllComponentTypes<TComponent>.isTag == false) ArrayUtils.Copy(in _other.components, ref this.components);
 
         }
@@ -1563,7 +1588,26 @@ namespace ME.ECS {
             return reg.versions.arr[entity.id];
             
         }
-        
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public uint GetDataVersionNoState<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
+            
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            if (AllComponentTypes<TComponent>.isVersionedNoState == false) return 0u;
+            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            return reg.versionsNoState.arr[entity.id];
+            
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -1612,6 +1656,7 @@ namespace ME.ECS {
 
                 this.currentState.storage.versions.Increment(in entity);
                 if (AllComponentTypes<TComponent>.isVersioned == true) reg.versions.arr[entity.id] = this.GetCurrentTick();
+                if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
                 if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
             }
@@ -1663,6 +1708,7 @@ namespace ME.ECS {
             #endif
             this.currentState.storage.versions.Increment(in entity);
             if (AllComponentTypes<TComponent>.isVersioned == true) reg.versions.arr[entity.id] = this.GetCurrentTick();
+            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
             return ref state;
@@ -1720,6 +1766,7 @@ namespace ME.ECS {
             #endif
             this.currentState.storage.versions.Increment(in entity);
             if (AllComponentTypes<TComponent>.isVersioned == true) reg.versions.arr[entity.id] = this.GetCurrentTick();
+            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
             return ref state;
@@ -1959,6 +2006,7 @@ namespace ME.ECS {
 
                 this.currentState.storage.versions.Increment(in entity);
                 reg.UpdateVersion(in entity);
+                reg.UpdateVersionNoState(in entity);
                 if (this.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) {
 
                     this.currentState.storage.archetypes.Set(in entity, componentIndex);

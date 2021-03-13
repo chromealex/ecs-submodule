@@ -282,6 +282,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void SetComponentAsVersionedNoState<TComponent>() {
+
+            AllComponentTypes<TComponent>.isVersionedNoState = true;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void SetComponentAsCopyable<TComponent>() {
 
             AllComponentTypes<TComponent>.isCopyable = true;
@@ -291,11 +300,12 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static bool InitComponentTypeId<TComponent>(bool isTag = false, bool isCopyable = false, bool isVersioned = false) {
+        public static bool InitComponentTypeId<TComponent>(bool isTag = false, bool isCopyable = false, bool isVersioned = false, bool isVersionedNoState = false) {
 
             var isNew = (AllComponentTypes<TComponent>.typeId == -1);
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
             if (isVersioned == true) WorldUtilities.SetComponentAsVersioned<TComponent>();
+            if (isVersionedNoState == true) WorldUtilities.SetComponentAsVersionedNoState<TComponent>();
             if (isCopyable == true) WorldUtilities.SetComponentAsCopyable<TComponent>();
 
             WorldUtilities.GetAllComponentTypeId<TComponent>();

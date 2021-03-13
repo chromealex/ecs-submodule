@@ -127,7 +127,9 @@ namespace ME.ECS {
         internal void DoConstruct() {
             
             this.systemGroup = new SystemGroup(this.world, this.name);
+            Filter.RegisterInject(this.InjectFilter);
             this.OnConstruct();
+            Filter.UnregisterInject(this.InjectFilter);
             
         }
 
@@ -136,6 +138,8 @@ namespace ME.ECS {
             this.OnDeconstruct();
             
         }
+
+        protected virtual void InjectFilter(Filter filter) {}
         
         protected abstract void OnConstruct();
         protected abstract void OnDeconstruct();
@@ -143,7 +147,7 @@ namespace ME.ECS {
         protected bool AddSystem<TSystem>() where TSystem : class, ISystemBase, new() {
 
             if (this.systemGroup.HasSystem<TSystem>() == false) {
-                
+
                 return this.systemGroup.AddSystem<TSystem>();
                 
             }
