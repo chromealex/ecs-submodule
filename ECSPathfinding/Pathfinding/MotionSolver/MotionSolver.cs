@@ -99,6 +99,7 @@ namespace ME.ECS.Pathfinding {
 
                     if (entity.IsEmpty() == false) {
                         ref var body = ref entity.GetData<Body>(createIfNotExists: false);
+                        body.collidedWithObstacle = false;
                         if (body.isStatic == false) {
                             body.position += body.velocity * substepDeltaTime;
                         }
@@ -113,31 +114,36 @@ namespace ME.ECS.Pathfinding {
                     }
 
                     ref var a = ref entityA.GetData<Body>(createIfNotExists: false);
-                    a.collidedWithObstacle = false; 
 
-                    for (int m = obstacleMin; m <= obstacleMax; m++) {
-                        ref var entityB = ref world.GetEntityById(m);
+                    if (a.collidedWithObstacle == false) {
 
-                        if (entityB.IsEmpty() == true) {
-                            continue;
+                        for (int m = obstacleMin; m <= obstacleMax; m++) {
+                            ref var entityB = ref world.GetEntityById(m);
+
+                            if (entityB.IsEmpty() == true) {
+                                continue;
+                            }
+
+                            ref var b = ref entityB.GetData<Obstacle>(createIfNotExists: false);
+
+                            var difference = a.position - b.position;
+                            var closest = new Vector2(b.position.x + Mathf.Clamp(difference.x, -b.extents.x, b.extents.x),
+                                                      b.position.y + Mathf.Clamp(difference.y, -b.extents.y, b.extents.y));
+                            difference = closest - a.position;
+
+                            if (difference.sqrMagnitude < a.radius * a.radius) {
+                                var distance = difference.magnitude;
+                                var normal = distance > 0f ? difference / distance : Vector2.right;
+                                var depth = Mathf.Abs(distance - a.radius);
+
+                                a.collidedWithObstacle = true;
+                                MotionSolver.bodyVsObstacleCollisionsBuffer.Add(new CollisionManifold { a = entityA, b = entityB, depth = depth, normal = normal });
+                                break;
+                            }
                         }
 
-                        ref var b = ref entityB.GetData<Obstacle>(createIfNotExists: false);
-
-                        var difference = a.position - b.position;
-                        var closest = new Vector2(b.position.x + Mathf.Clamp(difference.x, -b.extents.x, b.extents.x), b.position.y + Mathf.Clamp(difference.y, -b.extents.y, b.extents.y));
-                        difference = closest - a.position;
-
-                        if (difference.sqrMagnitude < a.radius * a.radius) {
-                            var distance = difference.magnitude;
-                            var normal = distance > 0f ? difference / distance : Vector2.right;
-                            var depth = Mathf.Abs(distance - a.radius);
-
-                            a.collidedWithObstacle = true; 
-                            MotionSolver.bodyVsObstacleCollisionsBuffer.Add(new CollisionManifold { a = entityA, b = entityB, depth = depth, normal = normal });
-                        }
                     }
-                    
+
                     for (var j = i + 1; j <= bodyMax; j++) {
 
                         ref var entityB = ref world.GetEntityById(j);
@@ -162,6 +168,7 @@ namespace ME.ECS.Pathfinding {
                             var depth = Mathf.Abs(distance - collisionDistance);
 
                             MotionSolver.bodyVsBodyCollisionsBuffer.Add(new CollisionManifold { a = entityA, b = entityB, depth = depth, normal = normal });
+                            
                         }
                     }
                 }

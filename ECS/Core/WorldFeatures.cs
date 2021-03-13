@@ -122,7 +122,7 @@ namespace ME.ECS {
         public string editorComment;
 
         public World world { get; set; }
-        public SystemGroup systemGroup;
+        protected SystemGroup systemGroup;
 
         internal void DoConstruct() {
             

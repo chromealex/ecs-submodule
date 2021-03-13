@@ -104,10 +104,12 @@ public struct FilterBag<T0>  where T0:struct,IStructComponent {
 
     #region API
     public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-    public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
-    public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
-    public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
+public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public void RemoveT0(int id) { this.buffer0.Remove(id); }
 public void RemoveT0() { this.buffer0.Remove(this.index); }
+public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
 public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
 
     #endregion
@@ -122,7 +124,7 @@ public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
 public struct FilterBag<T0,T1>  where T0:struct,IStructComponent where T1:struct,IStructComponent {
 
     public readonly int Length;
-    private int index;
+    public int index;
     private readonly int max;
     private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
@@ -211,13 +213,21 @@ this.buffer1.Dispose();
     }
 
     #region API
-    public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
 public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public void RemoveT0(int id) { this.buffer0.Remove(id); }
 public void RemoveT0() { this.buffer0.Remove(this.index); }
+public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
 public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
 public void SetT1(in T1 data) { this.buffer1.Set(this.index, in data); }
+public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
 public ref T1 GetT1() { return ref this.buffer1.Get(this.index); }
+public void RemoveT1(int id) { this.buffer1.Remove(id); }
 public void RemoveT1() { this.buffer1.Remove(this.index); }
+public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
 public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
 
     #endregion
@@ -232,7 +242,7 @@ public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
 public struct FilterBag<T0,T1,T2>  where T0:struct,IStructComponent where T1:struct,IStructComponent where T2:struct,IStructComponent {
 
     public readonly int Length;
-    private int index;
+    public int index;
     private readonly int max;
     private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
@@ -324,17 +334,29 @@ this.buffer2.Dispose();
     }
 
     #region API
-    public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
 public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public void RemoveT0(int id) { this.buffer0.Remove(id); }
 public void RemoveT0() { this.buffer0.Remove(this.index); }
+public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
 public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
 public void SetT1(in T1 data) { this.buffer1.Set(this.index, in data); }
+public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
 public ref T1 GetT1() { return ref this.buffer1.Get(this.index); }
+public void RemoveT1(int id) { this.buffer1.Remove(id); }
 public void RemoveT1() { this.buffer1.Remove(this.index); }
+public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
 public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
+public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
 public void SetT2(in T2 data) { this.buffer2.Set(this.index, in data); }
+public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
 public ref T2 GetT2() { return ref this.buffer2.Get(this.index); }
+public void RemoveT2(int id) { this.buffer2.Remove(id); }
 public void RemoveT2() { this.buffer2.Remove(this.index); }
+public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
 public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.index); }
 
     #endregion
@@ -349,7 +371,7 @@ public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.index); }
 public struct FilterBag<T0,T1,T2,T3>  where T0:struct,IStructComponent where T1:struct,IStructComponent where T2:struct,IStructComponent where T3:struct,IStructComponent {
 
     public readonly int Length;
-    private int index;
+    public int index;
     private readonly int max;
     private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
@@ -444,21 +466,37 @@ this.buffer3.Dispose();
     }
 
     #region API
-    public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
 public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public void RemoveT0(int id) { this.buffer0.Remove(id); }
 public void RemoveT0() { this.buffer0.Remove(this.index); }
+public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
 public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
 public void SetT1(in T1 data) { this.buffer1.Set(this.index, in data); }
+public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
 public ref T1 GetT1() { return ref this.buffer1.Get(this.index); }
+public void RemoveT1(int id) { this.buffer1.Remove(id); }
 public void RemoveT1() { this.buffer1.Remove(this.index); }
+public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
 public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
+public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
 public void SetT2(in T2 data) { this.buffer2.Set(this.index, in data); }
+public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
 public ref T2 GetT2() { return ref this.buffer2.Get(this.index); }
+public void RemoveT2(int id) { this.buffer2.Remove(id); }
 public void RemoveT2() { this.buffer2.Remove(this.index); }
+public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
 public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.index); }
+public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
 public void SetT3(in T3 data) { this.buffer3.Set(this.index, in data); }
+public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
 public ref T3 GetT3() { return ref this.buffer3.Get(this.index); }
+public void RemoveT3(int id) { this.buffer3.Remove(id); }
 public void RemoveT3() { this.buffer3.Remove(this.index); }
+public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
 public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.index); }
 
     #endregion
@@ -473,7 +511,7 @@ public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.index); }
 public struct FilterBag<T0,T1,T2,T3,T4>  where T0:struct,IStructComponent where T1:struct,IStructComponent where T2:struct,IStructComponent where T3:struct,IStructComponent where T4:struct,IStructComponent {
 
     public readonly int Length;
-    private int index;
+    public int index;
     private readonly int max;
     private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
@@ -571,25 +609,45 @@ this.buffer4.Dispose();
     }
 
     #region API
-    public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
 public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public void RemoveT0(int id) { this.buffer0.Remove(id); }
 public void RemoveT0() { this.buffer0.Remove(this.index); }
+public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
 public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
 public void SetT1(in T1 data) { this.buffer1.Set(this.index, in data); }
+public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
 public ref T1 GetT1() { return ref this.buffer1.Get(this.index); }
+public void RemoveT1(int id) { this.buffer1.Remove(id); }
 public void RemoveT1() { this.buffer1.Remove(this.index); }
+public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
 public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
+public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
 public void SetT2(in T2 data) { this.buffer2.Set(this.index, in data); }
+public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
 public ref T2 GetT2() { return ref this.buffer2.Get(this.index); }
+public void RemoveT2(int id) { this.buffer2.Remove(id); }
 public void RemoveT2() { this.buffer2.Remove(this.index); }
+public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
 public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.index); }
+public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
 public void SetT3(in T3 data) { this.buffer3.Set(this.index, in data); }
+public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
 public ref T3 GetT3() { return ref this.buffer3.Get(this.index); }
+public void RemoveT3(int id) { this.buffer3.Remove(id); }
 public void RemoveT3() { this.buffer3.Remove(this.index); }
+public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
 public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.index); }
+public void SetT4(int id, in T4 data) { this.buffer4.Set(id, in data); }
 public void SetT4(in T4 data) { this.buffer4.Set(this.index, in data); }
+public ref T4 GetT4(int id) { return ref this.buffer4.Get(id); }
 public ref T4 GetT4() { return ref this.buffer4.Get(this.index); }
+public void RemoveT4(int id) { this.buffer4.Remove(id); }
 public void RemoveT4() { this.buffer4.Remove(this.index); }
+public ref readonly T4 ReadT4(int id) { return ref this.buffer4.Read(id); }
 public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.index); }
 
     #endregion
@@ -604,7 +662,7 @@ public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.index); }
 public struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:struct,IStructComponent where T1:struct,IStructComponent where T2:struct,IStructComponent where T3:struct,IStructComponent where T4:struct,IStructComponent where T5:struct,IStructComponent {
 
     public readonly int Length;
-    private int index;
+    public int index;
     private readonly int max;
     private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
@@ -705,29 +763,53 @@ this.buffer5.Dispose();
     }
 
     #region API
-    public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
 public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public void RemoveT0(int id) { this.buffer0.Remove(id); }
 public void RemoveT0() { this.buffer0.Remove(this.index); }
+public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
 public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
 public void SetT1(in T1 data) { this.buffer1.Set(this.index, in data); }
+public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
 public ref T1 GetT1() { return ref this.buffer1.Get(this.index); }
+public void RemoveT1(int id) { this.buffer1.Remove(id); }
 public void RemoveT1() { this.buffer1.Remove(this.index); }
+public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
 public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
+public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
 public void SetT2(in T2 data) { this.buffer2.Set(this.index, in data); }
+public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
 public ref T2 GetT2() { return ref this.buffer2.Get(this.index); }
+public void RemoveT2(int id) { this.buffer2.Remove(id); }
 public void RemoveT2() { this.buffer2.Remove(this.index); }
+public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
 public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.index); }
+public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
 public void SetT3(in T3 data) { this.buffer3.Set(this.index, in data); }
+public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
 public ref T3 GetT3() { return ref this.buffer3.Get(this.index); }
+public void RemoveT3(int id) { this.buffer3.Remove(id); }
 public void RemoveT3() { this.buffer3.Remove(this.index); }
+public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
 public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.index); }
+public void SetT4(int id, in T4 data) { this.buffer4.Set(id, in data); }
 public void SetT4(in T4 data) { this.buffer4.Set(this.index, in data); }
+public ref T4 GetT4(int id) { return ref this.buffer4.Get(id); }
 public ref T4 GetT4() { return ref this.buffer4.Get(this.index); }
+public void RemoveT4(int id) { this.buffer4.Remove(id); }
 public void RemoveT4() { this.buffer4.Remove(this.index); }
+public ref readonly T4 ReadT4(int id) { return ref this.buffer4.Read(id); }
 public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.index); }
+public void SetT5(int id, in T5 data) { this.buffer5.Set(id, in data); }
 public void SetT5(in T5 data) { this.buffer5.Set(this.index, in data); }
+public ref T5 GetT5(int id) { return ref this.buffer5.Get(id); }
 public ref T5 GetT5() { return ref this.buffer5.Get(this.index); }
+public void RemoveT5(int id) { this.buffer5.Remove(id); }
 public void RemoveT5() { this.buffer5.Remove(this.index); }
+public ref readonly T5 ReadT5(int id) { return ref this.buffer5.Read(id); }
 public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.index); }
 
     #endregion
@@ -742,7 +824,7 @@ public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.index); }
 public struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:struct,IStructComponent where T1:struct,IStructComponent where T2:struct,IStructComponent where T3:struct,IStructComponent where T4:struct,IStructComponent where T5:struct,IStructComponent where T6:struct,IStructComponent {
 
     public readonly int Length;
-    private int index;
+    public int index;
     private readonly int max;
     private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
@@ -846,33 +928,61 @@ this.buffer6.Dispose();
     }
 
     #region API
-    public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
 public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public void RemoveT0(int id) { this.buffer0.Remove(id); }
 public void RemoveT0() { this.buffer0.Remove(this.index); }
+public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
 public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
 public void SetT1(in T1 data) { this.buffer1.Set(this.index, in data); }
+public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
 public ref T1 GetT1() { return ref this.buffer1.Get(this.index); }
+public void RemoveT1(int id) { this.buffer1.Remove(id); }
 public void RemoveT1() { this.buffer1.Remove(this.index); }
+public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
 public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
+public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
 public void SetT2(in T2 data) { this.buffer2.Set(this.index, in data); }
+public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
 public ref T2 GetT2() { return ref this.buffer2.Get(this.index); }
+public void RemoveT2(int id) { this.buffer2.Remove(id); }
 public void RemoveT2() { this.buffer2.Remove(this.index); }
+public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
 public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.index); }
+public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
 public void SetT3(in T3 data) { this.buffer3.Set(this.index, in data); }
+public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
 public ref T3 GetT3() { return ref this.buffer3.Get(this.index); }
+public void RemoveT3(int id) { this.buffer3.Remove(id); }
 public void RemoveT3() { this.buffer3.Remove(this.index); }
+public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
 public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.index); }
+public void SetT4(int id, in T4 data) { this.buffer4.Set(id, in data); }
 public void SetT4(in T4 data) { this.buffer4.Set(this.index, in data); }
+public ref T4 GetT4(int id) { return ref this.buffer4.Get(id); }
 public ref T4 GetT4() { return ref this.buffer4.Get(this.index); }
+public void RemoveT4(int id) { this.buffer4.Remove(id); }
 public void RemoveT4() { this.buffer4.Remove(this.index); }
+public ref readonly T4 ReadT4(int id) { return ref this.buffer4.Read(id); }
 public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.index); }
+public void SetT5(int id, in T5 data) { this.buffer5.Set(id, in data); }
 public void SetT5(in T5 data) { this.buffer5.Set(this.index, in data); }
+public ref T5 GetT5(int id) { return ref this.buffer5.Get(id); }
 public ref T5 GetT5() { return ref this.buffer5.Get(this.index); }
+public void RemoveT5(int id) { this.buffer5.Remove(id); }
 public void RemoveT5() { this.buffer5.Remove(this.index); }
+public ref readonly T5 ReadT5(int id) { return ref this.buffer5.Read(id); }
 public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.index); }
+public void SetT6(int id, in T6 data) { this.buffer6.Set(id, in data); }
 public void SetT6(in T6 data) { this.buffer6.Set(this.index, in data); }
+public ref T6 GetT6(int id) { return ref this.buffer6.Get(id); }
 public ref T6 GetT6() { return ref this.buffer6.Get(this.index); }
+public void RemoveT6(int id) { this.buffer6.Remove(id); }
 public void RemoveT6() { this.buffer6.Remove(this.index); }
+public ref readonly T6 ReadT6(int id) { return ref this.buffer6.Read(id); }
 public ref readonly T6 ReadT6() { return ref this.buffer6.Read(this.index); }
 
     #endregion
@@ -887,7 +997,7 @@ public ref readonly T6 ReadT6() { return ref this.buffer6.Read(this.index); }
 public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:struct,IStructComponent where T1:struct,IStructComponent where T2:struct,IStructComponent where T3:struct,IStructComponent where T4:struct,IStructComponent where T5:struct,IStructComponent where T6:struct,IStructComponent where T7:struct,IStructComponent {
 
     public readonly int Length;
-    private int index;
+    public int index;
     private readonly int max;
     private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
@@ -994,37 +1104,69 @@ this.buffer7.Dispose();
     }
 
     #region API
-    public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
 public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public void RemoveT0(int id) { this.buffer0.Remove(id); }
 public void RemoveT0() { this.buffer0.Remove(this.index); }
+public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
 public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
 public void SetT1(in T1 data) { this.buffer1.Set(this.index, in data); }
+public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
 public ref T1 GetT1() { return ref this.buffer1.Get(this.index); }
+public void RemoveT1(int id) { this.buffer1.Remove(id); }
 public void RemoveT1() { this.buffer1.Remove(this.index); }
+public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
 public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
+public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
 public void SetT2(in T2 data) { this.buffer2.Set(this.index, in data); }
+public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
 public ref T2 GetT2() { return ref this.buffer2.Get(this.index); }
+public void RemoveT2(int id) { this.buffer2.Remove(id); }
 public void RemoveT2() { this.buffer2.Remove(this.index); }
+public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
 public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.index); }
+public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
 public void SetT3(in T3 data) { this.buffer3.Set(this.index, in data); }
+public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
 public ref T3 GetT3() { return ref this.buffer3.Get(this.index); }
+public void RemoveT3(int id) { this.buffer3.Remove(id); }
 public void RemoveT3() { this.buffer3.Remove(this.index); }
+public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
 public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.index); }
+public void SetT4(int id, in T4 data) { this.buffer4.Set(id, in data); }
 public void SetT4(in T4 data) { this.buffer4.Set(this.index, in data); }
+public ref T4 GetT4(int id) { return ref this.buffer4.Get(id); }
 public ref T4 GetT4() { return ref this.buffer4.Get(this.index); }
+public void RemoveT4(int id) { this.buffer4.Remove(id); }
 public void RemoveT4() { this.buffer4.Remove(this.index); }
+public ref readonly T4 ReadT4(int id) { return ref this.buffer4.Read(id); }
 public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.index); }
+public void SetT5(int id, in T5 data) { this.buffer5.Set(id, in data); }
 public void SetT5(in T5 data) { this.buffer5.Set(this.index, in data); }
+public ref T5 GetT5(int id) { return ref this.buffer5.Get(id); }
 public ref T5 GetT5() { return ref this.buffer5.Get(this.index); }
+public void RemoveT5(int id) { this.buffer5.Remove(id); }
 public void RemoveT5() { this.buffer5.Remove(this.index); }
+public ref readonly T5 ReadT5(int id) { return ref this.buffer5.Read(id); }
 public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.index); }
+public void SetT6(int id, in T6 data) { this.buffer6.Set(id, in data); }
 public void SetT6(in T6 data) { this.buffer6.Set(this.index, in data); }
+public ref T6 GetT6(int id) { return ref this.buffer6.Get(id); }
 public ref T6 GetT6() { return ref this.buffer6.Get(this.index); }
+public void RemoveT6(int id) { this.buffer6.Remove(id); }
 public void RemoveT6() { this.buffer6.Remove(this.index); }
+public ref readonly T6 ReadT6(int id) { return ref this.buffer6.Read(id); }
 public ref readonly T6 ReadT6() { return ref this.buffer6.Read(this.index); }
+public void SetT7(int id, in T7 data) { this.buffer7.Set(id, in data); }
 public void SetT7(in T7 data) { this.buffer7.Set(this.index, in data); }
+public ref T7 GetT7(int id) { return ref this.buffer7.Get(id); }
 public ref T7 GetT7() { return ref this.buffer7.Get(this.index); }
+public void RemoveT7(int id) { this.buffer7.Remove(id); }
 public void RemoveT7() { this.buffer7.Remove(this.index); }
+public ref readonly T7 ReadT7(int id) { return ref this.buffer7.Read(id); }
 public ref readonly T7 ReadT7() { return ref this.buffer7.Read(this.index); }
 
     #endregion
@@ -1039,7 +1181,7 @@ public ref readonly T7 ReadT7() { return ref this.buffer7.Read(this.index); }
 public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:struct,IStructComponent where T1:struct,IStructComponent where T2:struct,IStructComponent where T3:struct,IStructComponent where T4:struct,IStructComponent where T5:struct,IStructComponent where T6:struct,IStructComponent where T7:struct,IStructComponent where T8:struct,IStructComponent {
 
     public readonly int Length;
-    private int index;
+    public int index;
     private readonly int max;
     private readonly int min;
     private Unity.Collections.NativeArray<bool> inFilter;
@@ -1149,41 +1291,77 @@ this.buffer8.Dispose();
     }
 
     #region API
-    public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
 public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public void RemoveT0(int id) { this.buffer0.Remove(id); }
 public void RemoveT0() { this.buffer0.Remove(this.index); }
+public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
 public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
 public void SetT1(in T1 data) { this.buffer1.Set(this.index, in data); }
+public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
 public ref T1 GetT1() { return ref this.buffer1.Get(this.index); }
+public void RemoveT1(int id) { this.buffer1.Remove(id); }
 public void RemoveT1() { this.buffer1.Remove(this.index); }
+public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
 public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
+public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
 public void SetT2(in T2 data) { this.buffer2.Set(this.index, in data); }
+public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
 public ref T2 GetT2() { return ref this.buffer2.Get(this.index); }
+public void RemoveT2(int id) { this.buffer2.Remove(id); }
 public void RemoveT2() { this.buffer2.Remove(this.index); }
+public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
 public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.index); }
+public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
 public void SetT3(in T3 data) { this.buffer3.Set(this.index, in data); }
+public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
 public ref T3 GetT3() { return ref this.buffer3.Get(this.index); }
+public void RemoveT3(int id) { this.buffer3.Remove(id); }
 public void RemoveT3() { this.buffer3.Remove(this.index); }
+public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
 public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.index); }
+public void SetT4(int id, in T4 data) { this.buffer4.Set(id, in data); }
 public void SetT4(in T4 data) { this.buffer4.Set(this.index, in data); }
+public ref T4 GetT4(int id) { return ref this.buffer4.Get(id); }
 public ref T4 GetT4() { return ref this.buffer4.Get(this.index); }
+public void RemoveT4(int id) { this.buffer4.Remove(id); }
 public void RemoveT4() { this.buffer4.Remove(this.index); }
+public ref readonly T4 ReadT4(int id) { return ref this.buffer4.Read(id); }
 public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.index); }
+public void SetT5(int id, in T5 data) { this.buffer5.Set(id, in data); }
 public void SetT5(in T5 data) { this.buffer5.Set(this.index, in data); }
+public ref T5 GetT5(int id) { return ref this.buffer5.Get(id); }
 public ref T5 GetT5() { return ref this.buffer5.Get(this.index); }
+public void RemoveT5(int id) { this.buffer5.Remove(id); }
 public void RemoveT5() { this.buffer5.Remove(this.index); }
+public ref readonly T5 ReadT5(int id) { return ref this.buffer5.Read(id); }
 public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.index); }
+public void SetT6(int id, in T6 data) { this.buffer6.Set(id, in data); }
 public void SetT6(in T6 data) { this.buffer6.Set(this.index, in data); }
+public ref T6 GetT6(int id) { return ref this.buffer6.Get(id); }
 public ref T6 GetT6() { return ref this.buffer6.Get(this.index); }
+public void RemoveT6(int id) { this.buffer6.Remove(id); }
 public void RemoveT6() { this.buffer6.Remove(this.index); }
+public ref readonly T6 ReadT6(int id) { return ref this.buffer6.Read(id); }
 public ref readonly T6 ReadT6() { return ref this.buffer6.Read(this.index); }
+public void SetT7(int id, in T7 data) { this.buffer7.Set(id, in data); }
 public void SetT7(in T7 data) { this.buffer7.Set(this.index, in data); }
+public ref T7 GetT7(int id) { return ref this.buffer7.Get(id); }
 public ref T7 GetT7() { return ref this.buffer7.Get(this.index); }
+public void RemoveT7(int id) { this.buffer7.Remove(id); }
 public void RemoveT7() { this.buffer7.Remove(this.index); }
+public ref readonly T7 ReadT7(int id) { return ref this.buffer7.Read(id); }
 public ref readonly T7 ReadT7() { return ref this.buffer7.Read(this.index); }
+public void SetT8(int id, in T8 data) { this.buffer8.Set(id, in data); }
 public void SetT8(in T8 data) { this.buffer8.Set(this.index, in data); }
+public ref T8 GetT8(int id) { return ref this.buffer8.Get(id); }
 public ref T8 GetT8() { return ref this.buffer8.Get(this.index); }
+public void RemoveT8(int id) { this.buffer8.Remove(id); }
 public void RemoveT8() { this.buffer8.Remove(this.index); }
+public ref readonly T8 ReadT8(int id) { return ref this.buffer8.Read(id); }
 public ref readonly T8 ReadT8() { return ref this.buffer8.Read(this.index); }
 
     #endregion

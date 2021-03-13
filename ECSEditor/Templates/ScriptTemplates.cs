@@ -343,12 +343,40 @@ MonoBehaviour:
         [UnityEditor.MenuItem("Assets/Create/ME.ECS/System", priority = ScriptTemplates.CREATE_SYSTEM_PRIORITY)]
         public static void CreateSystem() {
 
+            var obj = Selection.activeObject;
+            if (obj != null) {
+
+                if (ScriptTemplates.GetFeature(obj, out var featureName) == true) {
+                    
+                    ScriptTemplates.Create("New System.cs", "11-SystemFeatureTemplate", new Dictionary<string, string>() {
+                        { "FEATURE", featureName },
+                    });
+                    return;
+                    
+                }
+                
+            }
+
             ScriptTemplates.Create("New System.cs", "11-SystemTemplate");
 
         }
 
         [UnityEditor.MenuItem("Assets/Create/ME.ECS/System with Filter", priority = ScriptTemplates.CREATE_SYSTEM_FILTER_PRIORITY)]
         public static void CreateSystemFilter() {
+
+            var obj = Selection.activeObject;
+            if (obj != null) {
+
+                if (ScriptTemplates.GetFeature(obj, out var featureName) == true) {
+                    
+                    ScriptTemplates.Create("New System with Filter.cs", "12-SystemFilterFeatureTemplate", new Dictionary<string, string>() {
+                        { "FEATURE", featureName },
+                    });
+                    return;
+                    
+                }
+                
+            }
 
             ScriptTemplates.Create("New System with Filter.cs", "12-SystemFilterTemplate");
 
@@ -467,6 +495,42 @@ MonoBehaviour:
         public static void CreateStructCopyableComponent() {
 
             ScriptTemplates.Create("New Component.cs", "38-ComponentStructCopyableTemplate");
+
+        }
+
+        private static bool GetFeature(Object selected, out string featureName) {
+            
+            var path = AssetDatabase.GetAssetPath(selected);
+            var dir = System.IO.Path.GetDirectoryName(path);
+
+            if (dir.EndsWith("Systems") == true) {
+
+                dir = dir.Remove(dir.Length - 7);
+
+            }
+
+            featureName = string.Empty;
+            var files = System.IO.Directory.GetFiles(dir);
+            foreach (var file in files) {
+
+                var ext = System.IO.Path.GetFileName(file);
+                var filename = System.IO.Path.GetFileNameWithoutExtension(file);
+                if (filename.EndsWith("Feature") == true && ext.EndsWith(".cs") == true) {
+
+                    featureName = filename;
+                    break;
+                        
+                }
+
+            }
+
+            if (string.IsNullOrEmpty(featureName) == false) {
+                    
+                return true;
+                    
+            }
+
+            return false;
 
         }
 
