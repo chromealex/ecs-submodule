@@ -418,11 +418,12 @@ namespace ME.ECS {
         private readonly FilterData set;
         private readonly int max;
         private int index;
-
-        //private readonly bool onVersionChangedOnly;
+        private readonly bool onVersionChangedOnly;
+        
         //private readonly BufferArray<bool> dataContains;
         //private readonly BufferArray<bool> dataVersions;
         //private readonly BufferArray<Entity> cache;
+        private readonly Storage storage;
 
         internal FilterEnumerator(FilterData set) {
 
@@ -436,8 +437,9 @@ namespace ME.ECS {
 
             }
 
+            this.storage = this.set.world.currentState.storage;
             //this.cache = this.set.world.currentState.storage.cache;
-            //this.onVersionChangedOnly = this.set.onVersionChangedOnly;
+            this.onVersionChangedOnly = this.set.onVersionChangedOnly;
             //this.dataContains = this.set.dataContains;
             //this.dataVersions = this.set.dataVersions;
             this.set.SetForEachMode(true);
@@ -470,20 +472,22 @@ namespace ME.ECS {
         #endif
         public bool MoveNext() {
 
+            ref readonly var arr = ref this.set.dataContains.arr;
+            ref readonly var ver = ref this.set.dataVersions.arr;
             do {
 
                 ++this.index;
                 if (this.index > this.max) return false;
-                if (this.set.dataContains.arr[this.index] != true) continue;
-                if (this.set.onVersionChangedOnly == true && this.set.dataVersions.arr[this.index] == false) continue;
+                if (arr[this.index] != true) continue;
+                if (this.onVersionChangedOnly == true && ver[this.index] == false) continue;
                 
                 break;
 
             } while (true);
 
-            if (this.set.onVersionChangedOnly == true) {
+            if (this.onVersionChangedOnly == true) {
 
-                this.set.dataVersions.arr[this.index] = false;
+                ver[this.index] = false;
 
             }
 
@@ -501,7 +505,7 @@ namespace ME.ECS {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             get {
-                return this.set.world.currentState.storage.cache.arr[this.index];
+                return this.storage.cache.arr[this.index];
             }
         }
 
@@ -515,7 +519,7 @@ namespace ME.ECS {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             get {
-                return ref this.set.world.currentState.storage.cache.arr[this.index];
+                return ref this.storage.cache.arr[this.index];
             }
         }
 
@@ -1146,11 +1150,21 @@ namespace ME.ECS {
         #endif
         public bool IsForEntity(int entityId) {
 
-            ref var previousArchetype = ref this.world.currentState.storage.archetypes.prevTypes.arr[entityId];
-            if (previousArchetype.value.Has(in this.archetypeContains.value) == true && previousArchetype.value.HasNot(in this.archetypeNotContains.value) == true) return true;
+            ref var arch = ref this.world.currentState.storage.archetypes;
+            ref var cont = ref this.archetypeContains;
+            ref var notCont = ref this.archetypeNotContains;
+            
+            ref var previousArchetype = ref arch.prevTypes.arr[entityId];
+            if (previousArchetype.value.Has(in cont.value) == true &&
+                previousArchetype.value.HasNot(in notCont.value) == true) {
+                return true;
+            }
 
-            ref var currentArchetype = ref this.world.currentState.storage.archetypes.types.arr[entityId];
-            if (currentArchetype.value.Has(in this.archetypeContains.value) == true && currentArchetype.value.HasNot(in this.archetypeNotContains.value) == true) return true;
+            ref var currentArchetype = ref arch.types.arr[entityId];
+            if (currentArchetype.value.Has(in cont.value) == true &&
+                currentArchetype.value.HasNot(in notCont.value) == true) {
+                return true;
+            }
 
             return false;
 
