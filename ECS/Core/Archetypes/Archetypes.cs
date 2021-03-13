@@ -14,9 +14,9 @@ namespace ME.ECS {
     public class ArchetypeEntities : IPoolableRecycle {
 
         [ME.ECS.Serializer.SerializeField]
-        private BufferArray<Archetype> prevTypes;
+        internal BufferArray<Archetype> prevTypes;
         [ME.ECS.Serializer.SerializeField]
-        private BufferArray<Archetype> types;
+        internal BufferArray<Archetype> types;
 
         public void OnRecycle() {
 

@@ -427,7 +427,7 @@ namespace ME.ECS {
                 bucketState = 1;
 
                 var componentIndex = ComponentTypes<TComponent>.typeId;
-                if (this.world.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
+                if (componentIndex >= 0) this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
 
                 return true;
 
@@ -457,7 +457,7 @@ namespace ME.ECS {
                 bucketState = 0;
 
                 var componentIndex = ComponentTypes<TComponent>.typeId;
-                if (this.world.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
+                if (componentIndex >= 0) this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
 
                 return true;
 
@@ -1917,7 +1917,7 @@ namespace ME.ECS {
                 if (reg != null && reg.Remove(in entity, false) == true) {
 
                     var bit = reg.GetTypeBit();
-                    if (this.currentState.filters.allFiltersArchetype.HasBit(bit) == true) this.currentState.storage.archetypes.Remove(in entity, bit);
+                    if (bit >= 0) this.currentState.storage.archetypes.Remove(in entity, bit);
                     System.Threading.Interlocked.Decrement(ref this.currentState.structComponents.count);
                     changed = true;
 
@@ -2007,7 +2007,7 @@ namespace ME.ECS {
                 this.currentState.storage.versions.Increment(in entity);
                 reg.UpdateVersion(in entity);
                 reg.UpdateVersionNoState(in entity);
-                if (this.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) {
+                if (componentIndex >= 0) {
 
                     this.currentState.storage.archetypes.Set(in entity, componentIndex);
                     this.UpdateFilterByStructComponent(in entity, componentIndex);
@@ -2044,7 +2044,7 @@ namespace ME.ECS {
             if (reg.RemoveObject(entity) == true) {
 
                 this.currentState.storage.versions.Increment(in entity);
-                if (this.currentState.filters.allFiltersArchetype.HasBit(componentIndex) == true) {
+                if (componentIndex >= 0) {
                     
                     this.currentState.storage.archetypes.Remove(in entity, componentIndex);
                     this.UpdateFilterByStructComponent(in entity, componentIndex);

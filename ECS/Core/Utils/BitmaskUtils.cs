@@ -504,6 +504,24 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool HasAny(in BitMask mask) {
+
+            if ((this.field0 & mask.field0) != 0 ||
+                (this.field1 & mask.field1) != 0 ||
+                (this.field2 & mask.field2) != 0 ||
+                (this.field3 & mask.field3) != 0) {
+                return false;
+            }
+
+            return true;
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasNot(in BitMask mask) {
 
             if ((this.field0 & mask.field0) != 0 ||

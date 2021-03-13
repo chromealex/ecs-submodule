@@ -209,10 +209,11 @@ namespace ME.ECS {
     #endif
     public sealed class FiltersStorage : IPoolableRecycle {
 
+        internal static Archetype allFiltersArchetype;
+        
         internal FiltersTree filtersTree;
         internal BufferArray<FilterData> filters;
         private int nextId;
-        internal Archetype allFiltersArchetype;
 
         public int Count {
             get {
@@ -244,19 +245,22 @@ namespace ME.ECS {
 
         public int GetAllFiltersArchetypeCount() {
 
-            return this.allFiltersArchetype.Count;
+            return FiltersStorage.allFiltersArchetype.Count;
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool HasInAnyFilter<TComponent>() {
 
-            return this.allFiltersArchetype.Has<TComponent>();
+            return ComponentTypes<TComponent>.typeId >= 0; //this.allFiltersArchetype.Has<TComponent>();
 
         }
 
         public void RegisterInAllArchetype(in Archetype archetype) {
 
-            this.allFiltersArchetype.Add(in archetype);
+            FiltersStorage.allFiltersArchetype.Add(in archetype);
 
         }
 
@@ -397,7 +401,6 @@ namespace ME.ECS {
         public void CopyFrom(FiltersStorage other) {
 
             this.nextId = other.nextId;
-            this.allFiltersArchetype = other.allFiltersArchetype;
             this.filtersTree.CopyFrom(other.filtersTree);
             ArrayUtils.Copy(other.filters, ref this.filters, new FilterCopy());
 
@@ -1143,10 +1146,10 @@ namespace ME.ECS {
         #endif
         public bool IsForEntity(int entityId) {
 
-            ref var previousArchetype = ref this.world.currentState.storage.archetypes.GetPrevious(entityId);
+            ref var previousArchetype = ref this.world.currentState.storage.archetypes.prevTypes.arr[entityId];
             if (previousArchetype.value.Has(in this.archetypeContains.value) == true && previousArchetype.value.HasNot(in this.archetypeNotContains.value) == true) return true;
 
-            ref var currentArchetype = ref this.world.currentState.storage.archetypes.Get(entityId);
+            ref var currentArchetype = ref this.world.currentState.storage.archetypes.types.arr[entityId];
             if (currentArchetype.value.Has(in this.archetypeContains.value) == true && currentArchetype.value.HasNot(in this.archetypeNotContains.value) == true) return true;
 
             return false;
