@@ -74,6 +74,55 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static long GetDataVersion<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
+
+            return Worlds.currentWorld.GetDataVersion<TComponent>(in entity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static uint GetDataVersionNoState<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
+
+            return Worlds.currentWorld.GetDataVersionNoState<TComponent>(in entity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity CopyFrom(this in Entity entity, in Entity fromEntity) {
+
+            Worlds.currentWorld.CopyFrom(in fromEntity, in entity);
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity ValidateData<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent {
+
+            Worlds.currentWorld.ValidateData<TComponent>(in entity, isTag);
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity ValidateDataCopyable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+
+            Worlds.currentWorld.ValidateDataCopyable<TComponent>(in entity, isTag);
+            return entity;
+
+        }
+
+        #region Set/Has/Remove/Read
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Entity RemoveData<TComponent>(this Entity entity) where TComponent : struct, IStructComponent {
 
             Worlds.currentWorld.RemoveData<TComponent>(entity);
@@ -106,37 +155,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static long GetDataVersion<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
-
-            return Worlds.currentWorld.GetDataVersion<TComponent>(in entity);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static uint GetDataVersionNoState<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
-
-            return Worlds.currentWorld.GetDataVersionNoState<TComponent>(in entity);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public static ref TComponent GetData<TComponent>(this in Entity entity, bool createIfNotExists = true) where TComponent : struct, IStructComponent {
 
             return ref Worlds.currentWorld.GetData<TComponent>(in entity, createIfNotExists);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static Entity CopyFrom(this in Entity entity, in Entity fromEntity) {
-
-            Worlds.currentWorld.CopyFrom(in fromEntity, in entity);
-            return entity;
 
         }
 
@@ -179,13 +200,15 @@ namespace ME.ECS {
             return entity;
 
         }
+        #endregion
 
+        #region Set/Has/Remove/Read Cuts
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity ValidateData<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent {
+        public static Entity Remove<TComponent>(this Entity entity) where TComponent : struct, IStructComponent {
 
-            Worlds.currentWorld.ValidateData<TComponent>(in entity, isTag);
+            Worlds.currentWorld.RemoveData<TComponent>(entity);
             return entity;
 
         }
@@ -193,12 +216,74 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity ValidateDataCopyable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+        public static bool Has<TComponent>(this Entity entity) where TComponent : struct, IStructComponent {
 
-            Worlds.currentWorld.ValidateDataCopyable<TComponent>(in entity, isTag);
+            return Worlds.currentWorld.HasData<TComponent>(entity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static ref
+            //#if UNITY_EDITOR
+            readonly
+            //#endif
+            TComponent Read<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
+
+            return ref Worlds.currentWorld.ReadData<TComponent>(in entity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static ref TComponent Get<TComponent>(this in Entity entity, bool createIfNotExists = true) where TComponent : struct, IStructComponent {
+
+            return ref Worlds.currentWorld.GetData<TComponent>(in entity, createIfNotExists);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity Set<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
+
+            Worlds.currentWorld.SetData<TComponent>(in entity);
             return entity;
 
         }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity Set<TComponent>(this in Entity entity, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
+
+            Worlds.currentWorld.SetData<TComponent>(in entity, lifetime);
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity Set<TComponent>(this in Entity entity, in TComponent data) where TComponent : struct, IStructComponent {
+
+            Worlds.currentWorld.SetData(in entity, in data);
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity Set<TComponent>(this in Entity entity, in TComponent data, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
+
+            Worlds.currentWorld.SetData(in entity, in data, lifetime);
+            return entity;
+
+        }
+        #endregion
 
     }
 
