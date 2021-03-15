@@ -194,7 +194,7 @@ namespace ME.ECS.Collections {
             this.Clear();
             for (int i = 0; i < this.buckets.Length; ++i) {
                 
-                this.buckets[i].Destroy();
+                if (this.buckets[i].IsAlive() == true) this.buckets[i].Destroy();
                 this.buckets[i] = default;
 
             }

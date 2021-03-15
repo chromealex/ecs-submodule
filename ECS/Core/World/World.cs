@@ -1708,6 +1708,12 @@ namespace ME.ECS {
             
         }
 
+        public void GetFeature<TFeature>(out TFeature feature) where TFeature : IFeatureBase {
+
+            feature = this.GetFeature<TFeature>();
+
+        }
+
         public TFeature GetFeature<TFeature>() where TFeature : IFeatureBase {
 
             if (this.features.TryGetValue(typeof(TFeature), out var feature) == true) {

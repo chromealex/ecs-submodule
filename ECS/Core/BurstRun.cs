@@ -52,7 +52,7 @@ namespace ME.ECS {
                 bag = new Buffers.FilterBag<T0, T1>(filter, Unity.Collections.Allocator.Temp),
                 systemMethod = systemMethod,//UnsafeUtility.AddressOf(ref systemMethod),
             };
-            var objAddr = UnsafeUtility.AddressOf(ref System.Runtime.CompilerServices.Unsafe.AsRef(temp));
+            var objAddr = UnsafeUtility.AddressOf(ref temp);
             var m = BurstCompiler.CompileFunctionPointer((FunctionPointerDelegate)BurstSystem<T0, T1>.Method);
             m.Invoke(ref objAddr);
             temp.bag.Push();
@@ -94,14 +94,14 @@ namespace ME.ECS {
                 Burst<T>.cacheDelegate = Burst<T>.cache.Invoke;
 
             }
-            var objAddr = UnsafeUtility.AddressOf(ref System.Runtime.CompilerServices.Unsafe.AsRef(data));
+            var objAddr = UnsafeUtility.AddressOf(ref data);
             Burst<T>.cacheDelegate.Invoke(ref objAddr);
 
         }
 
         public static void RunNoCheck(ref T data) {
 
-            var objAddr = UnsafeUtility.AddressOf(ref System.Runtime.CompilerServices.Unsafe.AsRef(data));
+            var objAddr = UnsafeUtility.AddressOf(ref data);
             Burst<T>.cacheDelegate.Invoke(ref objAddr);
 
         }
