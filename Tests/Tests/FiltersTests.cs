@@ -21,6 +21,84 @@ namespace ME.ECS.Tests {
 
         } 
 
+        private class TestMultipleFiltersSystem : ISystem, IAdvanceTick {
+
+            public World world { get; set; }
+
+            private MultipleFilter filter;
+            private MultipleFilter filter2;
+            
+            public void OnConstruct() {
+                
+                this.filter = MultipleFilter.Create("Test").Any<TestData, TestData2>().Push();
+                this.filter2 = MultipleFilter.Create("Test2").WithoutAny<TestData, TestData2>().Push();
+                
+            }
+
+            public void OnDeconstruct() {
+                
+            }
+
+            public void AdvanceTick(in float deltaTime) {
+
+                UnityEngine.Debug.Log("Filter foreach:");
+                foreach (var entity in this.filter) {
+
+                    UnityEngine.Debug.Log("Entity: " + entity);
+
+                }
+
+                UnityEngine.Debug.Log("Filter foreach 2:");
+                foreach (var entity in this.filter2) {
+
+                    UnityEngine.Debug.Log("Entity: " + entity);
+
+                }
+
+            }
+
+        }
+
+        [NUnit.Framework.TestAttribute]
+        public void MultipleFilters() {
+
+            World world = null;
+            WorldUtilities.CreateWorld<TestState>(ref world, 0.033f);
+            {
+                world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
+                world.SetSeed(1u);
+                {
+                    ref var str = ref world.GetStructComponents();
+                    CoreComponentsInitializer.InitTypeId();
+                    CoreComponentsInitializer.Init(ref str);
+                    WorldUtilities.InitComponentTypeId<TestData>();
+                    WorldUtilities.InitComponentTypeId<TestData2>();
+                    str.Validate<TestData>();
+                    str.Validate<TestData2>();
+
+                    var testEntity = new Entity("Test");
+                    var testEntity2 = new Entity("Test2");
+                    var testEntity3 = new Entity("Test3");
+                    var group = new SystemGroup(world, "TestGroup");
+                    group.AddSystem(new TestMultipleFiltersSystem());
+
+                    testEntity.SetData(new TestData());
+                    testEntity2.SetData(new TestData2());
+                    testEntity3.SetData(new TestData());
+                    testEntity3.SetData(new TestData2());
+                    
+                }
+            }
+            world.SaveResetState<TestState>();
+            
+            world.SetFromToTicks(0, 10);
+
+            world.PreUpdate(1f);
+            world.Update(1f);
+            world.LateUpdate(1f);
+
+        }
+
         private class TestSystem : ISystem, IAdvanceTick {
 
             public World world { get; set; }
@@ -67,6 +145,7 @@ namespace ME.ECS.Tests {
             WorldUtilities.CreateWorld<TestState>(ref world, 0.033f);
             {
                 world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
+                world.SetSeed(1u);
                 {
                     ref var str = ref world.GetStructComponents();
                     CoreComponentsInitializer.InitTypeId();
@@ -162,6 +241,7 @@ namespace ME.ECS.Tests {
             WorldUtilities.CreateWorld<TestState>(ref world, 0.033f);
             {
                 world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
+                world.SetSeed(1u);
                 {
                     ref var str = ref world.GetStructComponents();
                     CoreComponentsInitializer.InitTypeId();

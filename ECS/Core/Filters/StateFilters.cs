@@ -413,6 +413,257 @@ namespace ME.ECS {
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
+    public struct MultipleFilterEnumerator : IEnumerator<Entity> {
+
+        private FilterEnumerator primaryEnumerator;
+        private FilterEnumerator secondaryEnumerator;
+        private BufferArray<bool> primaryChecked;
+        private readonly bool useSecondary;
+        private bool iterateSecondary;
+        private readonly int primaryOffset;
+
+        internal MultipleFilterEnumerator(MultipleFilter set) {
+
+            this.iterateSecondary = false;
+            this.primaryEnumerator = set.primary.GetEnumerator();
+            this.secondaryEnumerator = set.secondary.GetEnumerator();
+            this.useSecondary = set.useSecondary;
+            if (this.useSecondary == true) {
+
+                var count = 0;
+                set.primary.GetBounds(out var min, out var max);
+                if (max >= min) {
+                    
+                    count = max - min + 1;
+                    
+                }
+                this.primaryChecked = PoolArray<bool>.Spawn(count);
+                this.primaryOffset = min;
+
+            } else {
+
+                this.primaryChecked = default;
+                this.primaryOffset = 0;
+
+            }
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Dispose() {
+
+            if (this.useSecondary == true) PoolArray<bool>.Recycle(ref this.primaryChecked);
+            this.primaryEnumerator.Dispose();
+            this.secondaryEnumerator.Dispose();
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool MoveNext() {
+
+            if (this.primaryEnumerator.MoveNext() == true) {
+
+                this.iterateSecondary = false;
+                if (this.useSecondary == true) this.primaryChecked.arr[this.primaryEnumerator.Current.id - this.primaryOffset] = true;
+                return true;
+                
+            }
+
+            if (this.useSecondary == false) return false;
+            
+            this.iterateSecondary = true;
+            var next = false;
+            while (true) {
+                
+                next = this.secondaryEnumerator.MoveNext();
+                if (next == true) {
+
+                    var idx = this.secondaryEnumerator.Current.id - this.primaryOffset;
+                    if (idx < this.primaryChecked.Length && this.primaryChecked.arr[idx] == true) {
+                        
+                        continue;
+                        
+                    }
+                    
+                }
+
+                break;
+
+            }
+            
+            return next;
+            
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        Entity IEnumerator<Entity>.Current {
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            get {
+                if (this.iterateSecondary == true) return this.secondaryEnumerator.Current;
+                return this.primaryEnumerator.Current;
+            }
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public ref Entity Current {
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            get {
+                if (this.iterateSecondary == true) return ref this.secondaryEnumerator.Current;
+                return ref this.primaryEnumerator.Current;
+            }
+        }
+
+        System.Object System.Collections.IEnumerator.Current {
+            get {
+                throw new AllocationException();
+            }
+        }
+
+        void System.Collections.IEnumerator.Reset() { }
+
+    }
+
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
+    public struct MultipleFilter {
+
+        internal Filter primary;
+        internal Filter secondary;
+        internal bool useSecondary;
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public MultipleFilterEnumerator GetEnumerator() {
+
+            return new MultipleFilterEnumerator(this);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public MultipleFilter Any<TComponent0, TComponent1>() where TComponent0 : struct, IStructComponent where TComponent1 : struct, IStructComponent {
+
+            this.primary.With<TComponent0>();
+            this.secondary.With<TComponent1>();
+            this.useSecondary = true;
+            return this;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public MultipleFilter WithoutAny<TComponent0, TComponent1>() where TComponent0 : struct, IStructComponent where TComponent1 : struct, IStructComponent {
+
+            this.primary.Without<TComponent0>();
+            this.secondary.Without<TComponent1>();
+            this.useSecondary = true;
+            return this;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public MultipleFilter With<TComponent>() where TComponent : struct, IStructComponent {
+
+            this.primary.With<TComponent>();
+            return this;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public MultipleFilter Without<TComponent>() where TComponent : struct, IStructComponent {
+
+            this.primary.Without<TComponent>();
+            return this;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public MultipleFilter Push() {
+
+            return this.Push(ref this);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public MultipleFilter Push(ref MultipleFilter filter) {
+
+            this.primary.Push(ref filter.primary, checkExist: true);
+            if (this.useSecondary == true) this.secondary.Push(ref filter.secondary, checkExist: false);
+            return this;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public MultipleFilter OnVersionChangedOnly() {
+
+            this.primary.OnVersionChangedOnly();
+            this.secondary.OnVersionChangedOnly();
+            return this;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static MultipleFilter Create(string customName = null) {
+
+            var filter = new MultipleFilter {
+                primary = Filter.Create(customName),
+                secondary = Filter.Create(customName),
+            };
+            return filter;
+
+        }
+        
+    }
+    
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
     public struct FilterEnumerator : IEnumerator<Entity> {
 
         private readonly FilterData set;
@@ -420,9 +671,6 @@ namespace ME.ECS {
         private int index;
         private readonly bool onVersionChangedOnly;
         
-        //private readonly BufferArray<bool> dataContains;
-        //private readonly BufferArray<bool> dataVersions;
-        //private readonly BufferArray<Entity> cache;
         private readonly Storage storage;
 
         internal FilterEnumerator(FilterData set) {
@@ -438,10 +686,7 @@ namespace ME.ECS {
             }
 
             this.storage = this.set.world.currentState.storage;
-            //this.cache = this.set.world.currentState.storage.cache;
             this.onVersionChangedOnly = this.set.onVersionChangedOnly;
-            //this.dataContains = this.set.dataContains;
-            //this.dataVersions = this.set.dataVersions;
             this.set.SetForEachMode(true);
 
         }
@@ -456,8 +701,6 @@ namespace ME.ECS {
         #endif
         public void Dispose() {
 
-            //this.set.dataContains = this.dataContains;
-            //this.set.dataVersions = this.dataVersions;
             this.set.SetForEachMode(false);
 
         }
@@ -648,12 +891,12 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public Filter Push(ref Filter filter) {
+        public Filter Push(ref Filter filter, bool checkExist = true) {
 
             if (Filter.injections != null) Filter.injections.Invoke(this);
 
             FilterData filterData = null;
-            this.temp.Push(ref filterData);
+            this.temp.Push(ref filterData, checkExist);
             filter.id = filterData.id;
             filter.world = Worlds.currentWorld;
             filter.temp = null;
@@ -661,6 +904,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public Filter OnVersionChangedOnly() {
 
             this.temp.OnVersionChangedOnly();
@@ -746,7 +992,7 @@ namespace ME.ECS {
             return new Filter() {
                 id = filter.id,
                 world = Worlds.currentWorld,
-                temp = filter
+                temp = filter,
             };
 
         }
@@ -1706,10 +1952,10 @@ namespace ME.ECS {
 
         }
 
-        public FilterData Push(ref FilterData filter) {
+        public FilterData Push(ref FilterData filter, bool checkExist = true) {
 
             var world = Worlds.currentWorld;
-            if (world.HasFilter(this.id) == false) {
+            if (checkExist == false || world.HasFilter(this.id) == false) {
 
                 if (this.tempNodes.Count > 0) {
 

@@ -93,6 +93,7 @@ namespace ME.ECS.Tests {
                 world.AddModule<TestStatesHistoryModule>();
                 world.AddModule<TestNetworkModule>();
                 world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
+                world.SetSeed(1u);
                 {
                     WorldUtilities.InitComponentTypeId<TestComponent>(false);
                     ComponentsInitializerWorld.Setup((e) => {

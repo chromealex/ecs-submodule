@@ -53,6 +53,7 @@ namespace ME.ECS.Tests {
             WorldUtilities.CreateWorld<TestState>(ref world, 0.033f);
             {
                 world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
+                world.SetSeed(1u);
                 {
                     ref var str = ref world.GetStructComponents();
                     CoreComponentsInitializer.InitTypeId();
