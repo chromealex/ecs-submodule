@@ -1,7 +1,8 @@
 ﻿{
     "name": "#PROJECTNAME#",
     "references": [
-        "GUID:8979e5b9ed38b420d8191f6eb2c94074"
+        "GUID:8979e5b9ed38b420d8191f6eb2c94074",
+        "GUID:1e50cf49f12c346f5ab77c5d33b0db51"
         #REFERENCES#
     ],
     "includePlatforms": [],

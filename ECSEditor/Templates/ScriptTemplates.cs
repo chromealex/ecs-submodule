@@ -336,6 +336,20 @@ MonoBehaviour:
         [UnityEditor.MenuItem("Assets/Create/ME.ECS/Module", priority = ScriptTemplates.CREATE_MODULE_PRIORITY)]
         public static void CreateModule() {
 
+            var obj = Selection.activeObject;
+            if (obj != null) {
+
+                if (ScriptTemplates.GetFeature(obj, out var featureName) == true) {
+                    
+                    ScriptTemplates.Create("New Module.cs", "01-ModuleFeatureTemplate", new Dictionary<string, string>() {
+                        { "FEATURE", featureName },
+                    });
+                    return;
+                    
+                }
+                
+            }
+
             ScriptTemplates.Create("New Module.cs", "01-ModuleTemplate");
 
         }

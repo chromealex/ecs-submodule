@@ -185,6 +185,21 @@ namespace ME.ECS.Collections {
         }
 
         /// <summary>
+        /// Disposes this instance
+        /// </summary>
+        public void Dispose() {
+
+            this.Clear();
+            for (int i = 0; i < this.buckets.Length; ++i) {
+                
+                this.buckets[i].Destroy();
+                this.buckets[i] = default;
+
+            }
+
+        }
+
+        /// <summary>
         /// Remove data from list.
         /// </summary>
         /// <param name="entityData"></param>

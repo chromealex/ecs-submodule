@@ -414,7 +414,31 @@ namespace ME.ECS {
             return $"Id: {this.id}#{this.generation} ({this.GetVersion().ToString()})";
 
         }
-
+        
+        #if UNITY_EDITOR
+        public IStructComponent[] GetAllComponentsDebug() {
+            
+            var cache = new System.Collections.Generic.List<IStructComponent>();
+            ref var structComponentsContainer = ref Worlds.currentWorld.GetStructComponents();
+            var registries = structComponentsContainer.GetAllRegistries();
+            for (int k = 0; k < registries.Length; ++k) {
+                
+                var registry = registries.arr[k];
+                if (registry == null) continue;
+                if (registry.Has(this) == false) continue;
+                
+                var component = registry.GetObject(this);
+                if (component == null) continue;
+                
+                cache.Add(component);
+                
+            }
+            
+            return cache.ToArray();
+            
+        }
+        #endif
+        
     }
 
 }

@@ -1,32 +1,27 @@
 ﻿using ME.ECS;
 
 namespace #NAMESPACE# {
-
-    #pragma warning disable
-    using #PROJECTNAME#.Components; using #PROJECTNAME#.Modules; using #PROJECTNAME#.Systems; using #PROJECTNAME#.Markers;
-    using Components; using Modules; using Systems; using Markers;
-    #pragma warning restore
+    
+    using Components; using Modules; using Systems; using Features; using Markers;
     
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class #SCRIPTNAME# : ISystem, IAdvanceTick, IUpdate {
+    public sealed class #SCRIPTNAME# : IModule, IUpdate {
         
         private #FEATURE# feature;
-
+        
         public World world { get; set; }
         
-        void ISystemBase.OnConstruct() {
-        
+        void IModuleBase.OnConstruct() {
+            
             this.feature = this.world.GetFeature<#FEATURE#>();
             
         }
         
-        void ISystemBase.OnDeconstruct() {}
-        
-        void IAdvanceTick.AdvanceTick(in float deltaTime) {}
+        void IModuleBase.OnDeconstruct() {}
         
         void IUpdate.Update(in float deltaTime) {}
         

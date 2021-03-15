@@ -155,6 +155,15 @@ namespace ME.ECS.Collections {
         }
 
         /// <summary>
+        /// Disposes this instance
+        /// </summary>
+        public void Dispose() {
+
+            this.keys.Dispose();
+
+        }
+
+        /// <summary>
         /// Remove value by the key.
         /// </summary>
         /// <param name="key"></param>
