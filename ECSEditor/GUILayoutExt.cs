@@ -914,7 +914,6 @@ namespace ME.ECSEditor {
 		        for (int i = 0; i < comps.Length; ++i) {
 
 			        instances[i] = comps[i].data;
-			        Debug.Log("Change " + instances[i] + " from " + comps[i].data);
 
 		        }
 		        
