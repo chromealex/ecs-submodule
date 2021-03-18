@@ -285,6 +285,7 @@ namespace ME.ECS.Pathfinding {
             if (this.nodes == null) return;
 
             var center = this.graphCenter;
+            const float drawOffset = 0.01f;
 
             var borderColor = new Color(1f, 1f, 1f, 1f);
             Gizmos.color = borderColor;
@@ -307,6 +308,7 @@ namespace ME.ECS.Pathfinding {
                     //var z = node.position.x;
                     //var nodePosition = new Vector3(x * this.nodeSize + this.nodeSize * 0.5f, y * this.agentHeight + this.agentHeight * 0.5f, z * this.nodeSize + this.nodeSize * 0.5f);
                     var worldPos = node.worldPosition; //center + nodePosition;
+                    worldPos.y += drawOffset;
 
                     if (this.drawMode == DrawMode.Solid) { } else if (this.drawMode == DrawMode.Areas) {
 
@@ -590,22 +592,49 @@ namespace ME.ECS.Pathfinding {
             return false;
             #else
 
+            const float offset = 0.01f;
+            var minSize = Mathf.Min(0.01f, this.collisionCheckRadius);
+            if (Physics.CheckBox(worldPos,
+                                 new Vector3(minSize, this.agentHeight - offset * 2f, minSize),
+                                 Quaternion.identity,
+                                 this.collisionMask) == true) {
+
+                node.walkable = false;
+                return false;
+
+            }
+
             var raycastResult = false;
             RaycastHit hit;
             if (this.collisionCheckRadius <= 0f) {
 
-                raycastResult = Physics.Raycast(worldPos + Vector3.up * (this.agentHeight * 0.5f), Vector3.down, out hit, this.agentHeight, this.checkMask);
+                raycastResult = Physics.Raycast(worldPos + Vector3.up * (this.agentHeight * 0.5f - offset), Vector3.down, out hit, this.agentHeight, this.checkMask);
 
             } else {
 
-                raycastResult = Physics.SphereCast(new Ray(worldPos + Vector3.up * (this.agentHeight * 0.5f - this.collisionCheckRadius), Vector3.down),
-                                                   this.collisionCheckRadius, out hit, this.agentHeight - this.collisionCheckRadius * 2f, this.checkMask);
+                if (Physics.CheckBox(worldPos + Vector3.up * (this.agentHeight - this.collisionCheckRadius),
+                                     new Vector3(this.collisionCheckRadius, this.agentHeight - this.collisionCheckRadius * 2f, this.collisionCheckRadius),
+                                     Quaternion.identity,
+                                     this.collisionMask) == true) {
 
+                    node.walkable = false;
+                    return false;
+
+                }
+                
+                raycastResult = Physics.BoxCast(worldPos + Vector3.up * (this.agentHeight * 0.5f - offset),
+                                                new Vector3(this.collisionCheckRadius, this.agentHeight * 0.5f, this.collisionCheckRadius),
+                                                Vector3.down,
+                                                out hit,
+                                                Quaternion.identity,
+                                                this.agentHeight,
+                                                this.checkMask);
+                
             }
 
             if (raycastResult == true) {
 
-                node.worldPosition = hit.point;
+                node.worldPosition.y = hit.point.y;
 
                 if ((this.collisionMask & (1 << hit.collider.gameObject.layer)) != 0) {
 

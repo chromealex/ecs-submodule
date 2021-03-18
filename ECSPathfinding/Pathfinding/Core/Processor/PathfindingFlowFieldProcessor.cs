@@ -4,9 +4,9 @@ namespace ME.ECS.Pathfinding {
     
     using ME.ECS.Collections;
 
-    public class PathfindingFlowFieldProcessor : PathfindingProcessor {
+    public struct PathfindingFlowFieldProcessor : IPathfindingProcessor {
         
-        public override Path Run<TMod>(LogLevel pathfindingLogLevel, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0) {
+        public Path Run<TMod>(LogLevel pathfindingLogLevel, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0) where TMod : IPathModifier {
 
             if (threadIndex < 0) threadIndex = 0;
             threadIndex = threadIndex % Pathfinding.THREADS_COUNT;
