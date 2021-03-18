@@ -298,9 +298,10 @@ namespace ME.ECS.Pathfinding {
                 var nodeColorWalkableWorld = new Color(0.2f, 0.5f, 1f, 0.6f);
                 var nodeBorderColorUnwalkable = new Color(1f, 0.2f, 0.2f, 0.4f);
                 var nodeColorUnwalkable = new Color(1f, 0.2f, 0.2f, 0.4f);
-                for (int j = 0; j < this.nodes.Count; ++j) {
+                for (int j = 0; j < this.nodes.innerArray.Length; ++j) {
 
-                    var node = (GridNode)this.nodes[j];
+                    var node = (GridNode)this.nodes.innerArray.arr[j];
+                    if (node == null) continue;
                     //var x = node.position.z;
                     //var y = node.position.y;
                     //var z = node.position.x;

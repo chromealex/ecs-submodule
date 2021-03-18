@@ -41,7 +41,7 @@ namespace ME.ECS.Pathfinding.Editor {
             }
 
             GUILayout.BeginVertical(this.styleDefaults.boxBackground);
-            {
+            if (target.graphs != null) {
 
                 for (int i = 0; i < target.graphs.Count; ++i) {
 
