@@ -63,6 +63,7 @@ namespace ME.ECS.Pathfinding {
 
         public Vector3Int size = new Vector3Int(100, 100, 100);
         public float nodeSize = 1f;
+        public float maxSlope = 45f;
 
         public float initialPenalty = 100f;
         public float initialHeight = 0f;
@@ -195,9 +196,15 @@ namespace ME.ECS.Pathfinding {
             if (target >= 0) {
 
                 var targetNode = this.GetNodeByIndex<GridNode>(target);
-                var cost = (node.worldPosition - targetNode.worldPosition).sqrMagnitude;
-                connection.cost = (cost + targetNode.penalty) * (GridGraphUtilities.IsDiagonalDirection(direction) == true ? this.diagonalCostFactor : 1f);
-                connection.index = target;
+                var maxSlope = this.maxSlope;
+                var angle = Vector3.Angle(targetNode.worldPosition - node.worldPosition, new Vector3(targetNode.worldPosition.x, node.worldPosition.y, targetNode.worldPosition.z) - node.worldPosition);
+                if (angle <= maxSlope) {
+                    
+                    var cost = (node.worldPosition - targetNode.worldPosition).sqrMagnitude;
+                    connection.cost = (cost + targetNode.penalty) * (GridGraphUtilities.IsDiagonalDirection(direction) == true ? this.diagonalCostFactor : 1f);
+                    connection.index = target;
+                    
+                }
 
             }
 
