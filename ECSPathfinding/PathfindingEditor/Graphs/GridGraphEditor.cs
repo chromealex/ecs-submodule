@@ -57,6 +57,7 @@ namespace ME.ECS.Pathfinding.Editor {
                     this.target.size = EditorGUILayout.Vector3IntField("Grid Size", this.target.size);
                     this.target.nodeSize = EditorGUILayout.FloatField("Node Size", this.target.nodeSize);
                     this.target.maxSlope = EditorGUILayout.Slider("Max Slope", this.target.maxSlope, 0f, 90f);
+                    this.target.useSlopePhysics = EditorGUILayout.Toggle("Use slope physics", this.target.useSlopePhysics);
                     
                     this.target.initialPenalty = EditorGUILayout.FloatField("Initial Penalty", this.target.initialPenalty);
                     this.target.initialHeight = EditorGUILayout.FloatField("Initial Height", this.target.initialHeight);

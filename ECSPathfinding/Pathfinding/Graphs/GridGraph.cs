@@ -64,6 +64,7 @@ namespace ME.ECS.Pathfinding {
         public Vector3Int size = new Vector3Int(100, 100, 100);
         public float nodeSize = 1f;
         public float maxSlope = 45f;
+        public bool useSlopePhysics;
 
         public float initialPenalty = 100f;
         public float initialHeight = 0f;
@@ -195,10 +196,32 @@ namespace ME.ECS.Pathfinding {
             var target = GridGraphUtilities.GetIndexByDirection(this, sourceIndex, direction);
             if (target >= 0) {
 
+                var force = false;
                 var targetNode = this.GetNodeByIndex<GridNode>(target);
                 var maxSlope = this.maxSlope;
                 var angle = Vector3.Angle(targetNode.worldPosition - node.worldPosition, new Vector3(targetNode.worldPosition.x, node.worldPosition.y, targetNode.worldPosition.z) - node.worldPosition);
-                if (angle <= maxSlope) {
+                if (this.useSlopePhysics == true && angle > maxSlope) {
+
+                    var orig = Vector3.Lerp(node.worldPosition, targetNode.worldPosition, 0.25f) + Vector3.up * (this.agentHeight * 0.5f);
+                    if (Physics.Raycast(new Ray(orig, Vector3.down), out var hit, this.agentHeight, this.checkMask) == true) {
+
+                        angle = Vector3.Angle(targetNode.worldPosition - hit.point,
+                                              new Vector3(targetNode.worldPosition.x, hit.point.y, targetNode.worldPosition.z) - hit.point);
+                        if (angle <= maxSlope) force = true;
+
+                    }
+
+                    orig = Vector3.Lerp(node.worldPosition, targetNode.worldPosition, 0.75f) + Vector3.up * (this.agentHeight * 0.5f);
+                    if (Physics.Raycast(new Ray(orig, Vector3.down), out hit, this.agentHeight, this.checkMask) == true) {
+
+                        angle = Vector3.Angle(node.worldPosition - hit.point, new Vector3(node.worldPosition.x, hit.point.y, node.worldPosition.z) - hit.point);
+                        if (angle <= maxSlope) force = true;
+
+                    }
+
+                }
+
+                if (force == true || angle <= maxSlope) {
                     
                     var cost = (node.worldPosition - targetNode.worldPosition).sqrMagnitude;
                     connection.cost = (cost + targetNode.penalty) * (GridGraphUtilities.IsDiagonalDirection(direction) == true ? this.diagonalCostFactor : 1f);
@@ -384,7 +407,7 @@ namespace ME.ECS.Pathfinding {
 
                         if (node.walkable == true) {
 
-                            Gizmos.color = new Color(1f, 0.9215686f, 0.01568628f, 0.2f);
+                            Gizmos.color = new Color(1f, 0.9215686f, 0.01568628f, 0.9f);
                             for (int k = 0; k < node.connections.Length; ++k) {
 
                                 var conn = node.connections[k];

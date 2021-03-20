@@ -1267,7 +1267,7 @@ namespace ME.ECSEditor {
 			            
 		            } else {
 			            
-			            var customName = (entity.IsAlive() == true ? entity.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value : string.Empty);
+			            var customName = (entity.IsAlive() == true ? entity.ReadData<ME.ECS.Name.Name>().value : string.Empty);
 			            GUILayout.BeginVertical();
 			            GUILayout.Label(string.IsNullOrEmpty(customName) == false ? customName : "Unnamed");
 			            GUILayout.Label(entity.ToSmallString(), EditorStyles.miniLabel);

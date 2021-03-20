@@ -67,7 +67,7 @@ namespace ME.ECS.DataConfigs {
 
         }
         
-        public void Apply(in Entity entity) {
+        public void Apply(in Entity entity, bool overrideIfExist = true) {
 
 	        //this.Reset();
 	        this.Prewarm();
@@ -81,7 +81,12 @@ namespace ME.ECS.DataConfigs {
 
             for (int i = 0; i < this.structComponents.Length; ++i) {
 
-                world.SetData(in entity, in this.structComponents[i], this.GetComponentDataIndexByTypeWithCache(this.structComponents[i], i), -1);
+                var dataIndex = this.GetComponentDataIndexByTypeWithCache(this.structComponents[i], i);
+                if (overrideIfExist == true || world.HasDataBit(in entity, dataIndex) == false) {
+
+                    world.SetData(in entity, in this.structComponents[i], dataIndex, -1);
+
+                }
 
             }
             
