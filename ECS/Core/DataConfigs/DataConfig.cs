@@ -75,7 +75,7 @@ namespace ME.ECS.DataConfigs {
             var world = Worlds.currentWorld;
             for (int i = 0; i < this.removeStructComponents.Length; ++i) {
 
-                world.RemoveData(in entity, this.GetComponentDataIndexByTypeWithCache(this.removeStructComponents[i], i), -1);
+                world.RemoveData(in entity, this.GetComponentDataIndexByTypeRemoveWithCache(this.removeStructComponents[i], i), -1);
 
             }
 
@@ -95,6 +95,25 @@ namespace ME.ECS.DataConfigs {
                 ComponentsInitializerWorld.Init(in entity);
                 world.UpdateFilters(in entity);
             }
+
+        }
+
+        public int GetComponentDataIndexByTypeRemoveWithCache(IStructComponent component, int idx) {
+
+            if (this.removeStructComponentsDataTypeIds[idx] >= 0) return this.removeStructComponentsDataTypeIds[idx];
+	        
+            if (ComponentTypesRegistry.allTypeId.TryGetValue(component.GetType(), out var index) == true) {
+
+                this.removeStructComponentsDataTypeIds[idx] = index;
+                return index;
+
+            }
+
+            #if UNITY_EDITOR
+            throw new System.Exception($"ComponentTypesRegistry has no type {component.GetType()} for DataConfig {this}.");
+            #else
+	        return -1;
+            #endif
 
         }
 
