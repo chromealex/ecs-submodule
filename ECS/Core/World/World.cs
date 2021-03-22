@@ -2163,8 +2163,6 @@ namespace ME.ECS {
             this.currentStep &= ~WorldStep.SystemsVisualTick;
             ////////////////
 
-            this.ProcessGlobalEvents(GlobalEventType.Visual);
-
             #if CHECKPOINT_COLLECTOR
             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
             #endif
@@ -2182,6 +2180,8 @@ namespace ME.ECS {
             #if CHECKPOINT_COLLECTOR
             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
             #endif
+
+            this.ProcessGlobalEvents(GlobalEventType.Visual);
 
         }
 
