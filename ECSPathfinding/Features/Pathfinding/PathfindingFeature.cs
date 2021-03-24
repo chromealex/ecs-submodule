@@ -56,7 +56,6 @@ namespace ME.ECS.Pathfinding.Features {
             
             this.AddSystem<SetPathfindingInstanceSystem>();
             this.AddSystem<BuildGraphsSystem>();
-            this.AddSystem<BuildPathSystem>();
             this.AddSystem<PathfindingUpdateSystem>();
 
         }
@@ -77,7 +76,7 @@ namespace ME.ECS.Pathfinding.Features {
                 
             }
 
-            entity.SetData(new ME.ECS.Pathfinding.Features.Pathfinding.Components.PathFlowField() {
+            entity.SetData(new ME.ECS.Pathfinding.Features.PathfindingFlowField.Components.PathFlowField() {
                 flowField = BufferArray<byte>.From(path.flowField),
                 from = entity.GetPosition(),
                 to = to,
@@ -86,13 +85,13 @@ namespace ME.ECS.Pathfinding.Features {
             
         }
 
-        public void SetPath(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 to, bool alignToGraphNodes) {
+        public void SetPathAstar(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 to, bool alignToGraphNodes) {
             
-            this.SetPath(in entity, path.nodesModified, path.result, constraint, to, alignToGraphNodes);
+            this.SetPathAstar(in entity, path.nodesModified, path.result, constraint, to, alignToGraphNodes);
             
         }
 
-        public void SetPath(in Entity entity, ListCopyable<Node> nodes, PathCompleteState result, Constraint constraint, UnityEngine.Vector3 to, bool alignToGraphNodes) {
+        public void SetPathAstar(in Entity entity, ListCopyable<Node> nodes, PathCompleteState result, Constraint constraint, UnityEngine.Vector3 to, bool alignToGraphNodes) {
 
             //entity.RemoveData<ME.ECS.Pathfinding.Features.Pathfinding.Components.Path>();
 
@@ -135,7 +134,7 @@ namespace ME.ECS.Pathfinding.Features {
                 vPath = newPath;
             }
 
-            entity.SetData(new ME.ECS.Pathfinding.Features.Pathfinding.Components.Path() {
+            entity.SetData(new ME.ECS.Pathfinding.Features.PathfindingAstar.Components.Path() {
                 result = result,
                 path = ME.ECS.Collections.BufferArray<UnityEngine.Vector3>.From(vPath),
                 nodes = ME.ECS.Collections.BufferArray<ME.ECS.Pathfinding.Node>.From(nodes),

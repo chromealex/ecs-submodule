@@ -545,10 +545,10 @@ namespace ME.ECS {
 
             }
 
-            if (arr.arr == null || fromArr.Length != arr.Length) {
+            if (arr.arr == null) {
 
                 if (arr.arr != null) PoolArray<T>.Recycle(ref arr);
-                arr = PoolArray<T>.Spawn(fromArr.Length);
+                arr = PoolArray<T>.Spawn(destIndex + length);
 
             }
 

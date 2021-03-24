@@ -41,7 +41,7 @@ namespace ME.ECS.Pathfinding.Editor {
             }
 
             GUILayout.BeginVertical(this.styleDefaults.boxBackground);
-            {
+            if (target.graphs != null) {
 
                 for (int i = 0; i < target.graphs.Count; ++i) {
 
@@ -117,6 +117,7 @@ namespace ME.ECS.Pathfinding.Editor {
                             go.transform.SetParent(target.transform);
                             var comp = (Graph)go.GetComponent(g.Key);
                             comp.pathfindingLogLevel = target.logLevel;
+                            if (target.graphs == null) target.graphs = new List<Graph>();
                             target.graphs.Add(comp);
                             SceneView.RepaintAll();
                             EditorUtility.SetDirty(this.target);

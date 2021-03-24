@@ -4,9 +4,9 @@ namespace ME.ECS.Pathfinding {
     
     using ME.ECS.Collections;
 
-    public class PathfindingAstarProcessor : PathfindingProcessor {
+    public struct PathfindingAstarProcessor : IPathfindingProcessor {
         
-        public override Path Run<TMod>(LogLevel pathfindingLogLevel, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0) {
+        public Path Run<TMod>(LogLevel pathfindingLogLevel, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0) where TMod : IPathModifier {
 
             if (threadIndex < 0) threadIndex = 0;
             threadIndex = threadIndex % Pathfinding.THREADS_COUNT;
@@ -81,7 +81,7 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        protected ListCopyable<Node> AstarSearch(Graph graph, ListCopyable<Node> visited, Node startNode, Node endNode, Constraint constraint, int threadIndex) {
+        private ListCopyable<Node> AstarSearch(Graph graph, ListCopyable<Node> visited, Node startNode, Node endNode, Constraint constraint, int threadIndex) {
             
             var openList = PoolPriorityQueue<Node>.Spawn(500);
             openList.isMinPriorityQueue = true;

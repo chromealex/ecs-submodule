@@ -404,42 +404,69 @@ namespace ME.ECS {
             this.isLoading = true;
             this.isLoaded = false;
 
-            var awatingCount = 0;
+            var awaitingCount = 0;
             for (int i = 0; i < this.systemGroupsLength; ++i) {
 
                 var group = this.systemGroups.arr[i];
-                awatingCount += (group.runtimeSystem.systemLoadable != null ? group.runtimeSystem.systemLoadable.Count : 0);
+                awaitingCount += (group.runtimeSystem.systemLoadable != null ? group.runtimeSystem.systemLoadable.Count : 0);
 
             }
 
-            if (awatingCount == 0) {
+            this.LoadSystems(0, 0, awaitingCount, onComplete);
+            
+        }
 
+        private void LoadSystems(int groupsOffset, int sysOffset, int awaitingCount, System.Action onComplete) {
+
+            if (awaitingCount == 0) {
+                
                 this.isLoading = false;
                 this.isLoaded = true;
                 onComplete.Invoke();
                 return;
 
             }
-
-            for (int i = 0; i < this.systemGroupsLength; ++i) {
+            
+            for (int i = groupsOffset; i < this.systemGroupsLength; ++i) {
 
                 var group = this.systemGroups.arr[i];
                 if (group.runtimeSystem.systemLoadable == null) continue;
-                for (int j = 0; j < group.runtimeSystem.systemLoadable.Count; ++j) {
+                for (int j = sysOffset; j < group.runtimeSystem.systemLoadable.Count; ++j) {
 
                     var loadableSystem = group.runtimeSystem.systemLoadable[j];
-                    loadableSystem.Load(() => {
+                    if (loadableSystem is ILoadableSync) {
 
-                        --awatingCount;
-                        if (awatingCount == 0) {
-
-                            this.isLoading = false;
-                            this.isLoaded = true;
-                            onComplete.Invoke();
-
+                        var groupId = i;
+                        var idx = j + 1;
+                        if (idx >= group.runtimeSystem.systemLoadable.Count) {
+                            
+                            ++groupId;
+                            idx = 0;
+                            
                         }
+                        loadableSystem.Load(() => {
+                            
+                            this.LoadSystems(groupId, idx, awaitingCount - 1, onComplete);
+                            
+                        });
+                        return;
 
-                    });
+                    } else {
+
+                        loadableSystem.Load(() => {
+
+                            --awaitingCount;
+                            if (awaitingCount == 0) {
+
+                                this.isLoading = false;
+                                this.isLoaded = true;
+                                onComplete.Invoke();
+
+                            }
+
+                        });
+
+                    }
 
                 }
 
@@ -2154,8 +2181,6 @@ namespace ME.ECS {
             this.currentStep &= ~WorldStep.SystemsVisualTick;
             ////////////////
 
-            this.ProcessGlobalEvents(GlobalEventType.Visual);
-
             #if CHECKPOINT_COLLECTOR
             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
             #endif
@@ -2173,6 +2198,8 @@ namespace ME.ECS {
             #if CHECKPOINT_COLLECTOR
             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
             #endif
+
+            this.ProcessGlobalEvents(GlobalEventType.Visual);
 
         }
 

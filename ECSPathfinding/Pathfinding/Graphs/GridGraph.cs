@@ -63,6 +63,8 @@ namespace ME.ECS.Pathfinding {
 
         public Vector3Int size = new Vector3Int(100, 100, 100);
         public float nodeSize = 1f;
+        public float maxSlope = 45f;
+        public bool useSlopePhysics;
 
         public float initialPenalty = 100f;
         public float initialHeight = 0f;
@@ -194,10 +196,38 @@ namespace ME.ECS.Pathfinding {
             var target = GridGraphUtilities.GetIndexByDirection(this, sourceIndex, direction);
             if (target >= 0) {
 
+                var force = false;
                 var targetNode = this.GetNodeByIndex<GridNode>(target);
-                var cost = (node.worldPosition - targetNode.worldPosition).sqrMagnitude;
-                connection.cost = (cost + targetNode.penalty) * (GridGraphUtilities.IsDiagonalDirection(direction) == true ? this.diagonalCostFactor : 1f);
-                connection.index = target;
+                var maxSlope = this.maxSlope;
+                var angle = Vector3.Angle(targetNode.worldPosition - node.worldPosition, new Vector3(targetNode.worldPosition.x, node.worldPosition.y, targetNode.worldPosition.z) - node.worldPosition);
+                if (this.useSlopePhysics == true && angle > maxSlope) {
+
+                    var orig = Vector3.Lerp(node.worldPosition, targetNode.worldPosition, 0.25f) + Vector3.up * (this.agentHeight * 0.5f);
+                    if (Physics.Raycast(new Ray(orig, Vector3.down), out var hit, this.agentHeight, this.checkMask) == true) {
+
+                        angle = Vector3.Angle(targetNode.worldPosition - hit.point,
+                                              new Vector3(targetNode.worldPosition.x, hit.point.y, targetNode.worldPosition.z) - hit.point);
+                        if (angle <= maxSlope) force = true;
+
+                    }
+
+                    orig = Vector3.Lerp(node.worldPosition, targetNode.worldPosition, 0.75f) + Vector3.up * (this.agentHeight * 0.5f);
+                    if (Physics.Raycast(new Ray(orig, Vector3.down), out hit, this.agentHeight, this.checkMask) == true) {
+
+                        angle = Vector3.Angle(node.worldPosition - hit.point, new Vector3(node.worldPosition.x, hit.point.y, node.worldPosition.z) - hit.point);
+                        if (angle <= maxSlope) force = true;
+
+                    }
+
+                }
+
+                if (force == true || angle <= maxSlope) {
+                    
+                    var cost = (node.worldPosition - targetNode.worldPosition).sqrMagnitude;
+                    connection.cost = (cost + targetNode.penalty) * (GridGraphUtilities.IsDiagonalDirection(direction) == true ? this.diagonalCostFactor : 1f);
+                    connection.index = target;
+                    
+                }
 
             }
 
@@ -285,6 +315,7 @@ namespace ME.ECS.Pathfinding {
             if (this.nodes == null) return;
 
             var center = this.graphCenter;
+            const float drawOffset = 0.01f;
 
             var borderColor = new Color(1f, 1f, 1f, 1f);
             Gizmos.color = borderColor;
@@ -298,14 +329,16 @@ namespace ME.ECS.Pathfinding {
                 var nodeColorWalkableWorld = new Color(0.2f, 0.5f, 1f, 0.6f);
                 var nodeBorderColorUnwalkable = new Color(1f, 0.2f, 0.2f, 0.4f);
                 var nodeColorUnwalkable = new Color(1f, 0.2f, 0.2f, 0.4f);
-                for (int j = 0; j < this.nodes.Count; ++j) {
+                for (int j = 0; j < this.nodes.innerArray.Length; ++j) {
 
-                    var node = (GridNode)this.nodes[j];
+                    var node = (GridNode)this.nodes.innerArray.arr[j];
+                    if (node == null) continue;
                     //var x = node.position.z;
                     //var y = node.position.y;
                     //var z = node.position.x;
                     //var nodePosition = new Vector3(x * this.nodeSize + this.nodeSize * 0.5f, y * this.agentHeight + this.agentHeight * 0.5f, z * this.nodeSize + this.nodeSize * 0.5f);
                     var worldPos = node.worldPosition; //center + nodePosition;
+                    worldPos.y += drawOffset;
 
                     if (this.drawMode == DrawMode.Solid) { } else if (this.drawMode == DrawMode.Areas) {
 
@@ -374,7 +407,7 @@ namespace ME.ECS.Pathfinding {
 
                         if (node.walkable == true) {
 
-                            Gizmos.color = new Color(1f, 0.9215686f, 0.01568628f, 0.2f);
+                            Gizmos.color = new Color(1f, 0.9215686f, 0.01568628f, 0.9f);
                             for (int k = 0; k < node.connections.Length; ++k) {
 
                                 var conn = node.connections[k];
@@ -589,22 +622,49 @@ namespace ME.ECS.Pathfinding {
             return false;
             #else
 
+            const float offset = 0.01f;
+            var minSize = Mathf.Min(0.01f, this.collisionCheckRadius);
+            if (Physics.CheckBox(worldPos,
+                                 new Vector3(minSize, this.agentHeight - offset * 2f, minSize),
+                                 Quaternion.identity,
+                                 this.collisionMask) == true) {
+
+                node.walkable = false;
+                return false;
+
+            }
+
             var raycastResult = false;
             RaycastHit hit;
             if (this.collisionCheckRadius <= 0f) {
 
-                raycastResult = Physics.Raycast(worldPos + Vector3.up * (this.agentHeight * 0.5f), Vector3.down, out hit, this.agentHeight, this.checkMask);
+                raycastResult = Physics.Raycast(worldPos + Vector3.up * (this.agentHeight * 0.5f - offset), Vector3.down, out hit, this.agentHeight, this.checkMask);
 
             } else {
 
-                raycastResult = Physics.SphereCast(new Ray(worldPos + Vector3.up * (this.agentHeight * 0.5f - this.collisionCheckRadius), Vector3.down),
-                                                   this.collisionCheckRadius, out hit, this.agentHeight - this.collisionCheckRadius * 2f, this.checkMask);
+                if (Physics.CheckBox(worldPos + Vector3.up * (this.agentHeight - this.collisionCheckRadius),
+                                     new Vector3(this.collisionCheckRadius, this.agentHeight - this.collisionCheckRadius * 2f, this.collisionCheckRadius),
+                                     Quaternion.identity,
+                                     this.collisionMask) == true) {
 
+                    node.walkable = false;
+                    return false;
+
+                }
+                
+                raycastResult = Physics.BoxCast(worldPos + Vector3.up * (this.agentHeight * 0.5f - offset),
+                                                new Vector3(this.collisionCheckRadius, this.agentHeight * 0.5f, this.collisionCheckRadius),
+                                                Vector3.down,
+                                                out hit,
+                                                Quaternion.identity,
+                                                this.agentHeight,
+                                                this.checkMask);
+                
             }
 
             if (raycastResult == true) {
 
-                node.worldPosition = hit.point;
+                node.worldPosition.y = hit.point.y;
 
                 if ((this.collisionMask & (1 << hit.collider.gameObject.layer)) != 0) {
 

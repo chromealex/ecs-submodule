@@ -6,12 +6,12 @@ namespace ME.ECS.Pathfinding {
     
     public class GraphStaticModifier : GraphModifierBase {
     
+        public Bounds bounds;
+        public LayerMask layerMask;
         new public int tag;
         public int penaltyDelta;
         public bool modifyWalkability;
         public bool walkable;
-        public LayerMask layerMask;
-        public Bounds bounds;
 
         public override void ApplyAfterConnections(Graph graph) {
             
@@ -23,7 +23,12 @@ namespace ME.ECS.Pathfinding {
 
                 if (this.modifyWalkability == true) {
                     
-                    node.walkable = this.walkable;
+                    var ray = new Ray(node.worldPosition + Vector3.up * 10f, Vector3.down);
+                    if (Physics.Raycast(ray, out var hit, 1000f, this.layerMask) == true) {
+
+                        node.walkable = this.walkable;
+
+                    }
                     
                 }
 
@@ -44,23 +49,19 @@ namespace ME.ECS.Pathfinding {
                 var ray = new Ray(node.worldPosition + Vector3.up * 10f, Vector3.down);
                 if (Physics.Raycast(ray, out var hit, 1000f, this.layerMask) == true) {
 
-                    if (hit.collider.gameObject.layer == layer) {
+                    var dt = this.penaltyDelta;
+                    if (dt < 0) {
 
-                        var dt = this.penaltyDelta;
-                        if (dt < 0) {
+                        node.penalty -= (uint)(-this.penaltyDelta);
 
-                            node.penalty -= (uint)(-this.penaltyDelta);
-
-                        } else {
-                        
-                            node.penalty += (uint)this.penaltyDelta;
-                        
-                        }
-
-                        node.tag = this.tag;
-
+                    } else {
+                    
+                        node.penalty += (uint)this.penaltyDelta;
+                    
                     }
-            
+
+                    node.tag = this.tag;
+
                 }
         
             }

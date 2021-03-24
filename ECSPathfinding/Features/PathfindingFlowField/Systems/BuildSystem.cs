@@ -1,6 +1,8 @@
 ﻿
-namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
+namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Systems {
 
+    using ME.ECS.Pathfinding.Features.Pathfinding.Components;
+    
     #pragma warning disable
     using Components; using Modules; using Systems; using Markers;
     #pragma warning restore
@@ -10,7 +12,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class BuildFieldSystem : ISystemFilter, IAdvanceTickPost, IAdvanceTickPre {
+    public sealed class BuildSystem : ISystemFilter, IAdvanceTickPost, IAdvanceTickPre {
 
         private PathfindingFeature pathfindingFeature;
         private Unity.Collections.NativeArray<PathTask> pathTasks;
@@ -55,7 +57,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
             if (this.pathTasks.IsCreated == true) {
 
                 ME.ECS.Collections.BufferArray<ME.ECS.Pathfinding.Path> results = default;
-                active.RunTasks(this.pathTasks, ref results);
+                active.RunTasks<PathModifierEmpty, PathfindingFlowFieldProcessor>(this.pathTasks, ref results);
                 //UnityEngine.Debug.Log("Calc paths: " + this.idx);
                 for (int i = 0; i < this.idx; ++i) {
 
@@ -100,7 +102,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
                 //UnityEngine.Debug.LogWarning("REQUEST PATH: " + request.@from.ToStringDec() + " to " + request.to.ToStringDec());
                 var constraint = request.constraint;
                 ArrayUtils.Resize(this.idx, ref this.pathTasks);
-                this.pathTasks[this.idx++] = active.CalculatePathTask(entity, request.from, request.to, request.alignToGraphNodes, constraint, new ME.ECS.Pathfinding.PathCornersModifier());
+                this.pathTasks[this.idx++] = active.CalculatePathTask(entity, request.from, request.to, request.alignToGraphNodes, constraint);
 
                 entity.RemoveData<CalculatePath>();
 

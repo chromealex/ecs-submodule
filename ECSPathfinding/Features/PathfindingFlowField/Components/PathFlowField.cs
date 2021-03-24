@@ -1,6 +1,6 @@
 ﻿using ME.ECS;
 
-namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
+namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Components {
 
     public struct PathFlowField : IStructCopyable<PathFlowField> {
 

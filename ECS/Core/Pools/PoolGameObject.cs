@@ -117,8 +117,13 @@ namespace ME.ECS.Views {
 
             }
 
-            var instanceInternal = (IViewBaseInternal)instance;
-            instanceInternal.Setup(instance.world, new ViewInfo(instance.entity, sourceId, instance.creationTick));
+            if (instance is IViewBaseInternal @internal) {
+
+                var instanceInternal = @internal;
+                instanceInternal.Setup(instance.world, new ViewInfo(instance.entity, sourceId, instance.creationTick));
+
+            }
+
             instance.gameObject.SetActive(true);
             return instance;
 

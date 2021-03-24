@@ -60,7 +60,6 @@ namespace ME.ECS {
         public virtual byte[] Serialize<T>() where T : State {
          
             var serializers = ME.ECS.Serializer.ECSSerializers.GetSerializers();
-            serializers.Add(new ME.ECS.Serializer.BufferArraySerializer());
             return ME.ECS.Serializer.Serializer.Pack((T)this, serializers);
             
         }
@@ -68,7 +67,6 @@ namespace ME.ECS {
         public virtual void Deserialize<T>(byte[] bytes) where T : State {
             
             var serializers = ME.ECS.Serializer.ECSSerializers.GetSerializers();
-            serializers.Add(new ME.ECS.Serializer.BufferArraySerializer());
             ME.ECS.Serializer.Serializer.Unpack(bytes, serializers, (T)this);
             
         }

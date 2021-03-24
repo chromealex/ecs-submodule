@@ -14,7 +14,6 @@ namespace ME.ECS.Pathfinding {
         public Vector3 to;
         public bool alignToGraphNodes;
         public Constraint constraint;
-        public PathCornersModifier pathCornersModifier;
         public bool isValid;
 
     }
@@ -94,7 +93,7 @@ namespace ME.ECS.Pathfinding {
 
         public const int THREADS_COUNT = 8;
 
-        public PathfindingProcessor processor = new PathfindingFlowFieldProcessor();
+        public IPathfindingProcessor defaultProcessor = new PathfindingFlowFieldProcessor();
         public List<Graph> graphs;
 
         public LogLevel logLevel;
@@ -163,7 +162,7 @@ namespace ME.ECS.Pathfinding {
         
         public void CopyFrom(Pathfinding other) {
 
-            this.processor = other.processor;
+            this.defaultProcessor = other.defaultProcessor;
             this.logLevel = other.logLevel;
 
             ArrayUtils.Copy(other.graphs, ref this.graphs, new CopyGraph());
@@ -306,7 +305,39 @@ namespace ME.ECS.Pathfinding {
 
         public Path CalculatePath<TMod>(Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0) where TMod : IPathModifier {
 
-            return this.processor.Run(this.logLevel, from, to, constraint, graph, pathModifier, threadIndex);
+            return this.CalculatePath_INTERNAL(this.defaultProcessor, from, to, constraint, graph, pathModifier, threadIndex);
+
+        }
+
+        public Path CalculatePath<TProcessor>(Vector3 from, Vector3 to, Constraint constraint) where TProcessor : struct, IPathfindingProcessor {
+
+            return this.CalculatePath<PathModifierEmpty, TProcessor>(from, to, constraint, new PathModifierEmpty());
+            
+        }
+
+        public Path CalculatePath<TMod, TProcessor>(Vector3 from, Vector3 to, TMod pathModifier) where TMod : IPathModifier where TProcessor : struct, IPathfindingProcessor {
+
+            var constraint = Constraint.Default;
+            return this.CalculatePath<TMod, TProcessor>(from, to, constraint, pathModifier);
+            
+        }
+
+        public Path CalculatePath<TMod, TProcessor>(Vector3 from, Vector3 to, Constraint constraint, TMod pathModifier, int threadIndex = 0) where TMod : IPathModifier where TProcessor : struct, IPathfindingProcessor {
+
+            var graph = this.GetNearest(from, constraint).graph;
+            return this.CalculatePath<TMod, TProcessor>(from, to, constraint, graph, pathModifier, threadIndex);
+            
+        }
+
+        public Path CalculatePath<TMod, TProcessor>(Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0) where TMod : IPathModifier where TProcessor : struct, IPathfindingProcessor {
+
+            return this.CalculatePath_INTERNAL(new TProcessor(), from, to, constraint, graph, pathModifier, threadIndex);
+
+        }
+
+        internal Path CalculatePath_INTERNAL<TMod, TProcessor>(TProcessor processor, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0) where TMod : IPathModifier where TProcessor : IPathfindingProcessor {
+
+            return processor.Run(this.logLevel, from, to, constraint, graph, pathModifier, threadIndex);
 
         }
 
@@ -372,14 +403,20 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        private struct RunTasksJob : Unity.Jobs.IJobParallelFor {
+        private struct RunTasksJob<TMod, TProcessor> : Unity.Jobs.IJobParallelFor where TMod : struct, IPathModifier where TProcessor : struct, IPathfindingProcessor {
 
             public Unity.Collections.NativeArray<PathTask> arr;
 
             void Unity.Jobs.IJobParallelFor.Execute(int index) {
 
                 var item = this.arr[index];
-                if (item.isValid == true) Pathfinding.results.arr[index] = Pathfinding.pathfinding.CalculatePath(item.@from, item.to, item.constraint, item.pathCornersModifier, index);
+                if (item.isValid == true) {
+
+                    var instance = Pathfinding.pathfinding;
+                    var graph = instance.GetNearest(item.from, item.constraint).graph;
+                    Pathfinding.results.arr[index] = instance.CalculatePath_INTERNAL(new TProcessor(), item.@from, item.to, item.constraint, graph, new TMod(), index);
+                    
+                }
                 this.arr[index] = item;
 
             }
@@ -388,13 +425,13 @@ namespace ME.ECS.Pathfinding {
 
         private static Pathfinding pathfinding;
         private static BufferArray<Path> results;
-        public void RunTasks(Unity.Collections.NativeArray<PathTask> tasks, ref BufferArray<Path> results) {
+        public void RunTasks<TMod, TProcessor>(Unity.Collections.NativeArray<PathTask> tasks, ref BufferArray<Path> results) where TMod : struct, IPathModifier where TProcessor : struct, IPathfindingProcessor {
 
             ArrayUtils.Resize(tasks.Length, ref Pathfinding.results);
             
             Pathfinding.pathfinding = this;
             
-            var job = new RunTasksJob() {
+            var job = new RunTasksJob<TMod, TProcessor>() {
                 arr = tasks,
             };
             var jobHandle = job.Schedule(tasks.Length, 64);
@@ -413,7 +450,7 @@ namespace ME.ECS.Pathfinding {
 
         }
         
-        public PathTask CalculatePathTask(Entity entity, Vector3 requestFrom, Vector3 requestTo, bool alignToGraphNodes, Constraint constraint, PathCornersModifier pathCornersModifier) {
+        public PathTask CalculatePathTask(Entity entity, Vector3 requestFrom, Vector3 requestTo, bool alignToGraphNodes, Constraint constraint) {
 
             return new PathTask() {
                 entity = entity,
@@ -421,7 +458,6 @@ namespace ME.ECS.Pathfinding {
                 to = requestTo,
                 alignToGraphNodes = alignToGraphNodes,
                 constraint = constraint,
-                pathCornersModifier = pathCornersModifier,
                 isValid = true,
             };
             

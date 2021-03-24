@@ -8,6 +8,8 @@ namespace ME.ECS {
 
     }
     
+    public interface ILoadableSync {}
+    
     public interface ISystemBase : IContext {
         
         World world { get; set; }
