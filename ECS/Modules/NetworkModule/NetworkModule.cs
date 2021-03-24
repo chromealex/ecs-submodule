@@ -712,10 +712,9 @@ namespace ME.ECS.Network {
         protected virtual void OnRevertingBegin(Tick sourceTick) {}
         protected virtual void OnRevertingEnd() {}
 
-        private Tick updateBeginTick;
         protected virtual void ApplyTicksByState() {
 
-            var tick = this.updateBeginTick;
+            var tick = this.world.GetCurrentTick();
 
             var timeSinceGameStart = (long)(this.world.GetTimeSinceStart() * 1000L);
             var targetTick = (Tick)System.Math.Floor(timeSinceGameStart / (this.world.GetTickTime() * 1000d));
@@ -800,8 +799,6 @@ namespace ME.ECS.Network {
         }
 
         public virtual void Update(in float deltaTime) {
-            
-            this.updateBeginTick = this.world.GetCurrentTick();
             
         }
 
