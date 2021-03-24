@@ -43,6 +43,23 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static UnityEngine.Vector3 GetRandomInCircle(this ref RandomState randomState, UnityEngine.Vector2 center, float maxRadius) {
+            #if UNITY_MATHEMATICS
+            var rnd = new Unity.Mathematics.Random(randomState);
+            var dir = ((UnityEngine.Vector2)rnd.NextFloat2(-1f, 1f)).normalized;
+            randomState = rnd.state;
+            var result = center + dir * maxRadius;
+            #else
+            UnityEngine.Random.state = randomState;
+            var result = center + UnityEngine.Random.insideUnitCircle * maxRadius;
+            randomState = UnityEngine.Random.state;
+            #endif
+            return result;
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static int GetRandomRange(this ref RandomState randomState, int from, int to) {
             #if UNITY_MATHEMATICS
             var rnd = new Unity.Mathematics.Random(randomState);
