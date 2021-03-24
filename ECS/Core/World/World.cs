@@ -2060,6 +2060,24 @@ namespace ME.ECS {
             this.currentStep &= ~WorldStep.SystemsVisualTick;
             ////////////////
 
+            #if CHECKPOINT_COLLECTOR
+            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
+            #endif
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.BeginSample($"Remove Markers");
+            #endif
+
+            this.RemoveMarkers();
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.EndSample();
+            #endif
+
+            #if CHECKPOINT_COLLECTOR
+            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
+            #endif
+
         }
 
         #if INLINE_METHODS
@@ -2180,24 +2198,6 @@ namespace ME.ECS {
             ////////////////
             this.currentStep &= ~WorldStep.SystemsVisualTick;
             ////////////////
-
-            #if CHECKPOINT_COLLECTOR
-            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
-            #endif
-
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.BeginSample($"Remove Markers");
-            #endif
-
-            this.RemoveMarkers();
-
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.EndSample();
-            #endif
-
-            #if CHECKPOINT_COLLECTOR
-            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
-            #endif
 
             this.ProcessGlobalEvents(GlobalEventType.Visual);
 
