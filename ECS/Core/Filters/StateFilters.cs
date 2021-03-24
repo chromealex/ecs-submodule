@@ -627,6 +627,7 @@ namespace ME.ECS {
         #endif
         public MultipleFilter Push(ref MultipleFilter filter) {
 
+            filter.useSecondary = this.useSecondary;
             this.primary.Push(ref filter.primary, checkExist: true);
             if (this.useSecondary == true) this.secondary.Push(ref filter.secondary, checkExist: false);
             return this;
@@ -654,6 +655,21 @@ namespace ME.ECS {
                 secondary = Filter.Create(customName),
             };
             return filter;
+
+        }
+
+        public BufferArray<Entity> ToArray() {
+
+            if (this.useSecondary == false) return this.primary.ToArray();
+            
+            var arr = PoolArray<Entity>.Spawn(this.primary.Count + this.secondary.Count);
+            var primaryArray = this.primary.ToArray();
+            ArrayUtils.Copy(primaryArray, 0, ref arr, 0, this.primary.Count);
+            primaryArray.Dispose();
+            var secondaryArray = this.secondary.ToArray();
+            if (secondaryArray.Length > 0) ArrayUtils.Copy(secondaryArray, 0, ref arr, this.primary.Count, this.secondary.Count);
+            secondaryArray.Dispose();
+            return arr;
 
         }
         
