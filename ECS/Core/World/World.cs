@@ -615,6 +615,24 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public UnityEngine.Vector3 GetRandomInCircle(UnityEngine.Vector2 center, float maxRadius) {
+        
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+
+            RandomUtils.ThreadCheck(this);
+            return this.currentState.randomState.GetRandomInCircle(center, maxRadius);
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public int GetRandomRange(int from, int to) {
             
             #if WORLD_STATE_CHECK
@@ -2042,6 +2060,24 @@ namespace ME.ECS {
             this.currentStep &= ~WorldStep.SystemsVisualTick;
             ////////////////
 
+            #if CHECKPOINT_COLLECTOR
+            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
+            #endif
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.BeginSample($"Remove Markers");
+            #endif
+
+            this.RemoveMarkers();
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.EndSample();
+            #endif
+
+            #if CHECKPOINT_COLLECTOR
+            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
+            #endif
+
         }
 
         #if INLINE_METHODS
@@ -2162,24 +2198,6 @@ namespace ME.ECS {
             ////////////////
             this.currentStep &= ~WorldStep.SystemsVisualTick;
             ////////////////
-
-            #if CHECKPOINT_COLLECTOR
-            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
-            #endif
-
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.BeginSample($"Remove Markers");
-            #endif
-
-            this.RemoveMarkers();
-
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.EndSample();
-            #endif
-
-            #if CHECKPOINT_COLLECTOR
-            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
-            #endif
 
             this.ProcessGlobalEvents(GlobalEventType.Visual);
 
