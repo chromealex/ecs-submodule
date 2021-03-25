@@ -1,0 +1,20 @@
+{
+    "name": "ME.ECS.PathfindingEditor",
+    "references": [
+        "GUID:2d1ae4e32c1ae45f89e4a171ecae507a",
+        "GUID:2ece66b544d324812a43e54b6d31cffd",
+        "GUID:948ed582966c54c1988774d66ffc3446",
+        "GUID:8979e5b9ed38b420d8191f6eb2c94074"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
