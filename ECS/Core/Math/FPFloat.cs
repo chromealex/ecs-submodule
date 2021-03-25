@@ -13,7 +13,7 @@ namespace ME.ECS {
     #if MESSAGE_PACK_SUPPORT
     [MessagePack.MessagePackObjectAttribute()]
     #endif
-    public partial struct pfloat : System.IEquatable<pfloat>, System.IComparable<pfloat> {
+    public readonly struct pfloat : System.IEquatable<pfloat>, System.IComparable<pfloat> {
 
         #if MESSAGE_PACK_SUPPORT
         [MessagePack.Key(0)]
@@ -21,11 +21,11 @@ namespace ME.ECS {
         public readonly long v;
 
         // Precision of this type is 2^-32, that is 2,3283064365386962890625E-10
-        public static readonly decimal Precision = (decimal)new pfloat(1L); //0.00000000023283064365386962890625m;
-        public static readonly pfloat MaxValue = new pfloat(pfloat.MAX_VALUE);
-        public static readonly pfloat MinValue = new pfloat(pfloat.MIN_VALUE);
-        public static readonly pfloat One = new pfloat(pfloat.ONE);
-        public static readonly pfloat Zero = new pfloat();
+        //public static readonly decimal Precision = new pfloat(1L); //0.00000000023283064365386962890625m;
+        public static pfloat MaxValue => pfloat.MAX_VALUE;
+        public static pfloat MinValue => pfloat.MIN_VALUE;
+        public static pfloat One => pfloat.ONE;
+        public static pfloat Zero => 0;
         /// <summary>
         /// The value of Pi
         /// </summary>
@@ -297,9 +297,9 @@ namespace ME.ECS {
             var xl = x.v;
             var yl = y.v;
 
-            if (yl == 0) {
+            /*if (yl == 0) {
                 throw new System.DivideByZeroException();
-            }
+            }*/
 
             var remainder = (ulong)(xl >= 0 ? xl : -xl);
             var divider = (ulong)(yl >= 0 ? yl : -yl);

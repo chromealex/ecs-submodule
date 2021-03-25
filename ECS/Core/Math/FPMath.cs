@@ -29,7 +29,13 @@ namespace ME.ECS {
             return pfloat.Round(value);
 
         }
-        
+
+        public static pfloat Pow(pfloat value, pfloat exp) {
+
+            return pfloat.Pow(value, exp);
+
+        }
+
         public static int Sign(pfloat value) {
 
             return pfloat.Sign(value);

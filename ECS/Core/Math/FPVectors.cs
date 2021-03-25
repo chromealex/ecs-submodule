@@ -81,6 +81,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static pfloat Dot(FPVector2 v1, FPVector2 v2) {
+
+            return v1.x * v2.x + v1.y + v2.y;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Normalize() {
 
             var num = this.magnitude;
@@ -207,6 +216,28 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static FPVector2 operator *(FPVector2 v1, in pfloat v2) {
+
+            v1.x *= v2;
+            v1.y *= v2;
+            return v1;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FPVector2 operator *(in pfloat v2, FPVector2 v1) {
+
+            v1.x *= v2;
+            v1.y *= v2;
+            return v1;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static FPVector2 operator *(FPVector2 v1, in FPVector2 v2) {
 
             v1.x *= v2.x;
@@ -284,10 +315,22 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static FPVector3 Lerp(FPVector3 a, FPVector3 b, pfloat t) {
 
             t = FPMath.Clamp01(t);
             return new FPVector3(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static pfloat Dot(FPVector3 v1, FPVector3 v2) {
+
+            return v1.x * v2.x + v1.y + v2.y + v1.z + v2.z;
 
         }
 

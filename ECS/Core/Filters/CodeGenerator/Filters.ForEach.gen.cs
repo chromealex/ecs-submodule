@@ -20,7 +20,7 @@ public struct FilterBag<T0>  where T0:struct,IStructComponent {
     public int index;
     private readonly int max;
     private readonly int min;
-    private Unity.Collections.NativeArray<bool> inFilter;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<bool> inFilter;
     
     private DataBuffer<T0> buffer0;
 

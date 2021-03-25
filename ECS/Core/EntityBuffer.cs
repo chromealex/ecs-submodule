@@ -13,8 +13,8 @@ namespace ME.ECS {
     #endif
     public struct DataBuffer<T> where T : struct, IStructComponent {
 
-        private Unity.Collections.NativeArray<T> arr;
-        private Unity.Collections.NativeArray<byte> ops;
+        [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<T> arr;
+        [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<byte> ops;
         private readonly int minIdx;
         
         #if INLINE_METHODS
@@ -39,7 +39,7 @@ namespace ME.ECS {
         #endif
         public int Push(World world, ME.ECS.Collections.BufferArray<Entity> arr, int max, Unity.Collections.NativeArray<bool> inFilter) {
 
-            var changedCount = 0;
+            //var changedCount = 0;
             var isTag = WorldUtilities.IsComponentAsTag<T>();
             var reg = (StructComponents<T>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T>()];
             for (int i = this.minIdx; i <= max; ++i) {
@@ -50,6 +50,8 @@ namespace ME.ECS {
                 var entity = arr.arr[i];
                 if ((this.ops[i] & 0x4) != 0) {
 
+                    // Remove
+                    
                     if (isTag == false) reg.components[entity.id] = default;
                     ref var state = ref reg.componentsStates.arr[entity.id];
                     if (state > 0) {
@@ -58,6 +60,7 @@ namespace ME.ECS {
                         if (world.currentState.filters.HasInAnyFilter<T>() == true) {
 
                             world.currentState.storage.archetypes.Remove<T>(in entity);
+                            world.UpdateFilterByStructComponent<T>(in entity);
 
                         }
 
@@ -66,9 +69,12 @@ namespace ME.ECS {
                     }
                     
                     world.currentState.storage.versions.Increment(in entity);
-                    ++changedCount;
+                    if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
+                    //++changedCount;
                     
                 } else if ((this.ops[i] & 0x2) != 0) {
+
+                    // Set
 
                     if (isTag == false) reg.components[entity.id] = this.arr[entity.id];
                     ref var state = ref reg.componentsStates.arr[entity.id];
@@ -78,6 +84,7 @@ namespace ME.ECS {
                         if (world.currentState.filters.HasInAnyFilter<T>() == true) {
 
                             world.currentState.storage.archetypes.Set<T>(in entity);
+                            world.UpdateFilterByStructComponent<T>(in entity);
 
                         }
 
@@ -86,7 +93,10 @@ namespace ME.ECS {
                     }
 
                     world.currentState.storage.versions.Increment(in entity);
-                    ++changedCount;
+                    if (AllComponentTypes<T>.isVersioned == true) reg.versions.arr[entity.id] = world.GetCurrentTick();
+                    if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
+                    if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
+                    //++changedCount;
 
                 }
                 
@@ -94,7 +104,7 @@ namespace ME.ECS {
             
             this.Dispose();
 
-            return changedCount;
+            return 0;
 
         }
 
@@ -127,7 +137,6 @@ namespace ME.ECS {
 
         public ref readonly T Read(int entityId) {
 
-            this.ops[entityId] |= 0x1;
             return ref this.arr.GetRef(entityId);
 
         }

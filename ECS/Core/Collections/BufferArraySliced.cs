@@ -54,7 +54,7 @@ namespace ME.ECS.Collections {
             this.data = arr;
             this.tails = tails;
             this.tailsLength = 0;
-            for (int i = 0, length = this.tails.Length; i < length; ++i) {
+            for (int i = 0, length = tails.Length; i < length; ++i) {
 
                 var tail = tails.arr[i];
                 this.tailsLength += tail.Length;
@@ -68,13 +68,16 @@ namespace ME.ECS.Collections {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             get {
-                if (this.tails.isCreated == true && index >= this.data.Length) {
+                var data = this.data;
+                if (index >= data.Length) {
 
                     // Look into tails
-                    index -= this.data.Length;
-                    for (int i = 0, length = this.tails.Length; i < length; ++i) {
+                    var tails = this.tails;
+                    var arr = tails.arr;
+                    index -= data.Length;
+                    for (int i = 0, length = tails.Length; i < length; ++i) {
 
-                        ref var tail = ref this.tails.arr[i];
+                        ref var tail = ref arr[i];
                         var len = tail.Length;
                         if (index >= len) {
 
@@ -89,7 +92,7 @@ namespace ME.ECS.Collections {
 
                 }
 
-                return ref this.data.arr[index];
+                return ref data.arr[index];
             }
         }
 
