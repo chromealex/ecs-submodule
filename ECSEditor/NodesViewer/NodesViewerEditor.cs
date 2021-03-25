@@ -1010,7 +1010,7 @@ namespace ME.ECSEditor {
             for (int i = 0; i < systems.Length; ++i) {
 
                 var group = systems.arr[i];
-                if (group.runtimeSystem.allSystems.Count == 0) continue;
+                if (group.runtimeSystem.allSystems == null || group.runtimeSystem.allSystems.Count == 0) continue;
                 systemsLogicContainer = graph.AddNode(systemsLogicContainer, new SystemsLogicContainer(group.name, this.CreateSubGraph<SystemLogicNode>(group.runtimeSystem.allSystems, "AdvanceTick", WorldStep.LogicTick)), group.runtimeSystem.allSystems);
 
             }
@@ -1021,7 +1021,7 @@ namespace ME.ECSEditor {
             for (int i = 0; i < systems.Length; ++i) {
 
                 var group = systems.arr[i];
-                if (group.runtimeSystem.allSystems.Count == 0) continue;
+                if (group.runtimeSystem.allSystems == null || group.runtimeSystem.allSystems.Count == 0) continue;
                 systemsVisualContainer = graph.AddNode(systemsVisualContainer, new SystemsVisualContainer(group.name, this.CreateSubGraph<SystemVisualNode>(group.runtimeSystem.allSystems, "Update", WorldStep.VisualTick)), group.runtimeSystem.allSystems);
 
             }

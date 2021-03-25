@@ -14,8 +14,8 @@ namespace #NAMESPACE# {
     #endif
     public sealed class #SCRIPTNAME# : ISystemFilter {
         
-        public #FEATURE# feature { get; private set; }
-
+        private #FEATURE# feature;
+        
         public World world { get; set; }
         
         void ISystemBase.OnConstruct() {
