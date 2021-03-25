@@ -711,7 +711,7 @@ namespace ME.ECS.Network {
 
         protected virtual void OnRevertingBegin(Tick sourceTick) {}
         protected virtual void OnRevertingEnd() {}
-        
+
         protected virtual void ApplyTicksByState() {
 
             var tick = this.world.GetCurrentTick();
@@ -799,7 +799,7 @@ namespace ME.ECS.Network {
         }
 
         public virtual void Update(in float deltaTime) {
-
+            
         }
 
         public RPCId RegisterRPC(System.Reflection.MethodInfo methodInfo, bool runLocalOnly = false) {
