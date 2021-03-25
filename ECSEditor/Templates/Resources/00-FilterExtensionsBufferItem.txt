@@ -9,7 +9,8 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
     public int index;
     private readonly int max;
     private readonly int min;
-    private Unity.Collections.NativeArray<bool> inFilter;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<bool> inFilter;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
     
     #ITEMS_BUFFER#
 
@@ -34,11 +35,24 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
         this.max = max;
         
         this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
+        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        var idx = 0;
+        foreach (var entity in filter) {
+            
+            this.filterEntities[idx++] = entity.id;
+            
+        }
         
         #ITEMS_INIT#
         
     }
 
+    public int GetEntityIdByIndex(int index) {
+
+        return this.filterEntities[index];
+
+    }
+    
     public void Push() {
 
         var world = Worlds.currentWorld;
@@ -85,6 +99,7 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
     private void Dispose() {
         
         this.inFilter.Dispose();
+        this.filterEntities.Dispose();
         
     }
 

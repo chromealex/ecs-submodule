@@ -94,12 +94,14 @@ namespace ME.ECS.Pathfinding {
 
                 for (var i = 0; i < this.bodies.Length; ++i) {
 
-                    ref readonly var a = ref this.bodies.ReadT0(i);
+                    var entityIdA = this.bodies.GetEntityIdByIndex(i);
+                    ref readonly var a = ref this.bodies.ReadT0(entityIdA);
                     for (var m = 0; m < this.obstacles.Length; ++m) {
 
                         if (this.output[0] >= this.bodyVsObstacleCollisionsBuffer.Length) break;
 
-                        ref readonly var b = ref this.obstacles.ReadT0(m);
+                        var entityIdB = this.bodies.GetEntityIdByIndex(i);
+                        ref readonly var b = ref this.obstacles.ReadT0(entityIdB);
 
                         var difference = a.position - b.position;
                         var closest = new FPVector2(b.position.x + FPMath.Clamp(difference.x, -b.extents.x, b.extents.x),
@@ -110,9 +112,30 @@ namespace ME.ECS.Pathfinding {
                             var distance = difference.magnitude;
                             var normal = distance > 0f ? difference / distance : new FPVector2(1f, 0f);
                             var depth = FPMath.Abs(distance - a.radius);
+                            
+                            var idx = this.output[0];
+                            var found = false;
+                            for (int k = 0; k < idx; ++k) {
+                                
+                                var item = this.bodyVsObstacleCollisionsBuffer[k];
+                                if ((item.a == entityIdA && item.b == entityIdB) ||
+                                    (item.a == entityIdB && item.b == entityIdA)) {
+                                    
+                                    found = true;
+                                    break;
+                                    
+                                }
+                                
+                            }
 
-                            this.bodyVsObstacleCollisionsBuffer[this.output[0]++] = new CollisionManifoldBodyVsObstacle
-                                { a = i, b = m, depth = depth, normal = normal };
+                            if (found == false) {
+
+                                this.bodyVsObstacleCollisionsBuffer[idx] = new CollisionManifoldBodyVsObstacle
+                                    { a = entityIdA, b = entityIdB, depth = depth, normal = normal };
+                                this.output[0]++;
+
+                            }
+
                             break;
                         }
 
@@ -123,7 +146,8 @@ namespace ME.ECS.Pathfinding {
                         if (j == i) continue;
                         if (this.output[1] >= this.bodyVsBodyCollisionsBuffer.Length) break;
 
-                        ref readonly var b = ref this.bodies.ReadT0(j);
+                        var entityIdB = this.bodies.GetEntityIdByIndex(j);
+                        ref readonly var b = ref this.bodies.ReadT0(entityIdB);
 
                         if ((a.collisionMask & b.layer) == 0 && (b.layer & a.collisionMask) == 0) {
                             continue;
@@ -139,9 +163,29 @@ namespace ME.ECS.Pathfinding {
                             var normal = distance > 0f ? difference / distance : new FPVector2(1f, 0f);
                             var depth = FPMath.Abs(distance - collisionDistance);
 
-                            this.bodyVsBodyCollisionsBuffer[this.output[1]++] =
-                                new CollisionManifoldBodyVsBody { a = i, b = j, depth = depth, normal = normal };
+                            var idx = this.output[1];
+                            var found = false;
+                            for (int k = 0; k < idx; ++k) {
+                                
+                                var item = this.bodyVsBodyCollisionsBuffer[k];
+                                if ((item.a == entityIdA && item.b == entityIdB) ||
+                                    (item.a == entityIdB && item.b == entityIdA)) {
+                                    
+                                    found = true;
+                                    break;
+                                    
+                                }
+                                
+                            }
 
+                            if (found == false) {
+
+                                this.bodyVsBodyCollisionsBuffer[idx] = new CollisionManifoldBodyVsBody
+                                    { a = entityIdA, b = entityIdB, depth = depth, normal = normal };
+                                this.output[1]++;
+
+                            }
+                            
                         }
 
                     }
@@ -159,7 +203,7 @@ namespace ME.ECS.Pathfinding {
             public ME.ECS.Buffers.FilterBag<Body> bodies;
             public ME.ECS.Buffers.FilterBag<Obstacle> obstacles;
             
-            public Unity.Collections.NativeArray<CollisionManifoldBodyVsObstacle> items;
+            [Unity.Collections.NativeDisableParallelForRestriction] public Unity.Collections.NativeArray<CollisionManifoldBodyVsObstacle> items;
             
             public void Execute(int index) {
                 
@@ -179,14 +223,14 @@ namespace ME.ECS.Pathfinding {
             public pfloat collisionDumping;
             public ME.ECS.Buffers.FilterBag<Body> bodies;
             
-            public Unity.Collections.NativeArray<CollisionManifoldBodyVsBody> items;
+            [Unity.Collections.NativeDisableParallelForRestriction] public Unity.Collections.NativeArray<CollisionManifoldBodyVsBody> items;
             
             public void Execute(int index) {
                 
                 var c = this.items[index];
                 ref var a = ref this.bodies.GetT0(c.a);
                 ref var b = ref this.bodies.GetT0(c.b);
-                    
+                
                 MotionSolver.ResolveCollision(ref a, ref b, c.depth, c.normal, this.collisionDumping, a.isStatic, b.isStatic);
 
             }
@@ -201,7 +245,8 @@ namespace ME.ECS.Pathfinding {
             
             public void Execute(int index) {
                 
-                ref var body = ref this.bodies.GetT0(index);
+                var entityId = this.bodies.GetEntityIdByIndex(index);
+                ref var body = ref this.bodies.GetT0(entityId);
                 body.velocity *= this.velocityDumping;
                 
             }
@@ -215,8 +260,9 @@ namespace ME.ECS.Pathfinding {
             public ME.ECS.Buffers.FilterBag<Body> bodies;
             
             public void Execute(int index) {
-                   
-                ref var body = ref this.bodies.GetT0(index);
+
+                var entityId = this.bodies.GetEntityIdByIndex(index);
+                ref var body = ref this.bodies.GetT0(entityId);
                 if (body.isStatic == false) {
                     
                     body.position += body.velocity * this.substepDeltaTime;
