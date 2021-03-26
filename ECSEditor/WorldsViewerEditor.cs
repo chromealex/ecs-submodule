@@ -795,7 +795,7 @@ namespace ME.ECSEditor {
                             var elements = PoolListCopyable<Entity>.Spawn(storage.AliveCount);
                             var elementsIdx = PoolListCopyable<int>.Spawn(storage.AliveCount);
                             var paramsList = PoolListCopyable<string>.Spawn(4);
-                            var search = world.GetSearch(storage);
+                            var search = world.GetSearch(storage).ToLower();
                             var searchList = search.Split(new [] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
                             
                             var allEntities = PoolListCopyable<Entity>.Spawn(storage.AliveCount);
