@@ -482,11 +482,11 @@ namespace ME.ECS.Pathfinding {
             } */
         }
 
-        private static void ResolveCollision(ref Body a, ref Body b, pfloat depth, FPVector2 normal, pfloat collisionDumping, bool aIsStatic, bool bIsStatic) {
+        private static void ResolveCollision(ref Body a, ref Body b, pfloat depth, FPVector2 normal, pfloat collisionDumping, int aIsStatic, int bIsStatic) {
 
-            if (a.isStatic == 1 || aIsStatic == true) {
+            if (a.isStatic == 1 || aIsStatic == 1) {
                 b.position += depth * normal;
-            } else if (b.isStatic == 1 || bIsStatic == true) {
+            } else if (b.isStatic == 1 || bIsStatic == 1) {
                 a.position -= depth * normal;
             } else if (a.pushLayer != b.pushLayer) {
                 if (a.velocity.sqrMagnitude > b.velocity.sqrMagnitude) {
