@@ -59,7 +59,7 @@ namespace ME.ECS.Pathfinding {
 
         public struct Body : IStructComponent {
 
-            public bool isStatic;
+            public int isStatic;
             public FPVector2 position;
             public FPVector2 velocity;
 
@@ -263,7 +263,7 @@ namespace ME.ECS.Pathfinding {
 
                 var entityId = this.bodies.GetEntityIdByIndex(index);
                 ref var body = ref this.bodies.GetT0(entityId);
-                if (body.isStatic == false) {
+                if (body.isStatic == 0) {
                     
                     body.position += body.velocity * this.substepDeltaTime;
                     
@@ -484,9 +484,9 @@ namespace ME.ECS.Pathfinding {
 
         private static void ResolveCollision(ref Body a, ref Body b, pfloat depth, FPVector2 normal, pfloat collisionDumping, bool aIsStatic, bool bIsStatic) {
 
-            if (a.isStatic == true || aIsStatic == true) {
+            if (a.isStatic == 1 || aIsStatic == true) {
                 b.position += depth * normal;
-            } else if (b.isStatic == true || bIsStatic == true) {
+            } else if (b.isStatic == 1 || bIsStatic == true) {
                 a.position -= depth * normal;
             } else if (a.pushLayer != b.pushLayer) {
                 if (a.velocity.sqrMagnitude > b.velocity.sqrMagnitude) {
