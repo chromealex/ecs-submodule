@@ -319,6 +319,7 @@ MonoBehaviour:
                 AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
                 
             });
+            ScriptTemplates.Create(path + "/Generator", "csc.rsp", "00-csc.rsp", defines, allowRename: false);
             
             ScriptTemplates.Create(path, "Modules/FPSModule.cs", "00-FPSModuleTemplate", defines, allowRename: false);
             ScriptTemplates.Create(path, "Modules/NetworkModule.cs", "00-NetworkModuleTemplate", defines, allowRename: false);
