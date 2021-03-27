@@ -15,7 +15,7 @@ namespace ME.ECS.Pathfinding {
     #endif
     public class GridGraph : Graph {
 
-        public enum Direction : byte {
+        public enum Direction : int {
 
             Up = 0,
             Down = 1,
@@ -196,37 +196,64 @@ namespace ME.ECS.Pathfinding {
             var target = GridGraphUtilities.GetIndexByDirection(this, sourceIndex, direction);
             if (target >= 0) {
 
-                var force = false;
                 var targetNode = this.GetNodeByIndex<GridNode>(target);
-                var maxSlope = this.maxSlope;
-                var angle = Vector3.Angle(targetNode.worldPosition - node.worldPosition, new Vector3(targetNode.worldPosition.x, node.worldPosition.y, targetNode.worldPosition.z) - node.worldPosition);
-                if (this.useSlopePhysics == true && angle > maxSlope) {
+                if (direction != Direction.Up &&
+                    direction != Direction.Down) {
+                    
+                    var force = false;
+                    var maxSlope = this.maxSlope;
+                    var angle = Vector3.Angle(targetNode.worldPosition - node.worldPosition, new Vector3(targetNode.worldPosition.x, node.worldPosition.y, targetNode.worldPosition.z) - node.worldPosition);
+                    if (this.useSlopePhysics == true) {
 
-                    var orig = Vector3.Lerp(node.worldPosition, targetNode.worldPosition, 0.25f) + Vector3.up * (this.agentHeight * 0.5f);
-                    if (Physics.Raycast(new Ray(orig, Vector3.down), out var hit, this.agentHeight, this.checkMask) == true) {
+                        var f1 = false;
+                        var f2 = false;
+                        Vector3 p1 = Vector3.zero;
+                        Vector3 p2 = Vector3.zero;
+                        
+                        var orig = Vector3.Lerp(node.worldPosition, targetNode.worldPosition, 0.25f) + Vector3.up * (this.agentHeight * 0.5f);
+                        if (Physics.Raycast(new Ray(orig, Vector3.down), out var hit, this.agentHeight, this.checkMask) == true) {
 
-                        angle = Vector3.Angle(targetNode.worldPosition - hit.point,
-                                              new Vector3(targetNode.worldPosition.x, hit.point.y, targetNode.worldPosition.z) - hit.point);
-                        if (angle <= maxSlope) force = true;
+                            p1 = hit.point;
+                            f1 = true;
+
+                        }
+
+                        orig = Vector3.Lerp(node.worldPosition, targetNode.worldPosition, 0.75f) + Vector3.up * (this.agentHeight * 0.5f);
+                        if (Physics.Raycast(new Ray(orig, Vector3.down), out hit, this.agentHeight, this.checkMask) == true) {
+
+                            p2 = hit.point;
+                            f2 = true;
+
+                        }
+
+                        if (f1 == true && f2 == true) {
+                            
+                            //UnityEngine.Debug.DrawLine(p1, p1 + Vector3.up, Color.cyan, 5f);
+                            //UnityEngine.Debug.DrawLine(p2, p2 + Vector3.up, Color.red, 5f);
+                            angle = Vector3.Angle(p2 - p1, new Vector3(p2.x, p1.y, p2.z) - p1);
+                            if (angle <= maxSlope) force = true;
+                            
+                        }
 
                     }
 
-                    orig = Vector3.Lerp(node.worldPosition, targetNode.worldPosition, 0.75f) + Vector3.up * (this.agentHeight * 0.5f);
-                    if (Physics.Raycast(new Ray(orig, Vector3.down), out hit, this.agentHeight, this.checkMask) == true) {
+                    if (force == true || angle <= maxSlope) {
 
-                        angle = Vector3.Angle(node.worldPosition - hit.point, new Vector3(node.worldPosition.x, hit.point.y, node.worldPosition.z) - hit.point);
-                        if (angle <= maxSlope) force = true;
+                        var cost = (node.worldPosition - targetNode.worldPosition).sqrMagnitude;
+                        connection.cost = (cost + targetNode.penalty) * (GridGraphUtilities.IsDiagonalDirection(direction) == true ? this.diagonalCostFactor : 1f);
+                        connection.index = target;
 
                     }
 
-                }
+                } else {
 
-                if (force == true || angle <= maxSlope) {
-                    
-                    var cost = (node.worldPosition - targetNode.worldPosition).sqrMagnitude;
-                    connection.cost = (cost + targetNode.penalty) * (GridGraphUtilities.IsDiagonalDirection(direction) == true ? this.diagonalCostFactor : 1f);
-                    connection.index = target;
-                    
+                    if ((node.worldPosition - targetNode.worldPosition).sqrMagnitude <= this.agentHeight * 0.1f) {
+
+                        connection.cost = 0f;
+                        connection.index = target;
+
+                    }
+
                 }
 
             }
@@ -423,6 +450,24 @@ namespace ME.ECS.Pathfinding {
 
                         }
 
+                        var connections = node.GetCustomConnections();
+                        if (connections != null) {
+
+                            Gizmos.color = new Color(0.9215686f, 0.01568628f, 1f, 0.9f);
+                            for (int k = 0; k < connections.Count; ++k) {
+                                
+                                var conn = connections[k];
+                                var n = this.GetNodeByIndex<GridNode>(conn.index);
+                                if (n != null) {
+                                
+                                    Gizmos.DrawLine(n.worldPosition, node.worldPosition);
+                                    
+                                }
+
+                            }
+                            
+                        }
+
                     }
 
                 }
@@ -578,7 +623,7 @@ namespace ME.ECS.Pathfinding {
                     }
 
                 }
-
+                
             }
 
         }
@@ -814,6 +859,24 @@ namespace ME.ECS.Pathfinding {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static GridGraph.Direction GetDirection(Vector3 direction) {
+
+            direction = direction.normalized.XZ().XZ();
+            var x = direction.z;
+            direction.z = direction.x;
+            direction.x = x;
+            if (direction == Vector3.left) return GridGraph.Direction.Right;
+            if (direction == Vector3.right) return GridGraph.Direction.Left;
+            if (direction == Vector3.forward) return GridGraph.Direction.Forward;
+            if (direction == Vector3.back) return GridGraph.Direction.Backward;
+
+            return (GridGraph.Direction)(-1);
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Vector3 GetDirection(GridGraph.Direction direction) {
 
             var dir = Vector3.zero;
@@ -997,6 +1060,22 @@ namespace ME.ECS.Pathfinding {
         public override Connection[] GetConnections() {
 
             return this.connections;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public override BufferArray<Connection> GetAllConnections() {
+
+            var connections = PoolArray<Connection>.Spawn(this.connections.Length + (this.customConnections != null ? this.customConnections.Count : 0));
+            ArrayUtils.Copy(this.connections, 0, ref connections, 0, this.connections.Length);
+            if (this.customConnections != null) {
+                
+                ArrayUtils.Copy(this.customConnections, 0, ref connections, this.connections.Length, this.customConnections.Count);
+                
+            }
+            return connections;
 
         }
 

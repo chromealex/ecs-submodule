@@ -105,7 +105,7 @@ namespace ME.ECS.Pathfinding {
                     
                 }
 
-                var neighbors = node.GetConnections();
+                var neighbors = node.GetAllConnections();
                 var currentNodeCost = node.startToCurNodeLen[threadIndex];
                 foreach(var conn in neighbors) {
                     
@@ -131,7 +131,9 @@ namespace ME.ECS.Pathfinding {
                     }
                     
                 }
-                
+
+                neighbors.Dispose();
+
             }
 
             PoolPriorityQueue<Node>.Recycle(ref openList);
