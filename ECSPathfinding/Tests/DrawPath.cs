@@ -10,6 +10,7 @@ public class DrawPath : MonoBehaviour {
     public Transform to;
     public float agentRadius;
 
+    #if UNITY_EDITOR
     public void OnDrawGizmos() {
 
         if (this.pathfinding == null || this.to == null) {
@@ -138,5 +139,6 @@ public class DrawPath : MonoBehaviour {
         path.Recycle();
 
     }
+    #endif
 
 }
