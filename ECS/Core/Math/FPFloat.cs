@@ -26,6 +26,7 @@ namespace ME.ECS {
         public static pfloat MinValue => pfloat.MIN_VALUE;
         public static pfloat One => pfloat.ONE;
         public static pfloat Zero => 0;
+        public static pfloat Epsilon => (double)1.0000000036274937E-15M;
         /// <summary>
         /// The value of Pi
         /// </summary>
@@ -903,7 +904,7 @@ namespace ME.ECS {
 
         public override string ToString() {
             // Up to 10 decimal places
-            return ((decimal)this).ToString("X");
+            return ((decimal)this).ToString();
             //return this.v.ToString();
         }
 

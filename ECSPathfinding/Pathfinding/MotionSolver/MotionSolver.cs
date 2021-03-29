@@ -62,7 +62,9 @@ namespace ME.ECS.Pathfinding {
             public int isStatic;
             public FPVector2 position;
             public FPVector2 velocity;
+            public FPVector2 targetPos;
 
+            public pfloat speed;
             public pfloat radius;
             public pfloat mass;
 
@@ -70,6 +72,8 @@ namespace ME.ECS.Pathfinding {
             public int collisionMask;
 
             public uint pushLayer;
+
+            public ME.ECS.Collections.StackArray10<float> sensorsLength;
 
         }
 
@@ -274,15 +278,136 @@ namespace ME.ECS.Pathfinding {
         }
 
         public static Body CreateBody(Vector2 position, Vector2 velocity, float radius = 1f, float mass = MotionSolver.DEFAULT_BODY_MASS) {
-            return new Body { position = position, velocity = velocity, radius = radius, mass = mass, layer = MotionSolver.DEFAULT_COLLISION_LAYER, collisionMask = MotionSolver.DEFAULT_COLLISION_MASK };
+            
+            return new Body {
+                position = position, velocity = velocity, radius = radius, mass = mass, layer = MotionSolver.DEFAULT_COLLISION_LAYER, collisionMask = MotionSolver.DEFAULT_COLLISION_MASK,
+                sensorsLength = new ME.ECS.Collections.StackArray10<float>(8),
+            };
+            
+        }
+
+        public static void SimulateRVO(Filter bodies) {
+
+            const float step = 45f;
+            const float stepSize = 45f;
+            
+            foreach (var agent in bodies) {
+
+                ref var body = ref agent.Get<Body>();
+                var targetPos = body.targetPos;
+                var pos = body.position;
+                var forwardDir = body.velocity;
+                var sensorLength = body.radius * 4f;
+
+                { // sensor length per dir
+
+                    var sensorLengthSqr = sensorLength * sensorLength;
+                    for (int i = 0; i < body.sensorsLength.Length; ++i) {
+
+                        var sensorDir = FPVector2.Rotate(forwardDir, step * i);
+                        var angle = FPMath.Abs(Vector2.SignedAngle(sensorDir, forwardDir));
+                        body.sensorsLength[i] = (360f - angle) / 360f * sensorLength;
+
+                    }
+
+                    foreach (var other in bodies) {
+
+                        if (agent == other) continue;
+
+                        ref readonly var otherBody = ref other.Read<Body>();
+                        // TODO: Calc more accurate iterative prediction
+                        var agentPos = otherBody.position + otherBody.velocity * ((otherBody.position - pos).magnitude / body.speed);
+                        var agentNearestPos = agentPos + (pos - agentPos).normalized * otherBody.radius;
+                        var dir = (agentNearestPos - pos);
+                        var dist = dir.sqrMagnitude;
+                        if (dist <= sensorLengthSqr) {
+
+                            for (int i = 0; i < body.sensorsLength.Length; ++i) {
+
+                                var d = FPVector2.Rotate(forwardDir, step * i);
+                                var angle = FPMath.Abs(Vector2.SignedAngle(dir, d));
+                                if (angle <= stepSize) {
+
+                                    var len = angle / step * sensorLength;
+                                    len = FPMath.Min(len, FPMath.Sqrt(dist));
+                                    body.sensorsLength[i] = FPMath.Min(body.sensorsLength[i], len);
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+                { // make decision
+                    
+                    var targetDir = targetPos - pos;
+                    var dirLenIdx = -1;
+                    var dirAngleIdx = -1;
+                    var max = 0f;
+                    var nearestAngle = float.MaxValue;
+                    for (int i = 0; i < body.sensorsLength.Length; ++i) {
+
+                        var len = body.sensorsLength[i];
+                        if (len >= max) {
+
+                            max = len;
+                            dirLenIdx = i;
+
+                        }
+
+                        var sensorDir = FPVector2.Rotate(forwardDir, step * i);
+                        var angle = FPMath.Repeat(Vector2.SignedAngle(sensorDir, targetDir), 360f);
+                        if (angle <= nearestAngle && len >= sensorLength * 0.3f) {
+
+                            nearestAngle = angle;
+                            dirAngleIdx = i;
+
+                        }
+
+                    }
+
+                    var dirIdx = -1;
+                    if (dirAngleIdx == dirLenIdx) {
+
+                        dirIdx = dirLenIdx;
+
+                    } else {
+
+                        dirIdx = (dirAngleIdx >= 0 ? dirAngleIdx : dirLenIdx);
+
+                    }
+
+                    var d = FPQuaternion.Euler(0f, 0f, step * dirIdx) * forwardDir;
+                    body.velocity = d * body.speed;
+                    
+                }
+
+                /*if (this.target != null) {
+
+                    var d = this.MakeDecision(forwardDir, pos, this.target.position);
+                    this.transform.rotation = Quaternion.LookRotation(d, Vector3.up);
+                    this.velocity = d * this.speed;
+                    this.transform.position = Vector3.MoveTowards(this.transform.position, this.transform.position + this.velocity, dt * this.speed);
+
+                }*/
+
+            }
+
         }
 
         public static void Step(Filter bodies, float deltaTime, in SimulationConfig config) {
-
+            
             MotionSolver.Step(bodies, Filter.Empty, deltaTime, config);
+            
         }
 
         public static void Step(Filter bodies, Filter obstacles, float deltaTime, in SimulationConfig config) {
+
+            //MotionSolver.SimulateRVO(bodies);
 
             var bodiesBag = new ME.ECS.Buffers.FilterBag<Body>(bodies, Unity.Collections.Allocator.TempJob);
             var obstaclesBag = new ME.ECS.Buffers.FilterBag<Obstacle>(obstacles, Unity.Collections.Allocator.TempJob);
@@ -353,133 +478,6 @@ namespace ME.ECS.Pathfinding {
             bodiesBag.Push();
             obstaclesBag.Push();
 
-            /*return;
-
-            MotionSolver.bodyVsBodyCollisionsBuffer.Clear();
-            MotionSolver.bodyVsObstacleCollisionsBuffer.Clear();
-
-            int bodyMin = 0, bodyMax = -1, obstacleMin = 0, obstacleMax = -1;
-
-            if (bodies.IsAlive() == true && bodies.Count > 0) {
-                bodies.GetBounds(out bodyMin, out bodyMax);
-            }
-
-            if (obstacles.IsAlive() == true && obstacles.Count > 0) {
-                obstacles.GetBounds(out obstacleMin, out obstacleMax);
-            }
-
-            var world = Worlds.currentWorld;
-
-            for (int substep = 0; substep < config.substeps; substep++) {
-                for (var i = bodyMin; i <= bodyMax; i++) {
-                    ref var entity = ref world.GetEntityById(i);
-
-                    if (entity.IsEmpty() == false) {
-                        ref var body = ref entity.GetData<Body>(createIfNotExists: false);
-                        body.collidedWithObstacle = false;
-                        if (body.isStatic == false) {
-                            body.position += body.velocity * substepDeltaTime;
-                        }
-                    }
-                }
-
-                for (var i = bodyMin; i <= bodyMax; i++) {
-                    ref var entityA = ref world.GetEntityById(i);
-
-                    if (entityA.IsEmpty() == true) {
-                        continue;
-                    }
-
-                    ref var a = ref entityA.GetData<Body>(createIfNotExists: false);
-
-                    if (a.collidedWithObstacle == false) {
-
-                        for (int m = obstacleMin; m <= obstacleMax; m++) {
-                            ref var entityB = ref world.GetEntityById(m);
-
-                            if (entityB.IsEmpty() == true) {
-                                continue;
-                            }
-
-                            ref var b = ref entityB.GetData<Obstacle>(createIfNotExists: false);
-
-                            var difference = a.position - b.position;
-                            var closest = new Vector2(b.position.x + Mathf.Clamp(difference.x, -b.extents.x, b.extents.x),
-                                                      b.position.y + Mathf.Clamp(difference.y, -b.extents.y, b.extents.y));
-                            difference = closest - a.position;
-
-                            if (difference.sqrMagnitude < a.radius * a.radius) {
-                                var distance = difference.magnitude;
-                                var normal = distance > 0f ? difference / distance : Vector2.right;
-                                var depth = Mathf.Abs(distance - a.radius);
-
-                                a.collidedWithObstacle = true;
-                                MotionSolver.bodyVsObstacleCollisionsBuffer.Add(new CollisionManifold { a = entityA, b = entityB, depth = depth, normal = normal });
-                                break;
-                            }
-                        }
-
-                    }
-
-                    for (var j = i + 1; j <= bodyMax; j++) {
-
-                        ref var entityB = ref world.GetEntityById(j);
-
-                        if (entityB.IsEmpty() == true) {
-                            continue;
-                        }
-
-                        ref var b = ref entityB.GetData<Body>(createIfNotExists: false);
-                        
-                        if ((a.collisionMask & b.layer) == 0 && (b.layer & a.collisionMask) == 0) {
-                            continue;
-                        }
-
-                        var collisionDistance = a.radius + b.radius;
-                        var collisionDistanceSqr = collisionDistance * collisionDistance;
-                        var difference = b.position - a.position;
-
-                        if (difference.sqrMagnitude < collisionDistanceSqr) {
-                            var distance = difference.magnitude;
-                            var normal = distance > 0f ? difference / distance : Vector2.right;
-                            var depth = Mathf.Abs(distance - collisionDistance);
-
-                            MotionSolver.bodyVsBodyCollisionsBuffer.Add(new CollisionManifold { a = entityA, b = entityB, depth = depth, normal = normal });
-                            
-                        }
-                    }
-                }
-
-                for (var i = 0; i < MotionSolver.bodyVsObstacleCollisionsBuffer.Count; i++) {
-                    var c = MotionSolver.bodyVsObstacleCollisionsBuffer[i];
-                    ref var a = ref c.a.GetData<Body>(createIfNotExists: false);
-                    ref var b = ref c.b.GetData<Obstacle>(createIfNotExists: false);
-                    a.collidedWithObstacle = true;
-
-                    MotionSolver.ResolveCollision(ref a, ref b, c.depth, c.normal, config.collisionDumping);
-                }
-
-                for (var i = 0; i < MotionSolver.bodyVsBodyCollisionsBuffer.Count; i++) {
-                    var c = MotionSolver.bodyVsBodyCollisionsBuffer[i];
-                    ref var a = ref c.a.GetData<Body>(createIfNotExists: false);
-                    ref var b = ref c.b.GetData<Body>(createIfNotExists: false);
-                    
-                    MotionSolver.ResolveCollision(ref a, ref b, c.depth, c.normal, config.collisionDumping, a.collidedWithObstacle, b.collidedWithObstacle);
-                }
-
-                if (config.dynamicDumping > 0f) {
-                    var velocityDumping = Mathf.Pow(config.dynamicDumping, substepDeltaTime);
-
-                    for (var i = bodyMin; i <= bodyMax; i++) {
-                        ref var entity = ref world.GetEntityById(i);
-
-                        if (entity.IsEmpty() == false) {
-                            ref var body = ref entity.GetData<Body>(createIfNotExists: false);
-                            body.velocity *= velocityDumping;
-                        }
-                    }
-                }
-            } */
         }
 
         private static void ResolveCollision(ref Body a, ref Body b, pfloat depth, FPVector2 normal, pfloat collisionDumping, int aIsStatic, int bIsStatic) {
