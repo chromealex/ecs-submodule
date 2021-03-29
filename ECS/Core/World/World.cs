@@ -180,6 +180,7 @@ namespace ME.ECS {
         internal int entitiesCapacity;
         private bool isLoading;
         private bool isLoaded;
+        private float loadingProgress;
         public bool isPaused { private set; get; }
 
         void IPoolableSpawn.OnSpawn() {
@@ -306,12 +307,21 @@ namespace ME.ECS {
         /// Useful for matching servers
         /// </summary>
         /// <returns></returns>
+        private float ieeeFloat = 0.1f; 
         public float GetIEEEFloat() {
-            
-            return -16.3f / 4.1f;
+
+            var m = 4f;
+            m += this.ieeeFloat; // use this number to avoid compiler inline constants
+            return -16.3f / m;
             
         }
 
+        public float GetLoadingProgress() {
+
+            return this.loadingProgress;
+
+        }
+        
         public bool IsLoaded() {
 
             return this.isLoaded;
@@ -403,6 +413,7 @@ namespace ME.ECS {
 
             this.isLoading = true;
             this.isLoaded = false;
+            this.loadingProgress = 0f;
 
             var awaitingCount = 0;
             for (int i = 0; i < this.systemGroupsLength; ++i) {
@@ -412,11 +423,11 @@ namespace ME.ECS {
 
             }
 
-            this.LoadSystems(0, 0, awaitingCount, onComplete);
+            this.LoadSystems(awaitingCount, 0, 0, awaitingCount, onComplete);
             
         }
 
-        private void LoadSystems(int groupsOffset, int sysOffset, int awaitingCount, System.Action onComplete) {
+        private void LoadSystems(int count, int groupsOffset, int sysOffset, int awaitingCount, System.Action onComplete) {
 
             if (awaitingCount == 0) {
                 
@@ -446,7 +457,7 @@ namespace ME.ECS {
                         }
                         loadableSystem.Load(() => {
                             
-                            this.LoadSystems(groupId, idx, awaitingCount - 1, onComplete);
+                            this.LoadSystems(count, groupId, idx, awaitingCount - 1, onComplete);
                             
                         });
                         return;
@@ -456,6 +467,8 @@ namespace ME.ECS {
                         loadableSystem.Load(() => {
 
                             --awaitingCount;
+                            this.loadingProgress = 1f - awaitingCount / (float)count;
+                            
                             if (awaitingCount == 0) {
 
                                 this.isLoading = false;

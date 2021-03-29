@@ -76,19 +76,45 @@ namespace ME.ECS.Pathfinding {
                 var connections = node.GetConnections();
                 var dir = 0;
                 var iterDir = 0;
-                foreach (var neighbour in connections) {
+                var dirFound = false;
+                foreach (var conn in connections) {
                     
                     ++iterDir;
 
-                    if (neighbour.index < 0) continue;
+                    if (conn.index < 0) continue;
                     
-                    var idx = neighbour.index;
+                    var idx = conn.index;
                     var cost = graph.nodes[idx].bestCost[threadIndex];
 
                     if (cost < minCost) {
 
                         minCost = cost;
                         dir = iterDir - 1;
+                        dirFound = true;
+
+                    }
+
+                }
+
+                if (dirFound == false) {
+
+                    var customConnections = node.GetCustomConnections();
+                    if (customConnections != null) {
+
+                        foreach (var conn in customConnections) {
+
+                            if (conn.index < 0) continue;
+
+                            var target = graph.nodes[conn.index];
+                            var cost = target.bestCost[threadIndex];
+                            if (cost < minCost) {
+
+                                minCost = cost;
+                                dir = (byte)GridGraphUtilities.GetDirection(target.worldPosition - node.worldPosition);
+
+                            }
+
+                        }
 
                     }
 
@@ -112,10 +138,10 @@ namespace ME.ECS.Pathfinding {
             while (queue.Count > 0) {
 
                 var curNode = queue.Dequeue();
-                var connections = curNode.GetConnections();
-                for (int i = 2; i <= 5; ++i) {
+                var connections = curNode.GetAllConnections();
+                for (int i = 0; i < connections.Length; ++i) {
 
-                    var conn = connections[i];
+                    var conn = connections.arr[i];
                     if (conn.index < 0) continue;
 
                     var neighbor = graph.nodes[conn.index];
@@ -136,6 +162,8 @@ namespace ME.ECS.Pathfinding {
                     }
 
                 }
+
+                connections.Dispose();
 
             }
             

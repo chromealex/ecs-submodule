@@ -27,6 +27,8 @@ namespace ME.ECS.Pathfinding {
         public int tag;
         public float height;
 
+        protected ME.ECS.Collections.ListCopyable<Connection> customConnections;
+
         internal readonly Node[] parent = new Node[Pathfinding.THREADS_COUNT];
         internal readonly float[] startToCurNodeLen = new float[Pathfinding.THREADS_COUNT];
         internal readonly bool[] isOpened = new bool[Pathfinding.THREADS_COUNT];
@@ -36,6 +38,28 @@ namespace ME.ECS.Pathfinding {
         protected Node() {
         }
 
+        public virtual ME.ECS.Collections.ListCopyable<Connection> GetCustomConnections() {
+
+            return this.customConnections;
+
+        }
+
+        public virtual void AddConnection(Node node, float cost = 1f) {
+            
+            this.AddConnection(new Connection() {
+                index = node.index,
+                cost = cost,
+            });
+            
+        }
+
+        public virtual void AddConnection(Connection connection) {
+            
+            if (this.customConnections == null) this.customConnections = new ME.ECS.Collections.ListCopyable<Connection>();
+            this.customConnections.Add(connection);
+            
+        }
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -49,6 +73,7 @@ namespace ME.ECS.Pathfinding {
             this.area = other.area;
             this.tag = other.tag;
             this.height = other.height;
+            ArrayUtils.Copy(other.customConnections, ref this.customConnections);
 
         }
 
@@ -71,6 +96,15 @@ namespace ME.ECS.Pathfinding {
             System.Array.Clear(this.isOpened, 0, this.isOpened.Length);
             System.Array.Clear(this.isClosed, 0, this.isClosed.Length);
             System.Array.Clear(this.bestCost, 0, this.bestCost.Length);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public virtual ME.ECS.Collections.BufferArray<Connection> GetAllConnections() {
+
+            return new ME.ECS.Collections.BufferArray<Connection>();
 
         }
 

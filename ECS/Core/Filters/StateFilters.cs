@@ -559,6 +559,12 @@ namespace ME.ECS {
         internal Filter primary;
         internal Filter secondary;
         internal bool useSecondary;
+
+        public int Count {
+            get {
+                return this.primary.Count + (this.useSecondary == true ? this.secondary.Count : 0);
+            }
+        }
         
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

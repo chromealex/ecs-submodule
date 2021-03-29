@@ -5,6 +5,7 @@ namespace ME.ECS {
     [CreateAssetMenu(menuName = "ME.ECS/Global Event")]
     public class GlobalEvent : ScriptableObject {
 
+        public bool debugMode;
         public GlobalEvent[] callOthers = new GlobalEvent[0];
         
         public delegate void GlobalEventDelegate(in Entity entity);
@@ -75,6 +76,12 @@ namespace ME.ECS {
 
                 }
 
+            }
+
+            if (this.debugMode == true) {
+                
+                UnityEngine.Debug.Log($"[GlobalEvent] Execute called on {this.name} with entity {entity}");
+                
             }
             
             for (int i = 0; i < this.callOthers.Length; ++i) this.callOthers[i].Execute(in entity, globalEventType);

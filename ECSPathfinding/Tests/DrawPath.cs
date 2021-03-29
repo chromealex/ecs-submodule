@@ -10,6 +10,7 @@ public class DrawPath : MonoBehaviour {
     public Transform to;
     public float agentRadius;
 
+    #if UNITY_EDITOR
     public void OnDrawGizmos() {
 
         if (this.pathfinding == null || this.to == null) {
@@ -51,10 +52,14 @@ public class DrawPath : MonoBehaviour {
                     
                     //UnityEditor.Handles.Label(node.worldPosition, ((ME.ECS.Pathfinding.GridGraph.Direction)dir).ToString());
                     var dir3d = ME.ECS.Pathfinding.GridGraphUtilities.GetDirection((ME.ECS.Pathfinding.GridGraph.Direction)dir);
-                    
-                    Gizmos.DrawLine(node.worldPosition - dir3d * nodeSize * 0.3f, node.worldPosition + dir3d * nodeSize * 0.3f);
-                    Gizmos.DrawLine(node.worldPosition + dir3d * nodeSize * 0.3f, (node.worldPosition + Quaternion.Euler(0f, 120f, 0f) * dir3d * nodeSize * 0.1f));
-                    Gizmos.DrawLine(node.worldPosition + dir3d * nodeSize * 0.3f, (node.worldPosition + Quaternion.Euler(0f, -120f, 0f) * dir3d * nodeSize * 0.1f));
+
+                    Gizmos.color = Color.white;
+                    var offset = Vector3.up * 0.1f;
+                    var thickness = 4f;
+                    UnityEditor.Handles.color = Color.white;
+                    UnityEditor.Handles.DrawLine(offset + node.worldPosition - dir3d * nodeSize * 0.3f, offset + node.worldPosition + dir3d * nodeSize * 0.3f, thickness);
+                    UnityEditor.Handles.DrawLine(offset + node.worldPosition + dir3d * nodeSize * 0.3f, offset + (node.worldPosition + Quaternion.Euler(0f, 120f, 0f) * dir3d * nodeSize * 0.1f), thickness);
+                    UnityEditor.Handles.DrawLine(offset + node.worldPosition + dir3d * nodeSize * 0.3f, offset + (node.worldPosition + Quaternion.Euler(0f, -120f, 0f) * dir3d * nodeSize * 0.1f), thickness);
                     
                 }
 
@@ -134,5 +139,6 @@ public class DrawPath : MonoBehaviour {
         path.Recycle();
 
     }
+    #endif
 
 }
