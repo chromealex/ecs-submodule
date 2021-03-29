@@ -57,9 +57,12 @@ public class DrawPath : MonoBehaviour {
                     var offset = Vector3.up * 0.1f;
                     var thickness = 4f;
                     UnityEditor.Handles.color = Color.white;
+                    #if UNITY_2020_2_OR_NEWER
                     UnityEditor.Handles.DrawLine(offset + node.worldPosition - dir3d * nodeSize * 0.3f, offset + node.worldPosition + dir3d * nodeSize * 0.3f, thickness);
                     UnityEditor.Handles.DrawLine(offset + node.worldPosition + dir3d * nodeSize * 0.3f, offset + (node.worldPosition + Quaternion.Euler(0f, 120f, 0f) * dir3d * nodeSize * 0.1f), thickness);
                     UnityEditor.Handles.DrawLine(offset + node.worldPosition + dir3d * nodeSize * 0.3f, offset + (node.worldPosition + Quaternion.Euler(0f, -120f, 0f) * dir3d * nodeSize * 0.1f), thickness);
+                    #else
+                    #endif
                     
                 }
 
