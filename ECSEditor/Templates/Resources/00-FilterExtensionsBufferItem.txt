@@ -8,9 +8,7 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
     public readonly int Length;
     public int index;
     private readonly int max;
-    private readonly int min;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<bool> inFilter;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
     
     #ITEMS_BUFFER#
 
@@ -18,24 +16,11 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
 
         var world = filter.world;
         var arrEntities = world.currentState.storage.cache;
-        filter.GetBounds(out var min, out var max);
-        if (min > max) {
-
-            min = 0;
-            max = -1;
-
-        }
-
-        if (min < 0) min = 0;
-        ++max;
-        if (max >= arrEntities.Length) max = arrEntities.Length - 1;
-        this.index = min - 1;
+        this.index = -1;
         this.Length = filter.Count;
-        this.min = min;
-        this.max = max;
+        this.max = filter.Count;
         
-        this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -57,7 +42,8 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        #ITEMS_PUSH#
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+
         if (changedCount > 0) world.UpdateAllFilters();
         
         this.Dispose();
@@ -66,39 +52,27 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
 
     public void Revert() {
         
-        #ITEMS_DISPOSE#
+        this.buffer0.Dispose();
+
         this.Dispose();
-
-    }
-
-    public ref Entity Get() {
-
-        return ref Worlds.currentWorld.GetEntityById(this.index);
 
     }
 
     public void Reset() {
 
-        this.index = this.min - 1;
+        this.index = -1;
 
     }
     
     public bool MoveNext() {
         
         ++this.index;
-        while (this.index <= this.max && this.inFilter[this.index] == false) {
-
-            ++this.index;
-
-        }
-
-        return this.index <= this.max;
+        return this.index < this.max;
 
     }
     
     private void Dispose() {
         
-        this.inFilter.Dispose();
         this.filterEntities.Dispose();
         
     }
