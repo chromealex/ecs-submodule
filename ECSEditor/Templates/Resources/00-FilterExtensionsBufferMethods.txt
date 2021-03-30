@@ -1,8 +1,8 @@
 public void SetT#INDEX#(int id, in T#INDEX# data) { this.buffer#INDEX#.Set(id, in data); }
-public void SetT#INDEX#(in T#INDEX# data) { this.buffer#INDEX#.Set(this.index, in data); }
+public void SetT#INDEX#(in T#INDEX# data) { this.buffer#INDEX#.Set(this.filterEntities[this.index], in data); }
 public ref T#INDEX# GetT#INDEX#(int id) { return ref this.buffer#INDEX#.Get(id); }
-public ref T#INDEX# GetT#INDEX#() { return ref this.buffer#INDEX#.Get(this.index); }
+public ref T#INDEX# GetT#INDEX#() { return ref this.buffer#INDEX#.Get(this.filterEntities[this.index]); }
 public void RemoveT#INDEX#(int id) { this.buffer#INDEX#.Remove(id); }
-public void RemoveT#INDEX#() { this.buffer#INDEX#.Remove(this.index); }
+public void RemoveT#INDEX#() { this.buffer#INDEX#.Remove(this.filterEntities[this.index]); }
 public ref readonly T#INDEX# ReadT#INDEX#(int id) { return ref this.buffer#INDEX#.Read(id); }
-public ref readonly T#INDEX# ReadT#INDEX#() { return ref this.buffer#INDEX#.Read(this.index); }
+public ref readonly T#INDEX# ReadT#INDEX#() { return ref this.buffer#INDEX#.Read(this.filterEntities[this.index]); }

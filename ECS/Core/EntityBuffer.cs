@@ -13,42 +13,36 @@ namespace ME.ECS {
     #endif
     public struct DataBuffer<T> where T : struct, IStructComponent {
 
-        [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<T> arr;
-        [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<byte> ops;
-        private readonly int minIdx;
+        [Unity.Collections.NativeDisableParallelForRestriction] private NativeArrayBurst<T> arr;
+        [Unity.Collections.NativeDisableParallelForRestriction] private NativeArrayBurst<byte> ops;
         
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public DataBuffer(World world, ME.ECS.Collections.BufferArray<Entity> arr, int minIdx, int maxIdx, int length, Unity.Collections.Allocator allocator) {
+        public DataBuffer(World world, ME.ECS.Collections.BufferArray<Entity> arr, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
 
             var reg = (StructComponents<T>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T>()];
-            this.minIdx = minIdx;
-            this.arr = new Unity.Collections.NativeArray<T>(reg.components.data.arr, allocator);
-            this.ops = new Unity.Collections.NativeArray<byte>(reg.components.data.arr.Length, allocator);
+            this.arr = new NativeArrayBurst<T>(reg.components.data.arr, allocator);
+            this.ops = new NativeArrayBurst<byte>(reg.components.data.arr.Length, allocator);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public DataBuffer(World world, ME.ECS.Collections.BufferArray<Entity> arr, int minIdx, int maxIdx) : this(world, arr, minIdx, maxIdx, maxIdx - minIdx, Unity.Collections.Allocator.Persistent) {}
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public int Push(World world, ME.ECS.Collections.BufferArray<Entity> arr, int max, Unity.Collections.NativeArray<bool> inFilter) {
+        public int Push(World world, ME.ECS.Collections.BufferArray<Entity> arr, int max, ME.ECS.Collections.NativeArrayBurst<int> filterEntities) {
 
             //var changedCount = 0;
             var isTag = WorldUtilities.IsComponentAsTag<T>();
             var reg = (StructComponents<T>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T>()];
-            for (int i = this.minIdx; i <= max; ++i) {
+            for (int i = 0; i < filterEntities.Length; ++i) {
 
-                if (inFilter[i] == false) continue;
-                if (this.ops[i] == 0) continue;
+                var entityId = filterEntities[i];
+                var op = this.ops[entityId];
+                if (op == 0) continue;
 
-                var entity = arr.arr[i];
-                if ((this.ops[i] & 0x4) != 0) {
+                var entity = arr.arr[entityId];
+                if ((op & 0x4) != 0) {
 
                     // Remove
                     
@@ -72,7 +66,7 @@ namespace ME.ECS {
                     if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
                     //++changedCount;
                     
-                } else if ((this.ops[i] & 0x2) != 0) {
+                } else if ((op & 0x2) != 0) {
 
                     // Set
 
