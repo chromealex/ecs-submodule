@@ -649,6 +649,35 @@ namespace ME.ECS {
 
         }
 
+        public override void CopyFrom(in Entity from, in Entity to) {
+
+            if (typeof(TComponent) == typeof(ME.ECS.Views.ViewComponent)) {
+
+                var view = from.GetData<ME.ECS.Views.ViewComponent>(createIfNotExists: false);
+                if (view.viewInfo.entity == from) {
+
+                    to.InstantiateView(view.viewInfo.prefabSourceId);
+
+                }
+
+                return;
+
+            }
+
+            this.componentsStates.arr[to.id] = this.componentsStates.arr[from.id];
+            if (AllComponentTypes<TComponent>.isTag == false) this.components[to.id].CopyFrom(this.components[from.id]);
+            if (this.componentsStates.arr[from.id] > 0) {
+
+                if (this.world.currentState.filters.HasInAnyFilter<TComponent>() == true) this.world.currentState.storage.archetypes.Set<TComponent>(in to);
+
+            } else {
+
+                if (this.world.currentState.filters.HasInAnyFilter<TComponent>() == true) this.world.currentState.storage.archetypes.Remove<TComponent>(in to);
+
+            }
+
+        }
+
     }
 
     public interface IStructComponentsContainer {
