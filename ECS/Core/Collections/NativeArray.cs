@@ -157,15 +157,10 @@ namespace ME.ECS.Collections {
                 throw new ArgumentException("length is greater than the number of elements from srcIndex to the end of the source array.", nameof (length));
             if (dstIndex + length > dst.Length)
                 throw new ArgumentException("length is greater than the number of elements from dstIndex to the end of the destination NativeArray.", nameof (length));
-            UnityEngine.Debug.Log("Copy: " + typeof(T));
             var gcHandle = System.Runtime.InteropServices.GCHandle.Alloc(src, System.Runtime.InteropServices.GCHandleType.Pinned);
-            UnityEngine.Debug.Log("Pinned");
             IntPtr num = gcHandle.AddrOfPinnedObject();
-            UnityEngine.Debug.Log("Addr size: " + UnsafeUtility.SizeOf<T>());
             UnsafeUtility.MemCpy((void*) ((IntPtr) dst.m_Buffer + dstIndex * UnsafeUtility.SizeOf<T>()), (void*) ((IntPtr) (void*) num + srcIndex * UnsafeUtility.SizeOf<T>()), (long) (length * UnsafeUtility.SizeOf<T>()));
-            UnityEngine.Debug.Log("Copy");
             gcHandle.Free();
-            UnityEngine.Debug.Log("COMPLETE");
         }
 
         public T[] ToArray() {
