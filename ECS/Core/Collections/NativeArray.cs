@@ -36,6 +36,7 @@ namespace ME.ECS.Collections {
         internal int m_MinIndex;
         internal int m_MaxIndex;
         internal AtomicSafetyHandle m_Safety;
+        [NativeSetClassTypeToNullOnSchedule]
         internal DisposeSentinel m_DisposeSentinel;
         #endif
 
@@ -134,7 +135,7 @@ namespace ME.ECS.Collections {
 
         public static void Copy(T[] src, NativeArrayBurst<T> dst, int length) => NativeArrayBurst<T>.Copy(src, 0, dst, 0, length);
 
-        public static unsafe void Copy(
+        public static void Copy(
             T[] src,
             int srcIndex,
             NativeArrayBurst<T> dst,
@@ -143,6 +144,7 @@ namespace ME.ECS.Collections {
         {
             #if COLLECTIONS_CHECKS
             AtomicSafetyHandle.CheckWriteAndThrow(dst.m_Safety);
+            #endif
             if (src == null)
                 throw new ArgumentNullException(nameof (src));
             if (length < 0)
@@ -155,11 +157,15 @@ namespace ME.ECS.Collections {
                 throw new ArgumentException("length is greater than the number of elements from srcIndex to the end of the source array.", nameof (length));
             if (dstIndex + length > dst.Length)
                 throw new ArgumentException("length is greater than the number of elements from dstIndex to the end of the destination NativeArray.", nameof (length));
-            #endif
-            var gcHandle = System.Runtime.InteropServices.GCHandle.Alloc((object) src, System.Runtime.InteropServices.GCHandleType.Pinned);
+            UnityEngine.Debug.Log("Copy: " + typeof(T));
+            var gcHandle = System.Runtime.InteropServices.GCHandle.Alloc(src, System.Runtime.InteropServices.GCHandleType.Pinned);
+            UnityEngine.Debug.Log("Pinned");
             IntPtr num = gcHandle.AddrOfPinnedObject();
+            UnityEngine.Debug.Log("Addr size: " + UnsafeUtility.SizeOf<T>());
             UnsafeUtility.MemCpy((void*) ((IntPtr) dst.m_Buffer + dstIndex * UnsafeUtility.SizeOf<T>()), (void*) ((IntPtr) (void*) num + srcIndex * UnsafeUtility.SizeOf<T>()), (long) (length * UnsafeUtility.SizeOf<T>()));
+            UnityEngine.Debug.Log("Copy");
             gcHandle.Free();
+            UnityEngine.Debug.Log("COMPLETE");
         }
 
         public T[] ToArray() {

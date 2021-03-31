@@ -59,7 +59,6 @@ namespace ME.ECS.Pathfinding {
 
         public struct Body : IStructComponent {
 
-            public int isStatic;
             public FPVector2 position;
             public FPVector2 velocity;
             public FPVector2 targetPos;
@@ -68,12 +67,12 @@ namespace ME.ECS.Pathfinding {
             public pfloat radius;
             public pfloat mass;
 
+            public byte isStatic;
             public int layer;
             public int collisionMask;
-
             public uint pushLayer;
 
-            public ME.ECS.Collections.StackArray10<float> sensorsLength;
+            //public ME.ECS.Collections.StackArray10<float> sensorsLength;
 
         }
 
@@ -281,11 +280,12 @@ namespace ME.ECS.Pathfinding {
             
             return new Body {
                 position = position, velocity = velocity, radius = radius, mass = mass, layer = MotionSolver.DEFAULT_COLLISION_LAYER, collisionMask = MotionSolver.DEFAULT_COLLISION_MASK,
-                sensorsLength = new ME.ECS.Collections.StackArray10<float>(8),
+                //sensorsLength = new ME.ECS.Collections.StackArray10<float>(8),
             };
             
         }
 
+        /*
         public static void SimulateRVO(Filter bodies) {
 
             const float step = 45f;
@@ -386,18 +386,10 @@ namespace ME.ECS.Pathfinding {
                     
                 }
 
-                /*if (this.target != null) {
-
-                    var d = this.MakeDecision(forwardDir, pos, this.target.position);
-                    this.transform.rotation = Quaternion.LookRotation(d, Vector3.up);
-                    this.velocity = d * this.speed;
-                    this.transform.position = Vector3.MoveTowards(this.transform.position, this.transform.position + this.velocity, dt * this.speed);
-
-                }*/
-
             }
 
         }
+*/
 
         public static void Step(Filter bodies, float deltaTime, in SimulationConfig config) {
             
@@ -408,6 +400,11 @@ namespace ME.ECS.Pathfinding {
         public static void Step(Filter bodies, Filter obstacles, float deltaTime, in SimulationConfig config) {
 
             //MotionSolver.SimulateRVO(bodies);
+
+            //UnityEngine.Debug.Log(Unity.Collections.LowLevel.Unsafe.UnsafeUtility.IsBlittable<Body>());
+            //UnityEngine.Debug.Log(Unity.Collections.LowLevel.Unsafe.UnsafeUtility.IsBlittable<ME.ECS.Collections.StackArray10<float>>());
+            //UnityEngine.Debug.Log(Unity.Collections.LowLevel.Unsafe.UnsafeUtility.IsBlittable<MoveBodies>());
+            //UnityEngine.Debug.Log(Unity.Collections.LowLevel.Unsafe.UnsafeUtility.IsBlittable<Obstacle>());
 
             var bodiesBag = new ME.ECS.Buffers.FilterBag<Body>(bodies, Unity.Collections.Allocator.TempJob);
             var obstaclesBag = new ME.ECS.Buffers.FilterBag<Obstacle>(obstacles, Unity.Collections.Allocator.TempJob);
