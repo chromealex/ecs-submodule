@@ -84,14 +84,14 @@ namespace ME.ECSEditor {
                         var itemsInit = string.Empty;
                         for (int i = 0; i < j; ++i) {
 
-                            itemsInit += "this.buffer" + i.ToString() + " = new DataBuffer<T" + i.ToString() + ">(world, arrEntities, min, max, max - min, allocator);\n";
+                            itemsInit += "this.buffer" + i.ToString() + " = new DataBuffer<T" + i.ToString() + ">(world, arrEntities, allocator);\n";
 
                         }
 
                         var itemsPush = string.Empty;
                         for (int i = 0; i < j; ++i) {
 
-                            itemsPush += $"changedCount += this.buffer{i.ToString()}.Push(world, world.currentState.storage.cache, this.max, this.inFilter);\n";
+                            itemsPush += $"changedCount += this.buffer{i.ToString()}.Push(world, world.currentState.storage.cache, this.filterEntities);\n";
 
                         }
 

@@ -45,14 +45,14 @@ namespace ME.ECS {
 
         }
 
-        public static FPVector2 Rotate(FPVector2 v, float degrees) {
+        public static FPVector2 Rotate(FPVector2 v, pfloat degrees) {
 
-            float radians = degrees * FPMath.Deg2Rad;
-            float sin = FPMath.Sin(radians);
-            float cos = FPMath.Cos(radians);
+            pfloat radians = degrees * FPMath.Deg2Rad;
+            pfloat sin = FPMath.Sin(radians);
+            pfloat cos = FPMath.Cos(radians);
 
-            float tx = v.x;
-            float ty = v.y;
+            pfloat tx = v.x;
+            pfloat ty = v.y;
 
             return new FPVector2(cos * tx - sin * ty, sin * tx + cos * ty);
 

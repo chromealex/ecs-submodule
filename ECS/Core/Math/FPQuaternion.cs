@@ -99,7 +99,11 @@ namespace ME.ECS {
         }
 
         public static FPQuaternion Euler(pfloat roll, pfloat pitch, pfloat yaw) {
-
+            
+            roll *= (pfloat.Pi / 180f);
+            pitch *= (pfloat.Pi / 180f);
+            yaw *= (pfloat.Pi / 180f);
+            
             FPQuaternion quaternion;
             var num9 = roll * 0.5f;
             var num6 = FPMath.Sin(num9);

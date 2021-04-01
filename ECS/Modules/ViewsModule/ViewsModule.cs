@@ -40,6 +40,26 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void ReplaceView(this Entity entity, ViewId viewId) {
+
+            Worlds.currentWorld.DestroyAllViews(in entity);
+            Worlds.currentWorld.InstantiateView(viewId, entity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void ReplaceView(this Entity entity, IView prefab) {
+
+            Worlds.currentWorld.DestroyAllViews(in entity);
+            Worlds.currentWorld.InstantiateView(prefab, entity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void InstantiateView(this Entity entity, ViewId viewId) {
 
             Worlds.currentWorld.InstantiateView(viewId, entity);

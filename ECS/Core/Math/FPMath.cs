@@ -6,6 +6,33 @@ namespace ME.ECS {
         public const float Deg2Rad = 0.017453292f;
         public const float Rad2Deg = 57.29578f;
         
+        public static pfloat Angle(FPVector2 from, FPVector2 to) {
+        
+            var num = FPMath.Sqrt(from.sqrMagnitude * to.sqrMagnitude);
+            return (float)num < 1.0000000036274937E-15 ? pfloat.Zero : FPMath.ACos(FPMath.Clamp(FPVector2.Dot(from, to) / num, -pfloat.One, pfloat.One)) * (pfloat)57.29578f;
+            
+        }
+
+        public static float SignedAngle(FPVector2 from, FPVector2 to) => FPMath.Angle(from, to) * FPMath.Sign(from.x * to.y - from.y * to.x);
+        
+        public static pfloat Repeat(pfloat t, pfloat length) {
+
+            return FPMath.Clamp(t - FPMath.Floor(t / length) * length, pfloat.Zero, length);
+
+        }
+        
+        public static pfloat Min(pfloat v1, pfloat v2) {
+
+            return v1 < v2 ? v1 : v2;
+
+        }
+
+        public static pfloat Max(pfloat v1, pfloat v2) {
+
+            return v1 > v2 ? v1 : v2;
+
+        }
+
         public static pfloat Abs(pfloat value) {
 
             return pfloat.Abs(value);

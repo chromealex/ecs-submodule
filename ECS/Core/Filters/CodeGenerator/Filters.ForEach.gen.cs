@@ -19,9 +19,7 @@ public struct FilterBag<T0>  where T0:struct,IStructComponent {
     public readonly int Length;
     public int index;
     private readonly int max;
-    private readonly int min;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<bool> inFilter;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
     
     private DataBuffer<T0> buffer0;
 
@@ -29,24 +27,11 @@ public struct FilterBag<T0>  where T0:struct,IStructComponent {
 
         var world = filter.world;
         var arrEntities = world.currentState.storage.cache;
-        filter.GetBounds(out var min, out var max);
-        if (min > max) {
-
-            min = 0;
-            max = -1;
-
-        }
-
-        if (min < 0) min = 0;
-        ++max;
-        if (max >= arrEntities.Length) max = arrEntities.Length - 1;
-        this.index = min - 1;
+        this.index = -1;
         this.Length = filter.Count;
-        this.min = min;
-        this.max = max;
+        this.max = filter.Count;
         
-        this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -54,7 +39,7 @@ public struct FilterBag<T0>  where T0:struct,IStructComponent {
             
         }
         
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, min, max, max - min, allocator);
+        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
 
         
     }
@@ -69,7 +54,7 @@ public struct FilterBag<T0>  where T0:struct,IStructComponent {
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         if (changedCount > 0) world.UpdateAllFilters();
         
@@ -85,47 +70,34 @@ public struct FilterBag<T0>  where T0:struct,IStructComponent {
 
     }
 
-    public ref Entity Get() {
-
-        return ref Worlds.currentWorld.GetEntityById(this.index);
-
-    }
-
     public void Reset() {
 
-        this.index = this.min - 1;
+        this.index = -1;
 
     }
     
     public bool MoveNext() {
         
         ++this.index;
-        while (this.index <= this.max && this.inFilter[this.index] == false) {
-
-            ++this.index;
-
-        }
-
-        return this.index <= this.max;
+        return this.index < this.max;
 
     }
     
     private void Dispose() {
         
-        this.inFilter.Dispose();
         this.filterEntities.Dispose();
         
     }
 
     #region API
     public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
 public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
 public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.index); }
+public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
 public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
 
     #endregion
 
@@ -141,9 +113,7 @@ public struct FilterBag<T0,T1>  where T0:struct,IStructComponent where T1:struct
     public readonly int Length;
     public int index;
     private readonly int max;
-    private readonly int min;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<bool> inFilter;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;
 
@@ -151,24 +121,11 @@ public struct FilterBag<T0,T1>  where T0:struct,IStructComponent where T1:struct
 
         var world = filter.world;
         var arrEntities = world.currentState.storage.cache;
-        filter.GetBounds(out var min, out var max);
-        if (min > max) {
-
-            min = 0;
-            max = -1;
-
-        }
-
-        if (min < 0) min = 0;
-        ++max;
-        if (max >= arrEntities.Length) max = arrEntities.Length - 1;
-        this.index = min - 1;
+        this.index = -1;
         this.Length = filter.Count;
-        this.min = min;
-        this.max = max;
+        this.max = filter.Count;
         
-        this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -176,8 +133,8 @@ public struct FilterBag<T0,T1>  where T0:struct,IStructComponent where T1:struct
             
         }
         
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, min, max, max - min, allocator);
-this.buffer1 = new DataBuffer<T1>(world, arrEntities, min, max, max - min, allocator);
+        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
+this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
 
         
     }
@@ -192,8 +149,7 @@ this.buffer1 = new DataBuffer<T1>(world, arrEntities, min, max, max - min, alloc
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         if (changedCount > 0) world.UpdateAllFilters();
         
@@ -204,61 +160,47 @@ changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.
     public void Revert() {
         
         this.buffer0.Dispose();
-this.buffer1.Dispose();
 
         this.Dispose();
 
     }
 
-    public ref Entity Get() {
-
-        return ref Worlds.currentWorld.GetEntityById(this.index);
-
-    }
-
     public void Reset() {
 
-        this.index = this.min - 1;
+        this.index = -1;
 
     }
     
     public bool MoveNext() {
         
         ++this.index;
-        while (this.index <= this.max && this.inFilter[this.index] == false) {
-
-            ++this.index;
-
-        }
-
-        return this.index <= this.max;
+        return this.index < this.max;
 
     }
     
     private void Dispose() {
         
-        this.inFilter.Dispose();
         this.filterEntities.Dispose();
         
     }
 
     #region API
     public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
 public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
 public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.index); }
+public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
 public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
 public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
-public void SetT1(in T1 data) { this.buffer1.Set(this.index, in data); }
+public void SetT1(in T1 data) { this.buffer1.Set(this.filterEntities[this.index], in data); }
 public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
-public ref T1 GetT1() { return ref this.buffer1.Get(this.index); }
+public ref T1 GetT1() { return ref this.buffer1.Get(this.filterEntities[this.index]); }
 public void RemoveT1(int id) { this.buffer1.Remove(id); }
-public void RemoveT1() { this.buffer1.Remove(this.index); }
+public void RemoveT1() { this.buffer1.Remove(this.filterEntities[this.index]); }
 public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
-public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
+public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntities[this.index]); }
 
     #endregion
 
@@ -274,9 +216,7 @@ public struct FilterBag<T0,T1,T2>  where T0:struct,IStructComponent where T1:str
     public readonly int Length;
     public int index;
     private readonly int max;
-    private readonly int min;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<bool> inFilter;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;
 
@@ -284,24 +224,11 @@ public struct FilterBag<T0,T1,T2>  where T0:struct,IStructComponent where T1:str
 
         var world = filter.world;
         var arrEntities = world.currentState.storage.cache;
-        filter.GetBounds(out var min, out var max);
-        if (min > max) {
-
-            min = 0;
-            max = -1;
-
-        }
-
-        if (min < 0) min = 0;
-        ++max;
-        if (max >= arrEntities.Length) max = arrEntities.Length - 1;
-        this.index = min - 1;
+        this.index = -1;
         this.Length = filter.Count;
-        this.min = min;
-        this.max = max;
+        this.max = filter.Count;
         
-        this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -309,9 +236,9 @@ public struct FilterBag<T0,T1,T2>  where T0:struct,IStructComponent where T1:str
             
         }
         
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, min, max, max - min, allocator);
-this.buffer1 = new DataBuffer<T1>(world, arrEntities, min, max, max - min, allocator);
-this.buffer2 = new DataBuffer<T2>(world, arrEntities, min, max, max - min, allocator);
+        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
+this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
+this.buffer2 = new DataBuffer<T2>(world, arrEntities, allocator);
 
         
     }
@@ -326,9 +253,7 @@ this.buffer2 = new DataBuffer<T2>(world, arrEntities, min, max, max - min, alloc
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         if (changedCount > 0) world.UpdateAllFilters();
         
@@ -339,70 +264,55 @@ changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.
     public void Revert() {
         
         this.buffer0.Dispose();
-this.buffer1.Dispose();
-this.buffer2.Dispose();
 
         this.Dispose();
 
     }
 
-    public ref Entity Get() {
-
-        return ref Worlds.currentWorld.GetEntityById(this.index);
-
-    }
-
     public void Reset() {
 
-        this.index = this.min - 1;
+        this.index = -1;
 
     }
     
     public bool MoveNext() {
         
         ++this.index;
-        while (this.index <= this.max && this.inFilter[this.index] == false) {
-
-            ++this.index;
-
-        }
-
-        return this.index <= this.max;
+        return this.index < this.max;
 
     }
     
     private void Dispose() {
         
-        this.inFilter.Dispose();
         this.filterEntities.Dispose();
         
     }
 
     #region API
     public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
 public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
 public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.index); }
+public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
 public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
 public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
-public void SetT1(in T1 data) { this.buffer1.Set(this.index, in data); }
+public void SetT1(in T1 data) { this.buffer1.Set(this.filterEntities[this.index], in data); }
 public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
-public ref T1 GetT1() { return ref this.buffer1.Get(this.index); }
+public ref T1 GetT1() { return ref this.buffer1.Get(this.filterEntities[this.index]); }
 public void RemoveT1(int id) { this.buffer1.Remove(id); }
-public void RemoveT1() { this.buffer1.Remove(this.index); }
+public void RemoveT1() { this.buffer1.Remove(this.filterEntities[this.index]); }
 public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
-public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
+public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntities[this.index]); }
 public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
-public void SetT2(in T2 data) { this.buffer2.Set(this.index, in data); }
+public void SetT2(in T2 data) { this.buffer2.Set(this.filterEntities[this.index], in data); }
 public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
-public ref T2 GetT2() { return ref this.buffer2.Get(this.index); }
+public ref T2 GetT2() { return ref this.buffer2.Get(this.filterEntities[this.index]); }
 public void RemoveT2(int id) { this.buffer2.Remove(id); }
-public void RemoveT2() { this.buffer2.Remove(this.index); }
+public void RemoveT2() { this.buffer2.Remove(this.filterEntities[this.index]); }
 public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
-public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.index); }
+public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.filterEntities[this.index]); }
 
     #endregion
 
@@ -418,9 +328,7 @@ public struct FilterBag<T0,T1,T2,T3>  where T0:struct,IStructComponent where T1:
     public readonly int Length;
     public int index;
     private readonly int max;
-    private readonly int min;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<bool> inFilter;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;
 
@@ -428,24 +336,11 @@ public struct FilterBag<T0,T1,T2,T3>  where T0:struct,IStructComponent where T1:
 
         var world = filter.world;
         var arrEntities = world.currentState.storage.cache;
-        filter.GetBounds(out var min, out var max);
-        if (min > max) {
-
-            min = 0;
-            max = -1;
-
-        }
-
-        if (min < 0) min = 0;
-        ++max;
-        if (max >= arrEntities.Length) max = arrEntities.Length - 1;
-        this.index = min - 1;
+        this.index = -1;
         this.Length = filter.Count;
-        this.min = min;
-        this.max = max;
+        this.max = filter.Count;
         
-        this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -453,10 +348,10 @@ public struct FilterBag<T0,T1,T2,T3>  where T0:struct,IStructComponent where T1:
             
         }
         
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, min, max, max - min, allocator);
-this.buffer1 = new DataBuffer<T1>(world, arrEntities, min, max, max - min, allocator);
-this.buffer2 = new DataBuffer<T2>(world, arrEntities, min, max, max - min, allocator);
-this.buffer3 = new DataBuffer<T3>(world, arrEntities, min, max, max - min, allocator);
+        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
+this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
+this.buffer2 = new DataBuffer<T2>(world, arrEntities, allocator);
+this.buffer3 = new DataBuffer<T3>(world, arrEntities, allocator);
 
         
     }
@@ -471,10 +366,7 @@ this.buffer3 = new DataBuffer<T3>(world, arrEntities, min, max, max - min, alloc
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         if (changedCount > 0) world.UpdateAllFilters();
         
@@ -485,79 +377,63 @@ changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.
     public void Revert() {
         
         this.buffer0.Dispose();
-this.buffer1.Dispose();
-this.buffer2.Dispose();
-this.buffer3.Dispose();
 
         this.Dispose();
 
     }
 
-    public ref Entity Get() {
-
-        return ref Worlds.currentWorld.GetEntityById(this.index);
-
-    }
-
     public void Reset() {
 
-        this.index = this.min - 1;
+        this.index = -1;
 
     }
     
     public bool MoveNext() {
         
         ++this.index;
-        while (this.index <= this.max && this.inFilter[this.index] == false) {
-
-            ++this.index;
-
-        }
-
-        return this.index <= this.max;
+        return this.index < this.max;
 
     }
     
     private void Dispose() {
         
-        this.inFilter.Dispose();
         this.filterEntities.Dispose();
         
     }
 
     #region API
     public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
 public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
 public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.index); }
+public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
 public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
 public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
-public void SetT1(in T1 data) { this.buffer1.Set(this.index, in data); }
+public void SetT1(in T1 data) { this.buffer1.Set(this.filterEntities[this.index], in data); }
 public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
-public ref T1 GetT1() { return ref this.buffer1.Get(this.index); }
+public ref T1 GetT1() { return ref this.buffer1.Get(this.filterEntities[this.index]); }
 public void RemoveT1(int id) { this.buffer1.Remove(id); }
-public void RemoveT1() { this.buffer1.Remove(this.index); }
+public void RemoveT1() { this.buffer1.Remove(this.filterEntities[this.index]); }
 public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
-public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
+public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntities[this.index]); }
 public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
-public void SetT2(in T2 data) { this.buffer2.Set(this.index, in data); }
+public void SetT2(in T2 data) { this.buffer2.Set(this.filterEntities[this.index], in data); }
 public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
-public ref T2 GetT2() { return ref this.buffer2.Get(this.index); }
+public ref T2 GetT2() { return ref this.buffer2.Get(this.filterEntities[this.index]); }
 public void RemoveT2(int id) { this.buffer2.Remove(id); }
-public void RemoveT2() { this.buffer2.Remove(this.index); }
+public void RemoveT2() { this.buffer2.Remove(this.filterEntities[this.index]); }
 public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
-public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.index); }
+public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.filterEntities[this.index]); }
 public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
-public void SetT3(in T3 data) { this.buffer3.Set(this.index, in data); }
+public void SetT3(in T3 data) { this.buffer3.Set(this.filterEntities[this.index], in data); }
 public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
-public ref T3 GetT3() { return ref this.buffer3.Get(this.index); }
+public ref T3 GetT3() { return ref this.buffer3.Get(this.filterEntities[this.index]); }
 public void RemoveT3(int id) { this.buffer3.Remove(id); }
-public void RemoveT3() { this.buffer3.Remove(this.index); }
+public void RemoveT3() { this.buffer3.Remove(this.filterEntities[this.index]); }
 public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
-public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.index); }
+public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.filterEntities[this.index]); }
 
     #endregion
 
@@ -573,9 +449,7 @@ public struct FilterBag<T0,T1,T2,T3,T4>  where T0:struct,IStructComponent where 
     public readonly int Length;
     public int index;
     private readonly int max;
-    private readonly int min;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<bool> inFilter;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;
 
@@ -583,24 +457,11 @@ public struct FilterBag<T0,T1,T2,T3,T4>  where T0:struct,IStructComponent where 
 
         var world = filter.world;
         var arrEntities = world.currentState.storage.cache;
-        filter.GetBounds(out var min, out var max);
-        if (min > max) {
-
-            min = 0;
-            max = -1;
-
-        }
-
-        if (min < 0) min = 0;
-        ++max;
-        if (max >= arrEntities.Length) max = arrEntities.Length - 1;
-        this.index = min - 1;
+        this.index = -1;
         this.Length = filter.Count;
-        this.min = min;
-        this.max = max;
+        this.max = filter.Count;
         
-        this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -608,11 +469,11 @@ public struct FilterBag<T0,T1,T2,T3,T4>  where T0:struct,IStructComponent where 
             
         }
         
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, min, max, max - min, allocator);
-this.buffer1 = new DataBuffer<T1>(world, arrEntities, min, max, max - min, allocator);
-this.buffer2 = new DataBuffer<T2>(world, arrEntities, min, max, max - min, allocator);
-this.buffer3 = new DataBuffer<T3>(world, arrEntities, min, max, max - min, allocator);
-this.buffer4 = new DataBuffer<T4>(world, arrEntities, min, max, max - min, allocator);
+        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
+this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
+this.buffer2 = new DataBuffer<T2>(world, arrEntities, allocator);
+this.buffer3 = new DataBuffer<T3>(world, arrEntities, allocator);
+this.buffer4 = new DataBuffer<T4>(world, arrEntities, allocator);
 
         
     }
@@ -627,11 +488,7 @@ this.buffer4 = new DataBuffer<T4>(world, arrEntities, min, max, max - min, alloc
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         if (changedCount > 0) world.UpdateAllFilters();
         
@@ -642,88 +499,71 @@ changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.
     public void Revert() {
         
         this.buffer0.Dispose();
-this.buffer1.Dispose();
-this.buffer2.Dispose();
-this.buffer3.Dispose();
-this.buffer4.Dispose();
 
         this.Dispose();
 
     }
 
-    public ref Entity Get() {
-
-        return ref Worlds.currentWorld.GetEntityById(this.index);
-
-    }
-
     public void Reset() {
 
-        this.index = this.min - 1;
+        this.index = -1;
 
     }
     
     public bool MoveNext() {
         
         ++this.index;
-        while (this.index <= this.max && this.inFilter[this.index] == false) {
-
-            ++this.index;
-
-        }
-
-        return this.index <= this.max;
+        return this.index < this.max;
 
     }
     
     private void Dispose() {
         
-        this.inFilter.Dispose();
         this.filterEntities.Dispose();
         
     }
 
     #region API
     public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
 public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
 public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.index); }
+public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
 public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
 public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
-public void SetT1(in T1 data) { this.buffer1.Set(this.index, in data); }
+public void SetT1(in T1 data) { this.buffer1.Set(this.filterEntities[this.index], in data); }
 public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
-public ref T1 GetT1() { return ref this.buffer1.Get(this.index); }
+public ref T1 GetT1() { return ref this.buffer1.Get(this.filterEntities[this.index]); }
 public void RemoveT1(int id) { this.buffer1.Remove(id); }
-public void RemoveT1() { this.buffer1.Remove(this.index); }
+public void RemoveT1() { this.buffer1.Remove(this.filterEntities[this.index]); }
 public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
-public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
+public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntities[this.index]); }
 public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
-public void SetT2(in T2 data) { this.buffer2.Set(this.index, in data); }
+public void SetT2(in T2 data) { this.buffer2.Set(this.filterEntities[this.index], in data); }
 public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
-public ref T2 GetT2() { return ref this.buffer2.Get(this.index); }
+public ref T2 GetT2() { return ref this.buffer2.Get(this.filterEntities[this.index]); }
 public void RemoveT2(int id) { this.buffer2.Remove(id); }
-public void RemoveT2() { this.buffer2.Remove(this.index); }
+public void RemoveT2() { this.buffer2.Remove(this.filterEntities[this.index]); }
 public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
-public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.index); }
+public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.filterEntities[this.index]); }
 public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
-public void SetT3(in T3 data) { this.buffer3.Set(this.index, in data); }
+public void SetT3(in T3 data) { this.buffer3.Set(this.filterEntities[this.index], in data); }
 public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
-public ref T3 GetT3() { return ref this.buffer3.Get(this.index); }
+public ref T3 GetT3() { return ref this.buffer3.Get(this.filterEntities[this.index]); }
 public void RemoveT3(int id) { this.buffer3.Remove(id); }
-public void RemoveT3() { this.buffer3.Remove(this.index); }
+public void RemoveT3() { this.buffer3.Remove(this.filterEntities[this.index]); }
 public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
-public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.index); }
+public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.filterEntities[this.index]); }
 public void SetT4(int id, in T4 data) { this.buffer4.Set(id, in data); }
-public void SetT4(in T4 data) { this.buffer4.Set(this.index, in data); }
+public void SetT4(in T4 data) { this.buffer4.Set(this.filterEntities[this.index], in data); }
 public ref T4 GetT4(int id) { return ref this.buffer4.Get(id); }
-public ref T4 GetT4() { return ref this.buffer4.Get(this.index); }
+public ref T4 GetT4() { return ref this.buffer4.Get(this.filterEntities[this.index]); }
 public void RemoveT4(int id) { this.buffer4.Remove(id); }
-public void RemoveT4() { this.buffer4.Remove(this.index); }
+public void RemoveT4() { this.buffer4.Remove(this.filterEntities[this.index]); }
 public ref readonly T4 ReadT4(int id) { return ref this.buffer4.Read(id); }
-public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.index); }
+public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.filterEntities[this.index]); }
 
     #endregion
 
@@ -739,9 +579,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:struct,IStructComponent whe
     public readonly int Length;
     public int index;
     private readonly int max;
-    private readonly int min;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<bool> inFilter;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;private DataBuffer<T5> buffer5;
 
@@ -749,24 +587,11 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:struct,IStructComponent whe
 
         var world = filter.world;
         var arrEntities = world.currentState.storage.cache;
-        filter.GetBounds(out var min, out var max);
-        if (min > max) {
-
-            min = 0;
-            max = -1;
-
-        }
-
-        if (min < 0) min = 0;
-        ++max;
-        if (max >= arrEntities.Length) max = arrEntities.Length - 1;
-        this.index = min - 1;
+        this.index = -1;
         this.Length = filter.Count;
-        this.min = min;
-        this.max = max;
+        this.max = filter.Count;
         
-        this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -774,12 +599,12 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:struct,IStructComponent whe
             
         }
         
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, min, max, max - min, allocator);
-this.buffer1 = new DataBuffer<T1>(world, arrEntities, min, max, max - min, allocator);
-this.buffer2 = new DataBuffer<T2>(world, arrEntities, min, max, max - min, allocator);
-this.buffer3 = new DataBuffer<T3>(world, arrEntities, min, max, max - min, allocator);
-this.buffer4 = new DataBuffer<T4>(world, arrEntities, min, max, max - min, allocator);
-this.buffer5 = new DataBuffer<T5>(world, arrEntities, min, max, max - min, allocator);
+        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
+this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
+this.buffer2 = new DataBuffer<T2>(world, arrEntities, allocator);
+this.buffer3 = new DataBuffer<T3>(world, arrEntities, allocator);
+this.buffer4 = new DataBuffer<T4>(world, arrEntities, allocator);
+this.buffer5 = new DataBuffer<T5>(world, arrEntities, allocator);
 
         
     }
@@ -794,12 +619,7 @@ this.buffer5 = new DataBuffer<T5>(world, arrEntities, min, max, max - min, alloc
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         if (changedCount > 0) world.UpdateAllFilters();
         
@@ -810,97 +630,79 @@ changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.
     public void Revert() {
         
         this.buffer0.Dispose();
-this.buffer1.Dispose();
-this.buffer2.Dispose();
-this.buffer3.Dispose();
-this.buffer4.Dispose();
-this.buffer5.Dispose();
 
         this.Dispose();
 
     }
 
-    public ref Entity Get() {
-
-        return ref Worlds.currentWorld.GetEntityById(this.index);
-
-    }
-
     public void Reset() {
 
-        this.index = this.min - 1;
+        this.index = -1;
 
     }
     
     public bool MoveNext() {
         
         ++this.index;
-        while (this.index <= this.max && this.inFilter[this.index] == false) {
-
-            ++this.index;
-
-        }
-
-        return this.index <= this.max;
+        return this.index < this.max;
 
     }
     
     private void Dispose() {
         
-        this.inFilter.Dispose();
         this.filterEntities.Dispose();
         
     }
 
     #region API
     public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
 public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
 public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.index); }
+public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
 public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
 public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
-public void SetT1(in T1 data) { this.buffer1.Set(this.index, in data); }
+public void SetT1(in T1 data) { this.buffer1.Set(this.filterEntities[this.index], in data); }
 public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
-public ref T1 GetT1() { return ref this.buffer1.Get(this.index); }
+public ref T1 GetT1() { return ref this.buffer1.Get(this.filterEntities[this.index]); }
 public void RemoveT1(int id) { this.buffer1.Remove(id); }
-public void RemoveT1() { this.buffer1.Remove(this.index); }
+public void RemoveT1() { this.buffer1.Remove(this.filterEntities[this.index]); }
 public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
-public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
+public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntities[this.index]); }
 public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
-public void SetT2(in T2 data) { this.buffer2.Set(this.index, in data); }
+public void SetT2(in T2 data) { this.buffer2.Set(this.filterEntities[this.index], in data); }
 public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
-public ref T2 GetT2() { return ref this.buffer2.Get(this.index); }
+public ref T2 GetT2() { return ref this.buffer2.Get(this.filterEntities[this.index]); }
 public void RemoveT2(int id) { this.buffer2.Remove(id); }
-public void RemoveT2() { this.buffer2.Remove(this.index); }
+public void RemoveT2() { this.buffer2.Remove(this.filterEntities[this.index]); }
 public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
-public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.index); }
+public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.filterEntities[this.index]); }
 public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
-public void SetT3(in T3 data) { this.buffer3.Set(this.index, in data); }
+public void SetT3(in T3 data) { this.buffer3.Set(this.filterEntities[this.index], in data); }
 public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
-public ref T3 GetT3() { return ref this.buffer3.Get(this.index); }
+public ref T3 GetT3() { return ref this.buffer3.Get(this.filterEntities[this.index]); }
 public void RemoveT3(int id) { this.buffer3.Remove(id); }
-public void RemoveT3() { this.buffer3.Remove(this.index); }
+public void RemoveT3() { this.buffer3.Remove(this.filterEntities[this.index]); }
 public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
-public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.index); }
+public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.filterEntities[this.index]); }
 public void SetT4(int id, in T4 data) { this.buffer4.Set(id, in data); }
-public void SetT4(in T4 data) { this.buffer4.Set(this.index, in data); }
+public void SetT4(in T4 data) { this.buffer4.Set(this.filterEntities[this.index], in data); }
 public ref T4 GetT4(int id) { return ref this.buffer4.Get(id); }
-public ref T4 GetT4() { return ref this.buffer4.Get(this.index); }
+public ref T4 GetT4() { return ref this.buffer4.Get(this.filterEntities[this.index]); }
 public void RemoveT4(int id) { this.buffer4.Remove(id); }
-public void RemoveT4() { this.buffer4.Remove(this.index); }
+public void RemoveT4() { this.buffer4.Remove(this.filterEntities[this.index]); }
 public ref readonly T4 ReadT4(int id) { return ref this.buffer4.Read(id); }
-public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.index); }
+public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.filterEntities[this.index]); }
 public void SetT5(int id, in T5 data) { this.buffer5.Set(id, in data); }
-public void SetT5(in T5 data) { this.buffer5.Set(this.index, in data); }
+public void SetT5(in T5 data) { this.buffer5.Set(this.filterEntities[this.index], in data); }
 public ref T5 GetT5(int id) { return ref this.buffer5.Get(id); }
-public ref T5 GetT5() { return ref this.buffer5.Get(this.index); }
+public ref T5 GetT5() { return ref this.buffer5.Get(this.filterEntities[this.index]); }
 public void RemoveT5(int id) { this.buffer5.Remove(id); }
-public void RemoveT5() { this.buffer5.Remove(this.index); }
+public void RemoveT5() { this.buffer5.Remove(this.filterEntities[this.index]); }
 public ref readonly T5 ReadT5(int id) { return ref this.buffer5.Read(id); }
-public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.index); }
+public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.filterEntities[this.index]); }
 
     #endregion
 
@@ -916,9 +718,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:struct,IStructComponent 
     public readonly int Length;
     public int index;
     private readonly int max;
-    private readonly int min;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<bool> inFilter;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;private DataBuffer<T5> buffer5;private DataBuffer<T6> buffer6;
 
@@ -926,24 +726,11 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:struct,IStructComponent 
 
         var world = filter.world;
         var arrEntities = world.currentState.storage.cache;
-        filter.GetBounds(out var min, out var max);
-        if (min > max) {
-
-            min = 0;
-            max = -1;
-
-        }
-
-        if (min < 0) min = 0;
-        ++max;
-        if (max >= arrEntities.Length) max = arrEntities.Length - 1;
-        this.index = min - 1;
+        this.index = -1;
         this.Length = filter.Count;
-        this.min = min;
-        this.max = max;
+        this.max = filter.Count;
         
-        this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -951,13 +738,13 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:struct,IStructComponent 
             
         }
         
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, min, max, max - min, allocator);
-this.buffer1 = new DataBuffer<T1>(world, arrEntities, min, max, max - min, allocator);
-this.buffer2 = new DataBuffer<T2>(world, arrEntities, min, max, max - min, allocator);
-this.buffer3 = new DataBuffer<T3>(world, arrEntities, min, max, max - min, allocator);
-this.buffer4 = new DataBuffer<T4>(world, arrEntities, min, max, max - min, allocator);
-this.buffer5 = new DataBuffer<T5>(world, arrEntities, min, max, max - min, allocator);
-this.buffer6 = new DataBuffer<T6>(world, arrEntities, min, max, max - min, allocator);
+        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
+this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
+this.buffer2 = new DataBuffer<T2>(world, arrEntities, allocator);
+this.buffer3 = new DataBuffer<T3>(world, arrEntities, allocator);
+this.buffer4 = new DataBuffer<T4>(world, arrEntities, allocator);
+this.buffer5 = new DataBuffer<T5>(world, arrEntities, allocator);
+this.buffer6 = new DataBuffer<T6>(world, arrEntities, allocator);
 
         
     }
@@ -972,13 +759,7 @@ this.buffer6 = new DataBuffer<T6>(world, arrEntities, min, max, max - min, alloc
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer6.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         if (changedCount > 0) world.UpdateAllFilters();
         
@@ -989,106 +770,87 @@ changedCount += this.buffer6.Push(world, world.currentState.storage.cache, this.
     public void Revert() {
         
         this.buffer0.Dispose();
-this.buffer1.Dispose();
-this.buffer2.Dispose();
-this.buffer3.Dispose();
-this.buffer4.Dispose();
-this.buffer5.Dispose();
-this.buffer6.Dispose();
 
         this.Dispose();
 
     }
 
-    public ref Entity Get() {
-
-        return ref Worlds.currentWorld.GetEntityById(this.index);
-
-    }
-
     public void Reset() {
 
-        this.index = this.min - 1;
+        this.index = -1;
 
     }
     
     public bool MoveNext() {
         
         ++this.index;
-        while (this.index <= this.max && this.inFilter[this.index] == false) {
-
-            ++this.index;
-
-        }
-
-        return this.index <= this.max;
+        return this.index < this.max;
 
     }
     
     private void Dispose() {
         
-        this.inFilter.Dispose();
         this.filterEntities.Dispose();
         
     }
 
     #region API
     public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
 public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
 public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.index); }
+public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
 public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
 public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
-public void SetT1(in T1 data) { this.buffer1.Set(this.index, in data); }
+public void SetT1(in T1 data) { this.buffer1.Set(this.filterEntities[this.index], in data); }
 public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
-public ref T1 GetT1() { return ref this.buffer1.Get(this.index); }
+public ref T1 GetT1() { return ref this.buffer1.Get(this.filterEntities[this.index]); }
 public void RemoveT1(int id) { this.buffer1.Remove(id); }
-public void RemoveT1() { this.buffer1.Remove(this.index); }
+public void RemoveT1() { this.buffer1.Remove(this.filterEntities[this.index]); }
 public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
-public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
+public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntities[this.index]); }
 public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
-public void SetT2(in T2 data) { this.buffer2.Set(this.index, in data); }
+public void SetT2(in T2 data) { this.buffer2.Set(this.filterEntities[this.index], in data); }
 public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
-public ref T2 GetT2() { return ref this.buffer2.Get(this.index); }
+public ref T2 GetT2() { return ref this.buffer2.Get(this.filterEntities[this.index]); }
 public void RemoveT2(int id) { this.buffer2.Remove(id); }
-public void RemoveT2() { this.buffer2.Remove(this.index); }
+public void RemoveT2() { this.buffer2.Remove(this.filterEntities[this.index]); }
 public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
-public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.index); }
+public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.filterEntities[this.index]); }
 public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
-public void SetT3(in T3 data) { this.buffer3.Set(this.index, in data); }
+public void SetT3(in T3 data) { this.buffer3.Set(this.filterEntities[this.index], in data); }
 public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
-public ref T3 GetT3() { return ref this.buffer3.Get(this.index); }
+public ref T3 GetT3() { return ref this.buffer3.Get(this.filterEntities[this.index]); }
 public void RemoveT3(int id) { this.buffer3.Remove(id); }
-public void RemoveT3() { this.buffer3.Remove(this.index); }
+public void RemoveT3() { this.buffer3.Remove(this.filterEntities[this.index]); }
 public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
-public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.index); }
+public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.filterEntities[this.index]); }
 public void SetT4(int id, in T4 data) { this.buffer4.Set(id, in data); }
-public void SetT4(in T4 data) { this.buffer4.Set(this.index, in data); }
+public void SetT4(in T4 data) { this.buffer4.Set(this.filterEntities[this.index], in data); }
 public ref T4 GetT4(int id) { return ref this.buffer4.Get(id); }
-public ref T4 GetT4() { return ref this.buffer4.Get(this.index); }
+public ref T4 GetT4() { return ref this.buffer4.Get(this.filterEntities[this.index]); }
 public void RemoveT4(int id) { this.buffer4.Remove(id); }
-public void RemoveT4() { this.buffer4.Remove(this.index); }
+public void RemoveT4() { this.buffer4.Remove(this.filterEntities[this.index]); }
 public ref readonly T4 ReadT4(int id) { return ref this.buffer4.Read(id); }
-public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.index); }
+public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.filterEntities[this.index]); }
 public void SetT5(int id, in T5 data) { this.buffer5.Set(id, in data); }
-public void SetT5(in T5 data) { this.buffer5.Set(this.index, in data); }
+public void SetT5(in T5 data) { this.buffer5.Set(this.filterEntities[this.index], in data); }
 public ref T5 GetT5(int id) { return ref this.buffer5.Get(id); }
-public ref T5 GetT5() { return ref this.buffer5.Get(this.index); }
+public ref T5 GetT5() { return ref this.buffer5.Get(this.filterEntities[this.index]); }
 public void RemoveT5(int id) { this.buffer5.Remove(id); }
-public void RemoveT5() { this.buffer5.Remove(this.index); }
+public void RemoveT5() { this.buffer5.Remove(this.filterEntities[this.index]); }
 public ref readonly T5 ReadT5(int id) { return ref this.buffer5.Read(id); }
-public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.index); }
+public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.filterEntities[this.index]); }
 public void SetT6(int id, in T6 data) { this.buffer6.Set(id, in data); }
-public void SetT6(in T6 data) { this.buffer6.Set(this.index, in data); }
+public void SetT6(in T6 data) { this.buffer6.Set(this.filterEntities[this.index], in data); }
 public ref T6 GetT6(int id) { return ref this.buffer6.Get(id); }
-public ref T6 GetT6() { return ref this.buffer6.Get(this.index); }
+public ref T6 GetT6() { return ref this.buffer6.Get(this.filterEntities[this.index]); }
 public void RemoveT6(int id) { this.buffer6.Remove(id); }
-public void RemoveT6() { this.buffer6.Remove(this.index); }
+public void RemoveT6() { this.buffer6.Remove(this.filterEntities[this.index]); }
 public ref readonly T6 ReadT6(int id) { return ref this.buffer6.Read(id); }
-public ref readonly T6 ReadT6() { return ref this.buffer6.Read(this.index); }
+public ref readonly T6 ReadT6() { return ref this.buffer6.Read(this.filterEntities[this.index]); }
 
     #endregion
 
@@ -1104,9 +866,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:struct,IStructCompone
     public readonly int Length;
     public int index;
     private readonly int max;
-    private readonly int min;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<bool> inFilter;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;private DataBuffer<T5> buffer5;private DataBuffer<T6> buffer6;private DataBuffer<T7> buffer7;
 
@@ -1114,24 +874,11 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:struct,IStructCompone
 
         var world = filter.world;
         var arrEntities = world.currentState.storage.cache;
-        filter.GetBounds(out var min, out var max);
-        if (min > max) {
-
-            min = 0;
-            max = -1;
-
-        }
-
-        if (min < 0) min = 0;
-        ++max;
-        if (max >= arrEntities.Length) max = arrEntities.Length - 1;
-        this.index = min - 1;
+        this.index = -1;
         this.Length = filter.Count;
-        this.min = min;
-        this.max = max;
+        this.max = filter.Count;
         
-        this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -1139,14 +886,14 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:struct,IStructCompone
             
         }
         
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, min, max, max - min, allocator);
-this.buffer1 = new DataBuffer<T1>(world, arrEntities, min, max, max - min, allocator);
-this.buffer2 = new DataBuffer<T2>(world, arrEntities, min, max, max - min, allocator);
-this.buffer3 = new DataBuffer<T3>(world, arrEntities, min, max, max - min, allocator);
-this.buffer4 = new DataBuffer<T4>(world, arrEntities, min, max, max - min, allocator);
-this.buffer5 = new DataBuffer<T5>(world, arrEntities, min, max, max - min, allocator);
-this.buffer6 = new DataBuffer<T6>(world, arrEntities, min, max, max - min, allocator);
-this.buffer7 = new DataBuffer<T7>(world, arrEntities, min, max, max - min, allocator);
+        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
+this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
+this.buffer2 = new DataBuffer<T2>(world, arrEntities, allocator);
+this.buffer3 = new DataBuffer<T3>(world, arrEntities, allocator);
+this.buffer4 = new DataBuffer<T4>(world, arrEntities, allocator);
+this.buffer5 = new DataBuffer<T5>(world, arrEntities, allocator);
+this.buffer6 = new DataBuffer<T6>(world, arrEntities, allocator);
+this.buffer7 = new DataBuffer<T7>(world, arrEntities, allocator);
 
         
     }
@@ -1161,14 +908,7 @@ this.buffer7 = new DataBuffer<T7>(world, arrEntities, min, max, max - min, alloc
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer6.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer7.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         if (changedCount > 0) world.UpdateAllFilters();
         
@@ -1179,115 +919,95 @@ changedCount += this.buffer7.Push(world, world.currentState.storage.cache, this.
     public void Revert() {
         
         this.buffer0.Dispose();
-this.buffer1.Dispose();
-this.buffer2.Dispose();
-this.buffer3.Dispose();
-this.buffer4.Dispose();
-this.buffer5.Dispose();
-this.buffer6.Dispose();
-this.buffer7.Dispose();
 
         this.Dispose();
 
     }
 
-    public ref Entity Get() {
-
-        return ref Worlds.currentWorld.GetEntityById(this.index);
-
-    }
-
     public void Reset() {
 
-        this.index = this.min - 1;
+        this.index = -1;
 
     }
     
     public bool MoveNext() {
         
         ++this.index;
-        while (this.index <= this.max && this.inFilter[this.index] == false) {
-
-            ++this.index;
-
-        }
-
-        return this.index <= this.max;
+        return this.index < this.max;
 
     }
     
     private void Dispose() {
         
-        this.inFilter.Dispose();
         this.filterEntities.Dispose();
         
     }
 
     #region API
     public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
 public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
 public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.index); }
+public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
 public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
 public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
-public void SetT1(in T1 data) { this.buffer1.Set(this.index, in data); }
+public void SetT1(in T1 data) { this.buffer1.Set(this.filterEntities[this.index], in data); }
 public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
-public ref T1 GetT1() { return ref this.buffer1.Get(this.index); }
+public ref T1 GetT1() { return ref this.buffer1.Get(this.filterEntities[this.index]); }
 public void RemoveT1(int id) { this.buffer1.Remove(id); }
-public void RemoveT1() { this.buffer1.Remove(this.index); }
+public void RemoveT1() { this.buffer1.Remove(this.filterEntities[this.index]); }
 public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
-public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
+public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntities[this.index]); }
 public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
-public void SetT2(in T2 data) { this.buffer2.Set(this.index, in data); }
+public void SetT2(in T2 data) { this.buffer2.Set(this.filterEntities[this.index], in data); }
 public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
-public ref T2 GetT2() { return ref this.buffer2.Get(this.index); }
+public ref T2 GetT2() { return ref this.buffer2.Get(this.filterEntities[this.index]); }
 public void RemoveT2(int id) { this.buffer2.Remove(id); }
-public void RemoveT2() { this.buffer2.Remove(this.index); }
+public void RemoveT2() { this.buffer2.Remove(this.filterEntities[this.index]); }
 public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
-public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.index); }
+public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.filterEntities[this.index]); }
 public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
-public void SetT3(in T3 data) { this.buffer3.Set(this.index, in data); }
+public void SetT3(in T3 data) { this.buffer3.Set(this.filterEntities[this.index], in data); }
 public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
-public ref T3 GetT3() { return ref this.buffer3.Get(this.index); }
+public ref T3 GetT3() { return ref this.buffer3.Get(this.filterEntities[this.index]); }
 public void RemoveT3(int id) { this.buffer3.Remove(id); }
-public void RemoveT3() { this.buffer3.Remove(this.index); }
+public void RemoveT3() { this.buffer3.Remove(this.filterEntities[this.index]); }
 public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
-public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.index); }
+public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.filterEntities[this.index]); }
 public void SetT4(int id, in T4 data) { this.buffer4.Set(id, in data); }
-public void SetT4(in T4 data) { this.buffer4.Set(this.index, in data); }
+public void SetT4(in T4 data) { this.buffer4.Set(this.filterEntities[this.index], in data); }
 public ref T4 GetT4(int id) { return ref this.buffer4.Get(id); }
-public ref T4 GetT4() { return ref this.buffer4.Get(this.index); }
+public ref T4 GetT4() { return ref this.buffer4.Get(this.filterEntities[this.index]); }
 public void RemoveT4(int id) { this.buffer4.Remove(id); }
-public void RemoveT4() { this.buffer4.Remove(this.index); }
+public void RemoveT4() { this.buffer4.Remove(this.filterEntities[this.index]); }
 public ref readonly T4 ReadT4(int id) { return ref this.buffer4.Read(id); }
-public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.index); }
+public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.filterEntities[this.index]); }
 public void SetT5(int id, in T5 data) { this.buffer5.Set(id, in data); }
-public void SetT5(in T5 data) { this.buffer5.Set(this.index, in data); }
+public void SetT5(in T5 data) { this.buffer5.Set(this.filterEntities[this.index], in data); }
 public ref T5 GetT5(int id) { return ref this.buffer5.Get(id); }
-public ref T5 GetT5() { return ref this.buffer5.Get(this.index); }
+public ref T5 GetT5() { return ref this.buffer5.Get(this.filterEntities[this.index]); }
 public void RemoveT5(int id) { this.buffer5.Remove(id); }
-public void RemoveT5() { this.buffer5.Remove(this.index); }
+public void RemoveT5() { this.buffer5.Remove(this.filterEntities[this.index]); }
 public ref readonly T5 ReadT5(int id) { return ref this.buffer5.Read(id); }
-public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.index); }
+public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.filterEntities[this.index]); }
 public void SetT6(int id, in T6 data) { this.buffer6.Set(id, in data); }
-public void SetT6(in T6 data) { this.buffer6.Set(this.index, in data); }
+public void SetT6(in T6 data) { this.buffer6.Set(this.filterEntities[this.index], in data); }
 public ref T6 GetT6(int id) { return ref this.buffer6.Get(id); }
-public ref T6 GetT6() { return ref this.buffer6.Get(this.index); }
+public ref T6 GetT6() { return ref this.buffer6.Get(this.filterEntities[this.index]); }
 public void RemoveT6(int id) { this.buffer6.Remove(id); }
-public void RemoveT6() { this.buffer6.Remove(this.index); }
+public void RemoveT6() { this.buffer6.Remove(this.filterEntities[this.index]); }
 public ref readonly T6 ReadT6(int id) { return ref this.buffer6.Read(id); }
-public ref readonly T6 ReadT6() { return ref this.buffer6.Read(this.index); }
+public ref readonly T6 ReadT6() { return ref this.buffer6.Read(this.filterEntities[this.index]); }
 public void SetT7(int id, in T7 data) { this.buffer7.Set(id, in data); }
-public void SetT7(in T7 data) { this.buffer7.Set(this.index, in data); }
+public void SetT7(in T7 data) { this.buffer7.Set(this.filterEntities[this.index], in data); }
 public ref T7 GetT7(int id) { return ref this.buffer7.Get(id); }
-public ref T7 GetT7() { return ref this.buffer7.Get(this.index); }
+public ref T7 GetT7() { return ref this.buffer7.Get(this.filterEntities[this.index]); }
 public void RemoveT7(int id) { this.buffer7.Remove(id); }
-public void RemoveT7() { this.buffer7.Remove(this.index); }
+public void RemoveT7() { this.buffer7.Remove(this.filterEntities[this.index]); }
 public ref readonly T7 ReadT7(int id) { return ref this.buffer7.Read(id); }
-public ref readonly T7 ReadT7() { return ref this.buffer7.Read(this.index); }
+public ref readonly T7 ReadT7() { return ref this.buffer7.Read(this.filterEntities[this.index]); }
 
     #endregion
 
@@ -1303,9 +1023,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:struct,IStructComp
     public readonly int Length;
     public int index;
     private readonly int max;
-    private readonly int min;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<bool> inFilter;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;private DataBuffer<T5> buffer5;private DataBuffer<T6> buffer6;private DataBuffer<T7> buffer7;private DataBuffer<T8> buffer8;
 
@@ -1313,24 +1031,11 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:struct,IStructComp
 
         var world = filter.world;
         var arrEntities = world.currentState.storage.cache;
-        filter.GetBounds(out var min, out var max);
-        if (min > max) {
-
-            min = 0;
-            max = -1;
-
-        }
-
-        if (min < 0) min = 0;
-        ++max;
-        if (max >= arrEntities.Length) max = arrEntities.Length - 1;
-        this.index = min - 1;
+        this.index = -1;
         this.Length = filter.Count;
-        this.min = min;
-        this.max = max;
+        this.max = filter.Count;
         
-        this.inFilter = new Unity.Collections.NativeArray<bool>(world.GetFilter(filter.id).dataContains.arr, allocator);
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -1338,15 +1043,15 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:struct,IStructComp
             
         }
         
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, min, max, max - min, allocator);
-this.buffer1 = new DataBuffer<T1>(world, arrEntities, min, max, max - min, allocator);
-this.buffer2 = new DataBuffer<T2>(world, arrEntities, min, max, max - min, allocator);
-this.buffer3 = new DataBuffer<T3>(world, arrEntities, min, max, max - min, allocator);
-this.buffer4 = new DataBuffer<T4>(world, arrEntities, min, max, max - min, allocator);
-this.buffer5 = new DataBuffer<T5>(world, arrEntities, min, max, max - min, allocator);
-this.buffer6 = new DataBuffer<T6>(world, arrEntities, min, max, max - min, allocator);
-this.buffer7 = new DataBuffer<T7>(world, arrEntities, min, max, max - min, allocator);
-this.buffer8 = new DataBuffer<T8>(world, arrEntities, min, max, max - min, allocator);
+        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
+this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
+this.buffer2 = new DataBuffer<T2>(world, arrEntities, allocator);
+this.buffer3 = new DataBuffer<T3>(world, arrEntities, allocator);
+this.buffer4 = new DataBuffer<T4>(world, arrEntities, allocator);
+this.buffer5 = new DataBuffer<T5>(world, arrEntities, allocator);
+this.buffer6 = new DataBuffer<T6>(world, arrEntities, allocator);
+this.buffer7 = new DataBuffer<T7>(world, arrEntities, allocator);
+this.buffer8 = new DataBuffer<T8>(world, arrEntities, allocator);
 
         
     }
@@ -1361,15 +1066,7 @@ this.buffer8 = new DataBuffer<T8>(world, arrEntities, min, max, max - min, alloc
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer6.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer7.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
-changedCount += this.buffer8.Push(world, world.currentState.storage.cache, this.max, this.inFilter);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         if (changedCount > 0) world.UpdateAllFilters();
         
@@ -1380,124 +1077,103 @@ changedCount += this.buffer8.Push(world, world.currentState.storage.cache, this.
     public void Revert() {
         
         this.buffer0.Dispose();
-this.buffer1.Dispose();
-this.buffer2.Dispose();
-this.buffer3.Dispose();
-this.buffer4.Dispose();
-this.buffer5.Dispose();
-this.buffer6.Dispose();
-this.buffer7.Dispose();
-this.buffer8.Dispose();
 
         this.Dispose();
 
     }
 
-    public ref Entity Get() {
-
-        return ref Worlds.currentWorld.GetEntityById(this.index);
-
-    }
-
     public void Reset() {
 
-        this.index = this.min - 1;
+        this.index = -1;
 
     }
     
     public bool MoveNext() {
         
         ++this.index;
-        while (this.index <= this.max && this.inFilter[this.index] == false) {
-
-            ++this.index;
-
-        }
-
-        return this.index <= this.max;
+        return this.index < this.max;
 
     }
     
     private void Dispose() {
         
-        this.inFilter.Dispose();
         this.filterEntities.Dispose();
         
     }
 
     #region API
     public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.index, in data); }
+public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
 public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.index); }
+public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
 public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.index); }
+public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
 public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.index); }
+public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
 public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
-public void SetT1(in T1 data) { this.buffer1.Set(this.index, in data); }
+public void SetT1(in T1 data) { this.buffer1.Set(this.filterEntities[this.index], in data); }
 public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
-public ref T1 GetT1() { return ref this.buffer1.Get(this.index); }
+public ref T1 GetT1() { return ref this.buffer1.Get(this.filterEntities[this.index]); }
 public void RemoveT1(int id) { this.buffer1.Remove(id); }
-public void RemoveT1() { this.buffer1.Remove(this.index); }
+public void RemoveT1() { this.buffer1.Remove(this.filterEntities[this.index]); }
 public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
-public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.index); }
+public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntities[this.index]); }
 public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
-public void SetT2(in T2 data) { this.buffer2.Set(this.index, in data); }
+public void SetT2(in T2 data) { this.buffer2.Set(this.filterEntities[this.index], in data); }
 public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
-public ref T2 GetT2() { return ref this.buffer2.Get(this.index); }
+public ref T2 GetT2() { return ref this.buffer2.Get(this.filterEntities[this.index]); }
 public void RemoveT2(int id) { this.buffer2.Remove(id); }
-public void RemoveT2() { this.buffer2.Remove(this.index); }
+public void RemoveT2() { this.buffer2.Remove(this.filterEntities[this.index]); }
 public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
-public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.index); }
+public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.filterEntities[this.index]); }
 public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
-public void SetT3(in T3 data) { this.buffer3.Set(this.index, in data); }
+public void SetT3(in T3 data) { this.buffer3.Set(this.filterEntities[this.index], in data); }
 public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
-public ref T3 GetT3() { return ref this.buffer3.Get(this.index); }
+public ref T3 GetT3() { return ref this.buffer3.Get(this.filterEntities[this.index]); }
 public void RemoveT3(int id) { this.buffer3.Remove(id); }
-public void RemoveT3() { this.buffer3.Remove(this.index); }
+public void RemoveT3() { this.buffer3.Remove(this.filterEntities[this.index]); }
 public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
-public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.index); }
+public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.filterEntities[this.index]); }
 public void SetT4(int id, in T4 data) { this.buffer4.Set(id, in data); }
-public void SetT4(in T4 data) { this.buffer4.Set(this.index, in data); }
+public void SetT4(in T4 data) { this.buffer4.Set(this.filterEntities[this.index], in data); }
 public ref T4 GetT4(int id) { return ref this.buffer4.Get(id); }
-public ref T4 GetT4() { return ref this.buffer4.Get(this.index); }
+public ref T4 GetT4() { return ref this.buffer4.Get(this.filterEntities[this.index]); }
 public void RemoveT4(int id) { this.buffer4.Remove(id); }
-public void RemoveT4() { this.buffer4.Remove(this.index); }
+public void RemoveT4() { this.buffer4.Remove(this.filterEntities[this.index]); }
 public ref readonly T4 ReadT4(int id) { return ref this.buffer4.Read(id); }
-public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.index); }
+public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.filterEntities[this.index]); }
 public void SetT5(int id, in T5 data) { this.buffer5.Set(id, in data); }
-public void SetT5(in T5 data) { this.buffer5.Set(this.index, in data); }
+public void SetT5(in T5 data) { this.buffer5.Set(this.filterEntities[this.index], in data); }
 public ref T5 GetT5(int id) { return ref this.buffer5.Get(id); }
-public ref T5 GetT5() { return ref this.buffer5.Get(this.index); }
+public ref T5 GetT5() { return ref this.buffer5.Get(this.filterEntities[this.index]); }
 public void RemoveT5(int id) { this.buffer5.Remove(id); }
-public void RemoveT5() { this.buffer5.Remove(this.index); }
+public void RemoveT5() { this.buffer5.Remove(this.filterEntities[this.index]); }
 public ref readonly T5 ReadT5(int id) { return ref this.buffer5.Read(id); }
-public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.index); }
+public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.filterEntities[this.index]); }
 public void SetT6(int id, in T6 data) { this.buffer6.Set(id, in data); }
-public void SetT6(in T6 data) { this.buffer6.Set(this.index, in data); }
+public void SetT6(in T6 data) { this.buffer6.Set(this.filterEntities[this.index], in data); }
 public ref T6 GetT6(int id) { return ref this.buffer6.Get(id); }
-public ref T6 GetT6() { return ref this.buffer6.Get(this.index); }
+public ref T6 GetT6() { return ref this.buffer6.Get(this.filterEntities[this.index]); }
 public void RemoveT6(int id) { this.buffer6.Remove(id); }
-public void RemoveT6() { this.buffer6.Remove(this.index); }
+public void RemoveT6() { this.buffer6.Remove(this.filterEntities[this.index]); }
 public ref readonly T6 ReadT6(int id) { return ref this.buffer6.Read(id); }
-public ref readonly T6 ReadT6() { return ref this.buffer6.Read(this.index); }
+public ref readonly T6 ReadT6() { return ref this.buffer6.Read(this.filterEntities[this.index]); }
 public void SetT7(int id, in T7 data) { this.buffer7.Set(id, in data); }
-public void SetT7(in T7 data) { this.buffer7.Set(this.index, in data); }
+public void SetT7(in T7 data) { this.buffer7.Set(this.filterEntities[this.index], in data); }
 public ref T7 GetT7(int id) { return ref this.buffer7.Get(id); }
-public ref T7 GetT7() { return ref this.buffer7.Get(this.index); }
+public ref T7 GetT7() { return ref this.buffer7.Get(this.filterEntities[this.index]); }
 public void RemoveT7(int id) { this.buffer7.Remove(id); }
-public void RemoveT7() { this.buffer7.Remove(this.index); }
+public void RemoveT7() { this.buffer7.Remove(this.filterEntities[this.index]); }
 public ref readonly T7 ReadT7(int id) { return ref this.buffer7.Read(id); }
-public ref readonly T7 ReadT7() { return ref this.buffer7.Read(this.index); }
+public ref readonly T7 ReadT7() { return ref this.buffer7.Read(this.filterEntities[this.index]); }
 public void SetT8(int id, in T8 data) { this.buffer8.Set(id, in data); }
-public void SetT8(in T8 data) { this.buffer8.Set(this.index, in data); }
+public void SetT8(in T8 data) { this.buffer8.Set(this.filterEntities[this.index], in data); }
 public ref T8 GetT8(int id) { return ref this.buffer8.Get(id); }
-public ref T8 GetT8() { return ref this.buffer8.Get(this.index); }
+public ref T8 GetT8() { return ref this.buffer8.Get(this.filterEntities[this.index]); }
 public void RemoveT8(int id) { this.buffer8.Remove(id); }
-public void RemoveT8() { this.buffer8.Remove(this.index); }
+public void RemoveT8() { this.buffer8.Remove(this.filterEntities[this.index]); }
 public ref readonly T8 ReadT8(int id) { return ref this.buffer8.Read(id); }
-public ref readonly T8 ReadT8() { return ref this.buffer8.Read(this.index); }
+public ref readonly T8 ReadT8() { return ref this.buffer8.Read(this.filterEntities[this.index]); }
 
     #endregion
 

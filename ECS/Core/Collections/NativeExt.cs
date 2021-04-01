@@ -36,6 +36,19 @@ namespace ME.ECS.Collections {
             }
         }
 
+        public static ref T GetRef<T>(this NativeArrayBurst<T> array, int index) where T : struct {
+            if (index < 0 || index >= array.Length)
+                throw new ArgumentOutOfRangeException(nameof(index));
+            unsafe {
+                var ptr = array.GetUnsafePtr();
+                #if UNITY_2020_1_OR_NEWER
+                return ref UnsafeUtility.ArrayElementAsRef<T>(ptr, index);
+                #else
+                throw new Exception("UnsafeUtility.ArrayElementAsRef");
+                #endif
+            }
+        }
+
     }
     
 }
