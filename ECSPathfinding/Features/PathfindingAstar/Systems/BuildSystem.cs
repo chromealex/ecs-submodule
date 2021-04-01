@@ -102,7 +102,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingAstar.Systems {
                 //UnityEngine.Debug.LogWarning("REQUEST PATH: " + request.@from.ToStringDec() + " to " + request.to.ToStringDec());
                 var constraint = request.constraint;
                 ArrayUtils.Resize(this.idx, ref this.pathTasks);
-                this.pathTasks[this.idx++] = active.CalculatePathTask(entity, request.from, request.to, request.alignToGraphNodes, constraint);
+                this.pathTasks[this.idx++] = active.CalculatePathTask(entity, request.from, request.to, request.alignToGraphNodes, constraint, request.burstEnabled);
 
                 entity.RemoveData<CalculatePath>();
 

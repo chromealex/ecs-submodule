@@ -5,6 +5,23 @@ using UnityEngine;
 
 namespace ME.ECS.Pathfinding {
 
+    public struct BurstConstraint {
+
+        public FPVector3 agentSize;
+
+        public byte checkArea;
+        public long areaMask;
+
+        public byte checkTags;
+        public long tagsMask;
+        
+        public byte checkWalkability;
+        public byte walkable;
+
+        public long graphMask;
+
+    }
+    
     [System.Serializable]
     public struct Constraint {
 
@@ -31,6 +48,20 @@ namespace ME.ECS.Pathfinding {
 
         public long graphMask;
 
+        public BurstConstraint GetBurstConstraint() {
+            
+            return new BurstConstraint() {
+                agentSize = this.agentSize,
+                areaMask = this.areaMask,
+                checkTags = this.checkTags == true ? (byte)1 : (byte)0,
+                tagsMask = this.tagsMask,
+                checkWalkability = this.checkWalkability == true ? (byte)1 : (byte)0,
+                walkable = this.walkable == true ? (byte)1 : (byte)0,
+                graphMask = this.graphMask,
+            };
+            
+        }
+        
         public override string ToString() {
             
             return "AgentSize: " + this.agentSize.ToFullString() +

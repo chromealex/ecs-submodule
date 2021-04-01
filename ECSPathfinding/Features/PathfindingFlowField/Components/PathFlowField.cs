@@ -20,7 +20,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Components {
 
             this.from = default;
             this.to = default;
-            PoolArray<byte>.Recycle(ref this.flowField);
+            if (PathfindingFlowFieldProcessor.cacheEnabled == false) PoolArray<byte>.Recycle(ref this.flowField);
             
         }
 

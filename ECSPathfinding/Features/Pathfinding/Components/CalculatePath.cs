@@ -13,6 +13,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
         public bool alignToGraphNodes;
         public ME.ECS.Pathfinding.Constraint constraint;
         public bool flowField;
+        public bool burstEnabled;
 
     }
 

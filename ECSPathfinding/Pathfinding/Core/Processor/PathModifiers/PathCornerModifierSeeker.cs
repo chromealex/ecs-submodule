@@ -8,9 +8,42 @@ namespace ME.ECS.Pathfinding {
 
         public PathCornersModifier modifier;
 
-        public override TMod GetModifier<TMod>() {
+        public override Path Run(Path path, Constraint constraint) {
 
-            return (TMod)(object)this.modifier;
+            return this.modifier.Run(path, constraint);
+
+        }
+
+        public override bool IsWalkable(int index, Constraint constraint) {
+            
+            return this.modifier.IsWalkable(index, constraint);
+            
+        }
+
+    }
+
+    public struct PathCustomWalkableField : IPathModifier {
+
+        public Unity.Collections.NativeArray<int> field;
+        public int customCost;
+
+        public bool IsWalkable(int index, Constraint constraint) {
+
+            if (this.field.Length == 0) return true;
+            return this.field[index] == 0;
+
+        }
+
+        public int GetCustomCost(int index, Constraint constraint) {
+
+            if (this.field.Length == 0) return this.customCost;
+            return this.customCost - this.field[index];
+
+        }
+
+        public Path Run(Path path, Constraint constraint) {
+
+            return path;
 
         }
 
@@ -18,6 +51,12 @@ namespace ME.ECS.Pathfinding {
     
     public struct PathCornersModifier : IPathModifier {
         
+        public bool IsWalkable(int index, Constraint constraint) {
+
+            return true;
+
+        }
+
         public Path Run(Path path, Constraint constraint) {
 
             ref var nodes = ref path.nodes;

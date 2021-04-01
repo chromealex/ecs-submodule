@@ -8,7 +8,7 @@ public class DrawPath : MonoBehaviour {
     public ME.ECS.Pathfinding.Pathfinding pathfinding;
     public ME.ECS.Pathfinding.Constraint constraint;
     public Transform to;
-    public float agentRadius;
+    public bool useBurst;
 
     #if UNITY_EDITOR
     public void OnDrawGizmos() {
@@ -19,14 +19,16 @@ public class DrawPath : MonoBehaviour {
 
         }
 
+        //ME.ECS.Pathfinding.PathfindingFlowFieldProcessor.cacheEnabled = true;
+
         var cons = ME.ECS.Pathfinding.Constraint.Empty;
         cons.graphMask = this.constraint.graphMask;
-        var path = this.pathfinding.CalculatePath(this.transform.position, this.to.position, this.constraint, new ME.ECS.Pathfinding.PathCornersModifier());
+        var graph = this.pathfinding.GetNearest(this.transform.position, this.constraint).graph as ME.ECS.Pathfinding.GridGraph;
+        var path = this.pathfinding.CalculatePath<ME.ECS.Pathfinding.PathCornersModifier, ME.ECS.Pathfinding.PathfindingFlowFieldProcessor>(this.transform.position, this.to.position, this.constraint, graph, new ME.ECS.Pathfinding.PathCornersModifier(), 0, this.useBurst);
         if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete) {
 
             if (path.flowField.arr != null) {
 
-                var graph = this.pathfinding.graphs[0] as ME.ECS.Pathfinding.GridGraph;
                 var nodeSize = graph.nodeSize;
 
                 /*var maxIntegrationCost = 0f;
@@ -55,56 +57,43 @@ public class DrawPath : MonoBehaviour {
 
                     Gizmos.color = Color.white;
                     var offset = Vector3.up * 0.1f;
-                    var thickness = 4f;
                     UnityEditor.Handles.color = Color.white;
                     #if UNITY_2020_2_OR_NEWER
+                    var thickness = 4f;
                     UnityEditor.Handles.DrawLine(offset + node.worldPosition - dir3d * nodeSize * 0.3f, offset + node.worldPosition + dir3d * nodeSize * 0.3f, thickness);
                     UnityEditor.Handles.DrawLine(offset + node.worldPosition + dir3d * nodeSize * 0.3f, offset + (node.worldPosition + Quaternion.Euler(0f, 120f, 0f) * dir3d * nodeSize * 0.1f), thickness);
                     UnityEditor.Handles.DrawLine(offset + node.worldPosition + dir3d * nodeSize * 0.3f, offset + (node.worldPosition + Quaternion.Euler(0f, -120f, 0f) * dir3d * nodeSize * 0.1f), thickness);
                     #else
+                    UnityEditor.Handles.DrawLine(offset + node.worldPosition - dir3d * nodeSize * 0.3f, offset + node.worldPosition + dir3d * nodeSize * 0.3f);
+                    UnityEditor.Handles.DrawLine(offset + node.worldPosition + dir3d * nodeSize * 0.3f, offset + (node.worldPosition + Quaternion.Euler(0f, 120f, 0f) * dir3d * nodeSize * 0.1f));
+                    UnityEditor.Handles.DrawLine(offset + node.worldPosition + dir3d * nodeSize * 0.3f, offset + (node.worldPosition + Quaternion.Euler(0f, -120f, 0f) * dir3d * nodeSize * 0.1f));
                     #endif
                     
                 }
 
-                var stepSpeed = 0.033f;
-                var to = this.to.position;
                 var from = this.transform.position;
-                var radius = this.agentRadius;
+                var currentNode = graph.GetNearest(from, this.constraint);
+                var targetNode = graph.GetNearest(this.to.position, this.constraint);
                 Gizmos.color = Color.blue;
                 var max = 10000;
-                ME.ECS.Pathfinding.GridGraph.Direction prevDir = ME.ECS.Pathfinding.GridGraph.Direction.Up;
-                Vector3 prevPos = from;
-                var dist = 0f;
-                while ((from.XZ() - to.XZ()).sqrMagnitude >= 1f) {
+                while (currentNode.index != targetNode.index) {
 
                     if (--max <= 0) break;
                     
-                    var currentNode = graph.GetNearest(from, this.constraint);
                     var currentDir = (ME.ECS.Pathfinding.GridGraph.Direction)path.flowField.arr[currentNode.index];
-                    if (currentDir != prevDir) {
+                    var nextNodeIndex = ME.ECS.Pathfinding.GridGraphUtilities.GetIndexByDirection(graph, currentNode.index, currentDir);
+                    var nextNode = graph.GetNodeByIndex<ME.ECS.Pathfinding.GridNode>(nextNodeIndex);
 
-                        //prevPos = from;
-                        dist = radius + (prevPos - from).magnitude;
-                        prevDir = currentDir;
-                        Gizmos.DrawWireCube(prevPos, Vector3.one * 0.2f);
-                        Gizmos.DrawCube(from, Vector3.one * 0.2f);
+                    if (nextNode != null) {
+
+                        Gizmos.DrawLine(currentNode.worldPosition, nextNode.worldPosition);
+                        currentNode = nextNode;
+                    
+                    } else {
+                        
+                        break;
                         
                     }
-                    if ((prevPos - from).sqrMagnitude >= dist * dist) {
-
-                        prevPos = from;
-                        Gizmos.DrawSphere(from, 0.1f);
-
-                    }
-
-                    var node = graph.GetNearest(prevPos, this.constraint);
-                    var dir = (ME.ECS.Pathfinding.GridGraph.Direction)path.flowField.arr[node.index];
-                    if (dir == ME.ECS.Pathfinding.GridGraph.Direction.Up) break;
-
-                    var dir3d = ME.ECS.Pathfinding.GridGraphUtilities.GetDirection(dir);
-                    var nextPosition = from + dir3d * stepSpeed;
-                    Gizmos.DrawLine(from, nextPosition);
-                    from = nextPosition;
 
                 }
 

@@ -32,7 +32,7 @@ namespace ME.ECS.Pathfinding {
             if (this.nodes != null) PoolListCopyable<Node>.Recycle(ref this.nodes);
             if (this.nodesModified != null) PoolListCopyable<Node>.Recycle(ref this.nodesModified);
             
-            if (this.flowField.arr != null) PoolArray<byte>.Recycle(ref this.flowField);
+            if (PathfindingFlowFieldProcessor.cacheEnabled == false && this.flowField.arr != null) PoolArray<byte>.Recycle(ref this.flowField);
 
         }
 

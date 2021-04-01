@@ -22,8 +22,8 @@ namespace ME.ECS {
 
         // Precision of this type is 2^-32, that is 2,3283064365386962890625E-10
         //public static readonly decimal Precision = new pfloat(1L); //0.00000000023283064365386962890625m;
-        public static pfloat MaxValue => pfloat.MAX_VALUE;
-        public static pfloat MinValue => pfloat.MIN_VALUE;
+        public static pfloat MaxValue => new pfloat(pfloat.MAX_VALUE);
+        public static pfloat MinValue => new pfloat(pfloat.MIN_VALUE);
         public static pfloat One => pfloat.ONE;
         public static pfloat Zero => 0;
         public static pfloat Epsilon => (double)1.0000000036274937E-15M;

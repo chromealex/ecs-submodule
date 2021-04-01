@@ -1047,12 +1047,117 @@ namespace ME.ECS.Pathfinding {
 
     }
 
+    public struct GridNodeData {
+
+        public int graphIndex;
+        public int index;
+        public Vector3Int position;
+        public FPVector3 worldPosition;
+        public int penalty;
+        public byte walkable;
+        public int area;
+        public int tag;
+        public pfloat height;
+        public ConnectionsArray connections;
+        
+        public bool IsSuitable(BurstConstraint constraint) {
+
+            if (constraint.checkWalkability == 1 && this.walkable != constraint.walkable) return false;
+            if (constraint.checkArea == 1 && (constraint.areaMask & (1 << this.area)) == 0) return false;
+            if (constraint.checkTags == 1 && (constraint.tagsMask & (1 << this.tag)) == 0) return false;
+            if (constraint.graphMask >= 0 && (constraint.graphMask & (1 << this.graphIndex)) == 0) return false;
+
+            // TODO: Add constraint::agentSize support
+            
+            return true;
+
+        }
+        
+    }
+
+    public struct ConnectionsArray {
+
+        public int Length;
+        public Node.Connection c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17;
+
+        public ConnectionsArray(Node.Connection[] arr) {
+
+            this.Length = arr.Length;
+            this.c0 = arr[0];
+            this.c1 = arr[1];
+            this.c2 = arr[2];
+            this.c3 = arr[3];
+            this.c4 = arr[4];
+            this.c5 = arr[5];
+            this.c6 = arr[6];
+            this.c7 = arr[7];
+            this.c8 = arr[8];
+            this.c9 = arr[9];
+            this.c10 = arr[10];
+            this.c11 = arr[11];
+            this.c12 = arr[12];
+            this.c13 = arr[13];
+            this.c14 = arr[14];
+            this.c15 = arr[15];
+            this.c16 = arr[16];
+            this.c17 = arr[17];
+
+        }
+        
+        public Node.Connection Get(int index) {
+
+            switch (index) {
+                
+                case 0: return this.c0;
+                case 1: return this.c1;
+                case 2: return this.c2;
+                case 3: return this.c3;
+                case 4: return this.c4;
+                case 5: return this.c5;
+                case 6: return this.c6;
+                case 7: return this.c7;
+                case 8: return this.c8;
+                case 9: return this.c9;
+                case 10: return this.c10;
+                case 11: return this.c11;
+                case 12: return this.c12;
+                case 13: return this.c13;
+                case 14: return this.c14;
+                case 15: return this.c15;
+                case 16: return this.c16;
+                case 17: return this.c17;
+                
+            }
+
+            return default;
+
+        }
+
+    }
+
     [System.Serializable]
     public class GridNode : Node {
 
         public Vector3Int position;
 
         public readonly Connection[] connections = new Connection[6 + 4 + 4 + 4];
+
+        public GridNodeData GetData() {
+
+            return new GridNodeData() {
+                graphIndex = this.graph.index,
+                index = this.index,
+                position = this.position,
+                worldPosition = this.worldPosition,
+                penalty = (int)this.penalty,
+                walkable = (this.walkable == true ? (byte)1 : (byte)0),
+                area = this.area,
+                tag = this.tag,
+                height = this.height,
+                connections = new ConnectionsArray(this.connections),
+            };
+            
+        }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
