@@ -177,6 +177,8 @@
 
             state = null;
             tick = Tick.Invalid;
+
+            if (this.currentEntryNode == null) return false;
             
             var marker = this.currentEntryNode;
             marker = this.IterateBackward(marker);
@@ -229,6 +231,8 @@
         }
 
 		public void InvalidateEntriesAfterTick(Tick tick) {
+
+            if (this.currentEntryNode == null) return;
 
             var prev = this.IterateBackward(this.currentEntryNode);
             var marker = prev;
@@ -286,6 +290,8 @@
         }
 
 		public Tick GetOldestEntryTick() {
+
+            if (this.currentEntryNode == null) return Tick.Invalid;
 
             var marker = this.currentEntryNode;
             marker = this.IterateForward(marker);
