@@ -61,6 +61,8 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        public GridNodeData[] nodesData;
+
         public Vector3Int size = new Vector3Int(100, 100, 100);
         public float nodeSize = 1f;
         public float maxSlope = 45f;
@@ -98,6 +100,19 @@ namespace ME.ECS.Pathfinding {
 
             }
 
+        }
+
+        public override void BuildAreas() {
+            
+            base.BuildAreas();
+
+            this.nodesData = new GridNodeData[this.nodes.Count];
+            for (int i = 0; i < this.nodesData.Length; ++i) {
+
+                this.nodesData[i] = this.GetNodeByIndex<GridNode>(i).GetData();
+
+            }
+            
         }
 
         public override void OnRecycle() {

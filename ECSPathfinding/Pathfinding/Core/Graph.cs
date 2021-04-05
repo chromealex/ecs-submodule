@@ -144,7 +144,7 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        public T GetNodeByIndex<T>(int index) where T : Node {
+        public virtual T GetNodeByIndex<T>(int index) where T : Node {
 
             if (index < 0 || index >= this.nodes.Count) return null;
 

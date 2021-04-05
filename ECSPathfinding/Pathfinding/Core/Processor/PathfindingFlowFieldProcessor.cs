@@ -110,7 +110,7 @@ namespace ME.ECS.Pathfinding {
 
             if ((pathfindingLogLevel & LogLevel.Path) != 0) {
                 
-                Logger.Log(string.Format("Path result {0}, built in {1}ms. Path length: (visited: {2})\nThread Index: {3}", path.result, swPath.ElapsedMilliseconds, statVisited, threadIndex));
+                Logger.Log(string.Format("Path result {0}, built in {1}ms. Path length: (visited: {2})\nThread Index: {3}", path.result, (swPath.ElapsedTicks / (double)System.TimeSpan.TicksPerMillisecond).ToString("0.##"), statVisited, threadIndex));
                 
             }
 
@@ -175,7 +175,6 @@ namespace ME.ECS.Pathfinding {
 
             public BurstConstraint constraint;
             public Unity.Collections.NativeArray<GridNodeData> arr;
-            public Unity.Collections.NativeArray<int> bestCost;
             public Unity.Collections.NativeArray<byte> flowField;
             public NativeQueue<int> queue;
             public Unity.Collections.NativeArray<int> results;
@@ -184,15 +183,24 @@ namespace ME.ECS.Pathfinding {
             public int endNodeIndex;
 
             public void Execute() {
+                
+                var bestCost = new Unity.Collections.NativeArray<int>(this.arr.Length, Unity.Collections.Allocator.Temp);
+                for (int i = 0; i < this.arr.Length; ++i) {
+
+                    bestCost[i] = int.MaxValue;
+
+                }
+            
+                bestCost[this.endNodeIndex] = 0;
 
                 // Creating cost field
-                var visited = new Unity.Collections.NativeList<int>(this.arr.Length, Unity.Collections.Allocator.Temp);
+                //var visited = new Unity.Collections.NativeList<int>(this.arr.Length, Unity.Collections.Allocator.Temp);
                 this.queue.Enqueue(this.endNodeIndex);
                 while (this.queue.Count > 0) {
 
                     ++this.results[0];
                     var curNodeIndex = this.queue.Dequeue();
-                    visited.Add(curNodeIndex);
+                    //visited.Add(curNodeIndex);
                     var nodeData = this.arr[curNodeIndex];
                     // TODO: add custom connections support
                     var connections = nodeData.connections;
@@ -216,10 +224,10 @@ namespace ME.ECS.Pathfinding {
                         }
                         
                         var cost = neighbor.penalty + customCost;
-                        var endNodeCost = cost + this.bestCost[nodeData.index];
-                        if (endNodeCost < this.bestCost[neighbor.index]) {
+                        var endNodeCost = cost + bestCost[nodeData.index];
+                        if (endNodeCost < bestCost[neighbor.index]) {
 
-                            this.bestCost[neighbor.index] = endNodeCost;
+                            bestCost[neighbor.index] = endNodeCost;
                             this.queue.Enqueue(neighbor.index);
                             
                         }
@@ -229,10 +237,10 @@ namespace ME.ECS.Pathfinding {
                 }
                 
                 // Creating direction field
-                for (int i = 0, cnt = visited.Length; i < cnt; ++i) {
+                for (int i = 0, cnt = this.arr.Length; i < cnt; ++i) {
 
-                    var nodeIdx = visited[i];
-                    var ffCost = this.bestCost[nodeIdx];
+                    var nodeIdx = this.arr[i].index;
+                    var ffCost = bestCost[nodeIdx];
                     var node = this.arr[nodeIdx];
                     var minCost = ffCost;
                     if (this.endNodeIndex == node.index) minCost = 0;
@@ -248,7 +256,7 @@ namespace ME.ECS.Pathfinding {
                         var conn = connections.Get(j);
                         if (conn.index < 0) continue;
                     
-                        var cost = this.bestCost[conn.index];
+                        var cost = bestCost[conn.index];
                         if (cost < minCost) {
 
                             minCost = cost;
@@ -262,7 +270,7 @@ namespace ME.ECS.Pathfinding {
 
                 }
 
-                visited.Dispose();
+                bestCost.Dispose();
 
             }
 
@@ -270,17 +278,7 @@ namespace ME.ECS.Pathfinding {
 
         private void FlowFieldBurst<TMod>(ref int statVisited, GridGraph graph, ref BufferArray<byte> flowFieldResult, GridNode endNode, Constraint constraint, TMod mod) where TMod : struct, IPathModifier {
             
-            var arr = new Unity.Collections.NativeArray<GridNodeData>(graph.nodes.Count, Unity.Collections.Allocator.TempJob);
-            var bestCost = new Unity.Collections.NativeArray<int>(graph.nodes.Count, Unity.Collections.Allocator.TempJob);
-            for (int i = 0; i < arr.Length; ++i) {
-
-                arr[i] = ((GridNode)graph.nodes[i]).GetData();
-                bestCost[i] = int.MaxValue;
-
-            }
-            
-            bestCost[endNode.index] = 0;
-            
+            var arr = new Unity.Collections.NativeArray<GridNodeData>(graph.nodesData, Unity.Collections.Allocator.TempJob);
             var queue = new NativeQueue<int>(graph.nodes.Count, Unity.Collections.Allocator.TempJob);
             var flowField = new Unity.Collections.NativeArray<byte>(graph.nodes.Count, Unity.Collections.Allocator.TempJob);
             var results = new Unity.Collections.NativeArray<int>(1, Unity.Collections.Allocator.TempJob);
@@ -298,7 +296,6 @@ namespace ME.ECS.Pathfinding {
             var job = new Job() {
                 arr = arr,
                 queue = queue,
-                bestCost = bestCost,
                 flowField = flowField,
                 endNodeIndex = endNode.index,
                 constraint = constraint.GetBurstConstraint(),
@@ -315,7 +312,6 @@ namespace ME.ECS.Pathfinding {
             results.Dispose();
             queue.Dispose();
             flowField.Dispose();
-            bestCost.Dispose();
             arr.Dispose();
 
         }
