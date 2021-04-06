@@ -179,6 +179,8 @@ namespace ME.ECS.Pathfinding {
             public NativeQueue<int> queue;
             public Unity.Collections.NativeArray<int> results;
             public PathCustomWalkableField pathCustomWalkableField;
+            public Vector3Int graphSize;
+            public FPVector3 graphCenter;
             
             public int endNodeIndex;
 
@@ -210,7 +212,7 @@ namespace ME.ECS.Pathfinding {
                         if (conn.index < 0) continue;
 
                         var neighbor = this.arr[conn.index];
-                        if (neighbor.IsSuitable(this.constraint) == false) {
+                        if (neighbor.IsSuitable(this.constraint, this.arr, this.graphSize, this.graphCenter) == false) {
 
                             continue;
 
@@ -301,6 +303,8 @@ namespace ME.ECS.Pathfinding {
                 constraint = constraint.GetBurstConstraint(),
                 results = results,
                 pathCustomWalkableField = pathCustomWalkableField,
+                graphSize = graph.size,
+                graphCenter = graph.graphCenter,
             };
             job.Schedule().Complete();
 

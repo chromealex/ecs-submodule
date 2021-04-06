@@ -874,6 +874,26 @@ namespace ME.ECS.Pathfinding {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static GridGraph.Direction GetDirection(GridNode from, GridNode to) {
+
+            var toPos = to.position;
+            var fromPos = from.position;
+            if (toPos.x < fromPos.x && toPos.y == fromPos.y) return GridGraph.Direction.Left;
+            if (toPos.x > fromPos.x && toPos.y == fromPos.y) return GridGraph.Direction.Right;
+            if (toPos.x == fromPos.x && toPos.y < fromPos.y) return GridGraph.Direction.Backward;
+            if (toPos.x == fromPos.x && toPos.y > fromPos.y) return GridGraph.Direction.Forward;
+            if (toPos.x < fromPos.x && toPos.y > fromPos.y) return GridGraph.Direction.LeftForward;
+            if (toPos.x > fromPos.x && toPos.y > fromPos.y) return GridGraph.Direction.RightForward;
+            if (toPos.x < fromPos.x && toPos.y < fromPos.y) return GridGraph.Direction.LeftBackward;
+            if (toPos.x > fromPos.x && toPos.y < fromPos.y) return GridGraph.Direction.RightBackward;
+            
+            return (GridGraph.Direction)(-1);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static GridGraph.Direction GetDirection(Vector3 direction) {
 
             direction = direction.normalized.XZ().XZ();
@@ -1060,6 +1080,19 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static int GetIndexByPosition(Vector3Int graphSize, Vector3Int position) {
+
+            var x = position.x;
+            var y = position.y;
+            var z = position.z;
+            var idx = y * graphSize.x * graphSize.z + (x * graphSize.z) + z;
+            return idx;
+
+        }
+
     }
 
     public struct GridNodeData {
@@ -1075,14 +1108,48 @@ namespace ME.ECS.Pathfinding {
         public pfloat height;
         public ConnectionsArray connections;
         
-        public bool IsSuitable(BurstConstraint constraint) {
+        public bool IsSuitable(BurstConstraint constraint, Unity.Collections.NativeArray<GridNodeData> nodes, Vector3Int graphSize, FPVector3 graphCenter) {
 
             if (constraint.checkWalkability == 1 && this.walkable != constraint.walkable) return false;
             if (constraint.checkArea == 1 && (constraint.areaMask & (1 << this.area)) == 0) return false;
             if (constraint.checkTags == 1 && (constraint.tagsMask & (1 << this.tag)) == 0) return false;
             if (constraint.graphMask >= 0 && (constraint.graphMask & (1 << this.graphIndex)) == 0) return false;
 
-            // TODO: Add constraint::agentSize support
+            if (constraint.agentSize.x > 0 ||
+                constraint.agentSize.y > 0 ||
+                constraint.agentSize.z > 0) {
+
+                var bounds = new BoundsInt(this.position, constraint.agentSize);
+                var min = bounds.min;
+                var max = bounds.max;
+                var center = new Vector3Int((int)graphCenter.x, (int)graphCenter.y, (int)graphCenter.z);
+
+                var minNode = nodes[GridGraphUtilities.GetIndexByPosition(graphSize, min + center)];
+                var maxNode = nodes[GridGraphUtilities.GetIndexByPosition(graphSize, max + center)];
+
+                for (int y = minNode.position.y; y <= maxNode.position.y; ++y) {
+
+                    for (int x = minNode.position.x; x <= maxNode.position.x; ++x) {
+
+                        for (int z = minNode.position.z; z <= maxNode.position.z; ++z) {
+
+                            var index = GridGraphUtilities.GetIndexByPosition(graphSize, new Vector3Int(z, y, x));
+                            var n = nodes[index];
+                            if (bounds.Contains(n.position) == true) {
+
+                                var constraintErosion = constraint;
+                                constraintErosion.agentSize = Vector3Int.zero;
+                                if (n.IsSuitable(constraintErosion, nodes, graphSize, graphCenter) == false) return false;
+
+                            }
+
+                        }
+
+                    }
+
+                }
+                
+            }
             
             return true;
 

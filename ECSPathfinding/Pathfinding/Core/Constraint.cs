@@ -7,7 +7,7 @@ namespace ME.ECS.Pathfinding {
 
     public struct BurstConstraint {
 
-        public FPVector3 agentSize;
+        public Vector3Int agentSize;
 
         public byte checkArea;
         public long areaMask;
@@ -51,7 +51,7 @@ namespace ME.ECS.Pathfinding {
         public BurstConstraint GetBurstConstraint() {
             
             return new BurstConstraint() {
-                agentSize = this.agentSize,
+                agentSize = new Vector3Int((int)this.agentSize.x, (int)this.agentSize.y, (int)this.agentSize.z),
                 areaMask = this.areaMask,
                 checkTags = this.checkTags == true ? (byte)1 : (byte)0,
                 tagsMask = this.tagsMask,
