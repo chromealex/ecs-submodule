@@ -1121,7 +1121,9 @@ namespace ME.ECS.Pathfinding {
 
                 var bounds = new BoundsInt(this.position, constraint.agentSize);
                 var min = bounds.min;
+                min.y = Mathf.Min(min.y, graphSize.y - 1);
                 var max = bounds.max;
+                max.y = Mathf.Min(min.y, graphSize.y - 1);
                 var center = new Vector3Int((int)graphCenter.x, (int)graphCenter.y, (int)graphCenter.z);
 
                 var minNode = nodes[GridGraphUtilities.GetIndexByPosition(graphSize, min + center)];
