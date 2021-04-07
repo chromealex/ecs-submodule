@@ -51,6 +51,12 @@ namespace ME.ECS {
 
     }
 
+    public interface IDrawGizmos {
+
+        void OnDrawGizmos();
+
+    }
+
     public interface IUpdatePost : IContext {
 
         void UpdatePost(in float deltaTime);

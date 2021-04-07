@@ -2230,6 +2230,36 @@ namespace ME.ECS {
         }
         #endif
 
+        [System.Diagnostics.ConditionalAttribute("UNITY_EDITOR")]
+        public void OnDrawGizmos() {
+
+            foreach (var group in this.systemGroups) {
+
+                if (group.runtimeSystem.allSystems == null) continue;
+                foreach (var sys in group.runtimeSystem.allSystems) {
+
+                    if (sys is IDrawGizmos gizmos) {
+                        
+                        gizmos.OnDrawGizmos();
+                        
+                    }
+
+                }
+                
+            }
+
+            foreach (var module in this.modules) {
+
+                if (module is IDrawGizmos gizmos) {
+                    
+                    gizmos.OnDrawGizmos();
+                    
+                }
+                
+            }
+            
+        }
+
         public void PreUpdate(float deltaTime) {
 
             if (deltaTime < 0f) return;
