@@ -284,6 +284,12 @@ MonoBehaviour:
 
             var obj = Selection.activeObject;
             var path = ScriptTemplates.GetDirectoryFromAsset(obj);
+            if (System.IO.Directory.GetFiles(path).Length > 0) {
+                
+                Debug.LogError($"Directory {path} is not empty! Target directory should be empty to start project initialization.");
+                return;
+
+            }
 
             var projectName = System.IO.Path.GetFileName(path);
             projectName = projectName.Replace(".", "");
@@ -319,6 +325,9 @@ MonoBehaviour:
                 System.IO.File.WriteAllText(meta, text);
                 AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
                 
+                var guid = AssetDatabase.AssetPathToGUID(path + "/Generator/" + projectName + "Initializer.cs");
+                if (string.IsNullOrEmpty(guid) == false) ScriptTemplates.CreatePrefab(path, projectName + "Initializer", guid);
+
             });
             ScriptTemplates.Create(path + "/Generator", "csc.rsp", "00-csc.rsp", defines, allowRename: false);
             
@@ -328,9 +337,6 @@ MonoBehaviour:
             
             ScriptTemplates.Create(path, "csc.rsp", "00-csc.rsp", defines, allowRename: false);
             ScriptTemplates.Create("Assets", "csc.gen.rsp", "00-csc-gen-default.rsp", defines, allowRename: false);
-
-            var guid = AssetDatabase.AssetPathToGUID(path + "/" + projectName + "Initializer.cs");
-            if (string.IsNullOrEmpty(guid) == false) ScriptTemplates.CreatePrefab(path, projectName + "Initializer", guid);
 
         }
 
