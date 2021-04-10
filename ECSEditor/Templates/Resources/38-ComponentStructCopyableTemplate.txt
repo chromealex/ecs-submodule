@@ -2,12 +2,12 @@
 
 namespace #NAMESPACE# {
 
-    public struct #SCRIPTNAME# : IStructComponent, IStructCopyable<#SCRIPTNAME#> {
+    public struct #SCRIPTNAME# : IStructCopyable<#SCRIPTNAME#> {
         
-        void IStructCopyable<TestCopyable>.CopyFrom(in #SCRIPTNAME# other) {
+        void IStructCopyable<#SCRIPTNAME#>.CopyFrom(in #SCRIPTNAME# other) {
         }
         
-        void IStructCopyable<TestCopyable>.OnRecycle() {
+        void IStructCopyable<#SCRIPTNAME#>.OnRecycle() {
         }
         
     }
