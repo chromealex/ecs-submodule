@@ -306,6 +306,7 @@ MonoBehaviour:
             ScriptTemplates.CreateEmptyDirectory(path + "/Generator", "gen");
             var definesGen = defines.ToDictionary(x => x.Key, x => x.Value);
             definesGen["PROJECTNAME"] = projectName + ".gen";
+            ScriptTemplates.Create(path, projectName + ".asmdef", "00-asmdef", defines, allowRename: false);
             var refGuid = AssetDatabase.AssetPathToGUID(path + "/" + projectName + ".asmdef");
             definesGen.Add("REFERENCES", @",""GUID:" + refGuid + @"""");
             ScriptTemplates.Create(path + "/Generator", projectName + ".gen.asmdef", "00-asmdef", definesGen, allowRename: false);
@@ -327,7 +328,6 @@ MonoBehaviour:
             
             ScriptTemplates.Create(path, "csc.rsp", "00-csc.rsp", defines, allowRename: false);
             ScriptTemplates.Create("Assets", "csc.gen.rsp", "00-csc-gen-default.rsp", defines, allowRename: false);
-            ScriptTemplates.Create(path, projectName + ".asmdef", "00-asmdef", defines, allowRename: false);
 
             var guid = AssetDatabase.AssetPathToGUID(path + "/" + projectName + "Initializer.cs");
             if (string.IsNullOrEmpty(guid) == false) ScriptTemplates.CreatePrefab(path, projectName + "Initializer", guid);
