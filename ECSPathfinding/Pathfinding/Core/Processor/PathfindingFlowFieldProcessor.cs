@@ -170,7 +170,7 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        [Unity.Burst.BurstCompile(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true, DisableSafetyChecks = true)]
+        [Unity.Burst.BurstCompile(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true)]
         private struct Job : Unity.Jobs.IJob {
 
             public BurstConstraint constraint;
