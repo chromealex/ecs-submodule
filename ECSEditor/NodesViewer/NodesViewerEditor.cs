@@ -1120,8 +1120,7 @@ namespace ME.ECSEditor {
         public static void ShowInstance() {
 
             var instance = EditorWindow.GetWindow(typeof(NodesViewerEditor));
-            var icon = UnityEditor.Experimental.EditorResources.Load<Texture2D>("Assets/ECS/ECSEditor/EditorResources/icon-nodesviewer.png", false);
-            if (icon == null) icon = UnityEditor.Experimental.EditorResources.Load<Texture2D>("Assets/ECS-submodule/ECSEditor/EditorResources/icon-nodesviewer.png", false);
+            var icon = EditorUtilities.Load<Texture2D>("ECSEditor/EditorResources/icon-nodesviewer.png");
             instance.titleContent = new GUIContent("Nodes Viewer", icon);
             instance.Show();
 

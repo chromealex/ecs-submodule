@@ -131,15 +131,8 @@ namespace ME.ECSEditor {
 
             }
 
-            var templatePath = Resources.Load<TextAsset>(templateName);
-            if (templatePath == null) {
-                
-                Debug.LogError("Template was not found at path " + templateName);
-                return false;
-
-            }
-
-            var content = templatePath.text;
+            var templateAsset = EditorUtilities.Load<TextAsset>($"ECSEditor/Templates/EditorResources/{templateName}.txt", true);
+            var content = templateAsset.text;
             if (customDefines != null) {
 
                 foreach (var def in customDefines) {
