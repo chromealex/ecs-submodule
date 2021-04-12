@@ -793,13 +793,13 @@ namespace ME.ECS.Network {
 
             }
 
+            this.ReceiveEventsAndApply();
+            this.ApplyTicksByState();
+
         }
 
         public virtual void Update(in float deltaTime) {
             
-            this.ReceiveEventsAndApply();
-            this.ApplyTicksByState();
-
         }
 
         public RPCId RegisterRPC(System.Reflection.MethodInfo methodInfo, bool runLocalOnly = false) {
