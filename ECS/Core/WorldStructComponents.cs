@@ -478,6 +478,7 @@ namespace ME.ECS {
 
                 if (ArrayUtils.Resize(index, ref this.components) == true) {
 
+                    ArrayUtils.Resize(index, ref this.componentsStates);
                     // Add into dirty map
                     result = true;
 
@@ -485,7 +486,7 @@ namespace ME.ECS {
 
             }
 
-            if (ArrayUtils.WillResize(index, ref this.componentsStates) == true) {
+            if (result == false && ArrayUtils.WillResize(index, ref this.componentsStates) == true) {
 
                 ArrayUtils.Resize(index, ref this.componentsStates);
 
@@ -800,13 +801,17 @@ namespace ME.ECS {
 
         public override void OnRecycle() {
 
-            foreach (var kv in this.sharedGroups.sharedGroups) {
+            if (this.sharedGroups.sharedGroups != null) {
 
-                kv.Value.data.OnRecycle();
+                foreach (var kv in this.sharedGroups.sharedGroups) {
+
+                    kv.Value.data.OnRecycle();
+
+                }
 
             }
-            
-            for (int i = 0; i < this.components.Length; ++i) {
+
+            for (int i = 0; i < this.componentsStates.Length; ++i) {
                 
                 if (this.componentsStates.arr[i] > 0) this.components[i].OnRecycle();
                 
