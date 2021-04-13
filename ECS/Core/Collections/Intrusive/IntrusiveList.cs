@@ -81,7 +81,7 @@ namespace ME.ECS.Collections {
 
                 this.id = this.head.id;
 
-                this.head = this.head.GetData<IntrusiveListNode>().next;
+                this.head = this.head.Get<IntrusiveListNode>().next;
                 return true;
 
             }
@@ -176,7 +176,7 @@ namespace ME.ECS.Collections {
             while (this.root.IsAlive() == true) {
 
                 var node = this.root;
-                this.root = this.root.GetData<IntrusiveListNode>().next;
+                this.root = this.root.Get<IntrusiveListNode>().next;
                 if (destroyData == true) IntrusiveList.DestroyData(in node);
                 node.Destroy();
 
@@ -203,7 +203,7 @@ namespace ME.ECS.Collections {
                 var node = this.FindNode(from);
                 if (node.IsAlive() == true) {
 
-                    yield return node.GetData<IntrusiveListNode>().data;
+                    yield return node.Get<IntrusiveListNode>().data;
 
                 } else {
 
@@ -262,7 +262,7 @@ namespace ME.ECS.Collections {
 
                     if (node.IsAlive() == true) {
 
-                        var next = node.GetData<IntrusiveListNode>().next;
+                        var next = node.Get<IntrusiveListNode>().next;
                         this.RemoveNode(in node, destroyData);
                         node = next;
                         ++count;
@@ -297,7 +297,7 @@ namespace ME.ECS.Collections {
             var node = this.FindNode(index);
             if (node.IsAlive() == true) {
 
-                return node.GetData<IntrusiveListNode>().data;
+                return node.Get<IntrusiveListNode>().data;
 
             }
 
@@ -336,12 +336,12 @@ namespace ME.ECS.Collections {
             if (node.IsAlive() == true) {
 
                 var newNode = IntrusiveList.CreateNode(in entityData);
-                ref var newNodeLink = ref newNode.GetData<IntrusiveListNode>();
+                ref var newNodeLink = ref newNode.Get<IntrusiveListNode>();
 
-                var link = node.GetData<IntrusiveListNode>();
+                var link = node.Get<IntrusiveListNode>();
                 if (link.prev.IsAlive() == true) {
 
-                    link.prev.GetData<IntrusiveListNode>().next = newNode;
+                    link.prev.Get<IntrusiveListNode>().next = newNode;
                     newNodeLink.prev = link.prev;
 
                 } else {
@@ -379,7 +379,7 @@ namespace ME.ECS.Collections {
             var node = this.FindNode(index);
             if (node.IsAlive() == true) {
 
-                ref var link = ref node.GetData<IntrusiveListNode>();
+                ref var link = ref node.Get<IntrusiveListNode>();
                 link.data = entityData;
                 return true;
 
@@ -429,7 +429,7 @@ namespace ME.ECS.Collections {
             var count = 0;
             do {
 
-                var nextLink = root.GetData<IntrusiveListNode>();
+                var nextLink = root.Get<IntrusiveListNode>();
                 if (nextLink.data == entityData) {
 
                     this.RemoveNode(root, destroyData: false);
@@ -461,8 +461,8 @@ namespace ME.ECS.Collections {
 
             } else {
 
-                ref var nodeLink = ref node.GetData<IntrusiveListNode>();
-                ref var headLink = ref this.head.GetData<IntrusiveListNode>();
+                ref var nodeLink = ref node.Get<IntrusiveListNode>();
+                ref var headLink = ref this.head.Get<IntrusiveListNode>();
                 headLink.next = node;
                 nodeLink.prev = this.head;
 
@@ -485,8 +485,8 @@ namespace ME.ECS.Collections {
 
             } else {
 
-                ref var nodeLink = ref node.GetData<IntrusiveListNode>();
-                ref var headLink = ref this.head.GetData<IntrusiveListNode>();
+                ref var nodeLink = ref node.Get<IntrusiveListNode>();
+                ref var headLink = ref this.head.Get<IntrusiveListNode>();
                 headLink.next = node;
                 nodeLink.prev = this.head;
 
@@ -518,7 +518,7 @@ namespace ME.ECS.Collections {
 
             if (this.root.IsAlive() == false) return Entity.Empty;
 
-            return this.root.GetData<IntrusiveListNode>().data;
+            return this.root.Get<IntrusiveListNode>().data;
 
         }
 
@@ -530,7 +530,7 @@ namespace ME.ECS.Collections {
 
             if (this.head.IsAlive() == false) return Entity.Empty;
 
-            return this.head.GetData<IntrusiveListNode>().data;
+            return this.head.Get<IntrusiveListNode>().data;
 
         }
 
@@ -572,7 +572,7 @@ namespace ME.ECS.Collections {
             do {
 
                 var nodeEntity = node;
-                var nodeLink = node.GetData<IntrusiveListNode>();
+                var nodeLink = node.Get<IntrusiveListNode>();
                 var nodeData = nodeLink.data;
                 node = nodeLink.next;
                 if (nodeData == entityData) {
@@ -597,7 +597,7 @@ namespace ME.ECS.Collections {
             do {
 
                 var nodeEntity = node;
-                var nodeLink = node.GetData<IntrusiveListNode>();
+                var nodeLink = node.Get<IntrusiveListNode>();
                 node = nodeLink.next;
                 if (idx == index) {
 
@@ -619,14 +619,14 @@ namespace ME.ECS.Collections {
         #endif
         private void RemoveNode(in Entity node, bool destroyData) {
 
-            var link = node.GetData<IntrusiveListNode>();
+            var link = node.Get<IntrusiveListNode>();
             if (link.prev.IsAlive() == true) {
-                ref var prev = ref link.prev.GetData<IntrusiveListNode>();
+                ref var prev = ref link.prev.Get<IntrusiveListNode>();
                 prev.next = link.next;
             }
 
             if (link.next.IsAlive() == true) {
-                ref var next = ref link.next.GetData<IntrusiveListNode>();
+                ref var next = ref link.next.Get<IntrusiveListNode>();
                 next.prev = link.prev;
             }
 
@@ -652,7 +652,7 @@ namespace ME.ECS.Collections {
         private static Entity CreateNode(in Entity data) {
 
             var node = new Entity("IntrusiveListNode");
-            ref var nodeLink = ref node.GetData<IntrusiveListNode>();
+            ref var nodeLink = ref node.Get<IntrusiveListNode>();
             nodeLink.data = data;
 
             return node;
@@ -664,7 +664,7 @@ namespace ME.ECS.Collections {
         #endif
         private static void DestroyData(in Entity node) {
 
-            var data = node.GetData<IntrusiveListNode>().data;
+            var data = node.Get<IntrusiveListNode>().data;
             if (data.IsAlive() == true) data.Destroy();
 
         }

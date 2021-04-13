@@ -26,9 +26,9 @@
 
         void ISystemFilter.AdvanceTick(in Entity entity, in float deltaTime) {
 
-            entity.RemoveData<ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionEnter>();
-            entity.RemoveData<ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionExit>();
-            entity.RemoveData<ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionStay>();
+            entity.Remove<ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionEnter>();
+            entity.Remove<ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionExit>();
+            entity.Remove<ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionStay>();
 
         }
     

@@ -1568,8 +1568,8 @@ namespace ME.ECS {
 
             if (name != null) {
 
-                entity.SetData(new ME.ECS.Name.Name() {
-                    value = name
+                entity.Set(new ME.ECS.Name.Name() {
+                    value = name,
                 });
 
             }
@@ -1586,6 +1586,7 @@ namespace ME.ECS {
 
         public void UpdateEntity(in Entity entity) {
 
+            ComponentsInitializerWorld.Init(in entity);
             this.currentState.storage.versions.Validate(in entity);
             this.CreateEntityPlugins(entity);
             this.CreateEntityInFilters(entity);

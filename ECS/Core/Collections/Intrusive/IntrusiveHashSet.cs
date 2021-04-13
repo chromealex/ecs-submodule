@@ -73,7 +73,7 @@ namespace ME.ECS.Collections {
                     var bucket = this.hashSet.buckets[this.bucketIndex];
                     if (bucket.IsAlive() == true) {
 
-                        var node = bucket.GetData<IntrusiveHashSetBucket>();
+                        var node = bucket.Get<IntrusiveHashSetBucket>();
                         this.listEnumerator = node.list.GetEnumerator();
 
                     }
@@ -155,7 +155,7 @@ namespace ME.ECS.Collections {
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == false) return false;
 
-            ref var bucketList = ref bucketEntity.GetData<IntrusiveHashSetBucket>();
+            ref var bucketList = ref bucketEntity.Get<IntrusiveHashSetBucket>();
             return bucketList.list.Contains(entityData);
 
         }
@@ -173,7 +173,7 @@ namespace ME.ECS.Collections {
                 var bucket = this.buckets[i];
                 if (bucket.IsAlive() == true) {
 
-                    ref var data = ref bucket.GetData<IntrusiveHashSetBucket>();
+                    ref var data = ref bucket.Get<IntrusiveHashSetBucket>();
                     data.list.Clear();
 
                 }
@@ -213,7 +213,7 @@ namespace ME.ECS.Collections {
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == false) return false;
 
-            ref var bucketList = ref bucketEntity.GetData<IntrusiveHashSetBucket>(false);
+            ref var bucketList = ref bucketEntity.Get<IntrusiveHashSetBucket>(false);
             if (bucketList.list.Remove(entityData) == true) {
 
                 --this.count;
@@ -239,7 +239,7 @@ namespace ME.ECS.Collections {
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == false) return 0;
 
-            ref var bucketList = ref bucketEntity.GetData<IntrusiveHashSetBucket>(false);
+            ref var bucketList = ref bucketEntity.Get<IntrusiveHashSetBucket>(false);
             var count = bucketList.list.RemoveAll(in entityData);
             this.count -= count;
             return count;
@@ -260,7 +260,7 @@ namespace ME.ECS.Collections {
             var bucket = (entityData.GetHashCode() & 0x7fffffff) % this.buckets.Length;
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == false) bucketEntity = this.buckets[bucket] = new Entity("IntrusiveHashSetBucket");
-            ref var bucketList = ref bucketEntity.GetData<IntrusiveHashSetBucket>();
+            ref var bucketList = ref bucketEntity.Get<IntrusiveHashSetBucket>();
             bucketList.list.Add(entityData);
             ++this.count;
 
@@ -276,7 +276,7 @@ namespace ME.ECS.Collections {
             var bucket = (entityData.GetHashCode() & 0x7fffffff) % this.buckets.Length;
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == false) bucketEntity = this.buckets[bucket] = new Entity("IntrusiveHashSetBucket");
-            ref var bucketList = ref bucketEntity.GetData<IntrusiveHashSetBucket>();
+            ref var bucketList = ref bucketEntity.Get<IntrusiveHashSetBucket>();
             bucketList.list.Add(entityData, out node);
             ++this.count;
 

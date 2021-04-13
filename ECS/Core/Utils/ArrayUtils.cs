@@ -86,6 +86,25 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void Recycle<T, TCopy>(ref T[] item, TCopy copy) where TCopy : IArrayElementCopy<T> {
+
+            if (item != null) {
+
+                for (int i = 0; i < item.Length; ++i) {
+
+                    copy.Recycle(item[i]);
+
+                }
+
+                PoolArray<T>.Recycle(ref item);
+
+            }
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Recycle<T, TCopy>(ref ME.ECS.Collections.BufferArray<T> item, TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             for (int i = 0; i < item.Length; ++i) {
@@ -110,6 +129,49 @@ namespace ME.ECS {
             }
 
             PoolArray<T>.Recycle(ref item);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Copy<T, TCopy>(T[] fromArr, ref T[] arr, TCopy copy) where TCopy : IArrayElementCopy<T> {
+
+            if (fromArr == null) {
+
+                if (arr != null) {
+
+                    for (int i = 0; i < arr.Length; ++i) {
+
+                        copy.Recycle(arr[i]);
+
+                    }
+
+                    PoolArray<T>.Recycle(ref arr);
+
+                }
+
+                arr = null;
+                return;
+
+            }
+
+            if (arr == null || fromArr.Length != arr.Length) {
+
+                if (arr != null) ArrayUtils.Recycle(ref arr, copy);
+                arr = new T[fromArr.Length];
+
+            }
+
+            var cnt = arr.Length;
+            for (int i = 0; i < fromArr.Length; ++i) {
+
+                var isDefault = i >= cnt;
+                T item = (isDefault ? default : arr[i]);
+                copy.Copy(fromArr[i], ref item);
+                arr[i] = item;
+
+            }
 
         }
 

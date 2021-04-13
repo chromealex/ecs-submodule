@@ -48,9 +48,9 @@ namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Systems {
 
         void IAdvanceTickPost.AdvanceTickPost(in float deltaTime) {
 
-            if (this.pathfindingFeature.GetEntity().HasData<PathfindingInstance>() == false) return;
+            if (this.pathfindingFeature.GetEntity().Has<PathfindingInstance>() == false) return;
             
-            var instance = this.pathfindingFeature.GetEntity().GetData<PathfindingInstance>();
+            var instance = this.pathfindingFeature.GetEntity().Get<PathfindingInstance>();
             var active = instance.pathfinding;
             if (active == null) return;
 
@@ -72,7 +72,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Systems {
 
                     } else {
 
-                        task.entity.RemoveData<PathFlowField>();
+                        task.entity.Remove<PathFlowField>();
 
                     }
 
@@ -88,15 +88,15 @@ namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Systems {
         
         void ISystemFilter.AdvanceTick(in Entity entity, in float deltaTime) {
             
-            if (this.pathfindingFeature.GetEntity().HasData<PathfindingInstance>() == false) return;
+            if (this.pathfindingFeature.GetEntity().Has<PathfindingInstance>() == false) return;
 
-            var instance = this.pathfindingFeature.GetEntity().GetData<PathfindingInstance>();
+            var instance = this.pathfindingFeature.GetEntity().Get<PathfindingInstance>();
             var active = instance.pathfinding;
             if (active == null) return;
 
             //entity.RemoveData<Path>();
 
-            ref readonly var request = ref entity.ReadData<CalculatePath>();
+            ref readonly var request = ref entity.Read<CalculatePath>();
             if (request.flowField == true) {
 
                 //UnityEngine.Debug.LogWarning("REQUEST PATH: " + request.@from.ToStringDec() + " to " + request.to.ToStringDec());
@@ -104,7 +104,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Systems {
                 ArrayUtils.Resize(this.idx, ref this.pathTasks);
                 this.pathTasks[this.idx++] = active.CalculatePathTask(entity, request.from, request.to, request.alignToGraphNodes, constraint, request.burstEnabled);
 
-                entity.RemoveData<CalculatePath>();
+                entity.Remove<CalculatePath>();
 
             }
             

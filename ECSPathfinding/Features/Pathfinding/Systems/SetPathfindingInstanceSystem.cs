@@ -41,11 +41,11 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
             var instance = this.pathfindingFeature.GetInstance();
             if (instance != null) {
 
-                entity.SetData(new PathfindingInstance() {
+                entity.Set(new PathfindingInstance() {
                     pathfinding = (instance.clonePathfinding == true ? instance.Clone() : instance),
                 });
-                entity.SetData(new HasPathfindingInstance());
-                entity.SetData(new BuildAllGraphs());
+                entity.Set(new HasPathfindingInstance());
+                entity.Set(new BuildAllGraphs());
 
             }
 

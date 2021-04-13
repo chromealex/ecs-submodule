@@ -82,10 +82,10 @@ namespace ME.ECS.Tests {
                     var group = new SystemGroup(world, "TestGroup");
                     group.AddSystem(new TestMultipleFiltersSystem());
 
-                    testEntity.SetData(new TestData());
-                    testEntity2.SetData(new TestData2());
-                    testEntity3.SetData(new TestData());
-                    testEntity3.SetData(new TestData2());
+                    testEntity.Set(new TestData());
+                    testEntity2.Set(new TestData2());
+                    testEntity3.Set(new TestData());
+                    testEntity3.Set(new TestData2());
                     
                 }
             }
@@ -128,7 +128,7 @@ namespace ME.ECS.Tests {
 
                 if (this.world.GetCurrentTick() % 5 == 0) {
 
-                    this.testEntity.SetData<TestData>();
+                    this.testEntity.Set<TestData>();
                     UnityEngine.Debug.Log("Update entity: " + this.testEntity);
 
                 } 
@@ -157,7 +157,7 @@ namespace ME.ECS.Tests {
                     var group = new SystemGroup(world, "TestGroup");
                     group.AddSystem(new TestSystem() { testEntity = testEntity });
 
-                    testEntity.SetData(new TestData());
+                    testEntity.Set(new TestData());
                     
                 }
             }
@@ -227,7 +227,7 @@ namespace ME.ECS.Tests {
                 job.data.Push();
                 
                 sw.Stop();
-                UnityEngine.Debug.Log(step1 + "ms, " + sw.ElapsedMilliseconds + "ms. Entities: " + this.filter.Count + ": " + this.testEntity + " has data: " + this.testEntity.ReadData<TestData>().a);
+                UnityEngine.Debug.Log(step1 + "ms, " + sw.ElapsedMilliseconds + "ms. Entities: " + this.filter.Count + ": " + this.testEntity + " has data: " + this.testEntity.Read<TestData>().a);
 
             }
 
@@ -255,7 +255,7 @@ namespace ME.ECS.Tests {
                     var group = new SystemGroup(world, "TestGroup");
                     group.AddSystem(new TestJobSystem() { testEntity = testEntity });
 
-                    testEntity.SetData(new TestData());
+                    testEntity.Set(new TestData());
                     
                 }
             }
@@ -264,7 +264,7 @@ namespace ME.ECS.Tests {
             for (int i = 0; i < 2000; ++i) {
                 
                 var test = new Entity("Test");
-                test.SetData(new TestData());
+                test.Set(new TestData());
                 
             }
             

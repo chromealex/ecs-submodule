@@ -80,7 +80,7 @@ namespace ME.ECS.Collections {
                 if (this.head.IsAlive() == false) return false;
 
                 this.id = this.head.id;
-                this.head = this.head.GetData<IntrusiveListGenericNode<T>>().next;
+                this.head = this.head.Get<IntrusiveListGenericNode<T>>().next;
                 return true;
 
             }
@@ -175,7 +175,7 @@ namespace ME.ECS.Collections {
             while (this.root.IsAlive() == true) {
 
                 var node = this.root;
-                this.root = this.root.GetData<IntrusiveListGenericNode<T>>().next;
+                this.root = this.root.Get<IntrusiveListGenericNode<T>>().next;
                 node.Destroy();
 
             }
@@ -201,7 +201,7 @@ namespace ME.ECS.Collections {
                 var node = this.FindNode(from);
                 if (node.IsAlive() == true) {
 
-                    yield return node.GetData<IntrusiveListGenericNode<T>>().data;
+                    yield return node.Get<IntrusiveListGenericNode<T>>().data;
 
                 } else {
 
@@ -258,7 +258,7 @@ namespace ME.ECS.Collections {
 
                     if (node.IsAlive() == true) {
 
-                        var next = node.GetData<IntrusiveListGenericNode<T>>().next;
+                        var next = node.Get<IntrusiveListGenericNode<T>>().next;
                         this.RemoveNode(in node);
                         node = next;
                         ++count;
@@ -293,7 +293,7 @@ namespace ME.ECS.Collections {
             var node = this.FindNode(index);
             if (node.IsAlive() == true) {
 
-                return node.GetData<IntrusiveListGenericNode<T>>().data;
+                return node.Get<IntrusiveListGenericNode<T>>().data;
 
             }
 
@@ -334,12 +334,12 @@ namespace ME.ECS.Collections {
             if (node.IsAlive() == true) {
 
                 var newNode = IntrusiveListGeneric<T>.CreateNode(in entityData);
-                ref var newNodeLink = ref newNode.GetData<IntrusiveListGenericNode<T>>();
+                ref var newNodeLink = ref newNode.Get<IntrusiveListGenericNode<T>>();
 
-                ref var link = ref node.GetData<IntrusiveListGenericNode<T>>();
+                ref var link = ref node.Get<IntrusiveListGenericNode<T>>();
                 if (link.prev.IsAlive() == true) {
 
-                    ref var prevLink = ref link.prev.GetData<IntrusiveListGenericNode<T>>();
+                    ref var prevLink = ref link.prev.Get<IntrusiveListGenericNode<T>>();
                     prevLink.next = newNode;
                     newNodeLink.prev = link.prev;
 
@@ -378,7 +378,7 @@ namespace ME.ECS.Collections {
             var node = this.FindNode(index);
             if (node.IsAlive() == true) {
 
-                ref var link = ref node.GetData<IntrusiveListGenericNode<T>>();
+                ref var link = ref node.Get<IntrusiveListGenericNode<T>>();
                 link.data = entityData;
                 return true;
 
@@ -428,7 +428,7 @@ namespace ME.ECS.Collections {
             var count = 0;
             do {
 
-                var nextLink = root.GetData<IntrusiveListGenericNode<T>>();
+                var nextLink = root.Get<IntrusiveListGenericNode<T>>();
                 if (entityData.Equals(nextLink.data) == true) {
 
                     this.RemoveNode(root);
@@ -462,8 +462,8 @@ namespace ME.ECS.Collections {
 
             } else {
 
-                ref var nodeLink = ref node.GetData<IntrusiveListGenericNode<T>>();
-                ref var headLink = ref this.head.GetData<IntrusiveListGenericNode<T>>();
+                ref var nodeLink = ref node.Get<IntrusiveListGenericNode<T>>();
+                ref var headLink = ref this.head.Get<IntrusiveListGenericNode<T>>();
                 headLink.next = node;
                 nodeLink.prev = this.head;
 
@@ -495,7 +495,7 @@ namespace ME.ECS.Collections {
 
             if (this.root.IsAlive() == false) return default;
 
-            return this.root.GetData<IntrusiveListGenericNode<T>>().data;
+            return this.root.Get<IntrusiveListGenericNode<T>>().data;
 
         }
 
@@ -507,7 +507,7 @@ namespace ME.ECS.Collections {
 
             if (this.head.IsAlive() == false) return default;
 
-            return this.head.GetData<IntrusiveListGenericNode<T>>().data;
+            return this.head.Get<IntrusiveListGenericNode<T>>().data;
 
         }
 
@@ -549,7 +549,7 @@ namespace ME.ECS.Collections {
             do {
 
                 var nodeEntity = node;
-                var nodeLink = node.GetData<IntrusiveListGenericNode<T>>();
+                var nodeLink = node.Get<IntrusiveListGenericNode<T>>();
                 var nodeData = nodeLink.data;
                 node = nodeLink.next;
                 if (entityData.Equals(nodeData) == true) {
@@ -574,7 +574,7 @@ namespace ME.ECS.Collections {
             do {
 
                 var nodeEntity = node;
-                var nodeLink = node.GetData<IntrusiveListGenericNode<T>>();
+                var nodeLink = node.Get<IntrusiveListGenericNode<T>>();
                 node = nodeLink.next;
                 if (idx == index) {
 
@@ -597,14 +597,14 @@ namespace ME.ECS.Collections {
         private void RemoveNode(in Entity node) {
 
             var nodeToDestroy = node;
-            var link = node.GetData<IntrusiveListGenericNode<T>>();
+            var link = node.Get<IntrusiveListGenericNode<T>>();
             if (link.prev.IsAlive() == true) {
-                ref var prev = ref link.prev.GetData<IntrusiveListGenericNode<T>>();
+                ref var prev = ref link.prev.Get<IntrusiveListGenericNode<T>>();
                 prev.next = link.next;
             }
 
             if (link.next.IsAlive() == true) {
-                ref var next = ref link.next.GetData<IntrusiveListGenericNode<T>>();
+                ref var next = ref link.next.Get<IntrusiveListGenericNode<T>>();
                 next.prev = link.prev;
             }
 
@@ -630,7 +630,7 @@ namespace ME.ECS.Collections {
 
             var node = new Entity("IntrusiveListGenericNode<T>");
             node.ValidateData<IntrusiveListGenericNode<T>>();
-            ref var nodeLink = ref node.GetData<IntrusiveListGenericNode<T>>();
+            ref var nodeLink = ref node.Get<IntrusiveListGenericNode<T>>();
             nodeLink.data = data;
 
             return node;

@@ -17,6 +17,7 @@ namespace ME.ECS.Collections.Tests {
             WorldUtilities.CreateWorld<TestState>(ref world, 0.033f);
             {
                 world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
+                world.SetSeed(1u);
                 {
                     WorldUtilities.InitComponentTypeId<ME.ECS.Views.ViewComponent>(false);
                     WorldUtilities.InitComponentTypeId<ME.ECS.Name.Name>(false);

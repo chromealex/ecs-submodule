@@ -272,7 +272,7 @@ namespace ME.ECSEditor {
 	                for (int i = 0; i < allEntities.Count; ++i) {
 
 		                var entity = allEntities[i];
-		                var name = entity.HasData<ME.ECS.Name.Name>() == true ? entity.GetData<ME.ECS.Name.Name>().value : "Unnamed";
+		                var name = entity.Has<ME.ECS.Name.Name>() == true ? entity.Read<ME.ECS.Name.Name>().value : "Unnamed";
 		                popup.Item(string.Format("{0} ({1})", name, entity), () => {
 		                
 			                entityDebugComponent.world = worldEditor.world;
@@ -1267,7 +1267,7 @@ namespace ME.ECSEditor {
 			            
 		            } else {
 			            
-			            var customName = (entity.IsAlive() == true ? entity.ReadData<ME.ECS.Name.Name>().value : string.Empty);
+			            var customName = (entity.IsAlive() == true ? entity.Read<ME.ECS.Name.Name>().value : string.Empty);
 			            GUILayout.BeginVertical();
 			            GUILayout.Label(string.IsNullOrEmpty(customName) == false ? customName : "Unnamed");
 			            GUILayout.Label(entity.ToSmallString(), EditorStyles.miniLabel);

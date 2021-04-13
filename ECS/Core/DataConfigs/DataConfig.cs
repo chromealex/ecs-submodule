@@ -10,11 +10,8 @@ namespace ME.ECS.DataConfigs {
 
         [SerializeReference]
         public IStructComponent[] structComponents = new IStructComponent[0];
-        //public int[] structComponentsDataTypeIds = new int[0];
-        
         [SerializeReference]
         public IStructComponent[] removeStructComponents = new IStructComponent[0];
-        //public int[] removeStructComponentsDataTypeIds = new int[0];
 
         public string[] templates;
         
@@ -24,6 +21,37 @@ namespace ME.ECS.DataConfigs {
         private int[] removeStructComponentsDataTypeIds = new int[0];
         [System.NonSerialized]
         private bool isPrewarmed;
+
+        public void Apply(in Entity entity, bool overrideIfExist = true) {
+
+            //this.Reset();
+            this.Prewarm();
+
+            var world = Worlds.currentWorld;
+            for (int i = 0; i < this.removeStructComponents.Length; ++i) {
+
+                world.RemoveData(in entity, this.GetComponentDataIndexByTypeRemoveWithCache(this.removeStructComponents[i], i), -1);
+
+            }
+
+            for (int i = 0; i < this.structComponents.Length; ++i) {
+
+                var dataIndex = this.GetComponentDataIndexByTypeWithCache(this.structComponents[i], i);
+                if (overrideIfExist == true || world.HasDataBit(in entity, dataIndex) == false) {
+
+                    world.SetData(in entity, in this.structComponents[i], dataIndex, -1);
+
+                }
+
+            }
+            
+            // Update filters
+            {
+                ComponentsInitializerWorld.Init(in entity);
+                world.UpdateFilters(in entity);
+            }
+
+        }
 
         private void Reset() {
 
@@ -67,37 +95,6 @@ namespace ME.ECS.DataConfigs {
 
         }
         
-        public void Apply(in Entity entity, bool overrideIfExist = true) {
-
-	        //this.Reset();
-	        this.Prewarm();
-
-            var world = Worlds.currentWorld;
-            for (int i = 0; i < this.removeStructComponents.Length; ++i) {
-
-                world.RemoveData(in entity, this.GetComponentDataIndexByTypeRemoveWithCache(this.removeStructComponents[i], i), -1);
-
-            }
-
-            for (int i = 0; i < this.structComponents.Length; ++i) {
-
-                var dataIndex = this.GetComponentDataIndexByTypeWithCache(this.structComponents[i], i);
-                if (overrideIfExist == true || world.HasDataBit(in entity, dataIndex) == false) {
-
-                    world.SetData(in entity, in this.structComponents[i], dataIndex, -1);
-
-                }
-
-            }
-            
-            // Update filters
-            {
-                ComponentsInitializerWorld.Init(in entity);
-                world.UpdateFilters(in entity);
-            }
-
-        }
-
         public int GetComponentDataIndexByTypeRemoveWithCache(IStructComponent component, int idx) {
 
             if (this.removeStructComponentsDataTypeIds[idx] >= 0) return this.removeStructComponentsDataTypeIds[idx];

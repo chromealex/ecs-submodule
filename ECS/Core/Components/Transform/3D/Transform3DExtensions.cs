@@ -22,7 +22,7 @@ namespace ME.ECS {
         #endif
         public static void SetPosition(this in Entity child, in UnityEngine.Vector3 position) {
 
-            ref readonly var container = ref child.ReadData<Container>();
+            ref readonly var container = ref child.Read<Container>();
             if (container.entity.IsEmpty() == false) {
 
                 var containerRotation = container.entity.GetRotation();
@@ -42,7 +42,7 @@ namespace ME.ECS {
         #endif
         public static void SetRotation(this in Entity child, in UnityEngine.Quaternion rotation) {
 
-            ref readonly var container = ref child.ReadData<Container>();
+            ref readonly var container = ref child.Read<Container>();
             if (container.entity.IsEmpty() == false) {
 
                 var containerRotation = container.entity.GetRotation();
@@ -71,13 +71,13 @@ namespace ME.ECS {
         #endif
         public static UnityEngine.Vector3 GetPosition(this in Entity child) {
 
-            var position = child.ReadData<Position>().ToVector3();
-            ref readonly var container = ref child.ReadData<Container>();
+            var position = child.Read<Position>().ToVector3();
+            ref readonly var container = ref child.Read<Container>();
             while (container.entity.IsEmpty() == false) {
 
-                position = container.entity.ReadData<Rotation>().ToQuaternion() * position;
-                position += container.entity.ReadData<Position>().ToVector3();
-                container = ref container.entity.ReadData<Container>();
+                position = container.entity.Read<Rotation>().ToQuaternion() * position;
+                position += container.entity.Read<Position>().ToVector3();
+                container = ref container.entity.Read<Container>();
 
             }
 
@@ -90,7 +90,7 @@ namespace ME.ECS {
         #endif
         public static UnityEngine.Vector3 GetLocalPosition(this in Entity child) {
 
-            return child.ReadData<Position>().ToVector3();
+            return child.Read<Position>().ToVector3();
 
         }
 
@@ -108,7 +108,7 @@ namespace ME.ECS {
         #endif
         public static UnityEngine.Quaternion GetLocalRotation(this in Entity child) {
 
-            return child.ReadData<Rotation>().ToQuaternion();
+            return child.Read<Rotation>().ToQuaternion();
 
         }
 
@@ -117,12 +117,12 @@ namespace ME.ECS {
         #endif
         public static UnityEngine.Quaternion GetRotation(this in Entity child) {
 
-            var worldRot = child.ReadData<Rotation>().ToQuaternion();
-            ref readonly var container = ref child.ReadData<Container>();
+            var worldRot = child.Read<Rotation>().ToQuaternion();
+            ref readonly var container = ref child.Read<Container>();
             while (container.entity.IsEmpty() == false) {
 
-                worldRot = container.entity.ReadData<Rotation>().ToQuaternion() * worldRot;
-                container = ref container.entity.ReadData<Container>();
+                worldRot = container.entity.Read<Rotation>().ToQuaternion() * worldRot;
+                container = ref container.entity.Read<Container>();
 
             }
 
@@ -135,7 +135,7 @@ namespace ME.ECS {
         #endif
         public static UnityEngine.Vector3 GetLocalScale(this in Entity child) {
 
-            return child.ReadData<Scale>().ToVector3();
+            return child.Read<Scale>().ToVector3();
 
         }
 

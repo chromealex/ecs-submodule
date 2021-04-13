@@ -13,18 +13,18 @@ namespace ME.ECS {
         #endif
         public static void OnEntityDestroy(in Entity entity) {
 
-            if (entity.HasData<Container>() == true) {
+            if (entity.Has<Container>() == true) {
                 
                 entity.SetParent(in Entity.Empty);
                 
             }
             
-            if (entity.HasData<Childs>() == true) {
+            if (entity.Has<Childs>() == true) {
 
                 // TODO: Possible stack overflow while using Clear(true) because of OnEntityDestroy call
-                ref var childs = ref entity.GetData<Childs>();
+                ref var childs = ref entity.Get<Childs>();
                 foreach (var child in childs.childs) {
-                    child.RemoveData<Container>();
+                    child.Remove<Container>();
                 }
                 childs.childs.Clear(destroyData: true);
 
@@ -37,10 +37,10 @@ namespace ME.ECS {
         #endif
         public static void OnEntityVersionChanged(in Entity entity) {
 
-            if (entity.HasData<Childs>() == true) {
+            if (entity.Has<Childs>() == true) {
 
                 var world = Worlds.currentWorld;
-                ref readonly var childs = ref entity.ReadData<Childs>();
+                ref readonly var childs = ref entity.Read<Childs>();
                 foreach (var item in childs.childs) {
 
                     world.IncrementEntityVersion(in item);
@@ -90,11 +90,11 @@ namespace ME.ECS {
 
             if (child == root) return;
 
-            ref var container = ref child.GetData<Container>();
+            ref var container = ref child.Get<Container>();
             if (root == Entity.Empty) {
 
-                ref var childs = ref container.entity.GetData<Childs>();
-                child.RemoveData<Container>();
+                ref var childs = ref container.entity.Get<Childs>();
+                child.Remove<Container>();
                 childs.childs.Remove(child);
                 return;
 
@@ -115,7 +115,7 @@ namespace ME.ECS {
             }
 
             container.entity = root;
-            ref var rootChilds = ref root.GetData<Childs>();
+            ref var rootChilds = ref root.Get<Childs>();
             rootChilds.childs.Add(child);
 
         }
@@ -130,7 +130,7 @@ namespace ME.ECS {
             do {
 
                 root = container;
-                container = container.GetData<Container>(false).entity;
+                container = container.Get<Container>(false).entity;
 
             } while (container.IsAlive() == true);
 
@@ -143,7 +143,7 @@ namespace ME.ECS {
         #endif
         private static bool FindInHierarchy(in Entity child, in Entity root) {
 
-            ref var childChilds = ref child.GetData<Childs>(createIfNotExists: false);
+            ref var childChilds = ref child.Get<Childs>(createIfNotExists: false);
             if (childChilds.childs.Contains(root) == true) {
 
                 return true;

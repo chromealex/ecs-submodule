@@ -43,6 +43,7 @@ namespace ME.ECS {
         public static bool isVersionedNoState = false;
         public static bool isCopyable = false;
         public static bool isInHash = true;
+        public static TComponent empty = default;
 
     }
 
@@ -118,6 +119,16 @@ namespace ME.ECS {
             return entity;
 
         }
+
+    }
+    
+    #if !ENTITY_API_VERSION1_TURN_OFF
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
+    public static partial class EntityExtensionsV1 {
 
         #region Set/Has/Remove/Read
         #if INLINE_METHODS
@@ -202,7 +213,17 @@ namespace ME.ECS {
         }
         #endregion
 
-        #region Set/Has/Remove/Read Cuts
+    }
+    #endif
+    
+    #if !ENTITY_API_VERSION2_TURN_OFF
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
+    public static partial class EntityExtensionsV2 {
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -283,9 +304,47 @@ namespace ME.ECS {
             return entity;
 
         }
-        #endregion
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static ref readonly TComponent ReadShared<TComponent>(this in Entity entity, int groupId = 0) where TComponent : struct, IStructComponent {
+
+            return ref Worlds.currentWorld.ReadSharedData<TComponent>(in entity, groupId);
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static ref TComponent GetShared<TComponent>(this in Entity entity, int groupId = 0, bool createIfNotExists = true) where TComponent : struct, IStructComponent {
+
+            return ref Worlds.currentWorld.GetSharedData<TComponent>(in entity, groupId, createIfNotExists);
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity SetShared<TComponent>(this in Entity entity, in TComponent data, int groupId = 0) where TComponent : struct, IStructComponent {
+
+            Worlds.currentWorld.SetSharedData(in entity, in data, groupId);
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity RemoveShared<TComponent>(this in Entity entity, int groupId = 0) where TComponent : struct, IStructComponent {
+
+            Worlds.currentWorld.RemoveSharedData<TComponent>(in entity, groupId);
+            return entity;
+
+        }
 
     }
+    #endif
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]

@@ -140,6 +140,20 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true),
+            new DefineInfo("ENTITY_API_VERSION1_TURN_OFF", "Turn off Entity API with SetData/ReadData/GetData methods.", () => {
+                #if ENTITY_API_VERSION1_TURN_OFF
+                return true;
+                #else
+                return false;
+                #endif
+            }, true),
+            new DefineInfo("ENTITY_API_VERSION2_TURN_OFF", "Turn off Entity API with Set/Read/Get methods.", () => {
+                #if ENTITY_API_VERSION2_TURN_OFF
+                return true;
+                #else
+                return false;
+                #endif
+            }, true),
         };
 
         private bool settingsFoldOut {

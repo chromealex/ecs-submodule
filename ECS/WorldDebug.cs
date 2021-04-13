@@ -20,8 +20,8 @@ namespace ME.ECS {
         
         private string GetName(Entity entity, out bool hasName) {
 
-            hasName = entity.HasData<ME.ECS.Name.Name>();
-            var name = hasName == true ? entity.ReadData<ME.ECS.Name.Name>().value : "Unnamed";
+            hasName = entity.Has<ME.ECS.Name.Name>();
+            var name = hasName == true ? entity.Read<ME.ECS.Name.Name>().value : "Unnamed";
             return string.Format("{0} ({1})", name, entity);
             
         }

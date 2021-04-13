@@ -211,6 +211,7 @@ namespace ME.ECS.Serializer.Tests {
                     world.AddModule<FakeNetworkModule>();
                 
                     world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
+                    world.SetSeed(1u);
 
                     //components
                     {
@@ -236,7 +237,7 @@ namespace ME.ECS.Serializer.Tests {
             
                 var ent = new Entity("Test Entity");
                 ent.SetPosition(UnityEngine.Vector3.zero);
-                ent.SetData(new TestStructComponent());
+                ent.Set(new TestStructComponent());
             
                 world.SaveResetState<TestState>();
 
@@ -268,8 +269,8 @@ namespace ME.ECS.Serializer.Tests {
             UnityEngine.Debug.Log("Bytes: " + bytes.Length);
             var ent1 = sourceWorld.GetEntityById(1);
             var ent2 = targetWorld.GetEntityById(1);
-            NUnit.Framework.Assert.True(ent1.HasData<TestStructComponent>());
-            NUnit.Framework.Assert.True(ent2.HasData<TestStructComponent>());
+            NUnit.Framework.Assert.True(ent1.Has<TestStructComponent>());
+            NUnit.Framework.Assert.True(ent2.Has<TestStructComponent>());
 
             WorldUtilities.ReleaseWorld<TestState>(ref sourceWorld);
             WorldUtilities.ReleaseWorld<TestState>(ref targetWorld);
@@ -313,14 +314,14 @@ namespace ME.ECS.Serializer.Tests {
 
             public void AdvanceTick(in Entity entity, in float deltaTime) {
 
-                ref var data = ref entity.GetData<TestStructComponent>();
+                ref var data = ref entity.Get<TestStructComponent>();
                 ++data.f;
                 
                 var pos = entity.GetPosition();
                 pos += UnityEngine.Vector3.one;
                 entity.SetPosition(pos);
                 
-                if (entity.HasData<ME.ECS.Views.ViewComponent>() == false) entity.InstantiateView(this.viewId);
+                if (entity.Has<ME.ECS.Views.ViewComponent>() == false) entity.InstantiateView(this.viewId);
                 
             }
 

@@ -236,24 +236,24 @@ namespace ME.ECS.Views.Providers {
 
         public void OnCollisionEnter(UnityEngine.Collision other) {
 
-            this.entity.SetData(new ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionEnter() {
-                collision = other
+            this.entity.Set(new ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionEnter() {
+                collision = other,
             });
 
         }
 
         public void OnCollisionExit(UnityEngine.Collision other) {
 
-            this.entity.SetData(new ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionExit() {
-                collision = other
+            this.entity.Set(new ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionExit() {
+                collision = other,
             });
 
         }
 
         public void OnCollisionStay(UnityEngine.Collision other) {
 
-            this.entity.SetData(new ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionStay() {
-                collision = other
+            this.entity.Set(new ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionStay() {
+                collision = other,
             });
 
         }

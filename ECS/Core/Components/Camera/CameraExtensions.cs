@@ -26,9 +26,9 @@
         /// <returns></returns>
         public static UnityEngine.Vector3 ViewportToWorldPoint(this Entity entity, UnityEngine.Vector3 position) {
 
-            if (entity.HasData<ME.ECS.Camera.Camera>() == false) return Vector3.zero;
+            if (entity.Has<ME.ECS.Camera.Camera>() == false) return Vector3.zero;
             
-            var camera = entity.GetData<ME.ECS.Camera.Camera>();
+            var camera = entity.Get<ME.ECS.Camera.Camera>();
             Matrix4x4 projectionMatrix;
             if (camera.perspective == true) {
                 
@@ -63,9 +63,9 @@
         /// <returns></returns>
         public static UnityEngine.Vector3 ViewportToScreenPoint(this Entity entity, UnityEngine.Vector3 position) {
 
-            if (entity.HasData<ME.ECS.Camera.Camera>() == false) return Vector3.zero;
+            if (entity.Has<ME.ECS.Camera.Camera>() == false) return Vector3.zero;
             
-            var camera = entity.GetData<ME.ECS.Camera.Camera>();
+            var camera = entity.Get<ME.ECS.Camera.Camera>();
             Matrix4x4 projectionMatrix;
             if (camera.perspective == true) {
                 
@@ -100,9 +100,9 @@
         /// <returns></returns>
         public static UnityEngine.Vector3 ScreenToWorldPoint(this Entity entity, UnityEngine.Vector3 position) {
 
-            if (entity.HasData<ME.ECS.Camera.Camera>() == false) return Vector3.zero;
+            if (entity.Has<ME.ECS.Camera.Camera>() == false) return Vector3.zero;
             
-            var camera = entity.GetData<ME.ECS.Camera.Camera>();
+            var camera = entity.Get<ME.ECS.Camera.Camera>();
             Matrix4x4 projectionMatrix;
             if (camera.perspective == true) {
                 
@@ -133,9 +133,9 @@
         /// <returns></returns>
         public static UnityEngine.Vector3 WorldToViewportPoint(this Entity entity, UnityEngine.Vector3 position) {
 
-            if (entity.HasData<ME.ECS.Camera.Camera>() == false) return Vector3.zero;
+            if (entity.Has<ME.ECS.Camera.Camera>() == false) return Vector3.zero;
             
-            var camera = entity.GetData<ME.ECS.Camera.Camera>();
+            var camera = entity.Get<ME.ECS.Camera.Camera>();
             Matrix4x4 projectionMatrix;
             if (camera.perspective == true) {
                 
@@ -167,9 +167,9 @@
         /// <returns></returns>
         public static UnityEngine.Vector3 WorldToScreenPoint(this Entity entity, UnityEngine.Vector3 position) {
 
-            if (entity.HasData<ME.ECS.Camera.Camera>() == false) return Vector3.zero;
+            if (entity.Has<ME.ECS.Camera.Camera>() == false) return Vector3.zero;
 
-            var camera = entity.GetData<ME.ECS.Camera.Camera>();
+            var camera = entity.Get<ME.ECS.Camera.Camera>();
             Matrix4x4 projectionMatrix;
             if (camera.perspective == true) {
                 

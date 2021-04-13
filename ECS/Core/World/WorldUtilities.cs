@@ -82,7 +82,6 @@ namespace ME.ECS {
         #endif
         public static void Release(ref StructComponentsContainer storage) {
 
-            //PoolClass<StructComponentsContainer>.Recycle(ref storage);
             storage.OnRecycle();
 
         }

@@ -43,20 +43,20 @@ namespace ME.ECS.Tests {
             public void AdvanceTick(in float deltaTime) {
                 
                 var entity = this.world.AddEntity();
-                entity.SetData(new TestComponent());
+                entity.Set(new TestComponent());
                 
                 this.filter.ApplyAllRequests();
                 foreach (var ent in this.filter) {
                 
                     var ent2 = this.world.AddEntity();
                     UnityEngine.Debug.Log(ent);
-                    ent2.SetData(new TestComponent());
+                    ent2.Set(new TestComponent());
                     UnityEngine.Debug.Log(ent2);
                     
                     ent.Destroy();
                     
                     var ent3 = this.world.AddEntity();
-                    ent3.SetData(new TestComponent());
+                    ent3.Set(new TestComponent());
                     UnityEngine.Debug.Log(ent3);
                 
                 }
@@ -124,7 +124,7 @@ namespace ME.ECS.Tests {
 
             var entity = st.Alloc();
             NUnit.Framework.Assert.AreEqual(entity.id, 0);
-            NUnit.Framework.Assert.AreEqual(entity.generation, 1);
+            NUnit.Framework.Assert.AreEqual(entity.generation, 2);
 
             NUnit.Framework.Assert.AreEqual(st.AliveCount, 1);
             NUnit.Framework.Assert.AreEqual(st.DeadCount, 0);
@@ -143,7 +143,7 @@ namespace ME.ECS.Tests {
             {
                 var entity2 = st.Alloc();
                 NUnit.Framework.Assert.AreEqual(entity2.id, 0);
-                NUnit.Framework.Assert.AreEqual(entity2.generation, 2);
+                NUnit.Framework.Assert.AreEqual(entity2.generation, 4);
 
                 NUnit.Framework.Assert.AreEqual(st.AliveCount, 1);
                 NUnit.Framework.Assert.AreEqual(st.DeadCount, 0);
@@ -158,7 +158,7 @@ namespace ME.ECS.Tests {
             st.Initialize(20);
 
             var list = new System.Collections.Generic.List<Entity>();
-            var v = 1;
+            var v = 2;
             for (int j = 0; j < 10; ++j) {
 
                 list.Clear();
@@ -203,7 +203,7 @@ namespace ME.ECS.Tests {
                 }
 
                 st.ApplyDead();
-                ++v;
+                v += 2;
 
             }
             

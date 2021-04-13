@@ -807,7 +807,7 @@ namespace ME.ECSEditor {
 
                                         paramsList.Clear();
                                     
-                                        var name = entity.GetData<ME.ECS.Name.Name>(createIfNotExists: false).value;
+                                        var name = entity.Read<ME.ECS.Name.Name>().value;
                                         if (name != null) paramsList.Add(name.ToLower());
                                     
                                         var registries = componentsStructStorage.GetAllRegistries();
@@ -930,7 +930,7 @@ namespace ME.ECSEditor {
 
             EditorGUIUtility.wideMode = true;
             
-            var name = (entityData.HasData<ME.ECS.Name.Name>() == true ? entityData.ReadData<ME.ECS.Name.Name>().value : "Unnamed");
+            var name = (entityData.Has<ME.ECS.Name.Name>() == true ? entityData.Read<ME.ECS.Name.Name>().value : "Unnamed");
             GUILayoutExt.DrawHeader("Entity " + entityData.id.ToString() + " (" + entityData.generation.ToString() + ") " + name);
             {
 

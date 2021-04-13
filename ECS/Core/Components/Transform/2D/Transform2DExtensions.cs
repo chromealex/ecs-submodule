@@ -22,7 +22,7 @@ namespace ME.ECS {
         #endif
         public static void SetPosition2D(this in Entity child, in UnityEngine.Vector2 position) {
 
-            ref readonly var container = ref child.ReadData<Container>();
+            ref readonly var container = ref child.Read<Container>();
             if (container.entity.IsEmpty() == false) {
 
                 var containerRotation = UnityEngine.Quaternion.Euler(0f, 0f, container.entity.GetRotation2D());
@@ -42,7 +42,7 @@ namespace ME.ECS {
         #endif
         public static void SetRotation2D(this in Entity child, float rotation) {
 
-            ref readonly var container = ref child.ReadData<Container>();
+            ref readonly var container = ref child.Read<Container>();
             if (container.entity.IsEmpty() == false) {
 
                 var containerRotation = UnityEngine.Quaternion.Euler(0f, 0f, container.entity.GetRotation2D());
@@ -71,15 +71,15 @@ namespace ME.ECS {
         #endif
         public static UnityEngine.Vector2 GetPosition2D(this in Entity child) {
 
-            var position = child.ReadData<Position2D>().ToVector2();
-            ref readonly var container = ref child.ReadData<Container>();
+            var position = child.Read<Position2D>().ToVector2();
+            ref readonly var container = ref child.Read<Container>();
             while (container.entity.IsEmpty() == false) {
 
-                var angle = container.entity.ReadData<Rotation2D>().ToQuaternion2D();
+                var angle = container.entity.Read<Rotation2D>().ToQuaternion2D();
                 position = UnityEngine.Quaternion.Euler(0f, angle, 0f) * position;
                 //position = UnityEngine.Vector2.Rotate(position, angle);
-                position += container.entity.ReadData<Position2D>().ToVector2();
-                container = ref container.entity.ReadData<Container>();
+                position += container.entity.Read<Position2D>().ToVector2();
+                container = ref container.entity.Read<Container>();
 
             }
 
@@ -92,7 +92,7 @@ namespace ME.ECS {
         #endif
         public static UnityEngine.Vector2 GetLocalPosition2D(this in Entity child) {
 
-            return child.ReadData<Position2D>().ToVector2();
+            return child.Read<Position2D>().ToVector2();
 
         }
 
@@ -110,7 +110,7 @@ namespace ME.ECS {
         #endif
         public static float GetLocalRotation2D(this in Entity child) {
 
-            return child.ReadData<Rotation2D>().ToQuaternion2D();
+            return child.Read<Rotation2D>().ToQuaternion2D();
 
         }
 
@@ -119,12 +119,12 @@ namespace ME.ECS {
         #endif
         public static float GetRotation2D(this in Entity child) {
 
-            var worldRot = child.ReadData<Rotation2D>().ToQuaternion2D(); //child.GetLocalRotation2D();
-            ref readonly var container = ref child.ReadData<Container>();
+            var worldRot = child.Read<Rotation2D>().ToQuaternion2D(); //child.GetLocalRotation2D();
+            ref readonly var container = ref child.Read<Container>();
             while (container.entity.IsEmpty() == false) {
 
-                worldRot = container.entity.ReadData<Rotation2D>().ToQuaternion2D() * worldRot;
-                container = ref container.entity.ReadData<Container>();
+                worldRot = container.entity.Read<Rotation2D>().ToQuaternion2D() * worldRot;
+                container = ref container.entity.Read<Container>();
 
             }
 
@@ -137,7 +137,7 @@ namespace ME.ECS {
         #endif
         public static UnityEngine.Vector2 GetLocalScale2D(this in Entity child) {
 
-            return child.ReadData<Scale2D>().ToVector2();
+            return child.Read<Scale2D>().ToVector2();
 
         }
 

@@ -80,9 +80,10 @@ namespace ME.ECS.Collections {
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class CCDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue> where TValue : IComparable<TValue>
+    public sealed class CCDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue> //where TValue : IComparable<TValue>
     {
         internal const int MaxArrayLength = 0X7FEFFFFF;
+
         /// <summary>
         /// Tables that hold the internal state of the ConcurrentDictionary
         ///
@@ -91,14 +92,41 @@ namespace ME.ECS.Collections {
         /// </summary>
         private class Tables
         {
+
+            private struct CopyNode<TValueCopy> : IArrayElementCopy<Node> where TValueCopy : IArrayElementCopy<TValue> {
+
+                public TValueCopy copy;
+                
+                public void Copy(Node @from, ref Node to) {
+
+                    if (from == null && to == null) return;
+                    if (from == null && to != null) {
+
+                        to = null;
+                        return;
+
+                    }
+
+                    this.copy.Copy(from.m_value, ref to.m_value);
+                    
+                }
+
+                public void Recycle(Node item) {
+                    
+                    this.copy.Recycle(item.m_value);
+
+                }
+
+            }
+            
             [ME.ECS.Serializer.SerializeField]
-            internal readonly Node[] m_buckets; // A singly-linked list for each bucket.
+            internal Node[] m_buckets; // A singly-linked list for each bucket.
             [ME.ECS.Serializer.SerializeField]
-            internal readonly object[] m_locks; // A set of locks, each guarding a section of the table.
+            internal object[] m_locks; // A set of locks, each guarding a section of the table.
             [ME.ECS.Serializer.SerializeField]
             internal volatile int[] m_countPerLock; // The number of elements guarded by each lock.
             [ME.ECS.Serializer.SerializeField]
-            internal readonly IEqualityComparer<TKey> m_comparer; // Key equality comparer
+            internal IEqualityComparer<TKey> m_comparer; // Key equality comparer
  
             internal Tables(Node[] buckets, object[] locks, int[] countPerLock, IEqualityComparer<TKey> comparer)
             {
@@ -107,6 +135,20 @@ namespace ME.ECS.Collections {
                 m_countPerLock = countPerLock;
                 m_comparer = comparer;
             }
+
+            public void CopyFrom<TValueCopy>(Tables other, TValueCopy copy) where TValueCopy : IArrayElementCopy<TValue> {
+
+                var nodeCopy = new CopyNode<TValueCopy>() { copy = copy };
+                for (int i = 0; i < other.m_buckets.Length; ++i) {
+                    
+                    nodeCopy.Copy(other.m_buckets[i], ref this.m_buckets[i]);
+                    
+                }
+                
+                this.m_comparer = other.m_comparer;
+
+            }
+            
         }
 #if !FEATURE_CORECLR
         [NonSerialized]
@@ -141,17 +183,6 @@ namespace ME.ECS.Collections {
         [ME.ECS.Serializer.SerializeField]
         private int m_budget; // The maximum number of elements per lock before a resize operation is triggered
  
-#if !FEATURE_CORECLR // These fields are not used in CoreCLR
-        [ME.ECS.Serializer.SerializeField]
-        private KeyValuePair<TKey, TValue>[] m_serializationArray; // Used for custom serialization
- 
-        [ME.ECS.Serializer.SerializeField]
-        private int m_serializationConcurrencyLevel; // used to save the concurrency level in serialization
- 
-        [ME.ECS.Serializer.SerializeField]
-        private int m_serializationCapacity; // used to save the capacity in serialization
-#endif
- 
         // The default capacity, i.e. the initial # of buckets. When choosing this value, we are making
         // a trade-off between the size of a very small dictionary, and the number of resizes when
         // constructing a large dictionary. Also, the capacity should not be divisible by a small prime.
@@ -164,7 +195,24 @@ namespace ME.ECS.Collections {
  
         // Whether TValue is a type that can be written atomically (i.e., with no danger of torn reads)
         private static readonly bool s_isValueWriteAtomic = IsValueWriteAtomic();
- 
+
+        public void CopyFrom<TValueCopy>(CCDictionary<TKey, TValue> other, TValueCopy copy) where TValueCopy : IArrayElementCopy<TValue> {
+
+            if (this.Count == 0 && other.Count == 0) return;
+            
+            this.Clear();
+            foreach (var kv in other) {
+
+                this.TryAdd(kv.Key, kv.Value);
+
+            }
+            
+            this.m_budget = other.m_budget;
+            this.m_keyRehashCount = other.m_keyRehashCount;
+            this.m_comparer = other.m_comparer;
+            this.m_tables.CopyFrom(other.m_tables, copy);
+
+        }
  
         /// <summary>
         /// Determines whether type TValue can be written atomically
@@ -1009,7 +1057,7 @@ namespace ME.ECS.Collections {
                 return true;
             }
         }
- 
+
         /// <summary>
         /// Gets or sets the value associated with the specified key.
         /// </summary>
@@ -1023,10 +1071,8 @@ namespace ME.ECS.Collections {
         /// <exception cref="T:System.Collections.Generic.KeyNotFoundException">The property is retrieved and
         /// <paramref name="key"/>
         /// does not exist in the collection.</exception>
-        public TValue this[TKey key]
-        {
-            get
-            {
+        TValue IDictionary<TKey, TValue>.this[TKey key] {
+            get {
                 TValue value;
                 if (!TryGetValue(key, out value))
                 {
@@ -1034,11 +1080,49 @@ namespace ME.ECS.Collections {
                 }
                 return value;
             }
-            set
-            {
-                //if (key == null) throw new ArgumentNullException("key");
+            set {
                 TValue dummy;
                 TryAddInternal(key, value, true, true, out dummy);
+            }
+        }
+        TValue IReadOnlyDictionary<TKey, TValue>.this[TKey key] {
+            get {
+                TValue value;
+                if (!TryGetValue(key, out value))
+                {
+                    throw new KeyNotFoundException();
+                }
+                return value;
+            }
+        }
+        public ref TValue this[TKey key]
+        {
+            get
+            {
+                int bucketNo, lockNoUnused;
+ 
+                // We must capture the m_buckets field in a local variable. It is set to a new table on each table resize.
+                Tables tables = m_tables;
+                IEqualityComparer<TKey> comparer = tables.m_comparer;
+                GetBucketAndLockNo(comparer.GetHashCode(key), out bucketNo, out lockNoUnused, tables.m_buckets.Length, tables.m_locks.Length);
+ 
+                // We can get away w/out a lock here.
+                // The Volatile.Read ensures that the load of the fields of 'n' doesn't move before the load from buckets[i].
+                Node n = Volatile.Read<Node>(ref tables.m_buckets[bucketNo]);
+ 
+                while (n != null)
+                {
+                    if (comparer.Equals(n.m_key, key))
+                    {
+                        return ref n.m_value;
+                        //return true;
+                    }
+                    n = n.m_next;
+                }
+
+                TValue dummy;
+                TryAddInternal(key, default, true, true, out dummy);
+                return ref this[key];
             }
         }
  
@@ -2148,7 +2232,7 @@ namespace ME.ECS.Collections {
             }
         }
 
-        private int QsPartition(TValue[] array, int start, int end) {
+        /*private int QsPartition(TValue[] array, int start, int end) {
             TValue temp;//swap helper
             int marker = start;//divides left and right subarrays
             for ( int i = start; i < end; i++ ) 
@@ -2176,9 +2260,9 @@ namespace ME.ECS.Collections {
             int pivot = this.QsPartition(array, start, end);
             this.QuickSort(array, start, pivot - 1);
             this.QuickSort(array, pivot + 1, end);
-        }
+        }*/
         
-        public BufferArray<TValue> GetSortedValues() {
+        /*public BufferArray<TValue> GetSortedValues() {
 
             int locksAcquired = 0;
             try
@@ -2209,7 +2293,7 @@ namespace ME.ECS.Collections {
                 ReleaseLocks(0, locksAcquired);
             }
             
-        }
+        }*/
         
         /// <summary>
         /// A helper method for asserts.

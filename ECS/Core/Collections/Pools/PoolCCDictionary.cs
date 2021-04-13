@@ -9,7 +9,7 @@ namespace ME.ECS {
 	 Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
 	 Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 	#endif
-	public static class PoolCCDictionary<TKey, TValue> where TValue : System.IComparable<TValue> {
+	public static class PoolCCDictionary<TKey, TValue> {
 
 		private static int capacity;
 		private static PoolInternalBase pool = new PoolInternalBase(typeof(CCDictionary<TKey, TValue>), () => new CCDictionary<TKey, TValue>(CCDictionary<TKey, TValue>.DefaultConcurrencyLevel, PoolCCDictionary<TKey, TValue>.capacity), (x) => ((CCDictionary<TKey, TValue>)x).Clear());

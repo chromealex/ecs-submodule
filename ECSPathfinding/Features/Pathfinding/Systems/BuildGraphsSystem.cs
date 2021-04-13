@@ -41,7 +41,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
 
         void ISystemFilter.AdvanceTick(in Entity entity, in float deltaTime) {
 
-            var pathfinding = entity.GetData<PathfindingInstance>().pathfinding;
+            var pathfinding = entity.Get<PathfindingInstance>().pathfinding;
             if (this.isBuilt == false) {
 
                 pathfinding.BuildAll();
@@ -52,8 +52,8 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
             }
 
             UnityEngine.Debug.Log($"Graph built tick: {this.world.GetCurrentTick()}");
-            entity.SetData(new IsAllGraphsBuilt(), ComponentLifetime.NotifyAllSystems);
-            entity.RemoveData<BuildAllGraphs>();
+            entity.Set(new IsAllGraphsBuilt(), ComponentLifetime.NotifyAllSystems);
+            entity.Remove<BuildAllGraphs>();
 
         }
     

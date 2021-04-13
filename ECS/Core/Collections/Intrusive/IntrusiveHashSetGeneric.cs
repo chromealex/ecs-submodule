@@ -73,7 +73,7 @@ namespace ME.ECS.Collections {
                     var bucket = this.hashSet.buckets[this.bucketIndex];
                     if (bucket.IsAlive() == true) {
 
-                        var node = bucket.GetData<IntrusiveHashSetBucketGeneric<T>>();
+                        var node = bucket.Get<IntrusiveHashSetBucketGeneric<T>>();
                         this.listEnumerator = node.list.GetEnumerator();
 
                     }
@@ -157,7 +157,7 @@ namespace ME.ECS.Collections {
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == false) return false;
 
-            ref var bucketList = ref bucketEntity.GetData<IntrusiveHashSetBucketGeneric<T>>();
+            ref var bucketList = ref bucketEntity.Get<IntrusiveHashSetBucketGeneric<T>>();
             return bucketList.list.Contains(entityData);
 
         }
@@ -175,7 +175,7 @@ namespace ME.ECS.Collections {
                 var bucket = this.buckets[i];
                 if (bucket.IsAlive() == true) {
 
-                    ref var data = ref bucket.GetData<IntrusiveHashSetBucketGeneric<T>>();
+                    ref var data = ref bucket.Get<IntrusiveHashSetBucketGeneric<T>>();
                     data.list.Clear();
 
                 }
@@ -217,7 +217,7 @@ namespace ME.ECS.Collections {
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == false) return false;
 
-            ref var bucketList = ref bucketEntity.GetData<IntrusiveHashSetBucketGeneric<T>>(false);
+            ref var bucketList = ref bucketEntity.Get<IntrusiveHashSetBucketGeneric<T>>(false);
             if (bucketList.list.Remove(entityData) == true) {
 
                 --this.count;
@@ -245,7 +245,7 @@ namespace ME.ECS.Collections {
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == false) return 0;
 
-            ref var bucketList = ref bucketEntity.GetData<IntrusiveHashSetBucketGeneric<T>>(false);
+            ref var bucketList = ref bucketEntity.Get<IntrusiveHashSetBucketGeneric<T>>(false);
             var count = bucketList.list.RemoveAll(in entityData);
             this.count -= count;
             return count;
@@ -273,7 +273,7 @@ namespace ME.ECS.Collections {
 
             }
 
-            ref var bucketList = ref bucketEntity.GetData<IntrusiveHashSetBucketGeneric<T>>();
+            ref var bucketList = ref bucketEntity.Get<IntrusiveHashSetBucketGeneric<T>>();
             bucketList.list.Add(entityData);
             ++this.count;
 
@@ -294,7 +294,7 @@ namespace ME.ECS.Collections {
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == true) {
 
-                ref var bucketList = ref bucketEntity.GetData<IntrusiveHashSetBucketGeneric<T>>();
+                ref var bucketList = ref bucketEntity.Get<IntrusiveHashSetBucketGeneric<T>>();
                 foreach (var item in bucketList.list) {
 
                     if (element.Equals(item) == true) {

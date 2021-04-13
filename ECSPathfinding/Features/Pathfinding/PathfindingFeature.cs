@@ -51,7 +51,7 @@ namespace ME.ECS.Pathfinding.Features {
             ComponentsInitializerWorld.Register(PathfindingComponentsInitializer.InitEntity);
             
             var entity = new Entity("Pathfinding");
-            entity.SetData(new IsPathfinding());
+            entity.Set(new IsPathfinding());
             this.pathfindingEntity = entity;
             
             this.AddSystem<SetPathfindingInstanceSystem>();
@@ -76,12 +76,12 @@ namespace ME.ECS.Pathfinding.Features {
                 
             }
 
-            entity.SetData(new ME.ECS.Pathfinding.Features.PathfindingFlowField.Components.PathFlowField() {
+            entity.Set(new ME.ECS.Pathfinding.Features.PathfindingFlowField.Components.PathFlowField() {
                 flowField = BufferArray<byte>.From(path.flowField),
                 from = entity.GetPosition(),
                 to = to,
             });
-            entity.SetData(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
+            entity.Set(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
             
         }
 
@@ -134,12 +134,12 @@ namespace ME.ECS.Pathfinding.Features {
                 vPath = newPath;
             }
 
-            entity.SetData(new ME.ECS.Pathfinding.Features.PathfindingAstar.Components.Path() {
+            entity.Set(new ME.ECS.Pathfinding.Features.PathfindingAstar.Components.Path() {
                 result = result,
                 path = ME.ECS.Collections.BufferArray<UnityEngine.Vector3>.From(vPath),
                 nodes = ME.ECS.Collections.BufferArray<ME.ECS.Pathfinding.Node>.From(nodes),
             });
-            entity.SetData(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
+            entity.Set(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
                 
             PoolListCopyable<UnityEngine.Vector3>.Recycle(ref vPath);
 
@@ -147,50 +147,50 @@ namespace ME.ECS.Pathfinding.Features {
 
         public ME.ECS.Pathfinding.Path CalculatePath(UnityEngine.Vector3 from, UnityEngine.Vector3 to, Constraint constraint) {
             
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding == null) return default;
-            return this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding.CalculatePath(from, to, constraint, new ME.ECS.Pathfinding.PathCornersModifier());
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return default;
+            return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.CalculatePath(from, to, constraint, new ME.ECS.Pathfinding.PathCornersModifier());
             
         }
         
         public void UpdateGraphs(GraphUpdateObject graphUpdateObject) {
             
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding == null) return;
-            this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding.UpdateGraphs(graphUpdateObject);
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return;
+            this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.UpdateGraphs(graphUpdateObject);
             
         }
 
         public void GetNodesInBounds(ListCopyable<Node> output, UnityEngine.Bounds bounds) {
          
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding == null) return;
-            this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding.GetNodesInBounds(output, bounds);
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return;
+            this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.GetNodesInBounds(output, bounds);
             
         }
 
         public bool BuildNodePhysics(Node node) {
 
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding == null) return false;
-            return this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding.BuildNodePhysics(node);
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return false;
+            return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.BuildNodePhysics(node);
 
         }
         
         public T GetGraphByIndex<T>(int index) where T : Graph {
 
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding == null) return default;
-            return this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding.graphs[index] as T;
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return default;
+            return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.graphs[index] as T;
 
         }
         
         public Node GetNearest(UnityEngine.Vector3 worldPosition) {
 
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding == null) return default;
-            return this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding.GetNearest(worldPosition, Constraint.Default);
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return default;
+            return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.GetNearest(worldPosition, Constraint.Default);
 
         }
 
         public Node GetNearest(UnityEngine.Vector3 worldPosition, Constraint constraint) {
             
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding == null) return default;
-            return this.pathfindingEntity.GetData<PathfindingInstance>().pathfinding.GetNearest(worldPosition, constraint);
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return default;
+            return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.GetNearest(worldPosition, constraint);
             
         }
 
