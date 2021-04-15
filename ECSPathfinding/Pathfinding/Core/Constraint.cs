@@ -35,7 +35,7 @@ namespace ME.ECS.Pathfinding {
             graphMask = -1,
         };
 
-        public Vector3 agentSize;
+        public Vector3Int agentSize;
 
         public bool checkArea;
         public long areaMask;
@@ -51,7 +51,7 @@ namespace ME.ECS.Pathfinding {
         public BurstConstraint GetBurstConstraint() {
             
             return new BurstConstraint() {
-                agentSize = new Vector3Int((int)this.agentSize.x, (int)this.agentSize.y, (int)this.agentSize.z),
+                agentSize = this.agentSize,
                 areaMask = this.areaMask,
                 checkTags = this.checkTags == true ? (byte)1 : (byte)0,
                 tagsMask = this.tagsMask,
@@ -64,7 +64,7 @@ namespace ME.ECS.Pathfinding {
         
         public override string ToString() {
             
-            return "AgentSize: " + this.agentSize.ToFullString() +
+            return "AgentSize: " + this.agentSize +
                    ", Area: " + this.checkArea + " (" + this.areaMask + ")" +
                    ", Tags: " + this.checkTags + " (" + this.tagsMask + ")" +
                    ", Walkable: " + this.checkWalkability + " (" + this.walkable + ")" +

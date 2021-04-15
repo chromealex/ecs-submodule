@@ -151,7 +151,7 @@ namespace ME.ECS.Pathfinding {
 
                     var node = result[e];
                     var constraintErosion = constraint;
-                    constraintErosion.agentSize = Vector3.zero;
+                    constraintErosion.agentSize = Vector3Int.zero;
                     if (node.IsSuitable(constraintErosion) == false) return false;
 
                 }
