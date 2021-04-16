@@ -146,6 +146,49 @@ namespace ME.ECS.Tests {
             
         }
 
+        [NUnit.Framework.TestAttribute]
+        public void GetOrCreate() {
+
+            this.TestDo((world) => {
+                
+                var entity = world.AddEntity();
+                entity.SetShared(new TestComponent() {
+                    data = 1,
+                });
+                
+                var entity2 = world.AddEntity();
+                
+                UnityEngine.Debug.Assert(entity.ReadShared<TestComponent>().data == 1);
+
+                ref var data = ref entity2.GetShared<TestComponent>();
+                data.data = 2;
+
+                UnityEngine.Debug.Assert(entity.ReadShared<TestComponent>().data == 2);
+                UnityEngine.Debug.Assert(entity2.ReadShared<TestComponent>().data == 2);
+                
+            });
+            
+        }
+
+        [NUnit.Framework.TestAttribute]
+        public void Read() {
+
+            this.TestDo((world) => {
+                
+                var entity = world.AddEntity();
+                entity.SetShared(new TestComponent() {
+                    data = 1,
+                });
+                
+                var entity2 = world.AddEntity();
+                
+                UnityEngine.Debug.Assert(entity.ReadShared<TestComponent>().data == 1);
+                UnityEngine.Debug.Assert(entity2.ReadShared<TestComponent>().data == 0);
+                
+            });
+            
+        }
+
     }
 
 }
