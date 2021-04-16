@@ -1,7 +1,7 @@
 ﻿
 namespace ME.ECS.Tests {
 
-    public class StorageTest {
+    public class Entities {
         
         private class TestState : State {}
         private struct TestComponent : IStructComponent {}

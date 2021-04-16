@@ -4,7 +4,7 @@ using TestView2 = ECS.submodule.Tests.TestView2;
 
 namespace ME.ECS.Tests {
 
-    public class ViewsModuleTests {
+    public class ViewsModule {
 
         private class TestState : State {}
 

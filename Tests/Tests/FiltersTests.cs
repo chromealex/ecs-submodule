@@ -5,7 +5,7 @@ using TestView2 = ECS.submodule.Tests.TestView2;
 
 namespace ME.ECS.Tests {
 
-    public class FiltersTests {
+    public class Filters {
 
         private class TestState : State {}
 

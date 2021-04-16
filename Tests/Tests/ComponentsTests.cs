@@ -1,7 +1,7 @@
 ﻿
 namespace ME.ECS.Tests {
 
-    public class ComponentsTest {
+    public class SharedComponents {
         
         private class TestState : State {}
 

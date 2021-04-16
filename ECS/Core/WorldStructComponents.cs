@@ -222,6 +222,7 @@ namespace ME.ECS {
 
                 ref var group = ref this.sharedGroups[groupId];
                 if (entityId < group.states.Length) return ref group.states.arr[entityId];
+                SharedGroups.alwaysFalse = false;
                 return ref SharedGroups.alwaysFalse;
 
             }
@@ -1893,7 +1894,7 @@ namespace ME.ECS {
                 #endif
 
                 incrementVersion = true;
-                state = true;
+                reg.sharedGroups.Set(entity.id, groupId);
                 if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
 
                     this.currentState.storage.archetypes.Set<TComponent>(in entity);

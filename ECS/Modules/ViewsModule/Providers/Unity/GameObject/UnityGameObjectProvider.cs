@@ -57,8 +57,7 @@ namespace ME.ECS {
 
             }
 
-            IView component;
-            if (prefab.TryGetComponent(out component) == true) {
+            if (prefab.TryGetComponent(out IView component) == true) {
 
                 return this.RegisterViewSource(providerInitializer, component);
 
@@ -82,8 +81,7 @@ namespace ME.ECS {
         #endif
         public void InstantiateView(UnityEngine.GameObject prefab, Entity entity) {
 
-            IView component;
-            if (prefab.TryGetComponent(out component) == true) {
+            if (prefab.TryGetComponent(out IView component) == true) {
 
                 this.InstantiateView(component, entity);
 
