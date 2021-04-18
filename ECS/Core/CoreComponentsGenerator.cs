@@ -9,6 +9,7 @@ namespace ME.ECS {
             WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveListNode>(false);
             WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
             
+            ME.ECS.DataConfigs.DataConfig.InitTypeId();
             TransformComponentsInitializer.InitTypeId();
             NameComponentsInitializer.InitTypeId();
             CameraComponentsInitializer.InitTypeId();
@@ -22,6 +23,7 @@ namespace ME.ECS {
             structComponentsContainer.Validate<ME.ECS.Collections.IntrusiveListNode>(false);
             structComponentsContainer.Validate<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
 
+            ME.ECS.DataConfigs.DataConfig.Init(ref structComponentsContainer);
             TransformComponentsInitializer.Init(ref structComponentsContainer);
             NameComponentsInitializer.Init(ref structComponentsContainer);
             CameraComponentsInitializer.Init(ref structComponentsContainer);
@@ -35,6 +37,7 @@ namespace ME.ECS {
             entity.ValidateData<ME.ECS.Collections.IntrusiveListNode>(false);
             entity.ValidateData<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
 
+            ME.ECS.DataConfigs.DataConfig.Init(in entity);
             TransformComponentsInitializer.Init(in entity);
             NameComponentsInitializer.Init(in entity);
             CameraComponentsInitializer.Init(in entity);

@@ -144,6 +144,25 @@ namespace ME.ECSEditor {
 
 	    }
 
+	    public struct GUIBackgroundColorUsing : IDisposable {
+
+		    private Color oldColor;
+
+		    public GUIBackgroundColorUsing(Color color) {
+
+			    this.oldColor = GUI.backgroundColor;
+			    GUI.backgroundColor = color;
+
+		    }
+		    
+		    public void Dispose() {
+
+			    GUI.backgroundColor = this.oldColor;
+
+		    }
+
+	    }
+
 	    public static void DrawGradient(float height, Color from, Color to, string labelFrom, string labelTo) {
 	        
 		    var tex = new Texture2D(2, 1, TextureFormat.RGBA32, false);

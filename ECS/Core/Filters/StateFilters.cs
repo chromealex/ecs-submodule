@@ -104,34 +104,6 @@ namespace ME.ECS {
 
         }
 
-        [System.ObsoleteAttribute("Managed components are deprecated, use struct components or struct copyable components instead.")]
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public void UpdateFilterByComponent<T>(in Entity entity) where T : class, IComponent {
-
-            var containsFilters = this.currentState.filters.filtersTree.GetFiltersContainsFor<T>();
-            for (int i = 0; i < containsFilters.Length; ++i) {
-
-                var filterId = containsFilters.arr[i];
-                var filter = this.GetFilter(filterId);
-                if (filter.IsForEntity(entity.id) == false) continue;
-                filter.OnUpdate(in entity);
-
-            }
-
-            var notContainsFilters = this.currentState.filters.filtersTree.GetFiltersNotContainsFor<T>();
-            for (int i = 0; i < notContainsFilters.Length; ++i) {
-
-                var filterId = notContainsFilters.arr[i];
-                var filter = this.GetFilter(filterId);
-                if (filter.IsForEntity(entity.id) == false) continue;
-                filter.OnUpdate(in entity);
-
-            }
-
-        }
-
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif

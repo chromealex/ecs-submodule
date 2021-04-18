@@ -924,6 +924,14 @@ namespace ME.ECSEditor {
             #endregion
         }
         
+        struct SharedRegistryData {
+
+            public uint groupId;
+            public IStructComponent component;
+            public IStructRegistryBase registry;
+
+        }
+
         public static void DrawEntity(Entity entityData, WorldEditor world, IStorage storage, IStructComponentsContainer componentsStructStorage, ME.ECS.Collections.ListCopyable<IModuleBase> modules) {
             
             const float padding = 8f;
@@ -981,122 +989,263 @@ namespace ME.ECSEditor {
                         EditorGUILayout.Separator();
 
                         #region Components
-                        var kz = 0;
-                        var registries = componentsStructStorage.GetAllRegistries();
-                        var sortedRegistries = new SortedDictionary<int, IStructRegistryBase>(new DuplicateKeyComparer<int>());
-                        for (int i = 0; i < registries.Length; ++i) {
+                        {
+                            var kz = 0;
+                            var registries = componentsStructStorage.GetAllRegistries();
+                            var sortedRegistries = new SortedDictionary<int, IStructRegistryBase>(new DuplicateKeyComparer<int>());
+                            for (int i = 0; i < registries.Length; ++i) {
 
-                            var registry = registries.arr[i];
-                            if (registry == null) {
-                                continue;
-                            }
-                            
-                            #if VIEWS_MODULE_SUPPORT
-                            if (registry is StructComponents<ME.ECS.Views.ViewComponent>) continue;
-                            #endif
+                                var registry = registries.arr[i];
+                                if (registry == null) {
+                                    continue;
+                                }
 
-                            var component = registry.GetObject(entityData);
-                            if (component == null) {
-                                continue;
-                            }
+                                #if VIEWS_MODULE_SUPPORT
+                                if (registry is StructComponents<ME.ECS.Views.ViewComponent>) continue;
+                                #endif
 
-                            usedComponents.Add(component.GetType());
+                                var component = registry.GetObject(entityData);
+                                if (component == null) {
+                                    continue;
+                                }
 
-                            var editor = WorldsViewerEditor.GetEditor(component, out var order);
-                            if (editor != null) {
-                                
-                                sortedRegistries.Add(order, registry);
-                                
-                            } else {
-                                
-                                sortedRegistries.Add(0, registry);
-                                
-                            }
+                                usedComponents.Add(component.GetType());
 
-                        }
-                        
-                        foreach (var registryKv in sortedRegistries) {
-
-                            var registry = registryKv.Value;
-                            var component = registry.GetObject(entityData);
-                            
-                            backColor = GUI.backgroundColor;
-                            GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
-                            
-                            GUILayout.BeginVertical(backStyle);
-                            {
-                                GUI.backgroundColor = backColor;
-                                var editor = WorldsViewerEditor.GetEditor(component);
+                                var editor = WorldsViewerEditor.GetEditor(component, out var order);
                                 if (editor != null) {
 
-                                    EditorGUI.BeginChangeCheck();
-                                    editor.OnDrawGUI();
-                                    if (EditorGUI.EndChangeCheck() == true) {
-
-                                        component = editor.GetTarget<IStructComponent>();
-                                        registry.SetObject(entityData, component);
-
-                                    }
+                                    sortedRegistries.Add(order, registry);
 
                                 } else {
 
-                                    var componentName = component.GetType().Name;
-                                    var fieldsCount = GUILayoutExt.GetFieldsCount(component);
-                                    if (fieldsCount == 0) {
+                                    sortedRegistries.Add(0, registry);
 
-                                        EditorGUI.BeginDisabledGroup(true);
-                                        EditorGUILayout.Toggle(componentName, true);
-                                        EditorGUI.EndDisabledGroup();
+                                }
 
-                                    } else if (fieldsCount == 1 && GUILayoutExt.IsFirstFieldHasChilds(component) == false) {
+                            }
 
-                                        var changed = GUILayoutExt.DrawFields(world, component, componentName);
-                                        if (changed == true) {
+                            foreach (var registryKv in sortedRegistries) {
 
+                                var registry = registryKv.Value;
+                                var component = registry.GetObject(entityData);
+
+                                backColor = GUI.backgroundColor;
+                                GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
+
+                                GUILayout.BeginVertical(backStyle);
+                                {
+                                    GUI.backgroundColor = backColor;
+                                    var editor = WorldsViewerEditor.GetEditor(component);
+                                    if (editor != null) {
+
+                                        EditorGUI.BeginChangeCheck();
+                                        editor.OnDrawGUI();
+                                        if (EditorGUI.EndChangeCheck() == true) {
+
+                                            component = editor.GetTarget<IStructComponent>();
                                             registry.SetObject(entityData, component);
 
                                         }
 
                                     } else {
 
-                                        GUILayout.BeginHorizontal();
-                                        {
-                                            GUILayout.Space(18f);
-                                            GUILayout.BeginVertical();
-                                            {
+                                        var componentName = component.GetType().Name;
+                                        var fieldsCount = GUILayoutExt.GetFieldsCount(component);
+                                        if (fieldsCount == 0) {
 
-                                                var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
-                                                var foldout = EditorPrefs.GetBool(key, true);
-                                                GUILayoutExt.FoldOut(ref foldout, componentName, () => {
+                                            EditorGUI.BeginDisabledGroup(true);
+                                            EditorGUILayout.Toggle(componentName, true);
+                                            EditorGUI.EndDisabledGroup();
 
-                                                    var changed = GUILayoutExt.DrawFields(world, component);
-                                                    if (changed == true) {
+                                        } else if (fieldsCount == 1 && GUILayoutExt.IsFirstFieldHasChilds(component) == false) {
 
-                                                        registry.SetObject(entityData, component);
+                                            var changed = GUILayoutExt.DrawFields(world, component, componentName);
+                                            if (changed == true) {
 
-                                                    }
-
-                                                });
-                                                EditorPrefs.SetBool(key, foldout);
+                                                registry.SetObject(entityData, component);
 
                                             }
-                                            GUILayout.EndVertical();
+
+                                        } else {
+
+                                            GUILayout.BeginHorizontal();
+                                            {
+                                                //GUILayout.Space(18f);
+                                                GUILayout.BeginVertical();
+                                                {
+
+                                                    var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
+                                                    var foldout = EditorPrefs.GetBool(key, true);
+                                                    GUILayoutExt.FoldOut(ref foldout, componentName, () => {
+
+                                                        var changed = GUILayoutExt.DrawFields(world, component);
+                                                        if (changed == true) {
+
+                                                            registry.SetObject(entityData, component);
+
+                                                        }
+
+                                                    });
+                                                    EditorPrefs.SetBool(key, foldout);
+
+                                                }
+                                                GUILayout.EndVertical();
+                                            }
+                                            GUILayout.EndHorizontal();
+
                                         }
-                                        GUILayout.EndHorizontal();
+
+                                    }
+                                }
+                                GUILayout.EndVertical();
+
+                                GUILayoutExt.DrawComponentHelp(component.GetType());
+
+                                GUILayoutExt.Separator();
+
+                            }
+
+                            GUILayoutExt.DrawAddComponentMenu(entityData, usedComponents, componentsStructStorage);
+                        }
+                        #endregion
+                        
+                        #region Shared Components
+                        {
+                        
+                            var kz = 0;
+                            var registries = componentsStructStorage.GetAllRegistries();
+                            var sortedRegistries = new SortedDictionary<int, SharedRegistryData>(new DuplicateKeyComparer<int>());
+                            for (int i = 0; i < registries.Length; ++i) {
+
+                                var registry = registries.arr[i];
+                                if (registry == null) {
+                                    continue;
+                                }
+
+                                #if VIEWS_MODULE_SUPPORT
+                                if (registry is StructComponents<ME.ECS.Views.ViewComponent>) continue;
+                                #endif
+
+                                var groupIds = registry.GetSharedGroups(entityData);
+                                foreach (var groupId in groupIds) {
+
+                                    var component = registry.GetSharedObject(entityData, groupId);
+                                    if (component == null) {
+                                        continue;
+                                    }
+
+                                    usedComponents.Add(component.GetType());
+
+                                    var item = new SharedRegistryData() {
+                                        groupId = groupId,
+                                        component = component,
+                                        registry = registry,
+                                    };
+                                    
+                                    var editor = WorldsViewerEditor.GetEditor(component, out var order);
+                                    if (editor != null) {
+
+                                        sortedRegistries.Add(order, item);
+
+                                    } else {
+
+                                        sortedRegistries.Add(0, item);
 
                                     }
 
                                 }
+
                             }
-                            GUILayout.EndVertical();
 
-                            GUILayoutExt.DrawComponentHelp(component.GetType());
+                            var isFoldoutShared = world.IsFoldOutViews("Shared", entityData.id);
+                            GUILayoutExt.FoldOut(ref isFoldoutShared, $"Shared Components ({sortedRegistries.Count})", () => {
+
+                                foreach (var registryKv in sortedRegistries) {
+
+                                    var data = registryKv.Value;
+                                    var registry = data.registry;
+                                    var component = registry.GetSharedObject(entityData, data.groupId);
+
+                                    backColor = GUI.backgroundColor;
+                                    GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
+
+                                    GUILayout.BeginVertical(backStyle);
+                                    {
+                                        GUI.backgroundColor = backColor;
+                                        var editor = WorldsViewerEditor.GetEditor(component);
+                                        if (editor != null) {
+
+                                            EditorGUI.BeginChangeCheck();
+                                            editor.OnDrawGUI();
+                                            if (EditorGUI.EndChangeCheck() == true) {
+
+                                                component = editor.GetTarget<IStructComponent>();
+                                                registry.SetSharedObject(entityData, component, data.groupId);
+
+                                            }
+
+                                        } else {
+
+                                            var componentName = component.GetType().Name;
+                                            var fieldsCount = GUILayoutExt.GetFieldsCount(component);
+                                            if (fieldsCount == 0) {
+
+                                                EditorGUI.BeginDisabledGroup(true);
+                                                EditorGUILayout.Toggle(componentName, true);
+                                                EditorGUI.EndDisabledGroup();
+
+                                            } else if (fieldsCount == 1 && GUILayoutExt.IsFirstFieldHasChilds(component) == false) {
+
+                                                var changed = GUILayoutExt.DrawFields(world, component, componentName);
+                                                if (changed == true) {
+
+                                                    registry.SetSharedObject(entityData, component, data.groupId);
+
+                                                }
+
+                                            } else {
+
+                                                GUILayout.BeginHorizontal();
+                                                {
+                                                    GUILayout.Space(18f);
+                                                    GUILayout.BeginVertical();
+                                                    {
+
+                                                        var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes.Shared." + component.GetType().FullName;
+                                                        var foldout = EditorPrefs.GetBool(key, true);
+                                                        GUILayoutExt.FoldOut(ref foldout, componentName, () => {
+
+                                                            var changed = GUILayoutExt.DrawFields(world, component);
+                                                            if (changed == true) {
+
+                                                                registry.SetSharedObject(entityData, component, data.groupId);
+
+                                                            }
+
+                                                        });
+                                                        EditorPrefs.SetBool(key, foldout);
+
+                                                    }
+                                                    GUILayout.EndVertical();
+                                                }
+                                                GUILayout.EndHorizontal();
+
+                                            }
+
+                                        }
+                                    }
+                                    GUILayout.EndVertical();
+
+                                    GUILayoutExt.DrawComponentHelp(component.GetType());
+
+                                    GUILayoutExt.Separator();
+
+                                }
+
+                            });
+                            world.SetFoldOutViews("Shared", entityData.id, isFoldoutShared);
                             
-                            GUILayoutExt.Separator();
-
                         }
-
-                        GUILayoutExt.DrawAddComponentMenu(entityData, usedComponents, componentsStructStorage);
                         #endregion
 
                         #region Filters

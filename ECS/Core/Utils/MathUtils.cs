@@ -176,6 +176,18 @@ namespace ME.ECS {
     #endif
     public static class MathUtils {
 
+        public static uint GetHash(string str) {
+            
+            uint hash = 0;
+            foreach (char c in str) {
+
+                hash = 31 * hash + c;
+
+            }
+            return hash;
+
+        }
+
         public static string ToStringDec(this float value) {
 
             long lVal = System.BitConverter.DoubleToInt64Bits(value);

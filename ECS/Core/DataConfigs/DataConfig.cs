@@ -3,13 +3,31 @@ using System.Linq;
 using ME.ECS.Extensions;
 using UnityEngine;
 
+namespace ME.ECS {
+
+    /// <summary>
+    /// Used in data configs
+    /// If component has this interface - it would be ignored in DataConfig::Apply method
+    /// </summary>
+    public interface IComponentStatic : IStructComponent { }
+
+}
+
 namespace ME.ECS.DataConfigs {
 
     [CreateAssetMenu(menuName = "ME.ECS/Data Config")]
     public class DataConfig : ScriptableObject {
 
+        public struct SharedData : IStructComponent {
+
+            public ME.ECS.Collections.IntrusiveDictionary<int, uint> archetypeToId;
+
+        }
+
         [SerializeReference]
         public IStructComponent[] structComponents = new IStructComponent[0];
+        public bool[] isSharedData;
+        public uint sharedGroupId;
         [SerializeReference]
         public IStructComponent[] removeStructComponents = new IStructComponent[0];
 
@@ -22,10 +40,33 @@ namespace ME.ECS.DataConfigs {
         [System.NonSerialized]
         private bool isPrewarmed;
 
+        public static void InitTypeId() {
+            
+            WorldUtilities.InitComponentTypeId<SharedData>();
+            WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>();
+            
+        }
+
+        public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
+            
+            structComponentsContainer.Validate<SharedData>(false);
+            structComponentsContainer.Validate<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>(false);
+
+        }
+
+        public static void Init(in Entity entity) {
+            
+            entity.ValidateData<SharedData>(false);
+            entity.ValidateData<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>(false);
+
+        }
+
         public void Apply(in Entity entity, bool overrideIfExist = true) {
 
             //this.Reset();
             this.Prewarm();
+
+            ref var sharedData = ref entity.Get<SharedData>();
 
             var world = Worlds.currentWorld;
             for (int i = 0; i < this.removeStructComponents.Length; ++i) {
@@ -37,14 +78,30 @@ namespace ME.ECS.DataConfigs {
             for (int i = 0; i < this.structComponents.Length; ++i) {
 
                 var dataIndex = this.GetComponentDataIndexByTypeWithCache(this.structComponents[i], i);
-                if (overrideIfExist == true || world.HasDataBit(in entity, dataIndex) == false) {
+                if (this.structComponents[i] is IComponentStatic) continue;
+                
+                var isShared = (this.structComponents[i] is IComponentShared);
+                if (isShared == true) { // is shared?
 
-                    world.SetData(in entity, in this.structComponents[i], dataIndex, -1);
+                    if (overrideIfExist == true || world.HasSharedDataBit(in entity, dataIndex, this.sharedGroupId) == false) {
 
+                        world.SetSharedData(in entity, in this.structComponents[i], dataIndex, this.sharedGroupId);
+                        sharedData.archetypeToId.Set(dataIndex, this.sharedGroupId);
+
+                    }
+
+                } else {
+
+                    if (overrideIfExist == true || world.HasDataBit(in entity, dataIndex) == false) {
+
+                        world.SetData(in entity, in this.structComponents[i], dataIndex, -1);
+
+                    }
+                
                 }
 
             }
-            
+
             // Update filters
             {
                 ComponentsInitializerWorld.Init(in entity);
@@ -228,7 +285,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public void AddTo<T>(ref T[] arr, T component) {
+        public void AddTo<T>(ref T[] arr, T component, bool addToShared) {
 
             var found = false;
             for (int i = 0; i < arr.Length; ++i) {
@@ -248,6 +305,12 @@ namespace ME.ECS.DataConfigs {
                 System.Array.Resize(ref arr, arr.Length + 1);
                 arr[arr.Length - 1] = component;
 
+                if (addToShared == true) {
+                    
+                    System.Array.Resize(ref this.isSharedData, arr.Length);
+                    
+                }
+                
             }
             
         }
@@ -275,13 +338,13 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public void RemoveFrom<T>(ref T[] arr, object component) {
+        public void RemoveFrom<T>(ref T[] arr, object component, bool removeFromShared) {
 
-            this.RemoveFrom(ref arr, component.GetType());
+            this.RemoveFrom(ref arr, component.GetType(), removeFromShared);
 
         }
 
-        public void RemoveFrom<T>(ref T[] arr, System.Type componentType) {
+        public void RemoveFrom<T>(ref T[] arr, System.Type componentType, bool removeFromShared) {
 
             for (int i = 0; i < arr.Length; ++i) {
 
@@ -291,6 +354,15 @@ namespace ME.ECS.DataConfigs {
                     var list = arr.ToList();
                     list.RemoveAt(i);
                     arr = list.ToArray();
+
+                    if (removeFromShared == true) {
+                    
+                        var listShared = this.isSharedData.ToList();
+                        listShared.RemoveAt(i);
+                        this.isSharedData = listShared.ToArray();
+                        
+                    }
+
                     break;
 
                 }
@@ -335,7 +407,7 @@ namespace ME.ECS.DataConfigs {
             }
 
             var data = template.GetByType(template.structComponents, componentType);
-            this.AddTo(ref this.structComponents, data);
+            this.AddTo(ref this.structComponents, data, addToShared: true);
 
             this.Save();
 
@@ -351,7 +423,7 @@ namespace ME.ECS.DataConfigs {
                 
             }
 
-            this.RemoveFrom(ref this.structComponents, componentType);
+            this.RemoveFrom(ref this.structComponents, componentType, removeFromShared: true);
 
             this.Save();
 
@@ -368,7 +440,7 @@ namespace ME.ECS.DataConfigs {
             }
 
             var data = template.GetByType(template.removeStructComponents, componentType);
-            this.AddTo(ref this.removeStructComponents, data);
+            this.AddTo(ref this.removeStructComponents, data, addToShared: false);
 
             this.Save();
 
@@ -384,7 +456,7 @@ namespace ME.ECS.DataConfigs {
                 
             }
 
-            this.RemoveFrom(ref this.removeStructComponents, componentType);
+            this.RemoveFrom(ref this.removeStructComponents, componentType, removeFromShared: false);
 
             this.Save();
 
@@ -398,16 +470,16 @@ namespace ME.ECS.DataConfigs {
 
             for (var i = 0; i < template.structComponents.Length; ++i) {
 
-                this.AddTo(ref this.structComponents, template.structComponents[i]);
+                this.AddTo(ref this.structComponents, template.structComponents[i], addToShared: true);
 
             }
 
             for (var i = 0; i < template.removeStructComponents.Length; ++i) {
 
-                this.AddTo(ref this.removeStructComponents, template.removeStructComponents[i]);
+                this.AddTo(ref this.removeStructComponents, template.removeStructComponents[i], addToShared: false);
 
             }
-
+            
             this.Save();
 
         }
@@ -419,14 +491,14 @@ namespace ME.ECS.DataConfigs {
             for (var i = 0; i < template.structComponents.Length; ++i) {
 
                 var hasOther = allTemplates.Any(x => x != template && x.HasByType(x.structComponents, template.structComponents[i]));
-                if (hasOther == false) this.RemoveFrom(ref this.structComponents, template.structComponents[i]);
+                if (hasOther == false) this.RemoveFrom(ref this.structComponents, template.structComponents[i], removeFromShared: true);
 
             }
 
             for (var i = 0; i < template.removeStructComponents.Length; ++i) {
 
                 var hasOther = allTemplates.Any(x => x != template && x.HasByType(x.structComponents, template.structComponents[i]));
-                if (hasOther == false) this.RemoveFrom(ref this.removeStructComponents, template.removeStructComponents[i]);
+                if (hasOther == false) this.RemoveFrom(ref this.removeStructComponents, template.removeStructComponents[i], removeFromShared: false);
 
             }
 
@@ -436,6 +508,14 @@ namespace ME.ECS.DataConfigs {
 
         public void Save(bool dirtyOnly = false) {
             
+            System.Array.Resize(ref this.isSharedData, this.structComponents.Length);
+
+            for (int i = 0; i < this.isSharedData.Length; ++i) {
+                
+                this.isSharedData[i] = (this.structComponents[i] is IComponentShared);
+
+            }
+
             #if UNITY_EDITOR
             UnityEditor.EditorUtility.SetDirty(this);
             if (dirtyOnly == false) UnityEditor.AssetDatabase.ForceReserializeAssets(new [] { UnityEditor.AssetDatabase.GetAssetPath(this) }, UnityEditor.ForceReserializeAssetsOptions.ReserializeAssetsAndMetadata);

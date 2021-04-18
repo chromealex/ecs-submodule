@@ -22,6 +22,8 @@ namespace ME.ECS {
 
     public interface IStructComponent { }
 
+    public interface IComponentShared : IStructComponent { }
+
     public interface IVersioned { }
 
     public interface IVersionedNoState { }
@@ -39,6 +41,8 @@ namespace ME.ECS {
 
         IStructComponent GetObject(Entity entity);
         bool SetObject(Entity entity, IStructComponent data);
+        IStructComponent GetSharedObject(Entity entity, uint groupId);
+        bool SetSharedObject(Entity entity, IStructComponent data, uint groupId);
         bool RemoveObject(Entity entity);
         bool HasType(System.Type type);
 
@@ -66,6 +70,9 @@ namespace ME.ECS {
         public abstract bool HasType(System.Type type);
         public abstract IStructComponent GetObject(Entity entity);
         public abstract bool SetObject(Entity entity, IStructComponent data);
+        public abstract System.Collections.Generic.ICollection<uint> GetSharedGroups(Entity entity);
+        public abstract IStructComponent GetSharedObject(Entity entity, uint groupId);
+        public abstract bool SetSharedObject(Entity entity, IStructComponent data, uint groupId);
         public abstract bool RemoveObject(Entity entity);
 
         #if INLINE_METHODS
@@ -100,6 +107,11 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public abstract bool HasShared(in Entity entity, uint groupId);
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public abstract bool Remove(in Entity entity, bool clearAll = false);
 
         #if INLINE_METHODS
@@ -118,6 +130,12 @@ namespace ME.ECS {
         public abstract StructRegistryBase Clone();
 
         public abstract int GetCustomHash();
+
+    }
+    
+    public interface ISharedGroups {
+
+        System.Collections.Generic.ICollection<uint> GetGroups();
 
     }
 
@@ -149,11 +167,17 @@ namespace ME.ECS {
 
         }
 
-        public struct SharedGroups {
+        public struct SharedGroups : ISharedGroups {
 
             [ME.ECS.Serializer.SerializeField]
-            internal CCDictionary<int, SharedGroupData> sharedGroups;
+            internal CCDictionary<uint, SharedGroupData> sharedGroups;
             private static bool alwaysFalse;
+
+            public System.Collections.Generic.ICollection<uint> GetGroups() {
+                
+                return this.sharedGroups.Keys;
+                
+            }
 
             public void Validate(in Entity entity) {
                 
@@ -169,13 +193,13 @@ namespace ME.ECS {
 
             public void Initialize() {
 
-                if (this.sharedGroups == null) this.sharedGroups = PoolCCDictionary<int, SharedGroupData>.Spawn(1);
+                if (this.sharedGroups == null) this.sharedGroups = PoolCCDictionary<uint, SharedGroupData>.Spawn(1);
 
             }
 
             public void OnRecycle() {
                 
-                if (this.sharedGroups != null) PoolCCDictionary<int, SharedGroupData>.Recycle(ref this.sharedGroups);
+                if (this.sharedGroups != null) PoolCCDictionary<uint, SharedGroupData>.Recycle(ref this.sharedGroups);
                 
             }
 
@@ -187,7 +211,7 @@ namespace ME.ECS {
 
                 } else if (this.sharedGroups == null && other.sharedGroups != null) {
 
-                    this.sharedGroups = PoolCCDictionary<int, SharedGroupData>.Spawn(other.sharedGroups.Count);
+                    this.sharedGroups = PoolCCDictionary<uint, SharedGroupData>.Spawn(other.sharedGroups.Count);
 
                 } else if (this.sharedGroups != null && other.sharedGroups == null) {
 
@@ -196,7 +220,7 @@ namespace ME.ECS {
                         copy.Recycle(kv.Value);
                         
                     }
-                    PoolCCDictionary<int, SharedGroupData>.Recycle(ref this.sharedGroups);
+                    PoolCCDictionary<uint, SharedGroupData>.Recycle(ref this.sharedGroups);
                     return;
 
                 }
@@ -218,7 +242,7 @@ namespace ME.ECS {
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
-            public ref bool Has(int entityId, int groupId) {
+            public ref bool Has(int entityId, uint groupId) {
 
                 ref var group = ref this.sharedGroups[groupId];
                 if (entityId < group.states.Length) return ref group.states.arr[entityId];
@@ -230,7 +254,7 @@ namespace ME.ECS {
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
-            public ref TComponent Get(int entityId, int groupId) {
+            public ref TComponent Get(int entityId, uint groupId) {
 
                 return ref this.sharedGroups[groupId].data;
 
@@ -239,7 +263,7 @@ namespace ME.ECS {
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
-            public void Set(int entityId, int groupId, TComponent data) {
+            public void Set(int entityId, uint groupId, TComponent data) {
 
                 ref var group = ref this.sharedGroups[groupId];
                 group.Validate(entityId);
@@ -251,7 +275,7 @@ namespace ME.ECS {
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
-            public void Set(int entityId, int groupId) {
+            public void Set(int entityId, uint groupId) {
 
                 ref var group = ref this.sharedGroups[groupId];
                 group.Validate(entityId);
@@ -548,6 +572,46 @@ namespace ME.ECS {
 
         }
 
+        public override System.Collections.Generic.ICollection<uint> GetSharedGroups(Entity entity) {
+
+            return this.sharedGroups.GetGroups();
+
+        }
+
+        public override IStructComponent GetSharedObject(Entity entity, uint groupId) {
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            if (this.sharedGroups.Has(entity.id, groupId) == false) return null;
+            return this.sharedGroups.Get(entity.id, groupId);
+
+        }
+
+        public override bool SetSharedObject(Entity entity, IStructComponent data, uint groupId) {
+            
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            this.sharedGroups.Set(entity.id, groupId, (TComponent)data);
+            
+            var componentIndex = ComponentTypes<TComponent>.typeId;
+            if (componentIndex >= 0) this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
+
+            return true;
+            
+        }
+
         public override bool SetObject(Entity entity, IStructComponent data) {
 
             #if WORLD_EXCEPTIONS
@@ -636,10 +700,24 @@ namespace ME.ECS {
             }
             #endif
 
-            //var bucketId = this.GetBucketId(in entity.id, out var index);
-            //var index = entity.id;
-            //this.CheckResize(in index);
             return this.componentsStates.arr[entity.id] > 0;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public override bool HasShared(in Entity entity, uint groupId) {
+
+            #if WORLD_EXCEPTIONS
+            if (entity.generation == 0) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            return this.sharedGroups.Has(entity.id, groupId);
 
         }
 
@@ -1276,6 +1354,23 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool HasSharedBit(in Entity entity, int bit, uint groupId) {
+
+            if (bit < 0 || bit >= this.list.Length) return false;
+            var reg = this.list.arr[bit];
+            if (reg == null) return false;
+            return reg.HasShared(in entity, groupId);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
         public void OnRecycle() {
 
             for (int i = 0; i < this.nextFrameTasks.array.Length; ++i) {
@@ -1642,6 +1737,15 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool HasSharedDataBit(in Entity entity, int bit, uint groupId) {
+
+            return this.currentState.structComponents.HasSharedBit(in entity, bit, groupId);
+
+        }
+
         public void ValidateData<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent {
 
             this.currentState.structComponents.Validate<TComponent>(in entity, isTag);
@@ -1849,7 +1953,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref readonly TComponent ReadSharedData<TComponent>(in Entity entity, int groupId = 0) where TComponent : struct, IStructComponent {
+        public ref readonly TComponent ReadSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IStructComponent {
             
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -1859,17 +1963,59 @@ namespace ME.ECS {
             }
             #endif
 
+            if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
+
+                ref readonly var sharedData = ref entity.Read<ME.ECS.DataConfigs.DataConfig.SharedData>();
+                if (sharedData.archetypeToId.TryGetValue(AllComponentTypes<TComponent>.typeId, out var innerGroupId) == true && innerGroupId != 0) {
+
+                    return ref this.ReadSharedData<TComponent>(in entity, innerGroupId);
+
+                }
+
+            }
+            
             // Inline all manually
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            if (AllComponentTypes<TComponent>.isTag == true || reg.sharedGroups.Has(entity.id, groupId) == false) return ref AllComponentTypes<TComponent>.empty;
+            if (reg.sharedGroups.Has(entity.id, groupId) == false) return ref AllComponentTypes<TComponent>.empty;
             return ref reg.sharedGroups.Get(entity.id, groupId);
 
         }
-        
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref TComponent GetSharedData<TComponent>(in Entity entity, int groupId = 0, bool createIfNotExists = true) where TComponent : struct, IStructComponent {
+        public bool HasSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IStructComponent {
+            
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
+
+                ref readonly var sharedData = ref entity.Read<ME.ECS.DataConfigs.DataConfig.SharedData>();
+                if (sharedData.archetypeToId.TryGetValue(AllComponentTypes<TComponent>.typeId, out var innerGroupId) == true && innerGroupId != 0) {
+
+                    return this.HasSharedData<TComponent>(in entity, innerGroupId);
+
+                }
+
+            }
+
+            // Inline all manually
+            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            if (reg.sharedGroups.Has(entity.id, groupId) == false) return false;
+            return true;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref TComponent GetSharedData<TComponent>(in Entity entity, uint groupId = 0u, bool createIfNotExists = true) where TComponent : struct, IStructComponent {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -1878,6 +2024,17 @@ namespace ME.ECS {
                 
             }
             #endif
+
+            if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
+
+                ref readonly var sharedData = ref entity.Read<ME.ECS.DataConfigs.DataConfig.SharedData>();
+                if (sharedData.archetypeToId.TryGetValue(AllComponentTypes<TComponent>.typeId, out var innerGroupId) == true && innerGroupId != 0) {
+
+                    return ref this.GetSharedData<TComponent>(in entity, innerGroupId);
+
+                }
+
+            }
 
             // Inline all manually
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
@@ -1926,7 +2083,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void RemoveSharedData<TComponent>(in Entity entity, int groupId = 0) where TComponent : struct, IStructComponent {
+        public void RemoveSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IStructComponent {
             
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -1943,6 +2100,18 @@ namespace ME.ECS {
                 
             }
             #endif
+
+            if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
+
+                ref readonly var sharedData = ref entity.Read<ME.ECS.DataConfigs.DataConfig.SharedData>();
+                if (sharedData.archetypeToId.TryGetValue(AllComponentTypes<TComponent>.typeId, out var innerGroupId) == true && innerGroupId != 0) {
+
+                    this.RemoveSharedData<TComponent>(in entity, innerGroupId);
+                    return;
+
+                }
+
+            }
 
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             ref var state = ref reg.sharedGroups.Has(entity.id, groupId);
@@ -1970,7 +2139,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void SetSharedData<TComponent>(in Entity entity, in TComponent data, int groupId = 0) where TComponent : struct, IStructComponent {
+        public void SetSharedData<TComponent>(in Entity entity, in TComponent data, uint groupId = 0u) where TComponent : struct, IStructComponent {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -2013,6 +2182,85 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void SetSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IStructComponent {
+
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            // Inline all manually
+            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            if (AllComponentTypes<TComponent>.isTag == false) reg.sharedGroups.Set(entity.id, groupId);
+            ref var state = ref reg.sharedGroups.Has(entity.id, groupId);
+            if (state == false) {
+
+                state = true;
+                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+
+                    this.currentState.storage.archetypes.Set<TComponent>(in entity);
+                    this.UpdateFilterByStructComponent<TComponent>(in entity);
+
+                }
+
+                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
+                
+            }
+            #if ENTITY_ACTIONS
+            this.RaiseEntityActionOnAdd<TComponent>(in entity);
+            #endif
+            this.currentState.storage.versions.Increment(in entity);
+            if (AllComponentTypes<TComponent>.isVersioned == true) reg.versions.arr[entity.id] = this.GetCurrentTick();
+            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
+            if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
+
+        }
+        
+        public void SetSharedData(in Entity entity, in IStructComponent data, int dataIndex, uint groupId = 0u) {
+            
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            // Inline all manually
+            ref var reg = ref this.currentState.structComponents.list.arr[dataIndex];
+            if (reg.SetSharedObject(entity, data, groupId) == true) {
+
+                this.currentState.storage.versions.Increment(in entity);
+                reg.UpdateVersion(in entity);
+                reg.UpdateVersionNoState(in entity);
+                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
+
+            }
+            
         }
         #endregion
 
