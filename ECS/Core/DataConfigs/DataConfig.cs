@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ME.ECS.Extensions;
 using UnityEngine;
 
 namespace ME.ECS {
@@ -18,13 +17,33 @@ namespace ME.ECS.DataConfigs {
     [CreateAssetMenu(menuName = "ME.ECS/Data Config")]
     public class DataConfig : ScriptableObject {
 
-        public struct SharedData : IComponentDisposable {
+        public struct SharedData : IStructCopyable<SharedData> {
 
-            public ME.ECS.Collections.IntrusiveDictionary<int, uint> archetypeToId;
+            public Dictionary<int, uint> archetypeToId;
 
-            public void OnDispose() {
+            public void CopyFrom(in SharedData other) {
+
+                if (other.archetypeToId == null && this.archetypeToId != null) {
+                    
+                    PoolDictionary<int, uint>.Recycle(ref this.archetypeToId);
+                    return;
+
+                }
+                if (other.archetypeToId == null && this.archetypeToId == null) return;
+                if (this.archetypeToId == null) this.archetypeToId = PoolDictionary<int, uint>.Spawn(other.archetypeToId.Count);
                 
-                this.archetypeToId.Dispose();
+                this.archetypeToId.Clear();
+                foreach (var kv in other.archetypeToId) {
+                    
+                    this.archetypeToId.Add(kv.Key, kv.Value);
+                    
+                }
+                
+            }
+
+            public void OnRecycle() {
+                
+                if (this.archetypeToId != null) PoolDictionary<int, uint>.Recycle(ref this.archetypeToId);
                 
             }
 
@@ -48,21 +67,21 @@ namespace ME.ECS.DataConfigs {
 
         public static void InitTypeId() {
             
-            WorldUtilities.InitComponentTypeId<SharedData>(isDisposable: true);
+            WorldUtilities.InitComponentTypeId<SharedData>(isCopyable: true);
             WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>();
             
         }
 
         public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
             
-            structComponentsContainer.ValidateDisposable<SharedData>(false);
+            structComponentsContainer.ValidateCopyable<SharedData>(false);
             structComponentsContainer.Validate<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>(false);
 
         }
 
         public static void Init(in Entity entity) {
             
-            entity.ValidateDataDisposable<SharedData>(false);
+            entity.ValidateDataCopyable<SharedData>(false);
             entity.ValidateData<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>(false);
 
         }
@@ -73,7 +92,7 @@ namespace ME.ECS.DataConfigs {
             this.Prewarm();
 
             ref var sharedData = ref entity.Get<SharedData>();
-
+            
             var world = Worlds.currentWorld;
             for (int i = 0; i < this.removeStructComponents.Length; ++i) {
 
@@ -91,8 +110,10 @@ namespace ME.ECS.DataConfigs {
 
                     if (overrideIfExist == true || world.HasSharedDataBit(in entity, dataIndex, this.sharedGroupId) == false) {
 
+                        if (sharedData.archetypeToId == null) sharedData.archetypeToId = PoolDictionary<int, uint>.Spawn(10);
+
                         world.SetSharedData(in entity, in this.structComponents[i], dataIndex, this.sharedGroupId);
-                        sharedData.archetypeToId.Set(dataIndex, this.sharedGroupId);
+                        sharedData.archetypeToId.Add(dataIndex, this.sharedGroupId);
 
                     }
 

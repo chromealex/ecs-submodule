@@ -159,12 +159,18 @@ namespace ME.ECS {
             [ME.ECS.Serializer.SerializeField]
             internal TComponent data;
 
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Validate(int entityId) {
                 
                 ArrayUtils.Resize(entityId, ref this.states);
                 
             }
 
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public void CopyFrom(in Entity from, in Entity to) {
 
                 this.states.arr[to.id] = this.states.arr[from.id];
