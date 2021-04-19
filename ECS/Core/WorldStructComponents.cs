@@ -28,6 +28,12 @@ namespace ME.ECS {
 
     public interface IVersionedNoState { }
 
+    public interface IComponentDisposable : IStructComponent {
+
+        void OnDispose();
+
+    }
+
     public interface IStructCopyableBase { }
 
     public interface IStructCopyable<T> : IStructComponent, IStructCopyableBase where T : IStructCopyable<T> {
@@ -818,6 +824,53 @@ namespace ME.ECS {
         }
 
     }
+    
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
+    public sealed class StructComponentsDisposable<TComponent> : StructComponents<TComponent> where TComponent : struct, IStructComponent, IComponentDisposable {
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        protected override StructRegistryBase SpawnInstance() {
+
+            return PoolRegistries.SpawnDisposable<TComponent>();
+
+        }
+
+        public override void OnRecycle() {
+
+            if (this.sharedGroups.sharedGroups != null) {
+
+                foreach (var kv in this.sharedGroups.sharedGroups) {
+
+                    kv.Value.data.OnDispose();
+
+                }
+
+            }
+
+            for (int i = 0; i < this.componentsStates.Length; ++i) {
+                
+                if (this.componentsStates.arr[i] > 0) this.components[i].OnDispose();
+                
+            }
+            
+            base.OnRecycle();
+            
+        }
+        
+        public override void RemoveData(in Entity entity) {
+
+            this.components[entity.id].OnDispose();
+            base.RemoveData(in entity);
+            
+        }
+
+    }
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
@@ -1247,63 +1300,11 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void ValidateCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
-
-            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
-            this.ValidateCopyable<TComponent>(code, isTag);
-            var reg = (StructComponentsCopyable<TComponent>)this.list.arr[code];
-            reg.Validate(in entity);
-
-        }
-
-        #if ECS_COMPILE_IL2CPP_OPTIONS
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-        #endif
         public void Validate<TComponent>(bool isTag = false) where TComponent : struct, IStructComponent {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
             this.Validate<TComponent>(code, isTag);
-
-        }
-
-        #if ECS_COMPILE_IL2CPP_OPTIONS
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-        #endif
-        public void ValidateCopyable<TComponent>(bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
-
-            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
-            if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
-            this.ValidateCopyable<TComponent>(code, isTag);
-
-        }
-
-        #if ECS_COMPILE_IL2CPP_OPTIONS
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-        #endif
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        private void ValidateCopyable<TComponent>(int code, bool isTag) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
-
-            if (ArrayUtils.WillResize(code, ref this.list) == true) {
-
-                ArrayUtils.Resize(code, ref this.list);
-
-            }
-
-            if (this.list.arr[code] == null) {
-
-                var instance = PoolRegistries.SpawnCopyable<TComponent>();
-                this.list.arr[code] = instance;
-
-            }
 
         }
 
@@ -1331,6 +1332,114 @@ namespace ME.ECS {
             }
 
         }
+
+        #region Copyable
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public void ValidateCopyable<TComponent>(bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+
+            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
+            this.ValidateCopyable<TComponent>(code, isTag);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public void ValidateCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+
+            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            this.ValidateCopyable<TComponent>(code, isTag);
+            var reg = (StructComponentsCopyable<TComponent>)this.list.arr[code];
+            reg.Validate(in entity);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        private void ValidateCopyable<TComponent>(int code, bool isTag) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+
+            if (ArrayUtils.WillResize(code, ref this.list) == true) {
+
+                ArrayUtils.Resize(code, ref this.list);
+
+            }
+
+            if (this.list.arr[code] == null) {
+
+                var instance = PoolRegistries.SpawnCopyable<TComponent>();
+                this.list.arr[code] = instance;
+
+            }
+
+        }
+        #endregion
+
+        #region Disposable
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public void ValidateDisposable<TComponent>(bool isTag = false) where TComponent : struct, IStructComponent, IComponentDisposable {
+
+            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
+            this.ValidateDisposable<TComponent>(code, isTag);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public void ValidateDisposable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent, IComponentDisposable {
+
+            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            this.ValidateDisposable<TComponent>(code, isTag);
+            var reg = (StructComponentsDisposable<TComponent>)this.list.arr[code];
+            reg.Validate(in entity);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        private void ValidateDisposable<TComponent>(int code, bool isTag) where TComponent : struct, IStructComponent, IComponentDisposable {
+
+            if (ArrayUtils.WillResize(code, ref this.list) == true) {
+
+                ArrayUtils.Resize(code, ref this.list);
+
+            }
+
+            if (this.list.arr[code] == null) {
+
+                var instance = PoolRegistries.SpawnDisposable<TComponent>();
+                this.list.arr[code] = instance;
+
+            }
+
+        }
+        #endregion
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
@@ -1755,6 +1864,12 @@ namespace ME.ECS {
         public void ValidateDataCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
 
             this.currentState.structComponents.ValidateCopyable<TComponent>(in entity, isTag);
+
+        }
+
+        public void ValidateDataDisposable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentDisposable {
+
+            this.currentState.structComponents.ValidateDisposable<TComponent>(in entity, isTag);
 
         }
 

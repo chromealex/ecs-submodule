@@ -40,6 +40,7 @@ namespace ME.ECS {
         public static bool isVersioned = false;
         public static bool isVersionedNoState = false;
         public static bool isCopyable = false;
+        public static bool isDisposable = false;
         public static bool isInHash = true;
         public static TComponent empty = default;
 
@@ -114,6 +115,16 @@ namespace ME.ECS {
         public static Entity ValidateDataCopyable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
 
             Worlds.currentWorld.ValidateDataCopyable<TComponent>(in entity, isTag);
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity ValidateDataDisposable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IComponentDisposable {
+
+            Worlds.currentWorld.ValidateDataDisposable<TComponent>(in entity, isTag);
             return entity;
 
         }

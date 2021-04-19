@@ -31,6 +31,16 @@ namespace ME.ECS {
 
 	    }
 
+	    public static StructRegistryBase SpawnDisposable<T>() where T : struct, IStructComponent, IComponentDisposable {
+
+		    var key = WorldUtilities.GetAllComponentTypeId<T>();
+		    var obj = (StructComponentsDisposable<T>)PoolRegistries.Spawn_INTERNAL(key, out var pool);
+		    if (obj != null) return obj;
+
+		    return PoolInternalBase.Create<StructComponentsDisposable<T>>(pool);
+
+	    }
+
 	    private static object Spawn_INTERNAL(int key, out PoolInternalBase pool) {
 		    
 		    if (PoolRegistries.pool.TryGetValue(key, out pool) == true) {

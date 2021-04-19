@@ -18,9 +18,15 @@ namespace ME.ECS.DataConfigs {
     [CreateAssetMenu(menuName = "ME.ECS/Data Config")]
     public class DataConfig : ScriptableObject {
 
-        public struct SharedData : IStructComponent {
+        public struct SharedData : IComponentDisposable {
 
             public ME.ECS.Collections.IntrusiveDictionary<int, uint> archetypeToId;
+
+            public void OnDispose() {
+                
+                this.archetypeToId.Dispose();
+                
+            }
 
         }
 
@@ -42,21 +48,21 @@ namespace ME.ECS.DataConfigs {
 
         public static void InitTypeId() {
             
-            WorldUtilities.InitComponentTypeId<SharedData>();
+            WorldUtilities.InitComponentTypeId<SharedData>(isDisposable: true);
             WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>();
             
         }
 
         public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
             
-            structComponentsContainer.Validate<SharedData>(false);
+            structComponentsContainer.ValidateDisposable<SharedData>(false);
             structComponentsContainer.Validate<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>(false);
 
         }
 
         public static void Init(in Entity entity) {
             
-            entity.ValidateData<SharedData>(false);
+            entity.ValidateDataDisposable<SharedData>(false);
             entity.ValidateData<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>(false);
 
         }

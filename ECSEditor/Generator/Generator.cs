@@ -339,6 +339,7 @@ namespace ME.ECSEditor {
                     var entityType = type.FullName.Replace("+", ".");
                     var hasFields = type.GetFields(System.Reflection.BindingFlags.Default | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 0;
                     var isCopyable = typeof(ME.ECS.IStructCopyableBase).IsAssignableFrom(type);
+                    var isDisposable = typeof(ME.ECS.IComponentDisposable).IsAssignableFrom(type);
                     var isVersioned = typeof(ME.ECS.IVersioned).IsAssignableFrom(type);
                     var isVersionedNoState = typeof(ME.ECS.IVersionedNoState).IsAssignableFrom(type);
                     
@@ -348,9 +349,11 @@ namespace ME.ECSEditor {
                     resItem = resItem.Replace("#TYPENAME#", entityType);
                     resItem = resItem.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                     resItem = resItem.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
+                    resItem = resItem.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
                     resItem = resItem.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
                     resItem = resItem.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
                     resItem = resItem.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
+                    resItem = resItem.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
 
                     output += resItem;
 
@@ -362,9 +365,11 @@ namespace ME.ECSEditor {
                         resItem2 = resItem2.Replace("#TYPENAME#", entityType);
                         resItem2 = resItem2.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                         resItem2 = resItem2.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
+                        resItem2 = resItem2.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
                         resItem2 = resItem2.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
                         resItem2 = resItem2.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
                         resItem2 = resItem2.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
+                        resItem2 = resItem2.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
 
                         output2 += resItem2;
 
@@ -378,9 +383,11 @@ namespace ME.ECSEditor {
                         resItem3 = resItem3.Replace("#TYPENAME#", entityType);
                         resItem3 = resItem3.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                         resItem3 = resItem3.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
+                        resItem3 = resItem3.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
+                        resItem3 = resItem3.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
 
                         output3 += resItem3;
 
