@@ -191,6 +191,8 @@ namespace ME.ECS.Collections {
         /// </summary>
         public void Dispose() {
 
+            if (Worlds.isInDeInitialization == true) return;
+            
             this.Clear();
             for (int i = 0; i < this.buckets.Length; ++i) {
                 
