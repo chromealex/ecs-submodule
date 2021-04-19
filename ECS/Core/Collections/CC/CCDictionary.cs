@@ -201,19 +201,35 @@ namespace ME.ECS.Collections {
             if (this.Count == 0 && other.Count == 0) return;
             
             this.Clear();
-            foreach (var kv in other) {
-
-                this.TryAdd(kv.Key, kv.Value);
-
-            }
+            this.InitializeFromCollection(other, copy);
             
-            this.m_budget = other.m_budget;
-            this.m_keyRehashCount = other.m_keyRehashCount;
-            this.m_comparer = other.m_comparer;
-            this.m_tables.CopyFrom(other.m_tables, copy);
-
         }
+        
+        
+        private void InitializeFromCollection<TValueCopy>(IEnumerable<KeyValuePair<TKey, TValue>> collection, TValueCopy copy) where TValueCopy : IArrayElementCopy<TValue>
+        {
+            TValue dummy;
+            foreach (KeyValuePair<TKey, TValue> pair in collection)
+            {
+                if (!TryAddInternal(pair.Key, pair.Value, false, false, out dummy))
+                {
+                    throw new ArgumentException(GetResource("ConcurrentDictionary_SourceContainsDuplicateKeys"));
+                } else {
+
+                    var val = this[pair.Key];
+                    copy.Copy(pair.Value, ref val);
+                    this[pair.Key] = val;
+
+                }
+            }
  
+            if (m_budget == 0)
+            {
+                m_budget = m_tables.m_buckets.Length / m_tables.m_locks.Length;
+            }
+ 
+        }
+
         /// <summary>
         /// Determines whether type TValue can be written atomically
         /// </summary>
@@ -379,7 +395,7 @@ namespace ME.ECS.Collections {
             }
  
         }
- 
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ConcurrentDictionary{TKey,TValue}"/>
         /// class that is empty, has the specified concurrency level, has the specified initial capacity, and
