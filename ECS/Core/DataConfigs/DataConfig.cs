@@ -514,6 +514,24 @@ namespace ME.ECS.DataConfigs {
 
         public void Save(bool dirtyOnly = false) {
             
+            this.ValidateShared();
+
+            #if UNITY_EDITOR
+            UnityEditor.EditorUtility.SetDirty(this);
+            if (dirtyOnly == false) UnityEditor.AssetDatabase.ForceReserializeAssets(new [] { UnityEditor.AssetDatabase.GetAssetPath(this) }, UnityEditor.ForceReserializeAssetsOptions.ReserializeAssetsAndMetadata);
+            #endif
+            
+        }
+
+        [ContextMenu("Call OnValidate")]
+        public void OnValidate() {
+            
+            this.ValidateShared();
+            
+        }
+
+        private void ValidateShared() {
+            
             System.Array.Resize(ref this.isSharedData, this.structComponents.Length);
 
             for (int i = 0; i < this.isSharedData.Length; ++i) {
@@ -521,11 +539,6 @@ namespace ME.ECS.DataConfigs {
                 this.isSharedData[i] = (this.structComponents[i] is IComponentShared);
 
             }
-
-            #if UNITY_EDITOR
-            UnityEditor.EditorUtility.SetDirty(this);
-            if (dirtyOnly == false) UnityEditor.AssetDatabase.ForceReserializeAssets(new [] { UnityEditor.AssetDatabase.GetAssetPath(this) }, UnityEditor.ForceReserializeAssetsOptions.ReserializeAssetsAndMetadata);
-            #endif
             
         }
 
