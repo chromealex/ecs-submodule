@@ -201,8 +201,18 @@ namespace ME.ECS.Collections {
             if (this.Count == 0 && other.Count == 0) return;
             
             this.Clear();
-            this.InitializeFromCollection(other, copy);
+            foreach (var kv in other) {
+
+                this.TryAdd(kv.Key, kv.Value);
+
+            }
+            //this.InitializeFromCollection(other, copy);
             
+            this.m_budget = other.m_budget;
+            this.m_keyRehashCount = other.m_keyRehashCount;
+            this.m_comparer = other.m_comparer;
+            this.m_tables.CopyFrom(other.m_tables, copy);
+
         }
         
         
