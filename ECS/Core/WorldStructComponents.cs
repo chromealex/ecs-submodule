@@ -841,7 +841,7 @@ namespace ME.ECS {
 
         }
 
-        public override void OnRecycle() {
+        /*public override void OnRecycle() {
 
             if (this.sharedGroups.sharedGroups != null) {
 
@@ -861,7 +861,7 @@ namespace ME.ECS {
             
             base.OnRecycle();
             
-        }
+        }*/
         
         public override void RemoveData(in Entity entity) {
 
