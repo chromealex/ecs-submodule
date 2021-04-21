@@ -51,7 +51,6 @@ namespace ME.ECS.DataConfigs {
 
         [SerializeReference]
         public IStructComponent[] structComponents = new IStructComponent[0];
-        public bool[] isSharedData;
         public uint sharedGroupId;
         [SerializeReference]
         public IStructComponent[] removeStructComponents = new IStructComponent[0];
@@ -312,7 +311,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public void AddTo<T>(ref T[] arr, T component, bool addToShared) {
+        public void AddTo<T>(ref T[] arr, T component) {
 
             var found = false;
             for (int i = 0; i < arr.Length; ++i) {
@@ -332,12 +331,6 @@ namespace ME.ECS.DataConfigs {
                 System.Array.Resize(ref arr, arr.Length + 1);
                 arr[arr.Length - 1] = component;
 
-                if (addToShared == true) {
-                    
-                    System.Array.Resize(ref this.isSharedData, arr.Length);
-                    
-                }
-                
             }
             
         }
@@ -365,13 +358,13 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public void RemoveFrom<T>(ref T[] arr, object component, bool removeFromShared) {
+        public void RemoveFrom<T>(ref T[] arr, object component) {
 
-            this.RemoveFrom(ref arr, component.GetType(), removeFromShared);
+            this.RemoveFrom(ref arr, component.GetType());
 
         }
 
-        public void RemoveFrom<T>(ref T[] arr, System.Type componentType, bool removeFromShared) {
+        public void RemoveFrom<T>(ref T[] arr, System.Type componentType) {
 
             for (int i = 0; i < arr.Length; ++i) {
 
@@ -381,14 +374,6 @@ namespace ME.ECS.DataConfigs {
                     var list = arr.ToList();
                     list.RemoveAt(i);
                     arr = list.ToArray();
-
-                    if (removeFromShared == true) {
-                    
-                        var listShared = this.isSharedData.ToList();
-                        listShared.RemoveAt(i);
-                        this.isSharedData = listShared.ToArray();
-                        
-                    }
 
                     break;
 
@@ -434,7 +419,7 @@ namespace ME.ECS.DataConfigs {
             }
 
             var data = template.GetByType(template.structComponents, componentType);
-            this.AddTo(ref this.structComponents, data, addToShared: true);
+            this.AddTo(ref this.structComponents, data);
 
             this.Save();
 
@@ -450,7 +435,7 @@ namespace ME.ECS.DataConfigs {
                 
             }
 
-            this.RemoveFrom(ref this.structComponents, componentType, removeFromShared: true);
+            this.RemoveFrom(ref this.structComponents, componentType);
 
             this.Save();
 
@@ -467,7 +452,7 @@ namespace ME.ECS.DataConfigs {
             }
 
             var data = template.GetByType(template.removeStructComponents, componentType);
-            this.AddTo(ref this.removeStructComponents, data, addToShared: false);
+            this.AddTo(ref this.removeStructComponents, data);
 
             this.Save();
 
@@ -483,7 +468,7 @@ namespace ME.ECS.DataConfigs {
                 
             }
 
-            this.RemoveFrom(ref this.removeStructComponents, componentType, removeFromShared: false);
+            this.RemoveFrom(ref this.removeStructComponents, componentType);
 
             this.Save();
 
@@ -497,13 +482,13 @@ namespace ME.ECS.DataConfigs {
 
             for (var i = 0; i < template.structComponents.Length; ++i) {
 
-                this.AddTo(ref this.structComponents, template.structComponents[i], addToShared: true);
+                this.AddTo(ref this.structComponents, template.structComponents[i]);
 
             }
 
             for (var i = 0; i < template.removeStructComponents.Length; ++i) {
 
-                this.AddTo(ref this.removeStructComponents, template.removeStructComponents[i], addToShared: false);
+                this.AddTo(ref this.removeStructComponents, template.removeStructComponents[i]);
 
             }
             
@@ -518,14 +503,14 @@ namespace ME.ECS.DataConfigs {
             for (var i = 0; i < template.structComponents.Length; ++i) {
 
                 var hasOther = allTemplates.Any(x => x != template && x.HasByType(x.structComponents, template.structComponents[i]));
-                if (hasOther == false) this.RemoveFrom(ref this.structComponents, template.structComponents[i], removeFromShared: true);
+                if (hasOther == false) this.RemoveFrom(ref this.structComponents, template.structComponents[i]);
 
             }
 
             for (var i = 0; i < template.removeStructComponents.Length; ++i) {
 
                 var hasOther = allTemplates.Any(x => x != template && x.HasByType(x.structComponents, template.structComponents[i]));
-                if (hasOther == false) this.RemoveFrom(ref this.removeStructComponents, template.removeStructComponents[i], removeFromShared: false);
+                if (hasOther == false) this.RemoveFrom(ref this.removeStructComponents, template.removeStructComponents[i]);
 
             }
 
@@ -535,31 +520,10 @@ namespace ME.ECS.DataConfigs {
 
         public void Save(bool dirtyOnly = false) {
             
-            this.ValidateShared();
-
             #if UNITY_EDITOR
             UnityEditor.EditorUtility.SetDirty(this);
             if (dirtyOnly == false) UnityEditor.AssetDatabase.ForceReserializeAssets(new [] { UnityEditor.AssetDatabase.GetAssetPath(this) }, UnityEditor.ForceReserializeAssetsOptions.ReserializeAssetsAndMetadata);
             #endif
-            
-        }
-
-        [ContextMenu("Call OnValidate")]
-        public void OnValidate() {
-            
-            this.ValidateShared();
-            
-        }
-
-        private void ValidateShared() {
-            
-            System.Array.Resize(ref this.isSharedData, this.structComponents.Length);
-
-            for (int i = 0; i < this.isSharedData.Length; ++i) {
-                
-                this.isSharedData[i] = (this.structComponents[i] is IComponentShared);
-
-            }
             
         }
 

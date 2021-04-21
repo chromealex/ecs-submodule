@@ -45,6 +45,7 @@ namespace ME.ECS.Collections {
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
+    [System.Serializable]
     public struct IntrusiveList : IIntrusiveList {
 
         #if ECS_COMPILE_IL2CPP_OPTIONS

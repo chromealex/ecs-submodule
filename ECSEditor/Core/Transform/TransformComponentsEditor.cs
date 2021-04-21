@@ -1,77 +1,136 @@
 namespace ME.ECSEditor {
 
-    using ME.ECS;
-    
-    [ComponentCustomEditor(typeof(ME.ECS.Transform.Position), order: -50)]
-    public class TransformPositionComponentEditor : ME.ECSEditor.IGUIEditor<ME.ECS.Transform.Position> {
+    [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.Transform.Position))]
+    public class TransformPositionComponentEditor : UnityEditor.PropertyDrawer {
 
-        public ME.ECS.Transform.Position target { get; set; }
-        public ME.ECS.Transform.Position[] targets { get; set; }
-
-        public T GetTarget<T>() {
-
-            return (T)(object)this.target;
-
+        public override float GetPropertyHeight(UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
+            
+            return 18f;
+            
         }
 
-        bool IGUIEditorBase.OnDrawGUI() {
-            
-            var target = this.target;
-            target = UnityEditor.EditorGUILayout.Vector3Field("Position", target.ToVector3()).ToPositionStruct();
-            var isDirty = (target.ToVector3() != this.target.ToVector3());
-            this.target = target;
+        public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
 
-            return isDirty;
+            var x = property.FindPropertyRelative("x");
+            var y = property.FindPropertyRelative("y");
+            var z = property.FindPropertyRelative("z");
+            var v = new UnityEngine.Vector3(x.floatValue, y.floatValue, z.floatValue);
+            v = UnityEditor.EditorGUI.Vector3Field(position, label, v);
+            x.floatValue = v.x;
+            y.floatValue = v.y;
+            z.floatValue = v.z;
 
         }
 
     }
 
-    [ComponentCustomEditor(typeof(ME.ECS.Transform.Rotation), order: -49)]
-    public class TransformRotationComponentEditor : ME.ECSEditor.IGUIEditor<ME.ECS.Transform.Rotation> {
+    [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.Transform.Rotation))]
+    public class TransformRotationComponentEditor : UnityEditor.PropertyDrawer {
 
-        public ME.ECS.Transform.Rotation target { get; set; }
-        public ME.ECS.Transform.Rotation[] targets { get; set; }
-
-        public T GetTarget<T>() {
-
-            return (T)(object)this.target;
-
+        public override float GetPropertyHeight(UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
+            
+            return 18f;
+            
         }
 
-        bool IGUIEditorBase.OnDrawGUI() {
-            
-            var target = this.target;
-            target = UnityEngine.Quaternion.Euler((FPVector3)UnityEditor.EditorGUILayout.Vector3Field("Rotation", target.ToQuaternion().eulerAngles)).ToRotationStruct();
-            var isDirty = (target.ToQuaternion() != this.target.ToQuaternion());
-            this.target = target;
-            
-            return isDirty;
+        public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
+
+            var x = property.FindPropertyRelative("x");
+            var y = property.FindPropertyRelative("y");
+            var z = property.FindPropertyRelative("z");
+            var w = property.FindPropertyRelative("z");
+            var v = new UnityEngine.Quaternion(x.floatValue, y.floatValue, z.floatValue, w.floatValue);
+            v = UnityEngine.Quaternion.Euler(UnityEditor.EditorGUI.Vector3Field(position, label, v.eulerAngles));
+            x.floatValue = v.x;
+            y.floatValue = v.y;
+            z.floatValue = v.z;
+            w.floatValue = v.w;
 
         }
 
     }
 
-    [ComponentCustomEditor(typeof(ME.ECS.Transform.Scale), order: -48)]
-    public class TransformScaleComponentEditor : ME.ECSEditor.IGUIEditor<ME.ECS.Transform.Scale> {
+    [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.Transform.Scale))]
+    public class TransformScaleComponentEditor : UnityEditor.PropertyDrawer {
 
-        public ME.ECS.Transform.Scale target { get; set; }
-        public ME.ECS.Transform.Scale[] targets { get; set; }
+        public override float GetPropertyHeight(UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
+            
+            return 18f;
+            
+        }
 
-        public T GetTarget<T>() {
+        public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
 
-            return (T)(object)this.target;
+            var x = property.FindPropertyRelative("x");
+            var y = property.FindPropertyRelative("y");
+            var z = property.FindPropertyRelative("z");
+            var v = new UnityEngine.Vector3(x.floatValue, y.floatValue, z.floatValue);
+            v = UnityEditor.EditorGUI.Vector3Field(position, label, v);
+            x.floatValue = v.x;
+            y.floatValue = v.y;
+            z.floatValue = v.z;
 
         }
 
-        bool IGUIEditorBase.OnDrawGUI() {
-            
-            var target = this.target;
-            target = UnityEditor.EditorGUILayout.Vector3Field("Scale", target.ToVector3()).ToScaleStruct();
-            var isDirty = (target.ToVector3() != this.target.ToVector3());
-            this.target = target;
+    }
 
-            return isDirty;
+    [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.Transform.Position2D))]
+    public class TransformPosition2DComponentEditor : UnityEditor.PropertyDrawer {
+
+        public override float GetPropertyHeight(UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
+            
+            return 18f;
+            
+        }
+
+        public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
+
+            var x = property.FindPropertyRelative("x");
+            var y = property.FindPropertyRelative("y");
+            var v = new UnityEngine.Vector2(x.floatValue, y.floatValue);
+            v = UnityEditor.EditorGUI.Vector2Field(position, label, v);
+            x.floatValue = v.x;
+            y.floatValue = v.y;
+
+        }
+
+    }
+
+    [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.Transform.Rotation2D))]
+    public class TransformRotation2DComponentEditor : UnityEditor.PropertyDrawer {
+
+        public override float GetPropertyHeight(UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
+            
+            return 18f;
+            
+        }
+
+        public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
+
+            var v = property.FindPropertyRelative("x");
+            v.floatValue = UnityEditor.EditorGUI.FloatField(position, label, v.floatValue);
+
+        }
+
+    }
+
+    [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.Transform.Scale2D))]
+    public class TransformScale2DComponentEditor : UnityEditor.PropertyDrawer {
+
+        public override float GetPropertyHeight(UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
+            
+            return 18f;
+            
+        }
+
+        public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
+
+            var x = property.FindPropertyRelative("x");
+            var y = property.FindPropertyRelative("y");
+            var v = new UnityEngine.Vector2(x.floatValue, y.floatValue);
+            v = UnityEditor.EditorGUI.Vector2Field(position, label, v);
+            x.floatValue = v.x;
+            y.floatValue = v.y;
 
         }
 

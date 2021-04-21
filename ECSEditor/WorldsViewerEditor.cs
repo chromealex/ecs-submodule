@@ -972,27 +972,15 @@ namespace ME.ECSEditor {
                         GUILayout.EndHorizontal();
                         GUILayoutExt.Separator();
                         GUI.backgroundColor = backColor;
-
-                        /*
-                        GUILayoutExt.FoldOut(ref foldoutData, "Data", () => {
-    
-                            { // Draw data table
-    
-                                GUILayoutExt.DrawFields(entityData, 120f);
-    
-                            }
-    
-                        });
-                        world.SetFoldOutData(storage, entityData.id, foldoutData);*/
                         #endregion
 
                         EditorGUILayout.Separator();
 
                         #region Components
                         {
-                            var kz = 0;
                             var registries = componentsStructStorage.GetAllRegistries();
-                            var sortedRegistries = new SortedDictionary<int, IStructRegistryBase>(new DuplicateKeyComparer<int>());
+                            var sortedRegistries = new List<IStructRegistryBase>();
+                            var components = new List<IStructComponent>();
                             for (int i = 0; i < registries.Length; ++i) {
 
                                 var registry = registries.arr[i];
@@ -1010,111 +998,41 @@ namespace ME.ECSEditor {
                                 }
 
                                 usedComponents.Add(component.GetType());
-
-                                var editor = WorldsViewerEditor.GetEditor(component, out var order);
-                                if (editor != null) {
-
-                                    sortedRegistries.Add(order, registry);
-
-                                } else {
-
-                                    sortedRegistries.Add(0, registry);
-
-                                }
+                                components.Add(registry.GetObject(entityData));
+                                sortedRegistries.Add(registry);
 
                             }
+                            
+                            GUILayoutExt.DrawFieldsSingle(world, components.ToArray(),
+                                                              (index, component, prop) => {
+                                                                  
+                                                                  GUILayout.BeginVertical();
+                                                                  
+                                                              },
+                                                              (index, component, prop) => {
 
-                            foreach (var registryKv in sortedRegistries) {
+                                                                  usedComponents.Add(component.GetType());
+                                                                  GUILayoutExt.DrawComponentHelp(component.GetType());
+                                                                  GUILayout.EndVertical();
+                                                                  GUILayoutExt.Separator();
 
-                                var registry = registryKv.Value;
-                                var component = registry.GetObject(entityData);
-
-                                backColor = GUI.backgroundColor;
-                                GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
-
-                                GUILayout.BeginVertical(backStyle);
-                                {
-                                    GUI.backgroundColor = backColor;
-                                    var editor = WorldsViewerEditor.GetEditor(component);
-                                    if (editor != null) {
-
-                                        EditorGUI.BeginChangeCheck();
-                                        editor.OnDrawGUI();
-                                        if (EditorGUI.EndChangeCheck() == true) {
-
-                                            component = editor.GetTarget<IStructComponent>();
-                                            registry.SetObject(entityData, component);
-
-                                        }
-
-                                    } else {
-
-                                        var componentName = component.GetType().Name;
-                                        var fieldsCount = GUILayoutExt.GetFieldsCount(component);
-                                        if (fieldsCount == 0) {
-
-                                            EditorGUI.BeginDisabledGroup(true);
-                                            EditorGUILayout.Toggle(componentName, true);
-                                            EditorGUI.EndDisabledGroup();
-
-                                        } else if (fieldsCount == 1 && GUILayoutExt.IsFirstFieldHasChilds(component) == false) {
-
-                                            var changed = GUILayoutExt.DrawFields(world, component, componentName);
-                                            if (changed == true) {
-
-                                                registry.SetObject(entityData, component);
-
-                                            }
-
-                                        } else {
-
-                                            GUILayout.BeginHorizontal();
-                                            {
-                                                //GUILayout.Space(18f);
-                                                GUILayout.BeginVertical();
-                                                {
-
-                                                    var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
-                                                    var foldout = EditorPrefs.GetBool(key, true);
-                                                    GUILayoutExt.FoldOut(ref foldout, componentName, () => {
-
-                                                        var changed = GUILayoutExt.DrawFields(world, component);
-                                                        if (changed == true) {
-
-                                                            registry.SetObject(entityData, component);
-
-                                                        }
-
-                                                    });
-                                                    EditorPrefs.SetBool(key, foldout);
-
-                                                }
-                                                GUILayout.EndVertical();
-                                            }
-                                            GUILayout.EndHorizontal();
-
-                                        }
-
-                                    }
-                                }
-                                GUILayout.EndVertical();
-
-                                GUILayoutExt.DrawComponentHelp(component.GetType());
-
-                                GUILayoutExt.Separator();
-
-                            }
+                                                              }, (index, component) => {
+                                                                  
+                                                                  sortedRegistries[index].SetObject(entityData, component);
+                                                                  
+                                                              });
 
                             GUILayoutExt.DrawAddComponentMenu(entityData, usedComponents, componentsStructStorage);
+                            
                         }
                         #endregion
                         
                         #region Shared Components
                         {
                         
-                            var kz = 0;
                             var registries = componentsStructStorage.GetAllRegistries();
-                            var sortedRegistries = new SortedDictionary<int, SharedRegistryData>(new DuplicateKeyComparer<int>());
+                            var sortedRegistries = new List<SharedRegistryData>();
+                            var components = new List<IStructComponent>();
                             for (int i = 0; i < registries.Length; ++i) {
 
                                 var registry = registries.arr[i];
@@ -1135,24 +1053,15 @@ namespace ME.ECSEditor {
                                     }
 
                                     usedComponents.Add(component.GetType());
+                                    components.Add(component);
 
                                     var item = new SharedRegistryData() {
                                         groupId = groupId,
                                         component = component,
                                         registry = registry,
                                     };
+                                    sortedRegistries.Add(item);
                                     
-                                    var editor = WorldsViewerEditor.GetEditor(component, out var order);
-                                    if (editor != null) {
-
-                                        sortedRegistries.Add(order, item);
-
-                                    } else {
-
-                                        sortedRegistries.Add(0, item);
-
-                                    }
-
                                 }
 
                             }
@@ -1160,87 +1069,26 @@ namespace ME.ECSEditor {
                             var isFoldoutShared = world.IsFoldOutViews("Shared", entityData.id);
                             GUILayoutExt.FoldOut(ref isFoldoutShared, $"Shared Components ({sortedRegistries.Count})", () => {
 
-                                foreach (var registryKv in sortedRegistries) {
+                                GUILayoutExt.DrawFieldsSingle(world, components.ToArray(),
+                                                              (index, component, prop) => {
+                                                                  
+                                                                  GUILayout.BeginVertical();
+                                                                  
+                                                              },
+                                                              (index, component, prop) => {
 
-                                    var data = registryKv.Value;
-                                    var registry = data.registry;
-                                    var component = registry.GetSharedObject(entityData, data.groupId);
+                                                                  usedComponents.Add(component.GetType());
+                                                                  GUILayoutExt.DrawComponentHelp(component.GetType());
+                                                                  GUILayout.EndVertical();
+                                                                  GUILayoutExt.Separator();
 
-                                    backColor = GUI.backgroundColor;
-                                    GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
+                                                              }, (index, component) => {
+                                                                  
+                                                                  sortedRegistries[index].registry.SetSharedObject(entityData, component, sortedRegistries[index].groupId);
+                                                                  
+                                                              });
 
-                                    GUILayout.BeginVertical(backStyle);
-                                    {
-                                        GUI.backgroundColor = backColor;
-                                        var editor = WorldsViewerEditor.GetEditor(component);
-                                        if (editor != null) {
-
-                                            EditorGUI.BeginChangeCheck();
-                                            editor.OnDrawGUI();
-                                            if (EditorGUI.EndChangeCheck() == true) {
-
-                                                component = editor.GetTarget<IStructComponent>();
-                                                registry.SetSharedObject(entityData, component, data.groupId);
-
-                                            }
-
-                                        } else {
-
-                                            var componentName = component.GetType().Name;
-                                            var fieldsCount = GUILayoutExt.GetFieldsCount(component);
-                                            if (fieldsCount == 0) {
-
-                                                EditorGUI.BeginDisabledGroup(true);
-                                                EditorGUILayout.Toggle(componentName, true);
-                                                EditorGUI.EndDisabledGroup();
-
-                                            } else if (fieldsCount == 1 && GUILayoutExt.IsFirstFieldHasChilds(component) == false) {
-
-                                                var changed = GUILayoutExt.DrawFields(world, component, componentName);
-                                                if (changed == true) {
-
-                                                    registry.SetSharedObject(entityData, component, data.groupId);
-
-                                                }
-
-                                            } else {
-
-                                                GUILayout.BeginHorizontal();
-                                                {
-                                                    GUILayout.Space(18f);
-                                                    GUILayout.BeginVertical();
-                                                    {
-
-                                                        var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes.Shared." + component.GetType().FullName;
-                                                        var foldout = EditorPrefs.GetBool(key, true);
-                                                        GUILayoutExt.FoldOut(ref foldout, componentName, () => {
-
-                                                            var changed = GUILayoutExt.DrawFields(world, component);
-                                                            if (changed == true) {
-
-                                                                registry.SetSharedObject(entityData, component, data.groupId);
-
-                                                            }
-
-                                                        });
-                                                        EditorPrefs.SetBool(key, foldout);
-
-                                                    }
-                                                    GUILayout.EndVertical();
-                                                }
-                                                GUILayout.EndHorizontal();
-
-                                            }
-
-                                        }
-                                    }
-                                    GUILayout.EndVertical();
-
-                                    GUILayoutExt.DrawComponentHelp(component.GetType());
-
-                                    GUILayoutExt.Separator();
-
-                                }
+                                GUILayoutExt.DrawAddComponentMenu(entityData, usedComponents, componentsStructStorage);
 
                             });
                             world.SetFoldOutViews("Shared", entityData.id, isFoldoutShared);

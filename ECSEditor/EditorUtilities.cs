@@ -15,6 +15,36 @@ namespace ME.ECSEditor {
             "Assets/ecs-submodule/",
         };
         
+        public static int GetPropertyChildCount(UnityEditor.SerializedProperty property) {
+        
+            var prop = property.Copy();
+            var enter = true;
+            var count = 0;
+            while (prop.NextVisible(enter) == true) {
+
+                ++count;
+                enter = false;
+                
+            }
+            
+            return count;
+            
+        }
+
+        public static float GetPropertyHeight(UnityEditor.SerializedProperty property, bool includeChildren, GUIContent label) {
+            
+            var prop = property.Copy();
+            if (EditorUtilities.GetPropertyChildCount(prop) == 1 && prop.NextVisible(true) == true) {
+
+                prop.isExpanded = true;
+                return UnityEditor.EditorGUI.GetPropertyHeight(prop, label, includeChildren);
+
+            }
+            
+            return UnityEditor.EditorGUI.GetPropertyHeight(property, label, includeChildren);
+
+        }
+        
         public static T Load<T>(string path, bool isRequired = false) where T : Object {
 
             foreach (var searchPath in EditorUtilities.searchPaths) {

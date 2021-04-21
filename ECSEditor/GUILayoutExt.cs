@@ -885,7 +885,136 @@ namespace ME.ECSEditor {
 	        public object data;
 
         }
-        
+
+        public static bool DrawFieldsSingle(WorldsViewerEditor.WorldEditor world, IStructComponent[] instances, System.Action<int, IStructComponent, SerializedProperty> onPropertyBegin, System.Action<int, IStructComponent, SerializedProperty> onPropertyEnd, System.Action<int, IStructComponent> onPropertyChanged = null) {
+
+	        var temp = new GameObject("Temp");
+	        var objs = new SerializedObject[instances.Length];
+	        for (int i = 0; i < instances.Length; ++i) {
+		    
+		        var comp = temp.AddComponent<TempObject>();
+		        comp.data = instances[i];
+
+		        objs[i] = new SerializedObject(comp);
+
+	        }
+
+	        const float minHeight = 24f;
+	        var backStyle = new GUIStyle(EditorStyles.label);
+	        backStyle.normal.background = Texture2D.whiteTexture;
+
+	        foreach (var obj in objs) obj.Update();
+	        var changed = false;
+	        for (var index = 0; index < objs.Length; index++) {
+		        
+		        var component = instances[index];
+		        EditorGUI.BeginChangeCheck();
+		        var label = GUILayoutExt.GetStringCamelCaseSpace(instances[index].GetType().Name);
+		        using (new GUIBackgroundColorUsing(new Color(1f, 1f, 1f, index % 2 == 0 ? 0f : 0.05f))) {
+
+			        GUILayout.BeginVertical(backStyle, GUILayout.MinHeight(minHeight));
+
+		        }
+
+		        {
+			        
+			        if (component == null) {
+
+				        onPropertyBegin.Invoke(index, null, null);
+
+				        EditorGUI.BeginDisabledGroup(true);
+				        var styleLabel = new GUIStyle(EditorStyles.label);
+				        styleLabel.richText = true;
+				        EditorGUILayout.LabelField(new GUIContent("<color=#f77><i>MISSING</i></color>"), styleLabel);
+				        EditorGUI.EndDisabledGroup();
+				        
+				        onPropertyEnd.Invoke(index, null, null);
+
+			        } else {
+
+				        var obj = objs[index];
+				        var it = obj.FindProperty("data");
+				        
+				        onPropertyBegin.Invoke(index, component, it);
+
+				        var fieldsCount = GUILayoutExt.GetFieldsCount(component);
+				        if (fieldsCount == 0) {
+
+					        EditorGUI.BeginDisabledGroup(true);
+					        EditorGUILayout.Toggle(label, true);
+					        EditorGUI.EndDisabledGroup();
+
+				        } else if (EditorUtilities.GetPropertyChildCount(it) == 1 ||
+				                   EditorUtilities.GetPropertyHeight(it, true, new GUIContent(label)) <= minHeight) {
+
+					        if (EditorUtilities.GetPropertyChildCount(it) > 1 || it.NextVisible(true) == true) {
+								
+						        EditorGUILayout.PropertyField(it, new GUIContent(label), true);
+						        
+					        } else {
+						        
+						        EditorGUILayout.LabelField(label);
+						        
+					        }
+
+				        } else {
+							
+					        var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
+					        var state = world.IsFoldOutCustom(key);
+					        GUILayoutExt.FoldOut(ref state, label, () => {
+
+						        ++EditorGUI.indentLevel;
+						        
+						        var enterChildren = true;
+						        while (it.NextVisible(enterChildren) == true) {
+
+							        EditorGUILayout.PropertyField(it, true);
+							        enterChildren = false;
+
+						        }
+						        
+						        --EditorGUI.indentLevel;
+
+					        });
+					        world.SetFoldOutCustom(key, state);
+
+				        }
+				        
+				        onPropertyEnd.Invoke(index, component, it);
+
+			        }
+			        
+			        GUILayout.EndVertical();
+
+		        }
+
+		        if (EditorGUI.EndChangeCheck() == true) {
+
+			        changed = true;
+			        onPropertyChanged?.Invoke(index, component);
+
+		        }
+
+	        }
+	        
+            foreach (var obj in objs) obj.ApplyModifiedProperties();
+
+            if (changed == true) {
+
+	            for (var index = 0; index < objs.Length; index++) {
+
+		            instances[index] = (IStructComponent)((TempObject)objs[index].targetObject).data;
+
+	            }
+
+            }
+            
+	        GameObject.DestroyImmediate(temp);
+	        
+	        return changed;
+	        
+        }
+
         public static bool DrawFields(WorldsViewerEditor.WorldEditor world, object[] instances, string customName = null) {
 
 	        var temp = new GameObject("Temp");
@@ -910,7 +1039,8 @@ namespace ME.ECSEditor {
 		        changed = true;
 
 	        }
-	        while (it.NextVisible(true) == true) {
+	        
+	        /*while (it.NextVisible(true) == true) {
 
 		        var depth = EditorGUI.indentLevel;
 		        EditorGUI.indentLevel = it.depth - 1;
@@ -925,7 +1055,7 @@ namespace ME.ECSEditor {
 
 		        //GUILayoutExt.DrawComponentHelp(System.Type.GetType(it.managedReferenceFullTypename));
 
-	        }
+	        }*/
 	        obj.ApplyModifiedProperties();
 	        
 	        if (changed == true) {

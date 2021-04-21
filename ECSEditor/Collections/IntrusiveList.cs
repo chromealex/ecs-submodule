@@ -1,6 +1,16 @@
 ﻿
 namespace ME.ECSEditor.Collections {
 
+    /*
+    [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.Collections.IntrusiveList))]
+    public class IntrusiveListEditor : UnityEditor.PropertyDrawer {
+
+        public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
+
+        }
+
+    }*/
+
     [ME.ECSEditor.CustomFieldEditorAttribute(typeof(ME.ECS.Collections.IntrusiveList))]
     public class IntrusiveListEditor : ME.ECSEditor.ICustomFieldEditor {
 
