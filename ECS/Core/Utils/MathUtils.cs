@@ -167,6 +167,61 @@ namespace ME.ECS {
 
         }
 
+        public static Vector3Int Rotate(this Vector3Int vec, int sector) {
+
+            var v = (Vector2)vec.XZ();
+            v = v.Rotate(sector * 90f);
+            return new Vector3Int((int)v.x, vec.y, (int)v.y);
+            
+        }
+
+        private static Vector3Int Rotate90(this Vector3Int vec) {
+            
+            var p = vec;
+            vec.x = p.z;
+            vec.z = -p.x;
+            return vec;
+
+        }
+
+        public static Vector3Int RotateBySector(this Vector3Int vecUp, Vector3 dir) {
+
+            var p = vecUp;
+            var x = Mathf.Abs(dir.x);
+            var z = Mathf.Abs(dir.z);
+
+            if (dir.x >= 0f &&
+                x >= z) {
+                
+                // right
+                vecUp = vecUp.Rotate90();
+
+            } else if (dir.z >= 0f &&
+                       z >= x) {
+                
+                // up
+                
+            } else if (dir.z <= 0f &&
+                       z >= x) {
+                
+                // down
+                vecUp = vecUp.Rotate90();
+                vecUp = vecUp.Rotate90();
+
+            } else if (dir.x <= 0f &&
+                       x >= z) {
+                
+                // left
+                vecUp = vecUp.Rotate90();
+                vecUp = vecUp.Rotate90();
+                vecUp = vecUp.Rotate90();
+
+            }
+            
+            return vecUp;
+            
+        }
+
     }
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -479,10 +534,10 @@ namespace ME.ECS {
 
         }
 
-        public static void GetOrientation(out int orientation, Vector2 dir) {
+        public static void GetOrientation(out int orientation, Vector2 dir, int steps = 8) {
 
-            const float step = 360f / 8f;
-            const float stepHalf = step * 0.5f;
+            float step = 360f / steps;
+            float stepHalf = step * 0.5f;
 
             var ang = System.Math.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + stepHalf;
             if (ang < 0f) ang = 360f + ang;
