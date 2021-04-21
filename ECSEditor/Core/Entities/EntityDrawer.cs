@@ -7,18 +7,17 @@ namespace ME.ECSEditor {
     [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.Entity))]
     public class EntityEditor : UnityEditor.PropertyDrawer {
 
-        public override float GetPropertyHeight(UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
+        public static float GetHeight(Entity entity, GUIContent label) {
             
             return 24f;
             
         }
 
-        public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
+        public static void Draw(Rect position, Entity entity, GUIContent label) {
 
             const float buttonWidth = 50f;
             const float offsetRight = 30f;
 
-            var entity = property.GetSerializedValue<Entity>();
             var labelRect = position;
             labelRect.x += EditorGUI.indentLevel * 14f;
             labelRect.width = EditorGUIUtility.labelWidth - labelRect.x;
@@ -34,8 +33,8 @@ namespace ME.ECSEditor {
             buttonRect.width = buttonWidth;
             
             GUI.Label(labelRect, label);
-            if (entity == Entity.Empty) {
-			            
+            if (Worlds.currentWorld == null || entity == Entity.Empty) {
+                
                 GUI.Label(contentRect, "Empty");
 			            
             } else {
@@ -53,6 +52,19 @@ namespace ME.ECSEditor {
 
             }
             EditorGUI.EndDisabledGroup();
+
+        }
+        
+        public override float GetPropertyHeight(UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
+            
+            return 24f;
+            
+        }
+
+        public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
+
+            var entity = property.GetSerializedValue<Entity>();
+            EntityEditor.Draw(position, entity, label);
             
         }
 

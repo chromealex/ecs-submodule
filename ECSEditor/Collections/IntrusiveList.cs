@@ -1,70 +1,76 @@
 ﻿
 namespace ME.ECSEditor.Collections {
 
-    /*
     [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.Collections.IntrusiveList))]
-    public class IntrusiveListEditor : UnityEditor.PropertyDrawer {
+    public class IntrusiveListPropertyEditor : UnityEditor.PropertyDrawer {
 
-        public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
+        const float emptyHeight = 30f;
 
-        }
+        public override float GetPropertyHeight(UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
 
-    }*/
+            var h = 22f + 18f;
+            var list = property.GetSerializedValue<ME.ECS.Collections.IntrusiveList>();
+            var world = ME.ECS.Worlds.currentWorld;
+            if (world == null || list.Count == 0) {
 
-    [ME.ECSEditor.CustomFieldEditorAttribute(typeof(ME.ECS.Collections.IntrusiveList))]
-    public class IntrusiveListEditor : ME.ECSEditor.ICustomFieldEditor {
+                h += IntrusiveListPropertyEditor.emptyHeight;
 
-        public bool DrawGUI(string caption, object instance, int instanceArrIndex, System.Reflection.FieldInfo fieldInfo, ref object value, bool typeCheckOnly,
-                            bool hasMultipleDifferentValues) {
-
-            if (typeCheckOnly == false) {
-
-                GUILayoutExt.DrawHeader(caption);
-                var obj = (ME.ECS.Collections.IntrusiveList)value;
-                GUILayoutExt.DataLabel("Count: " + obj.Count);
+            } else {
                 
-                GUILayoutExt.Box(2f, 2f, () => {
+                var i = 0;
+                foreach (var item in list) {
 
-                    var world = ME.ECS.Worlds.currentWorld;
-                    if (world == null) {
+                    var elementLabel = new UnityEngine.GUIContent($"Element {i}");
+                    h += EntityEditor.GetHeight(item, elementLabel);
+                    ++i;
 
-                        UnityEngine.GUILayout.Label("List is empty");
-                        return;
-
-                    }
-
-                    var worldEditor = new WorldsViewerEditor.WorldEditor();
-                    worldEditor.world = world;
-                    
-                    var i = 0;
-                    foreach (var item in obj) {
-
-                        var val = (object)item;
-                        GUILayoutExt.PropertyField(worldEditor, "Element " + i, item, -1, fieldInfo, typeof(ME.ECS.Entity), ref val, typeCheckOnly, hasMultipleDifferentValues);
-                        ++i;
-                        
-                    }
-
-                    if (i == 0) {
-                        
-                        UnityEngine.GUILayout.Label("List is empty");
-                        
-                    }
-
-                });
+                }
                 
             }
 
-            return true;
-
+            return h;
+            
         }
 
-        public bool OnDrawGUI() {
-            return false;
-        }
+        public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
 
-        public T GetTarget<T>() {
-            return default;
+            var headerRect = position;
+            headerRect.height = 22f;
+
+            var countRect = position;
+            countRect.y += headerRect.height;
+            countRect.height = 18f;
+
+            var contentRect = position;
+            contentRect.y += headerRect.height + countRect.height;
+            contentRect.height -= headerRect.height + countRect.height;
+
+            var list = property.GetSerializedValue<ME.ECS.Collections.IntrusiveList>();
+            
+            UnityEngine.GUI.Label(headerRect, label, UnityEditor.EditorStyles.boldLabel);
+            UnityEngine.GUI.Label(countRect, $"Count: {list.Count}");
+            var world = ME.ECS.Worlds.currentWorld;
+            if (world == null || list.Count == 0) {
+
+                UnityEngine.GUI.Label(contentRect, "List is empty");
+
+            } else {
+
+                var rect = contentRect;
+                var i = 0;
+                foreach (var item in list) {
+
+                    var elementLabel = new UnityEngine.GUIContent($"Element {i}");
+                    var h = EntityEditor.GetHeight(item, elementLabel);
+                    rect.height = h;
+                    EntityEditor.Draw(rect, item, elementLabel);
+                    rect.y += h;
+                    ++i;
+
+                }
+
+            }
+
         }
 
     }
