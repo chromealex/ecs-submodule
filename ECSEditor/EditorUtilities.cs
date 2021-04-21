@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace ME.ECSEditor {
@@ -65,5 +66,47 @@ namespace ME.ECSEditor {
         }
 
     }
+    
+    public static class SerializedPropertyExtensions {
+        
+        public static System.Type GetArrayOrListElementType(this System.Type listType) {
+            if (listType.IsArray)
+                return listType.GetElementType();
+            return listType.IsGenericType && (object) listType.GetGenericTypeDefinition() == (object) typeof (List<>) ? listType.GetGenericArguments()[0] : (System.Type) null;
+        }
+        
+        public static bool IsArrayOrList(this System.Type listType) => listType.IsArray || listType.IsGenericType && (object) listType.GetGenericTypeDefinition() == (object) typeof (List<>);
 
+        public static T GetSerializedValue<T>(this UnityEditor.SerializedProperty property) {
+
+            object @object = property.serializedObject.targetObject;
+            string[] propertyNames = property.propertyPath.Split('.');
+ 
+            // Clear the property path from "Array" and "data[i]".
+            if (propertyNames.Length >= 3 && propertyNames[propertyNames.Length - 2] == "Array")
+                propertyNames = propertyNames.Take(propertyNames.Length - 2).ToArray();
+ 
+            // Get the last object of the property path.
+            foreach (string path in propertyNames) {
+                
+                @object = @object.GetType()
+                                 .GetField(path, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
+                                 .GetValue(@object);
+                
+            }
+ 
+            if (@object.GetType().GetInterfaces().Contains(typeof(IList<T>))) {
+            
+                int propertyIndex = int.Parse(property.propertyPath[property.propertyPath.Length - 2].ToString());
+                return ((IList<T>) @object)[propertyIndex];
+                
+            } else {
+                
+                return (T) @object;
+                
+            }
+            
+        }
+    }
+    
 }
