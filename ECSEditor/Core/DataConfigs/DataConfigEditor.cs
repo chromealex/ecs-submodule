@@ -341,6 +341,7 @@ namespace ME.ECSEditor {
                     }) == true) {
             
                         this.serializedObject.ApplyModifiedProperties();
+                        this.Save(dataConfig);
             
                     }
                     

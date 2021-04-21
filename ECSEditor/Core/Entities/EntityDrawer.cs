@@ -54,38 +54,6 @@ namespace ME.ECSEditor {
             }
             EditorGUI.EndDisabledGroup();
             
-            /*
-            GUI.BeginGroup(position);
-            
-            GUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField(label, GUILayout.Width(EditorGUIUtility.labelWidth));
-            if (entity == Entity.Empty) {
-			            
-                GUILayout.Label("Empty");
-			            
-            } else {
-			            
-                var customName = (entity.IsAlive() == true ? entity.Read<ME.ECS.Name.Name>().value : string.Empty);
-                GUILayout.BeginVertical();
-                GUILayout.Label(string.IsNullOrEmpty(customName) == false ? customName : "Unnamed");
-                GUILayout.Label(entity.ToSmallString(), EditorStyles.miniLabel);
-                GUILayout.EndVertical();
-			            
-            }
-
-            GUILayout.FlexibleSpace();
-            EditorGUI.BeginDisabledGroup(entity == Entity.Empty);
-            if (GUILayout.Button("Select", GUILayout.Width(buttonWidth)) == true) {
-
-                WorldsViewerEditor.SelectEntity(entity);
-
-            }
-            EditorGUI.EndDisabledGroup();
-            GUILayout.EndHorizontal();
-            
-            GUI.EndGroup();
-            */
-
         }
 
     }
