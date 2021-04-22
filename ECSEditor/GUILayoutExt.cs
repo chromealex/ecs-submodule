@@ -908,16 +908,16 @@ namespace ME.ECSEditor {
 	        for (var index = 0; index < objs.Length; index++) {
 		        
 		        var component = instances[index];
+		        
 		        EditorGUI.BeginChangeCheck();
-		        var label = GUILayoutExt.GetStringCamelCaseSpace(instances[index].GetType().Name);
-		        using (new GUIBackgroundColorUsing(new Color(1f, 1f, 1f, index % 2 == 0 ? 0f : 0.05f))) {
-
-			        GUILayout.BeginVertical(backStyle, GUILayout.MinHeight(minHeight));
-
-		        }
-
+		        
 		        {
-			        
+			        using (new GUIBackgroundColorUsing(new Color(1f, 1f, 1f, index % 2 == 0 ? 0f : 0.05f))) {
+
+				        GUILayout.BeginVertical(backStyle, GUILayout.MinHeight(minHeight));
+
+			        }
+
 			        if (component == null) {
 
 				        onPropertyBegin.Invoke(index, null, null);
@@ -931,7 +931,9 @@ namespace ME.ECSEditor {
 				        onPropertyEnd.Invoke(index, null, null);
 
 			        } else {
-
+				        
+				        var label = GUILayoutExt.GetStringCamelCaseSpace(instances[index].GetType().Name);
+				        
 				        var obj = objs[index];
 				        var it = obj.FindProperty("data");
 				        

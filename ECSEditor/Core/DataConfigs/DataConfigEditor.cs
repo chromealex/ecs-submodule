@@ -291,6 +291,8 @@ namespace ME.ECSEditor {
                                                       },
                                                       (index, component, prop) => {
 
+                        if (component == null) return;
+
                         usedComponents.Add(component.GetType());
                                                           
                         GUILayoutExt.DrawComponentHelp(component.GetType());
