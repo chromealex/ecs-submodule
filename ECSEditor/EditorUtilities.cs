@@ -107,6 +107,41 @@ namespace ME.ECSEditor {
             }
             
         }
+        
+        public static void SetSerializedValue<T>(this UnityEditor.SerializedProperty property, T value) {
+
+            object @object = property.serializedObject.targetObject;
+            var root = @object;
+            string[] propertyNames = property.propertyPath.Split('.');
+ 
+            // Clear the property path from "Array" and "data[i]".
+            if (propertyNames.Length >= 3 && propertyNames[propertyNames.Length - 2] == "Array")
+                propertyNames = propertyNames.Take(propertyNames.Length - 2).ToArray();
+ 
+            // Get the last object of the property path.
+            System.Reflection.FieldInfo field = null;
+            foreach (string path in propertyNames) {
+
+                field = @object.GetType()
+                                   .GetField(path, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                root = @object; 
+                @object = field.GetValue(@object);
+                
+            }
+ 
+            if (@object.GetType().GetInterfaces().Contains(typeof(IList<T>))) {
+            
+                int propertyIndex = int.Parse(property.propertyPath[property.propertyPath.Length - 2].ToString());
+                ((IList<T>) @object)[propertyIndex] = value;
+                
+            } else {
+                
+                field.SetValue(root, value);
+                
+            }
+            
+        }
+        
     }
     
 }

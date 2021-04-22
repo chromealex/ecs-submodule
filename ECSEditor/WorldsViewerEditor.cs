@@ -1003,7 +1003,7 @@ namespace ME.ECSEditor {
 
                             }
                             
-                            GUILayoutExt.DrawFieldsSingle(world, components.ToArray(),
+                            GUILayoutExt.DrawFieldsSingle(entityData.ToString(), world, components.ToArray(),
                                                               (index, component, prop) => {
                                                                   
                                                                   GUILayout.BeginVertical();
@@ -1069,7 +1069,7 @@ namespace ME.ECSEditor {
                             var isFoldoutShared = world.IsFoldOutViews("Shared", entityData.id);
                             GUILayoutExt.FoldOut(ref isFoldoutShared, $"Shared Components ({sortedRegistries.Count})", () => {
 
-                                GUILayoutExt.DrawFieldsSingle(world, components.ToArray(),
+                                GUILayoutExt.DrawFieldsSingle(entityData.ToString(), world, components.ToArray(),
                                                               (index, component, prop) => {
                                                                   
                                                                   GUILayout.BeginVertical();

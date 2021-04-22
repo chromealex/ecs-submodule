@@ -283,7 +283,7 @@ namespace ME.ECSEditor {
                     var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
 
                     this.serializedObject.Update();
-                    if (GUILayoutExt.DrawFieldsSingle(DataConfigEditor.multipleWorldEditor, dataConfig.structComponents,
+                    if (GUILayoutExt.DrawFieldsSingle(this, DataConfigEditor.multipleWorldEditor, dataConfig.structComponents,
                                                       (index, component, prop) => {
                                                           
                                                           GUILayout.BeginVertical();

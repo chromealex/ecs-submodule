@@ -886,133 +886,175 @@ namespace ME.ECSEditor {
 
         }
 
-        public static bool DrawFieldsSingle(WorldsViewerEditor.WorldEditor world, IStructComponent[] instances, System.Action<int, IStructComponent, SerializedProperty> onPropertyBegin, System.Action<int, IStructComponent, SerializedProperty> onPropertyEnd, System.Action<int, IStructComponent> onPropertyChanged = null) {
+        public struct FieldsSingleCache {
 
-	        var temp = new GameObject("Temp");
-	        var objs = new SerializedObject[instances.Length];
-	        for (int i = 0; i < instances.Length; ++i) {
-		    
-		        var comp = temp.AddComponent<TempObject>();
-		        comp.data = instances[i];
+	        public GameObject temp;
+	        public SerializedObject[] objs;
 
-		        objs[i] = new SerializedObject(comp);
+        }
+        private static readonly System.Collections.Generic.Dictionary<int, FieldsSingleCache> fieldsSingleCache = new System.Collections.Generic.Dictionary<int, FieldsSingleCache>();
+        
+        public static bool DrawFieldsSingle(object cacheKey, WorldsViewerEditor.WorldEditor world, IStructComponent[] instances, System.Action<int, IStructComponent, SerializedProperty> onPropertyBegin, System.Action<int, IStructComponent, SerializedProperty> onPropertyEnd, System.Action<int, IStructComponent> onPropertyChanged = null) {
 
-	        }
+	        SerializedObject[] objs = null;
+	        {
+		        if (GUILayoutExt.fieldsSingleCache.Count > 100) {
 
-	        const float minHeight = 24f;
-	        var backStyle = new GUIStyle(EditorStyles.label);
-	        backStyle.normal.background = Texture2D.whiteTexture;
-
-	        foreach (var obj in objs) obj.Update();
-	        var changed = false;
-	        for (var index = 0; index < objs.Length; index++) {
-		        
-		        var component = instances[index];
-		        
-		        EditorGUI.BeginChangeCheck();
-		        
-		        {
-			        using (new GUIBackgroundColorUsing(new Color(1f, 1f, 1f, index % 2 == 0 ? 0f : 0.05f))) {
-
-				        GUILayout.BeginVertical(backStyle, GUILayout.MinHeight(minHeight));
-
-			        }
-
-			        if (component == null) {
-
-				        onPropertyBegin.Invoke(index, null, null);
-
-				        EditorGUI.BeginDisabledGroup(true);
-				        var styleLabel = new GUIStyle(EditorStyles.label);
-				        styleLabel.richText = true;
-				        EditorGUILayout.LabelField(new GUIContent("<color=#f77><i>MISSING</i></color>"), styleLabel);
-				        EditorGUI.EndDisabledGroup();
+			        foreach (var kv in GUILayoutExt.fieldsSingleCache) {
 				        
-				        onPropertyEnd.Invoke(index, null, null);
-
-			        } else {
+				        GameObject.DestroyImmediate(kv.Value.temp);
 				        
-				        var label = GUILayoutExt.GetStringCamelCaseSpace(instances[index].GetType().Name);
-				        
-				        var obj = objs[index];
-				        var it = obj.FindProperty("data");
-				        
-				        onPropertyBegin.Invoke(index, component, it);
-
-				        var fieldsCount = GUILayoutExt.GetFieldsCount(component);
-				        if (fieldsCount == 0) {
-
-					        EditorGUI.BeginDisabledGroup(true);
-					        EditorGUILayout.Toggle(label, true);
-					        EditorGUI.EndDisabledGroup();
-
-				        } else if (EditorUtilities.GetPropertyChildCount(it) == 1 ||
-				                   EditorUtilities.GetPropertyHeight(it, true, new GUIContent(label)) <= minHeight) {
-
-					        if (EditorUtilities.GetPropertyChildCount(it) > 1 || it.NextVisible(true) == true) {
-								
-						        EditorGUILayout.PropertyField(it, new GUIContent(label), true);
-						        
-					        } else {
-						        
-						        EditorGUILayout.LabelField(label);
-						        
-					        }
-
-				        } else {
-							
-					        var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
-					        var state = world.IsFoldOutCustom(key);
-					        GUILayoutExt.FoldOut(ref state, label, () => {
-
-						        ++EditorGUI.indentLevel;
-						        
-						        var enterChildren = true;
-						        while (it.NextVisible(enterChildren) == true) {
-
-							        EditorGUILayout.PropertyField(it, true);
-							        enterChildren = false;
-
-						        }
-						        
-						        --EditorGUI.indentLevel;
-
-					        });
-					        world.SetFoldOutCustom(key, state);
-
-				        }
-				        
-				        onPropertyEnd.Invoke(index, component, it);
-
 			        }
 			        
-			        GUILayout.EndVertical();
+			        GUILayoutExt.fieldsSingleCache.Clear();
+			        
+		        }
+		        var key = cacheKey.GetHashCode();
+		        if (GUILayoutExt.fieldsSingleCache.TryGetValue(key, out var cache) == false) {
+
+			        var temp = new GameObject("Temp");
+			        temp.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
+			        cache.temp = temp;
+			        cache.objs = new SerializedObject[instances.Length];
+			        for (int i = 0; i < instances.Length; ++i) {
+
+				        var comp = temp.AddComponent<TempObject>();
+				        comp.data = instances[i];
+
+				        cache.objs[i] = new SerializedObject(comp);
+
+			        }
+
+			        GUILayoutExt.fieldsSingleCache.Add(key, cache);
+
+		        } else {
+
+			        objs = cache.objs;
+			        if (objs == null) {
+				        
+				        GUILayoutExt.fieldsSingleCache.Remove(key);
+				        return false;
+			        }
+
+		        }
+	        }
+
+	        var changed = false;
+	        {
+
+		        const float minHeight = 24f;
+		        var backStyle = new GUIStyle(EditorStyles.label);
+		        backStyle.normal.background = Texture2D.whiteTexture;
+
+		        foreach (var obj in objs) obj.Update();
+		        for (var index = 0; index < objs.Length; index++) {
+
+			        var component = instances[index];
+
+			        EditorGUI.BeginChangeCheck();
+
+			        {
+				        using (new GUIBackgroundColorUsing(new Color(1f, 1f, 1f, index % 2 == 0 ? 0f : 0.05f))) {
+
+					        GUILayout.BeginVertical(backStyle, GUILayout.MinHeight(minHeight));
+
+				        }
+
+				        if (component == null) {
+
+					        onPropertyBegin.Invoke(index, null, null);
+
+					        EditorGUI.BeginDisabledGroup(true);
+					        var styleLabel = new GUIStyle(EditorStyles.label);
+					        styleLabel.richText = true;
+					        EditorGUILayout.LabelField(new GUIContent("<color=#f77><i>MISSING</i></color>"), styleLabel);
+					        EditorGUI.EndDisabledGroup();
+
+					        onPropertyEnd.Invoke(index, null, null);
+
+				        } else {
+
+					        var label = GUILayoutExt.GetStringCamelCaseSpace(instances[index].GetType().Name);
+
+					        var obj = objs[index];
+					        var it = obj.FindProperty("data");
+
+					        onPropertyBegin.Invoke(index, component, it);
+
+					        var fieldsCount = GUILayoutExt.GetFieldsCount(component);
+					        if (fieldsCount == 0) {
+
+						        EditorGUI.BeginDisabledGroup(true);
+						        EditorGUILayout.Toggle(label, true);
+						        EditorGUI.EndDisabledGroup();
+
+					        } else if (EditorUtilities.GetPropertyChildCount(it) == 1 ||
+					                   EditorUtilities.GetPropertyHeight(it, true, new GUIContent(label)) <= minHeight) {
+
+						        if (EditorUtilities.GetPropertyChildCount(it) > 1 || it.NextVisible(true) == true) {
+
+							        EditorGUILayout.PropertyField(it, new GUIContent(label), true);
+
+						        } else {
+
+							        EditorGUILayout.LabelField(label);
+
+						        }
+
+					        } else {
+
+						        var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
+						        var state = world.IsFoldOutCustom(key);
+						        GUILayoutExt.FoldOut(ref state, label, () => {
+
+							        ++EditorGUI.indentLevel;
+
+							        var enterChildren = true;
+							        while (it.NextVisible(enterChildren) == true) {
+
+								        EditorGUILayout.PropertyField(it, true);
+								        enterChildren = false;
+
+							        }
+
+							        --EditorGUI.indentLevel;
+
+						        });
+						        world.SetFoldOutCustom(key, state);
+
+					        }
+
+					        onPropertyEnd.Invoke(index, component, it);
+
+				        }
+
+				        GUILayout.EndVertical();
+
+			        }
+
+			        if (EditorGUI.EndChangeCheck() == true) {
+
+				        changed = true;
+				        onPropertyChanged?.Invoke(index, component);
+
+			        }
 
 		        }
 
-		        if (EditorGUI.EndChangeCheck() == true) {
+		        foreach (var obj in objs) obj.ApplyModifiedProperties();
 
-			        changed = true;
-			        onPropertyChanged?.Invoke(index, component);
+		        if (changed == true) {
+
+			        for (var index = 0; index < objs.Length; index++) {
+
+				        instances[index] = (IStructComponent)((TempObject)objs[index].targetObject).data;
+
+			        }
 
 		        }
 
 	        }
-	        
-            foreach (var obj in objs) obj.ApplyModifiedProperties();
 
-            if (changed == true) {
-
-	            for (var index = 0; index < objs.Length; index++) {
-
-		            instances[index] = (IStructComponent)((TempObject)objs[index].targetObject).data;
-
-	            }
-
-            }
-            
-	        GameObject.DestroyImmediate(temp);
-	        
 	        return changed;
 	        
         }
