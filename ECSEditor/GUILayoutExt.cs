@@ -893,10 +893,19 @@ namespace ME.ECSEditor {
 
         }
         private static readonly System.Collections.Generic.Dictionary<int, FieldsSingleCache> fieldsSingleCache = new System.Collections.Generic.Dictionary<int, FieldsSingleCache>();
+
+        private static int GetFieldSingleCacheKey(object cacheKey, IStructComponent[] instances) {
+	        
+	        var key = cacheKey.GetHashCode();
+	        key ^= instances.Length;
+	        return key;
+
+        }
         
         public static bool DrawFieldsSingle(object cacheKey, WorldsViewerEditor.WorldEditor world, IStructComponent[] instances, System.Action<int, IStructComponent, SerializedProperty> onPropertyBegin, System.Action<int, IStructComponent, SerializedProperty> onPropertyEnd, System.Action<int, IStructComponent> onPropertyChanged = null) {
 
 	        SerializedObject[] objs = null;
+	        var key = GetFieldSingleCacheKey(cacheKey, instances);
 	        {
 		        if (GUILayoutExt.fieldsSingleCache.Count > 100) {
 
@@ -909,7 +918,6 @@ namespace ME.ECSEditor {
 			        GUILayoutExt.fieldsSingleCache.Clear();
 			        
 		        }
-		        var key = cacheKey.GetHashCode();
 		        if (GUILayoutExt.fieldsSingleCache.TryGetValue(key, out var cache) == false) {
 
 			        var temp = new GameObject("Temp");
@@ -926,15 +934,11 @@ namespace ME.ECSEditor {
 			        }
 
 			        GUILayoutExt.fieldsSingleCache.Add(key, cache);
+			        objs = cache.objs;
 
 		        } else {
 
 			        objs = cache.objs;
-			        if (objs == null) {
-				        
-				        GUILayoutExt.fieldsSingleCache.Remove(key);
-				        return false;
-			        }
 
 		        }
 	        }
@@ -1003,8 +1007,8 @@ namespace ME.ECSEditor {
 
 					        } else {
 
-						        var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
-						        var state = world.IsFoldOutCustom(key);
+						        var foldKey = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
+						        var state = world.IsFoldOutCustom(foldKey);
 						        GUILayoutExt.FoldOut(ref state, label, () => {
 
 							        ++EditorGUI.indentLevel;
@@ -1020,7 +1024,7 @@ namespace ME.ECSEditor {
 							        --EditorGUI.indentLevel;
 
 						        });
-						        world.SetFoldOutCustom(key, state);
+						        world.SetFoldOutCustom(foldKey, state);
 
 					        }
 
