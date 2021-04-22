@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 
 namespace ME.ECSEditor {
@@ -329,9 +330,18 @@ namespace ME.ECSEditor {
 
                 }
 
-                //componentIndex.ApplyCurrent();
-                
-                listEntities.Sort(new TypeComparer());
+                listEntities = listEntities.OrderBy(x => {
+                    
+                    var attrs = x.GetCustomAttributes(typeof(ME.ECS.ComponentOrderAttribute), false);
+                    if (attrs.Length > 0) {
+
+                        return (attrs[0] as ME.ECS.ComponentOrderAttribute).order;
+
+                    }
+                    
+                    return 0;
+                    
+                }).ThenBy(x => x.FullName).ToList();
                 
                 for (var i = 0; i < listEntities.Count; ++i) {
                     
@@ -408,16 +418,6 @@ namespace ME.ECSEditor {
 
             }
 
-        }
-
-    }
-
-    internal class TypeComparer : IComparer<System.Type> {
-
-        public int Compare(System.Type x, System.Type y) {
-            
-            return string.Compare(x.FullName, y.FullName, System.StringComparison.InvariantCulture);
-            
         }
 
     }

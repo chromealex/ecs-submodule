@@ -6,24 +6,25 @@
             
             WorldUtilities.ResetTypeIds();
             
-#CONTENT3#
-
             CoreComponentsInitializer.InitTypeId();
             
+#CONTENT3#
+
         }
         
         static partial void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
     
             WorldUtilities.ResetTypeIds();
             
+            CoreComponentsInitializer.InitTypeId();
+            
 #CONTENT3#
 
-            CoreComponentsInitializer.InitTypeId();
             ComponentsInitializerWorld.Setup(ComponentsInitializerWorldGen.Init);
-#CONTENT#
-    
             CoreComponentsInitializer.Init(ref structComponentsContainer);
             
+#CONTENT#
+    
         }
     
     }
