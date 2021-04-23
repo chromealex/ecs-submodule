@@ -15,13 +15,22 @@ namespace ME.ECS.Collections {
 
     }
 
+    /// <summary>
+    /// BufferArray<T> for array pool
+    /// Note: Beware of readonly instruction - it will readonly in build, but in editor it is non-readonly because of PropertyDrawer
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     [System.Serializable]
-    public readonly struct BufferArray<T> : System.IEquatable<BufferArray<T>>, IBufferArray {
+    public
+        #if !UNITY_EDITOR
+        readonly
+        #endif
+        struct BufferArray<T> : System.IEquatable<BufferArray<T>>, IBufferArray {
 
         public static BufferArray<T> Empty = new BufferArray<T>(null, 0);
 
@@ -75,11 +84,19 @@ namespace ME.ECS.Collections {
 
         }
 
-        public readonly EditorArr arr;
+        public
+            #if !UNITY_EDITOR
+            readonly
+            #endif
+            EditorArr arr;
         #else
         public readonly T[] arr;
         #endif
-        public readonly int Length;
+        public
+            #if !UNITY_EDITOR
+            readonly
+            #endif
+            int Length;
         public readonly bool isCreated;
 
         #if INLINE_METHODS

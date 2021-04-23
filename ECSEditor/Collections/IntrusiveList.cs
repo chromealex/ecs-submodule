@@ -4,7 +4,7 @@ namespace ME.ECSEditor.Collections {
     [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.Collections.IntrusiveList))]
     public class IntrusiveListPropertyEditor : UnityEditor.PropertyDrawer {
 
-        const float emptyHeight = 30f;
+        private const float EMPTY_HEIGHT = 30f;
 
         public override float GetPropertyHeight(UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
 
@@ -13,7 +13,7 @@ namespace ME.ECSEditor.Collections {
             var world = ME.ECS.Worlds.currentWorld;
             if (world == null || list.Count == 0) {
 
-                h += IntrusiveListPropertyEditor.emptyHeight;
+                h += IntrusiveListPropertyEditor.EMPTY_HEIGHT;
 
             } else {
                 
