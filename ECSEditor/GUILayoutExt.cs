@@ -902,7 +902,7 @@ namespace ME.ECSEditor {
 
         }
 
-        public static void DrawObjectAsPropertyField<T>(T obj) {
+        public static void DrawObjectAsPropertyField<T>(T obj, GUIContent label) {
 
 	        var temp = new GameObject("Temp");
 	        temp.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
@@ -913,13 +913,31 @@ namespace ME.ECSEditor {
 	        var so = new SerializedObject(comp);
 	        var it = so.GetIterator();
 	        it.Next(true);
-	        EditorGUILayout.PropertyField(it, true);
+	        EditorGUILayout.PropertyField(it, label, true);
 	        
 	        GameObject.DestroyImmediate(temp);
 
         }
 
-        public static void DrawObjectAsPropertyField<T>(Rect rect, T obj) {
+        public static float GetObjectAsPropertyFieldHeight<T>(T obj, GUIContent label) {
+	        
+	        var temp = new GameObject("Temp");
+	        temp.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
+	        
+	        var comp = temp.AddComponent<TempObject>();
+	        comp.data = obj;
+
+	        var so = new SerializedObject(comp);
+	        var it = so.GetIterator();
+	        it.FindPropertyRelative("data");
+	        var h = EditorGUI.GetPropertyHeight(it, label, true);
+	        
+	        GameObject.DestroyImmediate(temp);
+	        return h;
+
+        }
+
+        public static void DrawObjectAsPropertyField<T>(Rect rect, T obj, GUIContent label) {
 
 	        var temp = new GameObject("Temp");
 	        temp.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
@@ -929,8 +947,8 @@ namespace ME.ECSEditor {
 
 	        var so = new SerializedObject(comp);
 	        var it = so.GetIterator();
-	        it.Next(true);
-	        EditorGUI.PropertyField(rect, it, true);
+	        it.FindPropertyRelative("data");
+	        EditorGUI.PropertyField(rect, it, label, true);
 	        
 	        GameObject.DestroyImmediate(temp);
 
