@@ -911,9 +911,10 @@ namespace ME.ECSEditor {
 	        comp.data = obj;
 
 	        var so = new SerializedObject(comp);
-	        var it = so.GetIterator();
-	        it.Next(true);
+	        var it = so.FindProperty("data");
+	        so.Update();
 	        EditorGUILayout.PropertyField(it, label, true);
+	        so.ApplyModifiedProperties();
 	        
 	        GameObject.DestroyImmediate(temp);
 
@@ -928,8 +929,7 @@ namespace ME.ECSEditor {
 	        comp.data = obj;
 
 	        var so = new SerializedObject(comp);
-	        var it = so.GetIterator();
-	        it.FindPropertyRelative("data");
+	        var it = so.FindProperty("data");
 	        var h = EditorGUI.GetPropertyHeight(it, label, true);
 	        
 	        GameObject.DestroyImmediate(temp);
@@ -946,9 +946,10 @@ namespace ME.ECSEditor {
 	        comp.data = obj;
 
 	        var so = new SerializedObject(comp);
-	        var it = so.GetIterator();
-	        it.FindPropertyRelative("data");
+	        var it = so.FindProperty("data");
+	        so.Update();
 	        EditorGUI.PropertyField(rect, it, label, true);
+	        so.ApplyModifiedProperties();
 	        
 	        GameObject.DestroyImmediate(temp);
 
