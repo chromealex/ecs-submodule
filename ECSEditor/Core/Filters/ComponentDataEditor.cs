@@ -177,7 +177,7 @@ namespace ME.ECSEditor {
                     } else {
 
                         usedComponents.Add(addType);
-                        with.managedReferenceValue = (IStructComponent)System.Activator.CreateInstance(addType);
+                        with.managedReferenceValue = (IStructComponentBase)System.Activator.CreateInstance(addType);
 
                     }
 

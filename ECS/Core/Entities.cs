@@ -74,7 +74,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static long GetDataVersion<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
+        public static long GetDataVersion<TComponent>(this in Entity entity) where TComponent : struct, IVersioned {
 
             return Worlds.currentWorld.GetDataVersion<TComponent>(in entity);
 
@@ -83,7 +83,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static uint GetDataVersionNoState<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
+        public static uint GetDataVersionNoState<TComponent>(this in Entity entity) where TComponent : struct, IVersionedNoState {
 
             return Worlds.currentWorld.GetDataVersionNoState<TComponent>(in entity);
 
@@ -102,7 +102,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity ValidateData<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent {
+        public static Entity ValidateData<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase {
 
             Worlds.currentWorld.ValidateData<TComponent>(in entity, isTag);
             return entity;
@@ -112,7 +112,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity ValidateDataCopyable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+        public static Entity ValidateDataCopyable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructCopyable<TComponent> {
 
             Worlds.currentWorld.ValidateDataCopyable<TComponent>(in entity, isTag);
             return entity;
@@ -317,7 +317,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static bool HasShared<TComponent>(this in Entity entity, uint groupId = 0u) where TComponent : struct, IStructComponent {
+        public static bool HasShared<TComponent>(this in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
 
             return Worlds.currentWorld.HasSharedData<TComponent>(in entity, groupId);
             
@@ -326,7 +326,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static ref readonly TComponent ReadShared<TComponent>(this in Entity entity, uint groupId = 0u) where TComponent : struct, IStructComponent {
+        public static ref readonly TComponent ReadShared<TComponent>(this in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
 
             return ref Worlds.currentWorld.ReadSharedData<TComponent>(in entity, groupId);
             
@@ -335,7 +335,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static ref TComponent GetShared<TComponent>(this in Entity entity, uint groupId = 0u, bool createIfNotExists = true) where TComponent : struct, IStructComponent {
+        public static ref TComponent GetShared<TComponent>(this in Entity entity, uint groupId = 0u, bool createIfNotExists = true) where TComponent : struct, IComponentShared {
 
             return ref Worlds.currentWorld.GetSharedData<TComponent>(in entity, groupId, createIfNotExists);
             
@@ -344,7 +344,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity SetShared<TComponent>(this in Entity entity, in TComponent data, uint groupId = 0u) where TComponent : struct, IStructComponent {
+        public static Entity SetShared<TComponent>(this in Entity entity, in TComponent data, uint groupId = 0u) where TComponent : struct, IComponentShared {
 
             Worlds.currentWorld.SetSharedData(in entity, in data, groupId);
             return entity;
@@ -354,7 +354,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity RemoveShared<TComponent>(this in Entity entity, uint groupId = 0u) where TComponent : struct, IStructComponent {
+        public static Entity RemoveShared<TComponent>(this in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
 
             Worlds.currentWorld.RemoveSharedData<TComponent>(in entity, groupId);
             return entity;

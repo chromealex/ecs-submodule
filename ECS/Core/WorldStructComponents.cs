@@ -32,15 +32,17 @@ namespace ME.ECS {
 
     }
 
-    public interface IStructComponent { }
+    public interface IStructComponentBase { }
 
-    public interface IComponentShared : IStructComponent { }
+    public interface IStructComponent : IStructComponentBase { }
 
-    public interface IVersioned { }
+    public interface IVersioned : IStructComponentBase { }
 
-    public interface IVersionedNoState { }
+    public interface IVersionedNoState : IStructComponentBase { }
 
-    public interface IComponentDisposable : IStructComponent {
+    public interface IComponentShared : IStructComponentBase { }
+
+    public interface IComponentDisposable : IStructComponentBase {
 
         void OnDispose();
 
@@ -57,10 +59,10 @@ namespace ME.ECS {
 
     public interface IStructRegistryBase {
 
-        IStructComponent GetObject(Entity entity);
-        bool SetObject(Entity entity, IStructComponent data);
-        IStructComponent GetSharedObject(Entity entity, uint groupId);
-        bool SetSharedObject(Entity entity, IStructComponent data, uint groupId);
+        IStructComponentBase GetObject(Entity entity);
+        bool SetObject(Entity entity, IStructComponentBase data);
+        IStructComponentBase GetSharedObject(Entity entity, uint groupId);
+        bool SetSharedObject(Entity entity, IStructComponentBase data, uint groupId);
         bool RemoveObject(Entity entity);
         bool HasType(System.Type type);
 
@@ -86,11 +88,11 @@ namespace ME.ECS {
         public abstract void UpdateVersionNoState(in Entity entity);
         
         public abstract bool HasType(System.Type type);
-        public abstract IStructComponent GetObject(Entity entity);
-        public abstract bool SetObject(Entity entity, IStructComponent data);
+        public abstract IStructComponentBase GetObject(Entity entity);
+        public abstract bool SetObject(Entity entity, IStructComponentBase data);
         public abstract System.Collections.Generic.ICollection<uint> GetSharedGroups(Entity entity);
-        public abstract IStructComponent GetSharedObject(Entity entity, uint groupId);
-        public abstract bool SetSharedObject(Entity entity, IStructComponent data, uint groupId);
+        public abstract IStructComponentBase GetSharedObject(Entity entity, uint groupId);
+        public abstract bool SetSharedObject(Entity entity, IStructComponentBase data, uint groupId);
         public abstract bool RemoveObject(Entity entity);
 
         #if INLINE_METHODS
@@ -162,7 +164,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public class StructComponents<TComponent> : StructRegistryBase where TComponent : struct, IStructComponent {
+    public class StructComponents<TComponent> : StructRegistryBase where TComponent : struct, IStructComponentBase {
 
         public struct SharedGroupData {
 
@@ -564,7 +566,7 @@ namespace ME.ECS {
 
         }
 
-        public override IStructComponent GetObject(Entity entity) {
+        public override IStructComponentBase GetObject(Entity entity) {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -602,7 +604,7 @@ namespace ME.ECS {
 
         }
 
-        public override IStructComponent GetSharedObject(Entity entity, uint groupId) {
+        public override IStructComponentBase GetSharedObject(Entity entity, uint groupId) {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -617,7 +619,7 @@ namespace ME.ECS {
 
         }
 
-        public override bool SetSharedObject(Entity entity, IStructComponent data, uint groupId) {
+        public override bool SetSharedObject(Entity entity, IStructComponentBase data, uint groupId) {
             
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -636,7 +638,7 @@ namespace ME.ECS {
             
         }
 
-        public override bool SetObject(Entity entity, IStructComponent data) {
+        public override bool SetObject(Entity entity, IStructComponentBase data) {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -848,7 +850,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class StructComponentsDisposable<TComponent> : StructComponents<TComponent> where TComponent : struct, IStructComponent, IComponentDisposable {
+    public sealed class StructComponentsDisposable<TComponent> : StructComponents<TComponent> where TComponent : struct, IStructComponentBase, IComponentDisposable {
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -895,7 +897,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class StructComponentsCopyable<TComponent> : StructComponents<TComponent> where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+    public sealed class StructComponentsCopyable<TComponent> : StructComponents<TComponent> where TComponent : struct, IStructComponentBase, IStructCopyable<TComponent> {
 
         private struct CopyItem : IArrayElementCopyWithIndex<TComponent> {
 
@@ -1304,7 +1306,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void Validate<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent {
+        public void Validate<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             this.Validate<TComponent>(code, isTag);
@@ -1318,7 +1320,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void Validate<TComponent>(bool isTag = false) where TComponent : struct, IStructComponent {
+        public void Validate<TComponent>(bool isTag = false) where TComponent : struct, IStructComponentBase {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
@@ -1334,7 +1336,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void Validate<TComponent>(int code, bool isTag) where TComponent : struct, IStructComponent {
+        private void Validate<TComponent>(int code, bool isTag) where TComponent : struct, IStructComponentBase {
 
             if (ArrayUtils.WillResize(code, ref this.list) == true) {
 
@@ -1357,7 +1359,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void ValidateCopyable<TComponent>(bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+        public void ValidateCopyable<TComponent>(bool isTag = false) where TComponent : struct, IStructComponentBase, IStructCopyable<TComponent> {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
@@ -1370,7 +1372,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void ValidateCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+        public void ValidateCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase, IStructCopyable<TComponent> {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             this.ValidateCopyable<TComponent>(code, isTag);
@@ -1387,7 +1389,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void ValidateCopyable<TComponent>(int code, bool isTag) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+        private void ValidateCopyable<TComponent>(int code, bool isTag) where TComponent : struct, IStructComponentBase, IStructCopyable<TComponent> {
 
             if (ArrayUtils.WillResize(code, ref this.list) == true) {
 
@@ -1411,7 +1413,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void ValidateDisposable<TComponent>(bool isTag = false) where TComponent : struct, IStructComponent, IComponentDisposable {
+        public void ValidateDisposable<TComponent>(bool isTag = false) where TComponent : struct, IStructComponentBase, IComponentDisposable {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
@@ -1424,7 +1426,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void ValidateDisposable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent, IComponentDisposable {
+        public void ValidateDisposable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase, IComponentDisposable {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             this.ValidateDisposable<TComponent>(code, isTag);
@@ -1441,7 +1443,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void ValidateDisposable<TComponent>(int code, bool isTag) where TComponent : struct, IStructComponent, IComponentDisposable {
+        private void ValidateDisposable<TComponent>(int code, bool isTag) where TComponent : struct, IStructComponentBase, IComponentDisposable {
 
             if (ArrayUtils.WillResize(code, ref this.list) == true) {
 
@@ -1800,64 +1802,6 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public bool HasSharedData<TComponent>() where TComponent : struct, IStructComponent {
-
-            return this.HasData<TComponent>(in this.sharedEntity);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public ref 
-            //#if UNITY_EDITOR
-            readonly
-            //#endif
-            TComponent ReadSharedData<TComponent>() where TComponent : struct, IStructComponent {
-
-            return ref this.ReadData<TComponent>(in this.sharedEntity);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public ref TComponent GetSharedData<TComponent>(bool createIfNotExists = true) where TComponent : struct, IStructComponent {
-
-            return ref this.GetData<TComponent>(in this.sharedEntity, createIfNotExists);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public void SetSharedData<TComponent>(in TComponent data) where TComponent : struct, IStructComponent {
-
-            this.SetData(in this.sharedEntity, data);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public void SetSharedData<TComponent>(in TComponent data, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
-
-            this.SetData(in this.sharedEntity, data, lifetime);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public void RemoveSharedData<TComponent>() where TComponent : struct, IStructComponent {
-
-            this.RemoveData<TComponent>(in this.sharedEntity);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public bool HasDataBit(in Entity entity, int bit) {
 
             return this.currentState.structComponents.HasBit(in entity, bit);
@@ -1873,13 +1817,13 @@ namespace ME.ECS {
 
         }
 
-        public void ValidateData<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent {
+        public void ValidateData<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase {
 
             this.currentState.structComponents.Validate<TComponent>(in entity, isTag);
 
         }
 
-        public void ValidateDataCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponent, IStructCopyable<TComponent> {
+        public void ValidateDataCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase, IStructCopyable<TComponent> {
 
             this.currentState.structComponents.ValidateCopyable<TComponent>(in entity, isTag);
 
@@ -1966,7 +1910,7 @@ namespace ME.ECS {
             
         }
 
-        private void AddToLifetimeIndex<TComponent>(in Entity entity, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
+        private void AddToLifetimeIndex<TComponent>(in Entity entity, ComponentLifetime lifetime) where TComponent : struct, IStructComponentBase {
             
             var list = this.currentState.structComponents.listLifetimeTick;
             if (lifetime == ComponentLifetime.NotifyAllModules || lifetime == ComponentLifetime.NotifyAllModulesBelow) {
@@ -1987,67 +1931,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public bool HasData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            return ((StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId]).componentsStates.arr[entity.id] > 0;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public ref 
-            //#if UNITY_EDITOR
-            readonly
-            //#endif
-            TComponent ReadData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            // Inline all manually
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            if (AllComponentTypes<TComponent>.isTag == true) return ref AllComponentTypes<TComponent>.empty;
-            return ref reg.components[entity.id];
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public IStructComponent ReadData(in Entity entity, int registryIndex) {
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            // Inline all manually
-            var reg = this.currentState.structComponents.list.arr[registryIndex];
-            return reg.GetObject(entity);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public long GetDataVersion<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
+        public long GetDataVersion<TComponent>(in Entity entity) where TComponent : struct, IVersioned {
             
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -2066,7 +1950,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public uint GetDataVersionNoState<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
+        public uint GetDataVersionNoState<TComponent>(in Entity entity) where TComponent : struct, IVersionedNoState {
             
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -2082,11 +1966,71 @@ namespace ME.ECS {
             
         }
 
+        #region COMMON SHARED
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool HasSharedData<TComponent>() where TComponent : struct, IStructComponent {
+
+            return this.HasData<TComponent>(in this.sharedEntity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref 
+            //#if UNITY_EDITOR
+            readonly
+            //#endif
+            TComponent ReadSharedData<TComponent>() where TComponent : struct, IStructComponent {
+
+            return ref this.ReadData<TComponent>(in this.sharedEntity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref TComponent GetSharedData<TComponent>(bool createIfNotExists = true) where TComponent : struct, IStructComponent {
+
+            return ref this.GetData<TComponent>(in this.sharedEntity, createIfNotExists);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void SetSharedData<TComponent>(in TComponent data) where TComponent : struct, IStructComponent {
+
+            this.SetData(in this.sharedEntity, data);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void SetSharedData<TComponent>(in TComponent data, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
+
+            this.SetData(in this.sharedEntity, data, lifetime);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void RemoveSharedData<TComponent>() where TComponent : struct, IStructComponent {
+
+            this.RemoveData<TComponent>(in this.sharedEntity);
+
+        }
+        #endregion
+
         #region SHARED
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref readonly TComponent ReadSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IStructComponent {
+        public ref readonly TComponent ReadSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
             
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -2117,7 +2061,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public bool HasSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IStructComponent {
+        public bool HasSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
             
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -2148,7 +2092,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref TComponent GetSharedData<TComponent>(in Entity entity, uint groupId = 0u, bool createIfNotExists = true) where TComponent : struct, IStructComponent {
+        public ref TComponent GetSharedData<TComponent>(in Entity entity, uint groupId = 0u, bool createIfNotExists = true) where TComponent : struct, IComponentShared {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -2216,7 +2160,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void RemoveSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IStructComponent {
+        public void RemoveSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
             
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -2272,7 +2216,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void SetSharedData<TComponent>(in Entity entity, in TComponent data, uint groupId = 0u) where TComponent : struct, IStructComponent {
+        public void SetSharedData<TComponent>(in Entity entity, in TComponent data, uint groupId = 0u) where TComponent : struct, IComponentShared {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -2320,7 +2264,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void SetSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IStructComponent {
+        public void SetSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -2365,7 +2309,7 @@ namespace ME.ECS {
 
         }
         
-        public void SetSharedData(in Entity entity, in IStructComponent data, int dataIndex, uint groupId = 0u) {
+        public void SetSharedData(in Entity entity, in IStructComponentBase data, int dataIndex, uint groupId = 0u) {
             
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -2398,6 +2342,66 @@ namespace ME.ECS {
         #endregion
 
         #region GET/SET/READ
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool HasData<TComponent>(in Entity entity) where TComponent : struct, IStructComponentBase {
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            return ((StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId]).componentsStates.arr[entity.id] > 0;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref 
+            //#if UNITY_EDITOR
+            readonly
+            //#endif
+            TComponent ReadData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            // Inline all manually
+            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            if (AllComponentTypes<TComponent>.isTag == true) return ref AllComponentTypes<TComponent>.empty;
+            return ref reg.components[entity.id];
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public IStructComponentBase ReadData(in Entity entity, int registryIndex) {
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            // Inline all manually
+            var reg = this.currentState.structComponents.list.arr[registryIndex];
+            return reg.GetObject(entity);
+
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -2772,7 +2776,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void SetData(in Entity entity, in IStructComponent data, int dataIndex, int componentIndex) {
+        public void SetData(in Entity entity, in IStructComponentBase data, int dataIndex, int componentIndex) {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {

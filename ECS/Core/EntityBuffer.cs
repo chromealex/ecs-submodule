@@ -11,7 +11,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public struct DataBuffer<T> where T : struct, IStructComponent {
+    public struct DataBuffer<T> where T : struct, IStructComponentBase {
 
         [Unity.Collections.NativeDisableParallelForRestriction] private NativeArrayBurst<T> arr;
         [Unity.Collections.NativeDisableParallelForRestriction] private NativeArrayBurst<byte> ops;

@@ -13,7 +13,7 @@ namespace ME.ECS.Debug {
         public struct SharedGroup {
 
             public uint groupId;
-            public IStructComponent data;
+            public IStructComponentBase data;
 
         }
 
@@ -21,14 +21,14 @@ namespace ME.ECS.Debug {
             get { return this.entity.ToString(); }
         }
         
-        public IStructComponent[] components {
+        public IStructComponentBase[] components {
             
             get {
             
                 var world = Worlds.currentWorld;
                 var components = world.GetStructComponents();
                 var registries = components.GetAllRegistries();
-                var list = new System.Collections.Generic.List<IStructComponent>();
+                var list = new System.Collections.Generic.List<IStructComponentBase>();
                 foreach (var reg in registries) {
 
                     var comp = reg.GetObject(this.entity);

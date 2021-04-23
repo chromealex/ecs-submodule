@@ -6,7 +6,7 @@ namespace ME.ECS.Tests {
         private class TestState : State {}
         private struct TestComponent : IStructComponent {}
 
-        private struct TestComponentCopyable : IStructComponent, IStructCopyable<TestComponentCopyable> {
+        private struct TestComponentCopyable : IStructCopyable<TestComponentCopyable> {
 
             public int data;
             

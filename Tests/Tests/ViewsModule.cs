@@ -8,7 +8,7 @@ namespace ME.ECS.Tests {
 
         private class TestState : State {}
 
-        public struct HasView : IStructComponent {} 
+        public struct HasView : IStructComponentBase {} 
 
         private class TestSystem : ISystem, IAdvanceTick {
 

@@ -8,9 +8,9 @@ namespace ME.ECS {
     public struct FilterDataTypes {
 
         [SerializeReference]
-        public IStructComponent[] with;
+        public IStructComponentBase[] with;
         [SerializeReference]
-        public IStructComponent[] without;
+        public IStructComponentBase[] without;
 
     }
 
@@ -18,7 +18,7 @@ namespace ME.ECS {
     public struct ComponentData {
 
         [SerializeReference]
-        public IStructComponent component;
+        public IStructComponentBase component;
 
     }
 

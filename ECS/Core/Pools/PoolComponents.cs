@@ -11,7 +11,7 @@ namespace ME.ECS {
 
 	    private static Dictionary<long, PoolInternalBase> pool = new Dictionary<long, PoolInternalBase>();
 	    
-	    public static StructRegistryBase Spawn<T>() where T : struct, IStructComponent {
+	    public static StructRegistryBase Spawn<T>() where T : struct, IStructComponentBase {
 
 		    var key = WorldUtilities.GetAllComponentTypeId<T>();
 		    var obj = (StructComponents<T>)PoolRegistries.Spawn_INTERNAL(key, out var pool);
@@ -21,7 +21,7 @@ namespace ME.ECS {
 
 	    }
 
-	    public static StructRegistryBase SpawnCopyable<T>() where T : struct, IStructComponent, IStructCopyable<T> {
+	    public static StructRegistryBase SpawnCopyable<T>() where T : struct, IStructComponentBase, IStructCopyable<T> {
 
 		    var key = WorldUtilities.GetAllComponentTypeId<T>();
 		    var obj = (StructComponentsCopyable<T>)PoolRegistries.Spawn_INTERNAL(key, out var pool);
@@ -31,7 +31,7 @@ namespace ME.ECS {
 
 	    }
 
-	    public static StructRegistryBase SpawnDisposable<T>() where T : struct, IStructComponent, IComponentDisposable {
+	    public static StructRegistryBase SpawnDisposable<T>() where T : struct, IStructComponentBase, IComponentDisposable {
 
 		    var key = WorldUtilities.GetAllComponentTypeId<T>();
 		    var obj = (StructComponentsDisposable<T>)PoolRegistries.Spawn_INTERNAL(key, out var pool);

@@ -14,7 +14,7 @@ namespace ME.ECS {
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public struct FilterBag<T0>  where T0:struct,IStructComponent {
+public struct FilterBag<T0>  where T0:struct,IStructComponentBase {
 
     public readonly int Length;
     public int index;
@@ -108,7 +108,7 @@ public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntiti
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public struct FilterBag<T0,T1>  where T0:struct,IStructComponent where T1:struct,IStructComponent {
+public struct FilterBag<T0,T1>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase {
 
     public readonly int Length;
     public int index;
@@ -211,7 +211,7 @@ public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntiti
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public struct FilterBag<T0,T1,T2>  where T0:struct,IStructComponent where T1:struct,IStructComponent where T2:struct,IStructComponent {
+public struct FilterBag<T0,T1,T2>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase {
 
     public readonly int Length;
     public int index;
@@ -323,7 +323,7 @@ public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.filterEntiti
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public struct FilterBag<T0,T1,T2,T3>  where T0:struct,IStructComponent where T1:struct,IStructComponent where T2:struct,IStructComponent where T3:struct,IStructComponent {
+public struct FilterBag<T0,T1,T2,T3>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase {
 
     public readonly int Length;
     public int index;
@@ -444,7 +444,7 @@ public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.filterEntiti
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public struct FilterBag<T0,T1,T2,T3,T4>  where T0:struct,IStructComponent where T1:struct,IStructComponent where T2:struct,IStructComponent where T3:struct,IStructComponent where T4:struct,IStructComponent {
+public struct FilterBag<T0,T1,T2,T3,T4>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase {
 
     public readonly int Length;
     public int index;
@@ -574,7 +574,7 @@ public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.filterEntiti
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:struct,IStructComponent where T1:struct,IStructComponent where T2:struct,IStructComponent where T3:struct,IStructComponent where T4:struct,IStructComponent where T5:struct,IStructComponent {
+public struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase {
 
     public readonly int Length;
     public int index;
@@ -713,7 +713,7 @@ public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.filterEntiti
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:struct,IStructComponent where T1:struct,IStructComponent where T2:struct,IStructComponent where T3:struct,IStructComponent where T4:struct,IStructComponent where T5:struct,IStructComponent where T6:struct,IStructComponent {
+public struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase {
 
     public readonly int Length;
     public int index;
@@ -861,7 +861,7 @@ public ref readonly T6 ReadT6() { return ref this.buffer6.Read(this.filterEntiti
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:struct,IStructComponent where T1:struct,IStructComponent where T2:struct,IStructComponent where T3:struct,IStructComponent where T4:struct,IStructComponent where T5:struct,IStructComponent where T6:struct,IStructComponent where T7:struct,IStructComponent {
+public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase {
 
     public readonly int Length;
     public int index;
@@ -1018,7 +1018,7 @@ public ref readonly T7 ReadT7() { return ref this.buffer7.Read(this.filterEntiti
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:struct,IStructComponent where T1:struct,IStructComponent where T2:struct,IStructComponent where T3:struct,IStructComponent where T4:struct,IStructComponent where T5:struct,IStructComponent where T6:struct,IStructComponent where T7:struct,IStructComponent where T8:struct,IStructComponent {
+public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase {
 
     public readonly int Length;
     public int index;

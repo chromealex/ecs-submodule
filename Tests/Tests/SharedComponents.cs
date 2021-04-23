@@ -5,7 +5,7 @@ namespace ME.ECS.Tests {
         
         private class TestState : State {}
 
-        private struct TestComponent : IStructComponent {
+        private struct TestComponent : IComponentShared {
 
             public int data;
 

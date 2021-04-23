@@ -89,7 +89,7 @@ namespace ME.ECSEditor {
                         list.Add(addType);
                         ++with.arraySize;
                         var item = with.GetArrayElementAtIndex(with.arraySize - 1);
-                        item.managedReferenceValue = (IStructComponent)System.Activator.CreateInstance(addType);
+                        item.managedReferenceValue = (IStructComponentBase)System.Activator.CreateInstance(addType);
 
                     }
                     obj.ApplyModifiedProperties();

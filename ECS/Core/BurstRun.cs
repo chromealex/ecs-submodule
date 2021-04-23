@@ -17,14 +17,14 @@ namespace ME.ECS {
 
     public interface IBurstExecute { }
 
-    public interface IBurstExecute<T0, T1> : IBurstExecute where T0 : struct, IStructComponent where T1 : struct, IStructComponent {
+    public interface IBurstExecute<T0, T1> : IBurstExecute where T0 : struct, IStructComponentBase where T1 : struct, IStructComponentBase {
 
         Unity.Burst.FunctionPointer<BurstSystem<T0, T1>.SystemFunctionPointerDelegate> GetBurstMethod();
 
     }
 
     [BurstCompile(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true, Debug = false)]
-    public static unsafe class BurstSystem<T0, T1> where T0 : struct, IStructComponent where T1 : struct, IStructComponent {
+    public static unsafe class BurstSystem<T0, T1> where T0 : struct, IStructComponentBase where T1 : struct, IStructComponentBase {
 
         [BurstCompile(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true, Debug = false)]
         public struct Temp {

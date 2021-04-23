@@ -8,7 +8,7 @@ namespace ME.ECS {
     /// Used in data configs
     /// If component has this interface - it would be ignored in DataConfig::Apply method
     /// </summary>
-    public interface IComponentStatic : IStructComponent { }
+    public interface IComponentStatic : IStructComponentBase { }
 
 }
 
@@ -50,10 +50,10 @@ namespace ME.ECS.DataConfigs {
         }
 
         [SerializeReference]
-        public IStructComponent[] structComponents = new IStructComponent[0];
+        public IStructComponentBase[] structComponents = new IStructComponentBase[0];
         public uint sharedGroupId;
         [SerializeReference]
-        public IStructComponent[] removeStructComponents = new IStructComponent[0];
+        public IStructComponentBase[] removeStructComponents = new IStructComponentBase[0];
 
         public string[] templates;
         
@@ -178,7 +178,7 @@ namespace ME.ECS.DataConfigs {
 
         }
         
-        public int GetComponentDataIndexByTypeRemoveWithCache(IStructComponent component, int idx) {
+        public int GetComponentDataIndexByTypeRemoveWithCache(IStructComponentBase component, int idx) {
 
             if (this.removeStructComponentsDataTypeIds[idx] >= 0) return this.removeStructComponentsDataTypeIds[idx];
 	        
@@ -197,7 +197,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public int GetComponentDataIndexByTypeWithCache(IStructComponent component, int idx) {
+        public int GetComponentDataIndexByTypeWithCache(IStructComponentBase component, int idx) {
 
 	        if (this.structComponentsDataTypeIds[idx] >= 0) return this.structComponentsDataTypeIds[idx];
 	        
@@ -216,7 +216,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public int GetComponentDataIndexByType(IStructComponent component) {
+        public int GetComponentDataIndexByType(IStructComponentBase component) {
 
 	        if (ComponentTypesRegistry.allTypeId.TryGetValue(component.GetType(), out var index) == true) {
 
@@ -245,7 +245,7 @@ namespace ME.ECS.DataConfigs {
 
         }
         
-        public void SetByType(IStructComponent component) {
+        public void SetByType(IStructComponentBase component) {
 
 	        var type = component.GetType();
 	        for (int i = 0; i < this.structComponents.Length; ++i) {
@@ -277,7 +277,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public bool Has<T>() where T : struct, IStructComponent {
+        public bool Has<T>() where T : struct, IStructComponentBase {
 	        
 	        var type = typeof(T);
 	        for (int i = 0; i < this.structComponents.Length; ++i) {
@@ -294,7 +294,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public T Get<T>() where T : struct, IStructComponent {
+        public T Get<T>() where T : struct, IStructComponentBase {
 
 	        var type = typeof(T);
 	        for (int i = 0; i < this.structComponents.Length; ++i) {
@@ -383,7 +383,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public bool UpdateValue(IStructComponent component) {
+        public bool UpdateValue(IStructComponentBase component) {
 
             var componentType = component.GetType();
             if (this.HasByType(this.structComponents, componentType) == false) {
@@ -534,7 +534,7 @@ namespace ME.ECS.DataConfigs {
         public DataConfig[] configs;
         public System.Type[] structComponentsTypes;
 
-        public void Set(IStructComponent[] components) {
+        public void Set(IStructComponentBase[] components) {
 
             for (int i = 0; i < this.configs.Length; ++i) {
 

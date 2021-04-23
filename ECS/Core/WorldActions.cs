@@ -183,28 +183,28 @@ namespace ME.ECS {
 
         }
 
-        public FilterAction WithStructComponent<TComponent>() where TComponent : struct, IStructComponent {
+        public FilterAction WithStructComponent<TComponent>() where TComponent : struct, IStructComponentBase {
 
             this.filter.With<TComponent>();
             return this;
 
         }
 
-        public FilterAction WithoutStructComponent<TComponent>() where TComponent : struct, IStructComponent {
+        public FilterAction WithoutStructComponent<TComponent>() where TComponent : struct, IStructComponentBase {
 
             this.filter.Without<TComponent>();
             return this;
 
         }
 
-        public FilterAction With<TComponent>() where TComponent : struct, IStructComponent {
+        public FilterAction With<TComponent>() where TComponent : struct, IStructComponentBase {
 
             this.filter.With<TComponent>();
             return this;
 
         }
 
-        public FilterAction Without<TComponent>() where TComponent : struct, IStructComponent {
+        public FilterAction Without<TComponent>() where TComponent : struct, IStructComponentBase {
 
             this.filter.Without<TComponent>();
             return this;

@@ -12,7 +12,7 @@ namespace ME.ECSEditor {
 
         private struct Registry {
 
-            public IStructComponent data;
+            public IStructComponentBase data;
             public int index;
 
         }
@@ -260,7 +260,7 @@ namespace ME.ECSEditor {
 
                                 usedComponentsAll.Add(addType);
                                 System.Array.Resize(ref dataConfigInner.structComponents, dataConfigInner.structComponents.Length + 1);
-                                dataConfigInner.structComponents[dataConfigInner.structComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
+                                dataConfigInner.structComponents[dataConfigInner.structComponents.Length - 1] = (IStructComponentBase)System.Activator.CreateInstance(addType);
                                 //dataConfigInner.OnScriptLoad();
                                 this.Save(dataConfigInner);
                                 this.OnAddComponent(addType);
@@ -372,7 +372,7 @@ namespace ME.ECSEditor {
 
                             usedComponents.Add(addType);
                             System.Array.Resize(ref dataConfig.structComponents, dataConfig.structComponents.Length + 1);
-                            dataConfig.structComponents[dataConfig.structComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
+                            dataConfig.structComponents[dataConfig.structComponents.Length - 1] = (IStructComponentBase)System.Activator.CreateInstance(addType);
                             //dataConfig.OnScriptLoad();
                             this.Save(dataConfig);
                             this.OnAddComponent(addType);
@@ -447,7 +447,7 @@ namespace ME.ECSEditor {
 
                             usedComponents.Add(addType);
                             System.Array.Resize(ref dataConfig.removeStructComponents, dataConfig.removeStructComponents.Length + 1);
-                            dataConfig.removeStructComponents[dataConfig.removeStructComponents.Length - 1] = (IStructComponent)System.Activator.CreateInstance(addType);
+                            dataConfig.removeStructComponents[dataConfig.removeStructComponents.Length - 1] = (IStructComponentBase)System.Activator.CreateInstance(addType);
                             //dataConfig.OnScriptLoad();
                             this.Save(dataConfig);
                             this.OnAddComponentFromRemoveList(addType);
@@ -464,7 +464,7 @@ namespace ME.ECSEditor {
             
         }
 
-        private void DrawShared(IStructComponent component) {
+        private void DrawShared(IStructComponentBase component) {
             
             GUILayout.BeginHorizontal();
             {

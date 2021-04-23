@@ -395,7 +395,7 @@ namespace ME.ECSEditor {
 
                 if (GUILayoutExt.allStructComponents == null) {
 
-	                GUILayoutExt.allStructComponents = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).Where(x => x.IsValueType == true && typeof(IStructComponent).IsAssignableFrom(x)).ToArray();
+	                GUILayoutExt.allStructComponents = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).Where(x => x.IsValueType == true && typeof(IStructComponentBase).IsAssignableFrom(x)).ToArray();
 
                 }
 
@@ -494,7 +494,7 @@ namespace ME.ECSEditor {
 
                 if (GUILayoutExt.allStructComponents == null) {
 
-	                GUILayoutExt.allStructComponents = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).Where(x => x.IsValueType == true && typeof(IStructComponent).IsAssignableFrom(x)).ToArray();
+	                GUILayoutExt.allStructComponents = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).Where(x => x.IsValueType == true && typeof(IStructComponentBase).IsAssignableFrom(x)).ToArray();
 
                 }
 
@@ -594,7 +594,7 @@ namespace ME.ECSEditor {
 					    } else {
 				                
 						    usedComponents.Add(addType);
-						    registry.SetObject(entity, (IStructComponent)System.Activator.CreateInstance(addType));
+						    registry.SetObject(entity, (IStructComponentBase)System.Activator.CreateInstance(addType));
 						    Worlds.currentWorld.AddComponentToFilter(entity);
 
 					    }
@@ -894,7 +894,7 @@ namespace ME.ECSEditor {
         }
         private static readonly System.Collections.Generic.Dictionary<int, FieldsSingleCache> fieldsSingleCache = new System.Collections.Generic.Dictionary<int, FieldsSingleCache>();
 
-        private static int GetFieldSingleCacheKey(object cacheKey, IStructComponent[] instances) {
+        private static int GetFieldSingleCacheKey(object cacheKey, IStructComponentBase[] instances) {
 	        
 	        var key = cacheKey.GetHashCode();
 	        key ^= instances.Length;
@@ -902,7 +902,7 @@ namespace ME.ECSEditor {
 
         }
         
-        public static bool DrawFieldsSingle(object cacheKey, WorldsViewerEditor.WorldEditor world, IStructComponent[] instances, System.Action<int, IStructComponent, SerializedProperty> onPropertyBegin, System.Action<int, IStructComponent, SerializedProperty> onPropertyEnd, System.Action<int, IStructComponent> onPropertyChanged = null) {
+        public static bool DrawFieldsSingle(object cacheKey, WorldsViewerEditor.WorldEditor world, IStructComponentBase[] instances, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyBegin, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyEnd, System.Action<int, IStructComponentBase> onPropertyChanged = null) {
 
 	        SerializedObject[] objs = null;
 	        var key = GetFieldSingleCacheKey(cacheKey, instances);
@@ -1051,7 +1051,7 @@ namespace ME.ECSEditor {
 
 			        for (var index = 0; index < objs.Length; index++) {
 
-				        instances[index] = (IStructComponent)((TempObject)objs[index].targetObject).data;
+				        instances[index] = (IStructComponentBase)((TempObject)objs[index].targetObject).data;
 
 			        }
 
