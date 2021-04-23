@@ -901,7 +901,41 @@ namespace ME.ECSEditor {
 	        return key;
 
         }
-        
+
+        public static void DrawObjectAsPropertyField<T>(T obj) {
+
+	        var temp = new GameObject("Temp");
+	        temp.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
+	        
+	        var comp = temp.AddComponent<TempObject>();
+	        comp.data = obj;
+
+	        var so = new SerializedObject(comp);
+	        var it = so.GetIterator();
+	        it.Next(true);
+	        EditorGUILayout.PropertyField(it, true);
+	        
+	        GameObject.DestroyImmediate(temp);
+
+        }
+
+        public static void DrawObjectAsPropertyField<T>(Rect rect, T obj) {
+
+	        var temp = new GameObject("Temp");
+	        temp.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
+	        
+	        var comp = temp.AddComponent<TempObject>();
+	        comp.data = obj;
+
+	        var so = new SerializedObject(comp);
+	        var it = so.GetIterator();
+	        it.Next(true);
+	        EditorGUI.PropertyField(rect, it, true);
+	        
+	        GameObject.DestroyImmediate(temp);
+
+        }
+
         public static bool DrawFieldsSingle(object cacheKey, WorldsViewerEditor.WorldEditor world, IStructComponentBase[] instances, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyBegin, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyEnd, System.Action<int, IStructComponentBase> onPropertyChanged = null) {
 
 	        SerializedObject[] objs = null;
