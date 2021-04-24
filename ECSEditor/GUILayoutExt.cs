@@ -940,7 +940,7 @@ namespace ME.ECSEditor {
         public static void DrawObjectAsPropertyField<T>(Rect rect, T obj, GUIContent label) {
 
 	        var temp = new GameObject("Temp");
-	        //temp.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
+	        temp.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
 	        
 	        var comp = temp.AddComponent<TempObject>();
 	        comp.data = obj;
@@ -949,9 +949,34 @@ namespace ME.ECSEditor {
 	        var it = so.FindProperty("data");
 	        so.Update();
 	        EditorGUI.PropertyField(rect, it, label, true);
-		    so.ApplyModifiedProperties();
+	        so.ApplyModifiedProperties();
 	        
-	        //GameObject.DestroyImmediate(temp);
+	        GameObject.DestroyImmediate(temp);
+
+        }
+
+        public static void DrawObjectAsPropertyFieldAll<T>(Rect rect, T obj, GUIContent label) {
+
+	        var temp = new GameObject("Temp");
+	        temp.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
+	        
+	        var comp = temp.AddComponent<TempObject>();
+	        comp.data = obj;
+
+	        var so = new SerializedObject(comp);
+	        var it = so.FindProperty("data");
+	        so.Update();
+	        while (it.Next(true) == true) {
+
+		        var h = EditorGUI.GetPropertyHeight(it, label);
+		        rect.height = h;
+		        EditorGUI.PropertyField(rect, it, label);
+		        rect.y += h;
+
+	        }
+	        so.ApplyModifiedProperties();
+	        
+	        GameObject.DestroyImmediate(temp);
 
         }
 
