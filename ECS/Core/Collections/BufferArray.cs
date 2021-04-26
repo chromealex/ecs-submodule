@@ -26,11 +26,7 @@ namespace ME.ECS.Collections {
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     [System.Serializable]
-    public
-        #if !UNITY_EDITOR
-        readonly
-        #endif
-        struct BufferArray<T> : System.IEquatable<BufferArray<T>>, IBufferArray {
+    public readonly struct BufferArray<T> : System.IEquatable<BufferArray<T>>, IBufferArray {
 
         public static BufferArray<T> Empty = new BufferArray<T>(null, 0);
 
@@ -84,19 +80,11 @@ namespace ME.ECS.Collections {
 
         }
 
-        public
-            #if !UNITY_EDITOR
-            readonly
-            #endif
-            EditorArr arr;
+        public readonly EditorArr arr;
         #else
         public readonly T[] arr;
         #endif
-        public
-            #if !UNITY_EDITOR
-            readonly
-            #endif
-            int Length;
+        public readonly int Length;
         public readonly bool isCreated;
 
         #if INLINE_METHODS
