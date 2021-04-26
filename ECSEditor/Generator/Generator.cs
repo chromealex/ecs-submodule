@@ -59,7 +59,7 @@ namespace ME.ECSEditor {
             foreach (var asm in asms) {
 
                 var asmPath = UnityEditor.AssetDatabase.GUIDToAssetPath(asm);
-                var asmNamePath = System.IO.Path.GetDirectoryName(asmPath);
+                var asmNamePath = System.IO.Path.GetDirectoryName(asmPath).Replace("\\", "/");
                 if (System.IO.Directory.Exists(asmNamePath) == false) continue;
 
                 if (delete == true) {
