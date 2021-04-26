@@ -1,7 +1,7 @@
 ﻿
 namespace ME.ECSEditor.Collections {
 
-    [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.Collections.BufferArray<>))]
+    /*[UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.Collections.BufferArray<>))]
     public class BufferArrayPropertyEditor : UnityEditor.PropertyDrawer {
 
         private const float EMPTY_HEIGHT = 30f;
@@ -76,6 +76,6 @@ namespace ME.ECSEditor.Collections {
 
         }
 
-    }
+    }*/
 
 }

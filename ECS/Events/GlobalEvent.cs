@@ -11,19 +11,19 @@ namespace ME.ECS {
         public delegate void GlobalEventDelegate(in Entity entity);
         public event GlobalEventDelegate events;
         
-        public void Subscribe(GlobalEventDelegate callback) {
+        public virtual void Subscribe(GlobalEventDelegate callback) {
 
             this.events += callback;
 
         }
         
-        public void Unsubscribe(GlobalEventDelegate callback) {
+        public virtual void Unsubscribe(GlobalEventDelegate callback) {
             
             this.events -= callback;
             
         }
 
-        public void Run(in Entity entity) {
+        public virtual void Run(in Entity entity) {
             
             if (this.events != null) this.events.Invoke(entity);
             
@@ -41,7 +41,7 @@ namespace ME.ECS {
             
         }
 
-        public bool Cancel(in Entity entity, World.GlobalEventType globalEventType) {
+        public virtual bool Cancel(in Entity entity, World.GlobalEventType globalEventType) {
             
             for (int i = 0; i < this.callOthers.Length; ++i) this.callOthers[i].Cancel(in entity, globalEventType);
 
@@ -61,7 +61,7 @@ namespace ME.ECS {
             
         }
 
-        public void Execute(in Entity entity, World.GlobalEventType globalEventType) {
+        public virtual void Execute(in Entity entity, World.GlobalEventType globalEventType) {
             
             // If we are reverting - skip visual events
             if (globalEventType == World.GlobalEventType.Visual) {
