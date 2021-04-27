@@ -874,7 +874,7 @@ namespace ME.ECSEditor {
                                           var entityData = item;
 
                                           GUILayout.Space(2f);
-                                          WorldsViewerEditor.DrawEntity(entityData, world, storage, componentsStructStorage, modules);
+                                          WorldsViewerEditor.DrawEntity(null, entityData, world, storage, componentsStructStorage, modules);
                                           //list.Set(elementsIdx[i], entityData);
 
                                       }
@@ -932,7 +932,7 @@ namespace ME.ECSEditor {
 
         }
 
-        public static void DrawEntity(Entity entityData, WorldEditor world, IStorage storage, IStructComponentsContainer componentsStructStorage, ME.ECS.Collections.ListCopyable<IModuleBase> modules) {
+        public static void DrawEntity(string search, Entity entityData, WorldEditor world, IStorage storage, IStructComponentsContainer componentsStructStorage, ME.ECS.Collections.ListCopyable<IModuleBase> modules) {
             
             const float padding = 8f;
 
@@ -1003,24 +1003,24 @@ namespace ME.ECSEditor {
 
                             }
                             
-                            GUILayoutExt.DrawFieldsSingle(entityData.ToString(), world, components.ToArray(),
-                                                              (index, component, prop) => {
+                            GUILayoutExt.DrawFieldsSingle(search, entityData.ToString(), world, components.ToArray(),
+                                                          (index, component, prop) => {
                                                                   
-                                                                  GUILayout.BeginVertical();
+                                                              GUILayout.BeginVertical();
                                                                   
-                                                              },
-                                                              (index, component, prop) => {
+                                                          },
+                                                          (index, component, prop) => {
 
-                                                                  usedComponents.Add(component.GetType());
-                                                                  GUILayoutExt.DrawComponentHelp(component.GetType());
-                                                                  GUILayout.EndVertical();
-                                                                  GUILayoutExt.Separator();
+                                                              usedComponents.Add(component.GetType());
+                                                              GUILayoutExt.DrawComponentHelp(component.GetType());
+                                                              GUILayout.EndVertical();
+                                                              GUILayoutExt.Separator();
 
-                                                              }, (index, component) => {
+                                                          }, (index, component) => {
                                                                   
-                                                                  sortedRegistries[index].SetObject(entityData, component);
+                                                              sortedRegistries[index].SetObject(entityData, component);
                                                                   
-                                                              });
+                                                          });
 
                             GUILayoutExt.DrawAddComponentMenu(entityData, usedComponents, componentsStructStorage);
                             
@@ -1043,7 +1043,7 @@ namespace ME.ECSEditor {
                                 #if VIEWS_MODULE_SUPPORT
                                 if (registry is StructComponents<ME.ECS.Views.ViewComponent>) continue;
                                 #endif
-
+                                
                                 var groupIds = registry.GetSharedGroups(entityData);
                                 foreach (var groupId in groupIds) {
 
@@ -1051,6 +1051,8 @@ namespace ME.ECSEditor {
                                     if (component == null) {
                                         continue;
                                     }
+
+                                    if (GUILayoutExt.IsSearchValid(component, search) == false) continue;
 
                                     usedComponents.Add(component.GetType());
                                     components.Add(component);
@@ -1069,7 +1071,7 @@ namespace ME.ECSEditor {
                             var isFoldoutShared = world.IsFoldOutViews("Shared", entityData.id);
                             GUILayoutExt.FoldOut(ref isFoldoutShared, $"Shared Components ({sortedRegistries.Count})", () => {
 
-                                GUILayoutExt.DrawFieldsSingle(entityData.ToString(), world, components.ToArray(),
+                                GUILayoutExt.DrawFieldsSingle(search, entityData.ToString(), world, components.ToArray(),
                                                               (index, component, prop) => {
                                                                   
                                                                   GUILayout.BeginVertical();

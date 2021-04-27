@@ -63,6 +63,7 @@ namespace ME.ECSEditor {
 
         }
 
+        private string search;
         public override void OnInspectorGUI() {
 
             var dataConfig = (ME.ECS.DataConfigs.DataConfig)this.target;
@@ -91,6 +92,8 @@ namespace ME.ECSEditor {
                 GUILayout.EndHorizontal();
 
             }
+
+            this.search = GUILayoutExt.SearchField("Search", this.search);
             
             {
                 var style = new GUIStyle(EditorStyles.toolbar);
@@ -149,6 +152,7 @@ namespace ME.ECSEditor {
 
                             var type = slice.structComponentsTypes[i];
                             var component = slice.configs[0].GetByType(slice.configs[0].structComponents, type);
+                            if (GUILayoutExt.IsSearchValid(component, this.search) == false) continue;
                             var components = slice.configs.Select(x => x.GetByType(x.structComponents, type)).ToArray();
 
                             var backColor = GUI.backgroundColor;
@@ -283,7 +287,7 @@ namespace ME.ECSEditor {
                     var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
 
                     this.serializedObject.Update();
-                    if (GUILayoutExt.DrawFieldsSingle(this, DataConfigEditor.multipleWorldEditor, dataConfig.structComponents,
+                    if (GUILayoutExt.DrawFieldsSingle(this.search, this, DataConfigEditor.multipleWorldEditor, dataConfig.structComponents,
                                                       (index, component, prop) => {
                                                           
                                                           GUILayout.BeginVertical();
@@ -396,6 +400,7 @@ namespace ME.ECSEditor {
                     for (int i = 0; i < registries.Length; ++i) {
 
                         var registry = registries[i];
+                        if (GUILayoutExt.IsSearchValid(registry, this.search) == false) continue;
                         var type = registry.GetType();
 
                         usedComponents.Add(type);

@@ -8,6 +8,8 @@
     public class EntityDebugComponentEditor : Editor {
 
         private static readonly System.Collections.Generic.Dictionary<World, WorldsViewerEditor.WorldEditor> worldEditors = new System.Collections.Generic.Dictionary<World, WorldsViewerEditor.WorldEditor>();
+
+        private string search;
         
         public override void OnInspectorGUI() {
 
@@ -25,7 +27,9 @@
 
                     }
 
-                    WorldsViewerEditor.DrawEntity(target.entity, worldEditor, worldEditor.GetEntitiesStorage(), worldEditor.GetStructComponentsStorage(), worldEditor.GetModules());
+                    this.search = GUILayoutExt.SearchField("Search", this.search);
+
+                    WorldsViewerEditor.DrawEntity(this.search, target.entity, worldEditor, worldEditor.GetEntitiesStorage(), worldEditor.GetStructComponentsStorage(), worldEditor.GetModules());
                     this.Repaint();
 
                 }

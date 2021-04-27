@@ -980,10 +980,37 @@ namespace ME.ECSEditor {
 
         }
 
-        public static bool DrawFieldsSingle(object cacheKey, WorldsViewerEditor.WorldEditor world, IStructComponentBase[] instances, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyBegin, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyEnd, System.Action<int, IStructComponentBase> onPropertyChanged = null) {
+        public static string SearchField(string label, string value) {
+
+	        if (value == null) value = string.Empty;
+	        return EditorGUILayout.TextField(label, value, EditorStyles.toolbarSearchField);
+
+        }
+
+        public static bool IsSearchValid(IStructComponentBase component, string search) {
+
+	        if (string.IsNullOrEmpty(search) == false) {
+
+		        var splitted = search.Split(' ');
+		        for (int i = 0; i < splitted.Length; ++i) {
+
+			        var type = component.GetType();
+			        if (type.FullName.ToLower().Contains(splitted[i].ToLower()) == true) return true;
+
+		        }
+
+		        return false;
+
+	        }
+
+	        return true;
+	        
+        }
+
+        public static bool DrawFieldsSingle(string search, object cacheKey, WorldsViewerEditor.WorldEditor world, IStructComponentBase[] instances, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyBegin, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyEnd, System.Action<int, IStructComponentBase> onPropertyChanged = null) {
 
 	        SerializedObject[] objs = null;
-	        var key = GetFieldSingleCacheKey(cacheKey, instances);
+	        var key = GUILayoutExt.GetFieldSingleCacheKey(cacheKey, instances);
 	        {
 		        if (GUILayoutExt.fieldsSingleCache.Count > 100) {
 
@@ -1029,14 +1056,17 @@ namespace ME.ECSEditor {
 		        backStyle.normal.background = Texture2D.whiteTexture;
 
 		        foreach (var obj in objs) obj.Update();
+		        var k = 0;
 		        for (var index = 0; index < objs.Length; index++) {
 
 			        var component = instances[index];
+			        if (GUILayoutExt.IsSearchValid(component, search) == false) continue;
 
 			        EditorGUI.BeginChangeCheck();
 
+			        ++k;
 			        {
-				        using (new GUIBackgroundColorUsing(new Color(1f, 1f, 1f, index % 2 == 0 ? 0f : 0.05f))) {
+				        using (new GUIBackgroundColorUsing(new Color(1f, 1f, 1f, k % 2 == 0 ? 0f : 0.05f))) {
 
 					        GUILayout.BeginVertical(backStyle, GUILayout.MinHeight(minHeight));
 
