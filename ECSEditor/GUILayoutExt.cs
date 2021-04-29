@@ -1023,7 +1023,8 @@ namespace ME.ECSEditor {
 			        GUILayoutExt.fieldsSingleCache.Clear();
 			        
 		        }
-		        if (GUILayoutExt.fieldsSingleCache.TryGetValue(key, out var cache) == false) {
+		        if (GUILayoutExt.fieldsSingleCache.TryGetValue(key, out var cache) == false ||
+		            instances.Length != cache.objs.Length) {
 
 			        var temp = new GameObject("Temp");
 			        temp.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
@@ -1038,7 +1039,16 @@ namespace ME.ECSEditor {
 
 			        }
 
-			        GUILayoutExt.fieldsSingleCache.Add(key, cache);
+			        if (GUILayoutExt.fieldsSingleCache.ContainsKey(key) == true) {
+				        
+				        GUILayoutExt.fieldsSingleCache[key] = cache;
+				        
+			        } else {
+
+				        GUILayoutExt.fieldsSingleCache.Add(key, cache);
+
+			        }
+
 			        objs = cache.objs;
 
 		        } else {
