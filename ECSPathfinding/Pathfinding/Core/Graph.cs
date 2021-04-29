@@ -156,7 +156,7 @@ namespace ME.ECS.Pathfinding {
 
             var bounds = graphUpdateObject.GetBounds();
             var nodes = PoolListCopyable<Node>.Spawn(10);
-            this.GetNodesInBounds(nodes, bounds);
+            this.GetNodesInBounds(nodes, bounds, Constraint.Empty);
             for (int i = 0, cnt = nodes.Count; i < cnt; ++i) {
 
                 var node = nodes[i];
@@ -192,7 +192,7 @@ namespace ME.ECS.Pathfinding {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public abstract void GetNodesInBounds(ListCopyable<Node> output, Bounds bounds);
+        public abstract void GetNodesInBounds(ListCopyable<Node> output, Bounds bounds, Constraint constraint);
 
         private Dictionary<int, Color> areaColors = new Dictionary<int, Color>();
 

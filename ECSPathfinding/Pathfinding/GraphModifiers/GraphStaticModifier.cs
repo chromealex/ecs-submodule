@@ -18,7 +18,7 @@ namespace ME.ECS.Pathfinding {
             var nodes = PoolListCopyable<Node>.Spawn(10);
             var bounds = this.bounds;
             bounds.center += this.transform.position;
-            graph.GetNodesInBounds(nodes, this.bounds);
+            graph.GetNodesInBounds(nodes, this.bounds, Constraint.Empty);
             foreach (var node in nodes) {
 
                 if (this.modifyWalkability == true) {
@@ -43,7 +43,7 @@ namespace ME.ECS.Pathfinding {
             bounds.center += this.transform.position;
 
             var nodes = PoolListCopyable<Node>.Spawn(10);
-            graph.GetNodesInBounds(nodes, bounds);
+            graph.GetNodesInBounds(nodes, bounds, Constraint.Empty);
             foreach (var node in nodes) {
         
                 var ray = new Ray(node.worldPosition + Vector3.up * 10f, Vector3.down);

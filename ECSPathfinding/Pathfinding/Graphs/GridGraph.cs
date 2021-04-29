@@ -318,7 +318,7 @@ namespace ME.ECS.Pathfinding {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public override void GetNodesInBounds(ListCopyable<Node> result, Bounds bounds) {
+        public override void GetNodesInBounds(ListCopyable<Node> result, Bounds bounds, Constraint constraint) {
 
             var min = bounds.min;
             var max = bounds.max;
@@ -337,7 +337,7 @@ namespace ME.ECS.Pathfinding {
                         var index = GridGraphUtilities.GetIndexByPosition(this, new Vector3Int(z, y, x));
                         var n = this.nodes[index];
                         //Debug.DrawLine(n.worldPosition + Vector3.up * 5f, n.worldPosition + Vector3.up * 10f, Color.red, 5f);
-                        if (bounds.Contains(n.worldPosition) == true) {
+                        if (bounds.Contains(n.worldPosition) == true && n.IsSuitable(constraint) == true) {
 
                             //Debug.DrawLine(n.worldPosition + Vector3.up * 10f, n.worldPosition + Vector3.up * 15f, Color.magenta, 5f);
                             result.Add(n);

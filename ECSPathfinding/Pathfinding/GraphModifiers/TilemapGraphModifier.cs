@@ -48,7 +48,7 @@ namespace ME.ECS.Pathfinding {
                         }
                         
                         var result = PoolListCopyable<Node>.Spawn(1);
-                        graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize * 1f));
+                        graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize * 1f), Constraint.Empty);
                         foreach (var node in result) {
 
                             if (visited.Contains(node) == false) {
@@ -98,7 +98,7 @@ namespace ME.ECS.Pathfinding {
                         }
                         
                         var result = PoolListCopyable<Node>.Spawn(1);
-                        graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize * 1f));
+                        graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize * 1f), Constraint.Empty);
                         foreach (var node in result) {
 
                             if (visited.Contains(node) == false) {

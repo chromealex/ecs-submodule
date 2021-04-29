@@ -162,7 +162,14 @@ namespace ME.ECS.Pathfinding.Features {
         public void GetNodesInBounds(ListCopyable<Node> output, UnityEngine.Bounds bounds) {
          
             if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return;
-            this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.GetNodesInBounds(output, bounds);
+            this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.GetNodesInBounds(output, bounds, Constraint.Empty);
+            
+        }
+
+        public void GetNodesInBounds(ListCopyable<Node> output, UnityEngine.Bounds bounds, Constraint constraint) {
+         
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return;
+            this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.GetNodesInBounds(output, bounds, constraint);
             
         }
 

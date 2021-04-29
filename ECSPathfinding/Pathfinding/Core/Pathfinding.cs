@@ -362,13 +362,15 @@ namespace ME.ECS.Pathfinding {
             
         }
         
-        public void GetNodesInBounds(ListCopyable<Node> result, Bounds bounds) {
+        public void GetNodesInBounds(ListCopyable<Node> result, Bounds bounds, Constraint constraint) {
             
             if (this.graphs != null) {
 
                 for (int i = 0; i < this.graphs.Count; ++i) {
 
-                    this.graphs[i].GetNodesInBounds(result, bounds);
+                    if (constraint.graphMask >= 0 && (constraint.graphMask & (1 << this.graphs[i].index)) == 0) continue;
+
+                    this.graphs[i].GetNodesInBounds(result, bounds, constraint);
 
                 }
 

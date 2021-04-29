@@ -146,7 +146,7 @@ namespace ME.ECS.Pathfinding {
                  constraint.agentSize.z > 0f)) {
 
                 var result = PoolListCopyable<Node>.Spawn(10);
-                this.graph.GetNodesInBounds(result, new Bounds(this.worldPosition, constraint.agentSize));
+                this.graph.GetNodesInBounds(result, new Bounds(this.worldPosition, constraint.agentSize), Constraint.Empty);
                 for (int e = 0, cnt = result.Count; e < cnt; ++e) {
 
                     var node = result[e];
