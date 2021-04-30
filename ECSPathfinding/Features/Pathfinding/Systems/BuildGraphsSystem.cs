@@ -32,9 +32,9 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
         Filter ISystemFilter.CreateFilter() {
             
             return Filter.Create("Filter-BuildGraphsSystem")
-                         .WithStructComponent<IsPathfinding>()
-                         .WithStructComponent<HasPathfindingInstance>()
-                         .WithStructComponent<BuildAllGraphs>()
+                         .With<IsPathfinding>()
+                         .With<HasPathfindingInstance>()
+                         .With<BuildAllGraphs>()
                          .Push();
             
         }

@@ -109,7 +109,7 @@ namespace ME.ECS.Tests {
             
             public void OnConstruct() {
                 
-                this.filter = Filter.Create("Test").WithStructComponent<TestData>().OnVersionChangedOnly().Push();
+                this.filter = Filter.Create("Test").With<TestData>().OnVersionChangedOnly().Push();
                 
             }
 
@@ -202,7 +202,7 @@ namespace ME.ECS.Tests {
             
             public void OnConstruct() {
                 
-                this.filter = Filter.Create("Test").WithStructComponent<TestData>().Push();
+                this.filter = Filter.Create("Test").With<TestData>().Push();
                 
             }
 

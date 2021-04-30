@@ -1,4 +1,4 @@
-﻿namespace ME.ECS.Features {
+﻿namespace ME.ECS.Essentials {
 
     using PhysicsDeterministic.Components; using PhysicsDeterministic.Modules; using PhysicsDeterministic.Systems; using PhysicsDeterministic.Markers;
     

@@ -30,8 +30,8 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Systems {
         Filter ISystemFilter.CreateFilter() {
             
             return Filter.Create("Filter-SetPathfindingInstanceSystem")
-                         .WithStructComponent<IsPathfinding>()
-                         .WithoutStructComponent<HasPathfindingInstance>()
+                         .With<IsPathfinding>()
+                         .Without<HasPathfindingInstance>()
                          .Push();
             
         }

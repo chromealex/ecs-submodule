@@ -547,14 +547,21 @@ namespace ME.ECSEditor {
 
         }
 
-        private System.Collections.Generic.Dictionary<FeatureBase, System.Collections.Generic.List<string>> cacheSystems = new System.Collections.Generic.Dictionary<FeatureBase, System.Collections.Generic.List<string>>();
-        private System.Collections.Generic.Dictionary<FeatureBase, System.Collections.Generic.List<string>> cacheModules = new System.Collections.Generic.Dictionary<FeatureBase, System.Collections.Generic.List<string>>();
+        private System.Collections.Generic.Dictionary<FeatureBase, System.Collections.Generic.List<ObjectInfo>> cacheSystems = new System.Collections.Generic.Dictionary<FeatureBase, System.Collections.Generic.List<ObjectInfo>>();
+        private System.Collections.Generic.Dictionary<FeatureBase, System.Collections.Generic.List<ObjectInfo>> cacheModules = new System.Collections.Generic.Dictionary<FeatureBase, System.Collections.Generic.List<ObjectInfo>>();
+
+        public struct ObjectInfo {
+
+            public string typeName;
+            public System.Type type;
+
+        }
         
-        private System.Collections.Generic.List<string> GetSystems(FeatureBase feature) {
+        private System.Collections.Generic.List<ObjectInfo> GetSystems(FeatureBase feature) {
 
             if (this.cacheSystems.TryGetValue(feature, out var list) == false) {
 
-                list = new System.Collections.Generic.List<string>();
+                list = new System.Collections.Generic.List<ObjectInfo>();
                 var script = MonoScript.FromScriptableObject(feature);
                 var text = script.text;
 
@@ -566,7 +573,7 @@ namespace ME.ECSEditor {
                         var systemType = match.Groups[1].Value;
                         var spl = systemType.Split('.');
                         systemType = spl[spl.Length - 1];
-                        list.Add(systemType);
+                        list.Add(new ObjectInfo() { typeName = systemType, type = System.Type.GetType(systemType) });
 
                     }
 
@@ -586,11 +593,11 @@ namespace ME.ECSEditor {
 
         }
 
-        private System.Collections.Generic.List<string> GetModules(FeatureBase feature) {
+        private System.Collections.Generic.List<ObjectInfo> GetModules(FeatureBase feature) {
 
             if (this.cacheModules.TryGetValue(feature, out var list) == false) {
 
-                list = new System.Collections.Generic.List<string>();
+                list = new System.Collections.Generic.List<ObjectInfo>();
                 var script = MonoScript.FromScriptableObject(feature);
                 var text = script.text;
 
@@ -602,7 +609,7 @@ namespace ME.ECSEditor {
                         var systemType = match.Groups[1].Value;
                         var spl = systemType.Split('.');
                         systemType = spl[spl.Length - 1];
-                        list.Add(systemType);
+                        list.Add(new ObjectInfo() { typeName = systemType, type = System.Type.GetType(systemType) });
 
                     }
 
@@ -878,7 +885,7 @@ namespace ME.ECSEditor {
                         foreach (var system in systems) {
 
                             rect.y += InitializerEditor.ONE_LINE_HEIGHT;
-                            GUI.Label(rect, system, EditorStyles.label);
+                            GUI.Label(rect, system.typeName, EditorStyles.label);
 
                         }
 
@@ -898,7 +905,7 @@ namespace ME.ECSEditor {
                         foreach (var system in systems) {
 
                             rect.y += InitializerEditor.ONE_LINE_HEIGHT;
-                            GUI.Label(rect, system, EditorStyles.label);
+                            GUI.Label(rect, system.typeName, EditorStyles.label);
 
                         }
 

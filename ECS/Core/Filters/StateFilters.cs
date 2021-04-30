@@ -908,6 +908,7 @@ namespace ME.ECS {
 
         }
 
+        #if !ENTITY_API_VERSION1_TURN_OFF
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -929,7 +930,9 @@ namespace ME.ECS {
             return this;
 
         }
+        #endif
 
+        #if !ENTITY_API_VERSION2_TURN_OFF
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -949,6 +952,7 @@ namespace ME.ECS {
             return this;
 
         }
+        #endif
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

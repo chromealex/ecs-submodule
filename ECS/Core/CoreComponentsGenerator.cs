@@ -13,7 +13,6 @@ namespace ME.ECS {
             TransformComponentsInitializer.InitTypeId();
             NameComponentsInitializer.InitTypeId();
             CameraComponentsInitializer.InitTypeId();
-            PhysicsComponentsInitializer.InitTypeId();
 
         }
         
@@ -27,7 +26,6 @@ namespace ME.ECS {
             TransformComponentsInitializer.Init(ref structComponentsContainer);
             NameComponentsInitializer.Init(ref structComponentsContainer);
             CameraComponentsInitializer.Init(ref structComponentsContainer);
-            PhysicsComponentsInitializer.Init(ref structComponentsContainer);
             
         }
 
@@ -41,7 +39,6 @@ namespace ME.ECS {
             TransformComponentsInitializer.Init(in entity);
             NameComponentsInitializer.Init(in entity);
             CameraComponentsInitializer.Init(in entity);
-            PhysicsComponentsInitializer.Init(in entity);
 
         }
 

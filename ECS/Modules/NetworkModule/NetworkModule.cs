@@ -67,6 +67,8 @@ namespace ME.ECS.Network {
 
     public interface INetworkModuleBase : IModuleBase {
 
+        ME.ECS.StatesHistory.HistoryEvent GetCurrentHistoryEvent();
+
         void SetAsyncMode(bool state);
         void SetReplayMode(bool state);
 
@@ -85,7 +87,7 @@ namespace ME.ECS.Network {
         RPCId RegisterRPC(System.Reflection.MethodInfo methodInfo, bool runLocalOnly = false);
         bool RegisterRPC(RPCId rpcId, System.Reflection.MethodInfo methodInfo, bool runLocalOnly = false);
 
-        bool RegisterObject(object obj, int objId, int groupId = 0);
+        bool RegisterObject(object obj, int objId = 0, int groupId = 0);
         bool UnRegisterObject(object obj, int objId);
         bool UnRegisterGroup(int groupId);
 
@@ -100,6 +102,12 @@ namespace ME.ECS.Network {
 
         Tick GetSyncTick();
         Tick GetSyncSentTick();
+
+        void RPC<T1>(object instance, RPCId rpcId, T1 p1);
+        void RPC<T1, T2>(object instance, RPCId rpcId, T1 p1, T2 p2);
+        void RPC<T1, T2, T3>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3);
+        void RPC<T1, T2, T3, T4>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4);
+        void RPC<T1, T2, T3, T4, T5>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5);
 
     }
 
@@ -317,11 +325,12 @@ namespace ME.ECS.Network {
 
         public bool RegisterObject(object obj, int objId = 0, int groupId = 0) {
 
-            if (objId == 0) objId = ++this.currentObjectRegistryId;
+            if (objId == 0) objId = this.currentObjectRegistryId + 1;
 
             var key = MathUtils.GetKey(groupId, objId);
             if (this.keyToObjects.ContainsKey(key) == false) {
 
+                ++this.currentObjectRegistryId;
                 this.keyToObjects.Add(key, obj);
                 this.objectToKey.Add(obj, new Key() { objId = objId, groupId = groupId });
                 return true;
@@ -429,8 +438,7 @@ namespace ME.ECS.Network {
 
             }
 
-            Key key;
-            if (this.objectToKey.TryGetValue(instance, out key) == true) {
+            if (this.objectToKey.TryGetValue(instance, out var key) == true) {
 
                 var evt = new ME.ECS.StatesHistory.HistoryEvent();
                 evt.tick = this.world.GetStateTick() + this.statesHistoryModule.GetEventForwardTick(); // Call RPC on next N tick

@@ -34,7 +34,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Systems {
         Filter ISystemFilter.CreateFilter() {
             
             return Filter.Create("Filter-BuildFieldSystem")
-                         .WithStructComponent<CalculatePath>()
+                         .With<CalculatePath>()
                          .Push();
             
         }

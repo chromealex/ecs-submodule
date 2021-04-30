@@ -1,4 +1,4 @@
-﻿namespace ME.ECS.Features.PhysicsDeterministic.Components {
+﻿namespace ME.ECS.Essentials.PhysicsDeterministic.Components {
 
     public struct PhysicsRigidbody : IStructComponent {}
     

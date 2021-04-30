@@ -2927,20 +2927,20 @@ namespace ME.ECS {
             UnityEngine.Profiling.Profiler.EndSample();
             #endif
 
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.BeginSample($"ProcessGlobalEvents [Logic]");
-            #endif
-
-            this.ProcessGlobalEvents(GlobalEventType.Logic);
-
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.EndSample();
-            #endif
-
             ////////////////
             this.currentStep |= WorldStep.PluginsLogicTick;
             ////////////////
             {
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"ProcessGlobalEvents [Logic]");
+                #endif
+
+                this.ProcessGlobalEvents(GlobalEventType.Logic);
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
 
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTickPost", WorldStep.None);

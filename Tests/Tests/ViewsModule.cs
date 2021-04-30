@@ -20,7 +20,7 @@ namespace ME.ECS.Tests {
             
             public void OnConstruct() {
                 
-                this.filter = Filter.Create("Test").WithoutStructComponent<HasView>().WithStructComponent<ME.ECS.Views.ViewComponent>().Push();
+                this.filter = Filter.Create("Test").Without<HasView>().With<ME.ECS.Views.ViewComponent>().Push();
                 
             }
 

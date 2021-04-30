@@ -32,7 +32,7 @@ namespace ME.ECS.Tests {
             
             public void OnConstruct() {
                 
-                this.filter = Filter.Create("Test").WithStructComponent<TestComponent>().Push();
+                this.filter = Filter.Create("Test").With<TestComponent>().Push();
                 
             }
 

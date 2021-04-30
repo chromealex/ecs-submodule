@@ -1,4 +1,4 @@
-﻿namespace ME.ECS.Features.PhysicsDeterministic.Systems {
+﻿namespace ME.ECS.Essentials.PhysicsDeterministic.Systems {
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
@@ -19,16 +19,16 @@
         Filter ISystemFilter.CreateFilter() {
             
             return Filter.Create("Filter-PhysicsRemoveOnceSystem")
-                         .WithStructComponent<ME.ECS.Features.PhysicsDeterministic.Components.PhysicsRigidbody>()
+                         .With<ME.ECS.Essentials.PhysicsDeterministic.Components.PhysicsRigidbody>()
                          .Push();
             
         }
 
         void ISystemFilter.AdvanceTick(in Entity entity, in float deltaTime) {
 
-            entity.Remove<ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionEnter>();
-            entity.Remove<ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionExit>();
-            entity.Remove<ME.ECS.Features.PhysicsDeterministic.Components.PhysicsOnCollisionStay>();
+            entity.Remove<ME.ECS.Essentials.PhysicsDeterministic.Components.PhysicsOnCollisionEnter>();
+            entity.Remove<ME.ECS.Essentials.PhysicsDeterministic.Components.PhysicsOnCollisionExit>();
+            entity.Remove<ME.ECS.Essentials.PhysicsDeterministic.Components.PhysicsOnCollisionStay>();
 
         }
     

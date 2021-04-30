@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fea7a600c5b5c4d05bae6e30dd45f0eb, type: 3}
+  m_Name: InputFeature
+  m_EditorClassIdentifier: 
+  editorComment: '** ME.ECS Essentials **
+
+    Default input module provide some
+    simple input events'
+  raycastMask:
+    serializedVersion: 2
+    m_Bits: 256
+  raycastDistance: 1000
+  pointerClick: 1
+  pointerUp: 0
+  pointerDown: 0
+  pointerDoubleClick: 1
+  doubleClickThreshold: 0.5
+  doubleClickMaxDistance: 5
+  pointerDragBegin: 1
+  pointerDragMove: 1
+  pointerDragEnd: 1
+  dragBeginThreshold: 2
+  dragMoveThreshold: 0.2

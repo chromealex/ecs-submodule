@@ -310,7 +310,7 @@ namespace ME.ECS.Serializer.Tests {
 
             public Filter filter { get; set; }
 
-            public Filter CreateFilter() => Filter.Create("Filter-TestStructComponent").WithStructComponent<TestStructComponent>().Push();
+            public Filter CreateFilter() => Filter.Create("Filter-TestStructComponent").With<TestStructComponent>().Push();
 
             public void AdvanceTick(in Entity entity, in float deltaTime) {
 
