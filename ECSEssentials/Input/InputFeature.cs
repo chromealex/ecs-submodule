@@ -46,9 +46,9 @@ namespace ME.ECS.Essentials {
         private readonly RPCId rpcId;
         private readonly object networkObject;
         private readonly object tag;
-        private System.Func<int, Entity> getEntity;
+        private System.Func<Entity> getEntity;
         
-        public InputAction(InputFeature feature, ME.ECS.Network.INetworkModuleBase networkModule, System.Action<TMarker> rpc) {
+        public InputAction(InputFeature feature, ME.ECS.Network.INetworkModuleBase networkModule, System.Action<Entity, TMarker> rpc) {
 
             this.networkModule = networkModule;
             this.networkObject = feature;
@@ -61,7 +61,7 @@ namespace ME.ECS.Essentials {
 
         }
 
-        public void SetPlayerEntityReceiver(System.Func<int, Entity> getEntity) {
+        public void SetPlayerEntityReceiver(System.Func<Entity> getEntity) {
 
             this.getEntity = getEntity;
 
@@ -80,16 +80,16 @@ namespace ME.ECS.Essentials {
 
         private void Execute(TMarker marker) {
 
-            this.networkModule.RPC(this.tag, this.rpcId, marker);
+            var entity = this.getEntity.Invoke();
+            this.networkModule.RPC(this.tag, this.rpcId, entity, marker);
 
         }
 
-        public void RPC(TMarker marker) {
+        public void RPC(Entity player, TMarker marker) {
             
-            var entity = this.getEntity.Invoke(this.networkModule.GetCurrentHistoryEvent().order);
-            //UnityEngine.Debug.Log("RPC: " + marker + " :: " + typeof(TComponent) + " on entity " + entity);
-            entity.Set(new TComponent() {
-                data = marker.data,
+            //UnityEngine.Debug.Log("RPC: " + marker + " :: " + typeof(TComponent) + " on entity " + player);
+            player.Set(new TComponent() {
+                setData = marker.data,
             }, ComponentLifetime.NotifyAllSystems);
             
         }
@@ -198,7 +198,7 @@ namespace ME.ECS.Essentials {
             
         }
 
-        public void SetPlayerEntityReceiver(System.Func<int, Entity> getEntity) {
+        public void SetPlayerEntityReceiver(System.Func<Entity> getEntity) {
 
             if (this.pointerClick == true) this.pointerClickEvent.SetPlayerEntityReceiver(getEntity);
             if (this.pointerDoubleClick == true) this.pointerDoubleClickEvent.SetPlayerEntityReceiver(getEntity);
@@ -239,13 +239,13 @@ namespace ME.ECS.Essentials {
 
         }
 
-        private void RPC(ME.ECS.Essentials.Input.Input.Markers.InputPointerClick marker) { this.pointerClickEvent.RPC(marker); }
-        private void RPC(ME.ECS.Essentials.Input.Input.Markers.InputPointerDoubleClick marker) { this.pointerDoubleClickEvent.RPC(marker); }
-        private void RPC(ME.ECS.Essentials.Input.Input.Markers.InputPointerDragBegin marker) { this.pointerDragBeginEvent.RPC(marker); }
-        private void RPC(ME.ECS.Essentials.Input.Input.Markers.InputPointerDragMove marker) { this.pointerDragMoveEvent.RPC(marker); }
-        private void RPC(ME.ECS.Essentials.Input.Input.Markers.InputPointerDragEnd marker) { this.pointerDragEndEvent.RPC(marker); }
-        private void RPC(ME.ECS.Essentials.Input.Input.Markers.InputPointerUp marker) { this.pointerUpEvent.RPC(marker); }
-        private void RPC(ME.ECS.Essentials.Input.Input.Markers.InputPointerDown marker) { this.pointerDownEvent.RPC(marker); }
+        private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputPointerClick marker) { this.pointerClickEvent.RPC(player, marker); }
+        private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputPointerDoubleClick marker) { this.pointerDoubleClickEvent.RPC(player, marker); }
+        private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputPointerDragBegin marker) { this.pointerDragBeginEvent.RPC(player, marker); }
+        private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputPointerDragMove marker) { this.pointerDragMoveEvent.RPC(player, marker); }
+        private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputPointerDragEnd marker) { this.pointerDragEndEvent.RPC(player, marker); }
+        private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputPointerUp marker) { this.pointerUpEvent.RPC(player, marker); }
+        private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputPointerDown marker) { this.pointerDownEvent.RPC(player, marker); }
 
         protected override void OnDeconstruct() {
             
