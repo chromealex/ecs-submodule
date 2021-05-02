@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Jobs;
+using UnityEngine;
 
 namespace ME.ECS.Pathfinding {
     
@@ -14,48 +15,47 @@ namespace ME.ECS.Pathfinding {
             var constraintStart = constraint;
             constraintStart.checkWalkability = true;
             constraintStart.walkable = true;
-            var startNode = graph.GetNearest(from, constraintStart);
+            var startNode = graph.GetNearest<GridNode>(from, constraintStart);
             if (startNode == null) return new Path();
 
             var constraintEnd = constraintStart;
             constraintEnd.checkArea = true;
             constraintEnd.areaMask = (1 << startNode.area);
             
-            var endNode = graph.GetNearest(to, constraintEnd);
+            var endNode = graph.GetNearest<GridNode>(to, constraintEnd);
             if (endNode == null) return new Path();
             
-            var visited = PoolListCopyable<Node>.Spawn(10);
             System.Diagnostics.Stopwatch swPath = null;
             if ((pathfindingLogLevel & LogLevel.Path) != 0) swPath = System.Diagnostics.Stopwatch.StartNew();
-            var nodesPath = this.AstarSearch(graph, visited, startNode, endNode, constraint, threadIndex);
+            var statVisited = 0;
+            var nodesPath = this.AstarSearch(ref statVisited, graph as GridGraph, startNode, endNode, constraint, threadIndex);
 
-            var statVisited = visited.Count;
             var statLength = 0;
             
             var path = new Path();
             path.graph = graph;
             path.result = PathCompleteState.NotCalculated;
 
-            if (nodesPath == null) {
+            if (nodesPath.Length == 0) {
 
                 path.result = PathCompleteState.NotExist;
 
             } else {
 
-                statLength = nodesPath.Count;
+                statLength = nodesPath.Length;
                 
                 path.result = PathCompleteState.Complete;
-                path.nodes = nodesPath;
-
+                var list = PoolListCopyable<Node>.Spawn(nodesPath.Length);
+                for (int i = 0; i < nodesPath.Length; ++i) {
+                    
+                    list.Add(graph.nodes[nodesPath[i].index]);
+                    
+                }
+                path.nodes = list;
+                
             }
             
-            for (int i = 0; i < visited.Count; ++i) {
-
-                visited[i].Reset(threadIndex);
-
-            }
-
-            PoolListCopyable<Node>.Recycle(ref visited);
+            nodesPath.Dispose();
 
             System.Diagnostics.Stopwatch swModifier = null;
             if ((pathfindingLogLevel & LogLevel.PathMods) != 0) swModifier = System.Diagnostics.Stopwatch.StartNew();
@@ -67,7 +67,7 @@ namespace ME.ECS.Pathfinding {
             
             if ((pathfindingLogLevel & LogLevel.Path) != 0) {
                 
-                Logger.Log(string.Format("Path result {0}, built in {1}ms. Path length: {2} (visited: {3})\nThread Index: {4}", path.result, swPath.ElapsedMilliseconds, statLength, statVisited, threadIndex));
+                Logger.Log(string.Format("Path result {0}, built in {1}ms. Path length: {2} (visited: {3})\nThread Index: {4}", path.result, (swPath.ElapsedTicks / (double)System.TimeSpan.TicksPerMillisecond).ToString("0.##"), statLength, statVisited, threadIndex));
                 
             }
 
@@ -81,63 +81,151 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        private ListCopyable<Node> AstarSearch(Graph graph, ListCopyable<Node> visited, Node startNode, Node endNode, Constraint constraint, int threadIndex) {
-            
-            var openList = PoolPriorityQueue<Node>.Spawn(500);
-            openList.isMinPriorityQueue = true;
-            
-            startNode.startToCurNodeLen[threadIndex] = 0f;
-            
-            openList.Enqueue(0, startNode);
-            startNode.isOpened[threadIndex] = true;
+        private struct TempNodeData {
 
-            while (openList.Count > 0) {
+            public bool isClosed;
+            public bool isOpened;
+            public pfloat startToCurNodeLen;
+            public int parent;
+
+        }
+
+        [Unity.Burst.BurstCompile(Unity.Burst.FloatPrecision.Standard, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true)]
+        private struct Job : Unity.Jobs.IJob {
+
+            public Vector3Int graphSize;
+            public FPVector3 graphCenter;
+            public BurstConstraint burstConstraint;
+            public Unity.Collections.NativeList<GridNodeData> resultPath;
+            public Unity.Collections.NativeArray<GridNodeData> arr;
+            public Unity.Collections.NativeArray<int> results;
+            public PriorityQueueNative<GridNodeData> openList;
+            public int startNodeIndex;
+            public int endNodeIndex;
+
+            public void Execute() {
                 
-                var node = openList.Dequeue();
-                node.isClosed[threadIndex] = true;
+                var temp = new Unity.Collections.NativeArray<TempNodeData>(this.arr.Length, Unity.Collections.Allocator.Temp);
+                var tmp = temp[this.startNodeIndex];
+                tmp.startToCurNodeLen = 0f;
+                tmp.isOpened = true;
+                temp[this.startNodeIndex] = tmp;
+
+                this.openList.Enqueue(0, this.arr[this.startNodeIndex]);
                 
-                visited.Add(node);
+                var maxIter = 10000;
+                while (this.openList.Count > 0) {
 
-                if (node.index == endNode.index) {
-                    
-                    PoolPriorityQueue<Node>.Recycle(ref openList);
-                    return this.RetracePath(threadIndex, endNode);
-                    
-                }
+                    if (--maxIter <= 0) {
 
-                var neighbors = node.GetAllConnections();
-                var currentNodeCost = node.startToCurNodeLen[threadIndex];
-                foreach(var conn in neighbors) {
-                    
-                    if (conn.index < 0) continue;
-                    
-                    var neighbor = graph.nodes[conn.index];
-                    if (neighbor.isClosed[threadIndex] == true) continue;
-                    if (neighbor.IsSuitable(constraint) == false) continue;
-
-                    var cost = currentNodeCost + conn.cost;
-                    if (neighbor.isOpened[threadIndex] == false || cost < neighbor.startToCurNodeLen[threadIndex]) {
-                        
-                        neighbor.startToCurNodeLen[threadIndex] = cost;
-                        neighbor.parent[threadIndex] = node;
-                        if (neighbor.isOpened[threadIndex] == false) {
-                            
-                            openList.Enqueue(cost, neighbor);
-                            visited.Add(neighbor);
-                            neighbor.isOpened[threadIndex] = true;
-                            
-                        }
+                        UnityEngine.Debug.LogError("Break");
+                        break;
                         
                     }
                     
-                }
+                    var node = this.openList.Dequeue();
+                    var nodeTemp = temp[node.index];
+                    nodeTemp.isClosed = true;
+                    temp[node.index] = nodeTemp;
+                    
+                    if (node.index == this.endNodeIndex) {
+                        
+                        maxIter = 10000;
+                        this.resultPath.Add(this.arr[this.endNodeIndex]);
+                        while (temp[this.endNodeIndex].parent != 0) {
+                            if (--maxIter <= 0) {
+                                UnityEngine.Debug.LogError("Break");
+                                break;
+                            }
 
-                neighbors.Dispose();
+                            var n = this.endNodeIndex;
+                            this.endNodeIndex = temp[this.endNodeIndex].parent - 1;
+                            this.resultPath.Add(this.arr[n]);
+                    
+                        }
+
+                        for (int i = 0; i < this.resultPath.Length / 2; ++i) {
+
+                            var ePtr = this.resultPath[this.resultPath.Length - 1 - i];
+                            this.resultPath[this.resultPath.Length - 1 - i] = this.resultPath[i];
+                            this.resultPath[i] = ePtr;
+
+                        }
+                        
+                        break;
+
+                    }
+
+                    var neighbors = node.connections;
+                    var currentNodeCost = nodeTemp.startToCurNodeLen;
+                    for (int i = 0; i < neighbors.Length; ++i) {
+
+                        var conn = neighbors.Get(i);
+                        if (conn.index < 0) continue;
+                        
+                        var neighbor = this.arr[conn.index];
+                        var neighborTemp = temp[neighbor.index];
+                        if (neighborTemp.isClosed == true) continue;
+                        if (neighbor.IsSuitable(this.burstConstraint, this.arr, this.graphSize, this.graphCenter) == false) continue;
+
+                        var cost = currentNodeCost + conn.cost;
+                        if (neighborTemp.isOpened == false || cost < neighborTemp.startToCurNodeLen) {
+                            
+                            neighborTemp.startToCurNodeLen = cost;
+                            neighborTemp.parent = node.index + 1;
+                            if (neighborTemp.isOpened == false) {
+
+                                this.openList.Enqueue(cost, neighbor);
+                                ++this.results[0];
+                                neighborTemp.isOpened = true;
+                                
+                            }
+                            
+                        }
+
+                        temp[neighbor.index] = neighborTemp;
+
+                    }
+
+                }
+                
+                temp.Dispose();
 
             }
 
-            PoolPriorityQueue<Node>.Recycle(ref openList);
-            return null;
+        }
+
+        private Unity.Collections.NativeList<GridNodeData> AstarSearch(ref int statVisited, GridGraph graph, GridNode startNode, GridNode endNode, Constraint constraint, int threadIndex) {
+
+            var graphSize = graph.size;
+            var graphCenter = graph.graphCenter;
+            var burstConstraint = constraint.GetBurstConstraint();
+            var resultPath = new Unity.Collections.NativeList<GridNodeData>(10, Unity.Collections.Allocator.Persistent);
+            var arr = new Unity.Collections.NativeArray<GridNodeData>(graph.nodesData, Unity.Collections.Allocator.TempJob);
+            var openList = new PriorityQueueNative<GridNodeData>(Unity.Collections.Allocator.TempJob, 500, true);
+            var results = new Unity.Collections.NativeArray<int>(2, Unity.Collections.Allocator.TempJob);
+            var endNodeIndex = endNode.index;
+            var startNodeIndex = startNode.index;
+
+            var job = new Job() {
+                graphCenter = graphCenter,
+                graphSize = graphSize,
+                burstConstraint = burstConstraint,
+                resultPath = resultPath,
+                arr = arr,
+                openList = openList,
+                results = results,
+                endNodeIndex = endNodeIndex,
+                startNodeIndex = startNodeIndex,
+            };
+            job.Schedule().Complete();
+
+            statVisited = results[0];
+            
+            results.Dispose();
+            openList.Dispose();
+            arr.Dispose();
+            return resultPath;
 
         }
         
