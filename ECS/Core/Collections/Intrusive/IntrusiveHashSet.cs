@@ -106,7 +106,9 @@ namespace ME.ECS.Collections {
 
         }
 
+        [ME.ECS.Serializer.SerializeField]
         private StackArray10<Entity> buckets;
+        [ME.ECS.Serializer.SerializeField]
         private int count;
 
         public int Count => this.count;

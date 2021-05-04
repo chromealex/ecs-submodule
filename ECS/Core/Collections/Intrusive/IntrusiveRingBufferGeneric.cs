@@ -77,8 +77,10 @@ namespace ME.ECS.Collections {
 
         }
 
+        [ME.ECS.Serializer.SerializeField]
         private IntrusiveListGeneric<T> list;
-        private readonly int capacity;
+        [ME.ECS.Serializer.SerializeField]
+        private int capacity;
 
         public int Capacity => this.capacity;
         public int Count => this.list.Count;

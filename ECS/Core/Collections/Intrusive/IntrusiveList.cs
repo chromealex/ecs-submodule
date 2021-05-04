@@ -107,8 +107,11 @@ namespace ME.ECS.Collections {
 
         }
 
+        [ME.ECS.Serializer.SerializeFieldAttribute]
         private Entity root;
+        [ME.ECS.Serializer.SerializeFieldAttribute]
         private Entity head;
+        [ME.ECS.Serializer.SerializeFieldAttribute]
         private int count;
 
         public int Count => this.count;

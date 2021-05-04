@@ -77,6 +77,7 @@ namespace ME.ECS.Collections {
 
         }
 
+        [ME.ECS.Serializer.SerializeField]
         private IntrusiveListGeneric<T> list;
 
         public int Count => this.list.Count;

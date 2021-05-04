@@ -95,6 +95,7 @@ namespace ME.ECS.Collections {
 
         }
 
+        [ME.ECS.Serializer.SerializeField]
         private IntrusiveHashSetGeneric<Entry> keys;
 
         public int Count => this.keys.Count;

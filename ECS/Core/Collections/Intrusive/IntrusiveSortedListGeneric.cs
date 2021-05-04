@@ -102,9 +102,13 @@ namespace ME.ECS.Collections {
 
         }
 
+        [ME.ECS.Serializer.SerializeField]
         private Entity root;
+        [ME.ECS.Serializer.SerializeField]
         private Entity head;
+        [ME.ECS.Serializer.SerializeField]
         private int count;
+        [ME.ECS.Serializer.SerializeField]
         private bool descending;
 
         public int Count => this.count;
