@@ -68,7 +68,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Systems {
                     //UnityEngine.Debug.Log("Path build: " + i + " :: " + path.result);
                     if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete) {
 
-                        this.pathfindingFeature.SetPathFlowField(in task.entity, path, task.constraint, task.to, task.alignToGraphNodes);
+                        this.pathfindingFeature.SetPathFlowField(in task.entity, path, task.constraint, task.to, task.alignToGraphNodes, task.cacheEnabled);
 
                     } else {
 
@@ -102,7 +102,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Systems {
                 //UnityEngine.Debug.LogWarning("REQUEST PATH: " + request.@from.ToStringDec() + " to " + request.to.ToStringDec());
                 var constraint = request.constraint;
                 ArrayUtils.Resize(this.idx, ref this.pathTasks);
-                this.pathTasks[this.idx++] = active.CalculatePathTask(entity, request.from, request.to, request.alignToGraphNodes, constraint, request.burstEnabled);
+                this.pathTasks[this.idx++] = active.CalculatePathTask(entity, request.from, request.to, request.alignToGraphNodes, constraint, request.burstEnabled, request.cacheEnabled);
 
                 entity.Remove<CalculatePath>();
 

@@ -15,6 +15,7 @@ namespace ME.ECS.Pathfinding {
         public bool alignToGraphNodes;
         public Constraint constraint;
         public bool burstEnabled;
+        public bool cacheEnabled;
         public bool isValid;
 
     }
@@ -336,9 +337,9 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        internal Path CalculatePath_INTERNAL<TMod, TProcessor>(TProcessor processor, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool burstEnabled = false) where TMod : struct, IPathModifier where TProcessor : IPathfindingProcessor {
+        internal Path CalculatePath_INTERNAL<TMod, TProcessor>(TProcessor processor, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool burstEnabled = false, bool cacheEnabled = false) where TMod : struct, IPathModifier where TProcessor : IPathfindingProcessor {
 
-            return processor.Run(this.logLevel, from, to, constraint, graph, pathModifier, threadIndex, burstEnabled);
+            return processor.Run(this.logLevel, from, to, constraint, graph, pathModifier, threadIndex, burstEnabled, cacheEnabled);
 
         }
 
@@ -417,7 +418,7 @@ namespace ME.ECS.Pathfinding {
 
                     var instance = Pathfinding.pathfinding;
                     var graph = instance.GetNearest(item.from, item.constraint).graph;
-                    Pathfinding.results.arr[index] = instance.CalculatePath_INTERNAL(new TProcessor(), item.@from, item.to, item.constraint, graph, new TMod(), index, item.burstEnabled);
+                    Pathfinding.results.arr[index] = instance.CalculatePath_INTERNAL(new TProcessor(), item.@from, item.to, item.constraint, graph, new TMod(), index, item.burstEnabled, item.cacheEnabled);
                     
                 }
                 this.arr[index] = item;
@@ -453,7 +454,7 @@ namespace ME.ECS.Pathfinding {
 
         }
         
-        public PathTask CalculatePathTask(Entity entity, Vector3 requestFrom, Vector3 requestTo, bool alignToGraphNodes, Constraint constraint, bool burstEnabled) {
+        public PathTask CalculatePathTask(Entity entity, Vector3 requestFrom, Vector3 requestTo, bool alignToGraphNodes, Constraint constraint, bool burstEnabled, bool cacheEnabled) {
 
             return new PathTask() {
                 entity = entity,
@@ -462,6 +463,7 @@ namespace ME.ECS.Pathfinding {
                 alignToGraphNodes = alignToGraphNodes,
                 constraint = constraint,
                 burstEnabled = burstEnabled,
+                cacheEnabled = cacheEnabled,
                 isValid = true,
             };
             

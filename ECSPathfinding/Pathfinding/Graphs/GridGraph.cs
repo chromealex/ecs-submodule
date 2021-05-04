@@ -1088,6 +1088,9 @@ namespace ME.ECS.Pathfinding {
             var x = position.x;
             var y = position.y;
             var z = position.z;
+            if (x < 0 || x > graphSize.x) return -1;
+            if (y < 0 || y > graphSize.y) return -1;
+            if (z < 0 || z > graphSize.z) return -1;
             var idx = y * graphSize.x * graphSize.z + (x * graphSize.z) + z;
             return idx;
 
@@ -1159,10 +1162,10 @@ namespace ME.ECS.Pathfinding {
         
     }
 
-    public struct ConnectionsArray {
+    public readonly struct ConnectionsArray {
 
-        public int Length;
-        public Node.Connection c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17;
+        public readonly int Length;
+        private readonly Node.Connection c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17;
 
         public ConnectionsArray(Node.Connection[] arr) {
 

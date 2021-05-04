@@ -7,12 +7,11 @@ namespace ME.ECS.Pathfinding {
 
     public struct PathfindingFlowFieldProcessor : IPathfindingProcessor {
 
-        public static bool cacheEnabled;
         private static System.Collections.Generic.Dictionary<int, BufferArray<byte>> pathCache = new System.Collections.Generic.Dictionary<int, BufferArray<byte>>();
         private static System.Collections.Generic.Queue<int> pathCacheQueue = new System.Collections.Generic.Queue<int>();
         private const int CACHE_SIZE = 100;
         
-        public Path Run<TMod>(LogLevel pathfindingLogLevel, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool burstEnabled = false) where TMod : struct, IPathModifier {
+        public Path Run<TMod>(LogLevel pathfindingLogLevel, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool burstEnabled = false, bool cacheEnabled = false) where TMod : struct, IPathModifier {
 
             if (threadIndex < 0) threadIndex = 0;
             threadIndex = threadIndex % Pathfinding.THREADS_COUNT;
@@ -33,7 +32,7 @@ namespace ME.ECS.Pathfinding {
             System.Diagnostics.Stopwatch swPath = null;
             if ((pathfindingLogLevel & LogLevel.Path) != 0) swPath = System.Diagnostics.Stopwatch.StartNew();
 
-            if (PathfindingFlowFieldProcessor.cacheEnabled == true) {
+            if (cacheEnabled == true) {
 
                 if (PathfindingFlowFieldProcessor.pathCache.TryGetValue(endNode.index, out var buffer) == true) {
 
@@ -41,6 +40,7 @@ namespace ME.ECS.Pathfinding {
                         graph = graph,
                         result = PathCompleteState.Complete,
                         flowField = buffer,
+                        cacheEnabled = cacheEnabled,
                     };
                     
                     if ((pathfindingLogLevel & LogLevel.Path) != 0) {
@@ -60,7 +60,7 @@ namespace ME.ECS.Pathfinding {
             if (burstEnabled == true) { // burst
                 
                 this.FlowFieldBurst(ref statVisited, (GridGraph)graph, ref flowField, (GridNode)endNode, constraint, pathModifier);
-                if (PathfindingFlowFieldProcessor.cacheEnabled == true) {
+                if (cacheEnabled == true) {
 
                     if (PathfindingFlowFieldProcessor.pathCache.Count > PathfindingFlowFieldProcessor.CACHE_SIZE) {
 
@@ -107,6 +107,7 @@ namespace ME.ECS.Pathfinding {
             path.graph = graph;
             path.result = PathCompleteState.Complete;
             path.flowField = flowField;
+            path.cacheEnabled = cacheEnabled;
 
             if ((pathfindingLogLevel & LogLevel.Path) != 0) {
                 

@@ -5,7 +5,7 @@ namespace ME.ECS.Pathfinding {
     
     using ME.ECS.Collections;
 
-    public struct PathfindingAstarProcessor : IPathfindingProcessor {
+    public struct PathfindingAstarJPSProcessor : IPathfindingProcessor {
         
         public Path Run<TMod>(LogLevel pathfindingLogLevel, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool burstEnabled = false, bool cacheEnabled = false) where TMod : struct, IPathModifier {
 
@@ -90,9 +90,10 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        [Unity.Burst.BurstCompile(Unity.Burst.FloatPrecision.Standard, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true)]
+        //[Unity.Burst.BurstCompile(Unity.Burst.FloatPrecision.Standard, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true)]
         private struct Job : Unity.Jobs.IJob {
 
+            public GridGraph graph;
             public Vector3Int graphSize;
             public FPVector3 graphCenter;
             public BurstConstraint burstConstraint;
@@ -162,8 +163,8 @@ namespace ME.ECS.Pathfinding {
 
                         var conn = neighbors.Get(i);
                         if (conn.index < 0) continue;
-                        
-                        var neighbor = this.arr[conn.index];
+
+                        if (this.Jump(out var neighbor, in temp, in node, this.arr[conn.index]) == false) continue;
                         var neighborTemp = temp[neighbor.index];
                         if (neighborTemp.isClosed == true) continue;
                         if (neighbor.IsSuitable(this.burstConstraint, this.arr, this.graphSize, this.graphCenter) == false) continue;
@@ -174,6 +175,8 @@ namespace ME.ECS.Pathfinding {
                             neighborTemp.startToCurNodeLen = cost;
                             neighborTemp.parent = node.index + 1;
                             if (neighborTemp.isOpened == false) {
+
+                                Gizmos.DrawCube(neighbor.worldPosition, Vector3.one);
 
                                 this.openList.Enqueue(cost, neighbor);
                                 ++this.results[0];
@@ -193,6 +196,108 @@ namespace ME.ECS.Pathfinding {
 
             }
 
+            private bool IsSuitable(int x, int y) {
+                
+                var idx = GridGraphUtilities.GetIndexByPosition(this.graphSize, new Vector3Int(y, 0, x));
+                if (idx < 0 || idx >= this.arr.Length) return false;
+                
+                return this.arr[idx].IsSuitable(this.burstConstraint, this.arr, this.graphSize, this.graphCenter);
+                
+            }
+
+            private int GetIndex(int x, int y) {
+                
+                var idx = GridGraphUtilities.GetIndexByPosition(this.graphSize, new Vector3Int(y, 0, x));
+                return idx;
+                
+            }
+
+            private GridNodeData GetNodeData(int x, int y) {
+                
+                var idx = GridGraphUtilities.GetIndexByPosition(this.graphSize, new Vector3Int(y, 0, x));
+                if (idx < 0 || idx >= this.arr.Length) return default;
+                return this.arr[idx];
+                
+            }
+
+            private bool Jump(out GridNodeData neighbor, in Unity.Collections.NativeArray<TempNodeData> temp, in GridNodeData current, in GridNodeData neighbourNode) {
+
+                neighbor = default;
+                if (neighbourNode.IsSuitable(this.burstConstraint, this.arr, this.graphSize, this.graphCenter) == false) {
+
+                    return false;
+
+                }
+                
+                var iX = neighbourNode.position.x;
+                var iY = neighbourNode.position.z;
+
+                if (this.IsSuitable(iX, iY) == false) {
+                    return false;
+                }
+
+                if (this.GetIndex(iX, iY) == this.endNodeIndex) {
+                    neighbor = this.GetNodeData(iX, iY);
+                    return true;
+                }
+
+                int tDx = iX - current.position.x;
+                int tDy = iY - current.position.z;
+
+                {
+                    // check for forced neighbors
+                    // along the diagonal
+                    if (tDx != 0 && tDy != 0) {
+                        if ((this.IsSuitable(iX - tDx, iY + tDy) && !this.IsSuitable(iX - tDx, iY)) ||
+                            (this.IsSuitable(iX + tDx, iY - tDy) && !this.IsSuitable(iX, iY - tDy))) {
+                            neighbor = neighbourNode;
+                            return true;
+                        }
+                    }
+                    // horizontally/vertically
+                    else {
+                        if (tDx != 0) {
+                            // moving along x
+                            if ((this.IsSuitable(iX + tDx, iY + 1) && !this.IsSuitable(iX, iY + 1)) ||
+                                (this.IsSuitable(iX + tDx, iY - 1) && !this.IsSuitable(iX, iY - 1))) {
+                                neighbor = neighbourNode;
+                                return true;
+                            }
+                        } else {
+                            if ((this.IsSuitable(iX + 1, iY + tDy) && !this.IsSuitable(iX + 1, iY)) ||
+                                (this.IsSuitable(iX - 1, iY + tDy) && !this.IsSuitable(iX - 1, iY))) {
+                                neighbor = neighbourNode;
+                                return true;
+                            }
+                        }
+                    }
+
+                    // when moving diagonally, must check for vertical/horizontal jump points
+                    if (tDx != 0 && tDy != 0) {
+                        if (this.Jump(out _, temp, neighbourNode, this.GetNodeData(iX + tDx, iY)) == true) {
+                            neighbor = neighbourNode;
+                            return true;
+                        }
+
+                        if (this.Jump(out _, temp, neighbourNode, this.GetNodeData(iX, iY + tDy)) == true) {
+                            neighbor = neighbourNode;
+                            return true;
+                        }
+                    }
+
+                    // moving diagonally, must make sure one of the vertical/horizontal
+                    // neighbors is open to allow the path
+                    if (this.IsSuitable(iX + tDx, iY) || this.IsSuitable(iX, iY + tDy)) {
+                        return this.Jump(out neighbor, temp, neighbourNode, this.GetNodeData(iX + tDx, iY + tDy));
+                    } else {
+                        return this.Jump(out neighbor, temp, neighbourNode, this.GetNodeData(iX + tDx, iY + tDy));
+                    }
+                }
+
+                return false;
+
+            }
+
         }
 
         private Unity.Collections.NativeList<GridNodeData> AstarSearch(ref int statVisited, GridGraph graph, GridNode startNode, GridNode endNode, Constraint constraint, int threadIndex) {
@@ -208,6 +313,7 @@ namespace ME.ECS.Pathfinding {
             var startNodeIndex = startNode.index;
 
             var job = new Job() {
+                graph = graph,
                 graphCenter = graphCenter,
                 graphSize = graphSize,
                 burstConstraint = burstConstraint,
@@ -218,7 +324,8 @@ namespace ME.ECS.Pathfinding {
                 endNodeIndex = endNodeIndex,
                 startNodeIndex = startNodeIndex,
             };
-            job.Schedule().Complete();
+            //job.Schedule().Complete();
+            job.Execute();
 
             statVisited = results[0];
             

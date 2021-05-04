@@ -68,7 +68,7 @@ namespace ME.ECS.Pathfinding.Features {
             
         }
 
-        public void SetPathFlowField(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 to, bool alignToGraphNodes) {
+        public void SetPathFlowField(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 to, bool alignToGraphNodes, bool cacheEnabled) {
 
             if (alignToGraphNodes == true) {
                 
@@ -80,6 +80,7 @@ namespace ME.ECS.Pathfinding.Features {
                 flowField = BufferArray<byte>.From(path.flowField),
                 from = entity.GetPosition(),
                 to = to,
+                cacheEnabled = cacheEnabled,
             });
             entity.Set(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
             

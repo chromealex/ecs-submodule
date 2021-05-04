@@ -7,6 +7,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Components {
         public ME.ECS.Collections.BufferArray<byte> flowField;
         public UnityEngine.Vector3 from;
         public UnityEngine.Vector3 to;
+        public bool cacheEnabled;
 
         public void CopyFrom(in PathFlowField other) {
             
@@ -20,7 +21,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Components {
 
             this.from = default;
             this.to = default;
-            if (PathfindingFlowFieldProcessor.cacheEnabled == false) PoolArray<byte>.Recycle(ref this.flowField);
+            if (this.cacheEnabled == false) PoolArray<byte>.Recycle(ref this.flowField);
             
         }
 

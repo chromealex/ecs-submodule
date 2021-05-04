@@ -14,6 +14,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
         public ME.ECS.Pathfinding.Constraint constraint;
         public bool flowField;
         public bool burstEnabled;
+        public bool cacheEnabled;
 
     }
 

@@ -19,6 +19,7 @@ namespace ME.ECS.Pathfinding {
 
         public PathCompleteState result;
         public Graph graph;
+        public bool cacheEnabled;
         
         // For Astar processor
         public ListCopyable<Node> nodes;
@@ -32,7 +33,7 @@ namespace ME.ECS.Pathfinding {
             if (this.nodes != null) PoolListCopyable<Node>.Recycle(ref this.nodes);
             if (this.nodesModified != null) PoolListCopyable<Node>.Recycle(ref this.nodesModified);
             
-            if (PathfindingFlowFieldProcessor.cacheEnabled == false && this.flowField.arr != null) PoolArray<byte>.Recycle(ref this.flowField);
+            if (this.cacheEnabled == false && this.flowField.arr != null) PoolArray<byte>.Recycle(ref this.flowField);
 
         }
 
