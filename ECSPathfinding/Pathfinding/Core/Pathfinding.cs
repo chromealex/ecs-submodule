@@ -306,16 +306,16 @@ namespace ME.ECS.Pathfinding {
             
         }
 
-        public Path CalculatePath<TMod>(Vector3 from, Vector3 to, Constraint constraint, TMod pathModifier, int threadIndex = 0) where TMod : struct, IPathModifier {
+        public Path CalculatePath<TMod>(Vector3 from, Vector3 to, Constraint constraint, TMod pathModifier, int threadIndex = 0, bool cacheEnabled = false) where TMod : struct, IPathModifier {
 
             var graph = this.GetNearest(from, constraint).graph;
-            return this.CalculatePath(from, to, constraint, graph, pathModifier, threadIndex);
+            return this.CalculatePath(from, to, constraint, graph, pathModifier, threadIndex, cacheEnabled: cacheEnabled);
             
         }
 
-        public Path CalculatePath<TMod>(Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0) where TMod : struct, IPathModifier {
+        public Path CalculatePath<TMod>(Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool cacheEnabled = false) where TMod : struct, IPathModifier {
 
-            return this.CalculatePath_INTERNAL(this.defaultProcessor, from, to, constraint, graph, pathModifier, threadIndex);
+            return this.CalculatePath_INTERNAL(this.defaultProcessor, from, to, constraint, graph, pathModifier, threadIndex, cacheEnabled: cacheEnabled);
 
         }
 
@@ -345,7 +345,7 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        internal Path CalculatePath_INTERNAL<TMod, TProcessor>(TProcessor processor, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool burstEnabled = false, bool cacheEnabled = false) where TMod : struct, IPathModifier where TProcessor : IPathfindingProcessor {
+        internal Path CalculatePath_INTERNAL<TMod, TProcessor>(TProcessor processor, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool burstEnabled = true, bool cacheEnabled = false) where TMod : struct, IPathModifier where TProcessor : IPathfindingProcessor {
 
             return processor.Run(this.logLevel, from, to, constraint, graph, pathModifier, threadIndex, burstEnabled, cacheEnabled);
 
@@ -419,7 +419,7 @@ namespace ME.ECS.Pathfinding {
 
             public Unity.Collections.NativeArray<PathTask> arr;
 
-            void Unity.Jobs.IJobParallelFor.Execute(int index) {
+            public void Execute(int index) {
 
                 var item = this.arr[index];
                 if (item.isValid == true) {
@@ -442,12 +442,38 @@ namespace ME.ECS.Pathfinding {
             ArrayUtils.Resize(tasks.Length, ref Pathfinding.results);
             
             Pathfinding.pathfinding = this;
-            
+
             var job = new RunTasksJob<TMod, TProcessor>() {
                 arr = tasks,
             };
+            
+            for (int i = 0; i < tasks.Length; ++i) {
+
+                var item = tasks[i];
+                if (item.burstEnabled == true) {
+                    
+                    job.Execute(i);
+                    item.isValid = false;
+                    tasks[i] = item;
+
+                }
+                
+            }
+            
             var jobHandle = job.Schedule(tasks.Length, 64);
             jobHandle.Complete();
+            
+            for (int i = 0; i < tasks.Length; ++i) {
+
+                var item = tasks[i];
+                if (item.burstEnabled == true) {
+                    
+                    item.isValid = true;
+                    tasks[i] = item;
+
+                }
+                
+            }
 
             results = Pathfinding.results;
 

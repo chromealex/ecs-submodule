@@ -23,7 +23,7 @@ namespace ME.ECS.Pathfinding {
             
         }
         
-        public Path Run<TMod>(LogLevel pathfindingLogLevel, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool burstEnabled = false, bool cacheEnabled = false) where TMod : struct, IPathModifier {
+        public Path Run<TMod>(LogLevel pathfindingLogLevel, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool burstEnabled = true, bool cacheEnabled = false) where TMod : struct, IPathModifier {
 
             if (threadIndex < 0) threadIndex = 0;
             threadIndex = threadIndex % Pathfinding.THREADS_COUNT;

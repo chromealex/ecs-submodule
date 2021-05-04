@@ -146,10 +146,10 @@ namespace ME.ECS.Pathfinding.Features {
 
         }
 
-        public ME.ECS.Pathfinding.Path CalculatePath(UnityEngine.Vector3 from, UnityEngine.Vector3 to, Constraint constraint) {
+        public ME.ECS.Pathfinding.Path CalculatePath(UnityEngine.Vector3 from, UnityEngine.Vector3 to, Constraint constraint, bool cacheEnabled = false) {
             
             if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return default;
-            return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.CalculatePath(from, to, constraint, new ME.ECS.Pathfinding.PathCornersModifier());
+            return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.CalculatePath(from, to, constraint, new ME.ECS.Pathfinding.PathCornersModifier(), cacheEnabled: cacheEnabled);
             
         }
         
