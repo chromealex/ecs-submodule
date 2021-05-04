@@ -68,7 +68,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Systems {
                     //UnityEngine.Debug.Log("Path build: " + i + " :: " + path.result);
                     if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete) {
 
-                        this.pathfindingFeature.SetPathFlowField(in task.entity, path, task.constraint, task.to, task.alignToGraphNodes, task.cacheEnabled);
+                        this.pathfindingFeature.SetPathFlowField(in task.entity, path, task.constraint, task.from, task.to, task.alignToGraphNodes, task.cacheEnabled);
 
                     } else {
 

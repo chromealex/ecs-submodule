@@ -68,7 +68,7 @@ namespace ME.ECS.Pathfinding.Features {
             
         }
 
-        public void SetPathFlowField(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 to, bool alignToGraphNodes, bool cacheEnabled) {
+        public void SetPathFlowField(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 from, UnityEngine.Vector3 to, bool alignToGraphNodes, bool cacheEnabled) {
 
             if (alignToGraphNodes == true) {
                 
@@ -78,7 +78,7 @@ namespace ME.ECS.Pathfinding.Features {
 
             entity.Set(new ME.ECS.Pathfinding.Features.PathfindingFlowField.Components.PathFlowField() {
                 flowField = BufferArray<byte>.From(path.flowField),
-                from = entity.GetPosition(),
+                from = from,
                 to = to,
                 cacheEnabled = cacheEnabled,
             });
@@ -86,13 +86,13 @@ namespace ME.ECS.Pathfinding.Features {
             
         }
 
-        public void SetPathAstar(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 to, bool alignToGraphNodes) {
+        public void SetPathAstar(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 from, UnityEngine.Vector3 to, bool alignToGraphNodes) {
             
-            this.SetPathAstar(in entity, path.nodesModified, path.result, constraint, to, alignToGraphNodes);
+            this.SetPathAstar(in entity, path.nodesModified, path.result, constraint, from, to, alignToGraphNodes);
             
         }
 
-        public void SetPathAstar(in Entity entity, ListCopyable<Node> nodes, PathCompleteState result, Constraint constraint, UnityEngine.Vector3 to, bool alignToGraphNodes) {
+        public void SetPathAstar(in Entity entity, ListCopyable<Node> nodes, PathCompleteState result, Constraint constraint, UnityEngine.Vector3 from, UnityEngine.Vector3 to, bool alignToGraphNodes) {
 
             //entity.RemoveData<ME.ECS.Pathfinding.Features.Pathfinding.Components.Path>();
 
@@ -106,7 +106,7 @@ namespace ME.ECS.Pathfinding.Features {
 
             if (nodes.Count > 1) {
             
-                var currentPos = entity.GetPosition();
+                var currentPos = from;
                 var a = vPath[0];
                 var b = vPath[1];
                 var target = a + UnityEngine.Vector3.Project(currentPos - a, b - a);
