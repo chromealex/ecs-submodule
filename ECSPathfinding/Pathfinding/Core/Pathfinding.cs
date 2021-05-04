@@ -136,6 +136,8 @@ namespace ME.ECS.Pathfinding {
 
         public void Recycle() {
 
+            this.ClearCache();
+            
             this.OnRecycle();
             
             if (this != null && this.gameObject != null) {
@@ -144,6 +146,12 @@ namespace ME.ECS.Pathfinding {
                 
             }
             
+        }
+
+        private void ClearCache() {
+
+            PathfindingFlowFieldProcessor.ClearCache();
+
         }
 
         private void OnRecycle() {

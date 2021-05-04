@@ -10,6 +10,18 @@ namespace ME.ECS.Pathfinding {
         private static System.Collections.Generic.Dictionary<int, BufferArray<byte>> pathCache = new System.Collections.Generic.Dictionary<int, BufferArray<byte>>();
         private static System.Collections.Generic.Queue<int> pathCacheQueue = new System.Collections.Generic.Queue<int>();
         private const int CACHE_SIZE = 100;
+
+        public static void ClearCache() {
+
+            foreach (var item in PathfindingFlowFieldProcessor.pathCache) {
+                
+                PoolArray<byte>.Recycle(item.Value);
+                
+            }
+            PathfindingFlowFieldProcessor.pathCache.Clear();
+            PathfindingFlowFieldProcessor.pathCacheQueue.Clear();
+            
+        }
         
         public Path Run<TMod>(LogLevel pathfindingLogLevel, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool burstEnabled = false, bool cacheEnabled = false) where TMod : struct, IPathModifier {
 
