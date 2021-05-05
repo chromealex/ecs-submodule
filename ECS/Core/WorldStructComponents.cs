@@ -2149,7 +2149,7 @@ namespace ME.ECS {
                 // Increment versions for all entities stored this group
                 ref var states = ref reg.sharedGroups.sharedGroups[groupId].states;
                 for (int i = 0; i < states.Length; ++i) {
-                    if (states[i] == true) {
+                    if (states.arr[i] == true) {
                         this.currentState.storage.versions.Increment(i);
                     }
                 }
