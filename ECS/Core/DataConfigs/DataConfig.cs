@@ -63,7 +63,9 @@ namespace ME.ECS.DataConfigs {
         private int[] removeStructComponentsDataTypeIds = new int[0];
         [System.NonSerialized]
         private bool isPrewarmed;
+        private Dictionary<int, int> typeIndexToArrayIndex = new Dictionary<int, int>();
 
+        #region Initialization
         public static void InitTypeId() {
             
             WorldUtilities.InitComponentTypeId<SharedData>(isCopyable: true);
@@ -84,14 +86,14 @@ namespace ME.ECS.DataConfigs {
             entity.ValidateData<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>(false);
 
         }
+        #endregion
 
+        #region Public API
         public void Apply(in Entity entity, bool overrideIfExist = true) {
 
             //this.Reset();
             this.Prewarm();
 
-            ref var sharedData = ref entity.Get<SharedData>();
-            
             var world = Worlds.currentWorld;
             for (int i = 0; i < this.removeStructComponents.Length; ++i) {
 
@@ -109,6 +111,7 @@ namespace ME.ECS.DataConfigs {
 
                     if (overrideIfExist == true || world.HasSharedDataBit(in entity, dataIndex, this.sharedGroupId) == false) {
 
+                        ref var sharedData = ref entity.Get<SharedData>();
                         if (sharedData.archetypeToId == null) sharedData.archetypeToId = PoolDictionary<int, uint>.Spawn(10);
 
                         world.SetSharedData(in entity, in this.structComponents[i], dataIndex, this.sharedGroupId);
@@ -136,7 +139,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        private void Reset() {
+        public void Reset() {
 
 	        this.isPrewarmed = false;
 	        
@@ -153,6 +156,8 @@ namespace ME.ECS.DataConfigs {
 		        this.structComponentsDataTypeIds[i] = -1;
 
 	        }
+            
+            this.typeIndexToArrayIndex.Clear();
 	        
         }
         
@@ -171,6 +176,7 @@ namespace ME.ECS.DataConfigs {
 	        for (int i = 0; i < this.structComponents.Length; ++i) {
 
 		        this.structComponentsDataTypeIds[i] = this.GetComponentDataIndexByType(this.structComponents[i]);
+                this.typeIndexToArrayIndex.Add(this.structComponentsDataTypeIds[i], i);
 
 	        }
 
@@ -178,7 +184,66 @@ namespace ME.ECS.DataConfigs {
 
         }
         
-        public int GetComponentDataIndexByTypeRemoveWithCache(IStructComponentBase component, int idx) {
+        public bool Has<T>() where T : struct, IStructComponentBase {
+	        
+            this.Prewarm();
+            var type = typeof(T);
+            var index = this.GetComponentDataIndexByType(type);
+            if (this.typeIndexToArrayIndex.TryGetValue(index, out var idx) == true) {
+
+                return this.structComponents[idx] != null;
+
+            }
+
+            /*
+	        for (int i = 0; i < this.structComponents.Length; ++i) {
+
+		        if (this.structComponents[i] != null && this.structComponents[i].GetType() == type) {
+
+			        return true;
+
+		        }
+		        
+	        }*/
+	        
+            return false;
+
+        }
+
+        public T Get<T>() where T : struct, IStructComponentBase {
+
+            return this.Read<T>();
+
+        }
+
+        public T Read<T>() where T : struct, IStructComponentBase {
+
+            this.Prewarm();
+            var type = typeof(T);
+            var index = this.GetComponentDataIndexByType(type);
+            if (this.typeIndexToArrayIndex.TryGetValue(index, out var idx) == true) {
+
+                return (T)this.structComponents[idx];
+
+            }
+            
+            for (int i = 0; i < this.structComponents.Length; ++i) {
+
+                if (this.structComponents[i].GetType() == type) {
+
+                    return (T)this.structComponents[i];
+
+                }
+		        
+            }
+
+            return default;
+
+        }
+        #endregion
+
+        #region Internal API
+        internal int GetComponentDataIndexByTypeRemoveWithCache(IStructComponentBase component, int idx) {
 
             if (this.removeStructComponentsDataTypeIds[idx] >= 0) return this.removeStructComponentsDataTypeIds[idx];
 	        
@@ -197,7 +262,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public int GetComponentDataIndexByTypeWithCache(IStructComponentBase component, int idx) {
+        internal int GetComponentDataIndexByTypeWithCache(IStructComponentBase component, int idx) {
 
 	        if (this.structComponentsDataTypeIds[idx] >= 0) return this.structComponentsDataTypeIds[idx];
 	        
@@ -216,22 +281,38 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public int GetComponentDataIndexByType(IStructComponentBase component) {
+        internal int GetComponentDataIndexByType(IStructComponentBase component) {
 
-	        if (ComponentTypesRegistry.allTypeId.TryGetValue(component.GetType(), out var index) == true) {
+            if (ComponentTypesRegistry.allTypeId.TryGetValue(component.GetType(), out var index) == true) {
 
-		        return index;
+                return index;
 
-	        }
+            }
 
-	        #if UNITY_EDITOR
-	        throw new System.Exception($"ComponentTypesRegistry has no type {component.GetType()} for DataConfig {this}.");
-	        #else
+            #if UNITY_EDITOR
+            throw new System.Exception($"ComponentTypesRegistry has no type {component.GetType()} for DataConfig {this}.");
+            #else
 	        return -1;
-	        #endif
+            #endif
 
         }
-        
+
+        internal int GetComponentDataIndexByType(System.Type type) {
+
+            if (ComponentTypesRegistry.allTypeId.TryGetValue(type, out var index) == true) {
+
+                return index;
+
+            }
+
+            #if UNITY_EDITOR
+            throw new System.Exception($"ComponentTypesRegistry has no type {type} for DataConfig {this}.");
+            #else
+	        return -1;
+            #endif
+
+        }
+
         public System.Type[] GetStructComponentTypes() {
             
             var types = new System.Type[this.structComponents.Length];
@@ -277,41 +358,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public bool Has<T>() where T : struct, IStructComponentBase {
-	        
-	        var type = typeof(T);
-	        for (int i = 0; i < this.structComponents.Length; ++i) {
-
-		        if (this.structComponents[i] != null && this.structComponents[i].GetType() == type) {
-
-			        return true;
-
-		        }
-		        
-	        }
-	        
-            return false;
-
-        }
-
-        public T Get<T>() where T : struct, IStructComponentBase {
-
-	        var type = typeof(T);
-	        for (int i = 0; i < this.structComponents.Length; ++i) {
-
-		        if (this.structComponents[i].GetType() == type) {
-
-			        return (T)this.structComponents[i];
-
-		        }
-		        
-	        }
-
-            return default;
-
-        }
-
-        public void AddTo<T>(ref T[] arr, T component) {
+        internal void AddTo<T>(ref T[] arr, T component) {
 
             var found = false;
             for (int i = 0; i < arr.Length; ++i) {
@@ -335,13 +382,13 @@ namespace ME.ECS.DataConfigs {
             
         }
         
-        public bool HasByType<T>(T[] arr, object component) {
+        internal bool HasByType<T>(T[] arr, object component) {
 
             return this.HasByType(arr, component.GetType());
 
         }
 
-        public bool HasByType<T>(T[] arr, System.Type componentType) {
+        internal bool HasByType<T>(T[] arr, System.Type componentType) {
 
             for (int i = 0; i < arr.Length; ++i) {
 
@@ -358,13 +405,13 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public void RemoveFrom<T>(ref T[] arr, object component) {
+        internal void RemoveFrom<T>(ref T[] arr, object component) {
 
             this.RemoveFrom(ref arr, component.GetType());
 
         }
 
-        public void RemoveFrom<T>(ref T[] arr, System.Type componentType) {
+        internal void RemoveFrom<T>(ref T[] arr, System.Type componentType) {
 
             for (int i = 0; i < arr.Length; ++i) {
 
@@ -383,7 +430,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public bool UpdateValue(IStructComponentBase component) {
+        internal bool UpdateValue(IStructComponentBase component) {
 
             var componentType = component.GetType();
             if (this.HasByType(this.structComponents, componentType) == false) {
@@ -410,7 +457,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public bool OnAddToTemplate(DataConfigTemplate template, System.Type componentType) {
+        internal bool OnAddToTemplate(DataConfigTemplate template, System.Type componentType) {
             
             if (this.HasByType(this.structComponents, componentType) == true) {
                 
@@ -427,7 +474,7 @@ namespace ME.ECS.DataConfigs {
             
         }
 
-        public bool OnRemoveFromTemplate(DataConfigTemplate template, System.Type componentType) {
+        internal bool OnRemoveFromTemplate(DataConfigTemplate template, System.Type componentType) {
             
             if (this.HasByType(this.structComponents, componentType) == false) {
                 
@@ -443,7 +490,7 @@ namespace ME.ECS.DataConfigs {
             
         }
 
-        public bool OnAddToTemplateRemoveList(DataConfigTemplate template, System.Type componentType) {
+        internal bool OnAddToTemplateRemoveList(DataConfigTemplate template, System.Type componentType) {
             
             if (this.HasByType(this.removeStructComponents, componentType) == true) {
                 
@@ -460,7 +507,7 @@ namespace ME.ECS.DataConfigs {
             
         }
 
-        public bool OnRemoveFromTemplateRemoveList(DataConfigTemplate template, System.Type componentType) {
+        internal bool OnRemoveFromTemplateRemoveList(DataConfigTemplate template, System.Type componentType) {
             
             if (this.HasByType(this.removeStructComponents, componentType) == false) {
                 
@@ -476,7 +523,7 @@ namespace ME.ECS.DataConfigs {
             
         }
 
-        public void AddTemplate(DataConfigTemplate template) {
+        internal void AddTemplate(DataConfigTemplate template) {
 
             template.Use(this);
 
@@ -496,7 +543,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public void RemoveTemplate(DataConfigTemplate template, System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate> allTemplates) {
+        internal void RemoveTemplate(DataConfigTemplate template, System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate> allTemplates) {
             
             template.UnUse(this);
 
@@ -518,7 +565,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public void Save(bool dirtyOnly = false) {
+        internal void Save(bool dirtyOnly = false) {
             
             #if UNITY_EDITOR
             UnityEditor.EditorUtility.SetDirty(this);
@@ -526,6 +573,7 @@ namespace ME.ECS.DataConfigs {
             #endif
             
         }
+        #endregion
 
     }
 
