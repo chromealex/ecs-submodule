@@ -352,6 +352,17 @@ namespace ME.ECSEditor {
                     var isDisposable = typeof(ME.ECS.IComponentDisposable).IsAssignableFrom(type);
                     var isVersioned = typeof(ME.ECS.IVersioned).IsAssignableFrom(type);
                     var isVersionedNoState = typeof(ME.ECS.IVersionedNoState).IsAssignableFrom(type);
+
+                    if (isCopyable == false && hasFields == true) {
+                        
+                        // Check for managed types
+                        if (Generator.HasManagedTypes(type, out var failedFieldInfo) == true) {
+                            
+                            UnityEngine.Debug.LogError($"[ME.ECS] Generator for type `{type}` failed because it is not blittable (field `{failedFieldInfo.Name}`). Use IStructCopyable to create manual copy.");
+                            
+                        }
+
+                    }
                     
                     var resItem = itemStr;
                     resItem = resItem.Replace("#PROJECTNAME#", asmName);
@@ -417,6 +428,39 @@ namespace ME.ECSEditor {
                 }
 
             }
+
+        }
+
+        private static bool HasManagedTypes(System.Type type, out System.Reflection.FieldInfo failedFieldInfo) {
+
+            failedFieldInfo = null;
+            if (Unity.Collections.LowLevel.Unsafe.UnsafeUtility.IsBlittable(type) == true) return false;
+
+            var fields = type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            foreach (var field in fields) {
+
+                var attrs = field.GetCustomAttributes(typeof(ME.ECS.GeneratorIgnoreManagedType), true);
+                if (attrs.Length > 0) continue;
+
+                var itemType = field.FieldType;
+                if (itemType == typeof(string)) continue;
+                if (itemType.IsClass == true ||
+                    itemType.IsArrayOrList() == true) {
+                    
+                    if (typeof(UnityEngine.Object).IsAssignableFrom(itemType) == true) continue;
+
+                    failedFieldInfo = field;
+                    return true;
+                    
+                } else {
+
+                    if (Generator.HasManagedTypes(itemType, out failedFieldInfo) == true) return true;
+
+                }
+
+            }
+            
+            return false;
 
         }
 
