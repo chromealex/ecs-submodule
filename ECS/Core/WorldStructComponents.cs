@@ -2145,8 +2145,15 @@ namespace ME.ECS {
 
             if (AllComponentTypes<TComponent>.isTag == true) return ref AllComponentTypes<TComponent>.empty;
             if (incrementVersion == true) {
+                
+                // Increment versions for all entities stored this group
+                ref var states = ref reg.sharedGroups.sharedGroups[groupId].states;
+                for (int i = 0; i < states.Length; ++i) {
+                    if (states[i] == true) {
+                        this.currentState.storage.versions.Increment(i);
+                    }
+                }
 
-                this.currentState.storage.versions.Increment(in entity);
                 if (AllComponentTypes<TComponent>.isVersioned == true) reg.versions.arr[entity.id] = this.GetCurrentTick();
                 if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
                 if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
@@ -2193,9 +2200,16 @@ namespace ME.ECS {
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             ref var state = ref reg.sharedGroups.Has(entity.id, groupId);
             if (state == true) {
+                
+                // Increment versions for all entities stored this group
+                ref var states = ref reg.sharedGroups.sharedGroups[groupId].states;
+                for (int i = 0; i < states.Length; ++i) {
+                    if (states.arr[i] == true) {
+                        this.currentState.storage.versions.Increment(i);
+                    }
+                }
 
                 state = false;
-                this.currentState.storage.versions.Increment(in entity);
                 if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
                 if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
 
@@ -2236,7 +2250,20 @@ namespace ME.ECS {
 
             // Inline all manually
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            if (AllComponentTypes<TComponent>.isTag == false) reg.sharedGroups.Set(entity.id, groupId, data);
+            if (AllComponentTypes<TComponent>.isTag == false) {
+                
+                reg.sharedGroups.Set(entity.id, groupId, data);
+                
+                // Increment versions for all entities stored this group
+                ref var states = ref reg.sharedGroups.sharedGroups[groupId].states;
+                for (int i = 0; i < states.Length; ++i) {
+                    if (states.arr[i] == true) {
+                        this.currentState.storage.versions.Increment(i);
+                    }
+                }
+
+            }
+            
             ref var state = ref reg.sharedGroups.Has(entity.id, groupId);
             if (state == false) {
 
@@ -2254,7 +2281,6 @@ namespace ME.ECS {
             #if ENTITY_ACTIONS
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
             #endif
-            this.currentState.storage.versions.Increment(in entity);
             if (AllComponentTypes<TComponent>.isVersioned == true) reg.versions.arr[entity.id] = this.GetCurrentTick();
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);

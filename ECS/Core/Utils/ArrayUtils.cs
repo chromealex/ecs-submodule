@@ -802,6 +802,33 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static bool Resize(int index, ref BufferArrayBool arr, bool resizeWithOffset = false) {
+
+            if (index < arr.Length) return false;
+
+            var offset = (resizeWithOffset == true ? 2 : 1);
+            if (arr.isCreated == false) {
+
+                arr = new BufferArrayBool(index * offset + 1);
+
+            }
+
+            var newLength = index + 1;
+            if (newLength <= arr.Length) {
+
+                arr = new BufferArrayBool(arr, newLength);
+                return false;
+
+            }
+
+            arr = new BufferArrayBool(arr, newLength);
+            return true;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static bool Resize<T>(int index, ref BufferArraySliced<T> arr, bool resizeWithOffset = false) {
 
             arr = arr.Resize(index, resizeWithOffset, out var result);
