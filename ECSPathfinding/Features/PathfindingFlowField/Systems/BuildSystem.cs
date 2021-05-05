@@ -94,7 +94,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Systems {
             var active = instance.pathfinding;
             if (active == null) return;
 
-            //entity.RemoveData<Path>();
+            //entity.Remove<Path>();
 
             ref readonly var request = ref entity.Read<CalculatePath>();
             if (request.flowField == true) {

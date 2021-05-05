@@ -294,7 +294,7 @@ namespace ME.ECS.Pathfinding {
                     }
                 }
 
-                return false;
+                //return false;
 
             }
 
