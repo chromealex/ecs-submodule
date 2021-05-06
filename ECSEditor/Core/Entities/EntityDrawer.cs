@@ -39,9 +39,6 @@ namespace ME.ECSEditor {
             buttonRect.width = buttonWidth;
             buttonRect.height = 24f;
             
-            //var labelStyle = new GUIStyle(EditorStyles.label);
-            //labelStyle.normal.textColor = new Color(1f, 1f, 1f, 0.7f);
-            
             GUI.Label(labelRect, label);
             if (entity.IsAliveWithBoundsCheck() == false) {
 
