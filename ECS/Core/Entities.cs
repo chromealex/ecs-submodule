@@ -436,6 +436,7 @@ namespace ME.ECS {
         public bool IsAliveWithBoundsCheck() {
 
             // Inline manually
+            if (Worlds.currentWorld == null) return false;
             var arr = Worlds.currentWorld.currentState.storage.cache;
             if (this.id >= arr.Length) return false;
             return arr.arr[this.id].generation == this.generation;
