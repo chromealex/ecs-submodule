@@ -29,6 +29,7 @@ namespace ME.ECSEditor {
             foreach (var target in this.targets) {
 
                 var config = (ME.ECS.DataConfigs.DataConfig)target;
+                if (config.templates == null) config.templates = new string[0];
                 foreach (var guid in config.templates) {
 
                     var path = AssetDatabase.GUIDToAssetPath(guid);
