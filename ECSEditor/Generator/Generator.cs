@@ -49,7 +49,28 @@ namespace ME.ECSEditor {
 
         }
 
+        public static bool IsPrevTimeValid() {
+
+            var time = EditorPrefs.GetFloat("ME.ECS.Generator.lastGenTime", 0f);
+            var dt = (EditorApplication.timeSinceStartup - time);
+            if (dt < 0f) {
+                return true;
+            }
+            return dt > 10f;
+
+        }
+
+        public static void ApplyTime() {
+
+            EditorPrefs.SetFloat("ME.ECS.Generator.lastGenTime", (float)EditorApplication.timeSinceStartup);
+            
+        }
+
         protected static void OnAfterAssemblyReload(bool delete) {
+
+            if (Generator.IsPrevTimeValid() == false) {
+                return;
+            }
 
             if (Generator.IsAutoGenerateEnabled() == false) {
                 return;
@@ -342,7 +363,10 @@ namespace ME.ECSEditor {
                     return 0;
                     
                 }).ThenBy(x => x.FullName).ToList();
-                
+
+                var linesOutput = new List<string>(100);
+                var linesOutput2 = new List<string>(100);
+                var linesOutput3 = new List<string>(100);
                 for (var i = 0; i < listEntities.Count; ++i) {
                     
                     var type = listEntities[i];
@@ -365,60 +389,72 @@ namespace ME.ECSEditor {
                     }
                     
                     var resItem = itemStr;
-                    resItem = resItem.Replace("#PROJECTNAME#", asmName);
-                    resItem = resItem.Replace("#STATENAME#", asmName + "State");
-                    resItem = resItem.Replace("#TYPENAME#", entityType);
                     resItem = resItem.Replace("#ISTAG#", hasFields == true ? "false" : "true");
-                    resItem = resItem.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
-                    resItem = resItem.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
-                    resItem = resItem.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
-                    resItem = resItem.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
+                    resItem = resItem.Replace("#TYPENAME#", entityType);
                     resItem = resItem.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
                     resItem = resItem.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
-
-                    output += resItem;
+                    resItem = resItem.Replace("\r\n", "\n");
+                    
+                    /*
+                    resItem = resItem.Replace("#PROJECTNAME#", asmName);
+                    resItem = resItem.Replace("#STATENAME#", asmName + "State");
+                    resItem = resItem.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
+                    resItem = resItem.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
+                    resItem = resItem.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
+                    resItem = resItem.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
+                    */
+                    
+                    linesOutput.Add(resItem);
 
                     if (itemStr2 != null) {
 
                         var resItem2 = itemStr2;
-                        resItem2 = resItem2.Replace("#PROJECTNAME#", asmName);
-                        resItem2 = resItem2.Replace("#STATENAME#", asmName + "State");
                         resItem2 = resItem2.Replace("#TYPENAME#", entityType);
                         resItem2 = resItem2.Replace("#ISTAG#", hasFields == true ? "false" : "true");
-                        resItem2 = resItem2.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
-                        resItem2 = resItem2.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
-                        resItem2 = resItem2.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
-                        resItem2 = resItem2.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
                         resItem2 = resItem2.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
                         resItem2 = resItem2.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
-
-                        output2 += resItem2;
+                        resItem2 = resItem2.Replace("\r\n", "\n");
+                        
+                        /*
+                        resItem2 = resItem2.Replace("#PROJECTNAME#", asmName);
+                        resItem2 = resItem2.Replace("#STATENAME#", asmName + "State");
+                        resItem2 = resItem2.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
+                        resItem2 = resItem2.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
+                        resItem2 = resItem2.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
+                        resItem2 = resItem2.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
+                        */
+                        
+                        linesOutput2.Add(resItem2);
 
                     }
 
                     if (itemStr3 != null) {
 
                         var resItem3 = itemStr3;
-                        resItem3 = resItem3.Replace("#PROJECTNAME#", asmName);
-                        resItem3 = resItem3.Replace("#STATENAME#", asmName + "State");
                         resItem3 = resItem3.Replace("#TYPENAME#", entityType);
                         resItem3 = resItem3.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                         resItem3 = resItem3.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
+                        resItem3 = resItem3.Replace("\r\n", "\n");
+
+                        /*
+                        resItem3 = resItem3.Replace("#PROJECTNAME#", asmName);
+                        resItem3 = resItem3.Replace("#STATENAME#", asmName + "State");
                         resItem3 = resItem3.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
                         resItem3 = resItem3.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
+                        */
 
-                        output3 += resItem3;
+                        linesOutput3.Add(resItem3);
 
                     }
                     
                 }
 
-                output = output.Replace("\r\n", "\n");
-                output2 = output2.Replace("\r\n", "\n");
-                output3 = output3.Replace("\r\n", "\n");
+                output = string.Join(string.Empty, linesOutput);
+                output2 = string.Join(string.Empty, linesOutput2);
+                output3 = string.Join(string.Empty, linesOutput3);
                 
                 if (ME.ECSEditor.ScriptTemplates.Create(asmNamePath, Generator.FILE_NAME, Generator.TEMPLATE,
                                                         new Dictionary<string, string>() { { "CONTENT", output }, { "CONTENT2", output2 }, { "CONTENT3", output3 } }, false) == true) {
@@ -429,12 +465,14 @@ namespace ME.ECSEditor {
 
             }
 
+            Generator.ApplyTime();
+
         }
 
         private static bool HasManagedTypes(System.Type type, out System.Reflection.FieldInfo failedFieldInfo) {
 
             failedFieldInfo = null;
-            if (Unity.Collections.LowLevel.Unsafe.UnsafeUtility.IsBlittable(type) == true) return false;
+            //if (Unity.Collections.LowLevel.Unsafe.UnsafeUtility.IsBlittable(type) == true) return false;
 
             var fields = type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
             foreach (var field in fields) {

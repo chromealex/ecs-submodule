@@ -120,17 +120,6 @@ namespace ME.ECSEditor {
         
         internal static bool Create(string path, string fileName, string templateName, System.Collections.Generic.Dictionary<string, string> customDefines = null, bool allowRename = true, System.Action<Object> onCreated = null) {
 
-            var stateTypeStr = "StateClassType";
-            var projectName = path.Split('/');
-            var type = typeof(ME.ECS.State);
-            var types = System.AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => p.IsClass == true && type.IsAssignableFrom(p) && projectName.Contains(p.Name.Replace("State", string.Empty))).ToArray();
-            if (types.Length > 0) {
-
-                var stateType = types[0];
-                stateTypeStr = stateType.Name;
-
-            }
-
             var templateAsset = EditorUtilities.Load<TextAsset>($"ECSEditor/Templates/EditorResources/{templateName}.txt", true);
             var content = templateAsset.text;
             if (customDefines != null) {
@@ -142,7 +131,23 @@ namespace ME.ECSEditor {
                 }
 
             }
-            
+
+            var stateTypeStr = "StateClassType";
+            if (content.Contains("#STATENAME#") == true) {
+
+                var projectName = path.Split('/');
+                var type = typeof(ME.ECS.State);
+                var types = System.AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes())
+                                  .Where(p => p.IsClass == true && type.IsAssignableFrom(p) && projectName.Contains(p.Name.Replace("State", string.Empty))).ToArray();
+                if (types.Length > 0) {
+
+                    var stateType = types[0];
+                    stateTypeStr = stateType.Name;
+
+                }
+
+            }
+
             var @namespace = path.Replace("Assets/", "").Replace("/", ".").Replace("\\", ".");
             content = content.Replace(@"#NAMESPACE#", @namespace);
             content = content.Replace(@"#PROJECTNAME#", @namespace.Split('.')[0]);
