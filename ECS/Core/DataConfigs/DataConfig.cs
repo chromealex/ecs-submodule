@@ -358,7 +358,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        internal void AddTo<T>(ref T[] arr, T component) {
+        protected void AddTo<T>(ref T[] arr, T component) {
 
             var found = false;
             for (int i = 0; i < arr.Length; ++i) {
@@ -382,13 +382,13 @@ namespace ME.ECS.DataConfigs {
             
         }
         
-        internal bool HasByType<T>(T[] arr, object component) {
+        protected bool HasByType<T>(T[] arr, object component) {
 
             return this.HasByType(arr, component.GetType());
 
         }
 
-        internal bool HasByType<T>(T[] arr, System.Type componentType) {
+        protected bool HasByType<T>(T[] arr, System.Type componentType) {
 
             for (int i = 0; i < arr.Length; ++i) {
 
@@ -405,13 +405,13 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        internal void RemoveFrom<T>(ref T[] arr, object component) {
+        protected void RemoveFrom<T>(ref T[] arr, object component) {
 
             this.RemoveFrom(ref arr, component.GetType());
 
         }
 
-        internal void RemoveFrom<T>(ref T[] arr, System.Type componentType) {
+        protected void RemoveFrom<T>(ref T[] arr, System.Type componentType) {
 
             for (int i = 0; i < arr.Length; ++i) {
 
@@ -430,7 +430,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        internal bool UpdateValue(IStructComponentBase component) {
+        protected bool UpdateValue(IStructComponentBase component) {
 
             var componentType = component.GetType();
             if (this.HasByType(this.structComponents, componentType) == false) {
@@ -457,7 +457,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        internal bool OnAddToTemplate(DataConfigTemplate template, System.Type componentType) {
+        protected bool OnAddToTemplate(DataConfigTemplate template, System.Type componentType) {
             
             if (this.HasByType(this.structComponents, componentType) == true) {
                 
@@ -474,7 +474,7 @@ namespace ME.ECS.DataConfigs {
             
         }
 
-        internal bool OnRemoveFromTemplate(DataConfigTemplate template, System.Type componentType) {
+        protected bool OnRemoveFromTemplate(DataConfigTemplate template, System.Type componentType) {
             
             if (this.HasByType(this.structComponents, componentType) == false) {
                 
@@ -490,7 +490,7 @@ namespace ME.ECS.DataConfigs {
             
         }
 
-        internal bool OnAddToTemplateRemoveList(DataConfigTemplate template, System.Type componentType) {
+        protected bool OnAddToTemplateRemoveList(DataConfigTemplate template, System.Type componentType) {
             
             if (this.HasByType(this.removeStructComponents, componentType) == true) {
                 
@@ -507,7 +507,7 @@ namespace ME.ECS.DataConfigs {
             
         }
 
-        internal bool OnRemoveFromTemplateRemoveList(DataConfigTemplate template, System.Type componentType) {
+        protected bool OnRemoveFromTemplateRemoveList(DataConfigTemplate template, System.Type componentType) {
             
             if (this.HasByType(this.removeStructComponents, componentType) == false) {
                 
@@ -523,7 +523,7 @@ namespace ME.ECS.DataConfigs {
             
         }
 
-        internal void AddTemplate(DataConfigTemplate template) {
+        protected void AddTemplate(DataConfigTemplate template) {
 
             template.Use(this);
 
@@ -543,7 +543,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        internal void RemoveTemplate(DataConfigTemplate template, System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate> allTemplates) {
+        protected void RemoveTemplate(DataConfigTemplate template, System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate> allTemplates) {
             
             template.UnUse(this);
 
@@ -565,7 +565,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        internal void Save(bool dirtyOnly = false) {
+        protected void Save(bool dirtyOnly = false) {
             
             #if UNITY_EDITOR
             UnityEditor.EditorUtility.SetDirty(this);
