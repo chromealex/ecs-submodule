@@ -382,13 +382,13 @@ namespace ME.ECS.DataConfigs {
             
         }
         
-        protected bool HasByType<T>(T[] arr, object component) {
+        public bool HasByType<T>(T[] arr, object component) {
 
             return this.HasByType(arr, component.GetType());
 
         }
 
-        protected bool HasByType<T>(T[] arr, System.Type componentType) {
+        public bool HasByType<T>(T[] arr, System.Type componentType) {
 
             for (int i = 0; i < arr.Length; ++i) {
 
@@ -405,13 +405,13 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        protected void RemoveFrom<T>(ref T[] arr, object component) {
+        public void RemoveFrom<T>(ref T[] arr, object component) {
 
             this.RemoveFrom(ref arr, component.GetType());
 
         }
 
-        protected void RemoveFrom<T>(ref T[] arr, System.Type componentType) {
+        public void RemoveFrom<T>(ref T[] arr, System.Type componentType) {
 
             for (int i = 0; i < arr.Length; ++i) {
 
