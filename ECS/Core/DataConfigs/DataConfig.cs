@@ -523,7 +523,7 @@ namespace ME.ECS.DataConfigs {
             
         }
 
-        protected void AddTemplate(DataConfigTemplate template) {
+        public void AddTemplate(DataConfigTemplate template) {
 
             template.Use(this);
 
@@ -543,7 +543,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        protected void RemoveTemplate(DataConfigTemplate template, System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate> allTemplates) {
+        public void RemoveTemplate(DataConfigTemplate template, System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate> allTemplates) {
             
             template.UnUse(this);
 
@@ -565,7 +565,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        protected void Save(bool dirtyOnly = false) {
+        public void Save(bool dirtyOnly = false) {
             
             #if UNITY_EDITOR
             UnityEditor.EditorUtility.SetDirty(this);
