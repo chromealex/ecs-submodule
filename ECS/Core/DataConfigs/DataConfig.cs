@@ -430,7 +430,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        protected bool UpdateValue(IStructComponentBase component) {
+        public bool UpdateValue(IStructComponentBase component) {
 
             var componentType = component.GetType();
             if (this.HasByType(this.structComponents, componentType) == false) {
@@ -457,7 +457,7 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        protected bool OnAddToTemplate(DataConfigTemplate template, System.Type componentType) {
+        public bool OnAddToTemplate(DataConfigTemplate template, System.Type componentType) {
             
             if (this.HasByType(this.structComponents, componentType) == true) {
                 
@@ -474,7 +474,7 @@ namespace ME.ECS.DataConfigs {
             
         }
 
-        protected bool OnRemoveFromTemplate(DataConfigTemplate template, System.Type componentType) {
+        public bool OnRemoveFromTemplate(DataConfigTemplate template, System.Type componentType) {
             
             if (this.HasByType(this.structComponents, componentType) == false) {
                 
@@ -490,7 +490,7 @@ namespace ME.ECS.DataConfigs {
             
         }
 
-        protected bool OnAddToTemplateRemoveList(DataConfigTemplate template, System.Type componentType) {
+        public bool OnAddToTemplateRemoveList(DataConfigTemplate template, System.Type componentType) {
             
             if (this.HasByType(this.removeStructComponents, componentType) == true) {
                 
@@ -507,7 +507,7 @@ namespace ME.ECS.DataConfigs {
             
         }
 
-        protected bool OnRemoveFromTemplateRemoveList(DataConfigTemplate template, System.Type componentType) {
+        public bool OnRemoveFromTemplateRemoveList(DataConfigTemplate template, System.Type componentType) {
             
             if (this.HasByType(this.removeStructComponents, componentType) == false) {
                 
