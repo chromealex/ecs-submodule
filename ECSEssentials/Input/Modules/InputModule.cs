@@ -42,7 +42,7 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                 var dt = UnityEngine.Time.realtimeSinceStartup - this.prevPressedTime;
                 if (dt > this.feature.doubleClickThreshold) {
 
-                    var data = new InputPointerData(0, this.pressWorldPosClick, InputEventType.PointerClick);
+                    var data = new InputPointerData(0, this.pressWorldPosClick, InputEventType.PointerDoubleClick);
                     this.world.AddMarker(new Markers.InputPointerDoubleClick() {
                         data = data,
                     });
@@ -164,7 +164,7 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                             }
 
                             {
-                                var data = new InputPointerData(0, worldPos, InputEventType.PointerClick);
+                                var data = new InputPointerData(0, worldPos, InputEventType.PointerDoubleClick);
                                 this.world.AddMarker(new Markers.InputPointerDoubleClick() {
                                     data = data,
                                 });

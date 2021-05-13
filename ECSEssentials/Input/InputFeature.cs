@@ -11,10 +11,11 @@ namespace ME.ECS.Essentials {
 
     public enum InputEventType {
 
-        Unknown = 0,
+        Any = 0,
         PointerDown,
         PointerUp,
         PointerClick,
+        PointerDoubleClick,
         PointerDragBegin,
         PointerDragMove,
         PointerDragEnd,
@@ -44,17 +45,19 @@ namespace ME.ECS.Essentials {
 
         private readonly ME.ECS.Network.INetworkModuleBase networkModule;
         private readonly RPCId rpcId;
-        private readonly object networkObject;
+        private readonly InputFeature networkObject;
         private readonly object tag;
+        private readonly InputEventType inputEventType;
         private System.Func<Entity> getEntity;
         
-        public InputAction(InputFeature feature, ME.ECS.Network.INetworkModuleBase networkModule, System.Action<Entity, TMarker> rpc) {
+        public InputAction(InputFeature feature, InputEventType inputEventType, ME.ECS.Network.INetworkModuleBase networkModule, System.Action<Entity, TMarker> rpc) {
 
             this.networkModule = networkModule;
             this.networkObject = feature;
             this.getEntity = null;
             this.rpcId = default;
             this.tag = default;
+            this.inputEventType = inputEventType;
             
             this.tag = this.networkObject;
             this.rpcId = this.networkModule.RegisterRPC(rpc.Method);
@@ -86,12 +89,16 @@ namespace ME.ECS.Essentials {
         }
 
         public void RPC(Entity player, TMarker marker) {
-            
-            //UnityEngine.Debug.Log("RPC: " + marker + " :: " + typeof(TComponent) + " on entity " + player);
-            player.Set(new TComponent() {
-                setData = marker.data,
-            }, ComponentLifetime.NotifyAllSystems);
-            
+
+            if (this.networkObject.IsAllowed(player, this.inputEventType, marker.data.worldPosition) == true) {
+
+                //UnityEngine.Debug.Log("RPC: " + marker + " :: " + typeof(TComponent) + " on entity " + player);
+                player.Set(new TComponent() {
+                    setData = marker.data,
+                }, ComponentLifetime.NotifyAllSystems);
+
+            }
+
         }
 
     }
@@ -139,8 +146,103 @@ namespace ME.ECS.Essentials {
         private InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDown, InputPointerDown> pointerDownEvent;
 
         internal UnityEngine.Camera camera;
+        private Filter inputMaskFilter;
 
         private System.Collections.Generic.Dictionary<InputEventType, System.Action<InputPointerData>> actions = new System.Collections.Generic.Dictionary<InputEventType, System.Action<InputPointerData>>();
+
+        protected override void OnConstruct() {
+            
+            var net = this.world.GetModule<ME.ECS.Network.INetworkModuleBase>();
+            net.RegisterObject(this);
+            if (this.pointerClick == true) this.pointerClickEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerClick, InputPointerClick>(this, InputEventType.PointerClick, net, this.RPC);
+            if (this.pointerDoubleClick == true) this.pointerDoubleClickEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDoubleClick, InputPointerDoubleClick>(this, InputEventType.PointerDoubleClick, net, this.RPC);
+            if (this.pointerDragBegin == true) this.pointerDragBeginEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDragBegin, InputPointerDragBegin>(this, InputEventType.PointerDragBegin, net, this.RPC);
+            if (this.pointerDragMove == true) this.pointerDragMoveEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDragMove, InputPointerDragMove>(this, InputEventType.PointerDragMove, net, this.RPC);
+            if (this.pointerDragEnd == true) this.pointerDragEndEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDragEnd, InputPointerDragEnd>(this, InputEventType.PointerDragEnd, net, this.RPC);
+            if (this.pointerUp == true) this.pointerUpEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerUp, InputPointerUp>(this, InputEventType.PointerUp, net, this.RPC);
+            if (this.pointerDown == true) this.pointerDownEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDown, InputPointerDown>(this, InputEventType.PointerDown, net, this.RPC);
+
+            this.AddModule<ME.ECS.Essentials.Input.Input.Modules.InputModule>();
+            this.AddSystem<ME.ECS.Essentials.Input.Input.Systems.SendMessagesSystem>();
+            
+            this.inputMaskFilter = Filter.Create("InputFeature-MaskFilter").With<InputMask>().Push();
+
+        }
+
+        protected override void OnDeconstruct() {
+            
+            this.actions.Clear();
+            this.camera = null;
+
+        }
+
+        public bool IsAllowed(Entity player, InputEventType inputEventType, UnityEngine.Vector3 worldPosition) {
+
+            if (this.inputMaskFilter.Count == 0) return true;
+
+            var prior = PoolSortedList<int, Entity>.Spawn(1);
+            foreach (var entity in this.inputMaskFilter) {
+
+                ref readonly var mask = ref entity.Read<InputMask>();
+                if (mask.player == player &&
+                    (mask.inputEventType == inputEventType || mask.inputEventType == InputEventType.Any)) {
+                    
+                    prior.Add(mask.priority, entity);
+                    
+                }
+                
+            }
+
+            var isAllowed = true;
+            if (prior.Count > 0) {
+
+                var posRect = worldPosition.XZ();
+                isAllowed = false;
+                foreach (var kv in prior.Values) {
+
+                    var entity = kv;
+                    ref readonly var mask = ref entity.Read<InputMask>();
+                    if (mask.allow == true) {
+
+                        isAllowed = true;
+                        if (mask.checkRect == true) {
+
+                            var inMask = mask.rect.Contains(posRect);
+                            if ((mask.insideRect == true && inMask == false) ||
+                                (mask.insideRect == false && inMask == true)) {
+
+                                isAllowed = false;
+
+                            }
+
+                        }
+
+                    } else {
+
+                        isAllowed = false;
+                        if (mask.checkRect == true) {
+
+                            var inMask = mask.rect.Contains(posRect);
+                            if ((mask.insideRect == true && inMask == false) ||
+                                (mask.insideRect == false && inMask == true)) {
+
+                                isAllowed = true;
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            PoolSortedList<int, Entity>.Recycle(ref prior);
+            
+            return isAllowed;
+            
+        }
 
         public void RaiseMarkerCallback(InputPointerData data) {
 
@@ -222,23 +324,6 @@ namespace ME.ECS.Essentials {
 
         }
         
-        protected override void OnConstruct() {
-            
-            var net = this.world.GetModule<ME.ECS.Network.INetworkModuleBase>();
-            net.RegisterObject(this);
-            if (this.pointerClick == true) this.pointerClickEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerClick, InputPointerClick>(this, net, this.RPC);
-            if (this.pointerDoubleClick == true) this.pointerDoubleClickEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDoubleClick, InputPointerDoubleClick>(this, net, this.RPC);
-            if (this.pointerDragBegin == true) this.pointerDragBeginEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDragBegin, InputPointerDragBegin>(this, net, this.RPC);
-            if (this.pointerDragMove == true) this.pointerDragMoveEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDragMove, InputPointerDragMove>(this, net, this.RPC);
-            if (this.pointerDragEnd == true) this.pointerDragEndEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDragEnd, InputPointerDragEnd>(this, net, this.RPC);
-            if (this.pointerUp == true) this.pointerUpEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerUp, InputPointerUp>(this, net, this.RPC);
-            if (this.pointerDown == true) this.pointerDownEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDown, InputPointerDown>(this, net, this.RPC);
-
-            this.AddModule<ME.ECS.Essentials.Input.Input.Modules.InputModule>();
-            this.AddSystem<ME.ECS.Essentials.Input.Input.Systems.SendMessagesSystem>();
-
-        }
-
         private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputPointerClick marker) { this.pointerClickEvent.RPC(player, marker); }
         private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputPointerDoubleClick marker) { this.pointerDoubleClickEvent.RPC(player, marker); }
         private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputPointerDragBegin marker) { this.pointerDragBeginEvent.RPC(player, marker); }
@@ -246,13 +331,6 @@ namespace ME.ECS.Essentials {
         private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputPointerDragEnd marker) { this.pointerDragEndEvent.RPC(player, marker); }
         private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputPointerUp marker) { this.pointerUpEvent.RPC(player, marker); }
         private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputPointerDown marker) { this.pointerDownEvent.RPC(player, marker); }
-
-        protected override void OnDeconstruct() {
-            
-            this.actions.Clear();
-            this.camera = null;
-
-        }
 
     }
 
