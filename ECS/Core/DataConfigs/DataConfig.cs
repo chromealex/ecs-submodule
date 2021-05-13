@@ -10,6 +10,16 @@ namespace ME.ECS {
     /// </summary>
     public interface IComponentStatic : IStructComponentBase { }
 
+    /// <summary>
+    /// Used in data configs
+    /// If component has this interface - it would be ignored in DataConfig::Apply method, but Initialize method called
+    /// </summary>
+    public interface IComponentStaticInitializable : IStructComponentBase {
+
+        void Initialize(in Entity entity);
+
+    }
+
 }
 
 namespace ME.ECS.DataConfigs {
@@ -105,6 +115,11 @@ namespace ME.ECS.DataConfigs {
 
                 var dataIndex = this.GetComponentDataIndexByTypeWithCache(this.structComponents[i], i);
                 if (this.structComponents[i] is IComponentStatic) continue;
+                if (this.structComponents[i] is IComponentStaticInitializable initializable) {
+                    
+                    initializable.Initialize(in entity);
+                    
+                }
                 
                 var isShared = (this.structComponents[i] is IComponentShared);
                 if (isShared == true) { // is shared?
