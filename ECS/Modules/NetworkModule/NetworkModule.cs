@@ -132,7 +132,7 @@ namespace ME.ECS.Network {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public abstract class NetworkModule<TState> : INetworkModule<TState>, IUpdate, IUpdatePost, StatesHistory.IEventRunner, IModuleValidation where TState : State, new() {
+    public abstract class NetworkModule<TState> : INetworkModule<TState>, IUpdatePreLate, IUpdatePost, StatesHistory.IEventRunner, IModuleValidation where TState : State, new() {
 
         private static readonly RPCId CANCEL_EVENT_RPC_ID = -11;
         private static readonly RPCId PING_RPC_ID = -1;
@@ -726,7 +726,6 @@ namespace ME.ECS.Network {
 
             var timeSinceGameStart = (long)(this.world.GetTimeSinceStart() * 1000L);
             var targetTick = (Tick)System.Math.Floor(timeSinceGameStart / (this.world.GetTickTime() * 1000d));
-            var currentTargetTick = targetTick;
             var oldestEventTick = this.statesHistoryModule.GetAndResetOldestTick(tick);
             //UnityEngine.Debug.LogError("Tick: " + tick + ", timeSinceGameStart: " + timeSinceGameStart + ", targetTick: " + targetTick + ", oldestEventTick: " + oldestEventTick);
             if (oldestEventTick == Tick.Invalid || oldestEventTick >= tick) {
@@ -749,10 +748,9 @@ namespace ME.ECS.Network {
 
                 }
                 sourceState = this.world.GetResetState<TState>();
-                if (this.replayMode == false && targetTick < tick) targetTick = tick;
 
             }
-            //UnityEngine.Debug.LogWarning("Rollback. Oldest: " + oldestEventTick + ", sourceTick: " + sourceTick + " (hash: " + sourceState.GetHash() + " rnd: " + sourceState.randomState + "), targetTick: " + targetTick + ", currentTick: " + tick + " (" + currentTargetTick + "), timeSinceGameStart: " + timeSinceGameStart);
+            //UnityEngine.Debug.LogWarning("Rollback. Oldest: " + oldestEventTick + ", sourceTick: " + sourceTick + " (hash: " + sourceState.GetHash() + " rnd: " + sourceState.randomState + "), targetTick: " + targetTick + ", currentTick: " + tick + ", timeSinceGameStart: " + timeSinceGameStart);
             
             this.statesHistoryModule.InvalidateEntriesAfterTick(sourceTick);
 
@@ -772,21 +770,21 @@ namespace ME.ECS.Network {
             this.isReverting = true;
             {
                 var currentState = this.world.GetState();
-                this.revertingTo = currentState.tick;
+                this.revertingTo = tick;
                 currentState.CopyFrom(sourceState);
                 currentState.Initialize(this.world, freeze: false, restore: true);
-                if (this.asyncMode == false) this.world.Simulate(sourceTick, targetTick);
+                if (this.asyncMode == false) this.world.Simulate(sourceTick, tick);
             }
             this.isReverting = false;
             this.OnRevertingEnd();
 
             if (this.asyncMode == true) {
                 
-                this.world.SetFromToTicks(sourceTick, currentTargetTick);
+                this.world.SetFromToTicks(sourceTick, targetTick);
                 
             } else {
 
-                this.world.SetFromToTicks(targetTick, currentTargetTick);
+                this.world.SetFromToTicks(tick, targetTick);
 
             }
 
@@ -801,13 +799,13 @@ namespace ME.ECS.Network {
 
             }
 
+        }
+
+        public virtual void UpdatePreLate(in float deltaTime) {
+
             this.ReceiveEventsAndApply();
             this.ApplyTicksByState();
 
-        }
-
-        public virtual void Update(in float deltaTime) {
-            
         }
 
         public RPCId RegisterRPC(System.Reflection.MethodInfo methodInfo, bool runLocalOnly = false) {

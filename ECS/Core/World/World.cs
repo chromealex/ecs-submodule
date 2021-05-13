@@ -2093,6 +2093,62 @@ namespace ME.ECS {
             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
             #endif
 
+            ////////////////
+            this.currentStep |= WorldStep.ModulesVisualTick;
+            ////////////////
+            {
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.VisualTick);
+                #endif
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginSample($"VisualTick-Pre-Late [All Modules]");
+                #endif
+
+                for (int i = 0, count = this.modules.Count; i < count; ++i) {
+
+                    if (this.IsModuleActive(i) == true) {
+
+                        #if CHECKPOINT_COLLECTOR
+                        if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules[i], WorldStep.VisualTick);
+                        #endif
+
+                        #if UNITY_EDITOR
+                        UnityEngine.Profiling.Profiler.BeginSample(this.modules[i].GetType().FullName);
+                        #endif
+
+                        if (this.modules[i] is IUpdatePreLate moduleBase) {
+
+                            moduleBase.UpdatePreLate(deltaTime);
+
+                        }
+
+                        #if UNITY_EDITOR
+                        UnityEngine.Profiling.Profiler.EndSample();
+                        #endif
+
+                        #if CHECKPOINT_COLLECTOR
+                        if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules[i], WorldStep.VisualTick);
+                        #endif
+
+                    }
+
+                }
+
+                #if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndSample();
+                #endif
+
+                #if CHECKPOINT_COLLECTOR
+                if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.VisualTick);
+                #endif
+
+            }
+            ////////////////
+            this.currentStep &= ~WorldStep.ModulesVisualTick;
+            ////////////////
+
         }
 
         #if INLINE_METHODS
