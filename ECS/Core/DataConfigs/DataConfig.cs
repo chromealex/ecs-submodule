@@ -12,7 +12,7 @@ namespace ME.ECS {
 
     /// <summary>
     /// Used in data configs
-    /// If component has this interface - it would be ignored in DataConfig::Apply method, but Initialize method called
+    /// If component has this interface - data will be initialized in DataConfig::Apply method
     /// </summary>
     public interface IComponentInitializable {
 
