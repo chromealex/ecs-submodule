@@ -155,12 +155,22 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                         if (dt <= this.feature.doubleClickThreshold &&
                             ((this.pressWorldPosClick - this.pressWorldPos).sqrMagnitude <= this.feature.doubleClickMaxDistance * this.feature.doubleClickMaxDistance)) {
 
-                            var data = new InputPointerData(0, worldPos, InputEventType.PointerClick);
-                            this.world.AddMarker(new Markers.InputPointerDoubleClick() {
-                                data = data,
-                            });
-                            this.feature.RaiseMarkerCallback(data);
+                            {
+                                var data = new InputPointerData(0, this.pressWorldPos, InputEventType.PointerClick);
+                                this.world.AddMarker(new Markers.InputPointerClick() {
+                                    data = data,
+                                });
+                                this.feature.RaiseMarkerCallback(data);
+                            }
 
+                            {
+                                var data = new InputPointerData(0, worldPos, InputEventType.PointerClick);
+                                this.world.AddMarker(new Markers.InputPointerDoubleClick() {
+                                    data = data,
+                                });
+                                this.feature.RaiseMarkerCallback(data);
+                            }
+                            
                             this.clicksCount = 0;
 
                         } else {
