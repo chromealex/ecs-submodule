@@ -1563,8 +1563,9 @@ namespace ME.ECS {
             }
             #endif
 
+            var isNew = this.currentState.storage.WillNew();
             ref var entity = ref this.currentState.storage.Alloc();
-            this.UpdateEntity(in entity);
+            this.UpdateEntity(in entity, isNew);
 
             if (name != null) {
 
@@ -1584,9 +1585,9 @@ namespace ME.ECS {
 
         }
 
-        public void UpdateEntity(in Entity entity) {
+        public void UpdateEntity(in Entity entity, bool isNew) {
 
-            ComponentsInitializerWorld.Init(in entity);
+            if (isNew == true) ComponentsInitializerWorld.Init(in entity);
             this.currentState.storage.versions.Validate(in entity);
             this.CreateEntityPlugins(entity);
             this.CreateEntityInFilters(entity);
