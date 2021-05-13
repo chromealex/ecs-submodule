@@ -1776,10 +1776,18 @@ namespace ME.ECS {
 
         public TFeature GetFeature<TFeature>() where TFeature : IFeatureBase {
 
-            if (this.features.TryGetValue(typeof(TFeature), out var feature) == true) {
+            {
+                if (this.features.TryGetValue(typeof(TFeature), out var feature) == true) {
 
-                return (TFeature)feature;
+                    return (TFeature)feature;
 
+                }
+            }
+
+            {
+                foreach (var feature in this.features) {
+                    if (feature.Value is TFeature featureBase) return featureBase;
+                }
             }
 
             return default;
