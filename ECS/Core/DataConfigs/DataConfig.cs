@@ -14,7 +14,7 @@ namespace ME.ECS {
     /// Used in data configs
     /// If component has this interface - it would be ignored in DataConfig::Apply method, but Initialize method called
     /// </summary>
-    public interface IComponentStaticInitializable : IStructComponentBase {
+    public interface IComponentInitializable {
 
         void Initialize(in Entity entity);
 
@@ -115,7 +115,7 @@ namespace ME.ECS.DataConfigs {
 
                 var dataIndex = this.GetComponentDataIndexByTypeWithCache(this.structComponents[i], i);
                 if (this.structComponents[i] is IComponentStatic) continue;
-                if (this.structComponents[i] is IComponentStaticInitializable initializable) {
+                if (this.structComponents[i] is IComponentInitializable initializable) {
                     
                     initializable.Initialize(in entity);
                     
