@@ -788,9 +788,10 @@ namespace ME.ECS {
                 
             }
             #endif
-
+            
             //var bucketId = this.GetBucketId(in entity.id, out var index);
             var index = entity.id;
+            if (index >= this.componentsStates.Length) return false;
             //this.CheckResize(in index);
             ref var bucketState = ref this.componentsStates.arr[index];
             if (bucketState > 0) {
@@ -1319,7 +1320,7 @@ namespace ME.ECS {
 
                     //var sw = new System.Diagnostics.Stopwatch();
                     //sw.Start();
-                    item.Validate(in entity);
+                    //item.Validate(in entity);
                     item.Remove(in entity, clearAll: true);
                     //sw.Stop();
                     //if (sw.ElapsedMilliseconds > 10) UnityEngine.Debug.Log("REMOVE " + sw.ElapsedMilliseconds + " :: " + item.GetType());
