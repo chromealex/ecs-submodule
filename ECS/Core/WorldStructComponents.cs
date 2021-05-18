@@ -195,8 +195,13 @@ namespace ME.ECS {
 
         public struct SharedGroups : ISharedGroups {
 
+            #if MULTITHREAD_SUPPORT
             [ME.ECS.Serializer.SerializeField]
             internal CCDictionary<uint, SharedGroupData> sharedGroups;
+            #else
+            [ME.ECS.Serializer.SerializeField]
+            internal DictionaryCopyable<uint, SharedGroupData> sharedGroups;
+            #endif
             private static bool alwaysFalse;
 
             public System.Collections.Generic.ICollection<uint> GetGroups() {
@@ -219,13 +224,29 @@ namespace ME.ECS {
 
             public void Initialize() {
 
-                if (this.sharedGroups == null) this.sharedGroups = PoolCCDictionary<uint, SharedGroupData>.Spawn(1);
+                if (this.sharedGroups == null) {
+                    
+                    #if MULTITHREAD_SUPPORT
+                    this.sharedGroups = PoolCCDictionary<uint, SharedGroupData>.Spawn(1);
+                    #else
+                    this.sharedGroups = PoolDictionaryCopyable<uint, SharedGroupData>.Spawn(1);
+                    #endif
+
+                }
 
             }
 
             public void OnRecycle() {
-                
-                if (this.sharedGroups != null) PoolCCDictionary<uint, SharedGroupData>.Recycle(ref this.sharedGroups);
+
+                if (this.sharedGroups != null) {
+                    
+                    #if MULTITHREAD_SUPPORT
+                    PoolCCDictionary<uint, SharedGroupData>.Recycle(ref this.sharedGroups);
+                    #else
+                    PoolDictionaryCopyable<uint, SharedGroupData>.Recycle(ref this.sharedGroups);
+                    #endif
+                    
+                }
                 
             }
 
@@ -237,7 +258,11 @@ namespace ME.ECS {
 
                 } else if (this.sharedGroups == null && other.sharedGroups != null) {
 
+                    #if MULTITHREAD_SUPPORT
                     this.sharedGroups = PoolCCDictionary<uint, SharedGroupData>.Spawn(other.sharedGroups.Count);
+                    #else
+                    this.sharedGroups = PoolDictionaryCopyable<uint, SharedGroupData>.Spawn(other.sharedGroups.Count);
+                    #endif
 
                 } else if (this.sharedGroups != null && other.sharedGroups == null) {
 
@@ -246,7 +271,11 @@ namespace ME.ECS {
                         copy.Recycle(kv.Value);
                         
                     }
+                    #if MULTITHREAD_SUPPORT
                     PoolCCDictionary<uint, SharedGroupData>.Recycle(ref this.sharedGroups);
+                    #else
+                    PoolDictionaryCopyable<uint, SharedGroupData>.Recycle(ref this.sharedGroups);
+                    #endif
                     return;
 
                 }
@@ -431,7 +460,7 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) PoolArray<uint>.Recycle(ref this.versionsNoState);
             if (this.lifetimeIndexes != null) PoolListCopyable<int>.Recycle(ref this.lifetimeIndexes);
             
-            this.sharedGroups.OnRecycle();
+            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.OnRecycle();
             
         }
 
@@ -507,7 +536,7 @@ namespace ME.ECS {
 
             }
 
-            this.sharedGroups.Validate(capacity);
+            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.Validate(capacity);
 
             if (AllComponentTypes<TComponent>.isVersioned == true) ArrayUtils.Resize(capacity, ref this.versions);
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(capacity, ref this.versionsNoState);
@@ -543,7 +572,7 @@ namespace ME.ECS {
 
             }
 
-            this.sharedGroups.Validate(in entity);
+            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.Validate(in entity);
             
             if (AllComponentTypes<TComponent>.isVersioned == true) ArrayUtils.Resize(index, ref this.versions);
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(index, ref this.versionsNoState);
@@ -839,7 +868,7 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
             if (AllComponentTypes<TComponent>.isTag == false) ArrayUtils.Copy(in _other.components, ref this.components);
 
-            this.sharedGroups.CopyFrom(_other.sharedGroups, new ElementCopy());
+            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(_other.sharedGroups, new ElementCopy());
             
         }
 
@@ -1001,7 +1030,7 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
             if (AllComponentTypes<TComponent>.isTag == false) ArrayUtils.CopyWithIndex(_other.components, ref this.components, new CopyItem() { states = _other.componentsStates });
 
-            this.sharedGroups.CopyFrom(_other.sharedGroups, new ElementCopy());
+            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(_other.sharedGroups, new ElementCopy());
             
         }
 
@@ -1023,7 +1052,7 @@ namespace ME.ECS {
             this.componentsStates.arr[to.id] = this.componentsStates.arr[from.id];
             if (AllComponentTypes<TComponent>.isTag == false) this.components[to.id].CopyFrom(this.components[from.id]);
             if (AllComponentTypes<TComponent>.isVersioned == true) this.versions.arr[to.id] = this.versions.arr[from.id];
-            this.sharedGroups.CopyFrom(in from, in to);
+            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(in from, in to);
             if (this.componentsStates.arr[from.id] > 0) {
 
                 if (this.world.currentState.filters.HasInAnyFilter<TComponent>() == true) this.world.currentState.storage.archetypes.Set<TComponent>(in to);

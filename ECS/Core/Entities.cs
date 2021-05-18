@@ -40,6 +40,7 @@ namespace ME.ECS {
         public static bool isVersioned = false;
         public static bool isVersionedNoState = false;
         public static bool isCopyable = false;
+        public static bool isShared = false;
         public static bool isDisposable = false;
         public static bool isInHash = true;
         public static TComponent empty = default;
