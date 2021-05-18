@@ -49,47 +49,87 @@ namespace ME.ECS {
     [System.Serializable]
     public sealed class FeaturesList {
 
+        public interface IFeatureData {
+
+            FeatureBase featureInstance { get; set; }
+
+            FeatureBase GetSource();
+            bool IsEnabled();
+            IFeatureData[] GetSubFeatures();
+
+        }
+
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
         [System.Serializable]
-        public sealed class FeatureData {
+        public sealed class FeatureData : IFeatureData {
 
             public bool enabled;
             public FeatureBase feature;
-            public FeatureBase featureInstance;
-            
+            public FeatureBase featureInstance { get; set; }
+            [UnityEngine.SerializeReference]
+            public IFeatureData[] innerFeatures;
+
+            public bool IsEnabled() => this.enabled;
+            public FeatureBase GetSource() => this.feature;
+            public IFeatureData[] GetSubFeatures() => this.innerFeatures;
+
         }
 
         public System.Collections.Generic.List<FeatureData> features = new System.Collections.Generic.List<FeatureData>();
 
         internal void Initialize(World world) {
 
-            for (int i = 0; i < this.features.Count; ++i) {
+            this.InitializePre(world, this.features);
+            
+        }
 
-                var item = this.features[i];
-                if (item.enabled == true) {
+        private void InitializePre(World world, System.Collections.IList features) {
+        
+            for (int i = 0; i < features.Count; ++i) {
 
-                    var instance = (world.settings.createInstanceForFeatures == true ? UnityEngine.Object.Instantiate(item.feature) : item.feature);
-                    if (world.settings.createInstanceForFeatures == true) instance.name = item.feature.name;
+                var item = (FeatureData)features[i];
+                if (item.IsEnabled() == true) {
+
+                    var instance = (world.settings.createInstanceForFeatures == true ? UnityEngine.Object.Instantiate(item.GetSource()) : item.GetSource());
+                    if (world.settings.createInstanceForFeatures == true) instance.name = item.GetSource().name;
                     world.AddFeature(item.featureInstance = instance, doConstruct: false);
+
+                    if (item.GetSubFeatures() != null) {
+
+                        this.InitializePre(world, item.GetSubFeatures());
+
+                    }
 
                 }
 
             }
+            
+        }
 
+        public void InitializePost(World world) {
+            
+            this.InitializePost(world, this.features);
+            
         }
         
-        public void InitializePost(World world) {
+        public void InitializePost(World world, System.Collections.IList features) {
 
-            for (int i = 0; i < this.features.Count; ++i) {
+            for (int i = 0; i < features.Count; ++i) {
                 
-                var item = this.features[i];
-                if (item.enabled == true) {
+                var item = (FeatureData)features[i];
+                if (item.IsEnabled() == true) {
                     
                     item.featureInstance.DoConstruct();
+                    
+                    if (item.GetSubFeatures() != null) {
+
+                        this.InitializePost(world, item.GetSubFeatures());
+
+                    }
                     
                 }
                 
@@ -99,14 +139,26 @@ namespace ME.ECS {
 
         internal void DeInitialize(World world) {
             
-            for (int i = 0; i < this.features.Count; ++i) {
+            this.DeInitialize(world, this.features);
+            
+        }
+
+        internal void DeInitialize(World world, System.Collections.IList features) {
+            
+            for (int i = 0; i < features.Count; ++i) {
                 
-                var item = this.features[i];
-                if (item.enabled == true) {
+                var item = (FeatureData)features[i];
+                if (item.IsEnabled() == true) {
                     
                     world.RemoveFeature(item.featureInstance);
                     if (world.settings.createInstanceForFeatures == true) UnityEngine.Object.DestroyImmediate(item.featureInstance);
                     item.featureInstance = null;
+
+                    if (item.GetSubFeatures() != null) {
+
+                        this.DeInitialize(world, item.GetSubFeatures());
+
+                    }
 
                 }
                 

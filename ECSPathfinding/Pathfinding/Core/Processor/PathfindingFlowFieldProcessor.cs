@@ -7,8 +7,8 @@ namespace ME.ECS.Pathfinding {
 
     public struct PathfindingFlowFieldProcessor : IPathfindingProcessor {
 
-        private static System.Collections.Generic.Dictionary<int, BufferArray<byte>> pathCache = new System.Collections.Generic.Dictionary<int, BufferArray<byte>>();
-        private static System.Collections.Generic.Queue<int> pathCacheQueue = new System.Collections.Generic.Queue<int>();
+        private static System.Collections.Generic.Dictionary<long, BufferArray<byte>> pathCache = new System.Collections.Generic.Dictionary<long, BufferArray<byte>>();
+        private static System.Collections.Generic.Queue<long> pathCacheQueue = new System.Collections.Generic.Queue<long>();
         private const int CACHE_SIZE = 100;
 
         public static void ClearCache() {
@@ -43,10 +43,12 @@ namespace ME.ECS.Pathfinding {
             
             System.Diagnostics.Stopwatch swPath = null;
             if ((pathfindingLogLevel & LogLevel.Path) != 0) swPath = System.Diagnostics.Stopwatch.StartNew();
-
+            
+            var key = MathUtils.GetKey(graph.index, endNode.index);
+            //UnityEngine.Debug.Log("Build path cache: " + cacheEnabled + ", burst: " + burstEnabled);
             if (cacheEnabled == true) {
 
-                if (PathfindingFlowFieldProcessor.pathCache.TryGetValue(endNode.index, out var buffer) == true) {
+                if (PathfindingFlowFieldProcessor.pathCache.TryGetValue(key, out var buffer) == true) {
 
                     var pathCache = new Path() {
                         graph = graph,
@@ -88,8 +90,8 @@ namespace ME.ECS.Pathfinding {
 
                     }
 
-                    PathfindingFlowFieldProcessor.pathCache.Add(endNode.index, flowField);
-                    PathfindingFlowFieldProcessor.pathCacheQueue.Enqueue(endNode.index);
+                    PathfindingFlowFieldProcessor.pathCache.Add(key, flowField);
+                    PathfindingFlowFieldProcessor.pathCacheQueue.Enqueue(key);
 
                 }
 

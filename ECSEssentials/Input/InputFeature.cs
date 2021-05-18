@@ -92,7 +92,7 @@ namespace ME.ECS.Essentials {
 
             if (this.networkObject.IsAllowed(player, this.inputEventType, marker.data.worldPosition) == true) {
 
-                //UnityEngine.Debug.Log("RPC: " + marker + " :: " + typeof(TComponent) + " on entity " + player);
+                //UnityEngine.Debug.Log("RPC: " + marker + " :: " + typeof(TComponent) + " on entity " + player + ", position: " + marker.data.worldPosition);
                 player.Set(new TComponent() {
                     setData = marker.data,
                 }, ComponentLifetime.NotifyAllSystems);
@@ -176,7 +176,7 @@ namespace ME.ECS.Essentials {
 
         }
 
-        public bool IsAllowed(Entity player, InputEventType inputEventType, UnityEngine.Vector3 worldPosition) {
+        public bool IsAllowed(in Entity player, InputEventType inputEventType, in UnityEngine.Vector3 worldPosition) {
 
             if (this.inputMaskFilter.Count == 0) return true;
 

@@ -1520,6 +1520,7 @@ namespace ME.ECS {
 
             ArrayUtils.Copy(in other.nodes, ref this.nodes);
             ArrayUtils.Copy(in other.dataContains, ref this.dataContains);
+            if (this.onVersionChangedOnly == true) ArrayUtils.Copy(in other.dataVersions, ref this.dataVersions);
 
             #if UNITY_EDITOR
             this.editorTypes = other.editorTypes;

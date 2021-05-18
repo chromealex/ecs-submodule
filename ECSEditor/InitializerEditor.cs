@@ -21,6 +21,7 @@ namespace ME.ECSEditor {
         private UnityEditorInternal.ReorderableList listCategories;
         private System.Collections.Generic.Dictionary<object, bool> systemFoldouts = new System.Collections.Generic.Dictionary<object, bool>();
         private System.Collections.Generic.Dictionary<object, bool> moduleFoldouts = new System.Collections.Generic.Dictionary<object, bool>();
+        private System.Collections.Generic.Dictionary<object, bool> featureFoldouts = new System.Collections.Generic.Dictionary<object, bool>();
         private static bool isCompilingManual;
 
         private struct DefineInfo {
@@ -519,6 +520,18 @@ namespace ME.ECSEditor {
 
         }
 
+        private bool IsSubFeatureFoldout(object instance) {
+
+            if (this.featureFoldouts.TryGetValue(instance, out var res) == true) {
+
+                return res;
+
+            }
+
+            return false;
+
+        }
+
         private void SetSystemFoldout(object instance, bool state) {
 
             if (this.systemFoldouts.TryGetValue(instance, out var res) == true) {
@@ -542,6 +555,20 @@ namespace ME.ECSEditor {
             } else {
 
                 this.moduleFoldouts.Add(instance, state);
+                
+            }
+
+        }
+
+        private void SetSubFeatureFoldout(object instance, bool state) {
+
+            if (this.featureFoldouts.TryGetValue(instance, out var res) == true) {
+
+                this.featureFoldouts[instance] = state;
+
+            } else {
+
+                this.featureFoldouts.Add(instance, state);
                 
             }
 
@@ -723,10 +750,16 @@ namespace ME.ECSEditor {
             }
 
         }
-        
+
         private float GetElementHeight(int index) {
-            
+
             var featureData = (FeaturesList.FeatureData)this.lists[this.currentListIndex].list[index];
+            return this.GetElementHeight(featureData);
+
+        }
+        
+        private float GetElementHeight(FeaturesList.FeatureData featureData) {
+
             var height = InitializerEditor.ONE_LINE_HEIGHT;
 
             if (featureData.feature != null) { // Draw systems
@@ -772,7 +805,28 @@ namespace ME.ECSEditor {
                     }
 
                 }
+                
+                { // Inner features
 
+                    height += InitializerEditor.ONE_LINE_HEIGHT;
+                    var isOpen = this.IsSubFeatureFoldout(featureData.feature);
+                    if (isOpen == true) {
+
+                        var systems = featureData.innerFeatures;
+                        if (systems != null) {
+
+                            foreach (var system in systems) {
+
+                                height += this.GetElementHeight((FeaturesList.FeatureData)system);
+
+                            }
+
+                        }
+
+                    }
+                    
+                }
+                
             }
 
             return height;
@@ -782,7 +836,12 @@ namespace ME.ECSEditor {
         private void OnDrawListItem(Rect rect, int index, bool isActive, bool isFocused) {
 
             var featureData = (FeaturesList.FeatureData)this.lists[this.currentListIndex].list[index];
+            this.DrawFeature(ref rect, featureData, isActive, isFocused);
 
+        }
+        
+        private void DrawFeature(ref Rect rect, FeaturesList.FeatureData featureData, bool isActive, bool isFocused) {
+            
             if (Event.current.type == EventType.Repaint) this.drawWidth = rect.width;
             rect.height = InitializerEditor.ONE_LINE_HEIGHT;
             
@@ -911,6 +970,32 @@ namespace ME.ECSEditor {
 
                     }
 
+                }
+
+                { // Inner features
+
+                    count = (featureData.innerFeatures != null ? featureData.innerFeatures.Length : 0);
+                    rect.y += InitializerEditor.ONE_LINE_HEIGHT;
+                    var isOpen = GUILayoutExt.BeginFoldoutHeaderGroup(rect, this.IsSubFeatureFoldout(featureData.feature), new GUIContent(string.Format("Sub Features ({0})", count)));
+                    this.SetSubFeatureFoldout(featureData.feature, isOpen);
+                    if (isOpen == true) {
+
+                        var systems = featureData.innerFeatures;
+                        if (systems != null) {
+
+                            foreach (var system in systems) {
+
+                                var prevRect = rect;
+                                rect.y += InitializerEditor.ONE_LINE_HEIGHT;
+                                this.DrawFeature(ref rect, (FeaturesList.FeatureData)system, isActive, isFocused);
+                                rect.x = prevRect.x;
+
+                            }
+
+                        }
+
+                    }
+                    
                 }
 
             }
