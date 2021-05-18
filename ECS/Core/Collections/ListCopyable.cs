@@ -32,7 +32,7 @@
 
             this.innerArray = PoolArray<T>.Spawn(this.Capacity);
             this.Capacity = 0;
-            this.Count = 0;
+            this.Initialize();
 
         }
 
@@ -58,7 +58,6 @@
         }
 
         public ListCopyable() {
-            this.innerArray = PoolArray<T>.Spawn(this.Capacity);
             this.Initialize();
         }
 
