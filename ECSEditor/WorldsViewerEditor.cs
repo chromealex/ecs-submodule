@@ -1045,25 +1045,29 @@ namespace ME.ECSEditor {
                                 #endif
                                 
                                 var groupIds = registry.GetSharedGroups(entityData);
-                                foreach (var groupId in groupIds) {
+                                if (groupIds != null) {
 
-                                    var component = registry.GetSharedObject(entityData, groupId);
-                                    if (component == null) {
-                                        continue;
+                                    foreach (var groupId in groupIds) {
+
+                                        var component = registry.GetSharedObject(entityData, groupId);
+                                        if (component == null) {
+                                            continue;
+                                        }
+
+                                        if (GUILayoutExt.IsSearchValid(component, search) == false) continue;
+
+                                        usedComponents.Add(component.GetType());
+                                        components.Add(component);
+
+                                        var item = new SharedRegistryData() {
+                                            groupId = groupId,
+                                            component = component,
+                                            registry = registry,
+                                        };
+                                        sortedRegistries.Add(item);
+
                                     }
 
-                                    if (GUILayoutExt.IsSearchValid(component, search) == false) continue;
-
-                                    usedComponents.Add(component.GetType());
-                                    components.Add(component);
-
-                                    var item = new SharedRegistryData() {
-                                        groupId = groupId,
-                                        component = component,
-                                        registry = registry,
-                                    };
-                                    sortedRegistries.Add(item);
-                                    
                                 }
 
                             }

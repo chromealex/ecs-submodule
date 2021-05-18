@@ -206,6 +206,7 @@ namespace ME.ECS {
 
             public System.Collections.Generic.ICollection<uint> GetGroups() {
                 
+                if (this.sharedGroups == null) return null;
                 return this.sharedGroups.Keys;
                 
             }

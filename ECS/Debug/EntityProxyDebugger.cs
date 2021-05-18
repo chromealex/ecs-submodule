@@ -53,13 +53,17 @@ namespace ME.ECS.Debug {
                 foreach (var reg in registries) {
                     
                     var groups = reg.GetSharedGroups(this.entity);
-                    foreach (var group in groups) {
-                        
-                        list.Add(new SharedGroup() {
-                            groupId = group,
-                            data = reg.GetSharedObject(this.entity, group),
-                        });
-                        
+                    if (groups != null) {
+
+                        foreach (var group in groups) {
+
+                            list.Add(new SharedGroup() {
+                                groupId = group,
+                                data = reg.GetSharedObject(this.entity, group),
+                            });
+
+                        }
+
                     }
 
                 }
