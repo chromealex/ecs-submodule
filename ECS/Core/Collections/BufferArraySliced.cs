@@ -225,7 +225,7 @@ namespace ME.ECS.Collections {
         #endif
         public BufferArraySliced<T> Merge() {
 
-            if (this.tails.isCreated == false) {
+            if (this.tails.isCreated == false || this.tails.Length == 0) {
 
                 return this;
 

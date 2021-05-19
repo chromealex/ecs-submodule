@@ -178,7 +178,7 @@ namespace ME.ECS {
             #endif
             public void Validate(int entityId) {
                 
-                ArrayUtils.Resize(entityId, ref this.states);
+                ArrayUtils.Resize(entityId, ref this.states, true);
                 
             }
 
@@ -522,7 +522,7 @@ namespace ME.ECS {
             var result = false;
             if (AllComponentTypes<TComponent>.isTag == false) {
 
-                if (ArrayUtils.Resize(capacity, ref this.components) == true) {
+                if (ArrayUtils.Resize(capacity, ref this.components, true) == true) {
 
                     // Add into dirty map
                     result = true;
@@ -533,14 +533,14 @@ namespace ME.ECS {
 
             if (ArrayUtils.WillResize(capacity, ref this.componentsStates) == true) {
 
-                ArrayUtils.Resize(capacity, ref this.componentsStates);
+                ArrayUtils.Resize(capacity, ref this.componentsStates, true);
 
             }
 
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.Validate(capacity);
 
-            if (AllComponentTypes<TComponent>.isVersioned == true) ArrayUtils.Resize(capacity, ref this.versions);
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(capacity, ref this.versionsNoState);
+            if (AllComponentTypes<TComponent>.isVersioned == true) ArrayUtils.Resize(capacity, ref this.versions, true);
+            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(capacity, ref this.versionsNoState, true);
             
             this.world.currentState.storage.archetypes.Validate(capacity);
 
@@ -559,7 +559,7 @@ namespace ME.ECS {
 
                 if (ArrayUtils.Resize(index, ref this.components) == true) {
 
-                    ArrayUtils.Resize(index, ref this.componentsStates);
+                    ArrayUtils.Resize(index, ref this.componentsStates, true);
                     // Add into dirty map
                     result = true;
 
@@ -569,14 +569,14 @@ namespace ME.ECS {
 
             if (result == false && ArrayUtils.WillResize(index, ref this.componentsStates) == true) {
 
-                ArrayUtils.Resize(index, ref this.componentsStates);
+                ArrayUtils.Resize(index, ref this.componentsStates, true);
 
             }
 
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.Validate(in entity);
             
-            if (AllComponentTypes<TComponent>.isVersioned == true) ArrayUtils.Resize(index, ref this.versions);
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(index, ref this.versionsNoState);
+            if (AllComponentTypes<TComponent>.isVersioned == true) ArrayUtils.Resize(index, ref this.versions, true);
+            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(index, ref this.versionsNoState, true);
 
             this.world.currentState.storage.archetypes.Validate(in entity);
 
@@ -1173,7 +1173,7 @@ namespace ME.ECS {
             this.listLifetimeTick = PoolHashSetCopyable<int>.Spawn(10);
             this.listLifetimeFrame = PoolHashSetCopyable<int>.Spawn(10);
 
-            ArrayUtils.Resize(100, ref this.list);
+            ArrayUtils.Resize(100, ref this.list, false);
             this.count = 0;
             this.isCreated = true;
 
@@ -1367,7 +1367,7 @@ namespace ME.ECS {
 
             if (ArrayUtils.WillResize(code, ref this.list) == true) {
 
-                ArrayUtils.Resize(code, ref this.list);
+                ArrayUtils.Resize(code, ref this.list, true);
 
             }
 
@@ -1420,7 +1420,7 @@ namespace ME.ECS {
 
             if (ArrayUtils.WillResize(code, ref this.list) == true) {
 
-                ArrayUtils.Resize(code, ref this.list);
+                ArrayUtils.Resize(code, ref this.list, true);
 
             }
 
@@ -1474,7 +1474,7 @@ namespace ME.ECS {
 
             if (ArrayUtils.WillResize(code, ref this.list) == true) {
 
-                ArrayUtils.Resize(code, ref this.list);
+                ArrayUtils.Resize(code, ref this.list, true);
 
             }
 

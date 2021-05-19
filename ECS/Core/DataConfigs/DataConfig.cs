@@ -179,6 +179,9 @@ namespace ME.ECS.DataConfigs {
         public void Prewarm() {
 
 	        if (this.isPrewarmed == true) return;
+            #if UNITY_EDITOR
+            if (Application.isPlaying == false) return;
+            #endif
 	        
 	        System.Array.Resize(ref this.removeStructComponentsDataTypeIds, this.removeStructComponents.Length);
 	        for (int i = 0; i < this.removeStructComponents.Length; ++i) {
@@ -210,7 +213,6 @@ namespace ME.ECS.DataConfigs {
 
             }
 
-            /*
 	        for (int i = 0; i < this.structComponents.Length; ++i) {
 
 		        if (this.structComponents[i] != null && this.structComponents[i].GetType() == type) {
@@ -219,7 +221,7 @@ namespace ME.ECS.DataConfigs {
 
 		        }
 		        
-	        }*/
+	        }
 	        
             return false;
 
@@ -244,7 +246,7 @@ namespace ME.ECS.DataConfigs {
             
             for (int i = 0; i < this.structComponents.Length; ++i) {
 
-                if (this.structComponents[i].GetType() == type) {
+                if (this.structComponents[i] != null && this.structComponents[i].GetType() == type) {
 
                     return (T)this.structComponents[i];
 
