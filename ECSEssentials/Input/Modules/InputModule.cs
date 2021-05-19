@@ -166,7 +166,7 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                             ((this.pressWorldPosClick - worldPos).sqrMagnitude <= this.feature.doubleClickMaxDistance * this.feature.doubleClickMaxDistance)) {
 
                             {
-                                var data = new InputPointerData(0, this.pressWorldPosClick, InputEventType.PointerClick);
+                                var data = new InputPointerData(0, worldPos, InputEventType.PointerClick);
                                 this.world.AddMarker(new Markers.InputPointerClick() {
                                     data = data,
                                 });
@@ -174,7 +174,7 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                             }
 
                             {
-                                var data = new InputPointerData(0, this.pressWorldPosClick, InputEventType.PointerDoubleClick);
+                                var data = new InputPointerData(0, worldPos, InputEventType.PointerDoubleClick);
                                 this.world.AddMarker(new Markers.InputPointerDoubleClick() {
                                     data = data,
                                 });
