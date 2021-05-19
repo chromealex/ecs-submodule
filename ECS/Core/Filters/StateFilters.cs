@@ -153,6 +153,27 @@ namespace ME.ECS {
         #endif
         internal void RemoveFromFilters_INTERNAL(in Entity entity) {
 
+            var bits = this.currentState.storage.archetypes.types.arr[entity.id].value;
+            var bitsCount =  bits.BitsCount;
+            for (int i = 0; i < bitsCount; ++i) {
+
+                if (bits.HasBit(i) == true) {
+                    
+                    var filters = this.currentState.filters.filtersTree.GetFiltersContainsFor(i);
+                    for (int f = 0; f < filters.Length; ++f) {
+
+                        var filterId = filters.arr[f];
+                        var filter = this.GetFilter(filterId);
+                        filter.OnEntityDestroy(in entity);
+                        filter.OnRemoveEntity(in entity);
+
+                    }
+                    
+                }
+                
+            }
+            
+            /*
             //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
             ref var dic = ref FiltersDirectCache.dic.arr[this.id];
             if (dic.arr != null) {
@@ -168,7 +189,7 @@ namespace ME.ECS {
 
                 }
 
-            }
+            }*/
 
         }
 

@@ -66,6 +66,9 @@ namespace ME.ECS {
             
         }
         
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         partial void CreateEntityPlugin5(Entity entity) {
             
             if (this.debugSettings.createGameObjectsRepresentation == true) {
@@ -94,6 +97,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         partial void DestroyEntityPlugin5(Entity entity) {
             
             if (this.debugSettings.createGameObjectsRepresentation == true) {

@@ -1513,7 +1513,8 @@ namespace ME.ECS {
 
             {
                 // Clear entity
-                this.RemoveData(in to);
+                this.currentState.structComponents.RemoveAll(in to);
+                this.currentState.storage.archetypes.Clear(in to);
             }
 
             {

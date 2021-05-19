@@ -790,21 +790,15 @@ namespace ME.ECS {
             }
             #endif
             
-            //var bucketId = this.GetBucketId(in entity.id, out var index);
             var index = entity.id;
             if (index >= this.componentsStates.Length) return false;
-            //this.CheckResize(in index);
             ref var bucketState = ref this.componentsStates.arr[index];
             if (bucketState > 0) {
 
                 if (AllComponentTypes<TComponent>.isTag == false) this.RemoveData(in entity);
                 bucketState = 0;
 
-                if (clearAll == true) {
-
-                    this.world.currentState.storage.archetypes.RemoveAll<TComponent>(in entity);
-
-                } else {
+                if (clearAll == false) {
 
                     this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
 
@@ -1286,7 +1280,7 @@ namespace ME.ECS {
         #endif
         public void RemoveAll(in Entity entity) {
 
-            for (int i = 0; i < this.nextFrameTasks.Count; ++i) {
+            for (int i = 0, cnt = this.nextFrameTasks.Count; i < cnt; ++i) {
 
                 if (this.nextFrameTasks[i] == null) continue;
 
@@ -1295,12 +1289,13 @@ namespace ME.ECS {
                     this.nextFrameTasks[i].Recycle();
                     this.nextFrameTasks.RemoveAt(i);
                     --i;
+                    --cnt;
 
                 }
 
             }
 
-            for (int i = 0; i < this.nextTickTasks.Count; ++i) {
+            for (int i = 0, cnt = this.nextTickTasks.Count; i < cnt; ++i) {
 
                 if (this.nextTickTasks[i] == null) continue;
 
@@ -1309,6 +1304,7 @@ namespace ME.ECS {
                     this.nextTickTasks[i].Recycle();
                     this.nextTickTasks.RemoveAt(i);
                     --i;
+                    --cnt;
 
                 }
 
@@ -1317,7 +1313,7 @@ namespace ME.ECS {
             for (int i = 0, length = this.list.Length; i < length; ++i) {
 
                 var item = this.list.arr[i];
-                if (item != null) {
+                if (item != null && item.Has(in entity) == true) {
 
                     //var sw = new System.Diagnostics.Stopwatch();
                     //sw.Start();
@@ -1329,7 +1325,7 @@ namespace ME.ECS {
                 }
 
             }
-
+            
         }
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -1807,15 +1803,22 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         partial void CreateEntityPlugin1(Entity entity) {
 
             this.currentState.structComponents.OnEntityCreate(in entity);
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         partial void DestroyEntityPlugin1(Entity entity) {
 
             this.currentState.structComponents.RemoveAll(in entity);
+            this.currentState.storage.archetypes.Clear(in entity);
 
         }
 

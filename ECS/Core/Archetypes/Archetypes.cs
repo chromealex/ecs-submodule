@@ -162,10 +162,19 @@ namespace ME.ECS {
         public void RemoveAll<T>(in Entity entity) {
 
             var id = entity.id;
-            //ArrayUtils.Resize(id, ref this.types);
-            //ArrayUtils.Resize(id, ref this.prevTypes);
             this.prevTypes.arr[id].Subtract<T>();
             this.types.arr[id].Subtract<T>();
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Clear(in Entity entity) {
+
+            var id = entity.id;
+            this.prevTypes.arr[id].Clear();
+            this.types.arr[id].Clear();
 
         }
 
