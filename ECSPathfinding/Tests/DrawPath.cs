@@ -27,6 +27,15 @@ public class DrawPath : MonoBehaviour {
         var path = this.pathfinding.CalculatePath<ME.ECS.Pathfinding.PathCornersModifier, ME.ECS.Pathfinding.PathfindingFlowFieldProcessor>(this.transform.position, this.to.position, this.constraint, graph, new ME.ECS.Pathfinding.PathCornersModifier(), 0, this.useBurst);
         if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete) {
 
+            var fromNode = graph.GetNearest(this.transform.position, this.constraint);
+            var toNode = graph.GetNearest(this.to.position, this.constraint);
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(fromNode.worldPosition, fromNode.worldPosition + Vector3.up * 10f);
+
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(toNode.worldPosition, toNode.worldPosition + Vector3.up * 10f);
+
             if (path.flowField.arr != null) {
 
                 var nodeSize = graph.nodeSize;

@@ -1075,6 +1075,9 @@ namespace ME.ECS.Pathfinding {
             var x = position.x;
             var y = position.y;
             var z = position.z;
+            x = Mathf.Clamp(x, 0, graph.size.x);
+            y = Mathf.Clamp(y, 0, graph.size.y);
+            z = Mathf.Clamp(z, 0, graph.size.z);
             var idx = y * graph.size.x * graph.size.z + (x * graph.size.z) + z;
             return idx;
 
