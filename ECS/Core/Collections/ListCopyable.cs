@@ -9,6 +9,7 @@
     public sealed class ListCopyable<T> : IPoolableSpawn, IPoolableRecycle, System.Collections.Generic.IEnumerable<T> {
 
         private const int DefaultCapacity = 8;
+        private static bool isValueType;
         
         [ME.ECS.Serializer.SerializeField]
         public BufferArray<T> innerArray;
@@ -16,14 +17,11 @@
         public int Count { get; private set; } //Also the index of the next element to be added
         [ME.ECS.Serializer.SerializeField]
         public int Capacity = ListCopyable<T>.DefaultCapacity;
-        [ME.ECS.Serializer.SerializeField]
-        private bool isValueType;
 
         public void CopyFrom(ListCopyable<T> other) {
 
             this.Count = other.Count;
             this.Capacity = other.Capacity;
-            this.isValueType = other.isValueType;
             ArrayUtils.Copy(other.innerArray, ref this.innerArray);
 
         }
@@ -64,7 +62,8 @@
         private void Initialize() {
 
             this.Count = 0;
-            this.isValueType = typeof(T).IsValueType;
+            ListCopyable<T>.isValueType = typeof(T).IsValueType;
+            
         }
 
         public int IndexOf(T item) {
@@ -185,7 +184,8 @@
         }
 
         public void Clear() {
-            if (this.isValueType == false) {
+            
+            if (ListCopyable<T>.isValueType == false) {
 
                 System.Array.Clear(this.innerArray.arr, 0, this.Capacity);
 

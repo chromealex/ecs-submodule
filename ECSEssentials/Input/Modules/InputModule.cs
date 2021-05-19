@@ -39,8 +39,12 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
 
             if (this.sendClickWaiter == true) {
                 
+                var hasWorldPos = this.GetWorldPointer(out var worldPos);
+
                 var dt = UnityEngine.Time.realtimeSinceStartup - this.prevPressedTime;
-                if (dt > this.feature.doubleClickThreshold) {
+                if (hasWorldPos == true &&
+                    dt <= this.feature.doubleClickThreshold &&
+                    ((this.pressWorldPosClick - worldPos).sqrMagnitude <= this.feature.doubleClickMaxDistance * this.feature.doubleClickMaxDistance)) {
 
                     var data = new InputPointerData(0, this.pressWorldPosClick, InputEventType.PointerDoubleClick);
                     this.world.AddMarker(new Markers.InputPointerDoubleClick() {
@@ -140,9 +144,15 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                             data = data,
                         });
                         this.feature.RaiseMarkerCallback(data);
-                        
+                        worldPos = this.lastDragPos;
+
                     }
 
+                    ++this.clicksCount;
+                    this.sendClickWaiter = true;
+                    this.prevPressedTime = UnityEngine.Time.realtimeSinceStartup;
+                    this.pressWorldPosClick = worldPos;
+                    
                     this.dragBegin = false;
 
                 } else if (this.isPressed == true) {
@@ -153,10 +163,10 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
 
                         var dt = UnityEngine.Time.realtimeSinceStartup - this.prevPressedTime;
                         if (dt <= this.feature.doubleClickThreshold &&
-                            ((this.pressWorldPosClick - this.pressWorldPos).sqrMagnitude <= this.feature.doubleClickMaxDistance * this.feature.doubleClickMaxDistance)) {
+                            ((this.pressWorldPosClick - worldPos).sqrMagnitude <= this.feature.doubleClickMaxDistance * this.feature.doubleClickMaxDistance)) {
 
                             {
-                                var data = new InputPointerData(0, this.pressWorldPos, InputEventType.PointerClick);
+                                var data = new InputPointerData(0, this.pressWorldPosClick, InputEventType.PointerClick);
                                 this.world.AddMarker(new Markers.InputPointerClick() {
                                     data = data,
                                 });
@@ -164,7 +174,7 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                             }
 
                             {
-                                var data = new InputPointerData(0, worldPos, InputEventType.PointerDoubleClick);
+                                var data = new InputPointerData(0, this.pressWorldPosClick, InputEventType.PointerDoubleClick);
                                 this.world.AddMarker(new Markers.InputPointerDoubleClick() {
                                     data = data,
                                 });
