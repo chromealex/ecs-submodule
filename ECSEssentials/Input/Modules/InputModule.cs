@@ -149,7 +149,7 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                     }
 
                     ++this.clicksCount;
-                    this.sendClickWaiter = true;
+                    //this.sendClickWaiter = true;
                     this.prevPressedTime = UnityEngine.Time.realtimeSinceStartup;
                     this.pressWorldPosClick = worldPos;
                     
