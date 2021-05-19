@@ -49,7 +49,7 @@ namespace ME.ECS {
         public void Validate(in Entity entity) {
 
             var id = entity.id;
-            ArrayUtils.Resize(id, ref this.values);
+            ArrayUtils.Resize(id, ref this.values, true);
 
         }
 
