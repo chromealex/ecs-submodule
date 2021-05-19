@@ -114,12 +114,12 @@ namespace ME.ECS.DataConfigs {
             for (int i = 0; i < this.structComponents.Length; ++i) {
 
                 var dataIndex = this.GetComponentDataIndexByTypeWithCache(this.structComponents[i], i);
-                if (this.structComponents[i] is IComponentStatic) continue;
                 if (this.structComponents[i] is IComponentInitializable initializable) {
                     
                     initializable.Initialize(in entity);
                     
                 }
+                if (this.structComponents[i] is IComponentStatic) continue;
                 
                 var isShared = (this.structComponents[i] is IComponentShared);
                 if (isShared == true) { // is shared?
