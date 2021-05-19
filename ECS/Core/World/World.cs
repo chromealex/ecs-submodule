@@ -1288,7 +1288,10 @@ namespace ME.ECS {
                     for (int i = 0; i < list.Count; ++i) {
 
                         ref var item = ref list[i];
-                        this.UpdateFiltersOnFilterCreate(item);
+                        // This call resets FilterData.dataVersions[item.id] to true which might create state desynchronization
+                        // in case entity hadn't been updated on the previous tick. FilterData seems to have its state already
+                        // stored within the main state, so it's possible that this call is not needed at all.
+                        //this.UpdateFiltersOnFilterCreate(item);
                         this.CreateEntityPlugins(item);
 
                     }
