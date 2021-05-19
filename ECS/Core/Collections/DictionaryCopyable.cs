@@ -674,7 +674,7 @@ namespace ME.ECS.Collections {
             }
 
             IEnumerator<TKey> IEnumerable<TKey>.GetEnumerator() {
-                throw new NotImplementedException();
+                return new DictionaryCopyable<TKey, TValue>.KeyCollection.Enumerator(this._dictionary);
             }
 
             public DictionaryCopyable<TKey, TValue>.KeyCollection.Enumerator GetEnumerator() {
@@ -709,7 +709,7 @@ namespace ME.ECS.Collections {
             public bool IsReadOnly { get; }
 
             [Serializable]
-            public struct Enumerator : IDisposable, System.Collections.IEnumerator {
+            public struct Enumerator : IDisposable, System.Collections.Generic.IEnumerator<TKey> {
 
                 private DictionaryCopyable<TKey, TValue> _dictionary;
                 private int _index;
