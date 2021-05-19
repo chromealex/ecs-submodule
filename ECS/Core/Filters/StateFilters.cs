@@ -730,6 +730,14 @@ namespace ME.ECS {
         #endif
         public bool MoveNext() {
 
+            if (this.set.hasShared == true) {
+
+                ref var entArchetype = ref this.set.world.currentState.storage.archetypes.Get(0);
+                if (entArchetype.ContainsAll(in this.set.sharedArchetypeContains) == false) return false;
+                if (entArchetype.NotContains(in this.set.sharedArchetypeNotContains) == false) return false;
+                
+            }
+
             ref readonly var arr = ref this.set.dataContains.arr;
             ref readonly var ver = ref this.set.dataVersions.arr;
             do {
@@ -973,6 +981,26 @@ namespace ME.ECS {
             return this;
 
         }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Filter WithShared<TComponent>() where TComponent : struct, IStructComponentBase {
+
+            this.temp.WithSharedComponent<TComponent>();
+            return this;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Filter WithoutShared<TComponent>() where TComponent : struct, IStructComponentBase {
+
+            this.temp.WithoutSharedComponent<TComponent>();
+            return this;
+
+        }
         #endif
 
         #if INLINE_METHODS
@@ -1063,6 +1091,10 @@ namespace ME.ECS {
         private BufferArray<IFilterNode> nodes;
         internal Archetype archetypeContains;
         internal Archetype archetypeNotContains;
+        internal Archetype sharedArchetypeContains;
+        internal Archetype sharedArchetypeNotContains;
+        internal bool hasShared;
+        
         private int nodesCount;
         internal BufferArray<bool> dataContains;
         internal BufferArray<bool> dataVersions;
@@ -1226,6 +1258,18 @@ namespace ME.ECS {
 
         }
 
+        private void AddTypeToEditorWithShared<TComponent>() {
+
+            this.AddTypeToEditorWithShared(typeof(TComponent));
+
+        }
+
+        private void AddTypeToEditorWithoutShared<TComponent>() {
+
+            this.AddTypeToEditorWithoutShared(typeof(TComponent));
+
+        }
+
         private void AddTypeToEditorWith(System.Type type) {
 
             var idx = (this.editorTypes != null ? this.editorTypes.Length : 0);
@@ -1239,6 +1283,22 @@ namespace ME.ECS {
             var idx = (this.editorTypes != null ? this.editorTypes.Length : 0);
             System.Array.Resize(ref this.editorTypes, idx + 1);
             this.editorTypes[idx] = "WO<" + type.Name + ">";
+
+        }
+
+        private void AddTypeToEditorWithShared(System.Type type) {
+
+            var idx = (this.editorTypes != null ? this.editorTypes.Length : 0);
+            System.Array.Resize(ref this.editorTypes, idx + 1);
+            this.editorTypes[idx] = "WS<" + type.Name + ">";
+
+        }
+
+        private void AddTypeToEditorWithoutShared(System.Type type) {
+
+            var idx = (this.editorTypes != null ? this.editorTypes.Length : 0);
+            System.Array.Resize(ref this.editorTypes, idx + 1);
+            this.editorTypes[idx] = "WOS<" + type.Name + ">";
 
         }
 
@@ -1538,6 +1598,9 @@ namespace ME.ECS {
 
             this.archetypeContains = other.archetypeContains;
             this.archetypeNotContains = other.archetypeNotContains;
+            this.sharedArchetypeContains = other.sharedArchetypeContains;
+            this.sharedArchetypeNotContains = other.sharedArchetypeNotContains;
+            this.hasShared = other.hasShared;
 
             ArrayUtils.Copy(in other.nodes, ref this.nodes);
             ArrayUtils.Copy(in other.dataContains, ref this.dataContains);
@@ -1953,8 +2016,10 @@ namespace ME.ECS {
 
         public override int GetHashCode() {
 
-            var hashCode = this.GetType().GetHashCode() ^ this.archetypeContains.GetHashCode() ^ this.archetypeNotContains.GetHashCode() ^
-                           (this.onVersionChangedOnly == true ? 1 : 0);
+            var hashCode = this.GetType().GetHashCode()
+                            ^ this.archetypeContains.GetHashCode() ^ this.archetypeNotContains.GetHashCode()
+                            ^ this.sharedArchetypeContains.GetHashCode() ^ this.sharedArchetypeNotContains.GetHashCode()
+                            ^ (this.onVersionChangedOnly == true ? 1 : 0);
             for (int i = 0; i < this.nodesCount; ++i) {
 
                 hashCode ^= this.nodes.arr[i].GetType().GetHashCode();
@@ -2127,6 +2192,32 @@ namespace ME.ECS {
             this.archetypeNotContains.Add<TComponent>();
             #if UNITY_EDITOR
             this.AddTypeToEditorWithout<TComponent>();
+            #endif
+            return this;
+
+        }
+
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public FilterData WithSharedComponent<TComponent>() where TComponent : struct, IStructComponentBase {
+
+            WorldUtilities.SetComponentTypeId<TComponent>();
+            this.sharedArchetypeContains.Add<TComponent>();
+            this.hasShared = true;
+            #if UNITY_EDITOR
+            this.AddTypeToEditorWithShared<TComponent>();
+            #endif
+            return this;
+
+        }
+
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public FilterData WithoutSharedComponent<TComponent>() where TComponent : struct, IStructComponentBase {
+
+            WorldUtilities.SetComponentTypeId<TComponent>();
+            this.sharedArchetypeNotContains.Add<TComponent>();
+            this.hasShared = true;
+            #if UNITY_EDITOR
+            this.AddTypeToEditorWithoutShared<TComponent>();
             #endif
             return this;
 
