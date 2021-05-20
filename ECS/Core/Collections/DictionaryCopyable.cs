@@ -160,7 +160,6 @@ namespace ME.ECS.Collections {
                 }
 
                 throw new KeyNotFoundException();
-                return default(TValue);
             }
             set => this.Insert(key, value, false);
         }
@@ -1063,7 +1062,6 @@ namespace ME.ECS.Collections {
 
             bool ICollection<TKey>.Remove(TKey item) {
                 throw new NotSupportedException();
-                return false;
             }
 
             IEnumerator<TKey> IEnumerable<TKey>.GetEnumerator() {
@@ -1234,7 +1232,6 @@ namespace ME.ECS.Collections {
 
             bool ICollection<TValue>.Remove(TValue item) {
                 throw new NotSupportedException();
-                return false;
             }
 
             void ICollection<TValue>.Clear() {

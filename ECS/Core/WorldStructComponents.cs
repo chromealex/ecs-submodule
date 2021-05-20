@@ -300,7 +300,7 @@ namespace ME.ECS {
             #endif
             public ref bool Has(int entityId, uint groupId) {
 
-                ref var group = ref this.sharedGroups[groupId];
+                ref var group = ref this.sharedGroups.Get(groupId);
                 if (entityId < group.states.Length) return ref group.states.arr[entityId];
                 SharedGroups.alwaysFalse = false;
                 return ref SharedGroups.alwaysFalse;
@@ -312,7 +312,7 @@ namespace ME.ECS {
             #endif
             public ref TComponent Get(int entityId, uint groupId) {
 
-                return ref this.sharedGroups[groupId].data;
+                return ref this.sharedGroups.Get(groupId).data;
 
             }
 
@@ -321,7 +321,7 @@ namespace ME.ECS {
             #endif
             public void Set(int entityId, uint groupId, TComponent data) {
 
-                ref var group = ref this.sharedGroups[groupId];
+                ref var group = ref this.sharedGroups.Get(groupId);
                 group.Validate(entityId);
                 group.states.arr[entityId] = true;
                 group.data = data;
@@ -333,7 +333,7 @@ namespace ME.ECS {
             #endif
             public void Set(int entityId, uint groupId) {
 
-                ref var group = ref this.sharedGroups[groupId];
+                ref var group = ref this.sharedGroups.Get(groupId);
                 group.Validate(entityId);
                 group.states.arr[entityId] = true;
 
@@ -2181,7 +2181,7 @@ namespace ME.ECS {
             if (incrementVersion == true) {
                 
                 // Increment versions for all entities stored this group
-                ref var states = ref reg.sharedGroups.sharedGroups[groupId].states;
+                ref var states = ref reg.sharedGroups.sharedGroups.Get(groupId).states;
                 for (int i = 0; i < states.Length; ++i) {
                     if (states.arr[i] == true) {
                         this.currentState.storage.versions.Increment(i);
@@ -2236,7 +2236,7 @@ namespace ME.ECS {
             if (state == true) {
                 
                 // Increment versions for all entities stored this group
-                ref var states = ref reg.sharedGroups.sharedGroups[groupId].states;
+                ref var states = ref reg.sharedGroups.sharedGroups.Get(groupId).states;
                 for (int i = 0; i < states.Length; ++i) {
                     if (states.arr[i] == true) {
                         this.currentState.storage.versions.Increment(i);
@@ -2289,7 +2289,7 @@ namespace ME.ECS {
                 reg.sharedGroups.Set(entity.id, groupId, data);
                 
                 // Increment versions for all entities stored this group
-                ref var states = ref reg.sharedGroups.sharedGroups[groupId].states;
+                ref var states = ref reg.sharedGroups.sharedGroups.Get(groupId).states;
                 for (int i = 0; i < states.Length; ++i) {
                     if (states.arr[i] == true) {
                         this.currentState.storage.versions.Increment(i);
