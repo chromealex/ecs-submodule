@@ -1565,7 +1565,6 @@ namespace ME.ECS {
 
                 if (this.list.arr[i] != null) {
 
-                    this.list.arr[i].OnRecycle();
                     PoolRegistries.Recycle(this.list.arr[i]);
                     this.list.arr[i] = null;
 

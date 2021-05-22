@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Mono.Reflection;
 using UnityEditor;
 
 namespace ME.ECSEditor {
@@ -326,7 +327,7 @@ namespace ME.ECSEditor {
                         foreach (var type in allTypes) {
 
                             if (type.IsInterface == true) continue;
-                            
+
                             var interfaces = type.GetInterfaces();
                             foreach (var @interface in interfaces) {
 
@@ -370,6 +371,7 @@ namespace ME.ECSEditor {
                 for (var i = 0; i < listEntities.Count; ++i) {
                     
                     var type = listEntities[i];
+                    
                     var entityType = type.FullName.Replace("+", ".");
                     var hasFields = type.GetFields(System.Reflection.BindingFlags.Default | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 0;
                     var isCopyable = typeof(ME.ECS.IStructCopyableBase).IsAssignableFrom(type);

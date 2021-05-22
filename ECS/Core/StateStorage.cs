@@ -51,8 +51,8 @@ namespace ME.ECS {
 
         public override int GetHashCode() {
 
-            if (this.versions == null) return 0;
-
+            if (this.dead == null) return 0;
+            
             return this.versions.GetHashCode() ^ this.aliveCount ^ this.entityId ^ this.dead.Count;
 
         }
@@ -109,8 +109,8 @@ namespace ME.ECS {
             this.deadPrepared = PoolListCopyable<int>.Spawn(capacity);
             this.aliveCount = 0;
             this.entityId = -1;
-            this.archetypes = PoolClass<ArchetypeEntities>.Spawn();
-            this.versions = PoolClass<EntityVersions>.Spawn();
+            this.archetypes = new ArchetypeEntities();//PoolClass<ArchetypeEntities>.Spawn();
+            this.versions = new EntityVersions();//PoolClass<EntityVersions>.Spawn();
 
         }
 
@@ -122,8 +122,10 @@ namespace ME.ECS {
             PoolListCopyable<int>.Recycle(ref this.deadPrepared);
             this.aliveCount = 0;
             this.entityId = -1;
-            PoolClass<ArchetypeEntities>.Recycle(ref this.archetypes);
-            PoolClass<EntityVersions>.Recycle(ref this.versions);
+            //PoolClass<ArchetypeEntities>.Recycle(ref this.archetypes);
+            this.archetypes.Recycle();
+            //PoolClass<EntityVersions>.Recycle(ref this.versions);
+            this.versions.Recycle();
 
         }
 

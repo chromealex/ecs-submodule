@@ -11,11 +11,11 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public class EntityVersions : IPoolableRecycle {
+    public struct EntityVersions {
 
         [ME.ECS.Serializer.SerializeField]
         private BufferArray<ushort> values;
-        private ushort defaultValue;
+        private static ushort defaultValue;
 
         public override int GetHashCode() {
 
@@ -28,7 +28,7 @@ namespace ME.ECS {
 
         }
 
-        public void OnRecycle() {
+        public void Recycle() {
 
             PoolArray<ushort>.Recycle(ref this.values);
 
@@ -74,7 +74,7 @@ namespace ME.ECS {
         public ref ushort Get(in Entity entity) {
 
             var id = entity.id;
-            if (id >= this.values.Length) return ref this.defaultValue;
+            if (id >= this.values.Length) return ref EntityVersions.defaultValue;
             return ref this.values.arr[id];
 
         }

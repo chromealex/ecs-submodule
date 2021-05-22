@@ -1,3 +1,5 @@
+using Unity.Collections.LowLevel.Unsafe;
+
 #if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
@@ -25,7 +27,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public static class ArrayUtils {
+    public static partial class ArrayUtils {
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -516,46 +518,8 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static bool Resize<T>(int index, ref Unity.Collections.NativeArray<T> arr, bool resizeWithOffset = true,
-                                     Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : struct {
-
-            var offset = (resizeWithOffset == true ? 2 : 1);
-
-            if (arr.IsCreated == false) arr = new Unity.Collections.NativeArray<T>(index * offset + 1, allocator);
-            if (index < arr.Length) return false;
-
-            var newLength = arr.Length * offset + 1;
-            if (newLength == 0 || newLength <= index) newLength = index * offset + 1;
-
-            var newArr = new Unity.Collections.NativeArray<T>(newLength, allocator);
-            Unity.Collections.NativeArray<T>.Copy(arr, 0, newArr, 0, arr.Length);
-            arr.Dispose();
-            arr = newArr;
-
-            return true;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static void Copy<T>(Unity.Collections.NativeArray<T> fromArr, ref Unity.Collections.NativeArray<T> arr) where T : struct {
-
-            if (arr == null || arr.IsCreated == false) {
-
-                arr = new Unity.Collections.NativeArray<T>(fromArr.Length, Unity.Collections.Allocator.Persistent, Unity.Collections.NativeArrayOptions.ClearMemory);
-
-            }
-
-            Unity.Collections.NativeArray<T>.Copy(fromArr, arr, fromArr.Length);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public static void CopyWithIndex<T, TCopy>(BufferArraySliced<T> fromArr, ref BufferArraySliced<T> arr, TCopy copy)
-            where TCopy : IArrayElementCopyWithIndex<T> {
+            where TCopy : IArrayElementCopyWithIndex<T> where T : struct {
 
             arr = arr.CopyFrom(in fromArr, copy);
 
@@ -564,7 +528,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void Copy<T>(in ME.ECS.Collections.BufferArraySliced<T> fromArr, ref ME.ECS.Collections.BufferArraySliced<T> arr) {
+        public static void Copy<T>(in ME.ECS.Collections.BufferArraySliced<T> fromArr, ref ME.ECS.Collections.BufferArraySliced<T> arr) where T : struct {
 
             arr = arr.CopyFrom(in fromArr);
 
@@ -829,7 +793,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static bool Resize<T>(int index, ref BufferArraySliced<T> arr, bool resizeWithOffset = false) {
+        public static bool Resize<T>(int index, ref BufferArraySliced<T> arr, bool resizeWithOffset = false) where T : struct {
 
             arr = arr.Resize(index, resizeWithOffset, out var result);
             return result;

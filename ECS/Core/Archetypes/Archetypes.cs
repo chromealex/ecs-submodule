@@ -11,14 +11,14 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public class ArchetypeEntities : IPoolableRecycle {
+    public struct ArchetypeEntities {
 
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<Archetype> prevTypes;
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<Archetype> types;
 
-        public void OnRecycle() {
+        public void Recycle() {
 
             PoolArray<Archetype>.Recycle(ref this.prevTypes);
             PoolArray<Archetype>.Recycle(ref this.types);

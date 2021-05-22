@@ -48,6 +48,20 @@ namespace ME.ECS.Collections {
 
         }
 
+        public NativeArrayBurst(NativeArray<T> array, Allocator allocator) {
+        
+            NativeArrayBurst<T>.Allocate(array.Length, allocator, out this);
+            ArrayUtils.Copy(array, ref this);
+            
+        }
+
+        public NativeArrayBurst(NativeArrayBurst<T> array, Allocator allocator) {
+        
+            NativeArrayBurst<T>.Allocate(array.Length, allocator, out this);
+            ArrayUtils.Copy(array, ref this);
+            
+        }
+
         public NativeArrayBurst(T[] array, Allocator allocator) {
             if (array == null)
                 throw new ArgumentNullException(nameof (array));
@@ -122,6 +136,28 @@ namespace ME.ECS.Collections {
                 // Writes value to the allocated native memory
                 UnsafeUtility.WriteArrayElement(m_Buffer, index, value);
             }
+        }
+        
+        [BurstCompatible(GenericTypeArguments = new [] { typeof(int), typeof(int) })]
+        public static int IndexOf<TI, UI>(void* ptr, int length, UI value) where TI : struct, IEquatable<UI>
+        {
+            for (int i = 0; i != length; i++)
+            {
+                if (UnsafeUtility.ReadArrayElement<TI>(ptr, i).Equals(value))
+                    return i;
+            }
+            return -1;
+        }
+
+        [BurstCompatible(GenericTypeArguments = new [] { typeof(int) })]
+        public int IndexOf<TI>(TI value) where TI : struct, IComparable<TI>
+        {
+            for (int i = 0; i != this.Length; i++)
+            {
+                if (UnsafeUtility.ReadArrayElement<TI>(this.m_Buffer, i).CompareTo(value) == 0)
+                    return i;
+            }
+            return -1;
         }
 
         public static void Copy(T[] src, NativeArrayBurst<T> dst) {
