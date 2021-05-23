@@ -2,12 +2,11 @@
 #define INLINE_METHODS
 #endif
 
-using System.Collections.Generic;
-using System.Linq;
-
 namespace ME.ECS {
 
     using ME.ECS.Collections;
+    using System.Collections.Generic;
+    using Unity.Jobs;
 
     public interface IFilterNode {
 
@@ -23,30 +22,86 @@ namespace ME.ECS {
 
     public partial class World {
 
+        [Unity.Burst.BurstCompileAttribute]
+        private struct UpdateFiltersJob : IJobFor {
+
+            public Entity entity;
+            public ArchetypeEntities archetypeEntities;
+            public NativeBufferArray<FiltersTree.FilterBurst> filters;
+            [Unity.Collections.NativeDisableParallelForRestriction] public Unity.Collections.NativeList<int> result;
+
+            public void Execute(int index) {
+
+                if (this.filters[index].IsForEntity(in this.archetypeEntities, in this.entity) == true) {
+                    
+                    this.result.Add(this.filters[index].id);
+                    
+                }
+
+            }
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private void CalculateJob(in Entity entity, in NativeBufferArray<FiltersTree.FilterBurst> contains, in NativeBufferArray<FiltersTree.FilterBurst> notContains, out Unity.Collections.NativeList<int> containsResult, out Unity.Collections.NativeList<int> notContainsResult) {
+            
+            JobHandle jobContains;
+            JobHandle jobNotContains;
+
+            containsResult = new Unity.Collections.NativeList<int>(Unity.Collections.Allocator.Persistent);
+            notContainsResult = new Unity.Collections.NativeList<int>(Unity.Collections.Allocator.Persistent);
+
+            ref var archetypeEntities = ref Worlds.currentWorld.currentState.storage.archetypes;
+            
+            {
+                var job = new UpdateFiltersJob() {
+                    entity = entity,
+                    archetypeEntities = archetypeEntities,
+                    filters = contains,
+                    result = containsResult,
+                };
+                jobContains = job.Schedule(job.filters.Length, default);
+            }
+            {
+                var job = new UpdateFiltersJob() {
+                    entity = entity,
+                    archetypeEntities = archetypeEntities,
+                    filters = notContains,
+                    result = notContainsResult,
+                };
+                jobNotContains = job.Schedule(job.filters.Length, default);
+            }
+            JobHandle.CompleteAll(ref jobContains, ref jobNotContains);
+
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public void UpdateFilterByStructComponentVersioned<T>(in Entity entity) where T : struct, IStructComponentBase {
 
-            var containsFilters = this.currentState.filters.filtersTree.GetFiltersContainsForVersioned<T>();
-            for (int i = 0; i < containsFilters.Length; ++i) {
+            this.CalculateJob(in entity,
+                              this.currentState.filters.filtersTree.GetFiltersContainsForVersioned<T>(),
+                              this.currentState.filters.filtersTree.GetFiltersNotContainsForVersioned<T>(),
+                              out var containsResult,
+                              out var notContainsResult);
 
-                var filterId = containsFilters.arr[i];
-                var filter = this.GetFilter(filterId);
-                if (filter.IsForEntity(entity.id) == false) continue;
+            for (int i = 0, cnt = containsResult.Length; i < cnt; ++i) {
+                
+                var filter = this.GetFilter(containsResult[i]);
                 filter.OnUpdate(in entity);
 
             }
 
-            var notContainsFilters = this.currentState.filters.filtersTree.GetFiltersNotContainsForVersioned<T>();
-            for (int i = 0; i < notContainsFilters.Length; ++i) {
-
-                var filterId = notContainsFilters.arr[i];
-                var filter = this.GetFilter(filterId);
-                if (filter.IsForEntity(entity.id) == false) continue;
+            for (int i = 0, cnt = notContainsResult.Length; i < cnt; ++i) {
+                
+                var filter = this.GetFilter(notContainsResult[i]);
                 filter.OnUpdate(in entity);
 
             }
+
+            containsResult.Dispose();
+            notContainsResult.Dispose();
 
         }
 
@@ -55,25 +110,28 @@ namespace ME.ECS {
         #endif
         public void UpdateFilterByStructComponent<T>(in Entity entity) where T : struct, IStructComponentBase {
 
-            var containsFilters = this.currentState.filters.filtersTree.GetFiltersContainsFor<T>();
-            for (int i = 0; i < containsFilters.Length; ++i) {
+            this.CalculateJob(in entity,
+                              this.currentState.filters.filtersTree.GetFiltersContainsFor<T>(),
+                              this.currentState.filters.filtersTree.GetFiltersNotContainsFor<T>(),
+                                out var containsResult,
+                                out var notContainsResult);
 
-                var filterId = containsFilters.arr[i];
-                var filter = this.GetFilter(filterId);
-                if (filter.IsForEntity(entity.id) == false) continue;
+            for (int i = 0, cnt = containsResult.Length; i < cnt; ++i) {
+                
+                var filter = this.GetFilter(containsResult[i]);
                 filter.OnUpdate(in entity);
 
             }
 
-            var notContainsFilters = this.currentState.filters.filtersTree.GetFiltersNotContainsFor<T>();
-            for (int i = 0; i < notContainsFilters.Length; ++i) {
-
-                var filterId = notContainsFilters.arr[i];
-                var filter = this.GetFilter(filterId);
-                if (filter.IsForEntity(entity.id) == false) continue;
+            for (int i = 0, cnt = notContainsResult.Length; i < cnt; ++i) {
+                
+                var filter = this.GetFilter(notContainsResult[i]);
                 filter.OnUpdate(in entity);
 
             }
+
+            containsResult.Dispose();
+            notContainsResult.Dispose();
 
         }
 
@@ -81,26 +139,29 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public void UpdateFilterByStructComponent(in Entity entity, int componentIndex) {
+            
+            this.CalculateJob(in entity,
+                              this.currentState.filters.filtersTree.GetFiltersContainsFor(componentIndex),
+                              this.currentState.filters.filtersTree.GetFiltersNotContainsFor(componentIndex),
+                                out var containsResult,
+                                out var notContainsResult);
 
-            var containsFilters = this.currentState.filters.filtersTree.GetFiltersContainsFor(componentIndex);
-            for (int i = 0; i < containsFilters.Length; ++i) {
-
-                var filterId = containsFilters.arr[i];
-                var filter = this.GetFilter(filterId);
-                if (filter.IsForEntity(entity.id) == false) continue;
+            for (int i = 0, cnt = containsResult.Length; i < cnt; ++i) {
+                
+                var filter = this.GetFilter(containsResult[i]);
                 filter.OnUpdate(in entity);
 
             }
 
-            var notContainsFilters = this.currentState.filters.filtersTree.GetFiltersNotContainsFor(componentIndex);
-            for (int i = 0; i < notContainsFilters.Length; ++i) {
-
-                var filterId = notContainsFilters.arr[i];
-                var filter = this.GetFilter(filterId);
-                if (filter.IsForEntity(entity.id) == false) continue;
+            for (int i = 0, cnt = notContainsResult.Length; i < cnt; ++i) {
+                
+                var filter = this.GetFilter(notContainsResult[i]);
                 filter.OnUpdate(in entity);
 
             }
+
+            containsResult.Dispose();
+            notContainsResult.Dispose();
 
         }
 
@@ -163,7 +224,7 @@ namespace ME.ECS {
                     for (int f = 0; f < filters.Length; ++f) {
 
                         var filterId = filters.arr[f];
-                        var filter = this.GetFilter(filterId);
+                        var filter = this.GetFilter(filterId.id);
                         filter.OnEntityDestroy(in entity);
                         filter.OnRemoveEntity(in entity);
 
@@ -173,24 +234,6 @@ namespace ME.ECS {
                 
             }
             
-            /*
-            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
-            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
-            if (dic.arr != null) {
-
-                for (int i = 0; i < dic.Length; ++i) {
-
-                    if (dic.arr[i] == false) continue;
-                    var filterId = i + 1;
-                    var filter = this.GetFilter(filterId);
-                    filter.OnEntityDestroy(in entity);
-                    if (filter.IsForEntity(entity.id) == false) continue;
-                    filter.OnRemoveEntity(in entity);
-
-                }
-
-            }*/
-
         }
 
     }
@@ -657,11 +700,11 @@ namespace ME.ECS {
 
         }
 
-        public BufferArray<Entity> ToArray() {
+        public NativeBufferArray<Entity> ToArray() {
 
             if (this.useSecondary == false) return this.primary.ToArray();
             
-            var arr = PoolArray<Entity>.Spawn(this.primary.Count + this.secondary.Count);
+            var arr = PoolArrayNative<Entity>.Spawn(this.primary.Count + this.secondary.Count);
             var primaryArray = this.primary.ToArray();
             ArrayUtils.Copy(primaryArray, 0, ref arr, 0, this.primary.Count);
             primaryArray.Dispose();
@@ -1015,7 +1058,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArray<Entity> ToArray() {
+        public NativeBufferArray<Entity> ToArray() {
 
             return this.world.GetFilter(this.id).ToArray();
 
@@ -1088,14 +1131,12 @@ namespace ME.ECS {
         }
 
         private System.Action<FilterData> setupVersioned;
-        private BufferArray<IFilterNode> nodes;
         internal Archetype archetypeContains;
         internal Archetype archetypeNotContains;
         internal Archetype sharedArchetypeContains;
         internal Archetype sharedArchetypeNotContains;
         internal bool hasShared;
         
-        private int nodesCount;
         internal NativeBufferArray<bool> dataContains;
         internal NativeBufferArray<bool> dataVersions;
         
@@ -1110,7 +1151,6 @@ namespace ME.ECS {
         private int min;
         private int max;
 
-        private List<IFilterNode> tempNodes;
         internal BufferArray<string> aliases;
         private int dataCount;
 
@@ -1128,11 +1168,21 @@ namespace ME.ECS {
         #endif
 
         public FilterData() { }
-
+        
         internal FilterData(string name) {
 
             this.AddAlias(name);
 
+        }
+
+        public FiltersTree.FilterBurst GetBurstData() {
+            
+            return new FiltersTree.FilterBurst() {
+                id = this.id,
+                contains = this.archetypeContains,
+                notContains = this.archetypeNotContains,
+            };
+            
         }
 
         public void Clear() {
@@ -1348,7 +1398,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArray<Entity> ToArray() {
+        public NativeBufferArray<Entity> ToArray() {
 
             int customCount = 0;
             if (this.onVersionChangedOnly == true) {
@@ -1369,7 +1419,7 @@ namespace ME.ECS {
 
             }
 
-            var data = PoolArray<Entity>.Spawn(customCount);
+            var data = PoolArrayNative<Entity>.Spawn(customCount);
             for (int i = this.min, k = 0; i <= this.max; ++i) {
 
                 if (this.dataContains.arr[i] == true) {
@@ -1404,13 +1454,11 @@ namespace ME.ECS {
             this.requests = PoolListCopyable<Entity>.Spawn(FilterData.REQUESTS_CAPACITY);
             this.requestsRemoveEntity = PoolListCopyable<Entity>.Spawn(FilterData.REQUESTS_CAPACITY);
             #endif
-            this.nodes = default;
             this.dataContains = PoolArrayNative<bool>.Spawn(FilterData.ENTITIES_CAPACITY);
             this.dataCount = 0;
 
             this.id = default;
             if (this.aliases.arr != null) PoolArray<string>.Recycle(ref this.aliases);
-            this.nodesCount = default;
             this.archetypeContains = default;
             this.archetypeNotContains = default;
 
@@ -1436,9 +1484,6 @@ namespace ME.ECS {
 
             PoolArrayNative<bool>.Recycle(ref this.dataContains);
             if (this.onVersionChangedOnly == true) PoolArrayNative<bool>.Recycle(ref this.dataVersions);
-            PoolArray<IFilterNode>.Recycle(ref this.nodes);
-            //PoolArray<Entity>.Recycle(ref this.requestsRemoveEntity);
-            //PoolArray<Entity>.Recycle(ref this.requests);
             #if MULTITHREAD_SUPPORT
             PoolCCList<Entity>.Recycle(ref this.requestsRemoveEntity);
             PoolCCList<Entity>.Recycle(ref this.requests);
@@ -1458,7 +1503,6 @@ namespace ME.ECS {
             this.dataCount = 0;
             this.archetypeContains = default;
             this.archetypeNotContains = default;
-            this.nodesCount = default;
             this.id = default;
             if (this.aliases.arr != null) PoolArray<string>.Recycle(ref this.aliases);
 
@@ -1492,12 +1536,6 @@ namespace ME.ECS {
             }
             
             return false;
-
-        }
-
-        public int GetNodesCount() {
-
-            return this.nodesCount;
 
         }
 
@@ -1589,7 +1627,6 @@ namespace ME.ECS {
             this.max = other.max;
             this.dataCount = other.dataCount;
             ArrayUtils.Copy(in other.aliases, ref this.aliases);
-            this.nodesCount = other.nodesCount;
 
             this.onVersionChangedOnly = other.onVersionChangedOnly;
 
@@ -1602,7 +1639,6 @@ namespace ME.ECS {
             this.sharedArchetypeNotContains = other.sharedArchetypeNotContains;
             this.hasShared = other.hasShared;
 
-            ArrayUtils.Copy(in other.nodes, ref this.nodes);
             ArrayUtils.Copy(in other.dataContains, ref this.dataContains);
             if (this.onVersionChangedOnly == true) ArrayUtils.Copy(in other.dataVersions, ref this.dataVersions);
 
@@ -1942,20 +1978,6 @@ namespace ME.ECS {
             if (entArchetype.Has(in this.archetypeContains) == false) return false;
             if (entArchetype.HasNot(in this.archetypeNotContains) == false) return false;
 
-            if (this.nodesCount > 0) {
-
-                for (int i = 0; i < this.nodesCount; ++i) {
-
-                    if (this.nodes.arr[i].Execute(entity) == false) {
-
-                        return false;
-
-                    }
-
-                }
-
-            }
-
             this.Add_INTERNAL(in entity);
 
             return true;
@@ -1973,24 +1995,6 @@ namespace ME.ECS {
             var allNotContains = entArchetype.HasNot(in this.archetypeNotContains);
             if (allContains == true && allNotContains == true) return false;
 
-            if (this.nodesCount > 0) {
-
-                var isFail = false;
-                for (int i = 0; i < this.nodesCount; ++i) {
-
-                    if (this.nodes.arr[i].Execute(entity) == false) {
-
-                        isFail = true;
-                        break;
-
-                    }
-
-                }
-
-                if (isFail == false) return false;
-
-            }
-
             return this.Remove_INTERNAL(in entity);
 
         }
@@ -2003,8 +2007,7 @@ namespace ME.ECS {
             if (this.GetArchetypeContains() == filter.GetArchetypeContains() &&
                 this.GetArchetypeNotContains() == filter.GetArchetypeNotContains() &&
                 this.onVersionChangedOnly == filter.onVersionChangedOnly &&
-                this.GetType() == filter.GetType() &&
-                this.GetNodesCount() == filter.GetNodesCount()) {
+                this.GetType() == filter.GetType()) {
 
                 return true;
 
@@ -2020,12 +2023,7 @@ namespace ME.ECS {
                             ^ this.archetypeContains.GetHashCode() ^ this.archetypeNotContains.GetHashCode()
                             ^ this.sharedArchetypeContains.GetHashCode() ^ this.sharedArchetypeNotContains.GetHashCode()
                             ^ (this.onVersionChangedOnly == true ? 1 : 0);
-            for (int i = 0; i < this.nodesCount; ++i) {
-
-                hashCode ^= this.nodes.arr[i].GetType().GetHashCode();
-
-            }
-
+            
             return hashCode;
 
         }
@@ -2041,20 +2039,6 @@ namespace ME.ECS {
 
             var world = Worlds.currentWorld;
             if (checkExist == false || world.HasFilter(this.id) == false) {
-
-                if (this.tempNodes.Count > 0) {
-
-                    var arr = this.tempNodes.OrderBy(x => x.GetType().GetHashCode()).ToArray();
-                    if (this.nodes.arr != null) PoolArray<IFilterNode>.Recycle(ref this.nodes);
-                    this.nodes = BufferArray<IFilterNode>.From(arr);
-                    this.nodesCount = this.nodes.Length;
-
-                } else {
-
-                    this.nodesCount = 0;
-
-                }
-                PoolList<IFilterNode>.Recycle(ref this.tempNodes);
 
                 var existsFilter = (this.onVersionChangedOnly == true ? null : world.GetFilterEquals(this));
                 if (existsFilter != null) {
@@ -2086,21 +2070,6 @@ namespace ME.ECS {
 
             }
 
-            return this;
-
-        }
-
-        public FilterData Custom(IFilterNode filter) {
-
-            this.tempNodes.Add(filter);
-            return this;
-
-        }
-
-        public FilterData Custom<TFilter>() where TFilter : class, IFilterNode, new() {
-
-            var filter = new TFilter();
-            this.tempNodes.Add(filter);
             return this;
 
         }
@@ -2230,7 +2199,6 @@ namespace ME.ECS {
             f.setupVersioned = null;
             f.id = nextId;
             f.AddAlias(customName);
-            f.tempNodes = PoolList<IFilterNode>.Spawn(0);
             #if UNITY_EDITOR
             f.OnEditorFilterCreate();
             #endif

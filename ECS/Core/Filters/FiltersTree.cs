@@ -11,6 +11,42 @@ namespace ME.ECS {
     #endif
     public struct FiltersTree {
 
+        public struct FilterBurst : System.IComparable<FilterBurst> {
+
+            public int id;
+            public Archetype contains;
+            public Archetype notContains;
+
+            public int CompareTo(FilterBurst other) {
+
+                return this.id.CompareTo(other.id);
+
+            }
+
+            public bool IsForEntity(in ArchetypeEntities arch, in Entity entity) {
+
+                var entityId = entity.id;
+                ref var cont = ref this.contains;
+                ref var notCont = ref this.notContains;
+            
+                ref var previousArchetype = ref arch.prevTypes.arr[entityId];
+                if (previousArchetype.Has(in cont) == true &&
+                    previousArchetype.HasNot(in notCont) == true) {
+                    return true;
+                }
+
+                ref var currentArchetype = ref arch.types.arr[entityId];
+                if (currentArchetype.Has(in cont) == true &&
+                    currentArchetype.HasNot(in notCont) == true) {
+                    return true;
+                }
+
+                return false;
+
+            }
+
+        }
+
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
@@ -21,11 +57,11 @@ namespace ME.ECS {
             public bool isCreated;
             public int bit;
             public int index;
-            public ME.ECS.Collections.NativeBufferArray<int> filters;
+            public ME.ECS.Collections.NativeBufferArray<FilterBurst> filters;
 
             public void Dispose() {
 
-                PoolArrayNative<int>.Recycle(ref this.filters);
+                PoolArrayNative<FilterBurst>.Recycle(ref this.filters);
 
             }
 
@@ -34,11 +70,12 @@ namespace ME.ECS {
             #endif
             public void Add(FilterData filterData) {
 
+                var data = filterData.GetBurstData();
                 ArrayUtils.Resize(this.index, ref this.filters, true);
-                var idx = this.filters.arr.IndexOf(filterData.id);
+                var idx = this.filters.arr.IndexOf(data);
                 if (idx == -1) {
 
-                    this.filters.arr[this.index] = filterData.id;
+                    this.filters.arr[this.index] = data;
                     ++this.index;
 
                 }
@@ -136,7 +173,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ME.ECS.Collections.NativeBufferArray<int> GetFiltersContainsFor<T>() {
+        public ME.ECS.Collections.NativeBufferArray<FilterBurst> GetFiltersContainsFor<T>() {
 
             var idx = WorldUtilities.GetComponentTypeId<T>();
             if (idx >= 0 && idx < this.itemsContains.Length) {
@@ -145,14 +182,14 @@ namespace ME.ECS {
 
             }
 
-            return ME.ECS.Collections.NativeBufferArray<int>.Empty;
+            return ME.ECS.Collections.NativeBufferArray<FilterBurst>.Empty;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ME.ECS.Collections.NativeBufferArray<int> GetFiltersNotContainsFor<T>() {
+        public ME.ECS.Collections.NativeBufferArray<FilterBurst> GetFiltersNotContainsFor<T>() {
 
             var idx = WorldUtilities.GetComponentTypeId<T>();
             if (idx >= 0 && idx < this.itemsNotContains.Length) {
@@ -161,14 +198,14 @@ namespace ME.ECS {
 
             }
 
-            return ME.ECS.Collections.NativeBufferArray<int>.Empty;
+            return ME.ECS.Collections.NativeBufferArray<FilterBurst>.Empty;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ME.ECS.Collections.NativeBufferArray<int> GetFiltersContainsFor(int componentIndex) {
+        public ME.ECS.Collections.NativeBufferArray<FilterBurst> GetFiltersContainsFor(int componentIndex) {
 
             var idx = componentIndex;
             if (idx >= 0 && idx < this.itemsContains.Length) {
@@ -177,14 +214,14 @@ namespace ME.ECS {
 
             }
 
-            return ME.ECS.Collections.NativeBufferArray<int>.Empty;
+            return ME.ECS.Collections.NativeBufferArray<FilterBurst>.Empty;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ME.ECS.Collections.NativeBufferArray<int> GetFiltersNotContainsFor(int componentIndex) {
+        public ME.ECS.Collections.NativeBufferArray<FilterBurst> GetFiltersNotContainsFor(int componentIndex) {
 
             var idx = componentIndex;
             if (idx >= 0 && idx < this.itemsNotContains.Length) {
@@ -193,14 +230,14 @@ namespace ME.ECS {
 
             }
 
-            return ME.ECS.Collections.NativeBufferArray<int>.Empty;
+            return ME.ECS.Collections.NativeBufferArray<FilterBurst>.Empty;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ME.ECS.Collections.NativeBufferArray<int> GetFiltersContainsForVersioned<T>() {
+        public ME.ECS.Collections.NativeBufferArray<FilterBurst> GetFiltersContainsForVersioned<T>() {
 
             var idx = WorldUtilities.GetComponentTypeId<T>();
             if (idx >= 0 && idx < this.itemsContainsVersioned.Length) {
@@ -209,14 +246,14 @@ namespace ME.ECS {
 
             }
 
-            return ME.ECS.Collections.NativeBufferArray<int>.Empty;
+            return ME.ECS.Collections.NativeBufferArray<FilterBurst>.Empty;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ME.ECS.Collections.NativeBufferArray<int> GetFiltersNotContainsForVersioned<T>() {
+        public ME.ECS.Collections.NativeBufferArray<FilterBurst> GetFiltersNotContainsForVersioned<T>() {
 
             var idx = WorldUtilities.GetComponentTypeId<T>();
             if (idx >= 0 && idx < this.itemsNotContainsVersioned.Length) {
@@ -225,7 +262,7 @@ namespace ME.ECS {
 
             }
 
-            return ME.ECS.Collections.NativeBufferArray<int>.Empty;
+            return ME.ECS.Collections.NativeBufferArray<FilterBurst>.Empty;
 
         }
 
