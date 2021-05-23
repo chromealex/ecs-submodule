@@ -210,7 +210,7 @@ namespace ME.ECS.Collections {
 
             }
 
-            this.tails.Dispose();
+            if (this.tails.isCreated == true) this.tails.Dispose();
 
             return new BufferArraySliced<T>();
 
