@@ -344,14 +344,14 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         internal BufferArraySliced<TComponent> components;
         [ME.ECS.Serializer.SerializeField]
-        internal BufferArray<byte> componentsStates;
+        internal NativeBufferArray<byte> componentsStates;
         [ME.ECS.Serializer.SerializeField]
         internal ListCopyable<int> lifetimeIndexes;
         [ME.ECS.Serializer.SerializeField]
-        internal BufferArray<long> versions;
+        internal NativeBufferArray<long> versions;
         
         // We don't need to serialize this field
-        internal BufferArray<uint> versionsNoState;
+        internal NativeBufferArray<uint> versionsNoState;
         
         // Shared data
         [ME.ECS.Serializer.SerializeField]
@@ -456,9 +456,9 @@ namespace ME.ECS {
         public override void OnRecycle() {
 
             this.components = this.components.Dispose();
-            PoolArray<byte>.Recycle(ref this.componentsStates);
-            if (AllComponentTypes<TComponent>.isVersioned == true) PoolArray<long>.Recycle(ref this.versions);
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) PoolArray<uint>.Recycle(ref this.versionsNoState);
+            PoolArrayNative<byte>.Recycle(ref this.componentsStates);
+            if (AllComponentTypes<TComponent>.isVersioned == true) PoolArrayNative<long>.Recycle(ref this.versions);
+            if (AllComponentTypes<TComponent>.isVersionedNoState == true) PoolArrayNative<uint>.Recycle(ref this.versionsNoState);
             if (this.lifetimeIndexes != null) PoolListCopyable<int>.Recycle(ref this.lifetimeIndexes);
             
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.OnRecycle();
@@ -926,14 +926,14 @@ namespace ME.ECS {
 
         private struct CopyItem : IArrayElementCopyWithIndex<TComponent> {
 
-            public BufferArray<byte> states;
+            public NativeBufferArray<byte> states;
 
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             public void Copy(int index, TComponent @from, ref TComponent to) {
 
-                if (this.states.arr != null && index >= 0 && index < this.states.Length && this.states.arr[index] > 0) {
+                if (this.states.isCreated == true && index >= 0 && index < this.states.Length && this.states.arr[index] > 0) {
 
                     to.CopyFrom(from);
 
@@ -946,7 +946,7 @@ namespace ME.ECS {
             #endif
             public void Recycle(int index, ref TComponent item) {
 
-                if (this.states.arr != null && index >= 0 && index < this.states.Length && this.states.arr[index] > 0) {
+                if (this.states.isCreated == true && index >= 0 && index < this.states.Length && this.states.arr[index] > 0) {
 
                     item.OnRecycle();
                     item = default;
