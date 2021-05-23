@@ -1236,22 +1236,38 @@ namespace ME.ECSEditor {
 
                         GUILayoutExt.Padding(4f, () => {
 
-                            GUILayoutExt.FoldOut(ref worldEditor.foldout, worldEditor.ToString() + " (Hash: " + worldEditor.world.GetStateHash() + ")", () => {
+                            if (this.worlds.Count == 1) worldEditor.foldout = true;
+                            GUILayoutExt.FoldOut(ref worldEditor.foldout, $"{worldEditor} (Hash: {worldEditor.world.GetStateHash()})", () => {
 
                                 GUILayoutExt.Box(2f, 4f, () => {
 
                                     var inUseCount = filters.GetAllFiltersArchetypeCount();
-                                    var max = BitMask.MAX_BIT_INDEX;
-                                    GUILayout.Label("Components in use: " + inUseCount.ToString() + "/" + max.ToString());
-                                    GUILayoutExt.ProgressBar(inUseCount, max);
-                                    GUILayout.Label("State Tick: " + worldEditor.world.GetStateTick().ToString());
-                                    GUILayout.Label("Tick: " + worldEditor.world.GetCurrentTick().ToString());
-                                    GUILayout.Label("Tick Time: " + worldEditor.world.GetTickTime().ToString() + "ms.");
-                                    GUILayout.Label("Time: " + ME.ECS.MathUtils.SecondsToString(worldEditor.world.GetTimeSinceStart()));
+                                    var max = Archetype.MAX_BIT_INDEX + 1;
+                                    var percent = Mathf.FloorToInt(inUseCount / (float)max * 100);
+                                    GUILayout.Label($"Components in use: {inUseCount}/{max} ({percent}%)");
+                                    var fillColor = new Color32(80, 229, 80, 255);
+                                    if (percent >= 99) {
+                                        
+                                        fillColor = new Color32(229, 80, 80, 255);
+                                        EditorGUILayout.HelpBox("Seems like you have reached limit of bits for Archetype. Increase size in Initializer Defines.", MessageType.Error);
+                                        
+                                    } else if (percent >= 80) {
+                                        
+                                        fillColor = new Color32(189, 180, 40, 255);
+                                        EditorGUILayout.HelpBox("Seems like you are approaching the limit of max bits for Archetype. Increase size in Initializer Defines.", MessageType.Warning);
+                                        
+                                    }
+                                    
+                                    GUILayoutExt.ProgressBar(inUseCount, max, new Color(0f, 0f, 0f, 0.5f), fillColor);
+                                    
+                                    GUILayout.Label($"State Tick: {worldEditor.world.GetStateTick()}");
+                                    GUILayout.Label($"Tick: {worldEditor.world.GetCurrentTick()}");
+                                    GUILayout.Label($"Tick Time: {worldEditor.world.GetTickTime()}ms.");
+                                    GUILayout.Label($"Time: {ME.ECS.MathUtils.SecondsToString(worldEditor.world.GetTimeSinceStart())}");
 
                                 });
 
-                                GUILayoutExt.FoldOut(ref worldEditor.foldoutSystems, "Systems (" + systems.Count.ToString() + ")", () => {
+                                GUILayoutExt.FoldOut(ref worldEditor.foldoutSystems, $"Systems ({systems.Count})", () => {
 
                                     var cellHeight = 25f;
                                     var padding = 2f;
@@ -1283,7 +1299,7 @@ namespace ME.ECSEditor {
                                             if (group.runtimeSystem.allSystems == null) continue;
                                             var foldoutObj = group.runtimeSystem.allSystems;
                                             var groupState = worldEditor.IsFoldOutCustom(foldoutObj);
-                                            GUILayoutExt.FoldOut(ref groupState, group.name + " (" + group.runtimeSystem.allSystems.Count.ToString() + ")", () => {
+                                            GUILayoutExt.FoldOut(ref groupState, $"{@group.name} ({@group.runtimeSystem.allSystems.Count})", () => {
                                                 
                                                 for (int j = 0; j < group.runtimeSystem.allSystems.Count; ++j) {
 
@@ -1348,7 +1364,7 @@ namespace ME.ECSEditor {
 
                                 });
 
-                                GUILayoutExt.FoldOut(ref worldEditor.foldoutModules, "Modules (" + modules.Count.ToString() + ")", () => {
+                                GUILayoutExt.FoldOut(ref worldEditor.foldoutModules, $"Modules ({modules.Count})", () => {
 
                                     var cellHeight = 25f;
                                     var padding = 2f;
@@ -1443,7 +1459,7 @@ namespace ME.ECSEditor {
                                 });
 
                                 var entitiesCount = storage.AliveCount;
-                                GUILayoutExt.FoldOut(ref worldEditor.foldoutEntitiesStorage, "Entities (" + entitiesCount.ToString() + ")", () => {
+                                GUILayoutExt.FoldOut(ref worldEditor.foldoutEntitiesStorage, $"Entities ({entitiesCount})", () => {
 
                                     var cellHeight = 25f;
                                     var padding = 2f;
@@ -1517,7 +1533,7 @@ namespace ME.ECSEditor {
                                 for (int f = 0; f < filtersArr.Length; ++f) {
                                     if (filtersArr.arr[f] != null) ++filtersCount;
                                 }
-                                GUILayoutExt.FoldOut(ref worldEditor.foldoutFilters, "Filters (" + filtersCount.ToString() + ")", () => {
+                                GUILayoutExt.FoldOut(ref worldEditor.foldoutFilters, $"Filters ({filtersCount})", () => {
                                     
                                     GUILayoutExt.Padding(4f, () => {
 
@@ -1593,13 +1609,15 @@ namespace ME.ECSEditor {
                                     AssetDatabase.OpenAsset(AssetDatabase.LoadAssetAtPath<MonoScript>(file), line);
 
                                 }
-                                GUILayoutExt.DataLabel(string.Format("<b>{0}</b>", names.arr[i]));
+                                GUILayoutExt.DataLabel(string.Format("<b>{0}</b>", names.arr[i]), GUILayout.ExpandWidth(false));
                             }
                             GUILayout.EndHorizontal();
                             
                         }
 
-                        GUILayout.Label(filter.ToEditorTypesString(), EditorStyles.miniLabel);
+                        var style = new GUIStyle(EditorStyles.miniLabel);
+                        style.wordWrap = true;
+                        GUILayout.Label(filter.ToEditorTypesString(), style);
                         GUILayout.Label("Objects count: " + filter.Count.ToString(), dataStyle);
                         var inUseCount = filter.GetArchetypeContains().Count + filter.GetArchetypeNotContains().Count;
                         var max = filters.GetAllFiltersArchetypeCount();

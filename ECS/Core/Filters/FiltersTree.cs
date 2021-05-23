@@ -21,11 +21,11 @@ namespace ME.ECS {
             public bool isCreated;
             public int bit;
             public int index;
-            public ME.ECS.Collections.BufferArray<int> filters;
+            public ME.ECS.Collections.NativeBufferArray<int> filters;
 
             public void Dispose() {
 
-                PoolArray<int>.Recycle(ref this.filters);
+                PoolArrayNative<int>.Recycle(ref this.filters);
 
             }
 
@@ -35,7 +35,7 @@ namespace ME.ECS {
             public void Add(FilterData filterData) {
 
                 ArrayUtils.Resize(this.index, ref this.filters, true);
-                var idx = System.Array.IndexOf(this.filters.arr, filterData.id, 0, this.filters.Length);
+                var idx = this.filters.arr.IndexOf(filterData.id);
                 if (idx == -1) {
 
                     this.filters.arr[this.index] = filterData.id;
@@ -136,7 +136,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ME.ECS.Collections.BufferArray<int> GetFiltersContainsFor<T>() {
+        public ME.ECS.Collections.NativeBufferArray<int> GetFiltersContainsFor<T>() {
 
             var idx = WorldUtilities.GetComponentTypeId<T>();
             if (idx >= 0 && idx < this.itemsContains.Length) {
@@ -145,14 +145,14 @@ namespace ME.ECS {
 
             }
 
-            return new ME.ECS.Collections.BufferArray<int>(null, 0);
+            return ME.ECS.Collections.NativeBufferArray<int>.Empty;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ME.ECS.Collections.BufferArray<int> GetFiltersNotContainsFor<T>() {
+        public ME.ECS.Collections.NativeBufferArray<int> GetFiltersNotContainsFor<T>() {
 
             var idx = WorldUtilities.GetComponentTypeId<T>();
             if (idx >= 0 && idx < this.itemsNotContains.Length) {
@@ -161,14 +161,14 @@ namespace ME.ECS {
 
             }
 
-            return new ME.ECS.Collections.BufferArray<int>(null, 0);
+            return ME.ECS.Collections.NativeBufferArray<int>.Empty;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ME.ECS.Collections.BufferArray<int> GetFiltersContainsFor(int componentIndex) {
+        public ME.ECS.Collections.NativeBufferArray<int> GetFiltersContainsFor(int componentIndex) {
 
             var idx = componentIndex;
             if (idx >= 0 && idx < this.itemsContains.Length) {
@@ -177,14 +177,14 @@ namespace ME.ECS {
 
             }
 
-            return new ME.ECS.Collections.BufferArray<int>(null, 0);
+            return ME.ECS.Collections.NativeBufferArray<int>.Empty;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ME.ECS.Collections.BufferArray<int> GetFiltersNotContainsFor(int componentIndex) {
+        public ME.ECS.Collections.NativeBufferArray<int> GetFiltersNotContainsFor(int componentIndex) {
 
             var idx = componentIndex;
             if (idx >= 0 && idx < this.itemsNotContains.Length) {
@@ -193,14 +193,14 @@ namespace ME.ECS {
 
             }
 
-            return new ME.ECS.Collections.BufferArray<int>(null, 0);
+            return ME.ECS.Collections.NativeBufferArray<int>.Empty;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ME.ECS.Collections.BufferArray<int> GetFiltersContainsForVersioned<T>() {
+        public ME.ECS.Collections.NativeBufferArray<int> GetFiltersContainsForVersioned<T>() {
 
             var idx = WorldUtilities.GetComponentTypeId<T>();
             if (idx >= 0 && idx < this.itemsContainsVersioned.Length) {
@@ -209,14 +209,14 @@ namespace ME.ECS {
 
             }
 
-            return new ME.ECS.Collections.BufferArray<int>(null, 0);
+            return ME.ECS.Collections.NativeBufferArray<int>.Empty;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ME.ECS.Collections.BufferArray<int> GetFiltersNotContainsForVersioned<T>() {
+        public ME.ECS.Collections.NativeBufferArray<int> GetFiltersNotContainsForVersioned<T>() {
 
             var idx = WorldUtilities.GetComponentTypeId<T>();
             if (idx >= 0 && idx < this.itemsNotContainsVersioned.Length) {
@@ -225,7 +225,7 @@ namespace ME.ECS {
 
             }
 
-            return new ME.ECS.Collections.BufferArray<int>(null, 0);
+            return ME.ECS.Collections.NativeBufferArray<int>.Empty;
 
         }
 
@@ -246,10 +246,10 @@ namespace ME.ECS {
 
             {
 
-                var bits = filter.archetypeContains.value.BitsCount;
+                var bits = filter.archetypeContains.BitsCount;
                 for (var i = 0; i <= bits; ++i) {
 
-                    if (filter.archetypeContains.value.HasBit(i) == true) {
+                    if (filter.archetypeContains.HasBit(i) == true) {
 
                         ArrayUtils.Resize(i, ref contains, true);
                         ref var item = ref contains.arr[i];
@@ -267,10 +267,10 @@ namespace ME.ECS {
 
             {
 
-                var bits = filter.archetypeNotContains.value.BitsCount;
+                var bits = filter.archetypeNotContains.BitsCount;
                 for (var i = 0; i <= bits; ++i) {
 
-                    if (filter.archetypeNotContains.value.HasBit(i) == true) {
+                    if (filter.archetypeNotContains.HasBit(i) == true) {
 
                         ArrayUtils.Resize(i, ref notContains, true);
                         ref var item = ref notContains.arr[i];

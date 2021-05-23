@@ -14,7 +14,7 @@ namespace ME.ECS {
     public struct EntityVersions {
 
         [ME.ECS.Serializer.SerializeField]
-        private BufferArray<ushort> values;
+        private NativeBufferArray<ushort> values;
         private static ushort defaultValue;
 
         public override int GetHashCode() {
@@ -30,7 +30,7 @@ namespace ME.ECS {
 
         public void Recycle() {
 
-            PoolArray<ushort>.Recycle(ref this.values);
+            PoolArrayNative<ushort>.Recycle(ref this.values);
 
         }
 
@@ -64,7 +64,7 @@ namespace ME.ECS {
         #endif
         public ref ushort Get(int entityId) {
 
-            return ref this.values.arr[entityId];
+            return ref this.values.arr.GetRef(entityId);
 
         }
 
@@ -75,7 +75,7 @@ namespace ME.ECS {
 
             var id = entity.id;
             if (id >= this.values.Length) return ref EntityVersions.defaultValue;
-            return ref this.values.arr[id];
+            return ref this.values.arr.GetRef(id);
 
         }
 
@@ -85,7 +85,7 @@ namespace ME.ECS {
         public void Increment(in Entity entity) {
 
             unchecked {
-                ++this.values.arr[entity.id];
+                ++this.values.arr.GetRef(entity.id);
             }
 
         }
@@ -96,7 +96,7 @@ namespace ME.ECS {
         public void Increment(int entityId) {
 
             unchecked {
-                ++this.values.arr[entityId];
+                ++this.values.arr.GetRef(entityId);
             }
 
         }
@@ -106,7 +106,7 @@ namespace ME.ECS {
         #endif
         public void Reset(in Entity entity) {
 
-            this.values.arr[entity.id] = 0;
+            this.values.arr.GetRef(entity.id) = 0;
 
         }
 
@@ -116,7 +116,7 @@ namespace ME.ECS {
         public void Reset(int entityId) {
 
             this.Validate(entityId);
-            this.values.arr[entityId] = 0;
+            this.values.arr.GetRef(entityId) = 0;
 
         }
 

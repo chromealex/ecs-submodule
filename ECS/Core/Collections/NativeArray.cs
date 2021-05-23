@@ -104,7 +104,7 @@ namespace ME.ECS.Collections {
             }
         }
 
-        public unsafe T this[int index] {
+        public unsafe ref T this[int index] {
             get {
                 #if COLLECTIONS_CHECKS
                 // If the container is currently not allowed to read from the buffer
@@ -118,9 +118,10 @@ namespace ME.ECS.Collections {
                 if (index < m_MinIndex || index > m_MaxIndex) FailOutOfRangeError(index);
                 #endif
                 // Read the element from the allocated native memory
-                return UnsafeUtility.ReadArrayElement<T>(m_Buffer, index);
+                //return UnsafeUtility.ReadArrayElement<T>(m_Buffer, index);
+                return ref this.GetRef(index);
             }
-            [WriteAccessRequired]
+            /*[WriteAccessRequired]
             set {
                 #if COLLECTIONS_CHECKS
                 // If the container is currently not allowed to write to the buffer
@@ -135,7 +136,7 @@ namespace ME.ECS.Collections {
                 #endif
                 // Writes value to the allocated native memory
                 UnsafeUtility.WriteArrayElement(m_Buffer, index, value);
-            }
+            }*/
         }
         
         [BurstCompatible(GenericTypeArguments = new [] { typeof(int), typeof(int) })]
@@ -149,7 +150,7 @@ namespace ME.ECS.Collections {
             return -1;
         }
 
-        [BurstCompatible(GenericTypeArguments = new [] { typeof(int) })]
+        [BurstCompatible(GenericTypeArguments = new[] { typeof(int) }), System.Diagnostics.Contracts.PureAttribute]
         public int IndexOf<TI>(TI value) where TI : struct, IComparable<TI>
         {
             for (int i = 0; i != this.Length; i++)

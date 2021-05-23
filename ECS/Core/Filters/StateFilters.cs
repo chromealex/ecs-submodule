@@ -153,7 +153,7 @@ namespace ME.ECS {
         #endif
         internal void RemoveFromFilters_INTERNAL(in Entity entity) {
 
-            var bits = this.currentState.storage.archetypes.types.arr[entity.id].value;
+            var bits = this.currentState.storage.archetypes.types.arr[entity.id];
             var bitsCount =  bits.BitsCount;
             for (int i = 0; i < bitsCount; ++i) {
 
@@ -733,8 +733,8 @@ namespace ME.ECS {
             if (this.set.hasShared == true) {
 
                 ref var entArchetype = ref this.set.world.currentState.storage.archetypes.Get(0);
-                if (entArchetype.ContainsAll(in this.set.sharedArchetypeContains) == false) return false;
-                if (entArchetype.NotContains(in this.set.sharedArchetypeNotContains) == false) return false;
+                if (entArchetype.Has(in this.set.sharedArchetypeContains) == false) return false;
+                if (entArchetype.HasNot(in this.set.sharedArchetypeNotContains) == false) return false;
                 
             }
 
@@ -1096,8 +1096,8 @@ namespace ME.ECS {
         internal bool hasShared;
         
         private int nodesCount;
-        internal BufferArray<bool> dataContains;
-        internal BufferArray<bool> dataVersions;
+        internal NativeBufferArray<bool> dataContains;
+        internal NativeBufferArray<bool> dataVersions;
         
         private bool forEachMode;
         #if MULTITHREAD_SUPPORT
@@ -1405,7 +1405,7 @@ namespace ME.ECS {
             this.requestsRemoveEntity = PoolListCopyable<Entity>.Spawn(FilterData.REQUESTS_CAPACITY);
             #endif
             this.nodes = default;
-            this.dataContains = PoolArray<bool>.Spawn(FilterData.ENTITIES_CAPACITY);
+            this.dataContains = PoolArrayNative<bool>.Spawn(FilterData.ENTITIES_CAPACITY);
             this.dataCount = 0;
 
             this.id = default;
@@ -1434,8 +1434,8 @@ namespace ME.ECS {
 
             this.isPooled = true;
 
-            PoolArray<bool>.Recycle(ref this.dataContains);
-            if (this.onVersionChangedOnly == true) PoolArray<bool>.Recycle(ref this.dataVersions);
+            PoolArrayNative<bool>.Recycle(ref this.dataContains);
+            if (this.onVersionChangedOnly == true) PoolArrayNative<bool>.Recycle(ref this.dataVersions);
             PoolArray<IFilterNode>.Recycle(ref this.nodes);
             //PoolArray<Entity>.Recycle(ref this.requestsRemoveEntity);
             //PoolArray<Entity>.Recycle(ref this.requests);
@@ -1480,17 +1480,17 @@ namespace ME.ECS {
             ref var notCont = ref this.archetypeNotContains;
             
             ref var previousArchetype = ref arch.prevTypes.arr[entityId];
-            if (previousArchetype.value.Has(in cont.value) == true &&
-                previousArchetype.value.HasNot(in notCont.value) == true) {
+            if (previousArchetype.Has(in cont) == true &&
+                previousArchetype.HasNot(in notCont) == true) {
                 return true;
             }
 
             ref var currentArchetype = ref arch.types.arr[entityId];
-            if (currentArchetype.value.Has(in cont.value) == true &&
-                currentArchetype.value.HasNot(in notCont.value) == true) {
+            if (currentArchetype.Has(in cont) == true &&
+                currentArchetype.HasNot(in notCont) == true) {
                 return true;
             }
-
+            
             return false;
 
         }
@@ -1939,8 +1939,8 @@ namespace ME.ECS {
 
             // If entity doesn't exist in cache - try to add if entity's archetype fit with contains & notContains
             ref var entArchetype = ref this.world.currentState.storage.archetypes.Get(entity.id);
-            if (entArchetype.ContainsAll(in this.archetypeContains) == false) return false;
-            if (entArchetype.NotContains(in this.archetypeNotContains) == false) return false;
+            if (entArchetype.Has(in this.archetypeContains) == false) return false;
+            if (entArchetype.HasNot(in this.archetypeNotContains) == false) return false;
 
             if (this.nodesCount > 0) {
 
@@ -1969,8 +1969,8 @@ namespace ME.ECS {
 
             // If entity already exists in cache - try to remove if entity's archetype doesn't fit with contains & notContains
             ref var entArchetype = ref this.world.currentState.storage.archetypes.Get(entity.id);
-            var allContains = entArchetype.ContainsAll(in this.archetypeContains);
-            var allNotContains = entArchetype.NotContains(in this.archetypeNotContains);
+            var allContains = entArchetype.Has(in this.archetypeContains);
+            var allNotContains = entArchetype.HasNot(in this.archetypeNotContains);
             if (allContains == true && allNotContains == true) return false;
 
             if (this.nodesCount > 0) {

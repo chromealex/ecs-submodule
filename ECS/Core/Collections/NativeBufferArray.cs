@@ -20,7 +20,7 @@ namespace ME.ECS.Collections {
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     [System.Serializable]
-    public readonly struct NativeBufferArray<T> : System.IEquatable<NativeBufferArray<T>>, IBufferArray where T : struct, System.IComparable<T> {
+    public readonly struct NativeBufferArray<T> : System.IEquatable<NativeBufferArray<T>>, IBufferArray where T : struct {
 
         public static NativeBufferArray<T> Empty = new NativeBufferArray<T>(default, 0);
 
@@ -77,7 +77,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public int IndexOf(T instance) {
+        public int IndexOf<TI>(TI instance) where TI : struct, System.IComparable<TI> {
 
             if (this.isCreated == false) return -1;
 
@@ -137,6 +137,15 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public void Clear(int index, int length) {
+
+            ArrayUtils.Clear(this.arr, index, length);
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public Enumerator GetEnumerator() {
 
             return new Enumerator(this);
@@ -148,7 +157,7 @@ namespace ME.ECS.Collections {
         #endif
         public NativeBufferArray<T> Dispose() {
 
-            this.Dispose();
+            this.arr.Dispose();
             return NativeBufferArray<T>.Empty;
 
         }

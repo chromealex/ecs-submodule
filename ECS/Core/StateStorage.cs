@@ -33,7 +33,7 @@ namespace ME.ECS {
     public sealed class Storage : IStorage {
 
         [ME.ECS.Serializer.SerializeField]
-        internal BufferArray<Entity> cache;
+        internal NativeBufferArray<Entity> cache;
         [ME.ECS.Serializer.SerializeField]
         internal ListCopyable<int> alive;
         [ME.ECS.Serializer.SerializeField]
@@ -103,7 +103,7 @@ namespace ME.ECS {
 
         public void Initialize(int capacity) {
 
-            this.cache = PoolArray<Entity>.Spawn(capacity);
+            this.cache = PoolArrayNative<Entity>.Spawn(capacity);
             this.alive = PoolListCopyable<int>.Spawn(capacity);
             this.dead = PoolListCopyable<int>.Spawn(capacity);
             this.deadPrepared = PoolListCopyable<int>.Spawn(capacity);
@@ -116,7 +116,7 @@ namespace ME.ECS {
 
         void IPoolableRecycle.OnRecycle() {
 
-            PoolArray<Entity>.Recycle(ref this.cache);
+            PoolArrayNative<Entity>.Recycle(ref this.cache);
             PoolListCopyable<int>.Recycle(ref this.alive);
             PoolListCopyable<int>.Recycle(ref this.dead);
             PoolListCopyable<int>.Recycle(ref this.deadPrepared);

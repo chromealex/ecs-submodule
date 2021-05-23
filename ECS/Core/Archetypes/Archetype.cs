@@ -1,43 +1,65 @@
 ﻿#if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
-
 #define BIT_MULTITHREAD_SUPPORT
-using System;
-using System.Runtime.CompilerServices;
-using System.Text;
+
+//#define ARCHETYPE_SIZE_128
+//#define ARCHETYPE_SIZE_192
+//#define ARCHETYPE_SIZE_256
 
 namespace ME.ECS {
 
-    using FieldType = Int64;
+    using Collections;
+    using FieldType = System.Int64;
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public struct BitMask : IEquatable<BitMask> {
-
+    public struct Archetype : System.IEquatable<Archetype> {
+        
+        #if ARCHETYPE_SIZE_256
         private const int FIELD_COUNT = 4;
+        #elif ARCHETYPE_SIZE_192
+        private const int FIELD_COUNT = 3;
+        #elif ARCHETYPE_SIZE_128
+        private const int FIELD_COUNT = 2;
+        #else
+        private const int FIELD_COUNT = 1;
+        #endif
         private const int BITS_PER_FIELD = 8 * sizeof(FieldType);
-        public const int MAX_BIT_INDEX = BitMask.FIELD_COUNT * BitMask.BITS_PER_FIELD - 1;
-        //public const int BitSize = BitMask.FIELD_COUNT * BitMask.BITS_PER_FIELD;
+        public const int MAX_BIT_INDEX = Archetype.FIELD_COUNT * Archetype.BITS_PER_FIELD - 1;
+        //public const int BitSize = Archetype.FIELD_COUNT * Archetype.BITS_PER_FIELD;
 
         [ME.ECS.Serializer.SerializeField]
         private FieldType field0;
+        #if ARCHETYPE_SIZE_128 || ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
         [ME.ECS.Serializer.SerializeField]
         private FieldType field1;
+        #if ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
         [ME.ECS.Serializer.SerializeField]
         private FieldType field2;
+        #if ARCHETYPE_SIZE_256
         [ME.ECS.Serializer.SerializeField]
         private FieldType field3;
+        #endif
+        #endif
+        #endif
 
-        public BitMask(in FieldType field0, in FieldType field1, in FieldType field2, in FieldType field3) {
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public Archetype(in Archetype value) {
 
-            this.field0 = field0;
-            this.field1 = field1;
-            this.field2 = field2;
-            this.field3 = field3;
+            this.field0 = value.field0;
+            #if ARCHETYPE_SIZE_128 || ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
+            this.field1 = value.field1;
+            #if ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
+            this.field2 = value.field2;
+            #if ARCHETYPE_SIZE_256
+            this.field3 = value.field3;
+            #endif
+            #endif
+            #endif
 
         }
 
@@ -47,12 +69,10 @@ namespace ME.ECS {
              Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
              Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
             #endif
-            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
             get {
                 var count = 0;
-                for (int i = 0; i <= BitMask.MAX_BIT_INDEX; ++i) {
+                for (int i = 0; i <= Archetype.MAX_BIT_INDEX; ++i) {
                     if (this.HasBit(i) == true) ++count;
                 }
 
@@ -66,11 +86,9 @@ namespace ME.ECS {
              Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
              Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
             #endif
-            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
             get {
-                return BitMask.MAX_BIT_INDEX;
+                return Archetype.MAX_BIT_INDEX;
             }
         }
 
@@ -79,34 +97,35 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public bool HasBit(int bit) {
 
-            if (bit < 0 || bit > BitMask.MAX_BIT_INDEX) {
+            if (bit < 0 || bit > Archetype.MAX_BIT_INDEX) {
                 //throw new Exception($"Attempted to set bit #{bit}, but the maximum is {BitMask.MAX_BIT_INDEX}");
                 return false;
             }
 
-            var dataIndex = bit / BitMask.BITS_PER_FIELD;
-            var bitIndex = bit % BitMask.BITS_PER_FIELD;
+            var dataIndex = bit / Archetype.BITS_PER_FIELD;
+            var bitIndex = bit % Archetype.BITS_PER_FIELD;
             var mask = (FieldType)1 << bitIndex;
             switch (dataIndex) {
                 case 0:
                     return (this.field0 & mask) != 0;
-
+                #if ARCHETYPE_SIZE_128 || ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
                 case 1:
                     return (this.field1 & mask) != 0;
-
+                #if ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
                 case 2:
                     return (this.field2 & mask) != 0;
-
+                #if ARCHETYPE_SIZE_256
                 case 3:
                     return (this.field3 & mask) != 0;
-
+                #endif
+                #endif
+                #endif
+                
                 default:
-                    throw new Exception($"Nonexistent field: {dataIndex}");
+                    throw new System.Exception($"Nonexistent field: {dataIndex}");
             }
 
         }
@@ -116,15 +135,19 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public void AddBits(in BitMask bits) {
+        public void AddBits(in Archetype bits) {
 
             this.field0 |= bits.field0;
+            #if ARCHETYPE_SIZE_128 || ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
             this.field1 |= bits.field1;
+            #if ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
             this.field2 |= bits.field2;
+            #if ARCHETYPE_SIZE_256
             this.field3 |= bits.field3;
+            #endif
+            #endif
+            #endif
 
         }
 
@@ -133,19 +156,17 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public void AddBit(int bit) {
 
             #if UNITY_EDITOR
-            if (bit < 0 || bit > BitMask.MAX_BIT_INDEX) {
-                throw new Exception($"Attempted to set bit #{bit}, but the maximum is {BitMask.MAX_BIT_INDEX}");
+            if (bit < 0 || bit > Archetype.MAX_BIT_INDEX) {
+                throw new System.Exception($"Attempted to set bit #{bit}, but the maximum is {Archetype.MAX_BIT_INDEX}");
             }
             #endif
 
-            var dataIndex = bit / BitMask.BITS_PER_FIELD;
-            var bitIndex = bit % BitMask.BITS_PER_FIELD;
+            var dataIndex = bit / Archetype.BITS_PER_FIELD;
+            var bitIndex = bit % Archetype.BITS_PER_FIELD;
             var mask = (FieldType)1 << bitIndex;
             switch (dataIndex) {
                 case 0: {
@@ -162,6 +183,7 @@ namespace ME.ECS {
                 }
                     break;
 
+                #if ARCHETYPE_SIZE_128 || ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
                 case 1: {
                     ref var f = ref this.field1;
                     #if BIT_MULTITHREAD_SUPPORT
@@ -176,6 +198,7 @@ namespace ME.ECS {
                 }
                     break;
 
+                #if ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
                 case 2: {
                     ref var f = ref this.field2;
                     #if BIT_MULTITHREAD_SUPPORT
@@ -190,6 +213,7 @@ namespace ME.ECS {
                 }
                     break;
 
+                #if ARCHETYPE_SIZE_256
                 case 3: {
                     ref var f = ref this.field3;
                     #if BIT_MULTITHREAD_SUPPORT
@@ -203,9 +227,12 @@ namespace ME.ECS {
                     #endif
                 }
                     break;
+                #endif
+                #endif
+                #endif
 
                 default:
-                    throw new Exception($"Nonexistent field: {dataIndex}");
+                    throw new System.Exception($"Nonexistent field: {dataIndex}");
             }
 
         }
@@ -215,15 +242,19 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public void Clear() {
 
             this.field0 = 0;
+            #if ARCHETYPE_SIZE_128 || ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
             this.field1 = 0;
+            #if ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
             this.field2 = 0;
+            #if ARCHETYPE_SIZE_256
             this.field3 = 0;
+            #endif
+            #endif
+            #endif
 
         }
 
@@ -232,17 +263,15 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public void SubtractBit(int bit) {
 
-            if (bit < 0 || bit > BitMask.MAX_BIT_INDEX) {
-                throw new Exception($"Attempted to set bit #{bit}, but the maximum is {BitMask.MAX_BIT_INDEX}");
+            if (bit < 0 || bit > Archetype.MAX_BIT_INDEX) {
+                throw new System.Exception($"Attempted to set bit #{bit}, but the maximum is {Archetype.MAX_BIT_INDEX}");
             }
 
-            var dataIndex = bit / BitMask.BITS_PER_FIELD;
-            var bitIndex = bit % BitMask.BITS_PER_FIELD;
+            var dataIndex = bit / Archetype.BITS_PER_FIELD;
+            var bitIndex = bit % Archetype.BITS_PER_FIELD;
             var mask = (FieldType)1 << bitIndex;
 
             switch (dataIndex) {
@@ -260,6 +289,7 @@ namespace ME.ECS {
                 }
                     break;
 
+                #if ARCHETYPE_SIZE_128 || ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
                 case 1: {
                     ref var f = ref this.field1;
                     #if BIT_MULTITHREAD_SUPPORT
@@ -274,6 +304,7 @@ namespace ME.ECS {
                 }
                     break;
 
+                #if ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
                 case 2: {
                     ref var f = ref this.field2;
                     #if BIT_MULTITHREAD_SUPPORT
@@ -288,6 +319,7 @@ namespace ME.ECS {
                 }
                     break;
 
+                #if ARCHETYPE_SIZE_256
                 case 3: {
                     ref var f = ref this.field3;
                     #if BIT_MULTITHREAD_SUPPORT
@@ -301,9 +333,12 @@ namespace ME.ECS {
                     #endif
                 }
                     break;
+                #endif
+                #endif
+                #endif
 
                 default:
-                    throw new Exception($"Nonexistent field: {dataIndex}");
+                    throw new System.Exception($"Nonexistent field: {dataIndex}");
             }
 
         }
@@ -314,28 +349,32 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
         public bool this[int index] {
-            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
             get {
-                if (index < 0 || index > BitMask.MAX_BIT_INDEX) {
-                    throw new Exception($"Invalid bit index: {index}");
+                if (index < 0 || index > Archetype.MAX_BIT_INDEX) {
+                    throw new System.Exception($"Invalid bit index: {index}");
                 }
 
-                var dataIndex = index / BitMask.BITS_PER_FIELD;
-                var bitIndex = index % BitMask.BITS_PER_FIELD;
+                var dataIndex = index / Archetype.BITS_PER_FIELD;
+                var bitIndex = index % Archetype.BITS_PER_FIELD;
                 switch (dataIndex) {
                     case 0:
                         return (this.field0 & ((FieldType)1 << bitIndex)) != 0;
 
+                    #if ARCHETYPE_SIZE_128 || ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
                     case 1:
                         return (this.field1 & ((FieldType)1 << bitIndex)) != 0;
 
+                    #if ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
                     case 2:
                         return (this.field2 & ((FieldType)1 << bitIndex)) != 0;
 
+                    #if ARCHETYPE_SIZE_256
                     case 3:
                         return (this.field3 & ((FieldType)1 << bitIndex)) != 0;
+                    #endif
+                    #endif
+                    #endif
 
                     default:
                         return false;
@@ -348,12 +387,20 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public override int GetHashCode() {
 
-            return (int)this.field0 ^ (int)this.field1 ^ (int)this.field2 ^ (int)this.field3;
+            return (int)this.field0
+                   #if ARCHETYPE_SIZE_128 || ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
+                   ^ (int)this.field1
+                   #if ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
+                   ^ (int)this.field2
+                   #if ARCHETYPE_SIZE_256
+                   ^ (int)this.field3
+                   #endif
+                   #endif
+                   #endif
+                ;
 
         }
 
@@ -362,24 +409,30 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(BitMask other) {
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public bool Equals(Archetype other) {
 
             if (this.field0 != other.field0) {
                 return false;
             }
 
+            #if ARCHETYPE_SIZE_128 || ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
             if (this.field1 != other.field1) {
                 return false;
             }
 
+            #if ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
             if (this.field2 != other.field2) {
                 return false;
             }
 
+            #if ARCHETYPE_SIZE_256
             if (this.field3 != other.field3) {
                 return false;
             }
+            #endif
+            #endif
+            #endif
 
             return true;
         }
@@ -390,8 +443,8 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
         public override bool Equals(object obj) {
-            if (obj is BitMask) {
-                return this.Equals((BitMask)obj);
+            if (obj is Archetype) {
+                return this.Equals((Archetype)obj);
             }
 
             return base.Equals(obj);
@@ -402,8 +455,8 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(BitMask mask1, BitMask mask2) {
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(Archetype mask1, Archetype mask2) {
             return mask1.Equals(mask2);
         }
 
@@ -412,8 +465,8 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(BitMask mask1, BitMask mask2) {
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(Archetype mask1, Archetype mask2) {
             return !mask1.Equals(mask2);
         }
 
@@ -422,28 +475,20 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public bool IsEmpty() {
 
-            return this.field0 == 0 && this.field1 == 0 && this.field2 == 0 && this.field3 == 0;
-        }
-
-        /*
-        #if ECS_COMPILE_IL2CPP_OPTIONS
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-        #endif
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BitMask operator &(BitMask mask1, BitMask mask2) {
-
-            BitMask newBitMask;
-            newBitMask.field0 = mask1.field0 & mask2.field0;
-            newBitMask.field1 = mask1.field1 & mask2.field1;
-            newBitMask.field2 = mask1.field2 & mask2.field2;
-            newBitMask.field3 = mask1.field3 & mask2.field3;
-            return newBitMask;
-            
+            return this.field0 == 0
+                   #if ARCHETYPE_SIZE_128 || ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
+                   && this.field1 == 0
+                   #if ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
+                   && this.field2 == 0
+                   #if ARCHETYPE_SIZE_256
+                   && this.field3 == 0
+                   #endif
+                   #endif
+                   #endif
+                ;
         }
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -451,47 +496,20 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BitMask operator |(BitMask mask1, BitMask mask2) {
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public bool Has(in Archetype mask) {
 
-            BitMask newBitMask;
-            newBitMask.field0 = mask1.field0 | mask2.field0;
-            newBitMask.field1 = mask1.field1 | mask2.field1;
-            newBitMask.field2 = mask1.field2 | mask2.field2;
-            newBitMask.field3 = mask1.field3 | mask2.field3;
-            return newBitMask;
-            
-        }
-
-        #if ECS_COMPILE_IL2CPP_OPTIONS
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-        #endif
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BitMask operator ~(BitMask mask) {
-            
-            BitMask newBitMask;
-            newBitMask.field0 = ~mask.field0;
-            newBitMask.field1 = ~mask.field1;
-            newBitMask.field2 = ~mask.field2;
-            newBitMask.field3 = ~mask.field3;
-            return newBitMask;
-            
-        }*/
-
-        #if ECS_COMPILE_IL2CPP_OPTIONS
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-        #endif
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Has(in BitMask mask) {
-
-            if ((this.field0 & mask.field0) != mask.field0 ||
-                (this.field1 & mask.field1) != mask.field1 ||
-                (this.field2 & mask.field2) != mask.field2 ||
-                (this.field3 & mask.field3) != mask.field3) {
+            if ((this.field0 & mask.field0) != mask.field0
+                #if ARCHETYPE_SIZE_128 || ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
+                || (this.field1 & mask.field1) != mask.field1
+                #if ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
+                || (this.field2 & mask.field2) != mask.field2
+                #if ARCHETYPE_SIZE_256
+                || (this.field3 & mask.field3) != mask.field3
+                #endif
+                #endif
+                #endif
+                ) {
                 return false;
             }
 
@@ -503,13 +521,20 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool HasAny(in BitMask mask) {
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public bool HasAny(in Archetype mask) {
 
-            if ((this.field0 & mask.field0) != 0 ||
-                (this.field1 & mask.field1) != 0 ||
-                (this.field2 & mask.field2) != 0 ||
-                (this.field3 & mask.field3) != 0) {
+            if ((this.field0 & mask.field0) != 0
+                #if ARCHETYPE_SIZE_128 || ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
+                || (this.field1 & mask.field1) != 0
+                #if ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
+                || (this.field2 & mask.field2) != 0
+                #if ARCHETYPE_SIZE_256
+                || (this.field3 & mask.field3) != 0
+                #endif
+                #endif
+                #endif
+                ) {
                 return false;
             }
 
@@ -521,13 +546,20 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool HasNot(in BitMask mask) {
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public bool HasNot(in Archetype mask) {
 
-            if ((this.field0 & mask.field0) != 0 ||
-                (this.field1 & mask.field1) != 0 ||
-                (this.field2 & mask.field2) != 0 ||
-                (this.field3 & mask.field3) != 0) {
+            if ((this.field0 & mask.field0) != 0
+                #if ARCHETYPE_SIZE_128 || ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
+                || (this.field1 & mask.field1) != 0
+                #if ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
+                || (this.field2 & mask.field2) != 0
+                #if ARCHETYPE_SIZE_256
+                || (this.field3 & mask.field3) != 0
+                #endif
+                #endif
+                #endif
+                ) {
                 return false;
             }
 
@@ -540,18 +572,84 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
         public override string ToString() {
-            var builder = new StringBuilder();
-            var fields = new FieldType[BitMask.FIELD_COUNT];
+            var builder = new System.Text.StringBuilder();
+            var fields = new FieldType[Archetype.FIELD_COUNT];
             fields[0] = this.field0;
+            #if ARCHETYPE_SIZE_128 || ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
             fields[1] = this.field1;
+            #if ARCHETYPE_SIZE_192 || ARCHETYPE_SIZE_256
             fields[2] = this.field2;
+            #if ARCHETYPE_SIZE_256
             fields[3] = this.field3;
-            for (var i = 0; i < BitMask.FIELD_COUNT; ++i) {
-                var binaryString = Convert.ToString((long)fields[i], 2);
-                builder.Append(binaryString.PadLeft(BitMask.BITS_PER_FIELD, '0'));
+            #endif
+            #endif
+            #endif
+            for (var i = 0; i < Archetype.FIELD_COUNT; ++i) {
+                var binaryString = System.Convert.ToString((long)fields[i], 2);
+                builder.Append(binaryString.PadLeft(Archetype.BITS_PER_FIELD, '0'));
             }
 
             return builder.ToString();
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool Has<T>() {
+
+            var tId = WorldUtilities.GetComponentTypeId<T>();
+            if (tId == -1) return false;
+            return this.HasBit(tId);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Add(in Archetype archetype) {
+
+            this.AddBits(in archetype);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Add<T>() {
+
+            this.AddBit(WorldUtilities.GetComponentTypeId<T>());
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Subtract<T>() {
+
+            var tId = WorldUtilities.GetComponentTypeId<T>();
+            if (tId == -1) return;
+            this.SubtractBit(tId);
+
         }
 
     }

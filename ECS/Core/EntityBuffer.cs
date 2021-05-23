@@ -19,7 +19,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public DataBuffer(World world, ME.ECS.Collections.BufferArray<Entity> arr, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
+        public DataBuffer(World world, ME.ECS.Collections.NativeBufferArray<Entity> arr, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
 
             var reg = (StructComponents<T>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T>()];
             this.arr = new NativeArrayBurst<T>(reg.components.data.arr, allocator);
@@ -30,7 +30,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public int Push(World world, ME.ECS.Collections.BufferArray<Entity> arr, int max, ME.ECS.Collections.NativeArrayBurst<int> filterEntities) {
+        public int Push(World world, ME.ECS.Collections.NativeBufferArray<Entity> arr, int max, ME.ECS.Collections.NativeArrayBurst<int> filterEntities) {
 
             //var changedCount = 0;
             var isTag = WorldUtilities.IsComponentAsTag<T>();

@@ -155,6 +155,28 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true),
+            
+            new DefineInfo("ARCHETYPE_SIZE_128", "Set archetype max bits size to 128 (Components in filters).", () => {
+                #if ARCHETYPE_SIZE_128
+                return true;
+                #else
+                return false;
+                #endif
+            }, true),
+            new DefineInfo("ARCHETYPE_SIZE_192", "Set archetype max bits size to 192 (Components in filters).", () => {
+                #if ARCHETYPE_SIZE_192
+                return true;
+                #else
+                return false;
+                #endif
+            }, true),
+            new DefineInfo("ARCHETYPE_SIZE_256", "Set archetype max bits size to 256 (Components in filters).", () => {
+                #if ARCHETYPE_SIZE_256
+                return true;
+                #else
+                return false;
+                #endif
+            }, true),
         };
 
         private bool settingsFoldOut {
