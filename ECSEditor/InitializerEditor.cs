@@ -1,4 +1,5 @@
-﻿using UnityEngine.UIElements;
+﻿using System.Linq;
+using UnityEngine.UIElements;
 
 namespace ME.ECSEditor {
 
@@ -24,161 +25,143 @@ namespace ME.ECSEditor {
         private System.Collections.Generic.Dictionary<object, bool> featureFoldouts = new System.Collections.Generic.Dictionary<object, bool>();
         private static bool isCompilingManual;
 
-        private struct DefineInfo {
-
-            public string define;
-            public string description;
-            public System.Func<bool> isActive;
-            public bool showInList;
-
-            public DefineInfo(string define, string description, System.Func<bool> isActive, bool showInList) {
-
-                this.define = define;
-                this.description = description;
-                this.isActive = isActive;
-                this.showInList = showInList;
-
-            }
-
-        }
-
-        private static readonly DefineInfo[] defines = new[] {
-            new DefineInfo("GAMEOBJECT_VIEWS_MODULE_SUPPORT", "Turn on/off GameObject View Provider.", () => {
+        private static readonly InitializerBase.DefineInfo[] defines = new[] {
+            new InitializerBase.DefineInfo("GAMEOBJECT_VIEWS_MODULE_SUPPORT", "Turn on/off GameObject View Provider.", () => {
                 #if GAMEOBJECT_VIEWS_MODULE_SUPPORT
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("PARTICLES_VIEWS_MODULE_SUPPORT", "Turn on/off Particles View Provider.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("PARTICLES_VIEWS_MODULE_SUPPORT", "Turn on/off Particles View Provider.", () => {
                 #if PARTICLES_VIEWS_MODULE_SUPPORT
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("DRAWMESH_VIEWS_MODULE_SUPPORT", "Turn on/off Graphics View Provider.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("DRAWMESH_VIEWS_MODULE_SUPPORT", "Turn on/off Graphics View Provider.", () => {
                 #if DRAWMESH_VIEWS_MODULE_SUPPORT
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("UNITY_MATHEMATICS", "Turn on/off Unity.Mathematics for RGN or use UnityEngine.Random.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("UNITY_MATHEMATICS", "Turn on/off Unity.Mathematics for RGN or use UnityEngine.Random.", () => {
                 #if UNITY_MATHEMATICS
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("WORLD_STATE_CHECK", "If turned on, ME.ECS will check that all write data methods are in right state. If you turn off this check, you'll be able to write data in any state, but it could cause out of sync state.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("WORLD_STATE_CHECK", "If turned on, ME.ECS will check that all write data methods are in right state. If you turn off this check, you'll be able to write data in any state, but it could cause out of sync state.", () => {
                 #if WORLD_STATE_CHECK
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("WORLD_THREAD_CHECK", "If turned on, ME.ECS will check random number usage from non-world thread. If you don't want to synchronize the game, you could turn this check off.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugOnly),
+            new InitializerBase.DefineInfo("WORLD_THREAD_CHECK", "If turned on, ME.ECS will check random number usage from non-world thread. If you don't want to synchronize the game, you could turn this check off.", () => {
                 #if WORLD_THREAD_CHECK
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("WORLD_EXCEPTIONS", "If turned on, ME.ECS will throw exceptions on unexpected behaviour. Turn off this check in release builds.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugOnly),
+            new InitializerBase.DefineInfo("WORLD_EXCEPTIONS", "If turned on, ME.ECS will throw exceptions on unexpected behaviour. Turn off this check in release builds.", () => {
                 #if WORLD_EXCEPTIONS
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("WORLD_TICK_THREADED", "If turned on, ME.ECS will run logic in another thread.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugOnly),
+            new InitializerBase.DefineInfo("WORLD_TICK_THREADED", "If turned on, ME.ECS will run logic in another thread.", () => {
                 #if WORLD_TICK_THREADED
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("FPS_MODULE_SUPPORT", "FPS module support.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("FPS_MODULE_SUPPORT", "FPS module support.", () => {
                 #if FPS_MODULE_SUPPORT
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("ECS_COMPILE_IL2CPP_OPTIONS", "If turned on, ME.ECS will use IL2CPP options for the faster runtime, this flag removed unnecessary null-checks and bounds array checks.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("ECS_COMPILE_IL2CPP_OPTIONS", "If turned on, ME.ECS will use IL2CPP options for the faster runtime, this flag removed unnecessary null-checks and bounds array checks.", () => {
                 #if ECS_COMPILE_IL2CPP_OPTIONS
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("ECS_COMPILE_IL2CPP_OPTIONS_FILE_INCLUDE", "Turn off this option if you provide your own Il2CppSetOptionAttribute. Works with ECS_COMPILE_IL2CPP_OPTIONS.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("ECS_COMPILE_IL2CPP_OPTIONS_FILE_INCLUDE", "Turn off this option if you provide your own Il2CppSetOptionAttribute. Works with ECS_COMPILE_IL2CPP_OPTIONS.", () => {
                 #if ECS_COMPILE_IL2CPP_OPTIONS_FILE_INCLUDE
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("MULTITHREAD_SUPPORT", "Turn on this option if you need to add/remove components inside jobs.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("MULTITHREAD_SUPPORT", "Turn on this option if you need to add/remove components inside jobs.", () => {
                 #if MULTITHREAD_SUPPORT
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("MESSAGE_PACK_SUPPORT", "MessagePack package support.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("MESSAGE_PACK_SUPPORT", "MessagePack package support.", () => {
                 #if MESSAGE_PACK_SUPPORT
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("ENTITY_ACTIONS", "Turn on to add Entity Actions support. Entity Actions - raise events on Add/Remove components data on entities.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("ENTITY_ACTIONS", "Turn on to add Entity Actions support. Entity Actions - raise events on Add/Remove components data on entities.", () => {
                 #if ENTITY_ACTIONS
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("ENTITY_API_VERSION1_TURN_OFF", "Turn off Entity API with SetData/ReadData/GetData methods.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("ENTITY_API_VERSION1_TURN_OFF", "Turn off Entity API with SetData/ReadData/GetData methods.", () => {
                 #if ENTITY_API_VERSION1_TURN_OFF
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("ENTITY_API_VERSION2_TURN_OFF", "Turn off Entity API with Set/Read/Get methods.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("ENTITY_API_VERSION2_TURN_OFF", "Turn off Entity API with Set/Read/Get methods.", () => {
                 #if ENTITY_API_VERSION2_TURN_OFF
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
             
-            new DefineInfo("ARCHETYPE_SIZE_128", "Set archetype max bits size to 128 (Components in filters).", () => {
+            new InitializerBase.DefineInfo("ARCHETYPE_SIZE_128", "Set archetype max bits size to 128 (Components in filters).", () => {
                 #if ARCHETYPE_SIZE_128
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("ARCHETYPE_SIZE_192", "Set archetype max bits size to 192 (Components in filters).", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("ARCHETYPE_SIZE_192", "Set archetype max bits size to 192 (Components in filters).", () => {
                 #if ARCHETYPE_SIZE_192
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
-            new DefineInfo("ARCHETYPE_SIZE_256", "Set archetype max bits size to 256 (Components in filters).", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("ARCHETYPE_SIZE_256", "Set archetype max bits size to 256 (Components in filters).", () => {
                 #if ARCHETYPE_SIZE_256
                 return true;
                 #else
                 return false;
                 #endif
-            }, true),
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
         };
-
+        
         private bool settingsFoldOut {
             get {
                 return EditorPrefs.GetBool("ME.ECS.InitializerEditor.settingsFoldoutState", false);
@@ -210,6 +193,15 @@ namespace ME.ECSEditor {
 
         public void OnEnable() {
 
+            var target = this.target as InitializerBase;
+            if (target.configurations.Count == 0) {
+
+                this.MakeDefaultConfigurations();
+
+            }
+
+            this.ValidateConfigurations();
+            
             if (this.targets.Length > 0 && this.target is Component) {
 
                 ((Component)this.target).transform.hideFlags = HideFlags.HideInInspector;
@@ -221,6 +213,68 @@ namespace ME.ECSEditor {
         public void OnDisable() {
             
             //((Component)this.target).transform.hideFlags = HideFlags.None;
+
+        }
+
+        private void MakeDefaultConfigurations() {
+
+            var target = this.target as InitializerBase;
+            
+            var debugConfiguration = new InitializerBase.Configuration() {
+                name = "Debug",
+                configurationType = InitializerBase.ConfigurationType.DebugOnly,
+            };
+            var releaseConfiguration = new InitializerBase.Configuration() {
+                name = "Release",
+                configurationType = InitializerBase.ConfigurationType.ReleaseOnly,
+            };
+            
+            target.configurations.Add(debugConfiguration);
+            target.configurations.Add(releaseConfiguration);
+            target.selectedConfiguration = "Debug";
+            
+            EditorUtility.SetDirty(target);
+
+        }
+
+        private void ValidateConfigurations() {
+
+            var target = this.target as InitializerBase;
+
+            var changed = false;
+            for (int i = 0; i < target.configurations.Count; ++i) {
+
+                var conf = target.configurations[i];
+                foreach (var define in InitializerEditor.defines) {
+
+                    if (conf.Add(define) == true) {
+
+                        changed = true;
+
+                    }
+
+                }
+                target.configurations[i] = conf;
+
+            }
+            
+            if (changed == true) EditorUtility.SetDirty(target);
+
+        }
+
+        private InitializerBase.DefineInfo GetDefineInfo(string define) {
+
+            foreach (var defineInfo in InitializerEditor.defines) {
+
+                if (defineInfo.define == define) {
+                    
+                    return defineInfo;
+                    
+                }
+                
+            }
+
+            return default;
 
         }
 
@@ -275,33 +329,112 @@ namespace ME.ECSEditor {
                     
                     EditorGUI.BeginDisabledGroup(EditorApplication.isCompiling == true || EditorApplication.isPlaying == true || EditorApplication.isPaused == true/* || InitializerEditor.isCompilingManual == true*/);
 
-                    foreach (var defineInfo in InitializerEditor.defines) {
+                    var configurations = target.configurations.Select(x => x.name).ToArray();
+                    var selectedIndex = System.Array.IndexOf(configurations, target.selectedConfiguration);
+                    
+                    var conf = target.configurations[selectedIndex];
+                    GUILayoutExt.Box(2f, 2f, () => {
                         
+                        var newIndex = EditorGUILayout.Popup("Configuration", selectedIndex, configurations);
+                        if (newIndex != selectedIndex) {
+
+                            target.selectedConfiguration = target.configurations[newIndex].name;
+                            EditorUtility.SetDirty(this.target);
+                            this.BuildConfiguration(target.configurations[newIndex]);
+
+                        }
+                        
+                        GUILayoutExt.SmallLabel("Select configuration to build with. Be sure Release configuration is selected when you build final product.");
+
+                        if (conf.isDirty == true) {
+
+                            GUILayout.BeginHorizontal();
+                            {
+                                EditorGUILayout.HelpBox("You have unsaved changes", MessageType.Warning);
+                                if (GUILayout.Button("Apply") == true) {
+
+                                    conf.isDirty = false;
+                                    target.configurations[selectedIndex] = conf;
+                                    EditorUtility.SetDirty(this.target);
+                                    this.BuildConfiguration(conf);
+
+                                }
+                            }
+                            GUILayout.EndHorizontal();
+
+                        }
+
+                    });
+                    
+                    EditorGUILayout.Space();
+
+                    EditorGUI.BeginChangeCheck();
+                    for (var i = 0; i < conf.defines.Count; ++i) {
+                        
+                        var define = conf.defines[i];
+                        var defineInfo = this.GetDefineInfo(define.name);
                         if (defineInfo.showInList == false) continue;
-                        
-                        var value = defineInfo.isActive.Invoke();
+
+                        if (conf.configurationType == InitializerBase.ConfigurationType.ReleaseOnly) {
+
+                            if (defineInfo.configurationType == InitializerBase.ConfigurationType.DebugOnly) continue;
+
+                        }
+
+                        if (conf.configurationType == InitializerBase.ConfigurationType.DebugOnly) {
+
+                            if (defineInfo.configurationType == InitializerBase.ConfigurationType.ReleaseOnly) continue;
+
+                        }
+
+                        var value = define.enabled;
                         if (GUILayoutExt.ToggleLeft(
                                 ref value,
                                 ref isDirty,
                                 defineInfo.define,
-                                defineInfo.description) == true) {
+                                defineInfo.description, () => {
 
-                            //InitializerEditor.isCompilingManual = true;
+                                    if (defineInfo.configurationType == InitializerBase.ConfigurationType.DebugOnly) {
+
+                                        using (new GUILayoutExt.GUIColorUsing(new Color(0.9f, 0.7f, 1f, 0.8f))) {
+                                            GUILayout.Label("It is Debug-only define.", EditorStyles.miniLabel);
+                                        }
+
+                                    }
+
+                                    if (defineInfo.configurationType == InitializerBase.ConfigurationType.ReleaseOnly) {
+
+                                        using (new GUILayoutExt.GUIColorUsing(new Color(0.9f, 0.7f, 1f, 0.8f))) {
+                                            GUILayout.Label("It is Release-only define.", EditorStyles.miniLabel);
+                                        }
+
+                                    }
+
+                                }) == true) {
 
                             if (value == true) {
 
-                                this.CompileWithDefine(defineInfo.define);
+                                conf.SetEnabled(define.name);
+                                GUI.changed = true;
 
                             } else {
-                            
-                                this.CompileWithoutDefine(defineInfo.define);
+
+                                conf.SetDisabled(define.name);
+                                GUI.changed = true;
 
                             }
 
                         }
+                    }
+
+                    if (EditorGUI.EndChangeCheck() == true) {
+
+                        conf.isDirty = true;
+                        target.configurations[selectedIndex] = conf;
+                        EditorUtility.SetDirty(this.target);
 
                     }
-                    
+
                     EditorGUI.EndDisabledGroup();
                     
                 }
@@ -468,53 +601,54 @@ namespace ME.ECSEditor {
 
         }
 
-        private System.Collections.Generic.List<string> CollectAllActiveDefines() {
-            
+        private System.Collections.Generic.List<string> CollectAllActiveDefines(bool isRelease) {
+
             var list = new System.Collections.Generic.List<string>();
             foreach (var define in InitializerEditor.defines) {
 
-                if (define.isActive.Invoke() == true) list.Add(define.define);
+                if (isRelease == true) {
+                    
+                    if (/*define.isRelease == true &&*/ define.isActive.Invoke() == true) list.Add(define.define);
+
+                } else {
+
+                    if (define.isActive.Invoke() == true) list.Add(define.define);
+
+                }
 
             }
             return list;
 
         }
         
-        private void CompileDefines(System.Collections.Generic.List<string> list) {
+        private void BuildConfiguration(InitializerBase.Configuration configuration) {
 
             var path = "Assets";
-            var file = "csc.gen.rsp";
-
-            var output = string.Empty;
-            foreach (var d in list) {
-                
-                output += "-define:" + d + "\n";                
-                
-            }
-
-            var defines = new System.Collections.Generic.Dictionary<string, string>();
+            string file = $"csc-{configuration.name.ToLower()}.gen.rsp";
+            
             {
-                defines.Add("DEFINES", output);
+                var mainFile = "csc.gen.rsp";
+                var defines = new System.Collections.Generic.Dictionary<string, string>();
+                {
+                    defines.Add("DEFINES", $"@Assets/{file}");
+                }
+                ScriptTemplates.Create(path, mainFile, "00-csc-gen.rsp", defines, allowRename: false);
             }
-            ScriptTemplates.Create(path, file, "00-csc-gen.rsp", defines, allowRename: false);
-
-        }
-
-        private void CompileWithDefine(string define) {
-
-            var allDefines = this.CollectAllActiveDefines();
-            allDefines.Add(define);
-
-            this.CompileDefines(allDefines);
-
-        }
-
-        private void CompileWithoutDefine(string define) {
             
-            var allDefines = this.CollectAllActiveDefines();
-            allDefines.Remove(define);
-            
-            this.CompileDefines(allDefines);
+            {
+                var output = string.Empty;
+                foreach (var d in configuration.defines) {
+
+                    if (d.enabled == true) output += $"-define:{d.name}\n";
+
+                }
+
+                var defines = new System.Collections.Generic.Dictionary<string, string>();
+                {
+                    defines.Add("DEFINES", output);
+                }
+                ScriptTemplates.Create(path, file, "00-csc-gen.rsp", defines, allowRename: false);
+            }
 
         }
 

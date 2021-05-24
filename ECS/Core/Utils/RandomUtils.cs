@@ -18,9 +18,11 @@ namespace ME.ECS {
         #endif
         [System.Diagnostics.Conditional("WORLD_THREAD_CHECK")]
         public static void ThreadCheck(World world) {
+            #if WORLD_THREAD_CHECK
             if (world.worldThread != System.Threading.Thread.CurrentThread) {
                 WrongThreadException.Throw("Random", "this could cause sync problems");
             }
+            #endif
         }
 
         #if INLINE_METHODS

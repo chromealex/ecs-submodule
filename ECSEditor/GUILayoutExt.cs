@@ -665,7 +665,7 @@ namespace ME.ECSEditor {
 
         }
         
-	    public static bool ToggleLeft(ref bool state, ref bool isDirty, string caption, string text) {
+	    public static bool ToggleLeft(ref bool state, ref bool isDirty, string caption, string text, System.Action onDrawBeforeDescription = null) {
 
 		    var labelRich = new GUIStyle(EditorStyles.label);
 		    labelRich.richText = true;
@@ -679,6 +679,7 @@ namespace ME.ECSEditor {
 			    state = flag;
                         
 		    }
+		    onDrawBeforeDescription?.Invoke();
 		    if (string.IsNullOrEmpty(text) == false) GUILayoutExt.SmallLabel(text);
 		    EditorGUILayout.Space();
 
