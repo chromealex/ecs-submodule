@@ -202,17 +202,17 @@ namespace ME.ECSBurst {
             
         }
 
-        public Filter Push(ref StateStruct state) {
+        public Filter Push(ref World world) {
 
             Filter _ = default;
-            return this.Push(ref state, ref _);
+            return this.Push(ref world, ref _);
             
         }
 
-        public Filter Push(ref StateStruct state, ref Filter variable) {
+        public Filter Push(ref World world, ref Filter variable) {
 
-            this.storage = (System.IntPtr)Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AddressOf(ref state.storage);
-            variable = state.filters.Add(ref this);
+            this.storage = (System.IntPtr)Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AddressOf(ref world.currentState.storage);
+            variable = world.currentState.filters.Add(ref this);
             return variable;
 
         }

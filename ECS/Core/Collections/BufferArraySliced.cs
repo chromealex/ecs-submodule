@@ -17,12 +17,12 @@ namespace ME.ECS.Collections {
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     [System.Serializable]
-    public readonly struct BufferArraySliced<T> : IBufferArraySliced where T : struct {
+    public readonly struct BufferArraySliced<T> : IBufferArraySliced {
 
         private const int BUCKET_SIZE = 4;
 
-        public readonly NativeBufferArray<T> data;
-        public readonly NativeBufferArray<NativeBufferArray<T>> tails;
+        public readonly BufferArray<T> data;
+        public readonly BufferArray<BufferArray<T>> tails;
         public readonly int tailsLength;
         public readonly bool isCreated;
 
@@ -36,7 +36,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArraySliced(NativeBufferArray<T> arr) {
+        public BufferArraySliced(BufferArray<T> arr) {
 
             this.isCreated = true;
             this.data = arr;
@@ -48,7 +48,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private BufferArraySliced(NativeBufferArray<T> arr, NativeBufferArray<NativeBufferArray<T>> tails) {
+        private BufferArraySliced(BufferArray<T> arr, BufferArray<BufferArray<T>> tails) {
 
             this.isCreated = true;
             this.data = arr;
@@ -95,6 +95,62 @@ namespace ME.ECS.Collections {
                 return ref data.arr[index];
             }
         }
+
+        /*#if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        private struct ArrayCopy<TCopy> : IArrayElementCopy<BufferArray<T>> where TCopy : IArrayElementCopyWithIndex<T> {
+
+            public TCopy elementCopy;
+
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            public void Copy(BufferArray<T> from, ref BufferArray<T> to) {
+
+                ArrayUtils.CopyWithIndex(from, ref to, this.elementCopy);
+
+            }
+
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            public void Recycle(BufferArray<T> item) {
+
+                ArrayUtils.RecycleWithIndex(ref item, this.elementCopy);
+
+            }
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        private struct ArrayCopy : IArrayElementCopy<BufferArray<T>> {
+
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            public void Copy(BufferArray<T> from, ref BufferArray<T> to) {
+
+                ArrayUtils.Copy(from, ref to);
+
+            }
+
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            public void Recycle(BufferArray<T> item) {
+
+                item.Dispose();
+
+            }
+
+        }*/
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -152,7 +208,7 @@ namespace ME.ECS.Collections {
                 var size = this.Length;
                 ArrayUtils.Resize(idx, ref tails, resizeWithOffset);
                 var bucketSize = index + BufferArraySliced<T>.BUCKET_SIZE - size;
-                tails.arr[idx] = PoolArrayNative<T>.Spawn(bucketSize, realSize: false);
+                tails.arr[idx] = PoolArray<T>.Spawn(bucketSize, realSize: false);
                 result = true;
                 return new BufferArraySliced<T>(this.data, tails);
 
@@ -175,19 +231,15 @@ namespace ME.ECS.Collections {
 
             }
 
-            var arr = PoolArrayNative<T>.Spawn(this.Length);
-            var arrCopy = arr.arr;
-            if (this.data.isCreated == true) ArrayUtils.Copy(this.data.arr, 0, ref arrCopy, 0, this.data.Length);
-            arr = new NativeBufferArray<T>(arrCopy, this.Length);
+            var arr = PoolArray<T>.Spawn(this.Length);
+            if (this.data.isCreated == true) System.Array.Copy(this.data.arr, 0, arr.arr, 0, this.data.Length);
             var ptr = this.data.Length;
             for (int i = 0, length = this.tails.Length; i < length; ++i) {
 
                 ref var tail = ref this.tails.arr[i];
                 if (tail.isCreated == false) continue;
 
-                arrCopy = arr.arr;
-                ArrayUtils.Copy(tail.arr, 0, ref arrCopy, ptr, tail.Length);
-                arr = new NativeBufferArray<T>(arrCopy, this.Length);
+                System.Array.Copy(tail.arr, 0, arr.arr, ptr, tail.Length);
                 ptr += tail.Length;
 
             }
@@ -202,7 +254,7 @@ namespace ME.ECS.Collections {
         #endif
         public BufferArraySliced<T> Dispose() {
 
-            if (this.data.isCreated == true) this.data.Dispose();
+            this.data.Dispose();
             for (int i = 0, length = this.tails.Length; i < length; ++i) {
 
                 var tail = this.tails.arr[i];
@@ -210,7 +262,7 @@ namespace ME.ECS.Collections {
 
             }
 
-            if (this.tails.isCreated == true) this.tails.Dispose();
+            this.tails.Dispose();
 
             return new BufferArraySliced<T>();
 

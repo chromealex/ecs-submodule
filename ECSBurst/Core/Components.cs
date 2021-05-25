@@ -2,27 +2,15 @@
 namespace ME.ECSBurst {
     
     using Collections;
+    using System.Runtime.InteropServices;
 
     public interface IComponentBase {}
     
+    [StructLayout(LayoutKind.Sequential)]
     public struct StructComponentsItem<T> where T : struct {
 
-        private NativeBufferArray<T> data;
         private NativeBufferArray<bool> dataExists;
-
-        public void Dispose() {
-
-            this.data.Dispose();
-            this.dataExists.Dispose();
-
-        }
-
-        public void Validate(int entityId) {
-            
-            ArrayUtils.Resize(entityId, ref this.data);
-            ArrayUtils.Resize(entityId, ref this.dataExists);
-            
-        }
+        private NativeBufferArray<T> data;
 
         public bool Has(int entityId) {
 
@@ -56,6 +44,28 @@ namespace ME.ECSBurst {
 
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct StructComponentsItemUnknown {
+
+        public NativeBufferArray<bool> dataExists;
+        public NativeBufferArray<int> data;
+        
+        public void Dispose() {
+
+            this.data.Dispose();
+            this.dataExists.Dispose();
+
+        }
+
+        public void Validate(int entityId) {
+
+            ArrayUtils.Resize(entityId, ref this.data);
+            ArrayUtils.Resize(entityId, ref this.dataExists);
+            
+        }
+
+    }
+
     public unsafe struct StructComponents {
 
         public NativeBufferArray<System.IntPtr> list;
@@ -66,22 +76,52 @@ namespace ME.ECSBurst {
 
         public void Dispose() {
 
+            for (int i = 0; i < this.list.Length; ++i) {
+                
+                ref var item = ref Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AsRef<StructComponentsItemUnknown>((void*)this.list[i]);
+                item.Dispose();
+
+            }
             this.list.Dispose();
 
         }
 
-        public void Dispose<T>() where T : struct {
-            
-            var id = WorldUtilities.GetAllComponentTypeId<T>();
-            if (id < this.list.Length && this.list[id] != System.IntPtr.Zero) {
+        public void RemoveAll(int entityId) {
+
+            for (int i = 0; i < this.list.Length; ++i) {
                 
-                ref var item = ref Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AsRef<StructComponentsItem<T>>((void*)this.list[id]);
-                item.Dispose();
+                ref var item = ref Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AsRef<StructComponentsItemUnknown>((void*)this.list[i]);
+                item.dataExists[entityId] = false;
+
+            }
+            
+        }
+
+        public void Validate(int entityId) {
+            
+            ArrayUtils.Resize(AllComponentTypesCounter.counter, ref this.list);
+            
+            for (int i = 0; i < this.list.Length; ++i) {
+                
+                if (this.list[i] == System.IntPtr.Zero) {
+    
+                    var size = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<StructComponentsItemUnknown>();
+                    var allocator = Unity.Collections.Allocator.Persistent;
+                    var align = WorldUtilities.GetComponentAlign(i);
+                    var ptr = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.Malloc(size, align, allocator);
+                    Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemClear(ptr, size);
+                    this.list[i] = (System.IntPtr)ptr;
+                    
+                }
+                
+                ref var item = ref Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AsRef<StructComponentsItemUnknown>((void*)this.list[i]);
+                item.Validate(entityId);
 
             }
 
         }
 
+        /*
         public void Validate<T>(int entityId) where T : struct {
 
             var id = WorldUtilities.GetAllComponentTypeId<T>();
@@ -104,7 +144,7 @@ namespace ME.ECSBurst {
 
             }
 
-        }
+        }*/
 
         public bool Remove<T>(int entityId) where T : struct {
 
@@ -144,7 +184,7 @@ namespace ME.ECSBurst {
 
     }
 
-    public struct StateStruct {
+    public struct State {
 
         public StructComponents components;
         public Storage storage;
@@ -174,6 +214,7 @@ namespace ME.ECSBurst {
             if (willNew == true) {
 
                 this.storage.archetypes.Validate(in entity);
+                this.components.Validate(entity.id);
                 // TODO: On new entity - validate all components from generator
                 //ComponentsInitializer.Init();
 
@@ -188,6 +229,7 @@ namespace ME.ECSBurst {
 
             if (this.storage.Dealloc(in entity) == true) {
 
+                this.components.RemoveAll(entity.id);
                 this.filters.OnBeforeEntityDestroy(in entity);
                 this.storage.IncrementGeneration(in entity);
 

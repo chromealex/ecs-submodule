@@ -32,6 +32,7 @@ namespace ME.ECSBurst {
 
         public static System.Collections.Generic.Dictionary<System.Type, int> allTypeId = new System.Collections.Generic.Dictionary<System.Type, int>();
         public static System.Collections.Generic.Dictionary<System.Type, int> typeId = new System.Collections.Generic.Dictionary<System.Type, int>();
+        public static System.Collections.Generic.Dictionary<int, int> typeIdToAlign = new System.Collections.Generic.Dictionary<int, int>();
         public static System.Action reset;
 
     }
@@ -49,11 +50,24 @@ namespace ME.ECSBurst {
     }
 
     public static class WorldUtilities {
+
+        public static int GetComponentAlign(int index) {
+
+            if (ComponentTypesRegistry.typeIdToAlign.TryGetValue(index, out var align) == true) {
+
+                return align;
+
+            }
+
+            return 0;
+            
+        }
         
-        private static void CacheAllComponentTypeId<TComponent>() {
+        private static void CacheAllComponentTypeId<TComponent>() where TComponent : struct {
             
             AllComponentTypes<TComponent>.typeId.Data = ++AllComponentTypesCounter.counter;
             ComponentTypesRegistry.allTypeId.Add(typeof(TComponent), AllComponentTypes<TComponent>.typeId.Data);
+            ComponentTypesRegistry.typeIdToAlign.Add(AllComponentTypes<TComponent>.typeId.Data, Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AlignOf<TComponent>());
 
             ComponentTypesRegistry.reset += () => {
 
@@ -79,7 +93,7 @@ namespace ME.ECSBurst {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void UpdateAllComponentTypeId<TComponent>() {
+        public static void UpdateAllComponentTypeId<TComponent>() where TComponent : struct {
 
             if (AllComponentTypes<TComponent>.typeId.Data < 0) {
 

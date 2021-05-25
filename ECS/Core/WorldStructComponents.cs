@@ -344,14 +344,14 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         internal BufferArraySliced<TComponent> components;
         [ME.ECS.Serializer.SerializeField]
-        internal NativeBufferArray<byte> componentsStates;
+        internal BufferArray<byte> componentsStates;
         [ME.ECS.Serializer.SerializeField]
         internal ListCopyable<int> lifetimeIndexes;
         [ME.ECS.Serializer.SerializeField]
-        internal NativeBufferArray<long> versions;
+        internal BufferArray<long> versions;
         
         // We don't need to serialize this field
-        internal NativeBufferArray<uint> versionsNoState;
+        internal BufferArray<uint> versionsNoState;
         
         // Shared data
         [ME.ECS.Serializer.SerializeField]
@@ -456,9 +456,9 @@ namespace ME.ECS {
         public override void OnRecycle() {
 
             this.components = this.components.Dispose();
-            PoolArrayNative<byte>.Recycle(ref this.componentsStates);
-            if (AllComponentTypes<TComponent>.isVersioned == true) PoolArrayNative<long>.Recycle(ref this.versions);
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) PoolArrayNative<uint>.Recycle(ref this.versionsNoState);
+            PoolArray<byte>.Recycle(ref this.componentsStates);
+            if (AllComponentTypes<TComponent>.isVersioned == true) PoolArray<long>.Recycle(ref this.versions);
+            if (AllComponentTypes<TComponent>.isVersionedNoState == true) PoolArray<uint>.Recycle(ref this.versionsNoState);
             if (this.lifetimeIndexes != null) PoolListCopyable<int>.Recycle(ref this.lifetimeIndexes);
             
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.OnRecycle();
@@ -926,7 +926,7 @@ namespace ME.ECS {
 
         private struct CopyItem : IArrayElementCopyWithIndex<TComponent> {
 
-            public NativeBufferArray<byte> states;
+            public BufferArray<byte> states;
 
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

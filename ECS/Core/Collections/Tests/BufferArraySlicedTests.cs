@@ -7,7 +7,7 @@ namespace ME.ECS.Collections.Tests {
 
         private ME.ECS.Collections.BufferArraySliced<ME.ECS.Name.Name> Prepare() {
 
-            var data = new ME.ECS.Collections.BufferArraySliced<ME.ECS.Name.Name>(new ME.ECS.Collections.NativeBufferArray<ME.ECS.Name.Name>());
+            var data = new ME.ECS.Collections.BufferArraySliced<ME.ECS.Name.Name>(new ME.ECS.Collections.BufferArray<ME.ECS.Name.Name>());
             data = data.Resize(2, false, out _);
             
             data[0] = new ME.ECS.Name.Name() { value = "1" };

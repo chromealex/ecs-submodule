@@ -23,19 +23,23 @@ namespace ME.ECS {
     public partial class World {
 
         [Unity.Burst.BurstCompileAttribute]
-        private struct UpdateFiltersJob : IJobFor {
+        private struct UpdateFiltersJob : IJob {
 
             public Entity entity;
             public ArchetypeEntities archetypeEntities;
             public NativeBufferArray<FiltersTree.FilterBurst> filters;
             [Unity.Collections.NativeDisableParallelForRestriction] public Unity.Collections.NativeList<int> result;
 
-            public void Execute(int index) {
+            public void Execute() {
 
-                if (this.filters[index].IsForEntity(in this.archetypeEntities, in this.entity) == true) {
-                    
-                    this.result.Add(this.filters[index].id);
-                    
+                for (int i = 0; i < this.filters.Length; ++i) {
+
+                    if (this.filters[i].IsForEntity(in this.archetypeEntities, in this.entity) == true) {
+
+                        this.result.Add(this.filters[i].id);
+
+                    }
+
                 }
 
             }
@@ -60,7 +64,7 @@ namespace ME.ECS {
                     filters = contains,
                     result = containsResult,
                 };
-                jobContains = job.Schedule(job.filters.Length, default);
+                jobContains = job.Schedule();
             }
             {
                 var job = new UpdateFiltersJob() {
@@ -69,7 +73,7 @@ namespace ME.ECS {
                     filters = notContains,
                     result = notContainsResult,
                 };
-                jobNotContains = job.Schedule(job.filters.Length, default);
+                jobNotContains = job.Schedule();
             }
             JobHandle.CompleteAll(ref jobContains, ref jobNotContains);
 
