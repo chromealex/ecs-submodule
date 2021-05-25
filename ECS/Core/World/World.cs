@@ -1257,9 +1257,9 @@ namespace ME.ECS {
 
             this.RegisterPluginsModuleForEntity();
 
-            if (storageRef == null) {
+            if (storageRef.isCreated == false) {
 
-                storageRef = PoolClass<Storage>.Spawn();
+                storageRef = new Storage() { isCreated = true };
                 storageRef.Initialize(World.ENTITIES_CACHE_CAPACITY);
                 storageRef.SetFreeze(freeze);
 

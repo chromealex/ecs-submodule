@@ -6,7 +6,7 @@ namespace ME.ECS {
 
     using ME.ECS.Collections;
 
-    public interface IStorage : IPoolableRecycle {
+    public interface IStorage {
 
         int AliveCount { get; }
         int DeadCount { get; }
@@ -30,8 +30,9 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class Storage : IStorage {
+    public struct Storage : IStorage {
 
+        public bool isCreated;
         [ME.ECS.Serializer.SerializeField]
         internal NativeBufferArray<Entity> cache;
         [ME.ECS.Serializer.SerializeField]
@@ -114,7 +115,7 @@ namespace ME.ECS {
 
         }
 
-        void IPoolableRecycle.OnRecycle() {
+        public void Recycle() {
 
             PoolArrayNative<Entity>.Recycle(ref this.cache);
             PoolListCopyable<int>.Recycle(ref this.alive);

@@ -63,7 +63,8 @@ namespace ME.ECS {
         #endif
         public static void Release(ref Storage storage) {
 
-            PoolClass<Storage>.Recycle(ref storage);
+            //PoolClass<Storage>.Recycle(ref storage);
+            storage.Recycle();
 
         }
 

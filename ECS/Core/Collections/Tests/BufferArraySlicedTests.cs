@@ -1,8 +1,10 @@
 ﻿
+using Unity.Jobs;
+
 namespace ME.ECS.Collections.Tests {
 
     public class BufferArraySlicedTests {
-        
+
         private ME.ECS.Collections.BufferArraySliced<ME.ECS.Name.Name> Prepare() {
 
             var data = new ME.ECS.Collections.BufferArraySliced<ME.ECS.Name.Name>(new ME.ECS.Collections.NativeBufferArray<ME.ECS.Name.Name>());

@@ -1,18 +1,21 @@
 {
-    "name": "ME.ECS.Collections.Tests",
+    "name": "ME.ECSBurst.Tests",
     "references": [
-        "GUID:8979e5b9ed38b420d8191f6eb2c94074",
+        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:e0cd26848372d4e5c891c569017e11f1",
         "GUID:0acc523941302664db1f4e527237feb3",
         "GUID:27619889b8ba8c24980f49ee34dbb44a",
-        "GUID:2665a8d13d1b3f18800f46e256720795"
+        "GUID:9c4f0299a92984d26be73ad349c7fbb7"
     ],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
