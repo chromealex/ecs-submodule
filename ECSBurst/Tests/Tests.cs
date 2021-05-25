@@ -42,6 +42,16 @@ namespace ME.ECSBurst.Tests {
             }
 
         }
+
+        public struct TestSystem : IAdvanceTick {
+
+            public void AdvanceTick(float deltaTime) {
+                
+                UnityEngine.Debug.Log("AT: " + deltaTime);
+                
+            }
+
+        }
         
         [NUnit.Framework.TestAttribute]
         public void Test() {
@@ -52,6 +62,10 @@ namespace ME.ECSBurst.Tests {
             // TODO: Generator job - initialization - Update components in filters only
             WorldUtilities.UpdateComponentTypeId<Item>();
 
+            var w = new World();
+            w.AddSystem(new TestSystem());
+            w.Update(0.1f);
+            
             var sc = new StateStruct();
             sc.Initialize(100);
             

@@ -1259,7 +1259,7 @@ namespace ME.ECS {
 
             if (storageRef.isCreated == false) {
 
-                storageRef = new Storage() { isCreated = true };
+                storageRef = new Storage();
                 storageRef.Initialize(World.ENTITIES_CACHE_CAPACITY);
                 storageRef.SetFreeze(freeze);
 

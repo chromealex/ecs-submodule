@@ -108,6 +108,7 @@ namespace ME.ECS {
             this.alive = PoolListCopyable<int>.Spawn(capacity);
             this.dead = PoolListCopyable<int>.Spawn(capacity);
             this.deadPrepared = PoolListCopyable<int>.Spawn(capacity);
+            this.isCreated = true;
             this.aliveCount = 0;
             this.entityId = -1;
             this.archetypes = new ArchetypeEntities();//PoolClass<ArchetypeEntities>.Spawn();
@@ -121,6 +122,7 @@ namespace ME.ECS {
             PoolListCopyable<int>.Recycle(ref this.alive);
             PoolListCopyable<int>.Recycle(ref this.dead);
             PoolListCopyable<int>.Recycle(ref this.deadPrepared);
+            this.isCreated = false;
             this.aliveCount = 0;
             this.entityId = -1;
             //PoolClass<ArchetypeEntities>.Recycle(ref this.archetypes);
