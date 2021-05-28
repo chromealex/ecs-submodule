@@ -10,6 +10,12 @@ namespace ME.ECSBurst.Tests {
 
         }
 
+        public struct Item2 : IComponentBase {
+
+            public int a;
+
+        }
+
         [Unity.Burst.BurstCompileAttribute]
         private struct Job : Unity.Jobs.IJob {
 
@@ -18,32 +24,30 @@ namespace ME.ECSBurst.Tests {
 
             public void Execute() {
 
-                var sc = world.currentState;
-                
-                var entity = sc.AddEntity();
+                var entity = this.world.AddEntity();
 
-                sc.Set(entity, new Item() { a = 999 });
-                var element = sc.Get<Item>(entity);
+                this.world.Set(entity, new Item() { a = 999 });
+                var element = this.world.Get<Item>(entity);
                 UnityEngine.Debug.Log(string.Format("{0}", element.a));
-                ref var a = ref sc.Get<Item>(entity);
+                ref var a = ref this.world.Get<Item>(entity);
                 a.a = 123;
                 UnityEngine.Debug.Log(string.Format("{0}", a.a));
-                var element2 = sc.Get<Item>(entity);
+                var element2 = this.world.Get<Item>(entity);
                 UnityEngine.Debug.Log(string.Format("{0}", element2.a));
-                sc.Remove<Item>(entity);
-                UnityEngine.Debug.Log(string.Format("{0}", sc.Has<Item>(entity)));
-                ref var a2 = ref sc.Get<Item>(entity);
+                this.world.Remove<Item>(entity);
+                UnityEngine.Debug.Log(string.Format("{0}", this.world.Has<Item>(entity)));
+                ref var a2 = ref this.world.Get<Item>(entity);
                 UnityEngine.Debug.Log(string.Format("{0}", a2.a));
                 a2.a = 234;
                 
                 foreach (var ent in filter) {
 
                     UnityEngine.Debug.Log(string.Format("ENTITY #{0} gen {1}", ent.id, ent.generation));
+                    this.world.RemoveEntity(in ent);
                 
                 }
                 
-                sc.RemoveEntity(in entity);
-                UnityEngine.Debug.Log(string.Format("ISALIVE: {0}", sc.IsAlive(entity)));
+                UnityEngine.Debug.Log(string.Format("ISALIVE: {0}", this.world.IsAlive(entity)));
 
                 foreach (var ent in filter) {
 
@@ -57,17 +61,52 @@ namespace ME.ECSBurst.Tests {
 
         public struct TestSystem : IOnCreate, IAdvanceTick {
 
+            public Filter filter;
+            public World world;
+            
             public void OnCreate() {
 
-                UnityEngine.Debug.Log("OnCreate");
+                //UnityEngine.Debug.Log("OnCreate");
+                this.world = Worlds.currentWorld;
+                Filter.Create().With<Item>().Without<Item2>().Push(ref this.filter);
 
             }
             
-            [Unity.Burst.BurstCompileAttribute]
-            public void AdvanceTick(float deltaTime) {
+            public void AdvanceTick() {
                 
-                UnityEngine.Debug.Log(string.Format("TestSystem: {0}", deltaTime));
+                UnityEngine.Debug.Log(string.Format("TestSystem: {0}", Worlds.time.Data.deltaTime));
                 
+                var entity = this.world.AddEntity();
+
+                this.world.Set(entity, new Item() { a = 999 });
+                var element = this.world.Get<Item>(entity);
+                UnityEngine.Debug.Log(string.Format("{0}", element.a));
+                ref var a = ref this.world.Get<Item>(entity);
+                a.a = 123;
+                UnityEngine.Debug.Log(string.Format("{0}", a.a));
+                var element2 = this.world.Get<Item>(entity);
+                UnityEngine.Debug.Log(string.Format("{0}", element2.a));
+                this.world.Remove<Item>(entity);
+                UnityEngine.Debug.Log(string.Format("{0}", this.world.Has<Item>(entity)));
+                ref var a2 = ref this.world.Get<Item>(entity);
+                UnityEngine.Debug.Log(string.Format("{0}", a2.a));
+                a2.a = 234;
+                
+                foreach (var ent in filter) {
+
+                    UnityEngine.Debug.Log(string.Format("ENTITY #{0} gen {1}", ent.id, ent.generation));
+                    this.world.RemoveEntity(in ent);
+                
+                }
+                
+                UnityEngine.Debug.Log(string.Format("ISALIVE: {0}", this.world.IsAlive(entity)));
+
+                foreach (var ent in filter) {
+
+                    UnityEngine.Debug.Log(string.Format("ENTITY #{0} gen {1}", ent.id, ent.generation));
+                
+                }
+
             }
 
         }
@@ -81,25 +120,26 @@ namespace ME.ECSBurst.Tests {
             // TODO: Generator job - initialization - Update components in filters only
             WorldUtilities.UpdateComponentTypeId<Item>();
 
+            Burst<TestSystem>.Prewarm();
+
             var w = new World("MyWorld");
-            w.AddSystem(new TestSystem());
+            //w.currentState.Validate<Item>();
+            w.Validate<Item>();
+            w.AddSystemAdvanceTick(new TestSystem());
             w.Update(0.1f);
             
             // Test filter
-            var filter = Filter.Create().With<Item>().Push(ref w);
+            /*var filter = Filter.Create().With<Item>().Without<Item2>().Push(ref w);
             
-            // TODO: Generator job - validate per component for any new entity (inside AddEntity method)
-            //w.currentState.components.Validate<Item>(1);
-
             // Components
             var job = new Job() {
                 filter = filter,
                 world = w,
             };
-            job.Run();
+            job.Run();*/
 
             w.Dispose();
-
+            
         }
 
     }

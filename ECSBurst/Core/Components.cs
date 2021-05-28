@@ -3,6 +3,8 @@ namespace ME.ECSBurst {
     
     using Collections;
     using System.Runtime.InteropServices;
+    using Unity.Collections.LowLevel.Unsafe;
+    using static MemUtilsCuts;
 
     public interface IComponentBase {}
     
@@ -52,8 +54,8 @@ namespace ME.ECSBurst {
         
         public void Dispose() {
 
-            this.data.Dispose();
-            this.dataExists.Dispose();
+            if (this.data.isCreated == true) this.data.Dispose();
+            if (this.dataExists.isCreated == true) this.dataExists.Dispose();
 
         }
 
@@ -82,7 +84,7 @@ namespace ME.ECSBurst {
                 item.Dispose();
 
             }
-            this.list.Dispose();
+            if (this.list.isCreated == true) this.list.Dispose();
 
         }
 
@@ -99,18 +101,19 @@ namespace ME.ECSBurst {
 
         public void Validate(int entityId) {
             
-            ArrayUtils.Resize(AllComponentTypesCounter.counter, ref this.list);
+            ArrayUtils.Resize(AllComponentTypesCounter.counter.Data, ref this.list);
             
             for (int i = 0; i < this.list.Length; ++i) {
                 
                 if (this.list[i] == System.IntPtr.Zero) {
     
-                    var size = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<StructComponentsItemUnknown>();
+                    /*var size = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<StructComponentsItemUnknown>();
                     var allocator = Unity.Collections.Allocator.Persistent;
                     var align = WorldUtilities.GetComponentAlign(i);
                     var ptr = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.Malloc(size, align, allocator);
                     Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemClear(ptr, size);
-                    this.list[i] = (System.IntPtr)ptr;
+                    this.list[i] = (System.IntPtr)ptr;*/
+                    UnityEngine.Debug.LogError(string.Format("Validation failed on index {0}. Do you forget to call Validate<T>?", i));
                     
                 }
                 
@@ -121,8 +124,7 @@ namespace ME.ECSBurst {
 
         }
 
-        /*
-        public void Validate<T>(int entityId) where T : struct {
+        public void Validate<T>() where T : struct {
 
             var id = WorldUtilities.GetAllComponentTypeId<T>();
             ArrayUtils.Resize(id, ref this.list);
@@ -137,14 +139,7 @@ namespace ME.ECSBurst {
                 
             }
             
-            {
-                
-                ref var item = ref Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AsRef<StructComponentsItem<T>>((void*)this.list[id]);
-                item.Validate(entityId);
-
-            }
-
-        }*/
+        }
 
         public bool Remove<T>(int entityId) where T : struct {
 
@@ -184,109 +179,170 @@ namespace ME.ECSBurst {
 
     }
 
-    public struct State {
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct State {
 
-        public StructComponents components;
-        public Storage storage;
-        public Filters filters;
+        [NativeDisableUnsafePtrRestriction]
+        internal void* components;
+        [NativeDisableUnsafePtrRestriction]
+        internal void* storage;
+        [NativeDisableUnsafePtrRestriction]
+        internal void* filters;
+
+        public static State* Create(int entitiesCapacity) {
+
+            var state = new State();
+            state.Initialize(entitiesCapacity);
+            return tnew(state);
+
+        }
 
         public void Initialize(int capacity) {
+
+            this.components = pnew(new StructComponents());
+            this.storage = pnew(new Storage());
+            this.filters = pnew(new Filters());
             
-            this.components.Initialize();
-            this.storage.Initialize(capacity);
-            this.filters.Initialize();
-            
+            mref<StructComponents>(this.components).Initialize();
+            mref<Storage>(this.storage).Initialize(capacity);
+            mref<Filters>(this.filters).Initialize();
+
         }
 
         public void Dispose() {
 
-            this.components.Dispose();
-            this.storage.Dispose();
-            this.filters.Dispose();
+            mref<StructComponents>(this.components).Dispose();
+            mref<Storage>(this.storage).Dispose();
+            mref<Filters>(this.filters).Dispose();
+            
+            free(ref this.components);
+            free(ref this.storage);
+            free(ref this.filters);
+
+        }
+        
+        public void Validate<T>() where T : struct, IComponentBase {
+
+            ref var c = ref mref<StructComponents>(this.components);
+            c.Validate<T>();
+
+        }
+        
+        public Filter AddFilter(ref Filter filter) {
+            
+            ref var f = ref mref<Filters>(this.filters);
+            return f.Add(ref filter);
 
         }
 
         [Unity.Collections.NotBurstCompatibleAttribute]
-        public Entity AddEntity() {
+        public ref readonly Entity AddEntity() {
 
-            var willNew = this.storage.WillNew();
-            var entity = this.storage.Alloc();
+            ref var st = ref mref<Storage>(this.storage);
+            ref var c = ref mref<StructComponents>(this.components);
+            
+            var willNew = st.WillNew();
+            ref var entity = ref st.Alloc();
             if (willNew == true) {
 
-                this.storage.archetypes.Validate(in entity);
-                this.components.Validate(entity.id);
-                // TODO: On new entity - validate all components from generator
-                //ComponentsInitializer.Init();
+                st.archetypes.Validate(in entity);
+                c.Validate(entity.id);
 
             }
             
-            return entity;
+            return ref entity;
 
         }
 
         [Unity.Collections.NotBurstCompatibleAttribute]
-        public void RemoveEntity(in Entity entity) {
+        public bool RemoveEntity(in Entity entity) {
 
-            if (this.storage.Dealloc(in entity) == true) {
+            ref var st = ref mref<Storage>(this.storage);
+            ref var c = ref mref<StructComponents>(this.components);
+            ref var f = ref mref<Filters>(this.filters);
 
-                this.components.RemoveAll(entity.id);
-                this.filters.OnBeforeEntityDestroy(in entity);
-                this.storage.IncrementGeneration(in entity);
+            if (st.Dealloc(in entity) == true) {
+
+                c.RemoveAll(entity.id);
+                f.OnBeforeEntityDestroy(in entity);
+                st.IncrementGeneration(in entity);
+                return true;
 
             }
+            
+            return false;
 
         }
 
         public bool IsAlive(in Entity entity) {
 
-            return this.storage.IsAlive(entity.id, entity.generation);
+            ref var st = ref mref<Storage>(this.storage);
+            return st.IsAlive(entity.id, entity.generation);
 
         }
 
         public void Set<T>(in Entity entity, T data) where T : struct, IComponentBase {
             
-            this.components.Set(entity.id, data);
-            this.filters.OnBeforeAddComponent<T>(in entity);
-            this.storage.archetypes.Set<T>(in entity);
-            this.storage.versions.Increment(entity.id);
+            ref var st = ref mref<Storage>(this.storage);
+            ref var c = ref mref<StructComponents>(this.components);
+            ref var f = ref mref<Filters>(this.filters);
+
+            c.Set(entity.id, data);
+            f.OnBeforeAddComponent<T>(in entity);
+            st.archetypes.Set<T>(in entity);
+            st.versions.Increment(entity.id);
             
         }
 
         public bool Has<T>(in Entity entity) where T : struct, IComponentBase {
             
-            return this.components.Has<T>(entity.id);
+            ref var c = ref mref<StructComponents>(this.components);
+            return c.Has<T>(entity.id);
             
         }
 
-        public void Remove<T>(in Entity entity) where T : struct, IComponentBase {
+        public bool Remove<T>(in Entity entity) where T : struct, IComponentBase {
 
-            if (this.components.Remove<T>(entity.id) == true) {
+            ref var st = ref mref<Storage>(this.storage);
+            ref var c = ref mref<StructComponents>(this.components);
+            ref var f = ref mref<Filters>(this.filters);
+
+            if (c.Remove<T>(entity.id) == true) {
                 
-                this.filters.OnBeforeRemoveComponent<T>(in entity);
-                this.storage.archetypes.Remove<T>(in entity);
-                this.storage.versions.Increment(entity.id);
+                f.OnBeforeRemoveComponent<T>(in entity);
+                st.archetypes.Remove<T>(in entity);
+                st.versions.Increment(entity.id);
+                
+                return true;
 
             }
+            
+            return false;
 
         }
 
         public ref T Get<T>(in Entity entity) where T : struct, IComponentBase {
 
-            if (this.components.Has<T>(entity.id) == false) {
+            ref var st = ref mref<Storage>(this.storage);
+            ref var c = ref mref<StructComponents>(this.components);
+            ref var f = ref mref<Filters>(this.filters);
 
-                this.filters.OnBeforeAddComponent<T>(in entity);
-                this.components.Set<T>(entity.id, default);
-                this.storage.versions.Increment(entity.id);
+            if (c.Has<T>(entity.id) == false) {
+
+                f.OnBeforeAddComponent<T>(in entity);
+                c.Set<T>(entity.id, default);
+                st.versions.Increment(entity.id);
 
             }
             
-            return ref this.components.Get<T>(entity.id);
+            return ref c.Get<T>(entity.id);
 
         }
 
         public ref readonly T Read<T>(in Entity entity) where T : struct, IComponentBase {
             
-            return ref this.components.Get<T>(entity.id);
+            ref var c = ref mref<StructComponents>(this.components);
+            return ref c.Get<T>(entity.id);
 
         }
 

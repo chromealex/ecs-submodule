@@ -22,7 +22,7 @@ namespace ME.ECSBurst.Collections {
     [System.Serializable]
     public readonly struct NativeBufferArray<T> : System.IEquatable<NativeBufferArray<T>> where T : struct {
 
-        public static NativeBufferArray<T> Empty = new NativeBufferArray<T>(default, 0);
+        public static readonly NativeBufferArray<T> Empty = new NativeBufferArray<T>(default, 0);
 
         public readonly NativeArrayBurst<T> arr;
         public readonly int Length;

@@ -2,7 +2,13 @@
 namespace ME.ECSBurst {
     
     using Collections;
+    using Unity.Collections.LowLevel.Unsafe;
 
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
     public struct Filters {
 
         public Unity.Collections.NativeList<Filter> filters;
@@ -70,6 +76,11 @@ namespace ME.ECSBurst {
 
     }
 
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
     public unsafe struct Filter {
 
         public struct Enumerator : System.Collections.Generic.IEnumerator<Entity> {
@@ -127,14 +138,14 @@ namespace ME.ECSBurst {
         }
 
         public int id;
-        [Unity.Collections.LowLevel.Unsafe.NativeDisableUnsafePtrRestrictionAttribute]
-        public System.IntPtr storage;
+        [NativeDisableUnsafePtrRestriction]
+        public void* storage;
         public NativeBufferArray<byte> entities; // 0 - not contains, 1 - contains
         public Archetype contains;
         public Archetype notContains;
 
         #region Internal API
-        public void AddEntityCheckComponent<T>(in Entity entity) {
+        internal void AddEntityCheckComponent<T>(in Entity entity) {
 
             ref var storage = ref Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AsRef<Storage>((void*)this.storage);
             var arch = storage.archetypes.Get(in entity);
@@ -154,7 +165,7 @@ namespace ME.ECSBurst {
 
         }
 
-        public void RemoveEntityCheckComponent<T>(in Entity entity) {
+        internal void RemoveEntityCheckComponent<T>(in Entity entity) {
             
             ref var storage = ref Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AsRef<Storage>((void*)this.storage);
             var arch = storage.archetypes.Get(in entity);
@@ -174,7 +185,7 @@ namespace ME.ECSBurst {
 
         }
 
-        public void RemoveEntity(in Entity entity) {
+        internal void RemoveEntity(in Entity entity) {
             
             this.entities[entity.id] = 0;
             
@@ -202,6 +213,13 @@ namespace ME.ECSBurst {
             
         }
 
+        public Filter Push() {
+            
+            Filter _ = default;
+            return this.Push(ref Worlds.currentWorld, ref _);
+            
+        }
+
         public Filter Push(ref World world) {
 
             Filter _ = default;
@@ -209,10 +227,16 @@ namespace ME.ECSBurst {
             
         }
 
+        public Filter Push(ref Filter variable) {
+            
+            return this.Push(ref Worlds.currentWorld, ref variable);
+            
+        }
+
         public Filter Push(ref World world, ref Filter variable) {
 
-            this.storage = (System.IntPtr)Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AddressOf(ref world.currentState.storage);
-            variable = world.currentState.filters.Add(ref this);
+            this.storage = world.currentState->storage;
+            variable = world.currentState->AddFilter(ref this);
             return variable;
 
         }

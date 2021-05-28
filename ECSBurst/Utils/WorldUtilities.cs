@@ -39,7 +39,9 @@ namespace ME.ECSBurst {
 
     public struct AllComponentTypesCounter {
 
-        public static int counter = -1;
+        public static readonly SharedStatic<int> counter = SharedStatic<int>.GetOrCreate<AllComponentTypesCounter, AllComponentTypesCounterKey>();
+
+        public class AllComponentTypesCounterKey {}
 
     }
 
@@ -65,7 +67,7 @@ namespace ME.ECSBurst {
         
         private static void CacheAllComponentTypeId<TComponent>() where TComponent : struct {
             
-            AllComponentTypes<TComponent>.typeId.Data = ++AllComponentTypesCounter.counter;
+            AllComponentTypes<TComponent>.typeId.Data = ++AllComponentTypesCounter.counter.Data;
             ComponentTypesRegistry.allTypeId.Add(typeof(TComponent), AllComponentTypes<TComponent>.typeId.Data);
             ComponentTypesRegistry.typeIdToAlign.Add(AllComponentTypes<TComponent>.typeId.Data, Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AlignOf<TComponent>());
 

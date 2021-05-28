@@ -4,7 +4,13 @@ namespace ME.ECSBurst {
     using Collections;
     using Unity.Collections;
     using FieldType = System.Int64;
+    using static MemUtilsCuts;
     
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
     public readonly struct Entity {
 
         public readonly int id;
@@ -21,6 +27,43 @@ namespace ME.ECSBurst {
             
             return $"#{this.id} Gen:{this.generation}";
             
+        }
+
+    }
+
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
+    public static unsafe class EntitiesAPI {
+
+        public static T Get<T>(this Entity entity) where T : struct, IComponentBase {
+
+            var world = mref<World>((void*)Worlds.currentInternalWorld.Data);
+            return world.Get<T>(entity);
+
+        }
+
+        public static T Read<T>(this Entity entity) where T : struct, IComponentBase {
+
+            var world = mref<World>((void*)Worlds.currentInternalWorld.Data);
+            return world.Get<T>(entity);
+
+        }
+
+        public static bool Remove<T>(this Entity entity) where T : struct, IComponentBase {
+
+            var world = mref<World>((void*)Worlds.currentInternalWorld.Data);
+            return world.Remove<T>(entity);
+
+        }
+
+        public static void Set<T>(this Entity entity, T data) where T : struct, IComponentBase {
+
+            var world = mref<World>((void*)Worlds.currentInternalWorld.Data);
+            world.Set<T>(entity, data);
+
         }
 
     }
