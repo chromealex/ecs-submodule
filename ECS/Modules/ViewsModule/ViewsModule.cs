@@ -483,13 +483,13 @@ namespace ME.ECS.Views {
         private Dictionary<IView, ViewId> registryPrefabToId;
         private Dictionary<ViewId, IView> registryIdToPrefab;
         private ViewId viewSourceIdRegistry;
-        private ViewId viewIdRegistry;
         private bool isRequestsDirty;
 
         public World world { get; set; }
 
         void IModuleBase.OnConstruct() {
 
+            this.viewSourceIdRegistry = ViewId.Zero;
             this.isRequestsDirty = false;
             this.list = PoolArray<Views>.Spawn(ViewsModule.VIEWS_CAPACITY);
             this.rendering = PoolHashSet<ViewInfo>.Spawn(ViewsModule.VIEWS_CAPACITY);
