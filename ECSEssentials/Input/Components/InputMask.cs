@@ -12,5 +12,11 @@ namespace ME.ECS.Essentials.Input.Components {
         public int priority;
 
     }
+
+    public struct InputAllowUI : IStructComponent {
+
+        public bool allow;
+
+    }
     
 }

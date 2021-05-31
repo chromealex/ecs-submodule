@@ -176,6 +176,12 @@ namespace ME.ECS.Essentials {
 
         }
 
+        public bool IsAllowedUIEvents() {
+
+            return this.world.ReadSharedData<InputAllowUI>().allow;
+
+        }
+
         public bool IsAllowed(in Entity player, InputEventType inputEventType, in UnityEngine.Vector3 worldPosition) {
 
             if (this.inputMaskFilter.Count == 0) return true;
