@@ -532,6 +532,8 @@ namespace ME.ECS.Views {
             PoolHashSet<ViewInfo>.Recycle(ref this.rendering);
             PoolArray<Views>.Recycle(ref this.list);
 
+            this.viewSourceIdRegistry = default;
+
         }
 
         BufferArray<Views> IViewModuleBase.GetData() {
