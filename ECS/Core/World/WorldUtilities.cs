@@ -124,6 +124,7 @@ namespace ME.ECS {
             world.RecycleStates<TState>();
             Worlds.UnRegister(world);
             Worlds.DeInitializeEnd();
+            world = null;
 
         }
 
