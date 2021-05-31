@@ -249,7 +249,7 @@ namespace ME.ECSBurst {
                     system = sysData.system,
                 };
                 var ptr = pnew(job);
-                var handle = Unity.Jobs.LowLevel.Unsafe.JobsUtility.CreateJobReflectionData(typeof(Job), Unity.Jobs.LowLevel.Unsafe.JobType.Single, (SystemExecute)job.Execute);
+                var handle = Unity.Jobs.LowLevel.Unsafe.JobsUtility.CreateJobReflectionData(typeof(Job), (SystemExecute)job.Execute);
                 sysData.job = ptr;
                 sysData.jobData = (void*)handle;
                 
