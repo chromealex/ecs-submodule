@@ -710,10 +710,10 @@ namespace ME.ECS {
             
             var arr = PoolArrayNative<Entity>.Spawn(this.primary.Count + this.secondary.Count);
             var primaryArray = this.primary.ToArray();
-            ArrayUtils.Copy(primaryArray, 0, ref arr, 0, this.primary.Count);
+            NativeArrayUtils.Copy(primaryArray, 0, ref arr, 0, this.primary.Count);
             primaryArray.Dispose();
             var secondaryArray = this.secondary.ToArray();
-            if (secondaryArray.Length > 0) ArrayUtils.Copy(secondaryArray, 0, ref arr, this.primary.Count, this.secondary.Count);
+            if (secondaryArray.Length > 0) NativeArrayUtils.Copy(secondaryArray, 0, ref arr, this.primary.Count, this.secondary.Count);
             secondaryArray.Dispose();
             return arr;
 
@@ -1201,8 +1201,8 @@ namespace ME.ECS {
 
             }
 
-            ArrayUtils.Clear(this.dataVersions);
-            ArrayUtils.Clear(this.dataContains);
+            NativeArrayUtils.Clear(this.dataVersions);
+            NativeArrayUtils.Clear(this.dataContains);
             this.dataCount = 0;
 
         }
@@ -1221,22 +1221,22 @@ namespace ME.ECS {
 
         internal void SetEntityCapacity(int capacity) {
 
-            ArrayUtils.Resize(capacity, ref this.dataContains);
-            if (this.onVersionChangedOnly == true) ArrayUtils.Resize(capacity, ref this.dataVersions);
+            NativeArrayUtils.Resize(capacity, ref this.dataContains);
+            if (this.onVersionChangedOnly == true) NativeArrayUtils.Resize(capacity, ref this.dataVersions);
 
         }
 
         internal void OnEntityCreate(in Entity entity) {
 
-            ArrayUtils.Resize(entity.id, ref this.dataContains);
-            if (this.onVersionChangedOnly == true) ArrayUtils.Resize(entity.id, ref this.dataVersions);
+            NativeArrayUtils.Resize(entity.id, ref this.dataContains);
+            if (this.onVersionChangedOnly == true) NativeArrayUtils.Resize(entity.id, ref this.dataVersions);
 
         }
 
         internal void OnEntityDestroy(in Entity entity) {
 
-            ArrayUtils.Resize(entity.id, ref this.dataContains);
-            if (this.onVersionChangedOnly == true) ArrayUtils.Resize(entity.id, ref this.dataVersions);
+            NativeArrayUtils.Resize(entity.id, ref this.dataContains);
+            if (this.onVersionChangedOnly == true) NativeArrayUtils.Resize(entity.id, ref this.dataVersions);
 
         }
 
@@ -1395,7 +1395,7 @@ namespace ME.ECS {
 
         public void UseVersioned() {
 
-            if (this.onVersionChangedOnly == true) ArrayUtils.Clear(this.dataVersions);
+            if (this.onVersionChangedOnly == true) NativeArrayUtils.Clear(this.dataVersions);
 
         }
 
@@ -1643,8 +1643,8 @@ namespace ME.ECS {
             this.sharedArchetypeNotContains = other.sharedArchetypeNotContains;
             this.hasShared = other.hasShared;
 
-            ArrayUtils.Copy(in other.dataContains, ref this.dataContains);
-            if (this.onVersionChangedOnly == true) ArrayUtils.Copy(in other.dataVersions, ref this.dataVersions);
+            NativeArrayUtils.Copy(in other.dataContains, ref this.dataContains);
+            if (this.onVersionChangedOnly == true) NativeArrayUtils.Copy(in other.dataVersions, ref this.dataVersions);
 
             #if UNITY_EDITOR
             this.editorTypes = other.editorTypes;

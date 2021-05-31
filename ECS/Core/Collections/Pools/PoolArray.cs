@@ -45,7 +45,7 @@ namespace ME.ECS {
             var arr = new NativeArrayBurst<T>(arrSize, Unity.Collections.Allocator.Persistent);
             var size = (realSize == true ? arr.Length : length);
             var buffer = new NativeBufferArray<T>(arr, length, realSize == true ? arr.Length : -1);
-            ArrayUtils.Clear(buffer, 0, size);
+            NativeArrayUtils.Clear(buffer, 0, size);
 
             return buffer;
 

@@ -69,7 +69,7 @@ namespace ME.ECS.Collections {
         public IBufferArray Resize(int newSize) {
 
             var newArr = new NativeArrayBurst<T>(newSize, Allocator.Persistent);
-            if (this.arr.IsCreated == true) ArrayUtils.Copy(this.arr, ref newArr, newSize > this.Length ? this.Length : newSize);
+            if (this.arr.IsCreated == true) NativeArrayUtils.Copy(this.arr, ref newArr, newSize > this.Length ? this.Length : newSize);
             return new NativeBufferArray<T>(newArr, newSize);
 
         }
@@ -96,7 +96,7 @@ namespace ME.ECS.Collections {
             var arr = this.arr;
             if (index < newLength) {
 
-                ArrayUtils.Copy(in this.arr, index + 1, ref arr, index, newLength - index);
+                NativeArrayUtils.Copy(in this.arr, index + 1, ref arr, index, newLength - index);
             
             }
 
@@ -130,7 +130,7 @@ namespace ME.ECS.Collections {
         #endif
         public void Clear() {
 
-            ArrayUtils.Clear(this.arr);
+            NativeArrayUtils.Clear(this.arr);
             
         }
 
@@ -139,7 +139,7 @@ namespace ME.ECS.Collections {
         #endif
         public void Clear(int index, int length) {
 
-            ArrayUtils.Clear(this.arr, index, length);
+            NativeArrayUtils.Clear(this.arr, index, length);
             
         }
 

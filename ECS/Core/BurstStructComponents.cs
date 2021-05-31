@@ -75,8 +75,8 @@ namespace ME.ECS {
                 code = 0;
                 this.types[code] = hashcode;
                 var reg = new Registry<T>();
-                ArrayUtils.Resize(entity.id, ref reg.components, allocator: Allocator.Temp);
-                ArrayUtils.Resize(entity.id, ref reg.componentsStates, allocator: Allocator.Temp);
+                NativeArrayUtils.Resize(entity.id, ref reg.components, allocator: Allocator.Temp);
+                NativeArrayUtils.Resize(entity.id, ref reg.componentsStates, allocator: Allocator.Temp);
                 this.Save(reg, code);
 
             }
@@ -87,8 +87,8 @@ namespace ME.ECS {
 
                     code = this.types.Length;
                 
-                    ArrayUtils.Resize(this.types.Length, ref this.types, allocator: Allocator.Temp);
-                    ArrayUtils.Resize(this.registries.Length, ref this.registries, allocator: Allocator.Temp);
+                    NativeArrayUtils.Resize(this.types.Length, ref this.types, allocator: Allocator.Temp);
+                    NativeArrayUtils.Resize(this.registries.Length, ref this.registries, allocator: Allocator.Temp);
 
                 } else {
                     
@@ -99,8 +99,8 @@ namespace ME.ECS {
                 this.types[code] = hashcode;
 
                 var reg = new Registry<T>();
-                ArrayUtils.Resize(entity.id, ref reg.components, allocator: Allocator.Temp);
-                ArrayUtils.Resize(entity.id, ref reg.componentsStates, allocator: Allocator.Temp);
+                NativeArrayUtils.Resize(entity.id, ref reg.components, allocator: Allocator.Temp);
+                NativeArrayUtils.Resize(entity.id, ref reg.componentsStates, allocator: Allocator.Temp);
                 this.Save(reg, code);
 
             }

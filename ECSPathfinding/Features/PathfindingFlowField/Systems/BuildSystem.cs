@@ -101,7 +101,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Systems {
 
                 //UnityEngine.Debug.LogWarning("REQUEST PATH: " + request.@from.ToStringDec() + " to " + request.to.ToStringDec() + ", cache: " + request.cacheEnabled + ", burst: " + request.burstEnabled);
                 var constraint = request.constraint;
-                ArrayUtils.Resize(this.idx, ref this.pathTasks);
+                NativeArrayUtils.Resize(this.idx, ref this.pathTasks);
                 this.pathTasks[this.idx++] = active.CalculatePathTask(entity, request.from, request.to, request.alignToGraphNodes, constraint, request.burstEnabled, request.cacheEnabled);
 
                 entity.Remove<CalculatePath>();

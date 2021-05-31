@@ -11,7 +11,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public static unsafe partial class ArrayUtils {
+    public static unsafe partial class NativeArrayUtils {
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -68,7 +68,7 @@ namespace ME.ECS {
 
             if (fromArr.isCreated == false) {
 
-                if (arr.isCreated == true) ArrayUtils.Recycle(ref arr, copy);
+                if (arr.isCreated == true) NativeArrayUtils.Recycle(ref arr, copy);
                 arr = NativeBufferArray<T>.Empty;
                 return;
 
@@ -76,7 +76,7 @@ namespace ME.ECS {
 
             if (arr.isCreated == false || fromArr.Length != arr.Length) {
 
-                if (arr.isCreated == true) ArrayUtils.Recycle(ref arr, copy);
+                if (arr.isCreated == true) NativeArrayUtils.Recycle(ref arr, copy);
                 arr = PoolArrayNative<T>.Spawn(fromArr.Length);
 
             }
@@ -96,7 +96,7 @@ namespace ME.ECS {
 
             if (fromArr.isCreated == false) {
 
-                if (arr.isCreated == true) ArrayUtils.RecycleWithIndex(ref arr, copy);
+                if (arr.isCreated == true) NativeArrayUtils.RecycleWithIndex(ref arr, copy);
                 arr = NativeBufferArray<T>.Empty;
                 return;
 
@@ -104,7 +104,7 @@ namespace ME.ECS {
 
             if (arr.isCreated == false || fromArr.Length != arr.Length) {
 
-                if (arr.isCreated == true) ArrayUtils.RecycleWithIndex(ref arr, copy);
+                if (arr.isCreated == true) NativeArrayUtils.RecycleWithIndex(ref arr, copy);
                 arr = PoolArrayNative<T>.Spawn(fromArr.Length);
 
             }
@@ -138,7 +138,7 @@ namespace ME.ECS {
             }
 
             var newArr = arr.arr;
-            ArrayUtils.Copy(fromArr.arr, ref newArr, fromArr.Length);
+            NativeArrayUtils.Copy(fromArr.arr, ref newArr, fromArr.Length);
             arr = new NativeBufferArray<T>(newArr, fromArr.Length);
 
         }
@@ -164,7 +164,7 @@ namespace ME.ECS {
             }
 
             var newArr = arr.arr;
-            ArrayUtils.Copy(fromArr.arr, sourceIndex, ref newArr, destIndex, length);
+            NativeArrayUtils.Copy(fromArr.arr, sourceIndex, ref newArr, destIndex, length);
             arr = new NativeBufferArray<T>(newArr, fromArr.Length);
 
         }
@@ -213,7 +213,7 @@ namespace ME.ECS {
             var newLength = index + 1;
             if (newLength <= arr.arr.Length) {
 
-                ArrayUtils.Clear(arr.arr, arr.Length, newLength - arr.Length);
+                NativeArrayUtils.Clear(arr.arr, arr.Length, newLength - arr.Length);
                 arr = new NativeBufferArray<T>(arr.arr, newLength);
                 return false;
 
@@ -221,7 +221,7 @@ namespace ME.ECS {
 
             var newArr = PoolArrayNative<T>.Spawn(newLength);
             var copyArr = newArr.arr;
-            ArrayUtils.Copy(arr.arr, ref copyArr, arr.Length);
+            NativeArrayUtils.Copy(arr.arr, ref copyArr, arr.Length);
             arr = new NativeBufferArray<T>(copyArr, arr.Length);
             if (arr != newArr) PoolArrayNative<T>.Recycle(ref arr);
             arr = newArr;

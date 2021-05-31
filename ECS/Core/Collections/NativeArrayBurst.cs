@@ -51,14 +51,14 @@ namespace ME.ECS.Collections {
         public NativeArrayBurst(NativeArray<T> array, Allocator allocator) {
         
             NativeArrayBurst<T>.Allocate(array.Length, allocator, out this);
-            ArrayUtils.Copy(array, ref this);
+            NativeArrayUtils.Copy(array, ref this);
             
         }
 
         public NativeArrayBurst(NativeArrayBurst<T> array, Allocator allocator) {
         
             NativeArrayBurst<T>.Allocate(array.Length, allocator, out this);
-            ArrayUtils.Copy(array, ref this);
+            NativeArrayUtils.Copy(array, ref this);
             
         }
 

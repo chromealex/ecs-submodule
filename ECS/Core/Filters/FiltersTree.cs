@@ -71,7 +71,7 @@ namespace ME.ECS {
             public void Add(FilterData filterData) {
 
                 var data = filterData.GetBurstData();
-                ArrayUtils.Resize(this.index, ref this.filters, true);
+                NativeArrayUtils.Resize(this.index, ref this.filters, true);
                 var idx = this.filters.arr.IndexOf(data);
                 if (idx == -1) {
 
@@ -87,7 +87,7 @@ namespace ME.ECS {
                 this.isCreated = other.isCreated;
                 this.bit = other.bit;
                 this.index = other.index;
-                ArrayUtils.Copy(other.filters, ref this.filters);
+                NativeArrayUtils.Copy(other.filters, ref this.filters);
 
             }
 

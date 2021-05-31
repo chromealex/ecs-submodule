@@ -30,8 +30,8 @@ namespace ME.ECS {
         #endif
         public void Validate(int capacity) {
 
-            ArrayUtils.Resize(capacity, ref this.types);
-            ArrayUtils.Resize(capacity, ref this.prevTypes);
+            NativeArrayUtils.Resize(capacity, ref this.types);
+            NativeArrayUtils.Resize(capacity, ref this.prevTypes);
 
         }
 
@@ -41,15 +41,15 @@ namespace ME.ECS {
         public void Validate(in Entity entity) {
 
             var id = entity.id;
-            ArrayUtils.Resize(id, ref this.types);
-            ArrayUtils.Resize(id, ref this.prevTypes);
+            NativeArrayUtils.Resize(id, ref this.types);
+            NativeArrayUtils.Resize(id, ref this.prevTypes);
 
         }
 
         public void CopyFrom(ArchetypeEntities other) {
 
-            ArrayUtils.Copy(in other.prevTypes, ref this.prevTypes);
-            ArrayUtils.Copy(in other.types, ref this.types);
+            NativeArrayUtils.Copy(in other.prevTypes, ref this.prevTypes);
+            NativeArrayUtils.Copy(in other.types, ref this.types);
 
         }
 
@@ -179,7 +179,7 @@ namespace ME.ECS {
         #endif
         public void RemoveAll<T>() {
 
-            ArrayUtils.Copy(in this.types, ref this.prevTypes);
+            NativeArrayUtils.Copy(in this.types, ref this.prevTypes);
             for (int i = 0; i < this.types.Length; ++i) {
 
                 this.types.arr[i].Subtract<T>();

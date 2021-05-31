@@ -12,7 +12,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public static partial class ArrayUtils {
+    public static partial class NativeArrayUtils {
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -79,7 +79,7 @@ namespace ME.ECS {
 
             if (fromArr.IsCreated == false) {
 
-                if (arr.IsCreated == true) ArrayUtils.RecycleWithIndex(ref arr, copy);
+                if (arr.IsCreated == true) NativeArrayUtils.RecycleWithIndex(ref arr, copy);
                 arr = default;
                 return;
 
@@ -87,7 +87,7 @@ namespace ME.ECS {
 
             if (arr.IsCreated == false || fromArr.Length != arr.Length) {
 
-                if (arr.IsCreated == true) ArrayUtils.RecycleWithIndex(ref arr, copy);
+                if (arr.IsCreated == true) NativeArrayUtils.RecycleWithIndex(ref arr, copy);
                 arr = new Unity.Collections.NativeArray<T>(fromArr.Length, Unity.Collections.Allocator.Persistent);
 
             }
@@ -108,7 +108,7 @@ namespace ME.ECS {
 
             if (fromArr.IsCreated == false) {
 
-                if (arr.IsCreated == true) ArrayUtils.RecycleWithIndex(ref arr, copy);
+                if (arr.IsCreated == true) NativeArrayUtils.RecycleWithIndex(ref arr, copy);
                 arr = default;
                 return;
 
@@ -116,7 +116,7 @@ namespace ME.ECS {
 
             if (arr.IsCreated == false || fromArr.Length != arr.Length) {
 
-                if (arr.IsCreated == true) ArrayUtils.RecycleWithIndex(ref arr, copy);
+                if (arr.IsCreated == true) NativeArrayUtils.RecycleWithIndex(ref arr, copy);
                 arr = new NativeArrayBurst<T>(fromArr.Length, Unity.Collections.Allocator.Persistent);
 
             }
@@ -137,7 +137,7 @@ namespace ME.ECS {
 
             if (fromArr.IsCreated == false) {
 
-                if (arr.IsCreated == true) ArrayUtils.Recycle(ref arr, copy);
+                if (arr.IsCreated == true) NativeArrayUtils.Recycle(ref arr, copy);
                 arr = default;
                 return;
 
@@ -145,7 +145,7 @@ namespace ME.ECS {
 
             if (arr.IsCreated == false || fromArr.Length != arr.Length) {
 
-                if (arr.IsCreated == true) ArrayUtils.Recycle(ref arr, copy);
+                if (arr.IsCreated == true) NativeArrayUtils.Recycle(ref arr, copy);
                 arr = new NativeArrayBurst<T>(fromArr.Length, Unity.Collections.Allocator.Persistent);
 
             }
@@ -232,7 +232,7 @@ namespace ME.ECS {
             if (newLength == 0 || newLength <= index) newLength = index * offset + 1;
 
             var newArr = new NativeArrayBurst<T>(newLength, allocator);
-            ArrayUtils.Copy(arr, 0, ref newArr, 0, arr.Length);
+            NativeArrayUtils.Copy(arr, 0, ref newArr, 0, arr.Length);
             arr.Dispose();
             arr = newArr;
 
@@ -298,7 +298,7 @@ namespace ME.ECS {
         public static void Copy<T>(in NativeArrayBurst<T> fromArr, ref NativeArrayBurst<T> arr, int length)
             where T : struct {
 
-            ArrayUtils.Copy<T>(in fromArr, 0, ref arr, 0, length);
+            NativeArrayUtils.Copy<T>(in fromArr, 0, ref arr, 0, length);
 
         }
 
@@ -308,7 +308,7 @@ namespace ME.ECS {
         public static void Copy<T>(in Unity.Collections.NativeArray<T> fromArr, ref Unity.Collections.NativeArray<T> arr, int length)
             where T : struct {
 
-            ArrayUtils.Copy<T>(in fromArr, 0, ref arr, 0, length);
+            NativeArrayUtils.Copy<T>(in fromArr, 0, ref arr, 0, length);
 
         }
 
@@ -395,7 +395,7 @@ namespace ME.ECS {
         #endif
         public static unsafe void Copy<T>(in NativeArrayBurst<T> fromArr, ref NativeArrayBurst<T> arr) where T : struct {
             
-            ArrayUtils.Copy<T>(in fromArr, 0, ref arr, 0, fromArr.Length);
+            NativeArrayUtils.Copy<T>(in fromArr, 0, ref arr, 0, fromArr.Length);
             
         }
 
@@ -404,7 +404,7 @@ namespace ME.ECS {
         #endif
         public static unsafe void Copy<T>(in Unity.Collections.NativeArray<T> fromArr, ref NativeArrayBurst<T> arr) where T : struct {
             
-            ArrayUtils.Copy<T>(in fromArr, 0, ref arr, 0, fromArr.Length);
+            NativeArrayUtils.Copy<T>(in fromArr, 0, ref arr, 0, fromArr.Length);
             
         }
 

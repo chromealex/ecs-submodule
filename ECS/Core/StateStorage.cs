@@ -142,7 +142,7 @@ namespace ME.ECS {
         #endif
         public void CopyFrom(Storage other) {
 
-            ArrayUtils.Copy(other.cache, ref this.cache);
+            NativeArrayUtils.Copy(other.cache, ref this.cache);
             ArrayUtils.Copy(other.alive, ref this.alive);
             ArrayUtils.Copy(other.dead, ref this.dead);
             ArrayUtils.Copy(other.deadPrepared, ref this.deadPrepared);
@@ -176,7 +176,7 @@ namespace ME.ECS {
             } else {
 
                 id = ++this.entityId;
-                ArrayUtils.Resize(id, ref this.cache, true);
+                NativeArrayUtils.Resize(id, ref this.cache, true);
 
             }
 
