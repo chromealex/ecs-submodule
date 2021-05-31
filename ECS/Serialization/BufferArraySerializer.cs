@@ -8,12 +8,20 @@ namespace ME.ECS.Serializer {
 
         public void Pack(Packer packer, object obj) {
 
+            System.Type arrayType = obj.GetType();
+            if (arrayType.IsGenericType == true) {
+
+                arrayType = arrayType.GetGenericTypeDefinition();
+
+            }
+
             var buffer = (ME.ECS.Collections.IBufferArray)obj;
             var arr = buffer.GetArray();
             if (arr == null) {
                 
                 packer.WriteByte((byte)TypeValue.Null);
                 var int32 = new Int32Serializer();
+                int32.Pack(packer, packer.GetMetaTypeId(arrayType));
                 int32.Pack(packer, packer.GetMetaTypeId(obj.GetType().GenericTypeArguments[0]));
                 
             } else {
@@ -23,6 +31,7 @@ namespace ME.ECS.Serializer {
                 var length = buffer.Count;
 
                 var int32 = new Int32Serializer();
+                int32.Pack(packer, packer.GetMetaTypeId(arrayType));
                 int32.Pack(packer, length);
                 int32.Pack(packer, packer.GetMetaTypeId(arr.GetType().GetElementType()));
                 for (var i = 0; i < length; ++i) {
@@ -37,6 +46,7 @@ namespace ME.ECS.Serializer {
 
         public object Unpack(Packer packer) {
 
+            int arrayTypeId = -1;
             int typeId = -1;
             object p1 = null;
             object p2 = null;
@@ -45,6 +55,7 @@ namespace ME.ECS.Serializer {
             if (type == (byte)TypeValue.Null) {
 
                 var int32 = new Int32Serializer();
+                arrayTypeId = (int)int32.Unpack(packer);
                 typeId = (int)int32.Unpack(packer);
                 p1 = null;
                 p2 = 0;
@@ -52,6 +63,7 @@ namespace ME.ECS.Serializer {
             } else {
 
                 var int32 = new Int32Serializer();
+                arrayTypeId = (int)int32.Unpack(packer);
                 var length = (int)int32.Unpack(packer);
                 typeId = (int)int32.Unpack(packer);
                 var elementType = packer.GetMetaType(typeId);
@@ -68,7 +80,8 @@ namespace ME.ECS.Serializer {
 
             }
 
-            var constructedType = typeof(ME.ECS.Collections.BufferArray<>).MakeGenericType(packer.GetMetaType(typeId));
+            var arrayType = packer.GetMetaType(arrayTypeId);
+            var constructedType = arrayType.MakeGenericType(packer.GetMetaType(typeId));
             var instance = (ME.ECS.Collections.IBufferArray)System.Activator.CreateInstance(constructedType,
                                                                                             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
                                                                                             null, new object[] {

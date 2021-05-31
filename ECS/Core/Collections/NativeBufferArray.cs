@@ -54,6 +54,17 @@ namespace ME.ECS.Collections {
             
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        internal NativeBufferArray(T[] arr, int length, int realLength) {
+
+            this.Length = length;
+            this.isCreated = (length > 0 && arr != null);
+            this.arr = new NativeArrayBurst<T>(arr, Allocator.Persistent);
+
+        }
+
         public int Count {
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
