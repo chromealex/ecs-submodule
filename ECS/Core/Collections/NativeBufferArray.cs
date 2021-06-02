@@ -211,7 +211,8 @@ namespace ME.ECS.Collections {
 
         public override bool Equals(object obj) {
 
-            throw new AllocationException();
+            if (obj == null) return false;
+            return this == (NativeBufferArray<T>)obj;
 
         }
 
