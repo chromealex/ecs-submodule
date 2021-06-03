@@ -68,7 +68,10 @@ namespace ME.ECS.Serializer {
                 typeId = (int)int32.Unpack(packer);
                 var elementType = packer.GetMetaType(typeId);
 
-                var arr = System.Array.CreateInstance(elementType, PoolArrayUtilities.GetArrayLengthPot(length));
+                var poolArrayType = typeof(PoolArray<>).MakeGenericType(elementType);
+                var spawnMethod = poolArrayType.GetMethod("Spawn", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                var bufferArray = (ME.ECS.Collections.IBufferArray)spawnMethod.Invoke(null, new object[] { length, false });
+                var arr = bufferArray.GetArray();
                 for (var i = 0; i < length; ++i) {
 
                     arr.SetValue(packer.UnpackInternal(), i);
