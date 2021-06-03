@@ -743,11 +743,13 @@ namespace ME.ECS.Views {
 
             }
 
-            /*if (this.world.HasStep(WorldStep.LogicTick) == true) {
+            #if VIEWS_REGISTER_VIEW_SOURCE_CHECK_STATE
+            if (this.world.HasStep(WorldStep.LogicTick) == true) {
 
                 throw new InStateException();
 
-            }*/
+            }
+            #endif
 
             ++this.viewSourceIdRegistry;
             this.registryPrefabToId.Add(prefab, this.viewSourceIdRegistry);
