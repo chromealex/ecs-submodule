@@ -1,34 +1,34 @@
 ﻿namespace ME.ECS {
 
     public static partial class ComponentsInitializer {
-    
+
         static partial void InitTypeIdPartial() {
-            
+
             WorldUtilities.ResetTypeIds();
-            
+
             CoreComponentsInitializer.InitTypeId();
-            
+
 #CONTENT3#
 
         }
-        
+
         static partial void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
-    
+
             WorldUtilities.ResetTypeIds();
-            
+
             CoreComponentsInitializer.InitTypeId();
-            
+
 #CONTENT3#
 
             ComponentsInitializerWorld.Setup(ComponentsInitializerWorldGen.Init);
             CoreComponentsInitializer.Init(ref structComponentsContainer);
-            
+
 #CONTENT#
-    
+
         }
-    
+
     }
-    
+
     public static class ComponentsInitializerWorldGen {
 
         public static void Init(Entity entity) {
