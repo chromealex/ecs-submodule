@@ -272,6 +272,7 @@ namespace ME.ECS.DataConfigs {
             }
 
             #if UNITY_EDITOR
+            if (Application.isPlaying == false) return -1;
             throw new System.Exception($"ComponentTypesRegistry has no type {component.GetType()} for DataConfig {this}.");
             #else
 	        return -1;
@@ -291,6 +292,7 @@ namespace ME.ECS.DataConfigs {
 	        }
 
 	        #if UNITY_EDITOR
+            if (Application.isPlaying == false) return -1;
 	        throw new System.Exception($"ComponentTypesRegistry has no type {component.GetType()} for DataConfig {this}.");
 	        #else
 	        return -1;
@@ -307,6 +309,7 @@ namespace ME.ECS.DataConfigs {
             }
 
             #if UNITY_EDITOR
+            if (Application.isPlaying == false) return -1;
             throw new System.Exception($"ComponentTypesRegistry has no type {component.GetType()} for DataConfig {this}.");
             #else
 	        return -1;
@@ -323,6 +326,7 @@ namespace ME.ECS.DataConfigs {
             }
 
             #if UNITY_EDITOR
+            if (Application.isPlaying == false) return -1;
             throw new System.Exception($"ComponentTypesRegistry has no type {type} for DataConfig {this}.");
             #else
 	        return -1;
