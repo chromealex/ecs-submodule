@@ -168,7 +168,7 @@ namespace ME.ECS.Collections {
         #endif
         public NativeBufferArray<T> Dispose() {
 
-            this.arr.Dispose();
+            if (this.arr.IsCreated == true) this.arr.Dispose();
             return NativeBufferArray<T>.Empty;
 
         }
