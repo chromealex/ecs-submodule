@@ -21,6 +21,13 @@ namespace ME.ECS {
 		    
 		}
 
+		public static void Prewarm(int count, int capacity) {
+
+			PoolDictionary<TKey, TValue>.capacity = capacity;
+			PoolDictionary<TKey, TValue>.pool.Prewarm(count);
+
+		}
+
 		public static void Recycle(ref Dictionary<TKey, TValue> dic) {
 
 			PoolDictionary<TKey, TValue>.pool.Recycle(dic);

@@ -17,6 +17,12 @@
 		    
 		}
 
+		public static void Prewarm(int count) {
+
+			PoolStack<TValue>.pool.Prewarm(count);
+
+		}
+
 		public static void Recycle(ref Stack<TValue> dic) {
 
 			PoolStack<TValue>.pool.Recycle(dic);
@@ -47,6 +53,12 @@
 		    
 		}
 
+		public static void Prewarm(int count) {
+
+			PoolSortedSet<TValue>.pool.Prewarm(count);
+
+		}
+
 		public static void Recycle(ref SortedSet<TValue> dic) {
 
 			PoolSortedSet<TValue>.pool.Recycle(dic);
@@ -75,6 +87,12 @@
 
 			return (HashSet<TValue>)PoolHashSet<TValue>.pool.Spawn();
 		    
+		}
+
+		public static void Prewarm(int count) {
+
+			PoolHashSet<TValue>.pool.Prewarm(count);
+
 		}
 
 		public static void Recycle(ref HashSet<TValue> dic) {
@@ -109,6 +127,13 @@
 		    
 		}
 
+		public static void Prewarm(int count, int capacity) {
+
+			PoolQueue<TValue>.capacity = capacity;
+			PoolQueue<TValue>.pool.Prewarm(count);
+
+		}
+
 		public static void Recycle(ref Queue<TValue> dic) {
 
 			PoolQueue<TValue>.pool.Recycle(dic);
@@ -139,6 +164,13 @@
 			PoolList<TValue>.capacity = capacity;
 			return (List<TValue>)PoolList<TValue>.pool.Spawn();
 		    
+		}
+
+		public static void Prewarm(int count, int capacity) {
+
+			PoolList<TValue>.capacity = capacity;
+			PoolList<TValue>.pool.Prewarm(count);
+
 		}
 
 		public static void Recycle(ref List<TValue> dic) {
