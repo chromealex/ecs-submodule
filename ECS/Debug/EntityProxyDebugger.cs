@@ -20,6 +20,10 @@ namespace ME.ECS.Debug {
         public string actor {
             get { return this.entity.ToString(); }
         }
+
+        public bool alive {
+            get { return this.entity.IsAlive(); }
+        }
         
         public IStructComponentBase[] components {
             
