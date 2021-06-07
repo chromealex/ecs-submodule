@@ -22,6 +22,12 @@ namespace ME.ECS {
 		    
         }
 
+        public static void Prewarm(int count) {
+
+            PoolDictionaryCopyable<TKey, TValue>.pool.Prewarm(count);
+
+        }
+
         public static void Recycle(ref DictionaryCopyable<TKey, TValue> dic) {
 
             PoolDictionaryCopyable<TKey, TValue>.pool.Recycle(dic);

@@ -18,6 +18,12 @@
 		    
 		}
 
+		public static void Prewarm(int count) {
+
+			PoolCCList<TValue>.pool.Prewarm(count);
+
+		}
+
 		public static void Recycle(ref CCList<TValue> dic) {
 
 			PoolCCList<TValue>.pool.Recycle(dic);
@@ -48,6 +54,12 @@
 		    
 		}
 
+		public static void Prewarm(int count) {
+
+			PoolSortedSetCopyable<TValue>.pool.Prewarm(count);
+
+		}
+
 		public static void Recycle(ref SortedSetCopyable<TValue> dic) {
 
 			PoolSortedSetCopyable<TValue>.pool.Recycle(dic);
@@ -76,6 +88,12 @@
 
 			return (HashSetCopyable<TValue>)PoolHashSetCopyable<TValue>.pool.Spawn();
 		    
+		}
+
+		public static void Prewarm(int count) {
+
+			PoolHashSetCopyable<TValue>.pool.Prewarm(count);
+
 		}
 
 		public static void Recycle(ref HashSetCopyable<TValue> dic) {
@@ -110,6 +128,13 @@
 		    
 		}
 
+		public static void Prewarm(int count, int capacity) {
+
+			PoolQueueCopyable<TValue>.capacity = capacity;
+			PoolQueueCopyable<TValue>.pool.Prewarm(count);
+
+		}
+
 		public static void Recycle(ref QueueCopyable<TValue> dic) {
 
 			PoolQueueCopyable<TValue>.pool.Recycle(dic);
@@ -140,6 +165,13 @@
 			PoolListCopyable<TValue>.capacity = capacity;
 			return (ListCopyable<TValue>)PoolListCopyable<TValue>.pool.Spawn();
 		    
+		}
+
+		public static void Prewarm(int count, int capacity) {
+
+			PoolListCopyable<TValue>.capacity = capacity;
+			PoolListCopyable<TValue>.pool.Prewarm(count);
+
 		}
 
 		public static void Recycle(ref ListCopyable<TValue> dic) {
