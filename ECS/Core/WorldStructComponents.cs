@@ -103,7 +103,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public abstract void UseLifetimeStep(World world, byte step);
+        public abstract void UseLifetimeStep(World world, byte step, float deltaTime);
 
         public abstract void CopyFrom(StructRegistryBase other);
 
@@ -341,12 +341,19 @@ namespace ME.ECS {
 
         }
 
+        public struct LifetimeData {
+
+            public int entityId;
+            public float lifetime;
+
+        }
+
         [ME.ECS.Serializer.SerializeField]
         internal BufferArraySliced<TComponent> components;
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<byte> componentsStates;
         [ME.ECS.Serializer.SerializeField]
-        internal ListCopyable<int> lifetimeIndexes;
+        internal ListCopyable<LifetimeData> lifetimeData;
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<long> versions;
         
@@ -459,7 +466,7 @@ namespace ME.ECS {
             PoolArray<byte>.Recycle(ref this.componentsStates);
             if (AllComponentTypes<TComponent>.isVersioned == true) PoolArray<long>.Recycle(ref this.versions);
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) PoolArray<uint>.Recycle(ref this.versionsNoState);
-            if (this.lifetimeIndexes != null) PoolListCopyable<int>.Recycle(ref this.lifetimeIndexes);
+            if (this.lifetimeData != null) PoolListCopyable<LifetimeData>.Recycle(ref this.lifetimeData);
             
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.OnRecycle();
             
@@ -468,18 +475,23 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public override void UseLifetimeStep(World world, byte step) {
+        public override void UseLifetimeStep(World world, byte step, float deltaTime) {
 
-            if (this.lifetimeIndexes != null) {
+            if (this.lifetimeData != null) {
 
-                for (int i = 0, cnt = this.lifetimeIndexes.Count; i < cnt; ++i) {
+                for (int i = 0, cnt = this.lifetimeData.Count; i < cnt; ++i) {
 
-                    var id = this.lifetimeIndexes[i];
-                    this.UseLifetimeStep(id, world, step);
+                    ref var data = ref this.lifetimeData[i];
+                    data.lifetime -= deltaTime;
+                    if (data.lifetime <= 0f) {
+
+                        this.UseLifetimeStep(data.entityId, world, step);
+
+                    }
 
                 }
 
-                this.lifetimeIndexes.Clear();
+                this.lifetimeData.Clear();
 
             }
 
@@ -495,7 +507,7 @@ namespace ME.ECS {
 
                 var entity = world.GetEntityById(id);
                 if (entity.generation == 0) return;
-
+                
                 state = 0;
                 if (AllComponentTypes<TComponent>.isTag == false) this.components[id] = default;
                 if (world.currentState.filters.HasInAnyFilter<TComponent>() == true) {
@@ -859,7 +871,7 @@ namespace ME.ECS {
 
             var _other = (StructComponents<TComponent>)other;
             ArrayUtils.Copy(in _other.componentsStates, ref this.componentsStates);
-            ArrayUtils.Copy(_other.lifetimeIndexes, ref this.lifetimeIndexes);
+            ArrayUtils.Copy(_other.lifetimeData, ref this.lifetimeData);
             if (AllComponentTypes<TComponent>.isVersioned == true) ArrayUtils.Copy(_other.versions, ref this.versions);
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
             if (AllComponentTypes<TComponent>.isTag == false) ArrayUtils.Copy(in _other.components, ref this.components);
@@ -1021,7 +1033,7 @@ namespace ME.ECS {
 
             var _other = (StructComponents<TComponent>)other;
             ArrayUtils.Copy(in _other.componentsStates, ref this.componentsStates);
-            ArrayUtils.Copy(_other.lifetimeIndexes, ref this.lifetimeIndexes);
+            ArrayUtils.Copy(_other.lifetimeData, ref this.lifetimeData);
             if (AllComponentTypes<TComponent>.isVersioned == true) ArrayUtils.Copy(_other.versions, ref this.versions);
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
             if (AllComponentTypes<TComponent>.isTag == false) ArrayUtils.CopyWithIndex(_other.components, ref this.components, new CopyItem() { states = _other.componentsStates });
@@ -1092,12 +1104,13 @@ namespace ME.ECS {
             public TComponent data;
             public World world;
             public ComponentLifetime lifetime;
+            public float secondsLifetime;
 
             public void Execute() {
 
                 if (this.entity.IsAlive() == true) {
 
-                    this.world.SetData(this.entity, in this.data, this.lifetime);
+                    this.world.SetData(this.entity, in this.data, this.lifetime, this.secondsLifetime);
 
                 }
 
@@ -1110,6 +1123,7 @@ namespace ME.ECS {
                 this.data = _other.data;
                 this.world = _other.world;
                 this.lifetime = _other.lifetime;
+                this.secondsLifetime = _other.secondsLifetime;
 
             }
 
@@ -1119,6 +1133,7 @@ namespace ME.ECS {
                 this.data = default;
                 this.entity = default;
                 this.lifetime = default;
+                this.secondsLifetime = default;
                 PoolClass<NextFrameTask<TComponent>>.Recycle(this);
 
             }
@@ -1917,7 +1932,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void UseLifetimeStep(ComponentLifetime step) {
+        private void UseLifetimeStep(ComponentLifetime step, float deltaTime) {
 
             var list = this.currentState.structComponents.listLifetimeTick;
             if (step == ComponentLifetime.NotifyAllModules || step == ComponentLifetime.NotifyAllModulesBelow) {
@@ -1925,6 +1940,7 @@ namespace ME.ECS {
                 list = this.currentState.structComponents.listLifetimeFrame;
 
             }
+            
             if (list.Count > 0) {
 
                 var bStep = (byte)step;
@@ -1933,7 +1949,7 @@ namespace ME.ECS {
                     ref var reg = ref this.currentState.structComponents.list.arr[idx];
                     if (reg == null) continue;
 
-                    reg.UseLifetimeStep(this, bStep);
+                    reg.UseLifetimeStep(this, bStep, deltaTime);
 
                 }
 
@@ -1943,7 +1959,7 @@ namespace ME.ECS {
             
         }
 
-        private void AddToLifetimeIndex<TComponent>(in Entity entity, ComponentLifetime lifetime) where TComponent : struct, IStructComponentBase {
+        private void AddToLifetimeIndex<TComponent>(in Entity entity, ComponentLifetime lifetime, float secondsLifetime) where TComponent : struct, IStructComponentBase {
             
             var list = this.currentState.structComponents.listLifetimeTick;
             if (lifetime == ComponentLifetime.NotifyAllModules || lifetime == ComponentLifetime.NotifyAllModulesBelow) {
@@ -1953,12 +1969,16 @@ namespace ME.ECS {
             }
             
             var idx = WorldUtilities.GetAllComponentTypeId<TComponent>();
-            ref var r = ref this.currentState.structComponents.list.arr[idx];
             if (list.Contains(idx) == false) list.Add(idx);
+            
+            ref var r = ref this.currentState.structComponents.list.arr[idx];
             var reg = (StructComponents<TComponent>)r;
-            if (reg.lifetimeIndexes == null) reg.lifetimeIndexes = PoolListCopyable<int>.Spawn(10);
-            reg.lifetimeIndexes.Add(entity.id);
-
+            if (reg.lifetimeData == null) reg.lifetimeData = PoolListCopyable<StructComponents<TComponent>.LifetimeData>.Spawn(10);
+            reg.lifetimeData.Add(new StructComponents<TComponent>.LifetimeData() {
+                entityId = entity.id,
+                lifetime = secondsLifetime,
+            });
+            
         }
 
         #if INLINE_METHODS
@@ -2631,56 +2651,8 @@ namespace ME.ECS {
         #endif
         public void SetData<TComponent>(in Entity entity, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
 
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            if (lifetime == ComponentLifetime.NotifyAllModules ||
-                lifetime == ComponentLifetime.NotifyAllSystems) {
-
-                if (this.HasData<TComponent>(in entity) == true) return;
-
-                var task = PoolClass<StructComponentsContainer.NextFrameTask<TComponent>>.Spawn();
-                task.world = this;
-                task.entity = entity;
-                task.data = default;
-
-                if (lifetime == ComponentLifetime.NotifyAllModules) {
-
-                    task.lifetime = ComponentLifetime.NotifyAllModulesBelow;
-
-                    this.currentState.structComponents.nextFrameTasks.Add(task);
-
-                } else if (lifetime == ComponentLifetime.NotifyAllSystems) {
-
-                    task.lifetime = ComponentLifetime.NotifyAllSystemsBelow;
-
-                    this.currentState.structComponents.nextTickTasks.Add(task);
-
-                }
-
-            } else {
-
-                ref var state = ref this.SetData<TComponent>(in entity);
-
-                if (lifetime == ComponentLifetime.Infinite) return;
-                state = (byte)(lifetime + 1);
-
-                this.AddToLifetimeIndex<TComponent>(in entity, lifetime);
-
-            }
+            //TComponent data = default;
+            //this.SetData<TComponent>(in entity, in data, lifetime);
 
         }
 
@@ -2689,6 +2661,15 @@ namespace ME.ECS {
         #endif
         public void SetData<TComponent>(in Entity entity, in TComponent data, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
 
+            this.SetData<TComponent>(in entity, in data, lifetime, 0f);
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void SetData<TComponent>(in Entity entity, in TComponent data, ComponentLifetime lifetime, float secondsLifetime) where TComponent : struct, IStructComponent {
+            
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
 
@@ -2714,6 +2695,7 @@ namespace ME.ECS {
                 task.world = this;
                 task.entity = entity;
                 task.data = data;
+                task.secondsLifetime = secondsLifetime;
 
                 if (lifetime == ComponentLifetime.NotifyAllModules) {
 
@@ -2725,7 +2707,15 @@ namespace ME.ECS {
 
                     task.lifetime = ComponentLifetime.NotifyAllSystemsBelow;
 
-                    if (this.currentState.structComponents.nextTickTasks.Contains(task) == false) this.currentState.structComponents.nextTickTasks.Add(task);
+                    if (this.currentState.structComponents.nextTickTasks.Contains(task) == false) {
+                        
+                        this.currentState.structComponents.nextTickTasks.Add(task);
+                        
+                    } else {
+                        
+                        task.Recycle();
+                        
+                    }
 
                 }
 
@@ -2736,7 +2726,7 @@ namespace ME.ECS {
                 if (lifetime == ComponentLifetime.Infinite) return;
                 state = (byte)(lifetime + 1);
 
-                this.AddToLifetimeIndex<TComponent>(in entity, lifetime);
+                this.AddToLifetimeIndex<TComponent>(in entity, lifetime, secondsLifetime);
 
             }
 

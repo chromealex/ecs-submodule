@@ -773,7 +773,7 @@ namespace ME.ECS.Network {
                 this.revertingTo = tick;
                 currentState.CopyFrom(sourceState);
                 currentState.Initialize(this.world, freeze: false, restore: true);
-                if (this.asyncMode == false) this.world.Simulate(sourceTick, tick);
+                if (this.asyncMode == false) this.world.Simulate(sourceTick, tick, 0f);
             }
             this.isReverting = false;
             this.OnRevertingEnd();

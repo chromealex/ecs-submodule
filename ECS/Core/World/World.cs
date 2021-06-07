@@ -827,7 +827,7 @@ namespace ME.ECS {
 
                     this.networkModule.SetAsyncMode(true);
                     this.PreUpdate(0f);
-                    yield return this.SimulateAsync(this.simulationFromTick, this.simulationToTick, maxSimulationTime);
+                    yield return this.SimulateAsync(this.simulationFromTick, this.simulationToTick, 0f, maxSimulationTime);
                     this.networkModule.SetAsyncMode(false);
                     if (doVisualUpdate == true) {
                         
@@ -1956,7 +1956,7 @@ namespace ME.ECS {
 
             }
 
-            this.Simulate(this.simulationFromTick, this.simulationToTick);
+            this.Simulate(this.simulationFromTick, this.simulationToTick, deltaTime);
 
             #if UNITY_EDITOR
             UnityEngine.Profiling.Profiler.EndSample();
@@ -2470,7 +2470,7 @@ namespace ME.ECS {
 
         }
 
-        public System.Collections.IEnumerator SimulateAsync(Tick from, Tick to, float maxTime = 1f) {
+        public System.Collections.IEnumerator SimulateAsync(Tick from, Tick to, float deltaTime, float maxTime) {
 
             #if UNITY_EDITOR
             UnityEngine.Profiling.Profiler.BeginSample($"PlayTasksForFrame");
@@ -2547,7 +2547,7 @@ namespace ME.ECS {
             UnityEngine.Profiling.Profiler.BeginSample($"UseLifetimeStep NotifyAllModulesBelow");
             #endif
 
-            this.UseLifetimeStep(ComponentLifetime.NotifyAllModulesBelow);
+            this.UseLifetimeStep(ComponentLifetime.NotifyAllModulesBelow, deltaTime);
 
             #if UNITY_EDITOR
             UnityEngine.Profiling.Profiler.EndSample();
@@ -2983,7 +2983,7 @@ namespace ME.ECS {
             UnityEngine.Profiling.Profiler.BeginSample($"UseLifetimeStep NotifyAllSystemsBelow");
             #endif
 
-            this.UseLifetimeStep(ComponentLifetime.NotifyAllSystemsBelow);
+            this.UseLifetimeStep(ComponentLifetime.NotifyAllSystemsBelow, fixedDeltaTime);
 
             #if UNITY_EDITOR
             UnityEngine.Profiling.Profiler.EndSample();
@@ -3036,7 +3036,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Simulate(Tick from, Tick to) {
+        public void Simulate(Tick from, Tick to, float deltaTime) {
             
             #if UNITY_EDITOR
             UnityEngine.Profiling.Profiler.BeginSample($"PlayTasksForFrame");
@@ -3100,7 +3100,7 @@ namespace ME.ECS {
             UnityEngine.Profiling.Profiler.BeginSample($"UseLifetimeStep NotifyAllModulesBelow");
             #endif
 
-            this.UseLifetimeStep(ComponentLifetime.NotifyAllModulesBelow);
+            this.UseLifetimeStep(ComponentLifetime.NotifyAllModulesBelow, deltaTime);
 
             #if UNITY_EDITOR
             UnityEngine.Profiling.Profiler.EndSample();
