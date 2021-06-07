@@ -134,10 +134,8 @@ namespace ME.ECS {
         public WorldSettings settings { get; internal set; }
         public WorldDebugSettings debugSettings { get; internal set; }
 
-        #if WORLD_THREAD_CHECK
         internal System.Threading.Thread worldThread;
-        #endif
-
+        
     }
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -187,10 +185,8 @@ namespace ME.ECS {
 
             this.isPaused = false;
 
-            #if WORLD_THREAD_CHECK
             this.worldThread = System.Threading.Thread.CurrentThread;
-            #endif
-
+            
             #if UNITY_EDITOR
             Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobDebuggerEnabled = false;
             #endif
@@ -256,9 +252,7 @@ namespace ME.ECS {
 
             PoolList<FilterAction>.Recycle(ref this.filterActions);
 
-            #if WORLD_THREAD_CHECK
             this.worldThread = null;
-            #endif
             this.isActive = false;
 
             this.OnRecycleMarkers();
@@ -502,14 +496,12 @@ namespace ME.ECS {
 
         }
 
-        #if WORLD_THREAD_CHECK
         public void SetWorldThread(System.Threading.Thread thread) {
 
             this.worldThread = thread;
 
         }
-        #endif
-
+        
         public void RecycleResetState<TState>() where TState : State, new() {
 
             if (this.resetState != this.currentState) WorldUtilities.ReleaseState<TState>(ref this.resetState);

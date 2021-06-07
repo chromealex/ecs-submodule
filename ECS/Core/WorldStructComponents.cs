@@ -2651,8 +2651,8 @@ namespace ME.ECS {
         #endif
         public void SetData<TComponent>(in Entity entity, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
 
-            //TComponent data = default;
-            //this.SetData<TComponent>(in entity, in data, lifetime);
+            TComponent data = default;
+            this.SetData<TComponent>(in entity, in data, lifetime);
 
         }
 

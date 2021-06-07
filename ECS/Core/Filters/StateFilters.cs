@@ -48,35 +48,44 @@ namespace ME.ECS {
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private void CalculateJob(in Entity entity, in NativeBufferArray<FiltersTree.FilterBurst> contains, in NativeBufferArray<FiltersTree.FilterBurst> notContains, out Unity.Collections.NativeList<int> containsResult, out Unity.Collections.NativeList<int> notContainsResult) {
-            
-            JobHandle jobContains;
-            JobHandle jobNotContains;
 
             containsResult = new Unity.Collections.NativeList<int>(Unity.Collections.Allocator.Persistent);
             notContainsResult = new Unity.Collections.NativeList<int>(Unity.Collections.Allocator.Persistent);
 
             ref var archetypeEntities = ref Worlds.currentWorld.currentState.storage.archetypes;
-            
-            {
-                var job = new UpdateFiltersJob() {
-                    entity = entity,
-                    archetypeEntities = archetypeEntities,
-                    filters = contains,
-                    result = containsResult,
-                };
-                jobContains = job.Schedule();
-            }
-            {
-                var job = new UpdateFiltersJob() {
-                    entity = entity,
-                    archetypeEntities = archetypeEntities,
-                    filters = notContains,
-                    result = notContainsResult,
-                };
-                jobNotContains = job.Schedule();
-            }
-            JobHandle.CompleteAll(ref jobContains, ref jobNotContains);
+            var jobContains = new UpdateFiltersJob() {
+                entity = entity,
+                archetypeEntities = archetypeEntities,
+                filters = contains,
+                result = containsResult,
+            };
+            var jobNotContains = new UpdateFiltersJob() {
+                entity = entity,
+                archetypeEntities = archetypeEntities,
+                filters = notContains,
+                result = notContainsResult,
+            };
 
+            if (System.Threading.Thread.CurrentThread == this.worldThread) {
+                
+                JobHandle jobContainsHandle;
+                JobHandle jobNotContainsHandle;
+
+                {
+                    jobContainsHandle = jobContains.Schedule();
+                }
+                {
+                    jobNotContainsHandle = jobNotContains.Schedule();
+                }
+                JobHandle.CompleteAll(ref jobContainsHandle, ref jobNotContainsHandle);
+
+            } else {
+                
+                jobContains.Execute();
+                jobNotContains.Execute();
+                
+            }
+            
         }
 
         #if INLINE_METHODS
