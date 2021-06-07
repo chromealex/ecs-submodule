@@ -21,6 +21,12 @@ namespace ME.ECS {
 
         }
 
+        public static void Prewarm(int count) {
+            
+            PoolClass<T>.pool.Prewarm(count);
+            
+        }
+
         public static void Recycle(ref T instance) {
 
             PoolClass<T>.pool.Recycle(instance);
@@ -49,6 +55,12 @@ namespace ME.ECS {
 
             return (T)PoolClassMainThread<T>.pool.Spawn();
 
+        }
+
+        public static void Prewarm(int count) {
+            
+            PoolClassMainThread<T>.pool.Prewarm(count);
+            
         }
 
         public static void Recycle(ref T instance) {
