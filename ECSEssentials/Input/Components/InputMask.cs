@@ -19,4 +19,6 @@ namespace ME.ECS.Essentials.Input.Components {
 
     }
     
+    public struct HasAnyInput : IStructComponent {}
+    
 }

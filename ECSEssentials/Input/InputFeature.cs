@@ -96,6 +96,7 @@ namespace ME.ECS.Essentials {
                 player.Set(new TComponent() {
                     setData = marker.data,
                 }, ComponentLifetime.NotifyAllSystems);
+                player.Set<HasAnyInput>(ComponentLifetime.NotifyAllSystems);
 
             }
 
