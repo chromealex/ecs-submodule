@@ -729,6 +729,18 @@ namespace ME.ECS.Views {
 
         }
 
+        private void RegisterViewSource_INTERNAL<TProvider>(TProvider providerInitializer) where TProvider : struct, IViewsProviderInitializer {
+            
+            ++this.viewSourceIdRegistry;
+            var viewsProvider = (IViewsProviderInitializer)providerInitializer;
+            var provider = viewsProvider.Create();
+            provider.world = this.world;
+            provider.OnConstruct();
+            this.registryPrefabToProvider.Add(this.viewSourceIdRegistry, provider);
+            this.registryPrefabToProviderInitializer.Add(this.viewSourceIdRegistry, viewsProvider);
+
+        }
+
         public ViewId RegisterViewSource<TProvider>(TProvider providerInitializer, IView prefab) where TProvider : struct, IViewsProviderInitializer {
 
             if (prefab == null) {
@@ -751,15 +763,9 @@ namespace ME.ECS.Views {
             }
             #endif
 
-            ++this.viewSourceIdRegistry;
+            this.RegisterViewSource_INTERNAL(providerInitializer);
             this.registryPrefabToId.Add(prefab, this.viewSourceIdRegistry);
             this.registryIdToPrefab.Add(this.viewSourceIdRegistry, prefab);
-            var viewsProvider = (IViewsProviderInitializer)providerInitializer;
-            var provider = viewsProvider.Create();
-            provider.world = this.world;
-            provider.OnConstruct();
-            this.registryPrefabToProvider.Add(this.viewSourceIdRegistry, provider);
-            this.registryPrefabToProviderInitializer.Add(this.viewSourceIdRegistry, viewsProvider);
 
             return this.viewSourceIdRegistry;
 

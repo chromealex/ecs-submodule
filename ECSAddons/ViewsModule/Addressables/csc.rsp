@@ -1,0 +1,3 @@
+@Assets/csc.gen.rsp
+-define:VIEWS_MODULE_SUPPORT
+-define:GAMEOBJECT_VIEWS_MODULE_SUPPORT
