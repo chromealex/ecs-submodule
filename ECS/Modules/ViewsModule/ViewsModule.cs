@@ -484,6 +484,7 @@ namespace ME.ECS.Views {
         private Dictionary<ViewId, IView> registryIdToPrefab;
         private ViewId viewSourceIdRegistry;
         private bool isRequestsDirty;
+        private bool forceUpdateState;
 
         public World world { get; set; }
 
@@ -491,6 +492,7 @@ namespace ME.ECS.Views {
 
             this.viewSourceIdRegistry = ViewId.Zero;
             this.isRequestsDirty = false;
+            this.forceUpdateState = false;
             this.list = PoolArray<Views>.Spawn(ViewsModule.VIEWS_CAPACITY);
             this.rendering = PoolHashSet<ViewInfo>.Spawn(ViewsModule.VIEWS_CAPACITY);
             this.registryPrefabToId = PoolDictionary<IView, ViewId>.Spawn(ViewsModule.REGISTRY_CAPACITY);
@@ -506,6 +508,7 @@ namespace ME.ECS.Views {
         void IModuleBase.OnDeconstruct() {
 
             this.isRequestsDirty = true;
+            this.forceUpdateState = true;
             this.UpdateRequests();
 
             var temp = PoolListCopyable<IView>.Spawn(this.registryPrefabToId.Count);
@@ -888,6 +891,12 @@ namespace ME.ECS.Views {
 
         }
 
+        public void SetUpdateStateAsDirty() {
+
+            this.forceUpdateState = true;
+
+        }
+
         //private HashSet<ViewInfo> prevList = new HashSet<ViewInfo>();
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -989,7 +998,7 @@ namespace ME.ECS.Views {
                 if (currentViewInstance.entity.IsAliveWithBoundsCheck() == false) continue;
 
                 var version = currentViewInstance.entity.GetVersion();
-                if (version != currentViewInstance.entityVersion) {
+                if (this.forceUpdateState == true || version != currentViewInstance.entityVersion) {
 
                     currentViewInstance.entityVersion = version;
                     currentViewInstance.ApplyState(deltaTime, immediately: false);
@@ -1000,6 +1009,8 @@ namespace ME.ECS.Views {
                 currentViewInstance.UpdateParticlesSimulation(deltaTime);
 
             }
+
+            this.forceUpdateState = false;
 
             // Update providers
             foreach (var providerKv in this.registryPrefabToProvider) {
