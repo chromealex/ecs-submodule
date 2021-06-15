@@ -245,9 +245,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity Remove<TComponent>(this Entity entity) where TComponent : struct, IStructComponent {
+        public static Entity Remove<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
 
-            Worlds.currentWorld.RemoveData<TComponent>(entity);
+            Worlds.currentWorld.RemoveData<TComponent>(in entity);
             return entity;
 
         }
@@ -255,9 +255,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static bool Has<TComponent>(this Entity entity) where TComponent : struct, IStructComponent {
+        public static bool Has<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
 
-            return Worlds.currentWorld.HasData<TComponent>(entity);
+            return Worlds.currentWorld.HasData<TComponent>(in entity);
 
         }
 

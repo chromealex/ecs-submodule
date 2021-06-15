@@ -58,7 +58,7 @@ namespace ME.ECS {
         #endif
         public ref Archetype GetPrevious(int entityId) {
 
-            return ref this.prevTypes.arr[entityId];
+            return ref this.prevTypes[entityId];
 
         }
 
@@ -67,7 +67,7 @@ namespace ME.ECS {
         #endif
         public ref Archetype Get(int entityId) {
 
-            return ref this.types.arr[entityId];
+            return ref this.types[entityId];
 
         }
 
@@ -78,7 +78,7 @@ namespace ME.ECS {
 
             var id = entity.id;
             //ArrayUtils.Resize(id, ref this.prevTypes);
-            return ref this.prevTypes.arr[id];
+            return ref this.prevTypes[id];
 
         }
 
@@ -89,7 +89,7 @@ namespace ME.ECS {
 
             var id = entity.id;
             //ArrayUtils.Resize(id, ref this.types);
-            return ref this.types.arr[id];
+            return ref this.types[id];
 
         }
 
@@ -100,7 +100,7 @@ namespace ME.ECS {
 
             var id = entity.id;
             //ArrayUtils.Resize(id, ref this.types);
-            return this.types.arr[id].Has<T>();
+            return this.types[id].Has<T>();
 
         }
 
@@ -111,8 +111,8 @@ namespace ME.ECS {
 
             var id = entity.id;
             var val = this.Get(id);
-            this.prevTypes.arr[id] = val;
-            this.types.arr[id].AddBit(index);
+            this.prevTypes[id] = val;
+            this.types[id].AddBit(index);
 
         }
 
@@ -123,8 +123,8 @@ namespace ME.ECS {
 
             var id = entity.id;
             var val = this.Get(id);
-            this.prevTypes.arr[id] = val;
-            this.types.arr[id].Add<T>();
+            this.prevTypes[id] = val;
+            this.types[id].Add<T>();
             
         }
         
@@ -135,8 +135,8 @@ namespace ME.ECS {
 
             var id = entity.id;
             var val = this.Get(id);
-            this.prevTypes.arr[id] = val;
-            this.types.arr[id].SubtractBit(index);
+            this.prevTypes[id] = val;
+            this.types[id].SubtractBit(index);
             
         }
 
@@ -147,8 +147,8 @@ namespace ME.ECS {
 
             var id = entity.id;
             var val = this.Get(id);
-            this.prevTypes.arr[id] = val;
-            this.types.arr[id].Subtract<T>();
+            this.prevTypes[id] = val;
+            this.types[id].Subtract<T>();
 
         }
 
@@ -158,8 +158,8 @@ namespace ME.ECS {
         public void RemoveAll<T>(in Entity entity) {
 
             var id = entity.id;
-            this.prevTypes.arr[id].Subtract<T>();
-            this.types.arr[id].Subtract<T>();
+            this.prevTypes[id].Subtract<T>();
+            this.types[id].Subtract<T>();
 
         }
 
@@ -169,8 +169,8 @@ namespace ME.ECS {
         public void Clear(in Entity entity) {
 
             var id = entity.id;
-            this.prevTypes.arr[id].Clear();
-            this.types.arr[id].Clear();
+            this.prevTypes[id].Clear();
+            this.types[id].Clear();
 
         }
 
@@ -182,7 +182,7 @@ namespace ME.ECS {
             NativeArrayUtils.Copy(in this.types, ref this.prevTypes);
             for (int i = 0; i < this.types.Length; ++i) {
 
-                this.types.arr[i].Subtract<T>();
+                this.types[i].Subtract<T>();
 
             }
 
@@ -195,8 +195,8 @@ namespace ME.ECS {
 
             var id = entity.id;
             var val = this.Get(in entity);
-            this.prevTypes.arr[id] = val;
-            this.types.arr[id].Clear();
+            this.prevTypes[id] = val;
+            this.types[id].Clear();
 
         }
 

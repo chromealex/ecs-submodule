@@ -113,6 +113,8 @@ namespace ME.ECS.Tests {
             
             world.SetFromToTicks(0, 1);
             world.Update(1f);
+            
+            WorldUtilities.ReleaseWorld<TestState>(ref world);
 
         }
 
@@ -148,6 +150,8 @@ namespace ME.ECS.Tests {
                 NUnit.Framework.Assert.AreEqual(st.AliveCount, 1);
                 NUnit.Framework.Assert.AreEqual(st.DeadCount, 0);
             }
+            
+            st.Recycle();
 
         }
 
@@ -208,7 +212,9 @@ namespace ME.ECS.Tests {
             }
             
             UnityEngine.Debug.Log("Stats: " + st.AliveCount + " :: " + st.DeadCount);
-            
+
+            st.Recycle();
+
         }
 
     }

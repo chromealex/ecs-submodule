@@ -44,6 +44,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static unsafe void Clear<T>(Unity.Collections.NativeArray<T> arr, int index, int length) where T : struct {
+
+            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemClear((void*)((System.IntPtr)arr.GetUnsafePtr() + (int)((ulong)UnsafeUtility.SizeOf<T>() * (ulong)index)), (long)((ulong)UnsafeUtility.SizeOf<T>() * (ulong)length));
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void RecycleWithIndex<T, TCopy>(ref Unity.Collections.NativeArray<T> item, TCopy copy) where TCopy : IArrayElementCopyWithIndex<T> where T : struct {
 
             for (int i = 0; i < item.Length; ++i) {

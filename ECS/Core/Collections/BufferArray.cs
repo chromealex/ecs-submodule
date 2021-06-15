@@ -307,9 +307,9 @@ namespace ME.ECS.Collections {
 
         }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object other) {
 
-            throw new AllocationException();
+            return this == (BufferArray<T>?)other;
 
         }
 

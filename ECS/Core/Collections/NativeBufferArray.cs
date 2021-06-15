@@ -4,10 +4,21 @@
 #define EDITOR_ARRAY
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace ME.ECS.Collections {
     
     using Unity.Collections;
+
+    public static class NativeBufferArrayExt {
+        
+        public static int IndexOf<T, U>(this NativeBufferArray<T> array, U value) where T : struct, System.IEquatable<U> {
+            
+            return array.arr.IndexOf(value);
+            
+        }
+
+    }
 
     /// <summary>
     /// NativeBufferArray<T> for native array
@@ -24,7 +35,7 @@ namespace ME.ECS.Collections {
 
         public static NativeBufferArray<T> Empty = new NativeBufferArray<T>(default, 0);
 
-        public readonly NativeArrayBurst<T> arr;
+        internal readonly NativeArray<T> arr;
         public readonly int Length;
         public readonly bool isCreated;
 
@@ -37,16 +48,21 @@ namespace ME.ECS.Collections {
                 return ref this.arr.GetRef(index);
             }
         }
+
+        public ref readonly T Read(int index) {
+            if (this.isCreated == false || index >= this.Length) throw new System.IndexOutOfRangeException($"Index: {index} [0..{this.Length}], Tick: {Worlds.currentWorld.GetCurrentTick()}");
+            return ref this.arr.GetRefRead(index);
+        }
         
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal NativeBufferArray(NativeArrayBurst<T> arr, int length) : this(arr, length, -1) { }
+        internal NativeBufferArray(NativeArray<T> arr, int length) : this(arr, length, -1) { }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal NativeBufferArray(NativeArrayBurst<T> arr, int length, int realLength) {
+        internal NativeBufferArray(NativeArray<T> arr, int length, int realLength) {
 
             this.Length = length;
             this.isCreated = (length > 0 && arr.IsCreated == true);
@@ -61,7 +77,33 @@ namespace ME.ECS.Collections {
 
             this.Length = length;
             this.isCreated = (length > 0 && arr != null);
-            this.arr = new NativeArrayBurst<T>(arr, Allocator.Persistent);
+            this.arr = new NativeArray<T>(arr, Allocator.Persistent);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        internal NativeBufferArray(T[] arr) {
+
+            this.Length = arr.Length;
+            this.isCreated = arr.Length > 0;
+            this.arr = new NativeArray<T>(arr, Allocator.Persistent);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        internal NativeBufferArray(BufferArray<T> arr) {
+
+            this.Length = arr.Length;
+            this.isCreated = arr.Length > 0;
+            if (this.isCreated == true) {
+                this.arr = new NativeArray<T>(arr.arr, Allocator.Persistent);
+            } else {
+                this.arr = default;
+            }
 
         }
 
@@ -79,20 +121,9 @@ namespace ME.ECS.Collections {
         #endif
         public IBufferArray Resize(int newSize) {
 
-            var newArr = new NativeArrayBurst<T>(newSize, Allocator.Persistent);
+            var newArr = new NativeArray<T>(newSize, Allocator.Persistent);
             if (this.arr.IsCreated == true) NativeArrayUtils.Copy(this.arr, ref newArr, newSize > this.Length ? this.Length : newSize);
             return new NativeBufferArray<T>(newArr, newSize);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public int IndexOf<TI>(TI instance) where TI : struct, System.IComparable<TI> {
-
-            if (this.isCreated == false) return -1;
-
-            return this.arr.IndexOf(instance);
 
         }
 
@@ -187,7 +218,7 @@ namespace ME.ECS.Collections {
         #endif
         public static unsafe bool operator ==(NativeBufferArray<T> e1, NativeBufferArray<T> e2) {
 
-            return e1.arr.m_Buffer == e2.arr.m_Buffer && e1.arr.Length == e2.arr.Length;
+            return e1.arr.GetUnsafeReadOnlyPtr() == e2.arr.GetUnsafeReadOnlyPtr() && e1.arr.Length == e2.arr.Length;
 
         }
 

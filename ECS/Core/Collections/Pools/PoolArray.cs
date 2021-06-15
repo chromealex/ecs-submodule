@@ -42,7 +42,7 @@ namespace ME.ECS {
         public static NativeBufferArray<T> Spawn(int length, bool realSize = false) {
 
             var arrSize = PoolArray<T>.GetSize(length);
-            var arr = new NativeArrayBurst<T>(arrSize, Unity.Collections.Allocator.Persistent);
+            var arr = new Unity.Collections.NativeArray<T>(arrSize, Unity.Collections.Allocator.Persistent);
             var size = (realSize == true ? arr.Length : length);
             var buffer = new NativeBufferArray<T>(arr, length, realSize == true ? arr.Length : -1);
             NativeArrayUtils.Clear(buffer, 0, size);

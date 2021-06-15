@@ -182,7 +182,7 @@ namespace ME.ECS {
 
             ++this.aliveCount;
             this.alive.Add(id);
-            ref var e = ref this.cache.arr[id];
+            ref var e = ref this.cache[id];
             if (e.generation == 0) e = new Entity(id, 1);
             this.versions.Reset(id);
             e = ref this.IncrementGeneration(in e);
@@ -209,8 +209,8 @@ namespace ME.ECS {
         public ref Entity IncrementGeneration(in Entity entity) {
 
             // Make this entity not alive, but not completely destroyed at this time
-            this.cache.arr[entity.id] = new Entity(entity.id, unchecked((ushort)(entity.generation + 1)));
-            return ref this.cache.arr[entity.id];
+            this.cache[entity.id] = new Entity(entity.id, unchecked((ushort)(entity.generation + 1)));
+            return ref this.cache[entity.id];
 
         }
 
@@ -251,7 +251,7 @@ namespace ME.ECS {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             get {
-                return ref this.cache.arr[id];
+                return ref this.cache[id];
             }
         }
 

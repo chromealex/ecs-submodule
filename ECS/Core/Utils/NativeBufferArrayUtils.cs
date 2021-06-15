@@ -220,12 +220,10 @@ namespace ME.ECS {
             }
 
             var newArr = PoolArrayNative<T>.Spawn(newLength);
-            var copyArr = newArr.arr;
-            NativeArrayUtils.Copy(arr.arr, ref copyArr, arr.Length);
-            arr = new NativeBufferArray<T>(copyArr, arr.Length);
-            if (arr != newArr) PoolArrayNative<T>.Recycle(ref arr);
+            Unity.Collections.NativeArray<T>.Copy(arr.arr, 0, newArr.arr, 0, arr.Length);
+            arr.Dispose();
             arr = newArr;
-
+            
             return true;
 
         }

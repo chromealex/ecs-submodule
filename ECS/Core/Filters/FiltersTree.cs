@@ -1,8 +1,36 @@
-﻿#if ENABLE_IL2CPP
+﻿using Unity.Collections;
+
+#if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
 
 namespace ME.ECS {
+
+    public static class FilterBurstExt {
+
+        public static bool IsForEntity(this in FiltersTree.FilterBurst filterBurst, in ArchetypeEntities arch, in Entity entity) {
+
+            var entityId = entity.id;
+            ref readonly var cont = ref filterBurst.contains;
+            ref readonly var notCont = ref filterBurst.notContains;
+            
+            ref readonly var previousArchetype = ref arch.prevTypes.Read(entityId);
+            if (previousArchetype.Has(in cont) == true &&
+                previousArchetype.HasNot(in notCont) == true) {
+                return true;
+            }
+
+            ref readonly var currentArchetype = ref arch.types.Read(entityId);
+            if (currentArchetype.Has(in cont) == true &&
+                currentArchetype.HasNot(in notCont) == true) {
+                return true;
+            }
+
+            return false;
+
+        }
+
+    }
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
@@ -20,28 +48,6 @@ namespace ME.ECS {
             public int CompareTo(FilterBurst other) {
 
                 return this.id.CompareTo(other.id);
-
-            }
-
-            public bool IsForEntity(in ArchetypeEntities arch, in Entity entity) {
-
-                var entityId = entity.id;
-                ref var cont = ref this.contains;
-                ref var notCont = ref this.notContains;
-            
-                ref var previousArchetype = ref arch.prevTypes.arr[entityId];
-                if (previousArchetype.Has(in cont) == true &&
-                    previousArchetype.HasNot(in notCont) == true) {
-                    return true;
-                }
-
-                ref var currentArchetype = ref arch.types.arr[entityId];
-                if (currentArchetype.Has(in cont) == true &&
-                    currentArchetype.HasNot(in notCont) == true) {
-                    return true;
-                }
-
-                return false;
 
             }
 
@@ -75,7 +81,7 @@ namespace ME.ECS {
                 var idx = this.filters.arr.IndexOf(data);
                 if (idx == -1) {
 
-                    this.filters.arr[this.index] = data;
+                    this.filters[this.index] = data;
                     ++this.index;
 
                 }

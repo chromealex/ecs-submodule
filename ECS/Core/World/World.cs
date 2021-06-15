@@ -2385,10 +2385,10 @@ namespace ME.ECS {
             public NativeSliceBurst<Entity> slice;
             [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
             [Unity.Collections.ReadOnlyAttribute]
-            public NativeArrayBurst<bool> dataContains;
+            public Unity.Collections.NativeArray<bool> dataContains;
             [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
             [Unity.Collections.ReadOnlyAttribute]
-            public NativeArrayBurst<bool> dataVersions;
+            public Unity.Collections.NativeArray<bool> dataVersions;
             public float deltaTime;
 
             void Unity.Jobs.IJobParallelFor.Execute(int index) {

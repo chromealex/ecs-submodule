@@ -102,6 +102,34 @@ namespace ME.ECS.Collections {
             this.m_Length = length;
         }
 
+        public unsafe NativeSliceBurst(NativeArray<T> array, int start, int length) {
+            #if COLLECTIONS_CHECKS
+            if (start < 0) {
+                throw new ArgumentOutOfRangeException(nameof(start), string.Format("Slice start {0} < 0.", (object)start));
+            }
+
+            if (length < 0) {
+                throw new ArgumentOutOfRangeException(nameof(length), string.Format("Slice length {0} < 0.", (object)length));
+            }
+
+            if (start + length > array.Length) {
+                throw new ArgumentException(string.Format("Slice start + length ({0}) range must be <= array.Length ({1})", (object)(start + length), (object)array.Length));
+            }
+
+            if ((array.m_MinIndex != 0 || array.m_MaxIndex != array.m_Length - 1) &&
+                (start < array.m_MinIndex || array.m_MaxIndex < start || array.m_MaxIndex < start + length - 1)) {
+                throw new ArgumentException("Slice may not be used on a restricted range array", nameof(array));
+            }
+
+            this.m_MinIndex = 0;
+            this.m_MaxIndex = length - 1;
+            this.m_Safety = array.m_Safety;
+            #endif
+            this.m_Stride = UnsafeUtility.SizeOf<T>();
+            this.m_Buffer = (byte*)((IntPtr)array.GetUnsafePtr() + this.m_Stride * start);
+            this.m_Length = length;
+        }
+
         public unsafe NativeSliceBurst<U> SliceConvert<U>() where U : struct {
             var num = UnsafeUtility.SizeOf<U>();
             NativeSliceBurst<U> nativeSlice;

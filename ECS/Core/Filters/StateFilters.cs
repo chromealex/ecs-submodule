@@ -34,9 +34,10 @@ namespace ME.ECS {
 
                 for (int i = 0; i < this.filters.Length; ++i) {
 
-                    if (this.filters[i].IsForEntity(in this.archetypeEntities, in this.entity) == true) {
+                    ref readonly var item = ref this.filters.Read(i);
+                    if (item.IsForEntity(in this.archetypeEntities, in this.entity) == true) {
 
-                        this.result.Add(this.filters[i].id);
+                        this.result.Add(item.id);
 
                     }
 
@@ -227,8 +228,8 @@ namespace ME.ECS {
         #endif
         internal void RemoveFromFilters_INTERNAL(in Entity entity) {
 
-            var bits = this.currentState.storage.archetypes.types.arr[entity.id];
-            var bitsCount =  bits.BitsCount;
+            ref readonly var bits = ref this.currentState.storage.archetypes.types.Read(entity.id);
+            var bitsCount = bits.BitsCount;
             for (int i = 0; i < bitsCount; ++i) {
 
                 if (bits.HasBit(i) == true) {
@@ -236,7 +237,7 @@ namespace ME.ECS {
                     var filters = this.currentState.filters.filtersTree.GetFiltersContainsFor(i);
                     for (int f = 0; f < filters.Length; ++f) {
 
-                        var filterId = filters.arr[f];
+                        ref readonly var filterId = ref filters.Read(f);
                         var filter = this.GetFilter(filterId.id);
                         filter.OnEntityDestroy(in entity);
                         filter.OnRemoveEntity(in entity);
@@ -274,8 +275,8 @@ namespace ME.ECS {
 
             for (int i = 0; i < this.filters.Length; ++i) {
 
-                if (this.filters.arr[i] == null) continue;
-                this.filters.arr[i].Clear();
+                if (this.filters[i] == null) continue;
+                this.filters[i].Clear();
 
             }
 
@@ -285,8 +286,8 @@ namespace ME.ECS {
 
             for (int i = 0; i < this.filters.Length; ++i) {
 
-                if (this.filters.arr[i] == null) continue;
-                this.filters.arr[i].OnDeserialize(lastEntityId);
+                if (this.filters[i] == null) continue;
+                this.filters[i].OnDeserialize(lastEntityId);
 
             }
 
@@ -320,9 +321,9 @@ namespace ME.ECS {
 
             for (int i = 0, count = this.filters.Length; i < count; ++i) {
 
-                if (this.filters.arr[i] == null) continue;
-                this.filters.arr[i].Recycle();
-                this.filters.arr[i] = null;
+                if (this.filters[i] == null) continue;
+                this.filters[i].Recycle();
+                this.filters[i] = null;
 
             }
 
@@ -359,7 +360,7 @@ namespace ME.ECS {
 
             for (int i = 0; i < this.filters.Length; ++i) {
 
-                ref var filter = ref this.filters.arr[i];
+                ref readonly var filter = ref this.filters.arr[i];
                 if (filter != null) {
 
                     if (filter.GetHashCode() == hashCode) {
@@ -380,7 +381,7 @@ namespace ME.ECS {
 
             for (int i = 0; i < this.filters.Length; ++i) {
 
-                ref var filter = ref this.filters.arr[i];
+                ref readonly var filter = ref this.filters.arr[i];
                 if (filter != null) {
 
                     if (filter.GetHashCode() == other.GetHashCode() && filter.IsEquals(other) == true) {
@@ -400,7 +401,7 @@ namespace ME.ECS {
         public void Register(FilterData filter) {
 
             ArrayUtils.Resize(filter.id - 1, ref this.filters);
-            this.filters.arr[filter.id - 1] = filter;
+            this.filters[filter.id - 1] = filter;
 
         }
 
@@ -795,7 +796,7 @@ namespace ME.ECS {
             }
 
             ref readonly var arr = ref this.set.dataContains.arr;
-            ref readonly var ver = ref this.set.dataVersions.arr;
+            ref var ver = ref this.set.dataVersions;
             do {
 
                 ++this.index;
@@ -827,7 +828,7 @@ namespace ME.ECS {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             get {
-                return this.storage.cache.arr[this.index];
+                return this.storage.cache.Read(this.index);
             }
         }
 
@@ -841,7 +842,7 @@ namespace ME.ECS {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             get {
-                return ref this.storage.cache.arr[this.index];
+                return ref this.storage.cache[this.index];
             }
         }
 
@@ -1204,7 +1205,7 @@ namespace ME.ECS {
 
                 if (this.dataContains.arr[i] == true) {
 
-                    this.Remove_INTERNAL(in this.world.currentState.storage.cache.arr[i]);
+                    this.Remove_INTERNAL(in this.world.currentState.storage.cache[i]);
 
                 }
 
@@ -1440,11 +1441,11 @@ namespace ME.ECS {
                     if (this.onVersionChangedOnly == true) {
 
                         if (this.dataVersions.arr[i] == false) continue;
-                        this.dataVersions.arr[i] = false;
+                        this.dataVersions[i] = false;
 
                     }
 
-                    data.arr[k++] = this.world.currentState.storage.cache.arr[i];
+                    data[k++] = this.world.currentState.storage.cache.arr[i];
 
                 }
 
@@ -1536,13 +1537,13 @@ namespace ME.ECS {
             ref var cont = ref this.archetypeContains;
             ref var notCont = ref this.archetypeNotContains;
             
-            ref var previousArchetype = ref arch.prevTypes.arr[entityId];
+            ref var previousArchetype = ref arch.prevTypes[entityId];
             if (previousArchetype.Has(in cont) == true &&
                 previousArchetype.HasNot(in notCont) == true) {
                 return true;
             }
 
-            ref var currentArchetype = ref arch.types.arr[entityId];
+            ref var currentArchetype = ref arch.types[entityId];
             if (currentArchetype.Has(in cont) == true &&
                 currentArchetype.HasNot(in notCont) == true) {
                 return true;
@@ -1830,7 +1831,7 @@ namespace ME.ECS {
             if (this.onVersionChangedOnly == true) {
 
                 var idx = entity.id;
-                this.dataVersions.arr[idx] = true;
+                this.dataVersions[idx] = true;
                 this.UpdateMinMaxAdd(idx);
 
             }
@@ -1843,7 +1844,7 @@ namespace ME.ECS {
         internal bool Add_INTERNAL(in Entity entity) {
 
             var idx = entity.id;
-            ref var res = ref this.dataContains.arr[idx];
+            ref var res = ref this.dataContains[idx];
             if (res == false) {
 
                 res = true;
@@ -1865,11 +1866,11 @@ namespace ME.ECS {
         internal bool Remove_INTERNAL(in Entity entity) {
 
             var idx = entity.id;
-            ref var res = ref this.dataContains.arr[idx];
+            ref var res = ref this.dataContains[idx];
             if (res == true) {
 
                 res = false;
-                if (this.onVersionChangedOnly == true) this.dataVersions.arr[idx] = false;
+                if (this.onVersionChangedOnly == true) this.dataVersions[idx] = false;
                 --this.dataCount;
                 this.UpdateMinMaxRemove(idx);
 
