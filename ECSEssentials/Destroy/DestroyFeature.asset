@@ -12,4 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccf5404867e4c42d185d64e7506fcc1b, type: 3}
   m_Name: DestroyFeature
   m_EditorClassIdentifier: 
-  editorComment: 
+  editorComment: '** ME.ECS Essentials **
+
+    Default destroy feature provide SetDestroy/SetDestroyLifetime
+    API for entities'
