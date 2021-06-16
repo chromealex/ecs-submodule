@@ -382,10 +382,12 @@ namespace ME.ECS.DataConfigs {
         protected void AddTo<T>(ref T[] arr, T component) {
 
             var found = false;
+            var nullIdx = -1;
             for (int i = 0; i < arr.Length; ++i) {
 
                 var comp = arr[i];
-                if (comp.GetType() == component.GetType()) {
+                if (comp == null) nullIdx = i;
+                if (comp != null && comp.GetType() == component.GetType()) {
 
                     found = true;
                     break;
@@ -395,6 +397,13 @@ namespace ME.ECS.DataConfigs {
             }
 
             if (found == false) {
+
+                if (nullIdx >= 0) {
+
+                    arr[nullIdx] = component;
+                    return;
+
+                }
                 
                 System.Array.Resize(ref arr, arr.Length + 1);
                 arr[arr.Length - 1] = component;

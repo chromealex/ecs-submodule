@@ -1,0 +1,16 @@
+{
+    "name": "ME.ECS.DataConfigGenerator.Editor",
+    "references": [
+        "GUID:8979e5b9ed38b420d8191f6eb2c94074",
+        "GUID:2ece66b544d324812a43e54b6d31cffd"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
