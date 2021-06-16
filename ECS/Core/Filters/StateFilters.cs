@@ -579,7 +579,7 @@ namespace ME.ECS {
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public ref Entity Current {
+        public ref readonly Entity Current {
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
@@ -743,7 +743,7 @@ namespace ME.ECS {
         private int index;
         private readonly bool onVersionChangedOnly;
         
-        private readonly Storage storage;
+        private readonly State state;
 
         internal FilterEnumerator(FilterData set) {
 
@@ -757,7 +757,7 @@ namespace ME.ECS {
 
             }
 
-            this.storage = this.set.world.currentState.storage;
+            this.state = this.set.world.currentState;
             this.onVersionChangedOnly = this.set.onVersionChangedOnly;
             this.set.SetForEachMode(true);
 
@@ -828,7 +828,7 @@ namespace ME.ECS {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             get {
-                return this.storage.cache.Read(this.index);
+                return this.state.storage.cache.Read(this.index);
             }
         }
 
@@ -837,12 +837,12 @@ namespace ME.ECS {
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public ref Entity Current {
+        public ref readonly Entity Current {
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             get {
-                return ref this.storage.cache[this.index];
+                return ref this.state.storage.cache.Read(this.index);
             }
         }
 
