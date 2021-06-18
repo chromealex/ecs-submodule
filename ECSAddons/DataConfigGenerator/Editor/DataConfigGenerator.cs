@@ -234,7 +234,7 @@ namespace ME.ECS.DataConfigGenerator {
                     if (prevOffset >= 0) {
 
                         var last = components[prevOffset];
-                        last.length = i - item.offset + 1;
+                        last.length = item.offset - last.offset;
                         components[prevOffset] = last;
 
                     }
