@@ -22,4 +22,4 @@ MonoBehaviour:
     caption: Test4-6
     version: 11
     path: https://docs.google.com/spreadsheets/d/e/2PACX-1vRbWeUMoMlUn-ExFWCW0DAQ7yRvlrKK0-PSzXu3wvwbtzhVUgBkGBnQsseA0Ylt-nTIQp0KNs1YLo79/pub?gid=1611253075&single=true&output=csv
-    visitedFiles: Assets/DataConfigs/Test1.asset;Assets/DataConfigs/Test2.asset;Assets/DataConfigs/Test3.asset;Assets/DataConfigs/TestDir/Test4.asset;Assets/DataConfigs/TestDir/Test5.asset;Assets/DataConfigs/TestDir/Test6.asset
+    visitedFiles: Assets/DataConfigs/Test1.asset;Assets/DataConfigs/Test2.asset;Assets/DataConfigs/Test3.asset;Assets/DataConfigs/Test4.asset;Assets/DataConfigs/Test5.asset;Assets/DataConfigs/Test6.asset

@@ -420,7 +420,7 @@ namespace ME.ECS.DataConfigGenerator {
 
                 var type = asm.GetTypes()
                                .Where(x => typeof(IStructComponentBase).IsAssignableFrom(x))
-                               .FirstOrDefault(x => x.FullName.EndsWith(info.name));
+                               .Where(x => x.FullName.EndsWith(info.name)).OrderByDescending(x => x.Name).FirstOrDefault();
                 if (type != null) return type;
 
             }
