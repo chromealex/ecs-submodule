@@ -34,6 +34,8 @@ First column - your comment.<br>
 Second column - template(s) to be use.<br>
 Third column - Config name.<br>
 
+> Note, if you leave spreadsheet cell empty, there are no component would be created for this data config.
+
 ##### Default Parsers
 Primitive types like int, float, etc. have built-in parsers.<br>
 Array types could be added with json-format: [1, 2, 3] or ["s1", "s2", "s3"]<br>
