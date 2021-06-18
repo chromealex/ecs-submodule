@@ -346,13 +346,14 @@ namespace ME.ECS.DataConfigGenerator {
             // Configs to delete
             foreach (var file in configFiles) {
 
-                if (this.visitedFiles.Contains(file) == false) {
+                var fileFix = file.Replace("\\", "/");
+                if (this.visitedFiles.Contains(fileFix) == false) {
                     
                     // Delete config
                     //UnityEngine.Debug.LogWarning($"DO: Delete file {file}");
-                    this.Log($"Deleting config `{file}`");
-                    this.DeleteConfig(file);
-                    this.Log($"Deleted config `{file}`");
+                    this.Log($"Deleting config `{fileFix}`");
+                    this.DeleteConfig(fileFix);
+                    this.Log($"Deleted config `{fileFix}`");
                     
                 }
 
@@ -370,15 +371,16 @@ namespace ME.ECS.DataConfigGenerator {
 
                 foreach (var file in configFiles) {
 
-                    if (System.IO.Path.GetFileNameWithoutExtension(file) == config.name) {
+                    var fileFix = file.Replace("\\", "/");
+                    if (System.IO.Path.GetFileNameWithoutExtension(fileFix) == config.name) {
                         
                         // Update config
                         //UnityEngine.Debug.LogWarning($"DO: Update config {config.name}");
                         this.Log($"Updating config `{config.name}`");
-                        this.UpdateConfig(file, config);
+                        this.UpdateConfig(fileFix, config);
                         this.Log($"Updated config `{config.name}`");
                         
-                        visitedFiles.Add(file);
+                        visitedFiles.Add(fileFix);
                         visitedConfigs.Add(config);
 
                     }
