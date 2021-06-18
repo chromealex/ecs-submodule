@@ -153,7 +153,14 @@ namespace ME.ECS.DataConfigGenerator {
                 if (GUILayout.Button("Update All", GUILayout.Width(120f), GUILayout.Height(30f)) == true) {
 
                     DataConfigGeneratorSettingsEditor.logs.Clear();
-                    EditorCoroutines.StartCoroutine(this.LoadAll(this.paths));
+                    EditorCoroutines.StartCoroutine(this.LoadAll(this.paths, forceUpdate: false));
+                    
+                }
+                EditorGUILayout.Space(4f);
+                if (GUILayout.Button("Force Update All", GUILayout.Width(120f), GUILayout.Height(30f)) == true) {
+
+                    DataConfigGeneratorSettingsEditor.logs.Clear();
+                    EditorCoroutines.StartCoroutine(this.LoadAll(this.paths, forceUpdate: true));
                     
                 }
                 EditorGUI.EndDisabledGroup();
@@ -167,13 +174,17 @@ namespace ME.ECS.DataConfigGenerator {
                 this.logsResult.Clear();
                 foreach (var item in DataConfigGeneratorSettingsEditor.logs) {
 
-                    if (item.logType == LogType.Error) {
+                    if (item.logType == LogItem.LogItemType.System) {
                      
-                        this.logsResult.Append($"<color=#f44>{item.text}</color>");
+                        this.logsResult.Append($"<color=#77c>{item.text}</color>");
    
-                    } else if (item.logType == LogType.Warning) {
+                    } else if (item.logType == LogItem.LogItemType.Error) {
                      
-                        this.logsResult.Append($"<color=#ff4>{item.text}</color>");
+                        this.logsResult.Append($"<color=#c77>{item.text}</color>");
+   
+                    } else if (item.logType == LogItem.LogItemType.Warning) {
+                     
+                        this.logsResult.Append($"<color=#cc7>{item.text}</color>");
    
                     } else {
 
@@ -283,7 +294,7 @@ namespace ME.ECS.DataConfigGenerator {
 
         }
 
-        private IEnumerator LoadAll(SerializedProperty paths) {
+        private IEnumerator LoadAll(SerializedProperty paths, bool forceUpdate) {
 
             this.inProgress = true;
             var visitedConfigs = new HashSet<DataConfigGenerator.ConfigInfo>();
@@ -314,19 +325,20 @@ namespace ME.ECS.DataConfigGenerator {
                 var visitedFilesStr = visitedFilesArr[i];
                 var dir = dirs[i];
                 var configsDirectory = DataConfigGeneratorSettingsEditor.GetDir(dir);
-                DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogWarning($"=========================="));
-                DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogWarning($"** {caption}"));
-                DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogWarning($"** Version: {currentVersion}"));
-                DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogWarning($"=========================="));
+                DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogSystem($"=========================="));
+                DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogSystem($"** {caption}"));
+                DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogSystem($"** Version: {currentVersion}"));
+                DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogSystem($"=========================="));
                 DataConfigGeneratorSettingsEditor.logs.Add(LogItem.Log($"Output directory: {configsDirectory}"));
+                DataConfigGeneratorSettingsEditor.logs.Add(LogItem.Log($"Mode: {(forceUpdate == true ? "FORCE UPDATE" : "VERSION UPDATE")}"));
 
-                DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogWarning($"Receiving data from {path}"));
-                DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogWarning($"Connecting {this.progressSymbol}"));
+                DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogSystem($"Receiving data from {path}"));
+                DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogSystem($"Connecting {this.progressSymbol}"));
                 var fileSize = 0L;
                 var isDone = false;
                 EditorCoroutines.StartCoroutine(this.GetFileSize(path, () => {
                     
-                    DataConfigGeneratorSettingsEditor.logs[DataConfigGeneratorSettingsEditor.logs.Count - 1] = LogItem.LogWarning($"Connecting {this.progressSymbol}");
+                    DataConfigGeneratorSettingsEditor.logs[DataConfigGeneratorSettingsEditor.logs.Count - 1] = LogItem.LogSystem($"Connecting {this.progressSymbol}");
                     
                 }, (size) => {
                     fileSize = size;
@@ -338,16 +350,16 @@ namespace ME.ECS.DataConfigGenerator {
                 while (request.isDone == false) {
 
                     yield return null;
-                    DataConfigGeneratorSettingsEditor.logs[DataConfigGeneratorSettingsEditor.logs.Count - 1] = LogItem.LogWarning($"Downloading: {request.downloadedBytes}/{fileSize} bytes ({(request.downloadProgress >= 0f ? Mathf.FloorToInt(request.downloadProgress * 100f).ToString() : "0")}%) {this.progressSymbol}");
+                    DataConfigGeneratorSettingsEditor.logs[DataConfigGeneratorSettingsEditor.logs.Count - 1] = LogItem.LogSystem($"Downloading: {request.downloadedBytes}/{fileSize} bytes ({(request.downloadProgress >= 0f ? Mathf.FloorToInt(request.downloadProgress * 100f).ToString() : "0")}%) {this.progressSymbol}");
 
                 }
                 
-                DataConfigGeneratorSettingsEditor.logs[DataConfigGeneratorSettingsEditor.logs.Count - 1] = LogItem.LogWarning($"Downloaded: {request.downloadedBytes} bytes ({(request.downloadProgress >= 0f ? Mathf.FloorToInt(request.downloadProgress * 100f).ToString() : "0")}%)");
+                DataConfigGeneratorSettingsEditor.logs[DataConfigGeneratorSettingsEditor.logs.Count - 1] = LogItem.LogSystem($"Downloaded: {request.downloadedBytes}/{fileSize} bytes ({(request.downloadProgress >= 0f ? Mathf.FloorToInt(request.downloadProgress * 100f).ToString() : "0")}%)");
 
                 var isOk = (request.isHttpError == false && request.isNetworkError == false && request.responseCode > 0);
                 if (isOk == true) {
                 
-                    DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogWarning($"Response: {request.responseCode} OK"));
+                    DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogSystem($"Response: {request.responseCode} OK"));
 
                 } else {
 
@@ -357,7 +369,7 @@ namespace ME.ECS.DataConfigGenerator {
                 
                 if (isOk == true) {
 
-                    var generator = new DataConfigGenerator(currentVersion, request.downloadHandler.text, visitedConfigs, visitedFiles) {
+                    var generator = new DataConfigGenerator(forceUpdate == false ? currentVersion : -1, request.downloadHandler.text, visitedConfigs, visitedFiles) {
                         configsDirectory = configsDirectory,
                     };
                     if (generator.status == Status.OK) {

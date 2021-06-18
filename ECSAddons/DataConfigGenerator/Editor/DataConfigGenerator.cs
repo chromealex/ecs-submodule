@@ -6,16 +6,32 @@ using UnityEngine;
 namespace ME.ECS.DataConfigGenerator {
 
     using Parsers;
+
+    public interface IParser {
+
+        bool IsValid(System.Type fieldType);
+        bool Parse(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result);
+
+    }
     
     public struct LogItem {
 
+        public enum LogItemType {
+
+            Log,
+            Warning,
+            Error,
+            System,
+
+        }
+        
         public string text;
-        public LogType logType;
+        public LogItemType logType;
 
         public static LogItem Log(string text) {
             
             return new LogItem() {
-                logType = LogType.Log,
+                logType = LogItemType.Log,
                 text = text,
             };
 
@@ -24,7 +40,7 @@ namespace ME.ECS.DataConfigGenerator {
         public static LogItem LogWarning(string text) {
             
             return new LogItem() {
-                logType = LogType.Warning,
+                logType = LogItemType.Warning,
                 text = text,
             };
 
@@ -33,7 +49,16 @@ namespace ME.ECS.DataConfigGenerator {
         public static LogItem LogError(string text) {
             
             return new LogItem() {
-                logType = LogType.Error,
+                logType = LogItemType.Error,
+                text = text,
+            };
+            
+        }
+
+        public static LogItem LogSystem(string text) {
+            
+            return new LogItem() {
+                logType = LogItemType.System,
                 text = text,
             };
             
@@ -89,6 +114,7 @@ namespace ME.ECS.DataConfigGenerator {
         }
 
         public string configsDirectory = "Assets/DataConfigs";
+        public static List<string> projectConfigs;
         private List<string> allConfigs;
         private List<LogItem> logs;
         
@@ -157,29 +183,33 @@ namespace ME.ECS.DataConfigGenerator {
             var reader = new CsvReader(new System.IO.StringReader(csvData));
             if (reader.Read() == false) {
                 
-                this.status = Status.OK;
+                this.status = Status.Error;
                 return;
                 
-            }
-
-            int.TryParse(reader[0], out var version);
-            if (version > currentVersion) {
-
-                this.version = version;
-                this.Log($"Update version: {currentVersion} => {version}");
-
-            } else {
-
-                this.Log($"Sheet is up to date (version: {currentVersion}).");
-                this.status = Status.UpToDate;
-                return;
-
             }
 
             var destinationDirectory = this.configsDirectory;
             if (System.IO.Directory.Exists(destinationDirectory) == false) {
 
                 System.IO.Directory.CreateDirectory(destinationDirectory);
+
+            }
+
+            int.TryParse(reader[0], out var version);
+            if (version > currentVersion) {
+
+                this.version = version;
+                if (currentVersion >= 0) {
+                    this.Log($"Update version: {currentVersion} => {version}");
+                } else {
+                    this.Log($"Update version to {version}");
+                }
+
+            } else {
+
+                this.Log($"Sheet is up to date (version: {currentVersion}).");
+                this.status = Status.UpToDate;
+                return;
 
             }
 
@@ -320,8 +350,9 @@ namespace ME.ECS.DataConfigGenerator {
                     
                     // Delete config
                     //UnityEngine.Debug.LogWarning($"DO: Delete file {file}");
-                    this.Log($"Delete config {file}");
+                    this.Log($"Deleting config `{file}`");
                     this.DeleteConfig(file);
+                    this.Log($"Deleted config `{file}`");
                     
                 }
 
@@ -343,8 +374,9 @@ namespace ME.ECS.DataConfigGenerator {
                         
                         // Update config
                         //UnityEngine.Debug.LogWarning($"DO: Update config {config.name}");
-                        this.Log($"Update config {config.name}");
+                        this.Log($"Updating config `{config.name}`");
                         this.UpdateConfig(file, config);
+                        this.Log($"Updated config `{config.name}`");
                         
                         visitedFiles.Add(file);
                         visitedConfigs.Add(config);
@@ -363,8 +395,9 @@ namespace ME.ECS.DataConfigGenerator {
                     
                     // Create config
                     //UnityEngine.Debug.LogWarning($"DO: Create config {config.name}");
-                    this.Log($"Create config {config.name}");
+                    this.Log($"Creating config `{config.name}`");
                     var path = this.CreateConfig(config);
+                    this.Log($"Created config `{config.name}`");
                     created.Add(path, config);
                     
                     visitedFiles.Add(path);
@@ -396,7 +429,7 @@ namespace ME.ECS.DataConfigGenerator {
 
         }
 
-        private bool TryToParse(string prefix, string data, out string postfix) {
+        public static bool TryToParse(string prefix, string data, out string postfix) {
 
             if (data.StartsWith(prefix) == true) {
                     
@@ -410,9 +443,9 @@ namespace ME.ECS.DataConfigGenerator {
 
         }
 
-        private ME.ECS.DataConfigs.DataConfig GetConfig(string name) {
+        public static ME.ECS.DataConfigs.DataConfig GetConfig(string name) {
 
-            foreach (var config in this.allConfigs) {
+            foreach (var config in DataConfigGenerator.projectConfigs) {
 
                 if (System.IO.Path.GetFileNameWithoutExtension(config) == name) {
 
@@ -426,40 +459,58 @@ namespace ME.ECS.DataConfigGenerator {
 
         }
 
+        private static List<IParser> parsers = new List<IParser>();
+        public static void CollectParsers(DataConfigGenerator generator) {
+
+            if (DataConfigGenerator.parsers.Count > 0) return;
+            
+            var asms = System.AppDomain.CurrentDomain.GetAssemblies();
+            foreach (var asm in asms) {
+
+                var types = asm.GetTypes();
+                foreach (var type in types) {
+
+                    if (type.IsValueType == true && typeof(IParser).IsAssignableFrom(type) == true) {
+
+                        try {
+                            var obj = System.Activator.CreateInstance(type);
+                            DataConfigGenerator.parsers.Add((IParser)obj);
+                        } catch (System.Exception ex) {
+                            generator.LogError($"Parser initialization failed: {ex.Message}");
+                        }
+
+                    }
+                    
+                }
+
+            }
+            
+        }
+
+        private bool TryToFindParser(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
+
+            DataConfigGenerator.CollectParsers(this);
+
+            foreach (var parser in DataConfigGenerator.parsers) {
+
+                if (parser.IsValid(fieldType) == true) {
+
+                    if (parser.Parse(data, componentType, fieldName, fieldType, out result) == true) return true;
+
+                }
+                
+            }
+
+            result = null;
+            return false;
+
+        }
+
         private bool TryToConvert(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
 
-            if (typeof(Object).IsAssignableFrom(fieldType) == true) {
-                
-                // Try to find reference
-                if (this.TryToParse("config://", data, out var configName) == true) {
+            DataConfigGenerator.projectConfigs = this.allConfigs;
 
-                    result = this.GetConfig(configName);
-                    return true;
-
-                }
-                
-                if (this.TryToParse("view://", data, out var viewPath) == true) {
-
-                    result = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(viewPath).GetComponent<ME.ECS.Views.ViewBase>();
-                    return true;
-
-                }
-
-                if (this.TryToParse("go://", data, out var goPath) == true) {
-
-                    result = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(goPath);
-                    return true;
-
-                }
-
-                if (this.TryToParse("component://", data, out var componentPath) == true) {
-
-                    result = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(componentPath).GetComponent(fieldType);
-                    return true;
-
-                }
-
-            } else if (fieldType == typeof(int)) {
+            if (fieldType == typeof(int)) {
                 
                 result = int.Parse(data);
                 return true;
@@ -514,36 +565,6 @@ namespace ME.ECS.DataConfigGenerator {
                 result = data;
                 return true;
                 
-            } else if (fieldType == typeof(Vector2)) {
-                
-                var prs = data.Split(';');
-                result = new Vector2(float.Parse(prs[0]), float.Parse(prs[1]));
-                return true;
-                
-            } else if (fieldType == typeof(Vector3)) {
-                
-                var prs = data.Split(';');
-                result = new Vector3(float.Parse(prs[0]), float.Parse(prs[1]), float.Parse(prs[2]));
-                return true;
-                
-            } else if (fieldType == typeof(Vector4)) {
-                
-                var prs = data.Split(';');
-                result = new Vector4(float.Parse(prs[0]), float.Parse(prs[1]), float.Parse(prs[2]), float.Parse(prs[3]));
-                return true;
-                
-            } else if (fieldType == typeof(Vector2Int)) {
-                
-                var prs = data.Split(';');
-                result = new Vector2Int(int.Parse(prs[0]), int.Parse(prs[1]));
-                return true;
-                
-            } else if (fieldType == typeof(Vector3Int)) {
-                
-                var prs = data.Split(';');
-                result = new Vector3Int(int.Parse(prs[0]), int.Parse(prs[1]), int.Parse(prs[2]));
-                return true;
-                
             }
 
             if (data.StartsWith("{") == true || data.StartsWith("[") == true) {
@@ -562,6 +583,12 @@ namespace ME.ECS.DataConfigGenerator {
                 result = JsonUtility.FromJson(data, fieldType);
                 return true;
 
+            }
+
+            if (this.TryToFindParser(data, componentType, fieldName, fieldType, out result) == true) {
+                
+                return true;
+                
             }
 
             result = null;
@@ -599,8 +626,7 @@ namespace ME.ECS.DataConfigGenerator {
 
                     if (found == false) {
                         
-                        //UnityEngine.Debug.LogError($"Template was not found with name {templateName}");
-                        this.LogError($"Template was not found with name {templateName}");
+                        this.LogWarning($"Template `{templateName}` was not found");
                         
                     }
                     
@@ -616,8 +642,7 @@ namespace ME.ECS.DataConfigGenerator {
                 var componentType = this.GetComponentType(componentInfo);
                 if (componentType == null) {
                     
-                    //UnityEngine.Debug.LogError($"Component type not found with name {componentInfo.name}");
-                    this.LogError($"Component type not found with name {componentInfo.name}");
+                    this.LogError($"Component type `{componentInfo.name}` was not found");
                     continue;
                     
                 }
@@ -645,8 +670,7 @@ namespace ME.ECS.DataConfigGenerator {
                         var field = componentType.GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
                         if (field == null) {
 
-                            //UnityEngine.Debug.LogError($"Field not found with name {fieldName}");
-                            this.LogError($"Field not found with name {fieldName}");
+                            this.LogError($"Field `{fieldName}` was not found in component `{componentInfo.name}`");
                             continue;
 
                         }
@@ -665,7 +689,7 @@ namespace ME.ECS.DataConfigGenerator {
                         var result = this.TryToConvert(dataStr, componentType, field.Name, field.FieldType, out var val);
                         if (result == false) {
 
-                            UnityEngine.Debug.LogError($"Data `{dataStr}` couldn't been parsed because deserializer was not found for type `{field.FieldType}`. If you need to store custom struct type - use JSON format.");
+                            this.LogError($"Data `{dataStr}` couldn't been parsed because deserializer was not found for type `{field.FieldType}`. If you need to store custom struct type - use JSON format.");
 
                         } else {
 
