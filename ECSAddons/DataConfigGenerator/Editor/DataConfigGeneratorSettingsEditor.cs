@@ -10,6 +10,7 @@ namespace ME.ECS.DataConfigGenerator {
     [CustomEditor(typeof(DataConfigGeneratorSettings))]
     public class DataConfigGeneratorSettingsEditor : Editor {
 
+        private const string DEFAULT_DIR = "Assets/DataConfigs";
         private const int FONT_SIZE = 12;
         private static List<LogItem> logs;
 
@@ -95,6 +96,7 @@ namespace ME.ECS.DataConfigGenerator {
 
                         items.arraySize = items.arraySize + 1;
                         var prop = items.GetArrayElementAtIndex(items.arraySize - 1);
+                        prop.FindPropertyRelative("directory").objectReferenceValue = null;
                         prop.FindPropertyRelative("version").intValue = -1;
                         prop.FindPropertyRelative("caption").stringValue = string.Empty;
                         prop.FindPropertyRelative("path").stringValue = string.Empty;
@@ -104,22 +106,37 @@ namespace ME.ECS.DataConfigGenerator {
                     this.list.elementHeightCallback = index => {
                         
                         var prop = items.GetArrayElementAtIndex(index);
-                        return offset * 2f + padding + EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("caption")) + EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("path"));
+                        return EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("directory")) + padding + offset * 2f + padding + EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("caption")) + EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("path"));
                         
                     }; 
                     this.list.drawElementCallback = (rect, index, active, focused) => {
 
                         var prop = items.GetArrayElementAtIndex(index);
 
+                        var directoryRect = new Rect(rect);
+                        directoryRect.y += offset;
+                        directoryRect.height = EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("directory"));
                         var captionRect = new Rect(rect);
-                        captionRect.y += offset;
+                        captionRect.y = directoryRect.yMax + padding;
                         captionRect.height = EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("caption"));
                         var pathRect = new Rect(rect);
-                        pathRect.y += captionRect.height + padding;
+                        pathRect.y = captionRect.yMax + padding;
                         pathRect.height = EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("path"));
                         var versionRect = new Rect(pathRect);
                         versionRect.height = EditorGUIUtility.singleLineHeight;
-                        
+
+                        EditorGUI.PropertyField(directoryRect, prop.FindPropertyRelative("directory"));
+                        var obj = prop.FindPropertyRelative("directory").objectReferenceValue;
+                        if (obj != null) {
+
+                            var path = AssetDatabase.GetAssetPath(obj);
+                            if (System.IO.Directory.Exists(path) == false) {
+
+                                prop.FindPropertyRelative("directory").objectReferenceValue = null;
+
+                            }
+
+                        }
                         EditorGUI.PropertyField(captionRect, prop.FindPropertyRelative("caption"));
                         EditorGUI.PropertyField(pathRect, prop.FindPropertyRelative("path"));
                         EditorGUI.LabelField(versionRect, $"Version: {prop.FindPropertyRelative("version").intValue}", this.versionStyle);
@@ -253,6 +270,19 @@ namespace ME.ECS.DataConfigGenerator {
             }
         }
 
+        private static string GetDir(Object dirObj) {
+            
+            var path = AssetDatabase.GetAssetPath(dirObj);
+            if (System.IO.Directory.Exists(path) == false) {
+
+                return DataConfigGeneratorSettingsEditor.DEFAULT_DIR;
+
+            }
+
+            return path;
+
+        }
+
         private IEnumerator LoadAll(SerializedProperty paths) {
 
             this.inProgress = true;
@@ -264,12 +294,14 @@ namespace ME.ECS.DataConfigGenerator {
             var pathsStr = new string[paths.arraySize];
             var captions = new string[paths.arraySize];
             var versions = new int[paths.arraySize];
+            var dirs = new Object[paths.arraySize];
             var visitedFilesArr = new string[paths.arraySize];
             for (int i = 0; i < paths.arraySize; ++i) {
 
                 captions[i] = paths.GetArrayElementAtIndex(i).FindPropertyRelative("caption").stringValue;
                 pathsStr[i] = paths.GetArrayElementAtIndex(i).FindPropertyRelative("path").stringValue;
                 versions[i] = paths.GetArrayElementAtIndex(i).FindPropertyRelative("version").intValue;
+                dirs[i] = paths.GetArrayElementAtIndex(i).FindPropertyRelative("directory").objectReferenceValue;
                 visitedFilesArr[i] = paths.GetArrayElementAtIndex(i).FindPropertyRelative("visitedFiles").stringValue;
 
             }
@@ -280,10 +312,13 @@ namespace ME.ECS.DataConfigGenerator {
                 var caption = captions[i];
                 var currentVersion = versions[i];
                 var visitedFilesStr = visitedFilesArr[i];
+                var dir = dirs[i];
+                var configsDirectory = DataConfigGeneratorSettingsEditor.GetDir(dir);
                 DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogWarning($"=========================="));
                 DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogWarning($"** {caption}"));
                 DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogWarning($"** Version: {currentVersion}"));
                 DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogWarning($"=========================="));
+                DataConfigGeneratorSettingsEditor.logs.Add(LogItem.Log($"Output directory: {configsDirectory}"));
 
                 DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogWarning($"Receiving data from {path}"));
                 DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogWarning($"Connecting {this.progressSymbol}"));
@@ -322,7 +357,9 @@ namespace ME.ECS.DataConfigGenerator {
                 
                 if (isOk == true) {
 
-                    var generator = new DataConfigGenerator(currentVersion, request.downloadHandler.text, visitedConfigs, visitedFiles);
+                    var generator = new DataConfigGenerator(currentVersion, request.downloadHandler.text, visitedConfigs, visitedFiles) {
+                        configsDirectory = configsDirectory,
+                    };
                     if (generator.status == Status.OK) {
 
                         generator.AddConfigs(newConfigs);

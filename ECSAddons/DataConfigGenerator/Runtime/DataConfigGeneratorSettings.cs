@@ -10,6 +10,7 @@ namespace ME.ECS.DataConfigGenerator {
         [System.Serializable]
         public struct Element {
 
+            public Object directory;
             public string caption;
             public int version;
             [TextArea(3, 3)]
