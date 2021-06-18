@@ -14,8 +14,6 @@ namespace ME.ECS.DataConfigGenerator {
             public int version;
             [TextArea(3, 3)]
             public string path;
-            
-            [HideInInspector]
             public string visitedFiles;
             
         }

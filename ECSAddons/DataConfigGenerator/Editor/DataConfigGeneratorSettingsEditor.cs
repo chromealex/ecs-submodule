@@ -11,10 +11,12 @@ namespace ME.ECS.DataConfigGenerator {
     public class DataConfigGeneratorSettingsEditor : Editor {
 
         private const int FONT_SIZE = 12;
-        
-        private SerializedProperty paths;
         private static List<LogItem> logs;
 
+        private SerializedProperty paths;
+        private UnityEditorInternal.ReorderableList list;
+
+        private GUIStyle versionStyle;
         private GUIStyle fixedFontStyle;
         private Font font;
         private System.Text.StringBuilder logsResult;
@@ -28,7 +30,7 @@ namespace ME.ECS.DataConfigGenerator {
             this.logsResult = new System.Text.StringBuilder(1000);
 
             EditorCoroutines.StartCoroutine(this.ProgressSymbol());
-
+            
         }
         
         private void CleanupFont() {
@@ -53,27 +55,80 @@ namespace ME.ECS.DataConfigGenerator {
             if (this.fixedFontStyle == null || this.font == null) {
                 
                 this.fixedFontStyle = new GUIStyle(GUI.skin.label);
-                string fontName;
-                if (Application.platform == RuntimePlatform.WindowsEditor)
-                    fontName = "Consolas";
-                else
-                    fontName = "Courier";
+                var fontName = Application.platform == RuntimePlatform.WindowsEditor ? "Consolas" : "Courier";
 
                 this.CleanupFont();
 
                 this.font = Font.CreateDynamicFontFromOSFont(fontName, DataConfigGeneratorSettingsEditor.FONT_SIZE);
                 this.fixedFontStyle.normal = EditorStyles.label.normal;
+                this.fixedFontStyle.wordWrap = true;
                 this.fixedFontStyle.richText = true;
                 this.fixedFontStyle.font = this.font;
                 this.fixedFontStyle.fontSize = DataConfigGeneratorSettingsEditor.FONT_SIZE;
                 
             }
-            
+
+            if (this.versionStyle == null) {
+
+                this.versionStyle = new GUIStyle(EditorStyles.miniBoldLabel);
+                this.versionStyle.alignment = TextAnchor.MiddleRight;
+
+            }
+
+
             this.serializedObject.Update();
             
             GUILayoutExt.Box(10f, 10f, () => {
 
-                EditorGUILayout.PropertyField(this.paths);
+                if (this.list == null) {
+                
+                    var items = this.paths;
+                    const float offset = 4f;
+                    const float padding = 4f;
+                    this.list = new UnityEditorInternal.ReorderableList(this.serializedObject, items, true, false, true, true);
+                    this.list.drawHeaderCallback = (rect) => {
+                    
+                        GUI.Label(rect, "Google Sheets");
+                    
+                    };
+                    this.list.onAddCallback = (list) => {
+
+                        items.arraySize = items.arraySize + 1;
+                        var prop = items.GetArrayElementAtIndex(items.arraySize - 1);
+                        prop.FindPropertyRelative("version").intValue = -1;
+                        prop.FindPropertyRelative("caption").stringValue = string.Empty;
+                        prop.FindPropertyRelative("path").stringValue = string.Empty;
+                        prop.FindPropertyRelative("visitedFiles").stringValue = string.Empty;
+                        
+                    };
+                    this.list.elementHeightCallback = index => {
+                        
+                        var prop = items.GetArrayElementAtIndex(index);
+                        return offset * 2f + padding + EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("caption")) + EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("path"));
+                        
+                    }; 
+                    this.list.drawElementCallback = (rect, index, active, focused) => {
+
+                        var prop = items.GetArrayElementAtIndex(index);
+
+                        var captionRect = new Rect(rect);
+                        captionRect.y += offset;
+                        captionRect.height = EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("caption"));
+                        var pathRect = new Rect(rect);
+                        pathRect.y += captionRect.height + padding;
+                        pathRect.height = EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("path"));
+                        var versionRect = new Rect(pathRect);
+                        versionRect.height = EditorGUIUtility.singleLineHeight;
+                        
+                        EditorGUI.PropertyField(captionRect, prop.FindPropertyRelative("caption"));
+                        EditorGUI.PropertyField(pathRect, prop.FindPropertyRelative("path"));
+                        EditorGUI.LabelField(versionRect, $"Version: {prop.FindPropertyRelative("version").intValue}", this.versionStyle);
+                        
+                    };
+                
+                }
+            
+                this.list.DoLayoutList();
 
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
@@ -112,8 +167,10 @@ namespace ME.ECS.DataConfigGenerator {
                     this.logsResult.Append("\n");
 
                 }
-                
-                GUILayout.TextArea(this.logsResult.ToString(), this.fixedFontStyle);
+
+                this.logPosition = this.ScrollableSelectableLabel(this.logPosition, this.logsResult.ToString(), this.fixedFontStyle);
+                //var rect = GUILayoutUtility.GetLastRect();
+                //GUILayout.TextArea(this.logsResult.ToString(), this.fixedFontStyle, GUILayout.ExpandWidth(false), GUILayout.Width(rect.width));
 
             });
 
@@ -122,6 +179,8 @@ namespace ME.ECS.DataConfigGenerator {
             this.Repaint();
 
         }
+
+        private Vector3 logPosition;
 
         private string progressSymbol;
         IEnumerator ProgressSymbol() {
@@ -151,6 +210,24 @@ namespace ME.ECS.DataConfigGenerator {
 
             }
             
+        }
+        
+        private Vector3 ScrollableSelectableLabel(Vector3 position, string text, GUIStyle style) {
+            // Extract scroll position and width from position vector.
+            Vector2 scrollPos = new Vector2(position.x, position.y);
+            float width = position.z;
+            scrollPos = GUILayout.BeginScrollView(scrollPos);
+            // Calculate height of text.
+            float pixelHeight = style.CalcHeight(new GUIContent(text), width);
+            EditorGUILayout.SelectableLabel(text, style, GUILayout.MinHeight(pixelHeight));
+            // Update the width on repaint, based on width of the SelectableLabel's rectangle.
+            if (Event.current.type == EventType.Repaint)
+            {
+                width = GUILayoutUtility.GetLastRect().width;
+            }
+            GUILayout.EndScrollView();
+            // Put scroll position and width back into the Vector3 used to track position.
+            return new Vector3(scrollPos.x, scrollPos.y, width);
         }
         
         IEnumerator GetFileSize(string url, System.Action onLoading, System.Action<long> result) {
