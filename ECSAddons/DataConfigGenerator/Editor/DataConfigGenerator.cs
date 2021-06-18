@@ -567,6 +567,12 @@ namespace ME.ECS.DataConfigGenerator {
                 
             }
 
+            if (this.TryToFindParser(data, componentType, fieldName, fieldType, out result) == true) {
+                
+                return true;
+                
+            }
+
             if (data.StartsWith("{") == true || data.StartsWith("[") == true) {
 
                 if (data.StartsWith("[") == true) {
@@ -583,12 +589,6 @@ namespace ME.ECS.DataConfigGenerator {
                 result = JsonUtility.FromJson(data, fieldType);
                 return true;
 
-            }
-
-            if (this.TryToFindParser(data, componentType, fieldName, fieldType, out result) == true) {
-                
-                return true;
-                
             }
 
             result = null;
