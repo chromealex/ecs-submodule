@@ -104,7 +104,7 @@ namespace ME.ECSEditor {
 
         internal static void Create(string fileName, string templateName, System.Collections.Generic.Dictionary<string, string> customDefines = null, bool allowRename = true, System.Action<Object> onCreated = null) {
 
-            var obj = Selection.activeObject;
+            var obj = ScriptTemplates.GetSelectedDirectory();
             var path = AssetDatabase.GetAssetPath(obj);
             if (System.IO.File.Exists(path) == true) {
                 path = System.IO.Path.GetDirectoryName(path);
@@ -280,7 +280,7 @@ MonoBehaviour:
         [UnityEditor.MenuItem("Assets/Create/ME.ECS/Initialize Project", priority = ScriptTemplates.CREATE_PROJECT_PRIORITY)]
         public static void CreateProject() {
 
-            var obj = Selection.activeObject;
+            var obj = ScriptTemplates.GetSelectedDirectory();
             var path = ScriptTemplates.GetDirectoryFromAsset(obj);
             if (System.IO.Directory.GetFiles(path).Length > 0) {
                 
@@ -341,7 +341,7 @@ MonoBehaviour:
         [UnityEditor.MenuItem("Assets/Create/ME.ECS/Module", priority = ScriptTemplates.CREATE_MODULE_PRIORITY)]
         public static void CreateModule() {
 
-            var obj = Selection.activeObject;
+            var obj = ScriptTemplates.GetSelectedDirectory();
             if (obj != null) {
 
                 if (ScriptTemplates.GetFeature(obj, out var featureName) == true) {
@@ -362,7 +362,7 @@ MonoBehaviour:
         [UnityEditor.MenuItem("Assets/Create/ME.ECS/System", priority = ScriptTemplates.CREATE_SYSTEM_PRIORITY)]
         public static void CreateSystem() {
 
-            var obj = Selection.activeObject;
+            var obj = ScriptTemplates.GetSelectedDirectory();
             if (obj != null) {
 
                 if (ScriptTemplates.GetFeature(obj, out var featureName) == true) {
@@ -383,7 +383,7 @@ MonoBehaviour:
         [UnityEditor.MenuItem("Assets/Create/ME.ECS/System with Filter", priority = ScriptTemplates.CREATE_SYSTEM_FILTER_PRIORITY)]
         public static void CreateSystemFilter() {
 
-            var obj = Selection.activeObject;
+            var obj = ScriptTemplates.GetSelectedDirectory();
             if (obj != null) {
 
                 if (ScriptTemplates.GetFeature(obj, out var featureName) == true) {
@@ -517,9 +517,25 @@ MonoBehaviour:
 
         }
 
+        private static Object GetSelectedDirectory() {
+
+            var guids = Selection.assetGUIDs;
+            if (guids.Length == 0) return null;
+            
+            return AssetDatabase.LoadAssetAtPath<Object>(AssetDatabase.GUIDToAssetPath(guids[0]));
+
+        }
+
         private static bool GetFeature(Object selected, out string featureName) {
             
             var path = AssetDatabase.GetAssetPath(selected);
+            if (selected == null || string.IsNullOrEmpty(path) == false) {
+                
+                featureName = null;
+                return false;
+                
+            }
+            
             var dir = System.IO.Path.GetDirectoryName(path);
 
             if (dir.EndsWith("Systems") == true) {
@@ -529,16 +545,20 @@ MonoBehaviour:
             }
 
             featureName = string.Empty;
-            var files = System.IO.Directory.GetFiles(dir);
-            foreach (var file in files) {
+            if (string.IsNullOrEmpty(dir) == false) {
 
-                var ext = System.IO.Path.GetFileName(file);
-                var filename = System.IO.Path.GetFileNameWithoutExtension(file);
-                if (filename.EndsWith("Feature") == true && ext.EndsWith(".cs") == true) {
+                var files = System.IO.Directory.GetFiles(dir);
+                foreach (var file in files) {
 
-                    featureName = filename;
-                    break;
-                        
+                    var ext = System.IO.Path.GetFileName(file);
+                    var filename = System.IO.Path.GetFileNameWithoutExtension(file);
+                    if (filename.EndsWith("Feature") == true && ext.EndsWith(".cs") == true) {
+
+                        featureName = filename;
+                        break;
+
+                    }
+
                 }
 
             }
