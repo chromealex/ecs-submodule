@@ -63,7 +63,7 @@ namespace ME.ECS.Pathfinding {
 
         public GridNodeData[] nodesData;
 
-        public Vector3Int size = new Vector3Int(100, 100, 100);
+        public Vector3Int size = new Vector3Int(100, 1, 100);
         public float nodeSize = 1f;
         public float maxSlope = 45f;
         public bool useSlopePhysics;
@@ -74,6 +74,7 @@ namespace ME.ECS.Pathfinding {
         public ConnectionsType connectionsType = ConnectionsType.All;
 
         public float agentHeight;
+        public int erosion;
 
         public LayerMask checkMask;
         public LayerMask collisionMask;
@@ -106,13 +107,64 @@ namespace ME.ECS.Pathfinding {
             
             base.BuildAreas();
 
+            this.BuildAllErosion();
+
             this.nodesData = new GridNodeData[this.nodes.Count];
             for (int i = 0; i < this.nodesData.Length; ++i) {
 
                 this.nodesData[i] = this.GetNodeByIndex<GridNode>(i).GetData();
 
             }
+
+        }
+
+        public void BuildAllErosion() {
+
+            this.BuildErosion(this.nodes);
+
+        }
+        
+        public void BuildErosion(Bounds bounds) {
+
+            var nodes = PoolListCopyable<Node>.Spawn(this.nodes.Count);
+            this.GetNodesInBounds(nodes, bounds, Constraint.Empty);
+
+            this.BuildErosion(nodes);
             
+            PoolListCopyable<Node>.Recycle(ref nodes);
+
+        }
+
+        public void BuildErosion(ListCopyable<Node> nodes) {
+
+            var list = PoolList<GridNode>.Spawn(nodes.Count);
+            for (int j = 0; j <= this.erosion; ++j) {
+
+                list.Clear();
+                for (int i = 0; i < nodes.Count; ++i) {
+
+                    var node = (GridNode)nodes[i];
+                    if (node.walkable == true && node.erosion == 0) this.TestErosion(list, node, j);
+
+                }
+
+                foreach (var node in list) {
+
+                    node.erosion = j + 1;
+
+                }
+
+            }
+            PoolList<GridNode>.Recycle(ref list);
+
+        }
+
+        private void TestErosion(System.Collections.Generic.List<GridNode> list, GridNode node, int erodeIteration) {
+
+            if (GridGraphUtilities.HasErodeConnectionFail(this, node, erodeIteration) == false) return;
+
+            list.Add(node);
+
         }
 
         public override void OnRecycle() {
@@ -123,6 +175,7 @@ namespace ME.ECS.Pathfinding {
             this.diagonalCostFactor = default;
             this.connectionsType = default;
             this.agentHeight = default;
+            this.erosion = default;
             this.checkMask = default;
             this.collisionMask = default;
             this.collisionCheckRadius = default;
@@ -147,6 +200,7 @@ namespace ME.ECS.Pathfinding {
             this.diagonalCostFactor = gg.diagonalCostFactor;
             this.connectionsType = gg.connectionsType;
             this.agentHeight = gg.agentHeight;
+            this.erosion = gg.erosion;
             this.checkMask = gg.checkMask;
             this.collisionMask = gg.collisionMask;
             this.collisionCheckRadius = gg.collisionCheckRadius;
@@ -381,7 +435,7 @@ namespace ME.ECS.Pathfinding {
                     //var nodePosition = new Vector3(x * this.nodeSize + this.nodeSize * 0.5f, y * this.agentHeight + this.agentHeight * 0.5f, z * this.nodeSize + this.nodeSize * 0.5f);
                     var worldPos = node.worldPosition; //center + nodePosition;
                     worldPos.y += drawOffset;
-
+                    
                     if (this.drawMode == DrawMode.Solid) { } else if (this.drawMode == DrawMode.Areas) {
 
                         nodeColor = this.GetAreaColor(node.area);
@@ -443,7 +497,6 @@ namespace ME.ECS.Pathfinding {
                         Gizmos.DrawWireCube(worldPos, new Vector3(0.9f, 0f, 0.9f) * this.nodeSize);
 
                     }
-
 
                     if (this.drawConnections == true) { // Draw connections
 
@@ -790,6 +843,44 @@ namespace ME.ECS.Pathfinding {
 
     public static class GridGraphUtilities {
 
+        public static bool HasErodeConnectionFail(GridGraph graph, GridNode node, int erodeIteration) {
+
+            if (GridGraphUtilities.IsBorder(graph.size, node) == true) return true;
+
+            foreach (var connection in node.connections) {
+
+                if (connection.index == -1) continue;
+                
+                var neighbour = graph.GetNodeByIndex<GridNode>(connection.index);
+                if (neighbour.walkable == false) return true;
+                if (neighbour.erosion > 0) return true;
+                
+            }
+            
+            return false;
+            
+        }
+
+        public static bool IsBorder(Vector3Int size, GridNode node) {
+            
+            if (node.position.x == 0 ||
+                node.position.x == size.z - 1) return true;
+
+            if (size.y > 2) {
+
+                if (node.position.y == 0 ||
+                    node.position.y == size.y - 1)
+                    return true;
+
+            }
+
+            if (node.position.z == 0 ||
+                node.position.z == size.x - 1) return true;
+
+            return false;
+            
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -1132,8 +1223,12 @@ namespace ME.ECS.Pathfinding {
                 max.y = Mathf.Min(min.y, graphSize.y - 1);
                 var center = new Vector3Int((int)graphCenter.x, (int)graphCenter.y, (int)graphCenter.z);
 
-                var minNode = nodes[GridGraphUtilities.GetIndexByPosition(graphSize, min + center)];
-                var maxNode = nodes[GridGraphUtilities.GetIndexByPosition(graphSize, max + center)];
+                var idx = GridGraphUtilities.GetIndexByPosition(graphSize, min + center);
+                if (idx == -1) return false;
+                var minNode = nodes[idx];
+                idx = GridGraphUtilities.GetIndexByPosition(graphSize, max + center);
+                if (idx == -1) return false;
+                var maxNode = nodes[idx];
 
                 for (int y = minNode.position.y; y <= maxNode.position.y; ++y) {
 
@@ -1229,6 +1324,7 @@ namespace ME.ECS.Pathfinding {
     public class GridNode : Node {
 
         public Vector3Int position;
+        public int erosion;
 
         public readonly Connection[] connections = new Connection[6 + 4 + 4 + 4];
 

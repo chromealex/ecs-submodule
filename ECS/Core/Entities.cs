@@ -326,6 +326,16 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static Entity Set<TComponent>(this in Entity entity, in TComponent data, ComponentLifetime lifetime, float customLifetime) where TComponent : struct, IStructComponent {
+
+            Worlds.currentWorld.SetData(in entity, in data, lifetime, customLifetime);
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static bool HasShared<TComponent>(this in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
 
             return Worlds.currentWorld.HasSharedData<TComponent>(in entity, groupId);

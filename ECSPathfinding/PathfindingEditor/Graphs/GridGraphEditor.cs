@@ -61,6 +61,7 @@ namespace ME.ECS.Pathfinding.Editor {
                     
                     this.target.initialPenalty = EditorGUILayout.FloatField("Initial Penalty", this.target.initialPenalty);
                     this.target.initialHeight = EditorGUILayout.FloatField("Initial Height", this.target.initialHeight);
+                    this.target.erosion = EditorGUILayout.IntField("Erosion", this.target.erosion);
                     this.target.diagonalCostFactor = EditorGUILayout.FloatField("Diagonal Cost Factor", this.target.diagonalCostFactor);
                     this.target.connectionsType = (GridGraph.ConnectionsType)EditorGUILayout.EnumPopup("Connections Type", this.target.connectionsType);
                     
