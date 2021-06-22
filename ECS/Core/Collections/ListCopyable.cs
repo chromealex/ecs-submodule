@@ -70,6 +70,56 @@
             return this.innerArray.IndexOf(item);
         }
 
+        public void RemoveRange(int index, int count) {
+            
+            if (index < 0 || index >= this.Count || count < 0) {
+                throw new System.ArgumentOutOfRangeException();
+            }
+
+            var resetIndex = index;
+            var copyIndex = index + count;
+            var copyCount = this.Count - copyIndex;
+            if (copyCount < 0) {
+                throw new System.ArgumentOutOfRangeException();
+            }
+
+            if (copyCount > 0) {
+                System.Array.Copy(this.innerArray.arr, copyIndex, this.innerArray.arr, index, copyCount);
+                resetIndex += copyCount;
+            }
+
+            System.Array.Clear(this.innerArray.arr, resetIndex, this.Count - resetIndex);
+            this.Count -= count;
+            
+        }
+
+        public void TrimLeft(int count) {
+            
+            if (count > this.Count || count < 0) {
+                throw new System.ArgumentOutOfRangeException();
+            }
+
+            this.Count -= count;
+            if (this.Count > 0) {
+                System.Array.Copy(this.innerArray.arr, count, this.innerArray.arr, 0, this.Count);
+            }
+
+            var clearCount = this.Count > count ? this.Count : count;
+            System.Array.Clear(this.innerArray.arr, this.Count, clearCount);
+            
+        }
+
+        public void TrimRight(int count) {
+            
+            if (count > this.Count || count < 0) {
+                throw new System.ArgumentOutOfRangeException();
+            }
+
+            this.Count -= count;
+            System.Array.Clear(this.innerArray.arr, this.Count, count);
+            
+        }
+        
         public void Add(T item) {
             this.EnsureCapacity(this.Count + 1);
             this.innerArray.arr[this.Count++] = item;
