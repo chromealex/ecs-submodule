@@ -21,7 +21,7 @@ namespace ME.ECS {
             }
 
             #if VIEWS_REGISTER_VIEW_SOURCE_CHECK_STATE
-            if (this.world.HasStep(WorldStep.LogicTick) == true) {
+            if (viewsModule.world.HasStep(WorldStep.LogicTick) == true) {
 
                 throw new InStateException();
 
