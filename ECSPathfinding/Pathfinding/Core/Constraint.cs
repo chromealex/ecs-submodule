@@ -7,7 +7,7 @@ namespace ME.ECS.Pathfinding {
 
     public struct BurstConstraint {
 
-        public Vector3Int agentSize;
+        public int agentSize;
 
         public byte checkArea;
         public long areaMask;
@@ -35,7 +35,7 @@ namespace ME.ECS.Pathfinding {
             graphMask = -1,
         };
 
-        public Vector3Int agentSize;
+        public int agentSize;
 
         public bool checkArea;
         public long areaMask;

@@ -140,6 +140,7 @@ namespace ME.ECS.Pathfinding {
             if (constraint.checkTags == true && (constraint.tagsMask & (1 << this.tag)) == 0) return false;
             if (constraint.graphMask >= 0 && (constraint.graphMask & (1 << this.graph.index)) == 0) return false;
 
+            /*
             if (constraint.tagsMask > 0L &&
                 (constraint.agentSize.x > 0f ||
                  constraint.agentSize.y > 0f ||
@@ -158,7 +159,7 @@ namespace ME.ECS.Pathfinding {
 
                 PoolListCopyable<Node>.Recycle(ref result);
 
-            }
+            }*/
 
             return true;
 

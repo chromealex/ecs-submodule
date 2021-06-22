@@ -1202,6 +1202,7 @@ namespace ME.ECS.Pathfinding {
         public byte walkable;
         public int area;
         public int tag;
+        public int erosion;
         public pfloat height;
         public ConnectionsArray connections;
         
@@ -1212,46 +1213,11 @@ namespace ME.ECS.Pathfinding {
             if (constraint.checkTags == 1 && (constraint.tagsMask & (1 << this.tag)) == 0) return false;
             if (constraint.graphMask >= 0 && (constraint.graphMask & (1 << this.graphIndex)) == 0) return false;
 
-            if (constraint.agentSize.x > 0 ||
-                constraint.agentSize.y > 0 ||
-                constraint.agentSize.z > 0) {
+            if (constraint.agentSize > 0) {
 
-                var bounds = new BoundsInt(this.position, constraint.agentSize);
-                var min = bounds.min;
-                min.y = Mathf.Min(min.y, graphSize.y - 1);
-                var max = bounds.max;
-                max.y = Mathf.Min(min.y, graphSize.y - 1);
-                var center = new Vector3Int((int)graphCenter.x, (int)graphCenter.y, (int)graphCenter.z);
+                if (this.erosion == 0 || constraint.agentSize >= this.erosion) return true;
+                return false;
 
-                var idx = GridGraphUtilities.GetIndexByPosition(graphSize, min + center);
-                if (idx == -1) return false;
-                var minNode = nodes[idx];
-                idx = GridGraphUtilities.GetIndexByPosition(graphSize, max + center);
-                if (idx == -1) return false;
-                var maxNode = nodes[idx];
-
-                for (int y = minNode.position.y; y <= maxNode.position.y; ++y) {
-
-                    for (int x = minNode.position.x; x <= maxNode.position.x; ++x) {
-
-                        for (int z = minNode.position.z; z <= maxNode.position.z; ++z) {
-
-                            var index = GridGraphUtilities.GetIndexByPosition(graphSize, new Vector3Int(z, y, x));
-                            var n = nodes[index];
-                            if (bounds.Contains(n.position) == true) {
-
-                                var constraintErosion = constraint;
-                                constraintErosion.agentSize = Vector3Int.zero;
-                                if (n.IsSuitable(constraintErosion, nodes, graphSize, graphCenter) == false) return false;
-
-                            }
-
-                        }
-
-                    }
-
-                }
-                
             }
             
             return true;
@@ -1338,11 +1304,27 @@ namespace ME.ECS.Pathfinding {
                 penalty = (int)this.penalty,
                 walkable = (this.walkable == true ? (byte)1 : (byte)0),
                 area = this.area,
+                erosion = this.erosion,
                 tag = this.tag,
                 height = this.height,
                 connections = new ConnectionsArray(this.connections),
             };
             
+        }
+
+        public override bool IsSuitable(Constraint constraint) {
+
+            if (base.IsSuitable(constraint) == false) return false;
+            
+            if (constraint.agentSize > 0) {
+
+                if (this.erosion == 0 || constraint.agentSize >= this.erosion) return true;
+                return false;
+
+            }
+
+            return true;
+
         }
 
         #if INLINE_METHODS
