@@ -43,6 +43,9 @@ namespace ME.ECS.Pathfinding {
             
             System.Diagnostics.Stopwatch swPath = null;
             if ((pathfindingLogLevel & LogLevel.Path) != 0) swPath = System.Diagnostics.Stopwatch.StartNew();
+
+            //UnityEngine.Debug.Log(endNode.worldPosition + " :: " + ((GridNode)endNode).erosion);
+            //UnityEngine.Debug.DrawLine(endNode.worldPosition, endNode.worldPosition + Vector3.up * 10f, Color.red, 3f);
             
             var key = MathUtils.GetKey(graph.index, endNode.index);
             //UnityEngine.Debug.Log("Build path cache: " + cacheEnabled + ", burst: " + burstEnabled);
@@ -233,10 +236,16 @@ namespace ME.ECS.Pathfinding {
 
                         }
 
+                        if (this.pathCustomWalkableField.IsTraversable(conn.index, this.constraint) == false) {
+
+                            continue;
+
+                        }
+
                         int customCost = 0;
-                        if (this.pathCustomWalkableField.IsWalkable(conn.index, default) == false) {
+                        if (this.pathCustomWalkableField.IsWalkable(conn.index, this.constraint) == false) {
                             
-                            customCost = this.pathCustomWalkableField.GetCustomCost(conn.index, default);
+                            customCost = this.pathCustomWalkableField.GetCustomCost(conn.index, this.constraint);
                             
                         }
                         
@@ -301,11 +310,13 @@ namespace ME.ECS.Pathfinding {
             var results = new Unity.Collections.NativeArray<int>(1, Unity.Collections.Allocator.TempJob);
 
             PathCustomWalkableField pathCustomWalkableField = new PathCustomWalkableField() {
-                field = new Unity.Collections.NativeArray<int>(0, Unity.Collections.Allocator.TempJob),
+                walkableField = new Unity.Collections.NativeArray<int>(0, Unity.Collections.Allocator.TempJob),
+                erosionField = new Unity.Collections.NativeArray<int>(0, Unity.Collections.Allocator.TempJob),
             };
             if (mod is PathCustomWalkableField custom) {
 
-                pathCustomWalkableField.field.Dispose();
+                pathCustomWalkableField.walkableField.Dispose();
+                pathCustomWalkableField.erosionField.Dispose();
                 pathCustomWalkableField = custom;
 
             }
@@ -327,7 +338,8 @@ namespace ME.ECS.Pathfinding {
 
             statVisited = results[0];
 
-            pathCustomWalkableField.field.Dispose();
+            pathCustomWalkableField.walkableField.Dispose();
+            pathCustomWalkableField.erosionField.Dispose();
             results.Dispose();
             queue.Dispose();
             flowField.Dispose();

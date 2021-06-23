@@ -159,6 +159,38 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        public void BuildErosion(Unity.Collections.NativeArray<int> customWalkableField, ref Unity.Collections.NativeArray<int> resultErosionField) {
+            
+            var list = PoolList<int>.Spawn(resultErosionField.Length);
+            for (int j = 0; j <= this.erosion; ++j) {
+
+                list.Clear();
+                for (int i = 0; i < resultErosionField.Length; ++i) {
+
+                    var node = this.GetNodeByIndex<GridNode>(i);
+                    if (customWalkableField[i] == 0 && resultErosionField[i] == 0) this.TestErosion(customWalkableField, resultErosionField, list, node, j);
+
+                }
+
+                foreach (var nodeIndex in list) {
+
+                    resultErosionField[nodeIndex] = j + 1;
+
+                }
+
+            }
+            PoolList<int>.Recycle(ref list);
+            
+        }
+
+        private void TestErosion(Unity.Collections.NativeArray<int> customWalkableField, Unity.Collections.NativeArray<int> resultErosionField, System.Collections.Generic.List<int> list, GridNode node, int erodeIteration) {
+
+            if (GridGraphUtilities.HasErodeConnectionFail(this, node, customWalkableField, resultErosionField, erodeIteration) == false) return;
+
+            list.Add(node.index);
+
+        }
+
         private void TestErosion(System.Collections.Generic.List<GridNode> list, GridNode node, int erodeIteration) {
 
             if (GridGraphUtilities.HasErodeConnectionFail(this, node, erodeIteration) == false) return;
@@ -537,6 +569,8 @@ namespace ME.ECS.Pathfinding {
                         }
 
                     }
+                    
+                    UnityEditor.Handles.Label(node.worldPosition + Vector3.up, node.erosion.ToString());
 
                 }
 
@@ -842,6 +876,24 @@ namespace ME.ECS.Pathfinding {
     }
 
     public static class GridGraphUtilities {
+
+        public static bool HasErodeConnectionFail(GridGraph graph, GridNode node, Unity.Collections.NativeArray<int> customWalkableField, Unity.Collections.NativeArray<int> resultErosionField, int erodeIteration) {
+
+            if (GridGraphUtilities.IsBorder(graph.size, node) == true) return true;
+
+            foreach (var connection in node.connections) {
+
+                if (connection.index == -1) continue;
+                
+                var neighbour = graph.GetNodeByIndex<GridNode>(connection.index);
+                if (customWalkableField[neighbour.index] != 0 || neighbour.walkable == false) return true;
+                if (resultErosionField[neighbour.index] > 0) return true;
+                
+            }
+            
+            return false;
+            
+        }
 
         public static bool HasErodeConnectionFail(GridGraph graph, GridNode node, int erodeIteration) {
 
@@ -1215,7 +1267,7 @@ namespace ME.ECS.Pathfinding {
 
             if (constraint.agentSize > 0) {
 
-                if (this.erosion == 0 || constraint.agentSize >= this.erosion) return true;
+                if (this.erosion == 0 || this.erosion > constraint.agentSize) return true;
                 return false;
 
             }
@@ -1318,7 +1370,7 @@ namespace ME.ECS.Pathfinding {
             
             if (constraint.agentSize > 0) {
 
-                if (this.erosion == 0 || constraint.agentSize >= this.erosion) return true;
+                if (this.erosion == 0 || this.erosion > constraint.agentSize) return true;
                 return false;
 
             }

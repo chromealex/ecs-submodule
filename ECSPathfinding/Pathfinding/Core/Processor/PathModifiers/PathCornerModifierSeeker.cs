@@ -24,20 +24,50 @@ namespace ME.ECS.Pathfinding {
 
     public struct PathCustomWalkableField : IPathModifier {
 
-        public Unity.Collections.NativeArray<int> field;
+        public Unity.Collections.NativeArray<int> walkableField;
+        public Unity.Collections.NativeArray<int> erosionField;
         public int customCost;
 
+        public bool IsTraversable(int index, BurstConstraint constraint) {
+
+            if (this.erosionField.Length == 0) return true;
+            if (constraint.agentSize > 0) {
+
+                if (this.erosionField[index] == 0 || this.erosionField[index] > constraint.agentSize) return true;
+                
+                return false;
+                
+            }
+            
+            return true;
+            
+        }
+        
+        public bool IsWalkable(int index, BurstConstraint constraint) {
+
+            if (this.walkableField.Length == 0) return true;
+            return this.walkableField[index] == 0;
+
+        }
+
+        public int GetCustomCost(int index, BurstConstraint constraint) {
+
+            if (this.walkableField.Length == 0) return this.customCost;
+            return this.customCost - this.walkableField[index];
+
+        }
+        
         public bool IsWalkable(int index, Constraint constraint) {
 
-            if (this.field.Length == 0) return true;
-            return this.field[index] == 0;
+            if (this.walkableField.Length == 0) return true;
+            return this.walkableField[index] == 0;
 
         }
 
         public int GetCustomCost(int index, Constraint constraint) {
 
-            if (this.field.Length == 0) return this.customCost;
-            return this.customCost - this.field[index];
+            if (this.walkableField.Length == 0) return this.customCost;
+            return this.customCost - this.walkableField[index];
 
         }
 
