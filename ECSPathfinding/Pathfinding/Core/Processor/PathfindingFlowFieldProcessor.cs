@@ -306,7 +306,6 @@ namespace ME.ECS.Pathfinding {
         private struct UpdateWalkableField : IJobParallelFor {
 
             public Unity.Collections.NativeArray<GridNodeData> nodes;
-            public Unity.Collections.NativeArray<int> walkableField;
             public PathCustomWalkableField pathCustomWalkableField;
             public BurstConstraint constraint;
             
@@ -348,11 +347,11 @@ namespace ME.ECS.Pathfinding {
 
                 var updateWalkableFieldJob = new UpdateWalkableField() {
                     nodes = arr,
-                    walkableField = pathCustomWalkableField.walkableField,
                     pathCustomWalkableField = pathCustomWalkableField,
                     constraint = burstConstraint,
                 };
                 updateWalkableFieldJob.Schedule(pathCustomWalkableField.walkableField.Length, 64).Complete();
+                pathCustomWalkableField = updateWalkableFieldJob.pathCustomWalkableField;
 
             }
 
