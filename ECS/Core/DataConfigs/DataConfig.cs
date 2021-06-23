@@ -99,7 +99,7 @@ namespace ME.ECS.DataConfigs {
         #endregion
 
         #region Public API
-        public void Apply(in Entity entity, bool overrideIfExist = true) {
+        public virtual void Apply(in Entity entity, bool overrideIfExist = true) {
 
             //this.Reset();
             this.Prewarm();
