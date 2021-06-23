@@ -192,34 +192,32 @@ namespace ME.ECS.Pathfinding {
             public Unity.Collections.NativeArray<GridNodeData> nodes;
             public Unity.Collections.NativeArray<int> customWalkableField;
             public Unity.Collections.NativeArray<int> resultErosionField;
+            public Unity.Collections.NativeList<int> list;
 
             public void Execute() {
 
-                var list = new Unity.Collections.NativeList<int>(Unity.Collections.Allocator.Temp);
                 for (int j = 0; j <= this.erosion; ++j) {
 
-                    list.Clear();
+                    this.list.Clear();
                     for (int i = 0; i < this.resultErosionField.Length; ++i) {
 
                         var node = this.nodes[i];
                         if (this.customWalkableField[i] == 0 && this.resultErosionField[i] == 0) {
                             
-                            this.TestErosion(ref this.customWalkableField, ref this.resultErosionField, ref list, ref node, j);
+                            this.TestErosion(ref this.customWalkableField, ref this.resultErosionField, ref this.list, ref node, j);
                             
                         }
 
                     }
 
-                    for (var i = 0; i < list.Length; ++i) {
+                    for (var i = 0; i < this.list.Length; ++i) {
                     
-                        var nodeIndex = list[i];
+                        var nodeIndex = this.list[i];
                         this.resultErosionField[nodeIndex] = j + 1;
                         
                     }
 
                 }
-
-                list.Dispose();
 
             }
 
@@ -235,14 +233,18 @@ namespace ME.ECS.Pathfinding {
 
         public void BuildErosionJob(Unity.Collections.NativeArray<GridNodeData> nodes, Unity.Collections.NativeArray<int> customWalkableField, ref Unity.Collections.NativeArray<int> resultErosionField) {
 
+            var list = new Unity.Collections.NativeList<int>(Unity.Collections.Allocator.TempJob);
             var job = new BuildErosionJobData() {
                 erosion = this.erosion,
                 graphSize = this.size,
                 nodes = nodes,
                 customWalkableField = customWalkableField,
                 resultErosionField = resultErosionField,
+                list = list,
             };
             job.Schedule().Complete();
+            resultErosionField = job.resultErosionField;
+            list.Dispose();
             
         }
 
