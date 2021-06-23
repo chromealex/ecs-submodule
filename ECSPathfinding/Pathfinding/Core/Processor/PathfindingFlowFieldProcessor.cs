@@ -302,12 +302,34 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true)]
+        private struct UpdateWalkableField : IJobParallelFor {
+
+            public Unity.Collections.NativeArray<GridNodeData> nodes;
+            public Unity.Collections.NativeArray<int> walkableField;
+            public PathCustomWalkableField pathCustomWalkableField;
+            public BurstConstraint constraint;
+            
+            public void Execute(int index) {
+                
+                var node = this.nodes[index];
+                if ((this.constraint.tagsMask & node.tag) != 0) {
+
+                    this.pathCustomWalkableField.walkableField[index] = 1;
+
+                }
+                
+            }
+
+        }
+
         private void FlowFieldBurst<TMod>(ref int statVisited, GridGraph graph, ref BufferArray<byte> flowFieldResult, GridNode endNode, Constraint constraint, TMod mod) where TMod : struct, IPathModifier {
             
             var arr = new Unity.Collections.NativeArray<GridNodeData>(graph.nodesData, Unity.Collections.Allocator.TempJob);
             var queue = new NativeQueue<int>(graph.nodes.Count, Unity.Collections.Allocator.TempJob);
             var flowField = new Unity.Collections.NativeArray<byte>(graph.nodes.Count, Unity.Collections.Allocator.TempJob);
             var results = new Unity.Collections.NativeArray<int>(1, Unity.Collections.Allocator.TempJob);
+            var burstConstraint = constraint.GetBurstConstraint();
 
             PathCustomWalkableField pathCustomWalkableField = new PathCustomWalkableField() {
                 walkableField = new Unity.Collections.NativeArray<int>(graph.nodes.Count, Unity.Collections.Allocator.TempJob),
@@ -324,32 +346,29 @@ namespace ME.ECS.Pathfinding {
             // Update walkable field by tags
             if (constraint.checkTags == true) {
 
-                for (int i = 0; i < pathCustomWalkableField.walkableField.Length; ++i) {
-
-                    var node = graph.GetNodeByIndex<GridNode>(i);
-                    if ((constraint.tagsMask & node.tag) != 0) {
-
-                        pathCustomWalkableField.walkableField[i] = 1;
-
-                    }
-
-                }
+                var updateWalkableFieldJob = new UpdateWalkableField() {
+                    nodes = arr,
+                    walkableField = pathCustomWalkableField.walkableField,
+                    pathCustomWalkableField = pathCustomWalkableField,
+                    constraint = burstConstraint,
+                };
+                updateWalkableFieldJob.Schedule(pathCustomWalkableField.walkableField.Length, 64).Complete();
 
             }
 
-            graph.BuildErosion(pathCustomWalkableField.walkableField, ref pathCustomWalkableField.erosionField);
-            foreach (var node in graph.nodes) {
+            graph.BuildErosionJob(arr, pathCustomWalkableField.walkableField, ref pathCustomWalkableField.erosionField);
+            /*foreach (var node in graph.nodes) {
 
                 var erosion = pathCustomWalkableField.erosionField[node.index];
                 UnityEngine.Debug.DrawLine(node.worldPosition, node.worldPosition + UnityEngine.Vector3.up * (1f * erosion), UnityEngine.Color.red, 1f);
 
-            }
+            }*/
             var job = new Job() {
                 arr = arr,
                 queue = queue,
                 flowField = flowField,
                 endNodeIndex = endNode.index,
-                constraint = constraint.GetBurstConstraint(),
+                constraint = burstConstraint,
                 results = results,
                 pathCustomWalkableField = pathCustomWalkableField,
                 graphSize = graph.size,

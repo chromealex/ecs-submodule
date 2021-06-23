@@ -2,6 +2,7 @@
 #define INLINE_METHODS
 #endif
 
+using Unity.Jobs;
 using UnityEngine;
 
 namespace ME.ECS.Pathfinding {
@@ -180,6 +181,68 @@ namespace ME.ECS.Pathfinding {
 
             }
             PoolList<int>.Recycle(ref list);
+            
+        }
+
+        [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true)]
+        private struct BuildErosionJobData : Unity.Jobs.IJob {
+
+            public int erosion;
+            public Vector3Int graphSize;
+            public Unity.Collections.NativeArray<GridNodeData> nodes;
+            public Unity.Collections.NativeArray<int> customWalkableField;
+            public Unity.Collections.NativeArray<int> resultErosionField;
+
+            public void Execute() {
+
+                var list = new Unity.Collections.NativeList<int>(Unity.Collections.Allocator.Temp);
+                for (int j = 0; j <= this.erosion; ++j) {
+
+                    list.Clear();
+                    for (int i = 0; i < this.resultErosionField.Length; ++i) {
+
+                        var node = this.nodes[i];
+                        if (this.customWalkableField[i] == 0 && this.resultErosionField[i] == 0) {
+                            
+                            this.TestErosion(ref this.customWalkableField, ref this.resultErosionField, ref list, ref node, j);
+                            
+                        }
+
+                    }
+
+                    for (var i = 0; i < list.Length; ++i) {
+                    
+                        var nodeIndex = list[i];
+                        this.resultErosionField[nodeIndex] = j + 1;
+                        
+                    }
+
+                }
+
+                list.Dispose();
+
+            }
+
+            private void TestErosion(ref Unity.Collections.NativeArray<int> customWalkableField, ref Unity.Collections.NativeArray<int> resultErosionField, ref Unity.Collections.NativeList<int> list, ref GridNodeData node, int erodeIteration) {
+
+                if (GridGraphUtilities.HasErodeConnectionFail(this.graphSize, node, this.nodes, customWalkableField, resultErosionField, erodeIteration) == false) return;
+
+                list.Add(node.index);
+
+            }
+
+        }
+
+        public void BuildErosionJob(Unity.Collections.NativeArray<GridNodeData> nodes, Unity.Collections.NativeArray<int> customWalkableField, ref Unity.Collections.NativeArray<int> resultErosionField) {
+
+            var job = new BuildErosionJobData() {
+                erosion = this.erosion,
+                graphSize = this.size,
+                nodes = nodes,
+                customWalkableField = customWalkableField,
+                resultErosionField = resultErosionField,
+            };
+            job.Schedule().Complete();
             
         }
 
@@ -877,6 +940,25 @@ namespace ME.ECS.Pathfinding {
 
     public static class GridGraphUtilities {
 
+        public static bool HasErodeConnectionFail(Vector3Int graphSize, GridNodeData node, Unity.Collections.NativeArray<GridNodeData> nodes, Unity.Collections.NativeArray<int> customWalkableField, Unity.Collections.NativeArray<int> resultErosionField, int erodeIteration) {
+
+            if (GridGraphUtilities.IsBorder(graphSize, node) == true) return true;
+
+            for (int i = 0; i < node.connections.Length; ++i) {
+
+                var connection = node.connections.Get(i);
+                if (connection.index == -1) continue;
+                
+                var neighbour = nodes[connection.index];
+                if (customWalkableField[neighbour.index] != 0 || neighbour.walkable == 0) return true;
+                if (resultErosionField[neighbour.index] > 0) return true;
+                
+            }
+            
+            return false;
+            
+        }
+
         public static bool HasErodeConnectionFail(GridGraph graph, GridNode node, Unity.Collections.NativeArray<int> customWalkableField, Unity.Collections.NativeArray<int> resultErosionField, int erodeIteration) {
 
             if (GridGraphUtilities.IsBorder(graph.size, node) == true) return true;
@@ -909,6 +991,26 @@ namespace ME.ECS.Pathfinding {
                 
             }
             
+            return false;
+            
+        }
+
+        public static bool IsBorder(Vector3Int size, GridNodeData node) {
+            
+            if (node.position.x == 0 ||
+                node.position.x == size.z - 1) return true;
+
+            if (size.y > 2) {
+
+                if (node.position.y == 0 ||
+                    node.position.y == size.y - 1)
+                    return true;
+
+            }
+
+            if (node.position.z == 0 ||
+                node.position.z == size.x - 1) return true;
+
             return false;
             
         }
