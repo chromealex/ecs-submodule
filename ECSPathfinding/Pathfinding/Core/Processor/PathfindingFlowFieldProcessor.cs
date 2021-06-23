@@ -46,8 +46,8 @@ namespace ME.ECS.Pathfinding {
 
             //UnityEngine.Debug.Log(endNode.worldPosition + " :: " + ((GridNode)endNode).erosion);
             //UnityEngine.Debug.DrawLine(endNode.worldPosition, endNode.worldPosition + Vector3.up * 10f, Color.red, 3f);
-            
-            var key = MathUtils.GetKey(graph.index, endNode.index);
+
+            var key = MathUtils.GetKey(constraint.GetKey(), endNode.index);
             //UnityEngine.Debug.Log("Build path cache: " + cacheEnabled + ", burst: " + burstEnabled);
             if (cacheEnabled == true) {
 
@@ -310,8 +310,8 @@ namespace ME.ECS.Pathfinding {
             var results = new Unity.Collections.NativeArray<int>(1, Unity.Collections.Allocator.TempJob);
 
             PathCustomWalkableField pathCustomWalkableField = new PathCustomWalkableField() {
-                walkableField = new Unity.Collections.NativeArray<int>(0, Unity.Collections.Allocator.TempJob),
-                erosionField = new Unity.Collections.NativeArray<int>(0, Unity.Collections.Allocator.TempJob),
+                walkableField = new Unity.Collections.NativeArray<int>(graph.nodes.Count, Unity.Collections.Allocator.TempJob),
+                erosionField = new Unity.Collections.NativeArray<int>(graph.nodes.Count, Unity.Collections.Allocator.TempJob),
             };
             if (mod is PathCustomWalkableField custom) {
 
@@ -321,6 +321,29 @@ namespace ME.ECS.Pathfinding {
 
             }
             
+            // Update walkable field by tags
+            if (constraint.checkTags == true) {
+
+                for (int i = 0; i < pathCustomWalkableField.walkableField.Length; ++i) {
+
+                    var node = graph.GetNodeByIndex<GridNode>(i);
+                    if ((constraint.tagsMask & node.tag) != 0) {
+
+                        pathCustomWalkableField.walkableField[i] = 1;
+
+                    }
+
+                }
+
+            }
+
+            graph.BuildErosion(pathCustomWalkableField.walkableField, ref pathCustomWalkableField.erosionField);
+            foreach (var node in graph.nodes) {
+
+                var erosion = pathCustomWalkableField.erosionField[node.index];
+                UnityEngine.Debug.DrawLine(node.worldPosition, node.worldPosition + UnityEngine.Vector3.up * (1f * erosion), UnityEngine.Color.red, 1f);
+
+            }
             var job = new Job() {
                 arr = arr,
                 queue = queue,

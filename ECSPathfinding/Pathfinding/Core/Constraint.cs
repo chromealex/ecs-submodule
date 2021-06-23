@@ -48,6 +48,12 @@ namespace ME.ECS.Pathfinding {
 
         public long graphMask;
 
+        public int GetKey() {
+
+            return this.agentSize ^ (int)this.areaMask ^ (int)this.tagsMask ^ (int)this.graphMask;
+
+        }
+
         public BurstConstraint GetBurstConstraint() {
             
             return new BurstConstraint() {

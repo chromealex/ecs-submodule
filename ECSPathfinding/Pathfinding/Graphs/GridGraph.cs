@@ -570,7 +570,7 @@ namespace ME.ECS.Pathfinding {
 
                     }
                     
-                    UnityEditor.Handles.Label(node.worldPosition + Vector3.up, node.erosion.ToString());
+                    //UnityEditor.Handles.Label(node.worldPosition + Vector3.up, node.erosion.ToString());
 
                 }
 

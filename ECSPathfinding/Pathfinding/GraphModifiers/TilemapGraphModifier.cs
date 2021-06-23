@@ -27,93 +27,92 @@ namespace ME.ECS.Pathfinding {
 
         public override void ApplyBeforeConnections(Graph graph) {
 
-            var halfOffset = new Vector3(this.tilemap.cellSize.x, 0f, this.tilemap.cellSize.z) * 0.5f;
-            
             var visited = PoolHashSet<Node>.Spawn();
-            foreach (var pos in this.bounds.allPositionsWithin) {
+            {
+                var gridGraph = (GridGraph)graph;
+                var result = PoolListCopyable<Node>.Spawn(1);
+                graph.GetNodesInBounds(result, new Bounds(graph.graphCenter, (Vector3)gridGraph.size * gridGraph.nodeSize), Constraint.Empty);
+                {
+                    foreach (var node in result) {
 
-                var worldPos = pos + halfOffset;
-                var cellPos = this.tilemap.layoutGrid.WorldToCell(worldPos);
-                var tile = this.tilemap.GetTile(cellPos);
-                for (int i = 0; i < this.items.Length; ++i) {
+                        var worldPos = node.worldPosition;
+                        var cellPos = this.tilemap.layoutGrid.WorldToCell(worldPos);
+                        var tile = this.tilemap.GetTile(cellPos);
+                        for (int i = 0; i < this.items.Length; ++i) {
 
-                    var item = this.items[i];
-                    if (item.requiredTile == null || item.requiredTile == tile) {
-
-                        if (item.checkSprite == true) {
-
-                            var idx = System.Array.IndexOf(item.spriteOneOf, this.tilemap.GetSprite(cellPos));
-                            if (idx < 0) continue;
+                            var item = this.items[i];
+                            if (item.requiredTile == null || item.requiredTile == tile) {
                             
-                        }
-                        
-                        var result = PoolListCopyable<Node>.Spawn(1);
-                        graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize * 1f), Constraint.Empty);
-                        foreach (var node in result) {
+                                if (item.checkSprite == true) {
 
-                            if (visited.Contains(node) == false) {
-
-                                visited.Add(node);
+                                    var idx = System.Array.IndexOf(item.spriteOneOf, this.tilemap.GetSprite(cellPos));
+                                    if (idx < 0) continue;
                                 
-                                node.penalty += item.penaltyDelta;
-                                node.height += item.heightDelta;
-                                node.tag = item.tag;
+                                }
+                            
+                                if (visited.Contains(node) == false) {
+
+                                    visited.Add(node);
+                                    node.penalty += item.penaltyDelta;
+                                    node.height += item.heightDelta;
+                                    node.tag = item.tag;
+
+                                }
 
                             }
 
-                        }
-                        PoolListCopyable<Node>.Recycle(ref result);
+                        } 
 
-                    } 
-
+                    }
                 }
-                
+                PoolListCopyable<Node>.Recycle(ref result);
             }
+            
             PoolHashSet<Node>.Recycle(ref visited);
             
         }
 
         public override void ApplyAfterConnections(Graph graph) {
             
-            var halfOffset = new Vector3(this.tilemap.cellSize.x, 0f, this.tilemap.cellSize.z) * 0.5f;
-
             var visited = PoolHashSet<Node>.Spawn();
-            foreach (var pos in this.bounds.allPositionsWithin) {
+            {
+                var gridGraph = (GridGraph)graph;
+                var result = PoolListCopyable<Node>.Spawn(1);
+                graph.GetNodesInBounds(result, new Bounds(graph.graphCenter, (Vector3)gridGraph.size * gridGraph.nodeSize), Constraint.Empty);
+                {
+                    foreach (var node in result) {
 
-                var worldPos = pos + halfOffset;
-                var cellPos = this.tilemap.layoutGrid.WorldToCell(worldPos);
-                var tile = this.tilemap.GetTile(cellPos);
-                for (int i = 0; i < this.items.Length; ++i) {
+                        var worldPos = node.worldPosition;
+                        var cellPos = this.tilemap.layoutGrid.WorldToCell(worldPos);
+                        var tile = this.tilemap.GetTile(cellPos);
+                        for (int i = 0; i < this.items.Length; ++i) {
 
-                    var item = this.items[i];
-                    if (item.modifyWalkability == false) continue;
-                    
-                    if (item.requiredTile == null || item.requiredTile == tile) {
+                            var item = this.items[i];
+                            if (item.modifyWalkability == false) continue;
                         
-                        if (item.checkSprite == true) {
-
-                            var idx = System.Array.IndexOf(item.spriteOneOf, this.tilemap.GetSprite(cellPos));
-                            if (idx < 0) continue;
+                            if (item.requiredTile == null || item.requiredTile == tile) {
                             
-                        }
-                        
-                        var result = PoolListCopyable<Node>.Spawn(1);
-                        graph.GetNodesInBounds(result, new Bounds(worldPos, this.tilemap.cellSize * 1f), Constraint.Empty);
-                        foreach (var node in result) {
+                                if (item.checkSprite == true) {
 
-                            if (visited.Contains(node) == false) {
+                                    var idx = System.Array.IndexOf(item.spriteOneOf, this.tilemap.GetSprite(cellPos));
+                                    if (idx < 0) continue;
+                                
+                                }
+                            
+                                if (visited.Contains(node) == false) {
 
-                                visited.Add(node);
-                                node.walkable = item.walkable;
+                                    visited.Add(node);
+                                    node.walkable = item.walkable;
+
+                                }
 
                             }
 
-                        }
-                        PoolListCopyable<Node>.Recycle(ref result);
+                        } 
 
-                    } 
-
+                    }
                 }
+                PoolListCopyable<Node>.Recycle(ref result);
                 
             }
             PoolHashSet<Node>.Recycle(ref visited);
