@@ -1211,7 +1211,7 @@ namespace ME.ECS {
 
             }
 
-            NativeArrayUtils.Clear(this.dataVersions);
+            if (this.onVersionChangedOnly == true) NativeArrayUtils.Clear(this.dataVersions);
             NativeArrayUtils.Clear(this.dataContains);
             this.dataCount = 0;
 
