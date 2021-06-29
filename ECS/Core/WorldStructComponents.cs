@@ -1090,7 +1090,7 @@ namespace ME.ECS {
 
         internal interface ITask {
 
-            Entity entity { get; }
+            Entity GetEntity();
             void Execute();
             void Recycle();
             ITask Clone();
@@ -1100,17 +1100,22 @@ namespace ME.ECS {
 
         internal class NextFrameTask<TComponent> : ITask, System.IEquatable<NextFrameTask<TComponent>> where TComponent : struct, IStructComponent {
 
-            public Entity entity { get; set; }
+            public Entity entity;
             public TComponent data;
-            public World world;
             public ComponentLifetime lifetime;
             public float secondsLifetime;
+
+            public Entity GetEntity() {
+
+                return this.entity;
+
+            }
 
             public void Execute() {
 
                 if (this.entity.IsAlive() == true) {
 
-                    this.world.SetData(this.entity, in this.data, this.lifetime, this.secondsLifetime);
+                    Worlds.currentWorld.SetData(this.entity, in this.data, this.lifetime, this.secondsLifetime);
 
                 }
 
@@ -1121,7 +1126,6 @@ namespace ME.ECS {
                 var _other = (NextFrameTask<TComponent>)other;
                 this.entity = _other.entity;
                 this.data = _other.data;
-                this.world = _other.world;
                 this.lifetime = _other.lifetime;
                 this.secondsLifetime = _other.secondsLifetime;
 
@@ -1129,7 +1133,6 @@ namespace ME.ECS {
 
             public void Recycle() {
 
-                this.world = null;
                 this.data = default;
                 this.entity = default;
                 this.lifetime = default;
@@ -1299,7 +1302,7 @@ namespace ME.ECS {
 
                 if (this.nextFrameTasks[i] == null) continue;
 
-                if (this.nextFrameTasks[i].entity == entity) {
+                if (this.nextFrameTasks[i].GetEntity() == entity) {
 
                     this.nextFrameTasks[i].Recycle();
                     this.nextFrameTasks.RemoveAt(i);
@@ -1314,7 +1317,7 @@ namespace ME.ECS {
 
                 if (this.nextTickTasks[i] == null) continue;
 
-                if (this.nextTickTasks[i].entity == entity) {
+                if (this.nextTickTasks[i].GetEntity() == entity) {
 
                     this.nextTickTasks[i].Recycle();
                     this.nextTickTasks.RemoveAt(i);
@@ -2692,7 +2695,6 @@ namespace ME.ECS {
                 if (this.HasData<TComponent>(in entity) == true) return;
 
                 var task = PoolClass<StructComponentsContainer.NextFrameTask<TComponent>>.Spawn();
-                task.world = this;
                 task.entity = entity;
                 task.data = data;
                 task.secondsLifetime = secondsLifetime;
