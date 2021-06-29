@@ -104,7 +104,7 @@ namespace ME.ECS.Pathfinding {
 
         private void EndBuild() {
             
-            NavMesh.RemoveAllNavMeshData();
+            if (this.navMeshDataInstance.valid == true) this.navMeshDataInstance.Remove();
             
             var bounds = new UnityEngine.Bounds(this.graphCenter, new Vector3(this.size.x * this.scale.x, this.size.y * this.scale.y, this.size.z * this.scale.z));
             var buildSettings = UnityEngine.AI.NavMesh.GetSettingsByID(this.agentTypeId);

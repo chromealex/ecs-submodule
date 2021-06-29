@@ -5,7 +5,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components {
     public struct PathNavMesh : IStructCopyable<PathNavMesh> {
 
         public ME.ECS.Pathfinding.PathCompleteState result;
-        public ME.ECS.Collections.ListCopyable<UnityEngine.Vector3> path;
+        public ME.ECS.Collections.BufferArray<UnityEngine.Vector3> path;
 
         void IStructCopyable<PathNavMesh>.CopyFrom(in PathNavMesh other) {
 
@@ -17,8 +17,8 @@ namespace ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components {
         void IStructCopyable<PathNavMesh>.OnRecycle() {
 
             this.result = default;
-            PoolListCopyable<UnityEngine.Vector3>.Recycle(ref this.path);
-        
+            this.path = this.path.Dispose();
+
         }
 
     }

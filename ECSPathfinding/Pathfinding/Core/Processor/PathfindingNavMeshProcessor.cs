@@ -102,16 +102,24 @@ namespace ME.ECS.Pathfinding {
                     pathResult.results = results;
                     pathResult.corners = cornerCount;
 
-                    path.navMeshPoints = PoolListCopyable<Vector3>.Spawn(cornerCount);
-                    for (var i = 0; i < cornerCount; ++i) {
+                    if (cornerCount >= 2) {
 
-                        path.navMeshPoints.Add(results[i].position);
+                        path.navMeshPoints = PoolListCopyable<Vector3>.Spawn(cornerCount);
+                        for (var i = 0; i < cornerCount; ++i) {
+
+                            path.navMeshPoints.Add(results[i].position);
+
+                        }
+
+                        path.result = PathCompleteState.Complete;
+
+                    } else {
+
+                        path.result = PathCompleteState.NotExist;
 
                     }
 
                     pathResult.Dispose();
-
-                    path.result = PathCompleteState.Complete;
 
                 } else {
 

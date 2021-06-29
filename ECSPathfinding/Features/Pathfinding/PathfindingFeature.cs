@@ -90,7 +90,7 @@ namespace ME.ECS.Pathfinding.Features {
             
             entity.Set(new ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh() {
                 result = path.result,
-                path = path.navMeshPoints,
+                path = BufferArray<UnityEngine.Vector3>.From(path.navMeshPoints),
             });
             entity.Set(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
 
