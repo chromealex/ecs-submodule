@@ -134,6 +134,14 @@
             }
         }
 
+        public void AddRange(ListCopyable<T> items) {
+            var arrayLength = items.Count;
+            this.EnsureCapacity(this.Count + arrayLength + 1);
+            for (var i = 0; i < arrayLength; i++) {
+                this.innerArray.arr[this.Count++] = items[i];
+            }
+        }
+
         public void AddRange(System.Collections.Generic.IList<T> items) {
             var arrayLength = items.Count;
             this.EnsureCapacity(this.Count + arrayLength + 1);

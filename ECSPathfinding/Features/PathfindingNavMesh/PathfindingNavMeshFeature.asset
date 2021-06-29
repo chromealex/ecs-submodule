@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24a91e55764c74b65ba302fa9d8fb6dc, type: 3}
-  m_Name: PathfindingAstarFeature
+  m_Script: {fileID: 11500000, guid: 517b236fafd51431495f536d2c2ad119, type: 3}
+  m_Name: PathfindingNavMeshFeature
   m_EditorClassIdentifier: 
-  editorComment: Building path using A*
+  editorComment: Building path using NavMesh

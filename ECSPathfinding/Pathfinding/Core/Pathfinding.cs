@@ -95,7 +95,7 @@ namespace ME.ECS.Pathfinding {
 
         public const int THREADS_COUNT = 8;
 
-        public IPathfindingProcessor defaultProcessor = new PathfindingFlowFieldProcessor();
+        public IPathfindingProcessor defaultProcessor = new PathfindingNavMeshProcessor();
         public List<Graph> graphs;
 
         public LogLevel logLevel;
@@ -251,15 +251,39 @@ namespace ME.ECS.Pathfinding {
             
         }
 
-        public Node GetNearest(Vector3 worldPosition) {
+        public Vector3 ClampPosition(Vector3 worldPosition, Constraint constraint) {
+            
+            Vector3 nearest = default;
+            if (this.graphs != null) {
 
-            return this.GetNearest(worldPosition, Constraint.Default);
+                float dist = float.MaxValue;
+                for (int i = 0; i < this.graphs.Count; ++i) {
+
+                    if (constraint.graphMask >= 0 && (constraint.graphMask & (1 << this.graphs[i].index)) == 0) continue;
+
+                    if (this.graphs[i].ClampPosition(worldPosition, constraint, out var node) == true) {
+
+                        var d = (node - worldPosition).sqrMagnitude;
+                        if (d < dist) {
+
+                            dist = d;
+                            nearest = node;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            return nearest;
 
         }
 
-        public Node GetNearest(Vector3 worldPosition, Constraint constraint) {
+        public NodeInfo GetNearest(Vector3 worldPosition, Constraint constraint) {
 
-            Node nearest = null;
+            NodeInfo nearest = default;
             if (this.graphs != null) {
 
                 float dist = float.MaxValue;
@@ -268,8 +292,6 @@ namespace ME.ECS.Pathfinding {
                     if (constraint.graphMask >= 0 && (constraint.graphMask & (1 << this.graphs[i].index)) == 0) continue;
                     
                     var node = this.graphs[i].GetNearest(worldPosition, constraint);
-                    if (node == null) continue;
-                    
                     var d = (node.worldPosition - worldPosition).sqrMagnitude;
                     if (d < dist) {
 
@@ -362,12 +384,6 @@ namespace ME.ECS.Pathfinding {
                 }
 
             }
-            
-        }
-        
-        public bool BuildNodePhysics(Node node) {
-            
-            return node.graph.BuildNodePhysics(node);
             
         }
         

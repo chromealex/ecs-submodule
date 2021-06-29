@@ -15,20 +15,20 @@ namespace ME.ECS.Pathfinding {
             var constraintStart = constraint;
             constraintStart.checkWalkability = true;
             constraintStart.walkable = true;
-            var startNode = graph.GetNearest<GridNode>(from, constraintStart);
-            if (startNode == null) return new Path();
+            var startNode = graph.GetNearest(from, constraintStart);
+            if (startNode.node == null) return new Path();
 
             var constraintEnd = constraintStart;
             constraintEnd.checkArea = true;
-            constraintEnd.areaMask = (1 << startNode.area);
+            constraintEnd.areaMask = (1 << startNode.node.area);
             
-            var endNode = graph.GetNearest<GridNode>(to, constraintEnd);
-            if (endNode == null) return new Path();
+            var endNode = graph.GetNearest(to, constraintEnd);
+            if (endNode.node == null) return new Path();
             
             System.Diagnostics.Stopwatch swPath = null;
             if ((pathfindingLogLevel & LogLevel.Path) != 0) swPath = System.Diagnostics.Stopwatch.StartNew();
             var statVisited = 0;
-            var nodesPath = this.AstarSearch(ref statVisited, graph as GridGraph, startNode, endNode, constraint, threadIndex);
+            var nodesPath = this.AstarSearch(ref statVisited, graph as GridGraph, startNode.node, endNode.node, constraint, threadIndex);
 
             var statLength = 0;
             
@@ -195,7 +195,7 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        private Unity.Collections.NativeList<GridNodeData> AstarSearch(ref int statVisited, GridGraph graph, GridNode startNode, GridNode endNode, Constraint constraint, int threadIndex) {
+        private Unity.Collections.NativeList<GridNodeData> AstarSearch(ref int statVisited, GridGraph graph, Node startNode, Node endNode, Constraint constraint, int threadIndex) {
 
             var graphSize = graph.size;
             var graphCenter = graph.graphCenter;

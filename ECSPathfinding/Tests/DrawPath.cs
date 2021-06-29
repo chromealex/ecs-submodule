@@ -81,8 +81,8 @@ public class DrawPath : MonoBehaviour {
                 }
 
                 var from = this.transform.position;
-                var currentNode = graph.GetNearest(from, this.constraint);
-                var targetNode = graph.GetNearest(this.to.position, this.constraint);
+                var currentNode = graph.GetNearest(from, this.constraint).node;
+                var targetNode = graph.GetNearest(this.to.position, this.constraint).node;
                 Gizmos.color = Color.blue;
                 var max = 10000;
                 while (currentNode.index != targetNode.index) {
@@ -121,8 +121,8 @@ public class DrawPath : MonoBehaviour {
                         current = Vector3.MoveTowards(current, next, path.graph.GetNodeMinDistance());
                         var node = path.graph.GetNearest(current, cons);
                         if ( //node.walkable == false ||
-                            node.penalty != nodeNext.penalty ||
-                            node.IsSuitable(this.constraint) == false) {
+                            node.node.penalty != nodeNext.penalty ||
+                            node.node.IsSuitable(this.constraint) == false) {
 
                             Gizmos.color = Color.red;
                             Gizmos.DrawCube(node.worldPosition, Vector3.one);

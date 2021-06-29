@@ -17,6 +17,14 @@ namespace ME.ECS.Pathfinding {
 
     }
 
+    public struct NodeInfo {
+
+        public Vector3 worldPosition;
+        public Graph graph;
+        public Node node;
+
+    }
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
@@ -41,7 +49,7 @@ namespace ME.ECS.Pathfinding {
         public float minHeight { get; private set; }
         public float maxHeight { get; private set; }
 
-        public virtual void OnRecycle() {
+        protected virtual void OnRecycle() {
 
             this.pathfindingLogLevel = default;
             this.index = default;
@@ -55,7 +63,11 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        public abstract void Recycle();
+        public virtual void Recycle() {
+            
+            this.OnRecycle();
+
+        }
 
         public void CopyFrom(Graph other) {
 
@@ -173,21 +185,15 @@ namespace ME.ECS.Pathfinding {
             
         }
 
-        public Node GetNearest(Vector3 worldPosition) {
+        public NodeInfo GetNearest(Vector3 worldPosition) {
 
             return this.GetNearest(worldPosition, Constraint.Default);
 
         }
 
-        public abstract Node GetNearest(Vector3 worldPosition, Constraint constraint);
+        public abstract NodeInfo GetNearest(Vector3 worldPosition, Constraint constraint);
 
-        public T GetNearest<T>(Vector3 worldPosition) where T : Node {
-
-            return this.GetNearest<T>(worldPosition, Constraint.Default);
-
-        }
-
-        public abstract T GetNearest<T>(Vector3 worldPosition, Constraint constraint) where T : Node;
+        public abstract bool ClampPosition(Vector3 worldPosition, Constraint constraint, out Vector3 position);
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -376,12 +382,29 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        public abstract bool BuildNodePhysics(Node node);
         protected abstract void Validate();
         protected abstract void BuildNodes();
-        protected abstract void RunModifiersBeforeConnections();
         protected abstract void BuildConnections();
-        protected abstract void RunModifiersAfterConnections();
+        
+        protected virtual void RunModifiersAfterConnections() {
+
+            for (var i = 0; i < this.modifiers.Count; ++i) {
+
+                if (this.modifiers[i].enabled == true) this.modifiers[i].modifier.ApplyAfterConnections(this);
+
+            }
+
+        }
+
+        protected virtual void RunModifiersBeforeConnections() {
+
+            for (var i = 0; i < this.modifiers.Count; ++i) {
+
+                if (this.modifiers[i].enabled == true) this.modifiers[i].modifier.ApplyBeforeConnections(this);
+
+            }
+
+        }
 
         public virtual void BuildAreas() {
 

@@ -28,10 +28,10 @@ namespace ME.ECS.Pathfinding {
         
         private void Connect(Graph graph, Vector3 nearestPos, Vector3 connectToPos) {
             
-            var nearest = graph.GetNearest<GridNode>(nearestPos, Constraint.Empty);
+            var nearest = graph.GetNearest(nearestPos, Constraint.Empty);
             var connectTo = graph.GetNearest(connectToPos, Constraint.Empty);
 
-            nearest.AddConnection(connectTo);
+            nearest.node.AddConnection(connectTo.node);
             
         }
 

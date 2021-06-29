@@ -67,7 +67,7 @@ namespace ME.ECS.Pathfinding {
                 if (this.prevModifyWalkability == true) {
                     
                     node.walkable = true;
-                    this.pathfinding.BuildNodePhysics(node);
+                    //this.pathfinding.BuildNodePhysics(node);
 
                 }
 
@@ -84,7 +84,7 @@ namespace ME.ECS.Pathfinding {
                     if (this.modifyWalkability == true) {
 
                         node.walkable = this.walkable;
-                        this.pathfinding.BuildNodePhysics(node);
+                        //this.pathfinding.BuildNodePhysics(node);
 
                     }
 
