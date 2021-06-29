@@ -20,7 +20,7 @@ namespace ME.ECS.Pathfinding.Editor {
         
         private Dictionary<System.Type, IGraphGUIEditor<Graph>> graphEditors;
         private UnityEditorInternal.ReorderableList.Defaults styleDefaults;
-        
+
         public override void OnInspectorGUI() {
 
             ME.ECSEditor.GUILayoutExt.CollectEditors<IGraphGUIEditor<Graph>, GraphCustomEditorAttribute>(ref this.graphEditors, System.Reflection.Assembly.GetExecutingAssembly());

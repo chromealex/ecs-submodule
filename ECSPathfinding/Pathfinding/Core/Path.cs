@@ -27,6 +27,9 @@ namespace ME.ECS.Pathfinding {
         
         // For FlowField processor
         public BufferArray<byte> flowField;
+        
+        // For NavMesh processor
+        public ListCopyable<Vector3> navMeshPoints;
 
         public void Recycle() {
             
@@ -34,6 +37,8 @@ namespace ME.ECS.Pathfinding {
             if (this.nodesModified != null) PoolListCopyable<Node>.Recycle(ref this.nodesModified);
             
             if (this.cacheEnabled == false && this.flowField.arr != null) PoolArray<byte>.Recycle(ref this.flowField);
+            
+            if (this.navMeshPoints != null) PoolListCopyable<Vector3>.Recycle(ref this.navMeshPoints);
 
         }
 

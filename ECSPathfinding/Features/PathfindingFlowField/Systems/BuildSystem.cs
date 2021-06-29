@@ -97,7 +97,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Systems {
             //entity.Remove<Path>();
 
             ref readonly var request = ref entity.Read<CalculatePath>();
-            if (request.flowField == true) {
+            if (request.pathType == PathType.FlowField) {
 
                 //UnityEngine.Debug.LogWarning("REQUEST PATH: " + request.@from.ToStringDec() + " to " + request.to.ToStringDec() + ", cache: " + request.cacheEnabled + ", burst: " + request.burstEnabled);
                 var constraint = request.constraint;

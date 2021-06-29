@@ -90,6 +90,8 @@ namespace ME.ECS.Pathfinding {
         public Path Run(Path path, Constraint constraint) {
 
             ref var nodes = ref path.nodes;
+            if (nodes == null) return path;
+            
             var corners = PoolListCopyable<Node>.Spawn(10);
             
             var prevDir = -1;
@@ -118,7 +120,7 @@ namespace ME.ECS.Pathfinding {
                 }
 
             }
-            corners.Add(path.graph.GetNearest(nodes[nodes.Count - 1].worldPosition, constraint));
+            corners.Add(path.graph.GetNearest(nodes[nodes.Count - 1].worldPosition, constraint).node);
 
             this.UpdateCorners(path, constraint, nodes, corners);
             path.nodesModified = corners;
@@ -148,8 +150,8 @@ namespace ME.ECS.Pathfinding {
                         
                         var node = path.graph.GetNearest(pos, cons);
                         if ( //node.walkable == false ||
-                            Mathf.Abs(node.penalty - current.penalty) > Mathf.Epsilon ||
-                            node.IsSuitable(constraint) == false) {
+                            Mathf.Abs(node.node.penalty - current.penalty) > Mathf.Epsilon ||
+                            node.node.IsSuitable(constraint) == false) {
 
                             allWalkable = false;
                             break;

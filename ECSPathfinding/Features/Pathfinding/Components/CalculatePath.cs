@@ -1,6 +1,14 @@
 ﻿
 namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
 
+    public enum PathType {
+
+        AStar,
+        FlowField,
+        NavMesh,
+
+    }
+    
     public struct IsPathfinding : IStructComponent {}
     public struct BuildAllGraphs : IStructComponent {}
     public struct HasPathfindingInstance : IStructComponent {}
@@ -12,7 +20,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
         public UnityEngine.Vector3 to;
         public bool alignToGraphNodes;
         public ME.ECS.Pathfinding.Constraint constraint;
-        public bool flowField;
+        public PathType pathType;
         public bool burstEnabled;
         public bool cacheEnabled;
 

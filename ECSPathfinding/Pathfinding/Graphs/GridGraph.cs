@@ -264,8 +264,10 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        public override void OnRecycle() {
+        protected override void OnRecycle() {
 
+            base.OnRecycle();
+            
             this.size = default;
             this.nodeSize = default;
             this.initialPenalty = default;
@@ -278,12 +280,6 @@ namespace ME.ECS.Pathfinding {
             this.collisionCheckRadius = default;
 
             ArrayUtils.Recycle(ref this.nodes, new CopyNode());
-
-        }
-
-        public override void Recycle() {
-
-            this.OnRecycle();
 
         }
 
@@ -428,13 +424,22 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        public override Node GetNearest(Vector3 worldPosition, Constraint constraint) {
+        public override bool ClampPosition(Vector3 worldPosition, Constraint constraint, out Vector3 position) {
 
-            return this.GetNearest<GridNode>(worldPosition, constraint);
+            var node = this.GetNearest(worldPosition, constraint);
+            if (node.node != null) {
+                
+                position = node.node.worldPosition;
+                return true;
+                
+            }
+
+            position = default;
+            return false;
 
         }
 
-        public override T GetNearest<T>(Vector3 worldPosition, Constraint constraint) {
+        public override NodeInfo GetNearest(Vector3 worldPosition, Constraint constraint) {
 
             if (this.nodes == null) return default;
 
@@ -456,13 +461,25 @@ namespace ME.ECS.Pathfinding {
 
                 var p = ME.ECS.MathUtils.GetSpiralPointByIndex(new Vector2Int(x, z), idx);
                 var i = GridGraphUtilities.GetIndexByPosition(this, new Vector3Int(p.x, y, p.y));
-                var node = this.GetNodeByIndex<T>(i);
+                var node = this.GetNodeByIndex<Node>(i);
                 if (node == null) continue;
-                if (node.IsSuitable(constraint) == true) return node;
+                if (node.IsSuitable(constraint) == true) {
+                    
+                    return new NodeInfo() {
+                        graph = this,
+                        node = node,
+                        worldPosition = node.worldPosition,
+                    };
+                    
+                }
 
             }
 
-            return default;
+            return new NodeInfo() {
+                graph = this,
+                node = null,
+                worldPosition = worldPosition,
+            };
 
         }
 
@@ -474,16 +491,18 @@ namespace ME.ECS.Pathfinding {
             var min = bounds.min;
             var max = bounds.max;
 
-            var minNode = this.GetNearest<GridNode>(min + this.graphCenter, Constraint.Empty);
-            if (minNode == null) return;
-            var maxNode = this.GetNearest<GridNode>(max + this.graphCenter, Constraint.Empty);
-            if (maxNode == null) return;
+            var minNode = this.GetNearest(min + this.graphCenter, Constraint.Empty);
+            if (minNode.node == null) return;
+            var maxNode = this.GetNearest(max + this.graphCenter, Constraint.Empty);
+            if (maxNode.node == null) return;
 
-            for (int y = minNode.position.y; y <= maxNode.position.y; ++y) {
+            var ggNodeMin = (GridNode)minNode.node;
+            var ggNodeMax = (GridNode)maxNode.node;
+            for (int y = ggNodeMin.position.y; y <= ggNodeMax.position.y; ++y) {
 
-                for (int x = minNode.position.x; x <= maxNode.position.x; ++x) {
+                for (int x = ggNodeMin.position.x; x <= ggNodeMax.position.x; ++x) {
 
-                    for (int z = minNode.position.z; z <= maxNode.position.z; ++z) {
+                    for (int z = ggNodeMin.position.z; z <= ggNodeMax.position.z; ++z) {
 
                         var index = GridGraphUtilities.GetIndexByPosition(this, new Vector3Int(z, y, x));
                         var n = this.nodes[index];
@@ -795,27 +814,7 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        protected override void RunModifiersAfterConnections() {
-
-            for (var i = 0; i < this.modifiers.Count; ++i) {
-
-                if (this.modifiers[i].enabled == true) this.modifiers[i].modifier.ApplyAfterConnections(this);
-
-            }
-
-        }
-
-        protected override void RunModifiersBeforeConnections() {
-
-            for (var i = 0; i < this.modifiers.Count; ++i) {
-
-                if (this.modifiers[i].enabled == true) this.modifiers[i].modifier.ApplyBeforeConnections(this);
-
-            }
-
-        }
-
-        public override bool BuildNodePhysics(Node node) {
+        private bool BuildNodePhysics(Node node) {
 
             var worldPos = node.worldPosition;
 

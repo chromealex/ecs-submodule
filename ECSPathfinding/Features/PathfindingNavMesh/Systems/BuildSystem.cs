@@ -1,5 +1,5 @@
 ﻿
-namespace ME.ECS.Pathfinding.Features.PathfindingAstar.Systems {
+namespace ME.ECS.Pathfinding.Features.PathfindingNavMesh.Systems {
 
     using ME.ECS.Pathfinding.Features.Pathfinding.Components;
 
@@ -57,7 +57,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingAstar.Systems {
             if (this.pathTasks.IsCreated == true) {
 
                 ME.ECS.Collections.BufferArray<ME.ECS.Pathfinding.Path> results = default;
-                active.RunTasks<PathCornersModifier, PathfindingAstarProcessor>(this.pathTasks, ref results);
+                active.RunTasks<PathCornersModifier, PathfindingNavMeshProcessor>(this.pathTasks, ref results);
                 //UnityEngine.Debug.Log("Calc paths: " + this.idx);
                 for (int i = 0; i < this.idx; ++i) {
 
@@ -68,11 +68,11 @@ namespace ME.ECS.Pathfinding.Features.PathfindingAstar.Systems {
                     //UnityEngine.Debug.Log("Path build: " + i + " :: " + path.result);
                     if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete) {
 
-                        this.pathfindingFeature.SetPathAstar(in task.entity, path, task.constraint, task.from, task.to, task.alignToGraphNodes);
+                        this.pathfindingFeature.SetPathNavMesh(in task.entity, path, task.constraint, task.from, task.to);
 
                     } else {
 
-                        task.entity.Remove<Path>();
+                        task.entity.Remove<PathNavMesh>();
 
                     }
 
@@ -97,7 +97,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingAstar.Systems {
             //entity.Remove<Path>();
             
             ref readonly var request = ref entity.Read<CalculatePath>();
-            if (request.pathType == PathType.AStar) {
+            if (request.pathType == PathType.NavMesh) {
 
                 //UnityEngine.Debug.LogWarning("REQUEST PATH: " + request.@from.ToStringDec() + " to " + request.to.ToStringDec());
                 var constraint = request.constraint;

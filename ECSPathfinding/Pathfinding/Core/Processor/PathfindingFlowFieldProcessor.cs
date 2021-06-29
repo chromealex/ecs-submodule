@@ -32,14 +32,14 @@ namespace ME.ECS.Pathfinding {
             constraintStart.checkWalkability = true;
             constraintStart.walkable = true;
             var startNode = graph.GetNearest(from, constraintStart);
-            if (startNode == null) return new Path();
+            if (startNode.node == null) return new Path();
 
             var constraintEnd = constraintStart;
             constraintEnd.checkArea = true;
-            constraintEnd.areaMask = (1 << startNode.area);
+            constraintEnd.areaMask = (1 << startNode.node.area);
             
             var endNode = graph.GetNearest(to, constraintEnd);
-            if (endNode == null) return new Path();
+            if (endNode.node == null) return new Path();
             
             System.Diagnostics.Stopwatch swPath = null;
             if ((pathfindingLogLevel & LogLevel.Path) != 0) swPath = System.Diagnostics.Stopwatch.StartNew();
@@ -47,7 +47,7 @@ namespace ME.ECS.Pathfinding {
             //UnityEngine.Debug.Log(endNode.worldPosition + " :: " + ((GridNode)endNode).erosion);
             //UnityEngine.Debug.DrawLine(endNode.worldPosition, endNode.worldPosition + Vector3.up * 10f, Color.red, 3f);
 
-            var key = MathUtils.GetKey(constraint.GetKey(), endNode.index);
+            var key = MathUtils.GetKey(constraint.GetKey(), endNode.node.index);
             //UnityEngine.Debug.Log("Build path cache: " + cacheEnabled + ", burst: " + burstEnabled);
             if (cacheEnabled == true) {
 
@@ -76,7 +76,7 @@ namespace ME.ECS.Pathfinding {
             int statVisited = 0;
             if (burstEnabled == true) { // burst
                 
-                this.FlowFieldBurst(ref statVisited, (GridGraph)graph, ref flowField, (GridNode)endNode, constraint, pathModifier);
+                this.FlowFieldBurst(ref statVisited, (GridGraph)graph, ref flowField, (GridNode)endNode.node, constraint, pathModifier);
                 if (cacheEnabled == true) {
 
                     if (PathfindingFlowFieldProcessor.pathCache.Count > PathfindingFlowFieldProcessor.CACHE_SIZE) {
@@ -107,8 +107,8 @@ namespace ME.ECS.Pathfinding {
 
                 }
 
-                this.CreateIntegrationField(graph, visited, endNode, constraint, threadIndex);
-                this.CreateFlowField(graph, ref flowField, endNode, constraint, threadIndex);
+                this.CreateIntegrationField(graph, visited, endNode.node, constraint, threadIndex);
+                this.CreateFlowField(graph, ref flowField, endNode.node, constraint, threadIndex);
                 
                 statVisited = visited.Count;
                 for (int i = 0; i < visited.Count; ++i) {

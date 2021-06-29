@@ -86,6 +86,16 @@ namespace ME.ECS.Pathfinding.Features {
             
         }
 
+        public void SetPathNavMesh(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 from, UnityEngine.Vector3 to) {
+            
+            entity.Set(new ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh() {
+                result = path.result,
+                path = path.navMeshPoints,
+            });
+            entity.Set(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
+
+        }
+
         public void SetPathAstar(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 from, UnityEngine.Vector3 to, bool alignToGraphNodes) {
             
             this.SetPathAstar(in entity, path.nodesModified, path.result, constraint, from, to, alignToGraphNodes);
@@ -115,7 +125,7 @@ namespace ME.ECS.Pathfinding.Features {
             }
             
             var nearestTarget = this.GetNearest(to);
-            if (nearestTarget.IsSuitable(constraint) == true) {
+            if (nearestTarget.node.IsSuitable(constraint) == true) {
 
                 if (alignToGraphNodes == true) {
                     
@@ -174,13 +184,6 @@ namespace ME.ECS.Pathfinding.Features {
             
         }
 
-        public bool BuildNodePhysics(Node node) {
-
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return false;
-            return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.BuildNodePhysics(node);
-
-        }
-        
         public T GetGraphByIndex<T>(int index) where T : Graph {
 
             if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return default;
@@ -188,14 +191,28 @@ namespace ME.ECS.Pathfinding.Features {
 
         }
         
-        public Node GetNearest(UnityEngine.Vector3 worldPosition) {
+        public UnityEngine.Vector3 ClampPosition(UnityEngine.Vector3 worldPosition) {
+
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return default;
+            return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.ClampPosition(worldPosition, Constraint.Default);
+
+        }
+
+        public UnityEngine.Vector3 ClampPosition(UnityEngine.Vector3 worldPosition, Constraint constraint) {
+            
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return default;
+            return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.ClampPosition(worldPosition, constraint);
+            
+        }
+
+        public NodeInfo GetNearest(UnityEngine.Vector3 worldPosition) {
 
             if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return default;
             return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.GetNearest(worldPosition, Constraint.Default);
 
         }
 
-        public Node GetNearest(UnityEngine.Vector3 worldPosition, Constraint constraint) {
+        public NodeInfo GetNearest(UnityEngine.Vector3 worldPosition, Constraint constraint) {
             
             if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return default;
             return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.GetNearest(worldPosition, constraint);

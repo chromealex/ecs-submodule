@@ -20,7 +20,7 @@ namespace ME.ECS {
             structComponentsContainer.ValidateCopyable<ME.ECS.Pathfinding.Features.PathfindingAstar.Components.Path>();
             structComponentsContainer.ValidateCopyable<ME.ECS.Pathfinding.Features.PathfindingFlowField.Components.PathFlowField>();
             structComponentsContainer.Validate<ME.ECS.Pathfinding.Features.Pathfinding.Components.IsPathfinding>(true);
-            structComponentsContainer.Validate<ME.ECS.Pathfinding.Features.Pathfinding.Components.BuildAllGraphs>(true);;
+            structComponentsContainer.Validate<ME.ECS.Pathfinding.Features.Pathfinding.Components.BuildAllGraphs>(true);
             structComponentsContainer.Validate<ME.ECS.Pathfinding.Features.Pathfinding.Components.IsAllGraphsBuilt>(true);
             structComponentsContainer.Validate<ME.ECS.Pathfinding.Features.Pathfinding.Components.HasPathfindingInstance>(true);
             structComponentsContainer.Validate<ME.ECS.Pathfinding.Features.Pathfinding.Components.IsPathBuilt>(true);
