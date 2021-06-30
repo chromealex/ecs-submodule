@@ -8,7 +8,9 @@ namespace ME.ECS.Pathfinding {
 
         public UnityEngine.Vector3Int size = new Vector3Int(100, 1, 100);
         public Vector3 scale = Vector3.one;
+        
         public bool buildFloor;
+        public float floorHeight = 0.1f;
 
         public int agentTypeId = 0;
         public float agentClimb = 0f;
@@ -28,7 +30,6 @@ namespace ME.ECS.Pathfinding {
         private UnityEngine.Experimental.AI.NavMeshQuery query;
         
         private List<NavMeshBuildSource> buildSources = new List<NavMeshBuildSource>();
-        private Dictionary<Entity, NavMeshBuildSource> obstacleSources = new Dictionary<Entity, NavMeshBuildSource>(1000);
         private List<NavMeshBuildSource> tempSources = new List<NavMeshBuildSource>(1000);
 
         public void AddBuildSource(in NavMeshBuildSource buildSource) {
@@ -37,20 +38,23 @@ namespace ME.ECS.Pathfinding {
         
         }
 
-        public void RemoveObstacle(Entity entity) {
+        public override void Recycle() {
             
-            this.obstacleSources.Remove(entity);
+            base.Recycle();
+            
+            this.OnCleanUp();
             
         }
 
-        public void AddObstacle(Entity entity, Vector3 position, Quaternion rotation, NavMeshBuildSourceShape shape, Vector3 size) {
+        protected override void OnCleanUp() {
             
-            this.obstacleSources.Add(entity, new NavMeshBuildSource() {
-                shape = shape,
-                size = size,
-                area = 1 << 1,
-                transform = Matrix4x4.TRS(position, rotation, Vector3.one),
-            });
+            base.OnCleanUp();
+            
+            NavMesh.RemoveAllNavMeshData();
+            
+            Object.DestroyImmediate(this.navMeshData);
+            this.navMeshData = null;
+            if (this.navMeshDataInstance.valid == true) this.navMeshDataInstance.Remove();
 
         }
 
@@ -63,18 +67,9 @@ namespace ME.ECS.Pathfinding {
         public bool UpdateGraph(List<NavMeshBuildSource> sources) {
             
             this.tempSources.Clear();
-            if (sources != null) this.tempSources.AddRange(sources);
             this.tempSources.AddRange(this.buildSources);
-            foreach (var kv in this.obstacleSources) {
-
-                if (kv.Key.IsAlive() == true) {
-                    
-                    this.tempSources.Add(kv.Value);
-                    
-                }
-                
-            }
-            var bounds = new UnityEngine.Bounds(this.graphCenter, this.size);
+            if (sources != null) this.tempSources.AddRange(sources);
+            var bounds = new UnityEngine.Bounds(this.graphCenter, new Vector3(this.size.x * this.scale.x, this.size.y * this.scale.y, this.size.z * this.scale.z));
             if (NavMeshBuilder.UpdateNavMeshData(this.navMeshData, this.buildSettings, this.tempSources, bounds) == false) {
 
                 return false;
@@ -95,7 +90,7 @@ namespace ME.ECS.Pathfinding {
                     area = 0,
                     shape = UnityEngine.AI.NavMeshBuildSourceShape.Box,
                     size = new Vector3(this.size.x * this.scale.x, 0f, this.size.z * this.scale.z),
-                    transform = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one),
+                    transform = Matrix4x4.TRS(new Vector3(0f, this.floorHeight, 0f), Quaternion.identity, Vector3.one),
                 });
 
             }
@@ -127,7 +122,7 @@ namespace ME.ECS.Pathfinding {
 
         public override bool ClampPosition(Vector3 worldPosition, Constraint constraint, out Vector3 position) {
 
-            if (UnityEngine.AI.NavMesh.SamplePosition(worldPosition, out var hit, 1000f, (int)constraint.areaMask) == true) {
+            if (UnityEngine.AI.NavMesh.SamplePosition(worldPosition, out var hit, 1000f, constraint.checkArea == true ? (int)constraint.areaMask : -1) == true) {
 
                 position = hit.position;
                 return true;

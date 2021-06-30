@@ -409,6 +409,12 @@ namespace ME.ECS.Pathfinding {
 
                 for (int i = 0; i < this.graphs.Count; ++i) {
 
+                    this.graphs[i].DoCleanUp();
+
+                }
+
+                for (int i = 0; i < this.graphs.Count; ++i) {
+
                     this.graphs[i].DoBuild();
 
                 }

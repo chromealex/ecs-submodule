@@ -49,6 +49,13 @@ namespace ME.ECS.Pathfinding {
         public float minHeight { get; private set; }
         public float maxHeight { get; private set; }
 
+        public void SetMinMaxHeight(float min, float max) {
+            
+            this.minHeight = min;
+            this.maxHeight = max;
+            
+        }
+        
         protected virtual void OnRecycle() {
 
             this.pathfindingLogLevel = default;
@@ -305,6 +312,14 @@ namespace ME.ECS.Pathfinding {
             return Color.Lerp(from, to, t);
 
         }
+
+        public void DoCleanUp() {
+            
+            this.OnCleanUp();
+            
+        }
+
+        protected virtual void OnCleanUp() { }
 
         public void DoBuild() {
 

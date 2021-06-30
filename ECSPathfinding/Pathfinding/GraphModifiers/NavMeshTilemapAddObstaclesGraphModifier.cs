@@ -48,7 +48,10 @@ namespace ME.ECS.Pathfinding {
                                                       this.tilemap.transform.lossyScale) * this.tilemap.orientationMatrix * this.tilemap.GetTransformMatrix(pos),
                             size = new Vector3(this.tilemap.layoutGrid.cellSize.x, this.tilemap.layoutGrid.cellSize.y, item.height),
                         };
-                        
+
+                        if (item.height < navMeshGraph.minHeight) navMeshGraph.SetMinMaxHeight(item.height, navMeshGraph.maxHeight);
+                        if (item.height > navMeshGraph.maxHeight) navMeshGraph.SetMinMaxHeight(navMeshGraph.minHeight, item.height);
+
                     }
 
                 }
