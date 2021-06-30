@@ -72,7 +72,7 @@ namespace ME.ECS.Pathfinding {
                 return path;
             }
 
-            query.BeginFindPath(from, to);
+            query.BeginFindPath(from, to, areas);
             query.UpdateFindPath(PathfindingNavMeshProcessor.MAX_ITERATIONS, out var performed);
             statVisited = performed;
 
@@ -84,8 +84,7 @@ namespace ME.ECS.Pathfinding {
 
                 var straightPathFlags = new Unity.Collections.NativeArray<StraightPathFlags>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.Persistent);
                 var vertexSide = new Unity.Collections.NativeArray<float>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.Persistent);
-                var results = new Unity.Collections.NativeArray<UnityEngine.Experimental.AI.NavMeshLocation>(
-                    PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.Persistent);
+                var results = new Unity.Collections.NativeArray<UnityEngine.Experimental.AI.NavMeshLocation>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.Persistent);
                 var cornerCount = 0;
                 var pathStatus = PathUtils.FindStraightPath(
                     query,
