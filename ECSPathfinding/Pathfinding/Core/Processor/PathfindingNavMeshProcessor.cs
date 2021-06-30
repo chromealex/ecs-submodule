@@ -51,11 +51,22 @@ namespace ME.ECS.Pathfinding {
 
             var query = new UnityEngine.Experimental.AI.NavMeshQuery(UnityEngine.Experimental.AI.NavMeshWorld.GetDefaultWorld(), Unity.Collections.Allocator.Persistent,
                                                                      PathfindingNavMeshProcessor.POOL_SIZE);
+            
+            UnityEngine.AI.NavMesh.SamplePosition(fromPoint, out var hitFrom, 1000f, new UnityEngine.AI.NavMeshQueryFilter() {
+                agentTypeID = navMeshGraph.agentTypeId,
+                areaMask = areas,
+            });
+            fromPoint = hitFrom.position;
             var from = query.MapLocation(fromPoint, Vector3.one * 10f, navMeshGraph.agentTypeId, areas);
             if (from.polygon.IsNull() == true) {
                 return path;
             }
 
+            UnityEngine.AI.NavMesh.SamplePosition(toPoint, out var hitTo, 1000f, new UnityEngine.AI.NavMeshQueryFilter() {
+                agentTypeID = navMeshGraph.agentTypeId,
+                areaMask = areas,
+            });
+            toPoint = hitTo.position;
             var to = query.MapLocation(toPoint, Vector3.one * 10f, navMeshGraph.agentTypeId, areas);
             if (to.polygon.IsNull() == true) {
                 return path;
@@ -66,7 +77,7 @@ namespace ME.ECS.Pathfinding {
             statVisited = performed;
 
             var result = query.EndFindPath(out var pathSize);
-            if (result == UnityEngine.Experimental.AI.PathQueryStatus.Success) {
+            if ((result & UnityEngine.Experimental.AI.PathQueryStatus.Success) != 0) {
 
                 var pathInternal = new Unity.Collections.NativeArray<UnityEngine.Experimental.AI.PolygonId>(pathSize, Unity.Collections.Allocator.Persistent);
                 query.GetPathResult(pathInternal);
