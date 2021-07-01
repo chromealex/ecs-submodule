@@ -69,7 +69,7 @@ namespace ME.ECS.Pathfinding {
             this.tempSources.Clear();
             this.tempSources.AddRange(this.buildSources);
             if (sources != null) this.tempSources.AddRange(sources);
-            var bounds = new UnityEngine.Bounds(this.graphCenter, new Vector3(this.size.x * this.scale.x, this.size.y * this.scale.y, this.size.z * this.scale.z));
+            var bounds = new UnityEngine.Bounds(this.graphCenter, this.size);
             if (NavMeshBuilder.UpdateNavMeshData(this.navMeshData, this.buildSettings, this.tempSources, bounds) == false) {
 
                 return false;
@@ -89,7 +89,7 @@ namespace ME.ECS.Pathfinding {
                 this.AddBuildSource(new UnityEngine.AI.NavMeshBuildSource() {
                     area = 0,
                     shape = UnityEngine.AI.NavMeshBuildSourceShape.Box,
-                    size = new Vector3(this.size.x * this.scale.x, 0f, this.size.z * this.scale.z),
+                    size = new Vector3(this.size.x, 0f, this.size.z),
                     transform = Matrix4x4.TRS(new Vector3(0f, this.floorHeight, 0f), Quaternion.identity, Vector3.one),
                 });
 
@@ -101,7 +101,7 @@ namespace ME.ECS.Pathfinding {
             
             if (this.navMeshDataInstance.valid == true) this.navMeshDataInstance.Remove();
             
-            var bounds = new UnityEngine.Bounds(this.graphCenter, new Vector3(this.size.x * this.scale.x, this.size.y * this.scale.y, this.size.z * this.scale.z));
+            var bounds = new UnityEngine.Bounds(this.graphCenter, this.size);
             var buildSettings = UnityEngine.AI.NavMesh.GetSettingsByID(this.agentTypeId);
             buildSettings.agentRadius = this.agentRadius;
             buildSettings.agentHeight = this.agentHeight;
