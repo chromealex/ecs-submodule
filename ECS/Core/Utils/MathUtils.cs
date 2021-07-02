@@ -224,6 +224,116 @@ namespace ME.ECS {
 
     }
 
+    public struct CirclePacker {
+
+        public struct Circle {
+
+            public class CirclesComparer : System.Collections.Generic.IComparer<Circle> {
+
+                public Vector2 center;
+                
+                public int Compare(Circle x, Circle y) {
+                    var d1 = this.DistanceToCenterSq(x);
+                    var d2 = this.DistanceToCenterSq(y);
+                    if (d1 < d2) {
+                        return 1;
+                    } else if (d1 > d2) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                }
+
+                private float DistanceToCenterSq(Circle pCircle) {
+                    return (pCircle.mCenter - this.center).sqrMagnitude;
+                }
+
+            }
+            
+            public Entity data;
+            public Vector2 mCenter;
+            public float mRadius;
+ 
+            public Circle(Entity data, Vector2 iCenter, float radius) {
+                this.data = data;
+                this.mCenter = iCenter;
+                this.mRadius = radius;
+            }
+            
+        }
+        
+        public ME.ECS.Collections.ListCopyable<Circle> circles;
+        public Vector2 mPackingCenter;
+        public float mMinSeparation;
+
+        public CirclePacker(Vector2 mPackingCenter, float mMinSeparation) {
+            
+            this.circles = PoolListCopyable<Circle>.Spawn(10);
+            this.mPackingCenter = mPackingCenter;
+            this.mMinSeparation = mMinSeparation;
+
+        }
+
+        public void Dispose() {
+            
+            PoolListCopyable<Circle>.Recycle(ref this.circles);
+            
+        }
+
+        public void Add(Entity data, Vector2 center, float radius) {
+            
+            this.circles.Add(new Circle(data, center, radius));
+            
+        }
+
+        public void Do(int iterationCounter) {
+
+            // Sort circles based on the distance to center
+            var instance = PoolClass<Circle.CirclesComparer>.Spawn();
+            instance.center = this.mPackingCenter;
+            System.Array.Sort(this.circles.innerArray.arr, 0, this.circles.Count, instance);
+            PoolClass<Circle.CirclesComparer>.Recycle(ref instance);
+
+            for (int k = 0; k < iterationCounter; ++k) {
+
+                var minSeparationSq = this.mMinSeparation * this.mMinSeparation;
+                for (var i = 0; i < this.circles.Count - 1; i++) {
+                    for (var j = i + 1; j < this.circles.Count; j++) {
+                        if (i == j) {
+                            continue;
+                        }
+
+                        Vector2 AB = this.circles[j].mCenter - this.circles[i].mCenter;
+                        float r = this.circles[i].mRadius + this.circles[j].mRadius;
+
+                        // Length squared = (dx * dx) + (dy * dy);
+                        var d = AB.sqrMagnitude - minSeparationSq;
+                        float minSepSq = System.Math.Min(d, minSeparationSq);
+                        d -= minSepSq;
+
+                        if (d < r * r - 0.01f) {
+                            AB.Normalize();
+
+                            AB *= (float)((r - System.Math.Sqrt(d)) * 0.5f);
+
+                            this.circles[j].mCenter += AB;
+                            this.circles[i].mCenter -= AB;
+
+                        }
+                    }
+                }
+
+                var damping = 0.1f / (float)iterationCounter;
+                for (var i = 0; i < this.circles.Count; i++) {
+                    var v = this.circles[i].mCenter - this.mPackingCenter;
+                    v *= damping;
+                    this.circles[i].mCenter -= v;
+                }
+            }
+        }
+
+    }
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]

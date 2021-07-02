@@ -697,6 +697,26 @@ namespace ME.ECS.Views {
         #endif
         public void DestroyAllViews(in Entity entity) {
 
+            if (this.world.HasResetState() == false && entity.Has<ViewComponent>() == true) {
+
+                for (var id = this.list.Length - 1; id >= 0; --id) {
+
+                    ref var views = ref this.list.arr[id];
+                    var currentViewInstance = views.mainView;
+                    if (currentViewInstance == null) continue;
+
+                    if (currentViewInstance.entity == entity) {
+
+                        // Entity has dead
+                        this.RecycleView_INTERNAL(ref currentViewInstance);
+                        break;
+
+                    }
+
+                }
+
+            }
+            
             entity.Remove<ViewComponent>();
             this.isRequestsDirty = true;
 
