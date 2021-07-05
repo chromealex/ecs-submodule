@@ -14,6 +14,7 @@ namespace ME.ECS {
     public struct DataBuffer<T> where T : struct, IStructComponentBase {
 
         [Unity.Collections.NativeDisableParallelForRestriction] private NativeArrayBurst<T> arr;
+        [Unity.Collections.NativeDisableParallelForRestriction] private NativeArrayBurst<byte> contains;
         [Unity.Collections.NativeDisableParallelForRestriction] private NativeArrayBurst<byte> ops;
         
         #if INLINE_METHODS
@@ -22,8 +23,11 @@ namespace ME.ECS {
         public DataBuffer(World world, ME.ECS.Collections.NativeBufferArray<Entity> arr, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
 
             var reg = (StructComponents<T>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T>()];
-            this.arr = new NativeArrayBurst<T>(reg.components.data.arr, allocator);
-            this.ops = new NativeArrayBurst<byte>(reg.components.data.arr.Length, allocator);
+            reg.Merge();
+            this.arr = new NativeArrayBurst<T>(reg.componentsStates.Length, allocator);
+            if (reg.components.Length > 0) NativeArrayBurst<T>.Copy(reg.components.data.arr, this.arr, reg.componentsStates.Length);
+            this.contains = new NativeArrayBurst<byte>(reg.componentsStates.arr, allocator);
+            this.ops = new NativeArrayBurst<byte>(reg.componentsStates.arr.Length, allocator);
 
         }
 
@@ -105,6 +109,7 @@ namespace ME.ECS {
         public void Dispose() {
             
             this.arr.Dispose();
+            this.contains.Dispose();
             this.ops.Dispose();
             
         }
@@ -112,13 +117,15 @@ namespace ME.ECS {
         public void Remove(int entityId) {
 
             this.ops[entityId] |= 0x4;
-            
+            this.contains[entityId] = 0;
+
         }
 
         public void Set(int entityId, in T data) {
 
             this.ops[entityId] |= 0x2;
             this.arr[entityId] = data;
+            this.contains[entityId] = 1;
             
         }
 
@@ -132,6 +139,12 @@ namespace ME.ECS {
         public ref readonly T Read(int entityId) {
 
             return ref this.arr.GetRef(entityId);
+
+        }
+
+        public bool Has(int entityId) {
+
+            return this.contains.GetRefRead(entityId) > 0;
 
         }
 

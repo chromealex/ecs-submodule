@@ -6,3 +6,5 @@ public void RemoveT#INDEX#(int id) { this.buffer#INDEX#.Remove(id); }
 public void RemoveT#INDEX#() { this.buffer#INDEX#.Remove(this.filterEntities[this.index]); }
 public ref readonly T#INDEX# ReadT#INDEX#(int id) { return ref this.buffer#INDEX#.Read(id); }
 public ref readonly T#INDEX# ReadT#INDEX#() { return ref this.buffer#INDEX#.Read(this.filterEntities[this.index]); }
+public bool HasT#INDEX#(int id) { return this.buffer#INDEX#.Has(id); }
+public bool HasT#INDEX#() { return this.buffer#INDEX#.Has(this.filterEntities[this.index]); }

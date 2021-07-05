@@ -5,12 +5,12 @@ namespace ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components {
     public struct PathNavMesh : IStructCopyable<PathNavMesh> {
 
         public ME.ECS.Pathfinding.PathCompleteState result;
-        public ME.ECS.Collections.BufferArray<UnityEngine.Vector3> path;
+        public ME.ECS.Collections.NativeBufferArray<UnityEngine.Vector3> path;
 
         void IStructCopyable<PathNavMesh>.CopyFrom(in PathNavMesh other) {
 
             this.result = other.result;
-            ArrayUtils.Copy(other.path, ref this.path);
+            NativeArrayUtils.Copy(other.path, ref this.path);
 
         }
 

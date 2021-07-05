@@ -939,15 +939,24 @@ namespace ME.ECS {
         private struct CopyItem : IArrayElementCopyWithIndex<TComponent> {
 
             public BufferArray<byte> states;
+            public BufferArray<byte> otherStates;
 
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             public void Copy(int index, TComponent @from, ref TComponent to) {
 
-                if (this.states.isCreated == true && index >= 0 && index < this.states.Length && this.states.arr[index] > 0) {
+                var hasFrom = (this.otherStates.isCreated == true && index >= 0 && index < this.otherStates.Length && this.otherStates.arr[index] > 0);
+                var hasTo = (this.states.isCreated == true && index >= 0 && index < this.states.Length && this.states.arr[index] > 0);
 
-                    to.CopyFrom(from);
+                if (hasFrom == false && hasTo == false) {
+                    
+                    from.OnRecycle();
+                    to.OnRecycle();
+                    
+                } else {
+
+                    to.CopyFrom(in from);
 
                 }
 
@@ -958,7 +967,7 @@ namespace ME.ECS {
             #endif
             public void Recycle(int index, ref TComponent item) {
 
-                if (this.states.isCreated == true && index >= 0 && index < this.states.Length && this.states.arr[index] > 0) {
+                if (this.otherStates.isCreated == true && index >= 0 && index < this.otherStates.Length && this.otherStates.arr[index] > 0) {
 
                     item.OnRecycle();
                     item = default;
@@ -1036,7 +1045,12 @@ namespace ME.ECS {
             ArrayUtils.Copy(_other.lifetimeData, ref this.lifetimeData);
             if (AllComponentTypes<TComponent>.isVersioned == true) ArrayUtils.Copy(_other.versions, ref this.versions);
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
-            if (AllComponentTypes<TComponent>.isTag == false) ArrayUtils.CopyWithIndex(_other.components, ref this.components, new CopyItem() { states = _other.componentsStates });
+            if (AllComponentTypes<TComponent>.isTag == false) {
+                ArrayUtils.CopyWithIndex(_other.components, ref this.components, new CopyItem() {
+                    states = this.componentsStates,
+                    otherStates = _other.componentsStates,
+                });
+            }
 
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(_other.sharedGroups, new ElementCopy());
             

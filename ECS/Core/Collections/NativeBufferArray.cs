@@ -107,6 +107,33 @@ namespace ME.ECS.Collections {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        internal NativeBufferArray(ListCopyable<T> arr) {
+
+            this.Length = arr.Count;
+            this.isCreated = arr.Count > 0;
+            if (this.isCreated == true) {
+                this.arr = new NativeArray<T>(arr.innerArray.arr, Allocator.Persistent);
+            } else {
+                this.arr = default;
+            }
+
+        }
+
+        public static NativeBufferArray<T> From(ListCopyable<T> arr) {
+
+            return new NativeBufferArray<T>(arr);
+
+        }
+
+        public static NativeBufferArray<T> From(T[] arr) {
+
+            return new NativeBufferArray<T>(arr);
+
+        }
+
         public int Count {
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -309,12 +336,12 @@ namespace ME.ECS.Collections {
             [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
             [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
             #endif
-            public ref T Current {
+            public ref readonly T Current {
                 #if INLINE_METHODS
                 [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
                 #endif
                 get {
-                    return ref this.bufferArray.arr.GetRef(this.index);
+                    return ref this.bufferArray.arr.GetRefRead(this.index);
                 }
             }
 

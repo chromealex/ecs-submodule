@@ -37,7 +37,7 @@ namespace ME.ECSEditor {
                     }
 
                     {
-                        var res = UnityEngine.Resources.Load<UnityEngine.TextAsset>("00-FilterExtensionsDelegateItem").text;
+                        var res = EditorUtilities.Load<UnityEngine.TextAsset>("ECSEditor/Templates/EditorResources/00-FilterExtensionsDelegateItem.txt", isRequired: true).text;
                         res = res.Replace("#ITEMS_TYPE#", itemsType);
                         res = res.Replace("#ITEMS#", items);
                         res = res.Replace("#INDEX#", j.ToString());
@@ -46,10 +46,10 @@ namespace ME.ECSEditor {
                     
                     {
                     
-                        var itemsWhere = " where T0:struct,IStructComponent";
+                        var itemsWhere = " where T0:struct,IStructComponentBase";
                         for (int i = 1; i < j; ++i) {
 
-                            itemsWhere += " where T" + i.ToString() + ":struct,IStructComponent";
+                            itemsWhere += " where T" + i.ToString() + ":struct,IStructComponentBase";
 
                         }
 
@@ -60,7 +60,7 @@ namespace ME.ECSEditor {
 
                         }
 
-                        var res = UnityEngine.Resources.Load<UnityEngine.TextAsset>("00-FilterExtensionsForEachItem").text;
+                        var res = EditorUtilities.Load<UnityEngine.TextAsset>("ECSEditor/Templates/EditorResources/00-FilterExtensionsForEachItem.txt", isRequired: true).text;
                         res = res.Replace("#ITEMS_TYPE#", itemsType);
                         res = res.Replace("#ITEMS_WHERE#", itemsWhere);
                         res = res.Replace("#ITEMS_GET#", itemsGet);
@@ -71,7 +71,7 @@ namespace ME.ECSEditor {
                     
                     {
                     
-                        var itemMethods = UnityEngine.Resources.Load<UnityEngine.TextAsset>("00-FilterExtensionsBufferMethods").text;
+                        var itemMethods = EditorUtilities.Load<UnityEngine.TextAsset>("ECSEditor/Templates/EditorResources/00-FilterExtensionsBufferMethods.txt", isRequired: true).text;
                         var itemsMethods = string.Empty;
                         for (int i = 0; i < j; ++i) {
 
@@ -91,7 +91,7 @@ namespace ME.ECSEditor {
                         var itemsPush = string.Empty;
                         for (int i = 0; i < j; ++i) {
 
-                            itemsPush += $"changedCount += this.buffer{i.ToString()}.Push(world, world.currentState.storage.cache, this.filterEntities);\n";
+                            itemsPush += $"changedCount += this.buffer{i.ToString()}.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);\n";
 
                         }
 
@@ -102,10 +102,10 @@ namespace ME.ECSEditor {
 
                         }
 
-                        var itemsWhere = " where T0:struct,IStructComponent";
+                        var itemsWhere = " where T0:struct,IStructComponentBase";
                         for (int i = 1; i < j; ++i) {
 
-                            itemsWhere += " where T" + i.ToString() + ":struct,IStructComponent";
+                            itemsWhere += " where T" + i.ToString() + ":struct,IStructComponentBase";
 
                         }
         
@@ -116,7 +116,7 @@ namespace ME.ECSEditor {
 
                         }
         
-                        var res = UnityEngine.Resources.Load<UnityEngine.TextAsset>("00-FilterExtensionsBufferItem").text;
+                        var res = EditorUtilities.Load<UnityEngine.TextAsset>("ECSEditor/Templates/EditorResources/00-FilterExtensionsBufferItem.txt", isRequired: true).text;
                         res = res.Replace("#ITEMS_TYPE#", itemsType);
                         res = res.Replace("#ITEMS_WHERE#", itemsWhere);
                         res = res.Replace("#ITEMS_METHODS#", itemsMethods);

@@ -42,8 +42,8 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-
+        #ITEMS_PUSH#
+        
         if (changedCount > 0) world.UpdateAllFilters();
         
         this.Dispose();
@@ -52,7 +52,7 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
 
     public void Revert() {
         
-        this.buffer0.Dispose();
+        #ITEMS_DISPOSE#
 
         this.Dispose();
 
