@@ -33,7 +33,7 @@ namespace ME.ECS {
             var rnd = new Unity.Mathematics.Random(randomState);
             var dir = ((UnityEngine.Vector3)rnd.NextFloat3(-1f, 1f)).normalized;
             randomState = rnd.state;
-            var result = center + dir * maxRadius;
+            var result = center + dir * rnd.NextFloat(-maxRadius, maxRadius);
             #else
             UnityEngine.Random.state = randomState;
             var result = center + UnityEngine.Random.insideUnitSphere * maxRadius;
@@ -45,12 +45,12 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static UnityEngine.Vector3 GetRandomInCircle(this ref RandomState randomState, UnityEngine.Vector2 center, float maxRadius) {
+        public static UnityEngine.Vector2 GetRandomInCircle(this ref RandomState randomState, UnityEngine.Vector2 center, float maxRadius) {
             #if UNITY_MATHEMATICS
             var rnd = new Unity.Mathematics.Random(randomState);
             var dir = ((UnityEngine.Vector2)rnd.NextFloat2(-1f, 1f)).normalized;
             randomState = rnd.state;
-            var result = center + dir * maxRadius;
+            var result = center + dir * rnd.NextFloat(-maxRadius, maxRadius);
             #else
             UnityEngine.Random.state = randomState;
             var result = center + UnityEngine.Random.insideUnitCircle * maxRadius;

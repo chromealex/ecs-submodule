@@ -620,7 +620,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public UnityEngine.Vector3 GetRandomInCircle(UnityEngine.Vector2 center, float maxRadius) {
+        public UnityEngine.Vector2 GetRandomInCircle(UnityEngine.Vector2 center, float maxRadius) {
         
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
