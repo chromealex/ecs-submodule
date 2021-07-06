@@ -106,6 +106,28 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
 
     }
 
+    public struct ScriptableObjectParser : IParser {
+
+        public bool IsValid(System.Type fieldType) {
+            return typeof(Object).IsAssignableFrom(fieldType);
+        }
+
+        public bool Parse(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
+            
+            if (DataConfigGenerator.TryToParse("so://", data, out var path) == true) {
+
+                result = UnityEditor.AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
+                return true;
+
+            }
+
+            result = null;
+            return false;
+
+        }
+
+    }
+
     public struct ViewParser : IParser {
 
         public bool IsValid(System.Type fieldType) {
