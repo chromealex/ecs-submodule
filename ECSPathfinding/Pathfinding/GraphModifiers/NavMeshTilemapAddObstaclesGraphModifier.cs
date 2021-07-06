@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ME.ECS.Pathfinding {
-    
+
     public class NavMeshTilemapAddObstaclesGraphModifier : GraphModifierBase {
 
         [System.Serializable]
@@ -64,6 +62,49 @@ namespace ME.ECS.Pathfinding {
         public override void ApplyAfterConnections(Graph graph) {
             
         }
+
+        public bool GetHeight(NavMeshGraph graph, Vector3 worldPosition, out float height) {
+
+            height = 0f;
+
+            var tilePosition = this.tilemap.WorldToCell(worldPosition);
+            var tile = this.tilemap.GetTile(tilePosition);
+
+            if (tile != null) {
+
+                for (int i = 0; i < this.items.Length; ++i) {
+
+                    var item = this.items[i];
+                    if ((item.checkSprite == false && (item.requiredTile == null || item.requiredTile == tile)) ||
+                        (item.checkSprite == true && System.Array.IndexOf(item.spriteOneOf, this.tilemap.GetSprite(tilePosition)) >= 0)) {
+
+                        height = item.height;
+
+                        return true;
+                    }
+
+                }
+
+            }
+
+            return false;
+        }
+
+        public void GetMinMaxHeight(out float min, out float max) {
+
+            min = float.MaxValue;
+            max = float.MinValue;
+
+            for (int i = 0; i < this.items.Length; ++i) {
+
+                var item = this.items[i];
+
+                if (item.height < min) min = item.height;
+                if (item.height > max) max = item.height;
+
+            }
+        }
+
 
         public override void OnDrawGizmos() {
 
