@@ -44,7 +44,10 @@ Array types could be added with json-format: [1, 2, 3] or ["s1", "s2", "s3"]<br>
 
 You can use custom links to the few UnityEngine.Object types: ECS View, UnityEngine.GameObject, UnityEngine.Component and DataConfig. To use them, define it by the following code:<br>
 ```
-config://YOUR_CONFIG_NAME
+config://YOUR_GENERATED_CONFIG_NAME
+```
+```
+so://Assets/path/to/your/scriptableobject.asset
 ```
 ```
 view://Assets/path/to/your/view.prefab
