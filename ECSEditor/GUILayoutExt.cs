@@ -1008,6 +1008,18 @@ namespace ME.ECSEditor {
 	        
         }
 
+        public static void DropCachedFields() {
+	        
+	        foreach (var kv in GUILayoutExt.fieldsSingleCache) {
+				        
+		        GameObject.DestroyImmediate(kv.Value.temp);
+				        
+	        }
+			        
+	        GUILayoutExt.fieldsSingleCache.Clear();
+	        
+        }
+
         public static bool DrawFieldsSingle(string search, object cacheKey, WorldsViewerEditor.WorldEditor world, IStructComponentBase[] instances, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyBegin, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyEnd, System.Action<int, IStructComponentBase> onPropertyChanged = null) {
 
 	        SerializedObject[] objs = null;
@@ -1015,14 +1027,8 @@ namespace ME.ECSEditor {
 	        {
 		        if (GUILayoutExt.fieldsSingleCache.Count > 100) {
 
-			        foreach (var kv in GUILayoutExt.fieldsSingleCache) {
-				        
-				        GameObject.DestroyImmediate(kv.Value.temp);
-				        
-			        }
-			        
-			        GUILayoutExt.fieldsSingleCache.Clear();
-			        
+			        GUILayoutExt.DropCachedFields();
+
 		        }
 		        if (GUILayoutExt.fieldsSingleCache.TryGetValue(key, out var cache) == false ||
 		            instances.Length != cache.objs.Length) {
@@ -1066,7 +1072,6 @@ namespace ME.ECSEditor {
 		        var backStyle = new GUIStyle(EditorStyles.label);
 		        backStyle.normal.background = Texture2D.whiteTexture;
 
-		        foreach (var obj in objs) obj.Update();
 		        var k = 0;
 		        for (var index = 0; index < objs.Length; index++) {
 
@@ -1103,6 +1108,8 @@ namespace ME.ECSEditor {
 					        var it = obj.FindProperty("data");
 
 					        onPropertyBegin.Invoke(index, component, it);
+
+					        obj.Update();
 
 					        var fieldsCount = GUILayoutExt.GetFieldsCount(component);
 					        if (fieldsCount == 0) {
@@ -1147,6 +1154,8 @@ namespace ME.ECSEditor {
 
 					        }
 
+					        obj.ApplyModifiedProperties();
+
 					        onPropertyEnd.Invoke(index, component, it);
 
 				        }
@@ -1163,8 +1172,6 @@ namespace ME.ECSEditor {
 			        }
 
 		        }
-
-		        foreach (var obj in objs) obj.ApplyModifiedProperties();
 
 		        if (changed == true) {
 

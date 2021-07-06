@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using ME.ECS.Extensions;
 
 namespace ME.ECSEditor {
 
@@ -21,10 +22,12 @@ namespace ME.ECSEditor {
         private static readonly System.Collections.Generic.Dictionary<Object, WorldsViewerEditor.WorldEditor> worldEditors = new System.Collections.Generic.Dictionary<Object, WorldsViewerEditor.WorldEditor>();
 
         private SerializedProperty sharedGroupId;
+        private SerializedProperty componentsProperty;
         
         protected virtual void OnEnable() {
 
             this.sharedGroupId = this.serializedObject.FindProperty("sharedGroupId");
+            this.componentsProperty = this.serializedObject.FindProperty("structComponents");
             
             foreach (var target in this.targets) {
 
@@ -60,13 +63,15 @@ namespace ME.ECSEditor {
             arr[to] = arr[from];
             arr[from] = old;
 
+            GUILayoutExt.DropCachedFields();
+
             this.Save(dataConfig);
 
         }
 
         private string search;
         public override void OnInspectorGUI() {
-
+            
             var dataConfig = (ME.ECS.DataConfigs.DataConfig)this.target;
             if (dataConfig is ME.ECS.DataConfigs.DataConfigTemplate == false) {
 
@@ -288,6 +293,7 @@ namespace ME.ECSEditor {
                     var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
 
                     this.serializedObject.Update();
+                    
                     if (GUILayoutExt.DrawFieldsSingle(this.search, this, DataConfigEditor.multipleWorldEditor, dataConfig.structComponents,
                                                       (index, component, prop) => {
                                                           
@@ -296,7 +302,13 @@ namespace ME.ECSEditor {
                                                       },
                                                       (index, component, prop) => {
 
-                        if (component == null) return;
+                        if (component == null) {
+
+                            GUILayout.EndVertical();
+                            GUILayoutExt.Separator();
+                            return;
+
+                        }
 
                         usedComponents.Add(component.GetType());
                                                           
@@ -345,9 +357,12 @@ namespace ME.ECSEditor {
                         
                         GUILayoutExt.Separator();
 
-                    }) == true) {
+                    }, (index, component) => {
+                                                          
+                                                          this.Save(dataConfig);
+
+                                                      }) == true) {
             
-                        this.serializedObject.ApplyModifiedProperties();
                         this.Save(dataConfig);
             
                     }
@@ -386,8 +401,10 @@ namespace ME.ECSEditor {
 
                     });
 
+                    this.serializedObject.ApplyModifiedProperties();
+                    
                 });
-
+                
                 GUILayoutExt.DrawHeader("Remove Struct Components:");
                 GUILayoutExt.Separator();
 
