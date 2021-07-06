@@ -61,7 +61,7 @@ component://Assets/path/to/your/gameObject/with/component.prefab
 
 ### Custom Parsers
 
-If you need to parse some custom data, you can write your own implementation, just define struct with interface ```IParser```:
+If you need to parse some custom data, you can write your own implementation, just define struct with ```IParser``` interface:
 ```csharp
 public struct Vector2IntParser : IParser {
 
