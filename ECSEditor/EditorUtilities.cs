@@ -50,8 +50,9 @@ namespace ME.ECSEditor {
         public static T Load<T>(string path, bool isRequired = false) where T : Object {
 
             foreach (var searchPath in EditorUtilities.searchPaths) {
-            
-                var data = UnityEditor.Experimental.EditorResources.Load<T>($"{searchPath}{path}", false);
+
+                var data = UnityEditor.AssetDatabase.LoadAssetAtPath<T>($"{searchPath}{path}");
+                //var data = UnityEditor.Experimental.EditorResources.Load<T>($"{searchPath}{path}", false);
                 if (data != null) return data;
 
             }
