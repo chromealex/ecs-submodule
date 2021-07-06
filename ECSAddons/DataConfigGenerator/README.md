@@ -5,8 +5,8 @@
 
 If you need to create DataConfig assets automatically, you can use this tool.
 Here are few steps to set up workspace:
-1. Create Google SpreadSheet document like in the link below:
-https://docs.google.com/spreadsheets/d/1L77AUU-SmKj3dVjPl7hEbnWeGkr6HcT5tt0Rxgxswoo/edit#gid=0
+1. Create Google SpreadSheet document like at the link below:
+https://docs.google.com/spreadsheets/d/1L77AUU-SmKj3dVjPl7hEbnWeGkr6HcT5tt0Rxgxswoo/edit#gid=0.
 First row and column would be your document version. You can automatically increase version by the following code: (Copy-paste it in your google-docs scripts in your document)
 ```js
 function onEdit(cell) {
@@ -22,26 +22,32 @@ function incrementCell(sheet, cell) {
 ```
 2. Publish your document to get CSV link.
 3. Create "Create/ME.ECS/Addons/Data Config Generator Settings" asset and fill up the form with the target directory, caption and csv link to your google-spreadsheet.
-4. Press "Update All" and wait while operation has been complete.
-5. Your data configs should automatically created in your destination directory.
+4. Press "Update All" and wait while operation has been complete. Pressing "Force Update All" runs an update ignoring current loaded version (Use this only if you understand that google-docs could return older file versions).
+5. Your data configs should automatically created at your destination directory.
 
 ### Google Spreadsheet data
 
-##### Table definition:
+##### Table definition
 First row - component names.<br>
 Second row - component fields.<br>
 First column - your comment.<br>
 Second column - template(s) to be use.<br>
-Third column - Config name.<br>
+Third column - config name.<br>
 
 > Note, if you leave spreadsheet cell empty, there are no component would be created for this data config.
 
 ##### Default Parsers
-Primitive types like int, float, etc. have built-in parsers.<br>
+Primitive types like int, float, etc. have their built-in parsers.<br>
 Array types could be added with json-format: [1, 2, 3] or ["s1", "s2", "s3"]<br>
+
+> Note, if no parser found for your cell - json format will be used as a fallback and target field type will be the container type of this json.
+
 You can use custom links to the few UnityEngine.Object types: ECS View, UnityEngine.GameObject, UnityEngine.Component and DataConfig. To use them, define it by the following code:<br>
 ```
-config://YOUR_CONFIG_NAME
+config://YOUR_GENERATED_CONFIG_NAME
+```
+```
+so://Assets/path/to/your/scriptableobject.asset
 ```
 ```
 view://Assets/path/to/your/view.prefab
@@ -55,7 +61,7 @@ component://Assets/path/to/your/gameObject/with/component.prefab
 
 ### Custom Parsers
 
-If you need to parse some custom data, you can write your own implementation, juse define struct with interface ```IParser```:
+If you need to parse some custom data, you can write your own implementation, just define struct with ```IParser``` interface:
 ```csharp
 public struct Vector2IntParser : IParser {
 
