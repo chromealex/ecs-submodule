@@ -529,7 +529,7 @@ MonoBehaviour:
         private static bool GetFeature(Object selected, out string featureName) {
             
             var path = AssetDatabase.GetAssetPath(selected);
-            if (selected == null || string.IsNullOrEmpty(path) == false) {
+            if (selected == null || string.IsNullOrEmpty(path) == true) {
                 
                 featureName = null;
                 return false;

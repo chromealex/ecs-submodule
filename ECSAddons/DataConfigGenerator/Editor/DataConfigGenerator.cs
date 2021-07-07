@@ -437,7 +437,7 @@ namespace ME.ECS.DataConfigGenerator {
                     
                 postfix = data.Substring(prefix.Length, data.Length - prefix.Length);
                 return true;
-                    
+                
             }
 
             postfix = default;
