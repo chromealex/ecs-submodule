@@ -20,18 +20,31 @@ namespace #NAMESPACE# {
     public sealed class #PROJECTNAME#Initializer : InitializerBase {
 
         private World world;
+        public float tickTime = 0.033f;
+        public uint inputTicks = 3;
+
+        public void OnDrawGizmos() {
+
+            if (this.world != null) {
+                
+                this.world.OnDrawGizmos();
+                
+            }
+            
+        }
 
         public void Update() {
 
             if (this.world == null) {
 
-                // Initialize world with 0.033 time step
-                WorldUtilities.CreateWorld<TState>(ref this.world, 0.033f);
+                // Initialize world
+                WorldUtilities.CreateWorld<TState>(ref this.world, this.tickTime);
                 {
                     #if FPS_MODULE_SUPPORT
                     this.world.AddModule<FPSModule>();
                     #endif
                     this.world.AddModule<StatesHistoryModule>();
+                    this.world.GetModule<StatesHistoryModule>().SetTicksForInput(this.inputTicks);
                     this.world.AddModule<NetworkModule>();
                     
                     // Add your custom modules here
