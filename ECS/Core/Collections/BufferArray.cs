@@ -15,6 +15,100 @@ namespace ME.ECS.Collections {
 
     }
 
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
+    public struct DataArray<T> {
+
+        public class DisposeSentinel : System.IDisposable {
+
+            public BufferArray<T> arr;
+
+            ~DisposeSentinel() {
+
+                this.Dispose();
+
+            }
+
+            public void Dispose() {
+                
+                PoolClass<DisposeSentinel>.Recycle(this);
+                PoolArray<T>.Recycle(ref this.arr);
+                
+            }
+            
+        }
+
+        public struct Data {
+
+            public BufferArray<T> arr;
+
+        }
+
+        private Data data;
+        private DisposeSentinel disposeSentinel;
+        public readonly bool isCreated;
+        public readonly int Length;
+        
+        public DataArray(int length) {
+            
+            this.data = new Data() {
+                arr = PoolArray<T>.Spawn(length),
+            };
+            this.disposeSentinel = PoolClass<DisposeSentinel>.Spawn();
+            this.isCreated = true;
+            this.Length = length;
+
+        }
+
+        public T this[int index] {
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            get {
+                return this.Read(index);
+            }
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            set {
+                this.Set(index, value);
+            }
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref readonly T Read(int index) {
+            
+            if (this.isCreated == false || index >= this.Length) throw new System.IndexOutOfRangeException($"Index: {index} [0..{this.Length}], Tick: {Worlds.currentWorld.GetCurrentTick()}");
+            return ref this.data.arr[index];
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Set(int index, T value) {
+            
+            if (this.isCreated == false || index >= this.Length) throw new System.IndexOutOfRangeException($"Index: {index} [0..{this.Length}], Tick: {Worlds.currentWorld.GetCurrentTick()}");
+            this.Copy();
+            this.data.arr[index] = value;
+            
+        }
+
+        private void Copy() {
+
+            var arr = PoolArray<T>.Spawn(this.Length);
+            ArrayUtils.Copy(in this.data.arr, ref arr);
+            this.data.arr = arr;
+
+        }
+
+    }
+    
     /// <summary>
     /// BufferArray<T> for array pool
     /// Note: Beware of readonly instruction - it will readonly in build, but in editor it is non-readonly because of PropertyDrawer

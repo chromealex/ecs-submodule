@@ -39,6 +39,14 @@ namespace ME.ECS.Collections {
         public readonly int Length;
         public readonly bool isCreated;
 
+        public unsafe System.IntPtr GetUnsafePtr() {
+            return (System.IntPtr)this.arr.GetUnsafePtr();
+        }
+
+        public unsafe System.IntPtr GetUnsafeReadOnlyPtr() {
+            return (System.IntPtr)this.arr.GetUnsafeReadOnlyPtr();
+        }
+
         public ref T this[int index] {
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

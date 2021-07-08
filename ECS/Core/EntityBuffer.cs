@@ -13,7 +13,7 @@ namespace ME.ECS {
     #endif
     public struct DataBuffer<T> where T : struct, IStructComponentBase {
 
-        [Unity.Collections.NativeDisableParallelForRestriction] private NativeArrayBurst<T> arr;
+        [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<T> arr;
         [Unity.Collections.NativeDisableParallelForRestriction] private NativeArrayBurst<byte> contains;
         [Unity.Collections.NativeDisableParallelForRestriction] private NativeArrayBurst<byte> ops;
         
@@ -24,8 +24,8 @@ namespace ME.ECS {
 
             var reg = (StructComponents<T>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T>()];
             reg.Merge();
-            this.arr = new NativeArrayBurst<T>(reg.componentsStates.Length, allocator);
-            if (reg.components.Length > 0) NativeArrayBurst<T>.Copy(reg.components.data.arr, this.arr, reg.componentsStates.Length);
+            this.arr = new Unity.Collections.NativeArray<T>(reg.componentsStates.Length, allocator);
+            if (reg.components.Length > 0) Unity.Collections.NativeArray<T>.Copy(reg.components.data.arr, this.arr, reg.componentsStates.Length);
             this.contains = new NativeArrayBurst<byte>(reg.componentsStates.arr, allocator);
             this.ops = new NativeArrayBurst<byte>(reg.componentsStates.arr.Length, allocator);
 
