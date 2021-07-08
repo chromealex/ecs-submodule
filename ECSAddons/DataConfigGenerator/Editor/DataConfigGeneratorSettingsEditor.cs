@@ -100,13 +100,14 @@ namespace ME.ECS.DataConfigGenerator {
                         prop.FindPropertyRelative("version").intValue = -1;
                         prop.FindPropertyRelative("caption").stringValue = string.Empty;
                         prop.FindPropertyRelative("path").stringValue = string.Empty;
+                        prop.FindPropertyRelative("behaviour").objectReferenceValue = null;
                         prop.FindPropertyRelative("visitedFiles").stringValue = string.Empty;
                         
                     };
                     this.list.elementHeightCallback = index => {
                         
                         var prop = items.GetArrayElementAtIndex(index);
-                        return EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("directory")) + padding + offset * 2f + padding + EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("caption")) + EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("path"));
+                        return EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("directory")) + padding + offset * 2f + padding + padding + EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("caption")) + EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("path")) + EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("behaviour"));
                         
                     }; 
                     this.list.drawElementCallback = (rect, index, active, focused) => {
@@ -122,6 +123,9 @@ namespace ME.ECS.DataConfigGenerator {
                         var pathRect = new Rect(rect);
                         pathRect.y = captionRect.yMax + padding;
                         pathRect.height = EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("path"));
+                        var behaviourRect = new Rect(rect);
+                        behaviourRect.y = pathRect.yMax + padding;
+                        behaviourRect.height = EditorGUI.GetPropertyHeight(prop.FindPropertyRelative("behaviour"));
                         var versionRect = new Rect(pathRect);
                         versionRect.height = EditorGUIUtility.singleLineHeight;
 
@@ -139,6 +143,7 @@ namespace ME.ECS.DataConfigGenerator {
                         }
                         EditorGUI.PropertyField(captionRect, prop.FindPropertyRelative("caption"));
                         EditorGUI.PropertyField(pathRect, prop.FindPropertyRelative("path"));
+                        EditorGUI.PropertyField(behaviourRect, prop.FindPropertyRelative("behaviour"));
                         EditorGUI.LabelField(versionRect, $"Version: {prop.FindPropertyRelative("version").intValue}", this.versionStyle);
                         
                     };
@@ -297,13 +302,14 @@ namespace ME.ECS.DataConfigGenerator {
         private IEnumerator LoadAll(SerializedProperty paths, bool forceUpdate) {
 
             this.inProgress = true;
-            var visitedConfigs = new HashSet<DataConfigGenerator.ConfigInfo>();
+            var visitedConfigs = new HashSet<ConfigInfo>();
             var visitedFiles = new HashSet<string>();
         
             var list = new List<DataConfigGenerator>();
             var newConfigs = new List<string>();
             var pathsStr = new string[paths.arraySize];
             var captions = new string[paths.arraySize];
+            var behaviours = new GeneratorBehaviour[paths.arraySize];
             var versions = new int[paths.arraySize];
             var dirs = new Object[paths.arraySize];
             var visitedFilesArr = new string[paths.arraySize];
@@ -314,6 +320,7 @@ namespace ME.ECS.DataConfigGenerator {
                 versions[i] = paths.GetArrayElementAtIndex(i).FindPropertyRelative("version").intValue;
                 dirs[i] = paths.GetArrayElementAtIndex(i).FindPropertyRelative("directory").objectReferenceValue;
                 visitedFilesArr[i] = paths.GetArrayElementAtIndex(i).FindPropertyRelative("visitedFiles").stringValue;
+                behaviours[i] = paths.GetArrayElementAtIndex(i).FindPropertyRelative("behaviour").objectReferenceValue as GeneratorBehaviour;
 
             }
 
@@ -321,6 +328,7 @@ namespace ME.ECS.DataConfigGenerator {
                 
                 var path = pathsStr[i];
                 var caption = captions[i];
+                var behaviour = behaviours[i];
                 var currentVersion = versions[i];
                 var visitedFilesStr = visitedFilesArr[i];
                 var dir = dirs[i];
@@ -371,6 +379,7 @@ namespace ME.ECS.DataConfigGenerator {
 
                     var generator = new DataConfigGenerator(forceUpdate == false ? currentVersion : -1, request.downloadHandler.text, visitedConfigs, visitedFiles) {
                         configsDirectory = configsDirectory,
+                        behaviour = behaviour,
                     };
                     if (generator.status == Status.OK) {
 

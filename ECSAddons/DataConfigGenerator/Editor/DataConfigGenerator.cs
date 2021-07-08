@@ -13,7 +13,7 @@ namespace ME.ECS.DataConfigGenerator {
         bool Parse(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result);
 
     }
-    
+
     public struct LogItem {
 
         public enum LogItemType {
@@ -75,6 +75,45 @@ namespace ME.ECS.DataConfigGenerator {
 
     }
 
+    public class DefaultGeneratorBehaviour : IGeneratorBehaviour {
+
+        public ME.ECS.DataConfigs.DataConfig CreateConfigInstance(ConfigInfo configInfo) {
+
+            if (string.IsNullOrEmpty(configInfo.comment) == false) {
+
+                System.Type typeFound = null;
+                foreach (var asm in System.AppDomain.CurrentDomain.GetAssemblies()) {
+                    
+                    var type = asm.GetTypes().FirstOrDefault(y => y.Name == configInfo.comment && typeof(ME.ECS.DataConfigs.DataConfig).IsAssignableFrom(y) == true);
+                    if (type != null) {
+
+                        typeFound = type;
+                        break;
+                        
+                    }
+
+                };
+
+                if (typeFound != null) {
+                    
+                    return (ME.ECS.DataConfigs.DataConfig)ME.ECS.DataConfigs.DataConfig.CreateInstance(typeFound);
+                    
+                }
+
+            }
+            
+            return ME.ECS.DataConfigs.DataConfig.CreateInstance<ME.ECS.DataConfigs.DataConfig>();
+            
+        }
+
+        public void DeleteConfigAsset(string path) {
+            
+            UnityEditor.AssetDatabase.DeleteAsset(path);
+
+        }
+
+    }
+    
     public class DataConfigGenerator {
 
         /*[UnityEditor.MenuItem("ME.ECS/Tests/DataConfig Gen Test")]
@@ -84,82 +123,11 @@ namespace ME.ECS.DataConfigGenerator {
 
         }*/
 
-        public struct ComponentInfo : System.IEquatable<ComponentInfo> {
-
-            public string name;
-            public int offset;
-            public int length;
-            public List<string> fields;
-
-            public bool Equals(ComponentInfo other) {
-
-                return other.name == this.name;
-
-            }
-
-        }
-
-        public struct ConfigInfo : System.IEquatable<ConfigInfo> {
-
-            public string name;
-            public string[] templates;
-            public Dictionary<ComponentInfo, List<string>> data;
-
-            public bool Equals(ConfigInfo other) {
-
-                return other.name == this.name;
-
-            }
-            
-        }
-
         public string configsDirectory = "Assets/DataConfigs";
+        public IGeneratorBehaviour behaviour;
         public static List<string> projectConfigs;
         private List<string> allConfigs;
         private List<LogItem> logs;
-        
-        public void AddConfig(string path) {
-            
-            this.allConfigs.Add(path);
-            
-        }
-
-        public void AddConfigs(IList<string> paths) {
-            
-            this.allConfigs.AddRange(paths);
-            
-        }
-
-        public List<LogItem> GetLogs() {
-
-            return this.logs;
-
-        }
-
-        public void ClearLogs() {
-            
-            this.logs.Clear();
-            
-        }
-
-        private void LogError(string text) {
-            
-            this.logs.Add(LogItem.LogError(text));
-            
-        }
-        
-        private void Log(string text) {
-            
-            this.logs.Add(LogItem.Log(text));
-            
-        }
-
-        private void LogWarning(string text) {
-            
-            this.logs.Add(LogItem.LogWarning(text));
-            
-        }
-
         public Status status;
         public int version;
 
@@ -271,9 +239,11 @@ namespace ME.ECS.DataConfigGenerator {
             var configs = new List<ConfigInfo>();
             while (reader.Read() == true) {
 
+                var comment = reader[0];
                 var templates = reader[1];
                 var configName = reader[2];
                 var item = new ConfigInfo {
+                    comment = comment,
                     name = configName,
                     templates = templates.Split(','),
                     data = new Dictionary<ComponentInfo, List<string>>(),
@@ -362,6 +332,8 @@ namespace ME.ECS.DataConfigGenerator {
         }
         
         public void Run() {
+            
+            if (this.behaviour == null) this.behaviour = new DefaultGeneratorBehaviour();
 
             var configFiles = System.IO.Directory.GetFiles(this.configsDirectory, "*.asset");
             var visitedFiles = this.visitedFiles ?? new HashSet<string>();
@@ -726,19 +698,61 @@ namespace ME.ECS.DataConfigGenerator {
 
         public void DeleteConfig(string path) {
             
-            UnityEditor.AssetDatabase.DeleteAsset(path);
+            this.behaviour.DeleteConfigAsset(path);
             
         }
 
         public string CreateConfig(ConfigInfo configInfo) {
 
-            var config = ME.ECS.DataConfigs.DataConfig.CreateInstance<ME.ECS.DataConfigs.DataConfig>();
+            var config = this.behaviour.CreateConfigInstance(configInfo);
             config.name = configInfo.name;
             var path = $"{this.configsDirectory}/{config.name}.asset";
             UnityEditor.AssetDatabase.CreateAsset(config, path);
             UnityEditor.AssetDatabase.ImportAsset(path);
             return path;
 
+        }
+
+        public void AddConfig(string path) {
+            
+            this.allConfigs.Add(path);
+            
+        }
+
+        public void AddConfigs(IList<string> paths) {
+            
+            this.allConfigs.AddRange(paths);
+            
+        }
+
+        public List<LogItem> GetLogs() {
+
+            return this.logs;
+
+        }
+
+        public void ClearLogs() {
+            
+            this.logs.Clear();
+            
+        }
+
+        private void LogError(string text) {
+            
+            this.logs.Add(LogItem.LogError(text));
+            
+        }
+        
+        private void Log(string text) {
+            
+            this.logs.Add(LogItem.Log(text));
+            
+        }
+
+        private void LogWarning(string text) {
+            
+            this.logs.Add(LogItem.LogWarning(text));
+            
         }
 
     }
