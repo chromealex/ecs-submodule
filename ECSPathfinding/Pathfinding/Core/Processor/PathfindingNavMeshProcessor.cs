@@ -121,6 +121,31 @@ namespace ME.ECS.Pathfinding {
 
                         }
 
+                        if ((pathfindingLogLevel & LogLevel.Path) != 0) {
+                        
+                            var hash = 0;
+                            for (var i = 0; i < cornerCount; ++i) {
+                                hash ^= (int)(results[i].position.x * 1000000f);
+                            }
+
+                            UnityEngine.Debug.Log("Path hash X: " + hash);
+
+                            hash = 0;
+                            for (var i = 0; i < cornerCount; ++i) {
+                                hash ^= (int)(results[i].position.y * 1000000f);
+                            }
+
+                            UnityEngine.Debug.Log("Path hash Y: " + hash);
+
+                            hash = 0;
+                            for (var i = 0; i < cornerCount; ++i) {
+                                hash ^= (int)(results[i].position.z * 1000000f);
+                            }
+
+                            UnityEngine.Debug.Log("Path hash Z: " + hash);
+                            
+                        }
+
                         path.result = PathCompleteState.Complete;
 
                     } else {
