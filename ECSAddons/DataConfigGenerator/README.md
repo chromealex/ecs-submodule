@@ -30,7 +30,7 @@ function incrementCell(sheet, cell) {
 ##### Table definition
 First row - component names.<br>
 Second row - component fields.<br>
-First column - your comment.<br>
+First column - comment or custom type of DataConfig.<br>
 Second column - template(s) to be use.<br>
 Third column - config name.<br>
 
@@ -79,3 +79,15 @@ public struct Vector2IntParser : IParser {
 
 }
 ```
+
+### Custom Behaviour
+
+if you need custom behaviour for some aspects of DataConfig Generator, you can use ```IGeneratorBehaviour``` to override default behaviour for these methods:
+```CreateConfigInstance```
+```DeleteConfigAsset```
+<br>
+Follow the steps below to override default behaviour:
+1. Create new class and inherit it from ```GeneratorBehaviour```.
+2. Tag your class with ```CreateAssetMenu``` attribute.
+3. In Unity create your custom behaviour asset.
+4. Drag'n'drop your behaviour asset to the settings file.
