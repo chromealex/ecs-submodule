@@ -15,11 +15,13 @@ MonoBehaviour:
   paths:
   - directory: {fileID: 0}
     caption: Test1-3
-    version: 2
+    version: 7
     path: https://docs.google.com/spreadsheets/d/e/2PACX-1vRbWeUMoMlUn-ExFWCW0DAQ7yRvlrKK0-PSzXu3wvwbtzhVUgBkGBnQsseA0Ylt-nTIQp0KNs1YLo79/pub?gid=0&single=true&output=csv
     visitedFiles: Assets/DataConfigs/Test1.asset;Assets/DataConfigs/Test2.asset;Assets/DataConfigs/Test3.asset
+    behaviour: {fileID: 0}
   - directory: {fileID: 0}
     caption: Test4-6
     version: 11
     path: https://docs.google.com/spreadsheets/d/e/2PACX-1vRbWeUMoMlUn-ExFWCW0DAQ7yRvlrKK0-PSzXu3wvwbtzhVUgBkGBnQsseA0Ylt-nTIQp0KNs1YLo79/pub?gid=1611253075&single=true&output=csv
     visitedFiles: Assets/DataConfigs/Test1.asset;Assets/DataConfigs/Test2.asset;Assets/DataConfigs/Test3.asset;Assets/DataConfigs/Test4.asset;Assets/DataConfigs/Test5.asset;Assets/DataConfigs/Test6.asset
+    behaviour: {fileID: 0}
