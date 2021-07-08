@@ -120,12 +120,22 @@ namespace ME.ECS.Pathfinding {
             var t = NavMesh.CalculateTriangulation();
             var hash = 0;
             foreach (var vert in t.vertices) {
-                hash ^= (int)(vert.x * 100000f);
-                hash ^= (int)(vert.y * 100000f);
-                hash ^= (int)(vert.z * 100000f);
+                hash ^= (int)(vert.x * 1000000f);
             }
-            Debug.Log("NAV MESH HASH: " + hash);
-            
+            Debug.Log("NAV MESH HASH X: " + hash);
+
+            hash = 0;
+            foreach (var vert in t.vertices) {
+                hash ^= (int)(vert.y * 1000000f);
+            }
+            Debug.Log("NAV MESH HASH Y: " + hash);
+
+            hash = 0;
+            foreach (var vert in t.vertices) {
+                hash ^= (int)(vert.z * 1000000f);
+            }
+            Debug.Log("NAV MESH HASH Z: " + hash);
+
             hash = 0;
             foreach (var vert in t.indices) {
                 hash ^= (int)(vert);
