@@ -117,7 +117,27 @@ namespace ME.ECS.Pathfinding {
             this.buildSettings = buildSettings;
             
             this.navMeshDataInstance = UnityEngine.AI.NavMesh.AddNavMeshData(this.navMeshData, this.graphCenter, Quaternion.identity);
+            var t = NavMesh.CalculateTriangulation();
+            var hash = 0;
+            foreach (var vert in t.vertices) {
+                hash ^= (int)(vert.x * 100000f);
+                hash ^= (int)(vert.y * 100000f);
+                hash ^= (int)(vert.z * 100000f);
+            }
+            Debug.Log("NAV MESH HASH: " + hash);
             
+            hash = 0;
+            foreach (var vert in t.indices) {
+                hash ^= (int)(vert);
+            }
+            Debug.Log("NAV MESH HASH 2: " + hash);
+
+            hash = 0;
+            foreach (var vert in t.areas) {
+                hash ^= (int)(vert);
+            }
+            Debug.Log("NAV MESH HASH 3: " + hash);
+
         }
 
         public override bool ClampPosition(Vector3 worldPosition, Constraint constraint, out Vector3 position) {
