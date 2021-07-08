@@ -28,7 +28,7 @@ namespace ME.ECS.Collections {
     [System.Serializable]
     public readonly struct BufferArray<T> : System.IEquatable<BufferArray<T>>, IBufferArray {
 
-        public static BufferArray<T> Empty = new BufferArray<T>(null, 0);
+        public static BufferArray<T> Empty => new BufferArray<T>(null, 0);
 
         #if UNITY_EDITOR && EDITOR_ARRAY
         [System.Serializable]
