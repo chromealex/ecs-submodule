@@ -77,6 +77,10 @@ namespace ME.ECSEditor {
                 return;
             }
 
+            if (EditorApplication.isCompiling == true) {
+                return;
+            }
+
             var asms = UnityEditor.AssetDatabase.FindAssets("t:asmdef");
             foreach (var asm in asms) {
 
