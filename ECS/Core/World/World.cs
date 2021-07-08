@@ -1531,7 +1531,7 @@ namespace ME.ECS {
 
         }
 
-        public ref Entity GetEntityById(int id) {
+        public ref readonly Entity GetEntityById(int id) {
 
             ref var entitiesList = ref this.currentState.storage;
             ref var ent = ref entitiesList[id];
