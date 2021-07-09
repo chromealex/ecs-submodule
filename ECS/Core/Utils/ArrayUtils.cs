@@ -257,6 +257,33 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void Copy<TKey, T, TCopy>(DictionaryCopyable<TKey, T> fromDic, ref DictionaryCopyable<TKey, T> dic, TCopy copy) where TCopy : IArrayElementCopy<T> {
+            
+            if (fromDic == null) {
+            
+                if (dic != null) {
+                    PoolDictionaryCopyable<TKey, T>.Recycle(ref dic);
+                }
+                
+                dic = null;
+                return;
+                
+            }
+            
+            if (dic == null || fromDic.Count != dic.Count) {
+                
+                if (dic != null) PoolDictionaryCopyable<TKey, T>.Recycle(ref dic);
+                dic = PoolDictionaryCopyable<TKey, T>.Spawn(fromDic.Count);
+                
+            }
+            
+            dic.CopyFrom(fromDic, copy);
+            
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T>(ListCopyable<T> fromArr, ref ListCopyable<T> arr) where T : struct {
 
             if (fromArr == null) {
