@@ -10,7 +10,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
             return fieldType.IsEnum;
         }
 
-        public bool Parse(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
+        public bool Parse(string data, System.Type fieldType, out object result) {
 
             result = System.Enum.Parse(fieldType, data);
             return true;
@@ -25,7 +25,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
             return typeof(Vector2Int) == fieldType;
         }
 
-        public bool Parse(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
+        public bool Parse(string data, System.Type fieldType, out object result) {
             
             var prs = data.Split(';');
             result = new Vector2Int(int.Parse(prs[0]), int.Parse(prs[1]));
@@ -41,7 +41,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
             return typeof(Vector3Int) == fieldType;
         }
 
-        public bool Parse(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
+        public bool Parse(string data, System.Type fieldType, out object result) {
             
             var prs = data.Split(';');
             result = new Vector3Int(int.Parse(prs[0]), int.Parse(prs[1]), int.Parse(prs[2]));
@@ -57,7 +57,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
             return typeof(Vector2) == fieldType;
         }
 
-        public bool Parse(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
+        public bool Parse(string data, System.Type fieldType, out object result) {
             
             var prs = data.Split(';');
             result = new Vector2(float.Parse(prs[0]), float.Parse(prs[1]));
@@ -73,7 +73,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
             return typeof(Vector3) == fieldType;
         }
 
-        public bool Parse(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
+        public bool Parse(string data, System.Type fieldType, out object result) {
             
             var prs = data.Split(';');
             result = new Vector3(float.Parse(prs[0]), float.Parse(prs[1]), float.Parse(prs[2]));
@@ -89,7 +89,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
             return typeof(Vector4) == fieldType;
         }
 
-        public bool Parse(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
+        public bool Parse(string data, System.Type fieldType, out object result) {
             
             var prs = data.Split(';');
             result = new Vector4(float.Parse(prs[0]), float.Parse(prs[1]), float.Parse(prs[2]), float.Parse(prs[3]));
@@ -105,7 +105,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
             return typeof(Object).IsAssignableFrom(fieldType);
         }
 
-        public bool Parse(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
+        public bool Parse(string data, System.Type fieldType, out object result) {
             
             if (DataConfigGenerator.TryToParse("config://", data, out var configName) == true) {
 
@@ -127,7 +127,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
             return typeof(Object).IsAssignableFrom(fieldType);
         }
 
-        public bool Parse(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
+        public bool Parse(string data, System.Type fieldType, out object result) {
             
             if (DataConfigGenerator.TryToParse("so://", data, out var path) == true) {
 
@@ -149,7 +149,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
             return typeof(Object).IsAssignableFrom(fieldType);
         }
 
-        public bool Parse(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
+        public bool Parse(string data, System.Type fieldType, out object result) {
             
             if (DataConfigGenerator.TryToParse("view://", data, out var viewPath) == true) {
 
@@ -171,7 +171,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
             return typeof(Object).IsAssignableFrom(fieldType);
         }
 
-        public bool Parse(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
+        public bool Parse(string data, System.Type fieldType, out object result) {
             
             if (DataConfigGenerator.TryToParse("go://", data, out var goPath) == true) {
 
@@ -193,7 +193,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
             return typeof(Object).IsAssignableFrom(fieldType);
         }
 
-        public bool Parse(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
+        public bool Parse(string data, System.Type fieldType, out object result) {
             
             if (DataConfigGenerator.TryToParse("component://", data, out var componentPath) == true) {
 

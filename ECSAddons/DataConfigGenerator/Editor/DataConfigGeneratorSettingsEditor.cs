@@ -418,6 +418,14 @@ namespace ME.ECS.DataConfigGenerator {
 
             }
 
+            DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogSystem($"Linking..."));
+
+            foreach (var generator in list) {
+                
+                generator.AddConfigs(generator.GetCreatedConfigs());
+                
+            }
+
             foreach (var generator in list) {
 
                 generator.ClearLogs();
@@ -428,6 +436,9 @@ namespace ME.ECS.DataConfigGenerator {
 
             }
             
+            DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogSystem($"Linking complete"));
+
+            UnityEditor.AssetDatabase.SaveAssets();
             this.inProgress = false;
 
         }

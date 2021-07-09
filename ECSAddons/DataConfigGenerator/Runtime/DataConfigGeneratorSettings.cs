@@ -11,6 +11,7 @@ namespace ME.ECS.DataConfigGenerator {
         ME.ECS.DataConfigs.DataConfig CreateConfigInstance(ConfigInfo configInfo);
         void DeleteConfigAsset(string path);
 
+        object CreateComponentInstance(ME.ECS.DataConfigs.DataConfig config, ComponentInfo componentInfo, bool allValuesAreNull);
         void ParseComponentField(ref bool allValuesAreNull, object instance, System.Type componentType, ComponentInfo componentInfo, string fieldName, string data);
 
     }
@@ -21,6 +22,7 @@ namespace ME.ECS.DataConfigGenerator {
         void LogWarning(string str);
         void LogError(string str);
 
+        System.Type GetComponentType(ComponentInfo info);
         bool TryToConvert(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result);
 
     }
@@ -80,6 +82,7 @@ namespace ME.ECS.DataConfigGenerator {
         public IDataConfigGenerator generator { get; set; }
         public abstract ME.ECS.DataConfigs.DataConfig CreateConfigInstance(ConfigInfo configInfo);
         public abstract void DeleteConfigAsset(string path);
+        public abstract object CreateComponentInstance(ME.ECS.DataConfigs.DataConfig config, ComponentInfo componentInfo, bool allValuesAreNull);
         public abstract void ParseComponentField(ref bool allValuesAreNull, object instance, System.Type componentType, ComponentInfo componentInfo, string fieldName, string data);
 
     }

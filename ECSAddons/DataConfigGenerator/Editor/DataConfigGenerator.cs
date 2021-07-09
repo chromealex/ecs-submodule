@@ -10,7 +10,7 @@ namespace ME.ECS.DataConfigGenerator {
     public interface IParser {
 
         bool IsValid(System.Type fieldType);
-        bool Parse(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result);
+        bool Parse(string data, System.Type fieldType, out object result);
 
     }
 
@@ -113,6 +113,23 @@ namespace ME.ECS.DataConfigGenerator {
         public void DeleteConfigAsset(string path) {
             
             UnityEditor.AssetDatabase.DeleteAsset(path);
+
+        }
+
+        public object CreateComponentInstance(ME.ECS.DataConfigs.DataConfig config, ComponentInfo componentInfo, bool allValuesAreNull) {
+
+            var field = config.GetType().GetField(componentInfo.name, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            if (field != null) return config;
+            
+            var componentType = this.generator.GetComponentType(componentInfo);
+            if (componentType == null) {
+                
+                if (allValuesAreNull == false) this.generator.LogError($"Component type `{componentInfo.name}` was not found");
+                return null;
+                
+            }
+            var instance = System.Activator.CreateInstance(componentType);
+            return instance;
 
         }
 
@@ -344,7 +361,10 @@ namespace ME.ECS.DataConfigGenerator {
                 foreach (var kv in this.createdConfigs) {
 
                     // Update new config
+                    var config = kv.Value;
+                    this.Log($"Updating config `{config.name}`");
                     this.UpdateConfig(kv.Key, kv.Value);
+                    this.Log($"Updated config `{config.name}`");
 
                 }
 
@@ -426,7 +446,7 @@ namespace ME.ECS.DataConfigGenerator {
             
         }
 
-        private System.Type GetComponentType(ComponentInfo info) {
+        public System.Type GetComponentType(ComponentInfo info) {
 
             var asms = System.AppDomain.CurrentDomain.GetAssemblies();
             foreach (var asm in asms) {
@@ -472,7 +492,7 @@ namespace ME.ECS.DataConfigGenerator {
 
         }
 
-        private static List<IParser> parsers = new List<IParser>();
+        internal static List<IParser> parsers = new List<IParser>();
         public static void CollectParsers(DataConfigGenerator generator) {
 
             if (DataConfigGenerator.parsers.Count > 0) return;
@@ -516,7 +536,7 @@ namespace ME.ECS.DataConfigGenerator {
                 if (parser.IsValid(fieldType) == true) {
 
                     try {
-                        if (parser.Parse(data, componentType, fieldName, fieldType, out result) == true) return true;
+                        if (parser.Parse(data, fieldType, out result) == true) return true;
                     } catch (System.Exception ex) {
                         this.LogError($"Parser `{parser}` failed with exception: {ex.Message}");
                     }
@@ -599,18 +619,8 @@ namespace ME.ECS.DataConfigGenerator {
 
             if (data.StartsWith("{") == true || data.StartsWith("[") == true) {
 
-                if (data.StartsWith("[") == true) {
-                    
-                    // Raw array
-                    var jsonObj = JsonUtility.FromJson($"{{\"{fieldName}\":{data}}}", componentType);
-                    var field = componentType.GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
-                    result = field.GetValue(jsonObj);
-                    return true;
-
-                }
-                
                 // Custom json-struct
-                result = JsonUtility.FromJson(data, fieldType);
+                result = JSONParser.FromJson(data, fieldType);
                 return true;
 
             }
@@ -631,53 +641,51 @@ namespace ME.ECS.DataConfigGenerator {
 
                 var componentInfo = kv.Key;
                 var data = kv.Value;
-                var componentType = this.GetComponentType(componentInfo);
-                if (componentType == null) {
-                    
-                    this.LogError($"Component type `{componentInfo.name}` was not found");
-                    continue;
-                    
-                }
                 
-                var instance = System.Activator.CreateInstance(componentType);
+                bool isTag = componentInfo.fields.Count == 1 && string.IsNullOrEmpty(componentInfo.fields[0]) == true;
                 var allValuesAreNull = true;
-                var isTag = false;
-                if (componentInfo.fields.Count == 1 && string.IsNullOrEmpty(componentInfo.fields[0]) == true) {
-                    
-                    // tag
-                    isTag = true;
-                    if (string.IsNullOrEmpty(data[0]) == false) {
+                for (int j = 0; j < componentInfo.fields.Count; ++j) {
+                        
+                    if (string.IsNullOrEmpty(data[j]) == false) {
 
                         allValuesAreNull = false;
+                        break;
 
                     }
 
                 }
 
+                var instance = this.behaviour.CreateComponentInstance(config, componentInfo, allValuesAreNull);
+                if (instance == null) continue;
+                
                 if (isTag == false) {
 
                     for (int j = 0; j < componentInfo.fields.Count; ++j) {
 
                         var fieldName = componentInfo.fields[j];
-                        this.behaviour.ParseComponentField(ref allValuesAreNull, instance, componentType, componentInfo, fieldName, data[j]);
+                        this.behaviour.ParseComponentField(ref allValuesAreNull, instance, instance.GetType(), componentInfo, fieldName, data[j]);
                         
                     }
 
                 }
 
-                if (allValuesAreNull == true) {
+                if (instance is IStructComponentBase) {
 
-                    var list = config.structComponents.ToList();
-                    list.RemoveAt(i);
-                    config.structComponents = list.ToArray();
-                    --i;
+                    if (allValuesAreNull == true) {
 
-                } else {
-                    
-                    config.structComponents[i] = (IStructComponentBase)instance;
-                    
+                        var list = config.structComponents.ToList();
+                        list.RemoveAt(i);
+                        config.structComponents = list.ToArray();
+                        --i;
+
+                    } else {
+
+                        config.structComponents[i] = (IStructComponentBase)instance;
+
+                    }
+
                 }
-                
+
                 ++i;
 
             }
