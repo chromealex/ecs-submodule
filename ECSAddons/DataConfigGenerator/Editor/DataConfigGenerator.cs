@@ -575,39 +575,7 @@ namespace ME.ECS.DataConfigGenerator {
             var config = UnityEditor.AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfig>(path);
             config.name = configInfo.name;
             config.structComponents = new IStructComponentBase[configInfo.data.Count];
-            var templates = configInfo.templates;
-            if (templates != null) {
-                
-                var templatePaths = UnityEditor.AssetDatabase.FindAssets("t:DataConfigTemplate").Select(UnityEditor.AssetDatabase.GUIDToAssetPath).ToArray();
-                foreach (var template in templates) {
-                
-                    var templateName = template.Trim();
-                    if (string.IsNullOrEmpty(templateName) == true) continue;
-                    
-                    var found = false;
-                    foreach (var templatePath in templatePaths) {
-
-                        if (System.IO.Path.GetFileNameWithoutExtension(templatePath) == templateName) {
-
-                            var t = UnityEditor.AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfigTemplate>(templatePath);
-                            config.AddTemplate(t);
-                            found = true;
-                            break;
-                            
-                        }
-                        
-                    }
-
-                    if (found == false) {
-                        
-                        this.LogWarning($"Template `{templateName}` was not found");
-                        
-                    }
-                    
-                }
-                
-            }
-
+            
             var i = 0;
             foreach (var kv in configInfo.data) {
 
@@ -692,6 +660,43 @@ namespace ME.ECS.DataConfigGenerator {
 
             }
             
+            var templates = configInfo.templates;
+            if (templates != null) {
+                
+                var templatePaths = UnityEditor.AssetDatabase.FindAssets("t:DataConfigTemplate").Select(UnityEditor.AssetDatabase.GUIDToAssetPath).ToArray();
+                foreach (var template in templates) {
+                
+                    var templateName = template.Trim();
+                    if (string.IsNullOrEmpty(templateName) == true) continue;
+                    
+                    var found = false;
+                    foreach (var templatePath in templatePaths) {
+
+                        if (System.IO.Path.GetFileNameWithoutExtension(templatePath) == templateName) {
+
+                            var t = UnityEditor.AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfigTemplate>(templatePath);
+                            var guid = UnityEditor.AssetDatabase.AssetPathToGUID(templatePath);
+                            if (config.templates == null) config.templates = new string[0];
+                            System.Array.Resize(ref config.templates, config.templates.Length + 1);
+                            config.templates[config.templates.Length - 1] = guid;
+                            config.AddTemplate(t);
+                            found = true;
+                            break;
+                            
+                        }
+                        
+                    }
+
+                    if (found == false) {
+                        
+                        this.LogWarning($"Template `{templateName}` was not found");
+                        
+                    }
+                    
+                }
+                
+            }
+
             config.Save();
             
         }
