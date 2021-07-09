@@ -4,6 +4,21 @@ using UnityEngine;
 
 namespace ME.ECS.DataConfigGenerator.DataParsers {
 
+    public struct EnumParser : IParser {
+
+        public bool IsValid(System.Type fieldType) {
+            return fieldType.IsEnum;
+        }
+
+        public bool Parse(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
+
+            result = System.Enum.Parse(fieldType, data);
+            return true;
+
+        }
+
+    }
+
     public struct Vector2IntParser : IParser {
 
         public bool IsValid(System.Type fieldType) {
