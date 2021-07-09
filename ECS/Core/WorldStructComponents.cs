@@ -1073,8 +1073,27 @@ namespace ME.ECS {
 
             }
 
+            var hasFrom = (this.componentsStates[from.id] > 0);
+            var hasTo = (this.componentsStates[to.id] > 0);
+            
             this.componentsStates.arr[to.id] = this.componentsStates.arr[from.id];
-            if (AllComponentTypes<TComponent>.isTag == false) this.components[to.id].CopyFrom(this.components[from.id]);
+            if (AllComponentTypes<TComponent>.isTag == false) {
+
+                if (hasFrom == true && hasTo == true) {
+
+                    this.components[to.id].CopyFrom(in this.components[from.id]);
+                    
+                } else if (hasFrom == true && hasTo == false) {
+                    
+                    this.components[to.id].CopyFrom(in this.components[from.id]);
+
+                } else if (hasFrom == false && hasTo == true) {
+                    
+                    this.components[to.id].OnRecycle();
+                    
+                }
+                
+            }
             if (AllComponentTypes<TComponent>.isVersioned == true) this.versions.arr[to.id] = this.versions.arr[from.id];
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(in from, in to);
             if (this.componentsStates.arr[from.id] > 0) {
