@@ -14,6 +14,8 @@ namespace ME.ECS.DataConfigGenerator {
 
     }
 
+    internal interface IDefaultParser { }
+
     public struct LogItem {
 
         public enum LogItemType {
@@ -75,7 +77,9 @@ namespace ME.ECS.DataConfigGenerator {
 
     }
 
-    public class DefaultGeneratorBehaviour : IGeneratorBehaviour {
+    public struct DefaultGeneratorBehaviour : IGeneratorBehaviour {
+
+        public IDataConfigGenerator generator { get; set; }
 
         public ME.ECS.DataConfigs.DataConfig CreateConfigInstance(ConfigInfo configInfo) {
 
@@ -112,9 +116,43 @@ namespace ME.ECS.DataConfigGenerator {
 
         }
 
+        public void ParseComponentField(ref bool allValuesAreNull, object instance, System.Type componentType, ComponentInfo componentInfo, string fieldName, string data) {
+            
+            var field = componentType.GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            if (field == null) {
+
+                this.generator.LogError($"Field `{fieldName}` was not found in component `{componentInfo.name}`");
+                return;
+
+            }
+
+            var dataStr = data;
+            if (string.IsNullOrEmpty(dataStr) == false) {
+
+                allValuesAreNull = false;
+
+            } else {
+
+                return;
+
+            }
+
+            var result = this.generator.TryToConvert(dataStr, componentType, field.Name, field.FieldType, out var val);
+            if (result == false) {
+
+                this.generator.LogError($"Data `{dataStr}` couldn't been parsed because parser was not found for type `{field.FieldType}`. If you need to store custom struct type - use JSON format.");
+
+            } else {
+
+                field.SetValue(instance, val);
+
+            }
+
+        }
+
     }
     
-    public class DataConfigGenerator {
+    public class DataConfigGenerator : IDataConfigGenerator {
 
         /*[UnityEditor.MenuItem("ME.ECS/Tests/DataConfig Gen Test")]
         public static void Test() {
@@ -334,6 +372,7 @@ namespace ME.ECS.DataConfigGenerator {
         public void Run() {
             
             if (this.behaviour == null) this.behaviour = new DefaultGeneratorBehaviour();
+            this.behaviour.generator = this;
 
             var configFiles = System.IO.Directory.GetFiles(this.configsDirectory, "*.asset");
             var visitedFiles = this.visitedFiles ?? new HashSet<string>();
@@ -438,6 +477,7 @@ namespace ME.ECS.DataConfigGenerator {
 
             if (DataConfigGenerator.parsers.Count > 0) return;
             
+            var defaultParsers = new List<IParser>();
             var asms = System.AppDomain.CurrentDomain.GetAssemblies();
             foreach (var asm in asms) {
 
@@ -448,7 +488,11 @@ namespace ME.ECS.DataConfigGenerator {
 
                         try {
                             var obj = System.Activator.CreateInstance(type);
-                            DataConfigGenerator.parsers.Add((IParser)obj);
+                            if (obj is IDefaultParser) {
+                                defaultParsers.Add((IParser)obj);
+                            } else {
+                                DataConfigGenerator.parsers.Add((IParser)obj);
+                            }
                         } catch (System.Exception ex) {
                             generator.LogError($"Parser initialization failed: {ex.Message}");
                         }
@@ -458,7 +502,9 @@ namespace ME.ECS.DataConfigGenerator {
                 }
 
             }
-            
+
+            DataConfigGenerator.parsers.AddRange(defaultParsers);
+
         }
 
         private bool TryToFindParser(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
@@ -469,7 +515,11 @@ namespace ME.ECS.DataConfigGenerator {
 
                 if (parser.IsValid(fieldType) == true) {
 
-                    if (parser.Parse(data, componentType, fieldName, fieldType, out result) == true) return true;
+                    try {
+                        if (parser.Parse(data, componentType, fieldName, fieldType, out result) == true) return true;
+                    } catch (System.Exception ex) {
+                        this.LogError($"Parser `{parser}` failed with exception: {ex.Message}");
+                    }
 
                 }
                 
@@ -480,7 +530,7 @@ namespace ME.ECS.DataConfigGenerator {
 
         }
 
-        private bool TryToConvert(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
+        public bool TryToConvert(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result) {
 
             DataConfigGenerator.projectConfigs = this.allConfigs;
 
@@ -609,36 +659,8 @@ namespace ME.ECS.DataConfigGenerator {
                     for (int j = 0; j < componentInfo.fields.Count; ++j) {
 
                         var fieldName = componentInfo.fields[j];
-                        var field = componentType.GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
-                        if (field == null) {
-
-                            this.LogError($"Field `{fieldName}` was not found in component `{componentInfo.name}`");
-                            continue;
-
-                        }
-
-                        var dataStr = data[j];
-                        if (string.IsNullOrEmpty(dataStr) == false) {
-
-                            allValuesAreNull = false;
-
-                        } else {
-
-                            continue;
-
-                        }
-
-                        var result = this.TryToConvert(dataStr, componentType, field.Name, field.FieldType, out var val);
-                        if (result == false) {
-
-                            this.LogError($"Data `{dataStr}` couldn't been parsed because deserializer was not found for type `{field.FieldType}`. If you need to store custom struct type - use JSON format.");
-
-                        } else {
-
-                            field.SetValue(instance, val);
-
-                        }
-
+                        this.behaviour.ParseComponentField(ref allValuesAreNull, instance, componentType, componentInfo, fieldName, data[j]);
+                        
                     }
 
                 }
@@ -742,19 +764,19 @@ namespace ME.ECS.DataConfigGenerator {
             
         }
 
-        private void LogError(string text) {
+        public void LogError(string text) {
             
             this.logs.Add(LogItem.LogError(text));
             
         }
         
-        private void Log(string text) {
+        public void Log(string text) {
             
             this.logs.Add(LogItem.Log(text));
             
         }
 
-        private void LogWarning(string text) {
+        public void LogWarning(string text) {
             
             this.logs.Add(LogItem.LogWarning(text));
             

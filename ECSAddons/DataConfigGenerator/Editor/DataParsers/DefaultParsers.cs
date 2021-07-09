@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ME.ECS.DataConfigGenerator.DataParsers {
 
-    public struct EnumParser : IParser {
+    public struct EnumParser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
             return fieldType.IsEnum;
@@ -19,7 +19,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
 
     }
 
-    public struct Vector2IntParser : IParser {
+    public struct Vector2IntParser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
             return typeof(Vector2Int) == fieldType;
@@ -35,7 +35,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
 
     }
 
-    public struct Vector3IntParser : IParser {
+    public struct Vector3IntParser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
             return typeof(Vector3Int) == fieldType;
@@ -51,7 +51,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
 
     }
 
-    public struct Vector2Parser : IParser {
+    public struct Vector2Parser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
             return typeof(Vector2) == fieldType;
@@ -67,7 +67,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
 
     }
 
-    public struct Vector3Parser : IParser {
+    public struct Vector3Parser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
             return typeof(Vector3) == fieldType;
@@ -83,7 +83,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
 
     }
 
-    public struct Vector4Parser : IParser {
+    public struct Vector4Parser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
             return typeof(Vector4) == fieldType;
@@ -99,7 +99,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
 
     }
 
-    public struct DataConfigParser : IParser {
+    public struct DataConfigParser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
             return typeof(Object).IsAssignableFrom(fieldType);
@@ -121,7 +121,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
 
     }
 
-    public struct ScriptableObjectParser : IParser {
+    public struct ScriptableObjectParser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
             return typeof(Object).IsAssignableFrom(fieldType);
@@ -143,7 +143,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
 
     }
 
-    public struct ViewParser : IParser {
+    public struct ViewParser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
             return typeof(Object).IsAssignableFrom(fieldType);
@@ -165,7 +165,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
 
     }
 
-    public struct GameObjectParser : IParser {
+    public struct GameObjectParser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
             return typeof(Object).IsAssignableFrom(fieldType);
@@ -187,7 +187,7 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
 
     }
 
-    public struct ComponentParser : IParser {
+    public struct ComponentParser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
             return typeof(Object).IsAssignableFrom(fieldType);

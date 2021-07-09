@@ -5,9 +5,23 @@ using UnityEngine;
 namespace ME.ECS.DataConfigGenerator {
 
     public interface IGeneratorBehaviour {
-
+        
+        IDataConfigGenerator generator { get; set; }
+        
         ME.ECS.DataConfigs.DataConfig CreateConfigInstance(ConfigInfo configInfo);
         void DeleteConfigAsset(string path);
+
+        void ParseComponentField(ref bool allValuesAreNull, object instance, System.Type componentType, ComponentInfo componentInfo, string fieldName, string data);
+
+    }
+
+    public interface IDataConfigGenerator {
+
+        void Log(string str);
+        void LogWarning(string str);
+        void LogError(string str);
+
+        bool TryToConvert(string data, System.Type componentType, string fieldName, System.Type fieldType, out object result);
 
     }
 
@@ -63,8 +77,10 @@ namespace ME.ECS.DataConfigGenerator {
 
     public abstract class GeneratorBehaviour : ScriptableObject, IGeneratorBehaviour {
 
+        public IDataConfigGenerator generator { get; set; }
         public abstract ME.ECS.DataConfigs.DataConfig CreateConfigInstance(ConfigInfo configInfo);
         public abstract void DeleteConfigAsset(string path);
+        public abstract void ParseComponentField(ref bool allValuesAreNull, object instance, System.Type componentType, ComponentInfo componentInfo, string fieldName, string data);
 
     }
 
