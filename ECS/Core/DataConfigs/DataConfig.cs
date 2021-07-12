@@ -107,7 +107,7 @@ namespace ME.ECS.DataConfigs {
             var world = Worlds.currentWorld;
             for (int i = 0; i < this.removeStructComponents.Length; ++i) {
 
-                world.RemoveData(in entity, this.GetComponentDataIndexByTypeRemoveWithCache(this.removeStructComponents[i], i), -1);
+                world.RemoveData(in entity, this.GetComponentDataIndexByTypeRemoveWithCache(this.removeStructComponents[i], i));
 
             }
 
