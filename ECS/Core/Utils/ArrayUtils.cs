@@ -27,6 +27,16 @@ namespace ME.ECS {
     #endif
     public static class ArrayUtils {
 
+        private struct DefaultCopy<T> : IArrayElementCopy<T> {
+
+            public void Copy(T from, ref T to) {
+                to = from;
+            }
+
+            public void Recycle(T item) { }
+
+        }
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -257,26 +267,53 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void Copy<TKey, T, TCopy>(DictionaryCopyable<TKey, T> fromDic, ref DictionaryCopyable<TKey, T> dic) where TCopy : IArrayElementCopy<T> {
+            
+            ArrayUtils.Copy(fromDic, ref dic, new DefaultCopy<T>());
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<TKey, T, TCopy>(DictionaryCopyable<TKey, T> fromDic, ref DictionaryCopyable<TKey, T> dic, TCopy copy) where TCopy : IArrayElementCopy<T> {
             
             if (fromDic == null) {
             
                 if (dic != null) {
-                    PoolDictionaryCopyable<TKey, T>.Recycle(ref dic);
-                }
                 
+                    foreach (var kv in dic) {
+                        
+                        copy.Recycle(kv.Value);
+                        
+                    }
+
+                    PoolDictionaryCopyable<TKey, T>.Recycle(ref dic);
+                    
+                }
+
                 dic = null;
                 return;
                 
             }
-            
+
             if (dic == null || fromDic.Count != dic.Count) {
+            
+                if (dic != null) {
                 
-                if (dic != null) PoolDictionaryCopyable<TKey, T>.Recycle(ref dic);
+                    foreach (var kv in dic) {
+                    
+                        copy.Recycle(kv.Value);
+                        
+                    }
+
+                    PoolDictionaryCopyable<TKey, T>.Recycle(ref dic);
+                }
+
                 dic = PoolDictionaryCopyable<TKey, T>.Spawn(fromDic.Count);
                 
             }
-            
+
             dic.CopyFrom(fromDic, copy);
             
         }
