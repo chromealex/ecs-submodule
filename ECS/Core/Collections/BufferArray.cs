@@ -15,12 +15,21 @@ namespace ME.ECS.Collections {
 
     }
 
+    public interface IDataArray<T> {
+
+        ref readonly T Read(int index);
+        T this[int index] { get; set; }
+        void Set(int index, T value);
+        void Dispose();
+
+    }
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public struct DataArray<T> {
+    public struct DataArray<T> : IDataArray<T> {
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
@@ -30,6 +39,7 @@ namespace ME.ECS.Collections {
         private class DisposeSentinel : System.IDisposable {
 
             public BufferArray<T> arr;
+            public Tick tick;
 
             ~DisposeSentinel() {
 
@@ -42,6 +52,7 @@ namespace ME.ECS.Collections {
             #endif
             public void Dispose() {
                 
+                this.tick = Tick.Invalid;
                 PoolClass<DisposeSentinel>.Recycle(this);
                 PoolArray<T>.Recycle(ref this.arr);
                 
@@ -49,16 +60,9 @@ namespace ME.ECS.Collections {
             
         }
 
-        public struct Data {
-
-            public BufferArray<T> arr;
-
-        }
-
         private DisposeSentinel disposeSentinel;
         public bool isCreated;
         public int Length;
-        private bool setBlock;
         
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -67,9 +71,9 @@ namespace ME.ECS.Collections {
             
             this.disposeSentinel = PoolClass<DisposeSentinel>.Spawn();
             this.disposeSentinel.arr = PoolArray<T>.Spawn(length);
+            this.disposeSentinel.tick = Worlds.currentWorld.GetCurrentTick();
             this.isCreated = true;
             this.Length = length;
-            this.setBlock = false;
 
         }
 
@@ -110,7 +114,7 @@ namespace ME.ECS.Collections {
         public void Set(int index, T value) {
             
             if (this.isCreated == false || index >= this.Length) throw new System.IndexOutOfRangeException($"Index: {index} [0..{this.Length}], Tick: {Worlds.currentWorld.GetCurrentTick()}");
-            if (this.setBlock == false) this.CloneInternalArray();
+            if (this.disposeSentinel.tick != Worlds.currentWorld.GetCurrentTick()) this.CloneInternalArray();
             this.disposeSentinel.arr[index] = value;
             
         }
@@ -118,28 +122,11 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void SetBegin() {
-
-            this.setBlock = true;
-            this.CloneInternalArray();
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public void SetEnd() {
-
-            this.setBlock = false;
-
-        }
-
         public void Dispose() {
             
             this.disposeSentinel.Dispose();
             this.isCreated = false;
             this.Length = 0;
-            this.setBlock = false;
             
         }
 
@@ -148,6 +135,7 @@ namespace ME.ECS.Collections {
         #endif
         private void CloneInternalArray() {
 
+            this.disposeSentinel.tick = Worlds.currentWorld.GetCurrentTick();
             var arr = PoolArray<T>.Spawn(this.Length);
             ArrayUtils.Copy(in this.disposeSentinel.arr, ref arr);
             this.disposeSentinel = PoolClass<DisposeSentinel>.Spawn();
