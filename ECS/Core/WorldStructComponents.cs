@@ -738,7 +738,10 @@ namespace ME.ECS {
                 bucketState = 0;
 
                 var componentIndex = ComponentTypes<TComponent>.typeId;
-                if (componentIndex >= 0) this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
+                if (componentIndex >= 0) {
+                    this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
+                    this.world.UpdateFilterByStructComponent<TComponent>(in entity);
+                }
 
                 return true;
 
@@ -2902,7 +2905,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void RemoveData(in Entity entity, int dataIndex, int componentIndex) {
+        public void RemoveData(in Entity entity, int dataIndex) {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -2924,12 +2927,6 @@ namespace ME.ECS {
             if (reg.RemoveObject(entity) == true) {
 
                 this.currentState.storage.versions.Increment(in entity);
-                if (componentIndex >= 0) {
-                    
-                    this.currentState.storage.archetypes.Remove(in entity, componentIndex);
-                    this.UpdateFilterByStructComponent(in entity, componentIndex);
-                    
-                }
                 System.Threading.Interlocked.Decrement(ref this.currentState.structComponents.count);
 
             }

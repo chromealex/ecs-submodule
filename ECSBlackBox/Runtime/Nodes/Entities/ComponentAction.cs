@@ -48,7 +48,7 @@ namespace ME.ECS.BlackBox {
 
             } else if (this.action == Action.Remove) {
                 
-                Worlds.currentWorld.RemoveData(in entity, this.registryIndex, this.componentIndex);
+                Worlds.currentWorld.RemoveData(in entity, this.registryIndex);
 
             }
 
