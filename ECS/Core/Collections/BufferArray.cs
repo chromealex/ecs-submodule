@@ -22,7 +22,12 @@ namespace ME.ECS.Collections {
     #endif
     public struct DataArray<T> {
 
-        public class DisposeSentinel : System.IDisposable {
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        private class DisposeSentinel : System.IDisposable {
 
             public BufferArray<T> arr;
 
@@ -32,6 +37,9 @@ namespace ME.ECS.Collections {
 
             }
 
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Dispose() {
                 
                 PoolClass<DisposeSentinel>.Recycle(this);
@@ -47,20 +55,28 @@ namespace ME.ECS.Collections {
 
         }
 
-        private Data data;
         private DisposeSentinel disposeSentinel;
-        public readonly bool isCreated;
-        public readonly int Length;
+        public bool isCreated;
+        public int Length;
+        private bool setBlock;
         
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public DataArray(int length) {
             
-            this.data = new Data() {
-                arr = PoolArray<T>.Spawn(length),
-            };
             this.disposeSentinel = PoolClass<DisposeSentinel>.Spawn();
+            this.disposeSentinel.arr = PoolArray<T>.Spawn(length);
             this.isCreated = true;
             this.Length = length;
+            this.setBlock = false;
 
+        }
+
+        public override int GetHashCode() {
+            
+            return this.disposeSentinel.arr.GetHashCode();
+            
         }
 
         public T this[int index] {
@@ -84,7 +100,7 @@ namespace ME.ECS.Collections {
         public ref readonly T Read(int index) {
             
             if (this.isCreated == false || index >= this.Length) throw new System.IndexOutOfRangeException($"Index: {index} [0..{this.Length}], Tick: {Worlds.currentWorld.GetCurrentTick()}");
-            return ref this.data.arr[index];
+            return ref this.disposeSentinel.arr[index];
             
         }
 
@@ -94,17 +110,49 @@ namespace ME.ECS.Collections {
         public void Set(int index, T value) {
             
             if (this.isCreated == false || index >= this.Length) throw new System.IndexOutOfRangeException($"Index: {index} [0..{this.Length}], Tick: {Worlds.currentWorld.GetCurrentTick()}");
-            this.Copy();
-            this.data.arr[index] = value;
+            if (this.setBlock == false) this.CloneInternalArray();
+            this.disposeSentinel.arr[index] = value;
             
         }
 
-        private void Copy() {
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void SetBegin() {
+
+            this.setBlock = true;
+            this.CloneInternalArray();
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void SetEnd() {
+
+            this.setBlock = false;
+
+        }
+
+        public void Dispose() {
+            
+            this.disposeSentinel.Dispose();
+            this.isCreated = false;
+            this.Length = 0;
+            this.setBlock = false;
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        private void CloneInternalArray() {
 
             var arr = PoolArray<T>.Spawn(this.Length);
-            ArrayUtils.Copy(in this.data.arr, ref arr);
-            this.data.arr = arr;
-
+            ArrayUtils.Copy(in this.disposeSentinel.arr, ref arr);
+            this.disposeSentinel = PoolClass<DisposeSentinel>.Spawn();
+            this.disposeSentinel.arr = arr;
+            
         }
 
     }
