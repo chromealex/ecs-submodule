@@ -56,7 +56,7 @@ namespace ME.ECS.Tests {
                 world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
                 world.SetSeed(1u);
                 {
-                    WorldUtilities.InitComponentTypeId<TestComponent>(false);
+                    WorldUtilities.InitComponentTypeId<TestComponent>(false, isShared: true);
                     ComponentsInitializerWorld.Setup((e) => {
                 
                         e.ValidateData<TestComponent>();
