@@ -734,13 +734,17 @@ namespace ME.ECS {
             ref var bucketState = ref this.componentsStates.arr[index];
             if (bucketState > 0) {
 
-                if (AllComponentTypes<TComponent>.isTag == false) this.RemoveData(in entity);
                 bucketState = 0;
 
+                if (ComponentTypes<TComponent>.isFilterVersioned == true) this.world.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
+                if (AllComponentTypes<TComponent>.isTag == false) this.RemoveData(in entity);
+                
                 var componentIndex = ComponentTypes<TComponent>.typeId;
                 if (componentIndex >= 0) {
+                    
                     this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
                     this.world.UpdateFilterByStructComponent<TComponent>(in entity);
+                    
                 }
 
                 return true;
