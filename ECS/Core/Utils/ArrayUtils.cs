@@ -267,7 +267,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void Copy<TKey, T, TCopy>(DictionaryCopyable<TKey, T> fromDic, ref DictionaryCopyable<TKey, T> dic) where TCopy : IArrayElementCopy<T> {
+        public static void Copy<TKey, T>(DictionaryCopyable<TKey, T> fromDic, ref DictionaryCopyable<TKey, T> dic) {
             
             ArrayUtils.Copy(fromDic, ref dic, new DefaultCopy<T>());
             
