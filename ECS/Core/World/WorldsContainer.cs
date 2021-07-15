@@ -10,6 +10,7 @@ namespace ME.ECS {
     public static class Worlds {
 
         public static World currentWorld;
+        public static World current;
         
         public static readonly List<World> registeredWorlds = new List<World>();
         private static Dictionary<int, World> cache = new Dictionary<int, World>(1);
@@ -55,6 +56,7 @@ namespace ME.ECS {
             if (world == Worlds.currentWorld) {
 
                 Worlds.currentWorld = null;
+                Worlds.current = null;
 
             }
             

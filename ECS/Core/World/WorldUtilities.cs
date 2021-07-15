@@ -20,6 +20,7 @@ namespace ME.ECS {
         public static void SetWorld(World world) {
 
             Worlds.currentWorld = world;
+            Worlds.current = world;
 
         }
 
@@ -119,6 +120,7 @@ namespace ME.ECS {
             Worlds.DeInitializeBegin();
             var w = world;
             Worlds.currentWorld = w;
+            Worlds.current = w;
             world.RecycleResetState<TState>();
             PoolClass<World>.Recycle(ref w);
             world.RecycleStates<TState>();
