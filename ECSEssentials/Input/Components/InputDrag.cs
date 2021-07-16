@@ -7,6 +7,7 @@ namespace ME.ECS.Essentials.Input.Components {
         public InputPointerData data;
         public InputPointerData setData {
             set => this.data = value;
+            get => this.data;
         }
 
     }
@@ -16,6 +17,7 @@ namespace ME.ECS.Essentials.Input.Components {
         public InputPointerData data;
         public InputPointerData setData {
             set => this.data = value;
+            get => this.data;
         }
 
     }
@@ -25,6 +27,7 @@ namespace ME.ECS.Essentials.Input.Components {
         public InputPointerData data;
         public InputPointerData setData {
             set => this.data = value;
+            get => this.data;
         }
 
     }
