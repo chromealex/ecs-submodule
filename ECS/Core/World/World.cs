@@ -208,7 +208,7 @@ namespace ME.ECS {
             this.features = PoolDictionary<System.Type, IFeatureBase>.Spawn(World.FEATURES_CAPACITY);
             this.modules = PoolListCopyable<IModuleBase>.Spawn(World.MODULES_CAPACITY);
             this.statesModules = PoolListCopyable<ModuleState>.Spawn(World.MODULES_CAPACITY);
-            this.systemGroups = PoolArray<SystemGroup>.Spawn(World.FEATURES_CAPACITY);
+            this.systemGroups = PoolArray<SystemGroup>.Spawn(World.SYSTEMS_CAPACITY);
             this.systemGroupsLength = 0;
             this.filterActions = PoolList<FilterAction>.Spawn(4);
 
