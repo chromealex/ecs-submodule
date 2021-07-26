@@ -13,6 +13,40 @@ namespace ME.ECS {
     #endif
     public static class UnityObjectUtils {
 
+        public static int GetObjectSize(object obj) {
+
+            var size = 0;
+            if (obj == null) return System.IntPtr.Size;
+            
+            var type = obj.GetType();
+            var fields = type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+            foreach (var field in fields) {
+
+                var fieldType = field.FieldType;
+                if (fieldType.IsValueType == true) {
+
+                    size += Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf(fieldType);
+
+                } else if (fieldType.IsArray == true) {
+                    
+                    var arr = (System.Array)field.GetValue(obj);
+                    for (int i = 0; i < arr.Length; ++i) {
+                        size += UnityObjectUtils.GetObjectSize(arr.GetValue(i));
+                    }
+
+                }  else {
+                    
+                    var val = field.GetValue(obj);
+                    size += UnityObjectUtils.GetObjectSize(val);
+                    
+                }
+                
+            }
+            
+            return size;
+
+        }
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
