@@ -351,7 +351,7 @@ namespace ME.ECS {
 
         }
 
-        public void Deserialize<TState>(byte[] worldData, System.Collections.Generic.List<byte[]> eventsWhileConnecting) where TState : State, new() {
+        public void Deserialize<TState>(byte[] worldData, System.Collections.Generic.List<byte[]> eventsWhileConnecting, System.Action onCustomLogicUpdate = null) where TState : State, new() {
 
             var statesHistory = this.GetModule<ME.ECS.StatesHistory.IStatesHistoryModuleBase>();
             statesHistory.Reset();
@@ -387,13 +387,15 @@ namespace ME.ECS {
                     ref var entity = ref list[i];
                     ComponentsInitializerWorld.Init(in entity);
                     this.CreateEntityPlugins(entity);
-                    this.UpdateFiltersOnFilterCreate(entity);
+                    //this.UpdateFiltersOnFilterCreate(entity);
 
                 }
 
             }
 
             PoolListCopyable<Entity>.Recycle(ref list);
+            
+            onCustomLogicUpdate?.Invoke();
 
             this.SetFromToTicks(data.state.tick, data.tick);
             this.UpdateLogic(0f);
