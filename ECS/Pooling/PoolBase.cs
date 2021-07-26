@@ -261,10 +261,12 @@ namespace ME.ECS {
         protected System.Func<object> constructor;
         protected System.Action<object> desctructor;
         protected System.Type poolType;
+        private int poolBytesSize;
         protected int poolAllocated;
         protected int poolDeallocated;
         protected int poolNewAllocated;
         protected int poolUsed;
+        protected int poolBytesUsed;
 
         private static List<PoolInternalBase> list = new List<PoolInternalBase>();
 
@@ -278,6 +280,7 @@ namespace ME.ECS {
         public static int allocated;
         public static int deallocated;
         public static int used;
+        public static int bytesUsed;
 
         public static void Clear() {
 
@@ -329,8 +332,7 @@ namespace ME.ECS {
         [UnityEditor.MenuItem("ME.ECS/Debug/Pools Info")]
         public static void Debug() {
 
-            UnityEngine.Debug.Log("Allocated: " + PoolInternalBase.allocated + ", Deallocated: " + PoolInternalBase.deallocated + ", Used: " + PoolInternalBase.used +
-                                  ", cached: " + (PoolInternalBase.deallocated - PoolInternalBase.allocated) + ", new: " + PoolInternalBase.newAllocated);
+            UnityEngine.Debug.Log($"Allocated: {PoolInternalBase.allocated}, Deallocated: {PoolInternalBase.deallocated}, Used: {PoolInternalBase.used}, cached: {(PoolInternalBase.deallocated - PoolInternalBase.allocated)}, new: {PoolInternalBase.newAllocated}, approx bytes used: {PoolInternalBase.bytesUsed}");
 
             PoolInternalBase maxCached = null;
             PoolInternalBase maxAlloc = null;
@@ -357,13 +359,13 @@ namespace ME.ECS {
 
             if (maxCached != null) {
 
-                UnityEngine.Debug.Log("Max cache type: " + maxCached.poolType + ", Pool:\n" + maxCached);
+                UnityEngine.Debug.Log($"Max cache type: {maxCached.poolType}, Pool:\n{maxCached}");
 
             }
 
             if (maxAlloc != null) {
 
-                UnityEngine.Debug.Log("Max alloc type: " + maxAlloc.poolType + ", Pool:\n" + maxAlloc);
+                UnityEngine.Debug.Log($"Max alloc type: {maxAlloc.poolType}, Pool:\n{maxAlloc}");
 
             }
 
@@ -372,14 +374,14 @@ namespace ME.ECS {
                 var item = PoolInternalBase.list[i];
                 if (item.poolAllocated != item.poolDeallocated) {
 
-                    UnityEngine.Debug.LogWarning("Memory leak: " + item.poolType + ", Pool:\n" + item);
+                    UnityEngine.Debug.LogWarning($"Memory leak: {item.poolType}, Pool:\n{item}");
 
                     if (PoolInternalBase.IsStackTraceEnabled() == true && item.stackTraces != null) {
 
                         var max = 10;
                         foreach (var stack in item.stackTraces) {
 
-                            UnityEngine.Debug.Log(stack.Key.GetType() + "\n" + stack.Value);
+                            UnityEngine.Debug.Log($"{stack.Key.GetType()}\n{stack.Value}");
                             --max;
                             if (max <= 0) break;
 
@@ -406,6 +408,7 @@ namespace ME.ECS {
             PoolInternalBase.deallocated = 0;
             PoolInternalBase.used = 0;
             PoolInternalBase.newAllocated = 0;
+            PoolInternalBase.bytesUsed = 0;
 
         }
         #endif
@@ -416,24 +419,73 @@ namespace ME.ECS {
             this.poolDeallocated = 0;
             this.poolUsed = 0;
             this.poolNewAllocated = 0;
+            this.poolBytesUsed = 0;
 
         }
 
         public override string ToString() {
 
-            return "Allocated: " + this.poolAllocated + ", Deallocated: " + this.poolDeallocated + ", Used: " + this.poolUsed + ", cached: " + this.cache.Count + ", new: " +
-                   this.poolNewAllocated;
+            return $"Allocated: {this.poolAllocated}, Deallocated: {this.poolDeallocated}, Used: {this.poolUsed}, cached: {this.cache.Count}, new: {this.poolNewAllocated}, approx bytes used: {this.poolBytesUsed}";
 
         }
 
         public PoolInternalBase(System.Type poolType, System.Func<object> constructor, System.Action<object> desctructor) {
 
             this.poolType = poolType;
+            this.poolBytesSize = 0;
+            #if UNITY_EDITOR
+            if (poolType.IsValueType == true) {
+                this.poolBytesSize = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf(poolType);
+            }
+            #endif
             this.constructor = constructor;
             this.desctructor = desctructor;
-
+            
             PoolInternalBase.list.Add(this);
 
+        }
+
+        public static int GetSizeOfObject(object obj, int avgStringSize = -1) {
+
+            if (obj == null) return 0;
+
+            var pointerSize = System.IntPtr.Size;
+            var size = 0;
+            var type = obj.GetType();
+            var info = type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+            foreach (var field in info) {
+                if (field.FieldType.IsEnum) {
+                    size += sizeof(int);
+                } else if (field.FieldType.IsValueType) {
+                    try {
+                        size += System.Runtime.InteropServices.Marshal.SizeOf(field.FieldType);
+                    } catch (System.Exception) {
+                    }
+                } else {
+                    size += pointerSize;
+                    if (field.FieldType.IsArray) {
+                        var array = field.GetValue(obj) as System.Array;
+                        if (array != null) {
+                            var elementType = array.GetType().GetElementType();
+                            if (elementType.IsValueType) {
+                                try {
+                                    size += System.Runtime.InteropServices.Marshal.SizeOf(elementType) * array.Length;
+                                } catch (System.Exception) {
+                                }
+                            } else {
+                                size += pointerSize * array.Length;
+                                if (elementType == typeof(string) && avgStringSize > 0) {
+                                    size += avgStringSize * array.Length;
+                                }
+                            }
+                        }
+                    } else if (field.FieldType == typeof(string) && avgStringSize > 0) {
+                        size += avgStringSize;
+                    }
+                }
+            }
+
+            return size;
         }
 
         public static T Create<T>(PoolInternalBase pool) where T : new() {
@@ -515,9 +567,20 @@ namespace ME.ECS {
             ++PoolInternalBase.allocated;
 
             #if UNITY_EDITOR
+            var bytes = this.poolBytesSize;
+
             if (PoolInternalBase.IsStackTraceEnabled() == true) {
 
+                bytes = PoolInternalBase.GetSizeOfObject(item, 8);
+                this.poolBytesUsed += bytes;
+                PoolInternalBase.bytesUsed += bytes;
+
                 this.WriteStackTrace(item);
+
+            } else {
+                
+                this.poolBytesUsed += bytes;
+                PoolInternalBase.bytesUsed += bytes;
 
             }
 
@@ -561,8 +624,18 @@ namespace ME.ECS {
             #if UNITY_EDITOR
             if (PoolInternalBase.IsStackTraceEnabled() == true) {
 
+                //var bytes = PoolInternalBase.GetSizeOfObject(instance, 8);
+                //this.poolBytesUsed -= bytes;
+                //PoolInternalBase.bytesUsed -= bytes;
+                
                 this.RemoveStackTrace(instance);
 
+            } else {
+
+                //var bytes = this.poolBytesUsed;
+                //this.poolBytesUsed -= bytes;
+                //PoolInternalBase.bytesUsed -= bytes;
+                
             }
 
             if (instance != null) {
@@ -594,7 +667,7 @@ namespace ME.ECS {
 
             } else {
 
-                UnityEngine.Debug.LogError("You are trying to push instance " + instance + " that already in pool!");
+                UnityEngine.Debug.LogError($"You are trying to push instance {instance} that already in pool!");
 
             }
 
