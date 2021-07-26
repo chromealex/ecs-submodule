@@ -44,7 +44,7 @@ namespace ME.ECS.Serializer.Tests {
                 {
                     var serializersInternal = Serializer.GetInternalSerializers();
                     var serializers = Serializer.GetDefaultSerializers();
-                    serializers.Add(serializersInternal);
+                    serializers.Add(ref serializersInternal);
                     serializersInternal.Dispose();
 
                     bytes = Serializer.Pack(serializers, test);
@@ -55,7 +55,7 @@ namespace ME.ECS.Serializer.Tests {
                 {
                     var serializersInternal = Serializer.GetInternalSerializers();
                     var serializers = Serializer.GetDefaultSerializers();
-                    serializers.Add(serializersInternal);
+                    serializers.Add(ref serializersInternal);
                     serializersInternal.Dispose();
 
                     var testRes = Serializer.Unpack<PerfStruct>(serializers, bytes);
