@@ -139,7 +139,7 @@ namespace ME.ECS.Serializer {
 
         }
         
-        public void Add(Serializers serializers) {
+        public void Add(ref Serializers serializers) {
 
             if (Serializers.initialized.TryGetValue(this.id, out var state) == false || state == false) return;
             
@@ -295,8 +295,8 @@ namespace ME.ECS.Serializer {
 
             var serializersInternal = Serializer.GetInternalSerializers();
             var serializers = Serializer.GetDefaultSerializers();
-            serializers.Add(serializersInternal);
-            serializers.Add(customSerializers);
+            serializers.Add(ref serializersInternal);
+            serializers.Add(ref customSerializers);
             serializersInternal.Dispose();
             customSerializers.Dispose();
 
@@ -375,9 +375,9 @@ namespace ME.ECS.Serializer {
         public static Packer SetupDefaultPacker(byte[] bytes, Serializers customSerializers) {
             
             var serializersInternal = Serializer.GetInternalSerializers();
-            var serializers         = Serializer.GetDefaultSerializers();
-            serializers.Add(serializersInternal);
-            serializers.Add(customSerializers);
+            var serializers = Serializer.GetDefaultSerializers();
+            serializers.Add(ref serializersInternal);
+            serializers.Add(ref customSerializers);
             serializersInternal.Dispose();
             customSerializers.Dispose();
 
