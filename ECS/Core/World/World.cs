@@ -999,12 +999,12 @@ namespace ME.ECS {
 
         internal void DisposeGlobalEvents() {
             
-            this.globalEventFrameItems.Clear();
-            this.globalEventFrameEvents.Clear();
-
-            this.globalEventLogicItems.Clear();
-            this.globalEventLogicEvents.Clear();
-
+            PoolList<GlobalEventFrameItem>.Recycle(ref this.globalEventFrameItems);
+            PoolHashSet<long>.Recycle(ref this.globalEventFrameEvents);
+            
+            PoolList<GlobalEventFrameItem>.Recycle(ref this.globalEventLogicItems);
+            PoolHashSet<long>.Recycle(ref this.globalEventLogicEvents);
+            
         }
 
         public void ProcessGlobalEvents(GlobalEventType globalEventType) {
