@@ -277,8 +277,15 @@ namespace ME.ECS.Collections {
 
         public override bool Equals(object obj) {
 
-            if (obj == null) return false;
-            return this == (NativeBufferArray<T>)obj;
+            if (obj is NativeBufferArray<T> ent) {
+                
+                if (ent.isCreated == false && this.isCreated == false) return true;
+                if (ent.isCreated != this.isCreated) return false;
+                return this.Equals(ent);
+                
+            }
+            
+            return false;
 
         }
 

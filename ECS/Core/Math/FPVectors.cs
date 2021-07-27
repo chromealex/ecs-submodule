@@ -33,15 +33,21 @@ namespace ME.ECS {
 
         }
 
-        public override int GetHashCode() {
+        public override bool Equals(object obj) {
 
-            return this.x.GetHashCode() ^ this.y.GetHashCode();
+            if (obj is FPVector2 ent) {
+
+                return this.Equals(ent);
+
+            }
+            
+            return false;
 
         }
 
-        public override bool Equals(object obj) {
+        public override int GetHashCode() {
 
-            throw new AllocationException();
+            return this.x.GetHashCode() ^ this.y.GetHashCode();
 
         }
 
@@ -311,7 +317,13 @@ namespace ME.ECS {
 
         public override bool Equals(object obj) {
 
-            throw new AllocationException();
+            if (obj is FPVector3 ent) {
+
+                return this.Equals(ent);
+
+            }
+            
+            return false;
 
         }
 

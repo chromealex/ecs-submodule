@@ -61,7 +61,13 @@ namespace ME.ECS {
 
         public override bool Equals(object obj) {
 
-            throw new AllocationException();
+            if (obj is FPQuaternion ent) {
+
+                return this.Equals(ent);
+
+            }
+            
+            return false;
 
         }
 

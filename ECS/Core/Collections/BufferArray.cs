@@ -178,13 +178,26 @@ namespace ME.ECS.Collections {
 
             public override int GetHashCode() {
 
+                if (this.data == null) return 0;
                 return this.data.GetHashCode();
+
+            }
+
+            public bool Equals(EditorArr obj) {
+
+                return this.data == obj.data;
 
             }
 
             public override bool Equals(object obj) {
 
-                throw new AllocationException();
+                if (obj is EditorArr ent) {
+                
+                    return this.Equals(ent);
+                
+                }
+
+                return false;
 
             }
 
@@ -438,8 +451,14 @@ namespace ME.ECS.Collections {
         }
 
         public override bool Equals(object other) {
-
-            return this == (BufferArray<T>?)other;
+            
+            if (other is BufferArray<T> ent) {
+                
+                return this.Equals(ent);
+                
+            }
+            
+            return false;
 
         }
 

@@ -96,7 +96,15 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public override bool Equals(Object obj) {
-            throw new AllocationException();
+            
+            if (obj is TName ent) {
+                
+                return this.Equals(ent);
+                
+            }
+            
+            return false;
+
         }
 
         #if ECS_COMPILE_IL2CPP_OPTIONS

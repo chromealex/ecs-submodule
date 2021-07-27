@@ -351,8 +351,14 @@ namespace ME.ECS.Views {
 
         public override bool Equals(object obj) {
 
-            throw new AllocationException();
+            if (obj is ViewInfo ent) {
+                
+                return this.Equals(ent);
+                
+            }
 
+            return false;
+            
         }
 
         public bool Equals(ViewInfo p) {

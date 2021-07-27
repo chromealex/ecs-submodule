@@ -12,12 +12,16 @@ namespace ME.ECSEditor {
 
         public class WorldEditor {
 
+            public static WorldEditor current;
+            
             public World world;
             public bool foldout;
             public bool foldoutSystems;
             public bool foldoutModules;
             public bool foldoutEntitiesStorage;
             public bool foldoutFilters;
+            public int stateSize;
+            public double stateSizeLastUpdateTime;
 
             private List<ME.ECS.IStorage> foldoutStorages = new List<ME.ECS.IStorage>();
             private Dictionary<object, int> pageObjects = new Dictionary<object, int>();
@@ -28,6 +32,29 @@ namespace ME.ECSEditor {
             private Dictionary<object, List<int>> foldoutStorageData = new Dictionary<object, List<int>>();
             private Dictionary<object, List<int>> foldoutStorageStructComponents = new Dictionary<object, List<int>>();
             private Dictionary<object, List<int>> foldoutStorageViews = new Dictionary<object, List<int>>();
+
+            public void UpdateStateSize() {
+
+                if (EditorApplication.timeSinceStartup > this.stateSizeLastUpdateTime + 15d) {
+
+                    this.stateSizeLastUpdateTime = EditorApplication.timeSinceStartup;
+                    System.Threading.ThreadPool.QueueUserWorkItem((_) => {
+
+                        try {
+
+                            this.stateSize = UnityObjectUtils.GetObjectSize(this.world.GetState());
+
+                        } catch (System.Exception ex) {
+                            
+                            Debug.LogException(ex);
+                            
+                        }
+
+                    });
+                    
+                }
+
+            }
 
             public bool IsFoldOutCustom(object instance) {
 
@@ -1233,7 +1260,10 @@ namespace ME.ECSEditor {
                         var storage = worldEditor.GetEntitiesStorage();
                         var filters = worldEditor.GetFilters();
                         var world = worldEditor.world;
-
+                        
+                        WorldEditor.current = worldEditor;
+                        worldEditor.UpdateStateSize();
+                        
                         GUILayoutExt.Padding(4f, () => {
 
                             if (this.worlds.Count == 1) worldEditor.foldout = true;
@@ -1264,6 +1294,7 @@ namespace ME.ECSEditor {
                                     GUILayout.Label($"Tick: {worldEditor.world.GetCurrentTick()}");
                                     GUILayout.Label($"Tick Time: {worldEditor.world.GetTickTime()}ms.");
                                     GUILayout.Label($"Time: {ME.ECS.MathUtils.SecondsToString(worldEditor.world.GetTimeSinceStart())}");
+                                    GUILayout.Label($"State Memory Usage: {MathUtils.BytesCountToString(worldEditor.stateSize)}");
 
                                 });
 
