@@ -33,6 +33,10 @@ namespace ME.ECS.Pathfinding {
 
         public void Recycle() {
             
+            this.result = PathCompleteState.NotCalculated;
+            this.graph = null;
+            this.cacheEnabled = default;
+
             if (this.nodes != null) PoolListCopyable<Node>.Recycle(ref this.nodes);
             if (this.nodesModified != null) PoolListCopyable<Node>.Recycle(ref this.nodesModified);
             
