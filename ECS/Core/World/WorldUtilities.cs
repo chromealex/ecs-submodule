@@ -41,6 +41,7 @@ namespace ME.ECS {
         #endif
         public static void ReleaseState<TState>(ref State state) where TState : State, new() {
 
+            if (state == null) return;
             state.tick = default;
             state.randomState = default;
             PoolStates<TState>.Recycle((TState)state);
