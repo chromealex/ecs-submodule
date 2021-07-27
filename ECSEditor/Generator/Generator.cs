@@ -493,6 +493,10 @@ namespace ME.ECSEditor {
 
                 var itemType = field.FieldType;
                 if (itemType == typeof(string)) continue;
+                
+                attrs = itemType.GetCustomAttributes(typeof(ME.ECS.GeneratorIgnoreManagedType), true);
+                if (attrs.Length > 0) continue;
+                
                 if (itemType.IsClass == true ||
                     itemType.IsArrayOrList() == true) {
                     

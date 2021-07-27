@@ -29,6 +29,7 @@ namespace ME.ECS.Collections {
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
+    [GeneratorIgnoreManagedType]
     public struct DataArray<T> : IDataArray<T> {
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -76,6 +77,32 @@ namespace ME.ECS.Collections {
             this.Length = length;
 
         }
+
+        #region Static Constructors
+        public static DataArray<T> From(ListCopyable<T> source) {
+
+            var data = new DataArray<T>(source.Count);
+            ArrayUtils.Copy(source.innerArray, 0, ref data.disposeSentinel.arr, 0, source.Count);
+            return data;
+
+        }
+
+        public static DataArray<T> From(BufferArray<T> source) {
+
+            var data = new DataArray<T>(source.Length);
+            ArrayUtils.Copy(source, 0, ref data.disposeSentinel.arr, 0, source.Length);
+            return data;
+
+        }
+
+        public static DataArray<T> From(T[] source) {
+
+            var data = new DataArray<T>(source.Length);
+            ArrayUtils.Copy(source, 0, ref data.disposeSentinel.arr, 0, source.Length);
+            return data;
+
+        }
+        #endregion
 
         public override int GetHashCode() {
             
