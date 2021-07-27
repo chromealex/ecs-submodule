@@ -294,7 +294,7 @@ namespace ME.ECSEditor {
 
                     this.serializedObject.Update();
                     
-                    if (GUILayoutExt.DrawFieldsSingle(this.search, this, DataConfigEditor.multipleWorldEditor, dataConfig.structComponents,
+                    if (GUILayoutExt.DrawFieldsSingle(this.search, this.target, DataConfigEditor.multipleWorldEditor, dataConfig.structComponents,
                                                       (index, component, prop) => {
                                                           
                                                           GUILayout.BeginVertical();

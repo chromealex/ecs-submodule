@@ -890,6 +890,7 @@ namespace ME.ECSEditor {
         public struct FieldsSingleCache {
 
 	        public GameObject temp;
+	        public TempObject[] comps;
 	        public SerializedObject[] objs;
 
         }
@@ -1037,11 +1038,13 @@ namespace ME.ECSEditor {
 			        temp.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
 			        cache.temp = temp;
 			        cache.objs = new SerializedObject[instances.Length];
+			        cache.comps = new TempObject[instances.Length];
 			        for (int i = 0; i < instances.Length; ++i) {
 
 				        var comp = temp.AddComponent<TempObject>();
 				        comp.data = instances[i];
 
+				        cache.comps[i] = comp;
 				        cache.objs[i] = new SerializedObject(comp);
 
 			        }
@@ -1060,6 +1063,11 @@ namespace ME.ECSEditor {
 
 		        } else {
 
+			        for (int i = 0; i < cache.objs.Length; ++i) {
+
+				        cache.objs[i] = new SerializedObject(cache.comps[i]);
+
+			        }
 			        objs = cache.objs;
 
 		        }
@@ -1173,7 +1181,7 @@ namespace ME.ECSEditor {
 
 		        }
 
-		        if (changed == true) {
+		        /*if (changed == true)*/ {
 
 			        for (var index = 0; index < objs.Length; index++) {
 
