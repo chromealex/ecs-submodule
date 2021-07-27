@@ -200,7 +200,9 @@ namespace ME.ECSEditor {
 
         public void OnEnable() {
 
+            if (this.target == null) return;
             var target = this.target as InitializerBase;
+            if (target == null) Debug.LogWarning($"Target is null, but base.target is {this.target}");
             if (target.configurations.Count == 0) {
 
                 this.MakeDefaultConfigurations();
