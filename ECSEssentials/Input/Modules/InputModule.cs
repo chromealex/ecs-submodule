@@ -210,6 +210,8 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
         private bool GetWorldPointer(out UnityEngine.Vector3 result) {
 
             result = default;
+            if (this.feature.camera == null) return false;
+
             var pos = InputUtils.GetPointerPosition(0);
             var ray = this.feature.camera.ScreenPointToRay(pos);
             if (UnityEngine.Physics.Raycast(ray, out var hit, this.feature.raycastDistance, this.feature.raycastMask) == true) {
