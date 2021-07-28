@@ -682,6 +682,15 @@ namespace ME.ECS {
             
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public virtual void Replace(int entityId, TComponent data) {
+            
+            this.components[entityId] = data;
+            
+        }
+
         public override bool SetObject(Entity entity, IStructComponentBase data) {
 
             #if WORLD_EXCEPTIONS
@@ -929,6 +938,19 @@ namespace ME.ECS {
             
         }*/
         
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public override void Replace(int entityId, TComponent data) {
+            
+            this.components[entityId].OnDispose();
+            this.components[entityId] = data;
+            
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public override void RemoveData(in Entity entity) {
 
             this.components[entity.id].OnDispose();
@@ -963,6 +985,11 @@ namespace ME.ECS {
                     from.OnRecycle();
                     to.OnRecycle();
                     
+                } else if (hasFrom == false && hasTo == true) {
+                    
+                    from.OnRecycle();
+                    to.OnRecycle();
+                    
                 } else {
 
                     to.CopyFrom(in from);
@@ -976,12 +1003,12 @@ namespace ME.ECS {
             #endif
             public void Recycle(int index, ref TComponent item) {
 
-                if (this.otherStates.isCreated == true && index >= 0 && index < this.otherStates.Length && this.otherStates.arr[index] > 0) {
+                //if (this.otherStates.isCreated == true && index >= 0 && index < this.otherStates.Length && this.otherStates.arr[index] > 0) {
 
                     item.OnRecycle();
                     item = default;
 
-                }
+                //}
 
             }
 
@@ -1047,6 +1074,16 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public override void Replace(int entityId, TComponent data) {
+            
+            this.components[entityId].OnRecycle();
+            this.components[entityId] = data;
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public override void CopyFrom(StructRegistryBase other) {
 
             var _other = (StructComponents<TComponent>)other;
@@ -1065,6 +1102,9 @@ namespace ME.ECS {
             
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public override void CopyFrom(in Entity from, in Entity to) {
 
             if (typeof(TComponent) == typeof(ME.ECS.Views.ViewComponent)) {
@@ -1643,6 +1683,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void CopyFrom(in Entity from, in Entity to) {
 
             for (int i = 0; i < this.list.Count; ++i) {
@@ -2663,8 +2706,14 @@ namespace ME.ECS {
 
             // Inline all manually
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            if (AllComponentTypes<TComponent>.isTag == false) reg.components[entity.id] = data;
             ref var state = ref reg.componentsStates.arr[entity.id];
+            if (AllComponentTypes<TComponent>.isTag == false) {
+                if (state > 0) {
+                    reg.Replace(entity.id, data);
+                } else {
+                    reg.components[entity.id] = data;
+                }
+            }
             if (state == 0) {
 
                 state = 1;

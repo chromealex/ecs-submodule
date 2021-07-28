@@ -19,7 +19,7 @@ public struct FilterBag<T0>  where T0:struct,IStructComponentBase {
     public readonly int Length;
     public int index;
     private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
     
     private DataBuffer<T0> buffer0;
 
@@ -31,7 +31,7 @@ public struct FilterBag<T0>  where T0:struct,IStructComponentBase {
         this.Length = filter.Count;
         this.max = filter.Count;
         
-        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
+        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -54,7 +54,7 @@ public struct FilterBag<T0>  where T0:struct,IStructComponentBase {
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         
         if (changedCount > 0) world.UpdateAllFilters();
@@ -117,7 +117,7 @@ public struct FilterBag<T0,T1>  where T0:struct,IStructComponentBase where T1:st
     public readonly int Length;
     public int index;
     private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;
 
@@ -129,7 +129,7 @@ public struct FilterBag<T0,T1>  where T0:struct,IStructComponentBase where T1:st
         this.Length = filter.Count;
         this.max = filter.Count;
         
-        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
+        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -153,8 +153,8 @@ this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         
         if (changedCount > 0) world.UpdateAllFilters();
@@ -228,7 +228,7 @@ public struct FilterBag<T0,T1,T2>  where T0:struct,IStructComponentBase where T1
     public readonly int Length;
     public int index;
     private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;
 
@@ -240,7 +240,7 @@ public struct FilterBag<T0,T1,T2>  where T0:struct,IStructComponentBase where T1
         this.Length = filter.Count;
         this.max = filter.Count;
         
-        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
+        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -352,7 +352,7 @@ public struct FilterBag<T0,T1,T2,T3>  where T0:struct,IStructComponentBase where
     public readonly int Length;
     public int index;
     private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;
 
@@ -364,7 +364,7 @@ public struct FilterBag<T0,T1,T2,T3>  where T0:struct,IStructComponentBase where
         this.Length = filter.Count;
         this.max = filter.Count;
         
-        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
+        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -390,10 +390,10 @@ this.buffer3 = new DataBuffer<T3>(world, arrEntities, allocator);
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         
         if (changedCount > 0) world.UpdateAllFilters();
@@ -489,7 +489,7 @@ public struct FilterBag<T0,T1,T2,T3,T4>  where T0:struct,IStructComponentBase wh
     public readonly int Length;
     public int index;
     private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;
 
@@ -501,7 +501,7 @@ public struct FilterBag<T0,T1,T2,T3,T4>  where T0:struct,IStructComponentBase wh
         this.Length = filter.Count;
         this.max = filter.Count;
         
-        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
+        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -528,11 +528,11 @@ this.buffer4 = new DataBuffer<T4>(world, arrEntities, allocator);
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         
         if (changedCount > 0) world.UpdateAllFilters();
@@ -639,7 +639,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:struct,IStructComponentBase
     public readonly int Length;
     public int index;
     private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;private DataBuffer<T5> buffer5;
 
@@ -651,7 +651,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:struct,IStructComponentBase
         this.Length = filter.Count;
         this.max = filter.Count;
         
-        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
+        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -679,12 +679,12 @@ this.buffer5 = new DataBuffer<T5>(world, arrEntities, allocator);
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         
         if (changedCount > 0) world.UpdateAllFilters();
@@ -802,7 +802,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:struct,IStructComponentB
     public readonly int Length;
     public int index;
     private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;private DataBuffer<T5> buffer5;private DataBuffer<T6> buffer6;
 
@@ -814,7 +814,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:struct,IStructComponentB
         this.Length = filter.Count;
         this.max = filter.Count;
         
-        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
+        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -843,13 +843,13 @@ this.buffer6 = new DataBuffer<T6>(world, arrEntities, allocator);
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer6.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer6.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         
         if (changedCount > 0) world.UpdateAllFilters();
@@ -978,7 +978,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:struct,IStructCompone
     public readonly int Length;
     public int index;
     private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;private DataBuffer<T5> buffer5;private DataBuffer<T6> buffer6;private DataBuffer<T7> buffer7;
 
@@ -990,7 +990,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:struct,IStructCompone
         this.Length = filter.Count;
         this.max = filter.Count;
         
-        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
+        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -1020,14 +1020,14 @@ this.buffer7 = new DataBuffer<T7>(world, arrEntities, allocator);
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer6.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer7.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer6.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer7.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         
         if (changedCount > 0) world.UpdateAllFilters();
@@ -1167,7 +1167,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:struct,IStructComp
     public readonly int Length;
     public int index;
     private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
     
     private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;private DataBuffer<T5> buffer5;private DataBuffer<T6> buffer6;private DataBuffer<T7> buffer7;private DataBuffer<T8> buffer8;
 
@@ -1179,7 +1179,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:struct,IStructComp
         this.Length = filter.Count;
         this.max = filter.Count;
         
-        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
+        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             
@@ -1210,15 +1210,15 @@ this.buffer8 = new DataBuffer<T8>(world, arrEntities, allocator);
 
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer6.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer7.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
-changedCount += this.buffer8.Push(world, world.currentState.storage.cache, this.max,  this.filterEntities);
+        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer6.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer7.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
+changedCount += this.buffer8.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
 
         
         if (changedCount > 0) world.UpdateAllFilters();

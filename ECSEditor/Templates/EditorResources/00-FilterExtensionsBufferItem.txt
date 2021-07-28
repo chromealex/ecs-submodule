@@ -8,7 +8,7 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
     public readonly int Length;
     public int index;
     private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.NativeArrayBurst<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
     
     #ITEMS_BUFFER#
 
@@ -20,7 +20,7 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
         this.Length = filter.Count;
         this.max = filter.Count;
         
-        this.filterEntities = new ME.ECS.Collections.NativeArrayBurst<int>(filter.Count, allocator);
+        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
         var idx = 0;
         foreach (var entity in filter) {
             

@@ -90,6 +90,7 @@ namespace ME.ECS.Collections {
             }
         }
 
+        #if NATIVE_ARRAY_BURST
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -121,6 +122,7 @@ namespace ME.ECS.Collections {
                 #endif
             }
         }
+        #endif
 
     }
     

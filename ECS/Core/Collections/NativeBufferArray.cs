@@ -103,6 +103,36 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        internal NativeBufferArray(NativeArray<T> arr) {
+
+            this.Length = arr.Length;
+            this.isCreated = arr.Length > 0;
+            if (this.isCreated == true) {
+                this.arr = new NativeArray<T>(arr, Allocator.Persistent);
+            } else {
+                this.arr = default;
+            }
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        internal NativeBufferArray(NativeBufferArray<T> arr) {
+
+            this.Length = arr.Length;
+            this.isCreated = arr.Length > 0;
+            if (this.isCreated == true) {
+                this.arr = new NativeArray<T>(arr.arr, Allocator.Persistent);
+            } else {
+                this.arr = default;
+            }
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         internal NativeBufferArray(BufferArray<T> arr) {
 
             this.Length = arr.Length;
@@ -127,6 +157,18 @@ namespace ME.ECS.Collections {
             } else {
                 this.arr = default;
             }
+
+        }
+
+        public static NativeBufferArray<T> From(NativeArray<T> arr) {
+
+            return new NativeBufferArray<T>(arr);
+
+        }
+
+        public static NativeBufferArray<T> From(NativeBufferArray<T> arr) {
+
+            return new NativeBufferArray<T>(arr);
 
         }
 

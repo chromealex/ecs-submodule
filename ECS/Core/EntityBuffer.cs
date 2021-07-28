@@ -14,8 +14,8 @@ namespace ME.ECS {
     public struct DataBuffer<T> where T : struct, IStructComponentBase {
 
         [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<T> arr;
-        [Unity.Collections.NativeDisableParallelForRestriction] private NativeArrayBurst<byte> contains;
-        [Unity.Collections.NativeDisableParallelForRestriction] private NativeArrayBurst<byte> ops;
+        [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<byte> contains;
+        [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<byte> ops;
         
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -26,15 +26,15 @@ namespace ME.ECS {
             reg.Merge();
             this.arr = new Unity.Collections.NativeArray<T>(reg.componentsStates.Length, allocator);
             if (reg.components.Length > 0) Unity.Collections.NativeArray<T>.Copy(reg.components.data.arr, this.arr, reg.componentsStates.Length);
-            this.contains = new NativeArrayBurst<byte>(reg.componentsStates.arr, allocator);
-            this.ops = new NativeArrayBurst<byte>(reg.componentsStates.arr.Length, allocator);
+            this.contains = new Unity.Collections.NativeArray<byte>(reg.componentsStates.arr, allocator);
+            this.ops = new Unity.Collections.NativeArray<byte>(reg.componentsStates.arr.Length, allocator);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public int Push(World world, ME.ECS.Collections.NativeBufferArray<Entity> arr, int max, ME.ECS.Collections.NativeArrayBurst<int> filterEntities) {
+        public int Push(World world, ME.ECS.Collections.NativeBufferArray<Entity> arr, int max, Unity.Collections.NativeArray<int> filterEntities) {
 
             //var changedCount = 0;
             var isTag = WorldUtilities.IsComponentAsTag<T>();

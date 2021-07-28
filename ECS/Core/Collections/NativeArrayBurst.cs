@@ -1,6 +1,8 @@
 ﻿#if UNITY_EDITOR
 //#define COLLECTIONS_CHECKS
 #endif
+
+#if NATIVE_ARRAY_BURST
 using System.Diagnostics;
 using System;
 using Unity.Collections.LowLevel.Unsafe;
@@ -262,3 +264,4 @@ namespace ME.ECS.Collections {
     }
 
 }
+#endif

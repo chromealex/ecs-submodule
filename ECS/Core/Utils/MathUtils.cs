@@ -475,20 +475,29 @@ namespace ME.ECS {
 
         }
 
-        public static string BytesCountToString(int count) {
+        public static string BytesCountToString(int count, bool showPrevValue = false) {
 
+            float cnt = count;
             string[] sizes = { "B", "KB", "MB", "GB", "TB", "PB" };
             int order = 0;
-            while (count >= 1024 && order < sizes.Length - 1) {
+            float prevCount = cnt;
+            while (cnt >= 1024f && order < sizes.Length - 1) {
 
                 ++order;
-                count = count / 1024;
+                prevCount = cnt;
+                cnt = cnt / 1024f;
 
             }
 
             // Adjust the format string to your preferences. For example "{0:0.#}{1}" would
             // show a single decimal place, and no space.
-            return string.Format("{0:0.##} {1}", count, sizes[order]);
+            if (showPrevValue == true && order > 0) {
+                
+                return string.Format("{0:0.##} {1} ({2:0.##} {3})", cnt, sizes[order], prevCount, sizes[order - 1]);
+
+            }
+            
+            return string.Format("{0:0.##} {1}", cnt, sizes[order]);
 
         }
 

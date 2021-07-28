@@ -2,6 +2,7 @@
 //#define COLLECTIONS_CHECKS
 #endif
 
+#if NATIVE_ARRAY_BURST
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -367,3 +368,4 @@ namespace ME.ECS.Collections {
     }
 
 }
+#endif

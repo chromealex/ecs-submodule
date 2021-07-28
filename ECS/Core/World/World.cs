@@ -2384,7 +2384,7 @@ namespace ME.ECS {
 
             [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
             [Unity.Collections.ReadOnlyAttribute]
-            public NativeSliceBurst<Entity> slice;
+            public Unity.Collections.NativeSlice<Entity> slice;
             [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
             [Unity.Collections.ReadOnlyAttribute]
             public Unity.Collections.NativeArray<bool> dataContains;
@@ -2820,7 +2820,7 @@ namespace ME.ECS {
                                             var length = max - min;
                                             var job = new ForeachFilterJob() {
                                                 deltaTime = fixedDeltaTime,
-                                                slice = new NativeSliceBurst<Entity>(arrEntities, min, max - min),
+                                                slice = new Unity.Collections.NativeSlice<Entity>(arrEntities, min, max - min),
                                                 dataContains = arrContains,
                                                 dataVersions = arrVersions,
                                             };
