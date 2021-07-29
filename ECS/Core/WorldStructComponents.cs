@@ -36,6 +36,8 @@ namespace ME.ECS {
 
     public interface IStructComponent : IStructComponentBase { }
 
+    public interface IComponent : IStructComponent { }
+
     public interface IComponentRuntime { }
     
     public interface IVersioned : IStructComponentBase { }
