@@ -208,6 +208,7 @@ namespace ME.ECS.Views.Providers {
             UnityEngine.Vector3 rootScale,
             UnityEngine.MeshFilter[] filters,
             UnityEngine.Renderer[] renderers,
+            UnityEngine.ParticleSystem rootParticleSystem,
             UnityEngine.ParticleSystem[] particleSystems,
             bool reset) {
 
@@ -226,6 +227,17 @@ namespace ME.ECS.Views.Providers {
             if (reset == true) {
 
                 var itemsList = new System.Collections.Generic.List<Item>();
+                if (rootParticleSystem != null) {
+                    
+                    var item = new Item();
+                    var itemData = new ParticleSystemItem();
+                    
+                    itemData.psRootSource = rootParticleSystem;
+                    item.itemData = itemData;
+                    itemsList.Add(item);
+                    
+                }
+                
                 for (int i = 0; i < filters.Length; ++i) {
 
                     var tr = filters[i].transform;
@@ -245,6 +257,8 @@ namespace ME.ECS.Views.Providers {
                 }
 
                 for (int i = 0; i < particleSystems.Length; ++i) {
+
+                    if (particleSystems[i] == rootParticleSystem) continue;
 
                     var tr = particleSystems[i].transform;
 
@@ -357,6 +371,7 @@ namespace ME.ECS.Views.Providers {
 
         public ParticleSystemSimulationItem psSimulation;
         public UnityEngine.ParticleSystem psSource;
+        public UnityEngine.ParticleSystem psRootSource;
         public UnityEngine.Mesh mesh;
         public UnityEngine.Renderer meshRenderer;
         public UnityEngine.MeshFilter meshFilter;
@@ -391,6 +406,12 @@ namespace ME.ECS.Views.Providers {
             if (this.psSource != null) {
 
                 return this.psSource.GetInstanceID();
+
+            }
+
+            if (this.psRootSource != null) {
+
+                return this.psRootSource.GetInstanceID();
 
             }
 
@@ -615,6 +636,13 @@ namespace ME.ECS.Views.Providers {
                         psItem.ps = particleSystem;
                         psItem.psSimulation.particleItem.particleSystem = particleSystem;
 
+                    } else if (psItem.psRootSource != null) {
+                        
+                        particleSystem = UnityEngine.ParticleSystem.Instantiate(psItem.psRootSource);
+                        
+                        psItem.psRenderer = particleSystem.GetComponent<UnityEngine.ParticleSystemRenderer>();
+                        psItem.ps = particleSystem;
+                        
                     } else {
 
                         UnityEngine.ParticleSystemRenderer particleSystemRenderer;
