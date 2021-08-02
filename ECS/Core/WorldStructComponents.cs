@@ -1363,7 +1363,7 @@ namespace ME.ECS {
                 var item = this.list.arr[i];
                 if (item != null) {
 
-                    if (item.Validate(in entity) == true) {
+                    if (item.Validate(entity.id) == true) {
 
                         this.dirtyMap.Add(i);
 
