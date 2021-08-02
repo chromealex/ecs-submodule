@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Jobs;
+using UnityEngine;
 
 namespace ME.ECS.Pathfinding {
 
@@ -18,6 +19,107 @@ namespace ME.ECS.Pathfinding {
                 }
 
                 this.pathStatus = default;
+
+            }
+
+        }
+
+        [Unity.Burst.BurstCompile(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true)]
+        private struct FindStraightPathJob : IJob {
+
+            public UnityEngine.Experimental.AI.NavMeshQuery query;
+            public Unity.Collections.NativeArray<UnityEngine.Experimental.AI.PolygonId> pathInternal;
+            public UnityEngine.Experimental.AI.NavMeshLocation from;
+            public UnityEngine.Experimental.AI.NavMeshLocation to;
+            public int pathSize;
+            public Unity.Collections.NativeArray<UnityEngine.Experimental.AI.NavMeshLocation> results;
+            public Unity.Collections.NativeArray<StraightPathFlags> straightPathFlags;
+            public Unity.Collections.NativeArray<float> vertexSide;
+            public Unity.Collections.NativeArray<int> resultStatus;
+
+            public void Execute() {
+
+                var cornerCount = 0;
+                this.resultStatus[0] = (int)PathUtils.FindStraightPath(
+                    this.query,
+                    this.from.position,
+                    this.to.position,
+                    this.pathInternal,
+                    this.pathSize,
+                    ref this.results,
+                    ref this.straightPathFlags,
+                    ref this.vertexSide,
+                    ref cornerCount,
+                    PathfindingNavMeshProcessor.MAX_PATH_SIZE
+                );
+                this.resultStatus[1] = cornerCount;
+
+            }
+
+        }
+
+        [Unity.Burst.BurstCompile(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true)]
+        private struct BuildPathJob : IJob {
+
+            public Vector3 fromPoint;
+            public Vector3 toPoint;
+            public int agentTypeId;
+            public int areas;
+            
+            public Unity.Collections.NativeArray<UnityEngine.Experimental.AI.NavMeshLocation> results;
+            public Unity.Collections.NativeArray<int> pathResults;
+
+            public void Execute() {
+
+                var query = new UnityEngine.Experimental.AI.NavMeshQuery(UnityEngine.Experimental.AI.NavMeshWorld.GetDefaultWorld(), Unity.Collections.Allocator.Temp, PathfindingNavMeshProcessor.POOL_SIZE);
+
+                this.pathResults[0] = default;
+                this.pathResults[1] = default;
+                
+                var from = query.MapLocation(this.fromPoint, new Vector3(100f, 100f, 100f), this.agentTypeId, this.areas);
+                if (from.polygon.IsNull() == true) {
+                    query.Dispose();
+                    return;
+                }
+                
+                var to = query.MapLocation(this.toPoint, new Vector3(100f, 100f, 100f), this.agentTypeId, this.areas);
+                if (to.polygon.IsNull() == true) {
+                    query.Dispose();
+                    return;
+                }
+                
+                query.BeginFindPath(from, to, this.areas);
+                query.UpdateFindPath(PathfindingNavMeshProcessor.MAX_ITERATIONS, out var performed);
+                //statVisited = performed;
+
+                var result = query.EndFindPath(out var pathSize);
+                if ((result & UnityEngine.Experimental.AI.PathQueryStatus.Success) != 0) {
+
+                    var pathInternal = new Unity.Collections.NativeArray<UnityEngine.Experimental.AI.PolygonId>(pathSize, Unity.Collections.Allocator.Temp);
+                    var straightPathFlags = new Unity.Collections.NativeArray<StraightPathFlags>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.Temp);
+                    var vertexSide = new Unity.Collections.NativeArray<float>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.Temp);
+                    
+                    query.GetPathResult(pathInternal);
+                    var job = new FindStraightPathJob() {
+                        query = query,
+                        from = from,
+                        to = to,
+                        pathInternal = pathInternal,
+                        pathSize = pathSize,
+                        results = this.results,
+                        straightPathFlags = straightPathFlags,
+                        vertexSide = vertexSide,
+                        resultStatus = this.pathResults,
+                    };
+                    job.Execute();
+
+                    vertexSide.Dispose();
+                    straightPathFlags.Dispose();
+                    pathInternal.Dispose();
+
+                }
+
+                query.Dispose();
 
             }
 
@@ -49,9 +151,75 @@ namespace ME.ECS.Pathfinding {
             var statLength = 0;
             var statVisited = 0;
 
-            var query = new UnityEngine.Experimental.AI.NavMeshQuery(UnityEngine.Experimental.AI.NavMeshWorld.GetDefaultWorld(), Unity.Collections.Allocator.Persistent,
-                                                                     PathfindingNavMeshProcessor.POOL_SIZE);
+            if (burstEnabled == true) {
+
+                var results = new Unity.Collections.NativeArray<UnityEngine.Experimental.AI.NavMeshLocation>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.TempJob);
+                var pathResults = new Unity.Collections.NativeArray<int>(2, Unity.Collections.Allocator.TempJob);
+                var job = new BuildPathJob() {
+                    fromPoint = fromPoint,
+                    toPoint = toPoint,
+                    agentTypeId = navMeshGraph.agentTypeId,
+                    areas = areas,
+                    pathResults = pathResults,
+                    results = results,
+                };
+                job.Schedule().Complete();
+                var pathStatus = (UnityEngine.Experimental.AI.PathQueryStatus)pathResults[0];
+                var cornerCount = pathResults[1];
+                pathResults.Dispose();
+                
+                if (pathStatus == UnityEngine.Experimental.AI.PathQueryStatus.Success) {
+
+                    if (cornerCount >= 2) {
+
+                        path.navMeshPoints = PoolListCopyable<Vector3>.Spawn(cornerCount);
+                        for (var i = 0; i < cornerCount; ++i) {
+
+                            path.navMeshPoints.Add(results[i].position);
+
+                        }
+
+                        if ((pathfindingLogLevel & LogLevel.Path) != 0) {
+                        
+                            var hash = 0;
+                            for (var i = 0; i < cornerCount; ++i) {
+                                hash ^= (int)(results[i].position.x * 1000000f);
+                            }
+
+                            UnityEngine.Debug.Log("Path hash X: " + hash);
+
+                            hash = 0;
+                            for (var i = 0; i < cornerCount; ++i) {
+                                hash ^= (int)(results[i].position.y * 1000000f);
+                            }
+
+                            UnityEngine.Debug.Log("Path hash Y: " + hash);
+
+                            hash = 0;
+                            for (var i = 0; i < cornerCount; ++i) {
+                                hash ^= (int)(results[i].position.z * 1000000f);
+                            }
+
+                            UnityEngine.Debug.Log("Path hash Z: " + hash);
+                            
+                        }
+
+                        path.result = PathCompleteState.Complete;
+
+                    } else {
+
+                        path.result = PathCompleteState.NotExist;
+
+                    }
+
+                }
+                results.Dispose();
+                return path;
+                
+            }
             
+            var query = new UnityEngine.Experimental.AI.NavMeshQuery(UnityEngine.Experimental.AI.NavMeshWorld.GetDefaultWorld(), Unity.Collections.Allocator.TempJob, PathfindingNavMeshProcessor.POOL_SIZE);
+
             UnityEngine.AI.NavMesh.SamplePosition(fromPoint, out var hitFrom, 1000f, new UnityEngine.AI.NavMeshQueryFilter() {
                 agentTypeID = navMeshGraph.agentTypeId,
                 areaMask = areas,
@@ -72,8 +240,11 @@ namespace ME.ECS.Pathfinding {
                 return path;
             }
 
+            var marker = new Unity.Profiling.ProfilerMarker("PathfindingNavMeshProcessor::Query::BuildPath");
+            marker.Begin();
             query.BeginFindPath(from, to, areas);
             query.UpdateFindPath(PathfindingNavMeshProcessor.MAX_ITERATIONS, out var performed);
+            marker.End();
             statVisited = performed;
 
             var result = query.EndFindPath(out var pathSize);
@@ -82,23 +253,30 @@ namespace ME.ECS.Pathfinding {
                 var pathInternal = new Unity.Collections.NativeArray<UnityEngine.Experimental.AI.PolygonId>(pathSize, Unity.Collections.Allocator.Persistent);
                 query.GetPathResult(pathInternal);
 
+                var markerFindStraight = new Unity.Profiling.ProfilerMarker("PathfindingNavMeshProcessor::Query::FindStraightPath");
+                markerFindStraight.Begin();
+                
                 var straightPathFlags = new Unity.Collections.NativeArray<StraightPathFlags>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.Persistent);
                 var vertexSide = new Unity.Collections.NativeArray<float>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.Persistent);
                 var results = new Unity.Collections.NativeArray<UnityEngine.Experimental.AI.NavMeshLocation>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.Persistent);
-                var cornerCount = 0;
-                var pathStatus = PathUtils.FindStraightPath(
-                    query,
-                    from.position,
-                    to.position,
-                    pathInternal,
-                    pathSize,
-                    ref results,
-                    ref straightPathFlags,
-                    ref vertexSide,
-                    ref cornerCount,
-                    PathfindingNavMeshProcessor.MAX_PATH_SIZE
-                );
+                var job = new FindStraightPathJob() {
+                    query = query,
+                    from = from,
+                    to = to,
+                    pathInternal = pathInternal,
+                    pathSize = pathSize,
+                    results = results,
+                    straightPathFlags = straightPathFlags,
+                    vertexSide = vertexSide,
+                };
+                job.Schedule().Complete();
+
+                var pathStatus = (UnityEngine.Experimental.AI.PathQueryStatus)job.resultStatus[0];
+                var cornerCount = job.resultStatus[1];
+                
                 statLength = cornerCount;
+                
+                markerFindStraight.End();
 
                 if (pathStatus == UnityEngine.Experimental.AI.PathQueryStatus.Success) {
 
@@ -293,8 +471,8 @@ namespace ME.ECS.Pathfinding {
                 var n = 1;
 
                 if (pathSize > 1) {
+                    
                     var startPolyWorldToLocal = query.PolygonWorldToLocalMatrix(path[0]);
-
                     var apex = startPolyWorldToLocal.MultiplyPoint(startPos);
                     var left = new Vector3(0, 0, 0); // Vector3.zero accesses a static readonly which does not work in burst yet
                     var right = new Vector3(0, 0, 0);
