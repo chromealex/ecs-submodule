@@ -514,14 +514,13 @@ namespace ME.ECS {
                 
                 state = 0;
                 if (AllComponentTypes<TComponent>.isTag == false) this.components[id] = default;
-                if (world.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+                if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     world.currentState.storage.archetypes.Remove<TComponent>(in entity);
                     world.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
 
-                --world.currentState.structComponents.count;
                 #if ENTITY_ACTIONS
                 world.RaiseEntityActionOnRemove<TComponent>(in entity);
                 #endif
@@ -596,7 +595,7 @@ namespace ME.ECS {
 
             this.world.currentState.storage.archetypes.Validate(in entity);
 
-            if (this.world.currentState.filters.HasInAnyFilter<TComponent>() == true && this.world.HasData<TComponent>(in entity) == true) {
+            if (ComponentTypes<TComponent>.typeId >= 0 && this.world.HasData<TComponent>(in entity) == true) {
 
                 this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
 
@@ -863,11 +862,11 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isTag == false) this.components[to.id] = this.components[from.id];
             if (this.componentsStates.arr[from.id] > 0) {
 
-                if (this.world.currentState.filters.HasInAnyFilter<TComponent>() == true) this.world.currentState.storage.archetypes.Set<TComponent>(in to);
+                if (ComponentTypes<TComponent>.typeId >= 0) this.world.currentState.storage.archetypes.Set<TComponent>(in to);
 
             } else {
 
-                if (this.world.currentState.filters.HasInAnyFilter<TComponent>() == true) this.world.currentState.storage.archetypes.Remove<TComponent>(in to);
+                if (ComponentTypes<TComponent>.typeId >= 0) this.world.currentState.storage.archetypes.Remove<TComponent>(in to);
 
             }
 
@@ -1147,11 +1146,11 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(in from, in to);
             if (this.componentsStates.arr[from.id] > 0) {
 
-                if (this.world.currentState.filters.HasInAnyFilter<TComponent>() == true) this.world.currentState.storage.archetypes.Set<TComponent>(in to);
+                if (ComponentTypes<TComponent>.typeId >= 0) this.world.currentState.storage.archetypes.Set<TComponent>(in to);
 
             } else {
 
-                if (this.world.currentState.filters.HasInAnyFilter<TComponent>() == true) this.world.currentState.storage.archetypes.Remove<TComponent>(in to);
+                if (ComponentTypes<TComponent>.typeId >= 0) this.world.currentState.storage.archetypes.Remove<TComponent>(in to);
 
             }
 
@@ -1250,8 +1249,6 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<StructRegistryBase> list;
         [ME.ECS.Serializer.SerializeField]
-        internal int count;
-        [ME.ECS.Serializer.SerializeField]
         private bool isCreated;
 
         [ME.ECS.Serializer.SerializeField]
@@ -1276,7 +1273,6 @@ namespace ME.ECS {
             this.listLifetimeFrame = PoolHashSetCopyable<int>.Spawn(10);
 
             ArrayUtils.Resize(100, ref this.list, false);
-            this.count = 0;
             this.isCreated = true;
 
         }
@@ -1306,10 +1302,10 @@ namespace ME.ECS {
 
         }
 
-        public int Count {
-            get {
-                return this.count;
-            }
+        public int GetHash() {
+
+            return this.list.Length;
+
         }
 
         public int GetCustomHash() {
@@ -1680,7 +1676,6 @@ namespace ME.ECS {
             if (this.listLifetimeTick != null) PoolHashSetCopyable<int>.Recycle(ref this.listLifetimeTick);
             if (this.listLifetimeFrame != null) PoolHashSetCopyable<int>.Recycle(ref this.listLifetimeFrame);
 
-            this.count = default;
             this.isCreated = default;
 
         }
@@ -1774,8 +1769,7 @@ namespace ME.ECS {
             ArrayUtils.Copy(other.dirtyMap, ref this.dirtyMap);
             ArrayUtils.Copy(other.listLifetimeTick, ref this.listLifetimeTick);
             ArrayUtils.Copy(other.listLifetimeFrame, ref this.listLifetimeFrame);
-            
-            this.count = other.count;
+
             this.isCreated = other.isCreated;
 
             {
@@ -2049,6 +2043,9 @@ namespace ME.ECS {
             
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private void AddToLifetimeIndex<TComponent>(in Entity entity, ComponentLifetime lifetime, float secondsLifetime) where TComponent : struct, IStructComponentBase {
             
             var list = this.currentState.structComponents.listLifetimeTick;
@@ -2272,14 +2269,13 @@ namespace ME.ECS {
 
                 incrementVersion = true;
                 reg.sharedGroups.Set(entity.id, groupId);
-                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+                if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.currentState.storage.archetypes.Set<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
 
-                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
                 #if ENTITY_ACTIONS
                 this.RaiseEntityActionOnAdd<TComponent>(in entity);
                 #endif
@@ -2354,14 +2350,13 @@ namespace ME.ECS {
 
                 state = false;
                 if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+                if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.currentState.storage.archetypes.Remove<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
 
-                System.Threading.Interlocked.Decrement(ref this.currentState.structComponents.count);
                 #if ENTITY_ACTIONS
                 this.RaiseEntityActionOnRemove<TComponent>(in entity);
                 #endif
@@ -2411,15 +2406,13 @@ namespace ME.ECS {
             if (state == false) {
 
                 state = true;
-                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+                if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.currentState.storage.archetypes.Set<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
 
-                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
-                
             }
             #if ENTITY_ACTIONS
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
@@ -2458,15 +2451,13 @@ namespace ME.ECS {
             if (state == false) {
 
                 state = true;
-                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+                if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.currentState.storage.archetypes.Set<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
 
-                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
-                
             }
             #if ENTITY_ACTIONS
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
@@ -2503,14 +2494,13 @@ namespace ME.ECS {
                 this.currentState.storage.versions.Increment(in entity);
                 reg.UpdateVersion(in entity);
                 reg.UpdateVersionNoState(in entity);
-                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
 
             }
             
         }
         #endregion
 
-        #region GET/SET/READ
+        #region HAS/GET/SET/READ/REMOVE
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -2600,14 +2590,13 @@ namespace ME.ECS {
 
                 incrementVersion = true;
                 state = 1;
-                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+                if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.currentState.storage.archetypes.Set<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
 
-                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
                 #if ENTITY_ACTIONS
                 this.RaiseEntityActionOnAdd<TComponent>(in entity);
                 #endif
@@ -2656,14 +2645,12 @@ namespace ME.ECS {
             if (state == 0) {
 
                 state = 1;
-                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+                if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.currentState.storage.archetypes.Set<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
-
-                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
 
             }
             #if ENTITY_ACTIONS
@@ -2706,11 +2693,15 @@ namespace ME.ECS {
             }
             #endif
 
+            var currentState = this.currentState;
+
             // Inline all manually
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            var reg = (StructComponents<TComponent>)currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             ref var state = ref reg.componentsStates.arr[entity.id];
             if (AllComponentTypes<TComponent>.isTag == false) {
-                if (state > 0) {
+                if (AllComponentTypes<TComponent>.isCopyable == true &&
+                    AllComponentTypes<TComponent>.isDisposable == true &&
+                    state > 0) {
                     reg.Replace(entity.id, data);
                 } else {
                     reg.components[entity.id] = data;
@@ -2719,21 +2710,18 @@ namespace ME.ECS {
             if (state == 0) {
 
                 state = 1;
-                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+                if (ComponentTypes<TComponent>.typeId >= 0) {
 
-                    this.currentState.storage.archetypes.Set<TComponent>(in entity);
+                    currentState.storage.archetypes.Set<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
-
-                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
-                //this.AddComponentToFilter(entity);
 
             }
             #if ENTITY_ACTIONS
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
             #endif
-            this.currentState.storage.versions.Increment(in entity);
+            currentState.storage.versions.Increment(in entity);
             if (AllComponentTypes<TComponent>.isVersioned == true) reg.versions.arr[entity.id] = this.GetCurrentTick();
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
@@ -2856,7 +2844,6 @@ namespace ME.ECS {
 
                     var bit = reg.GetTypeBit();
                     if (bit >= 0) this.currentState.storage.archetypes.Remove(in entity, bit);
-                    System.Threading.Interlocked.Decrement(ref this.currentState.structComponents.count);
                     changed = true;
 
                 }
@@ -2893,22 +2880,37 @@ namespace ME.ECS {
             }
             #endif
 
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            var currentState = this.currentState;
+            
+            var reg = (StructComponents<TComponent>)currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             ref var state = ref reg.componentsStates.arr[entity.id];
             if (state > 0) {
 
                 state = 0;
-                this.currentState.storage.versions.Increment(in entity);
+                currentState.storage.versions.Increment(in entity);
                 if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-                if (AllComponentTypes<TComponent>.isTag == false) reg.RemoveData(in entity);
-                if (this.currentState.filters.HasInAnyFilter<TComponent>() == true) {
+                if (AllComponentTypes<TComponent>.isTag == false) {
 
-                    this.currentState.storage.archetypes.Remove<TComponent>(in entity);
+                    if (AllComponentTypes<TComponent>.isCopyable == true ||
+                        AllComponentTypes<TComponent>.isDisposable == true) {
+                    
+                        reg.RemoveData(in entity);
+
+                    } else {
+
+                        reg.components[entity.id] = default;
+
+                    }
+
+                }
+                
+                if (ComponentTypes<TComponent>.typeId >= 0) {
+
+                    currentState.storage.archetypes.Remove<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
 
-                System.Threading.Interlocked.Decrement(ref this.currentState.structComponents.count);
                 #if ENTITY_ACTIONS
                 this.RaiseEntityActionOnRemove<TComponent>(in entity);
                 #endif
@@ -2951,7 +2953,6 @@ namespace ME.ECS {
                     this.UpdateFilterByStructComponent(in entity, componentIndex);
 
                 }
-                System.Threading.Interlocked.Increment(ref this.currentState.structComponents.count);
 
             }
 
@@ -2982,7 +2983,6 @@ namespace ME.ECS {
             if (reg.RemoveObject(entity) == true) {
 
                 this.currentState.storage.versions.Increment(in entity);
-                System.Threading.Interlocked.Decrement(ref this.currentState.structComponents.count);
 
             }
 

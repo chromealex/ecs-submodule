@@ -175,6 +175,7 @@ namespace ME.ECS {
         }
 
         private State resetState;
+        private bool hasResetState;
         internal State currentState;
         //private uint seed;
         private int cpf; // CPF = Calculations per frame
@@ -1325,7 +1326,7 @@ namespace ME.ECS {
         #endif
         public bool HasResetState() {
 
-            return this.resetState != null;
+            return this.hasResetState;
 
         }
 
@@ -1337,6 +1338,7 @@ namespace ME.ECS {
             this.resetState.CopyFrom(this.GetState());
             this.resetState.tick = Tick.Zero;
             this.resetState.structComponents.Merge();
+            this.hasResetState = true;
 
             this.currentState.structComponents.Merge();
 

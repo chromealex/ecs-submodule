@@ -55,15 +55,13 @@ namespace ME.ECS {
                     if (state > 0) {
 
                         state = 0;
-                        if (world.currentState.filters.HasInAnyFilter<T>() == true) {
+                        if (ComponentTypes<T>.typeId >= 0) {
 
                             world.currentState.storage.archetypes.Remove<T>(in entity);
                             world.UpdateFilterByStructComponent<T>(in entity);
 
                         }
 
-                        System.Threading.Interlocked.Decrement(ref world.currentState.structComponents.count);
-                        
                     }
                     
                     world.currentState.storage.versions.Increment(in entity);
@@ -79,14 +77,12 @@ namespace ME.ECS {
                     if (state == 0) {
 
                         state = 1;
-                        if (world.currentState.filters.HasInAnyFilter<T>() == true) {
+                        if (ComponentTypes<T>.typeId >= 0) {
 
                             world.currentState.storage.archetypes.Set<T>(in entity);
                             world.UpdateFilterByStructComponent<T>(in entity);
 
                         }
-
-                        System.Threading.Interlocked.Increment(ref world.currentState.structComponents.count);
 
                     }
 
