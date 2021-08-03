@@ -74,19 +74,20 @@ namespace ME.ECS.Pathfinding {
 
                 this.pathResults[0] = default;
                 this.pathResults[1] = default;
-                
+
+                //UnityEngine.Debug.Log("Exec1");
                 var from = this.query.MapLocation(this.fromPoint, new Vector3(100f, 100f, 100f), this.agentTypeId, this.areas);
                 if (from.polygon.IsNull() == true) {
-                    this.query.Dispose();
                     return;
                 }
                 
+                //UnityEngine.Debug.Log("Exec2");
                 var to = this.query.MapLocation(this.toPoint, new Vector3(100f, 100f, 100f), this.agentTypeId, this.areas);
                 if (to.polygon.IsNull() == true) {
-                    this.query.Dispose();
                     return;
                 }
 
+                //UnityEngine.Debug.Log("Exec3");
                 this.query.BeginFindPath(from, to, this.areas);
                 this.query.UpdateFindPath(PathfindingNavMeshProcessor.MAX_ITERATIONS, out var performed);
                 //statVisited = performed;
@@ -98,6 +99,7 @@ namespace ME.ECS.Pathfinding {
                     var straightPathFlags = new Unity.Collections.NativeArray<StraightPathFlags>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.Temp);
                     var vertexSide = new Unity.Collections.NativeArray<float>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.Temp);
 
+                    //UnityEngine.Debug.Log("Exec4");
                     this.query.GetPathResult(pathInternal);
                     var job = new FindStraightPathJob() {
                         query = this.query,
