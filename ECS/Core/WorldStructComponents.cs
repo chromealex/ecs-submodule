@@ -1365,7 +1365,7 @@ namespace ME.ECS {
 
                     if (item.Validate(entity.id) == true) {
 
-                        this.dirtyMap.Add(i);
+                        //this.dirtyMap.Add(i);
 
                     }
 

@@ -29,18 +29,6 @@ namespace ME.ECS.Pathfinding.Editor {
             return (T)(object)this.target;
         }
 
-        public void OnEnable() {
-            
-            if (this.target.drawMesh == true) ++UnityEditor.AI.NavMeshVisualizationSettings.showNavigation;
-            
-        }
-
-        public void OnDisable() {
-            
-            if (this.target.drawMesh == true) --UnityEditor.AI.NavMeshVisualizationSettings.showNavigation;
-            
-        }
-
         public override bool OnDrawGUI() {
 
             base.OnDrawGUI();

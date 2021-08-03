@@ -1563,7 +1563,7 @@ namespace ME.ECS {
 
             var isNew = this.currentState.storage.WillNew();
             ref var entity = ref this.currentState.storage.Alloc();
-            this.UpdateEntity(in entity, isNew);
+            this.UpdateEntityOnCreate(in entity, isNew);
 
             if (name != null) {
 
@@ -1583,13 +1583,13 @@ namespace ME.ECS {
 
         }
 
-        public void UpdateEntity(in Entity entity, bool isNew) {
+        public void UpdateEntityOnCreate(in Entity entity, bool isNew) {
 
             if (isNew == true) ComponentsInitializerWorld.Init(in entity);
             this.currentState.storage.versions.Validate(in entity);
             this.CreateEntityPlugins(entity);
             this.CreateEntityInFilters(entity);
-            this.UpdateFilters(entity);
+            //this.UpdateFilters(entity);
 
         }
 
