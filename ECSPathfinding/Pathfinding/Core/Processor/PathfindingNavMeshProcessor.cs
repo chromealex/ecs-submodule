@@ -61,6 +61,7 @@ namespace ME.ECS.Pathfinding {
         [Unity.Burst.BurstCompile(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true)]
         private struct BuildPathJob : IJob {
 
+            public UnityEngine.Experimental.AI.NavMeshQuery query;
             public Vector3 fromPoint;
             public Vector3 toPoint;
             public int agentTypeId;
@@ -71,37 +72,35 @@ namespace ME.ECS.Pathfinding {
 
             public void Execute() {
 
-                var query = new UnityEngine.Experimental.AI.NavMeshQuery(UnityEngine.Experimental.AI.NavMeshWorld.GetDefaultWorld(), Unity.Collections.Allocator.Temp, PathfindingNavMeshProcessor.POOL_SIZE);
-
                 this.pathResults[0] = default;
                 this.pathResults[1] = default;
                 
-                var from = query.MapLocation(this.fromPoint, new Vector3(100f, 100f, 100f), this.agentTypeId, this.areas);
+                var from = this.query.MapLocation(this.fromPoint, new Vector3(100f, 100f, 100f), this.agentTypeId, this.areas);
                 if (from.polygon.IsNull() == true) {
-                    query.Dispose();
+                    this.query.Dispose();
                     return;
                 }
                 
-                var to = query.MapLocation(this.toPoint, new Vector3(100f, 100f, 100f), this.agentTypeId, this.areas);
+                var to = this.query.MapLocation(this.toPoint, new Vector3(100f, 100f, 100f), this.agentTypeId, this.areas);
                 if (to.polygon.IsNull() == true) {
-                    query.Dispose();
+                    this.query.Dispose();
                     return;
                 }
-                
-                query.BeginFindPath(from, to, this.areas);
-                query.UpdateFindPath(PathfindingNavMeshProcessor.MAX_ITERATIONS, out var performed);
+
+                this.query.BeginFindPath(from, to, this.areas);
+                this.query.UpdateFindPath(PathfindingNavMeshProcessor.MAX_ITERATIONS, out var performed);
                 //statVisited = performed;
 
-                var result = query.EndFindPath(out var pathSize);
+                var result = this.query.EndFindPath(out var pathSize);
                 if ((result & UnityEngine.Experimental.AI.PathQueryStatus.Success) != 0) {
 
                     var pathInternal = new Unity.Collections.NativeArray<UnityEngine.Experimental.AI.PolygonId>(pathSize, Unity.Collections.Allocator.Temp);
                     var straightPathFlags = new Unity.Collections.NativeArray<StraightPathFlags>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.Temp);
                     var vertexSide = new Unity.Collections.NativeArray<float>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.Temp);
-                    
-                    query.GetPathResult(pathInternal);
+
+                    this.query.GetPathResult(pathInternal);
                     var job = new FindStraightPathJob() {
-                        query = query,
+                        query = this.query,
                         from = from,
                         to = to,
                         pathInternal = pathInternal,
@@ -118,8 +117,6 @@ namespace ME.ECS.Pathfinding {
                     pathInternal.Dispose();
 
                 }
-
-                query.Dispose();
 
             }
 
@@ -151,11 +148,14 @@ namespace ME.ECS.Pathfinding {
             var statLength = 0;
             var statVisited = 0;
 
+            var query = new UnityEngine.Experimental.AI.NavMeshQuery(UnityEngine.Experimental.AI.NavMeshWorld.GetDefaultWorld(), Unity.Collections.Allocator.TempJob, PathfindingNavMeshProcessor.POOL_SIZE);
+
             if (burstEnabled == true) {
 
                 var results = new Unity.Collections.NativeArray<UnityEngine.Experimental.AI.NavMeshLocation>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.TempJob);
                 var pathResults = new Unity.Collections.NativeArray<int>(2, Unity.Collections.Allocator.TempJob);
                 var job = new BuildPathJob() {
+                    query = query,
                     fromPoint = fromPoint,
                     toPoint = toPoint,
                     agentTypeId = navMeshGraph.agentTypeId,
@@ -214,12 +214,11 @@ namespace ME.ECS.Pathfinding {
 
                 }
                 results.Dispose();
+                query.Dispose();
                 return path;
                 
             }
             
-            var query = new UnityEngine.Experimental.AI.NavMeshQuery(UnityEngine.Experimental.AI.NavMeshWorld.GetDefaultWorld(), Unity.Collections.Allocator.TempJob, PathfindingNavMeshProcessor.POOL_SIZE);
-
             UnityEngine.AI.NavMesh.SamplePosition(fromPoint, out var hitFrom, 1000f, new UnityEngine.AI.NavMeshQueryFilter() {
                 agentTypeID = navMeshGraph.agentTypeId,
                 areaMask = areas,
