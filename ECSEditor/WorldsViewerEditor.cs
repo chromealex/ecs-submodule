@@ -1302,12 +1302,16 @@ namespace ME.ECSEditor {
                                             var state = worldEditor.IsFoldOutCustom(statObj);
                                             GUILayoutExt.FoldOut(ref state, "Statistics", () => {
 
-                                                GUILayoutExt.DrawHeader("Entity Statistics");
-                                                GUILayout.Label($"Statistic updated every time you run the world. Currently running times: {statObj.startsCount}");
                                                 var currentCapacity = world.entitiesCapacity;
+
+                                                GUILayoutExt.DrawHeader("Entity Statistics");
+                                                GUILayout.Label($"Current Capacity: {currentCapacity}");
+                                                var labelStyle = new GUIStyle(EditorStyles.miniLabel);
+                                                labelStyle.wordWrap = true;
+                                                GUILayout.Label($"Statistic updated every time you run the world. Currently running times: {statObj.startsCount}", labelStyle);
                                                 var capacity = statObj.GetRecommendedCapacity();
                                                 if (currentCapacity < capacity) {
-                                                    EditorGUILayout.HelpBox($"Recommendation: Add world.SetEntitiesCapacity({capacity}) into Initializer.", MessageType.Warning);
+                                                    EditorGUILayout.HelpBox($"Recommendation: Add world.SetEntitiesCapacity({capacity}) into Initializer.", MessageType.Warning, wide: true);
                                                 }
 
                                                 GUILayout.Space(10f);
@@ -1327,7 +1331,7 @@ namespace ME.ECSEditor {
                                                     for (int i = 0; i < statObj.items.Count; ++i) {
 
                                                         var item = statObj.items[i];
-                                                        GUILayout.Label($"Key: {item.key}");
+                                                        GUILayoutExt.DrawHeader($"Key: {item.key}");
                                                         GUILayoutExt.Box(2f, 2f, () => {
 
                                                             GUILayout.Label($"Min: {item.stat.min}");
@@ -1336,7 +1340,7 @@ namespace ME.ECSEditor {
                                                             if (currentCapacity < capacityKey) {
                                                                 EditorGUILayout.HelpBox(
                                                                     $"Recommendation: Add world.SetEntitiesCapacity({capacityKey}) into Initializer for this key.",
-                                                                    MessageType.Warning);
+                                                                    MessageType.Warning, wide: true);
                                                             }
 
                                                         });

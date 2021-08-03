@@ -222,7 +222,6 @@ namespace ME.ECS {
             this.InitializeGlobalEvents();
 
             #if UNITY_EDITOR
-            this.OnDebugWorldCreated();
             this.SetDebugStatisticKey(null);
             #endif
             
@@ -533,6 +532,9 @@ namespace ME.ECS {
         public void SetDebugSettings(WorldDebugSettings settings) {
 
             this.debugSettings = settings;
+            #if UNITY_EDITOR
+            this.OnDebugWorldCreated();
+            #endif
 
         }
 
