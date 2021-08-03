@@ -202,6 +202,8 @@ namespace ME.ECS.StatesHistory {
         Tick GetCacheSize();
         Tick GetTicksPerState();
         
+        Tick GetLastSavedTick();
+        
         uint GetEventForwardTick();
         
         void BeginAddEvents();
@@ -811,6 +813,12 @@ namespace ME.ECS.StatesHistory {
             
             this.lastSavedStateTick = tick;
             
+        }
+
+        public Tick GetLastSavedTick() {
+
+            return this.lastSavedStateTick;
+
         }
 
         public State GetStateBeforeTick(Tick tick) {

@@ -1,6 +1,21 @@
 ﻿#if UNITY_EDITOR
 namespace ME.ECS {
 
+    [System.Serializable]
+    public struct EntityStatistic {
+
+        public int min;
+        public int max;
+
+        public void OnCreateEntity(Entity entity) {
+
+            if (entity.id < this.min) this.min = entity.id;
+            if (entity.id > this.max) this.max = entity.id;
+
+        }
+
+    }
+    
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -8,7 +23,8 @@ namespace ME.ECS {
     #endif
     public sealed partial class World {
 
-        private System.Collections.Generic.Dictionary<Entity, ME.ECS.Debug.EntityDebugComponent> debugEntities = new System.Collections.Generic.Dictionary<Entity, ME.ECS.Debug.EntityDebugComponent>();
+        private readonly System.Collections.Generic.Dictionary<Entity, ME.ECS.Debug.EntityDebugComponent> debugEntities = new System.Collections.Generic.Dictionary<Entity, ME.ECS.Debug.EntityDebugComponent>();
+        private string currentStatKey;
 
         private float updateNamesTimer = 0f;
 
@@ -65,11 +81,33 @@ namespace ME.ECS {
             }
             
         }
+
+        public void OnDebugWorldCreated() {
+            
+            if (this.debugSettings.collectStatistic == true) {
+
+                if (this.debugSettings.statisticsObject != null) this.debugSettings.statisticsObject.OnWorldCreated();
+                
+            }
+
+        }
+
+        public void SetDebugStatisticKey(string key) {
+
+            this.currentStatKey = key;
+
+        }
         
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         partial void CreateEntityPlugin5(Entity entity) {
+
+            if (this.debugSettings.collectStatistic == true) {
+
+                if (this.debugSettings.statisticsObject != null) this.debugSettings.statisticsObject.OnEntityCreate(this.currentStatKey, entity);
+                
+            }
             
             if (this.debugSettings.createGameObjectsRepresentation == true) {
 

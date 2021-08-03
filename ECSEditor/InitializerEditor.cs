@@ -519,35 +519,91 @@ namespace ME.ECSEditor {
                         "Create GameObject representation",
                         "Editor-only feature. If checked, all entities will be represented by GameObject with debug information.");
 
-                    GUILayoutExt.ToggleLeft(
-                        ref target.worldDebugSettings.showViewsOnScene,
-                        ref isDirty,
-                        "Show Views in Hierarchy",
-                        "Editor-only feature. If checked, views module always show views on scene.");
+                    {
                     
-                    if (this.viewsDebugEditors != null) {
+                        GUILayoutExt.ToggleLeft(
+                            ref target.worldDebugSettings.collectStatistic,
+                            ref isDirty,
+                            "Collect Statistics",
+                            "Editor-only feature. If checked, ME.ECS will collect statistics data like entity usage.");
 
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Space(10f);
-                        {
-                            GUILayout.BeginVertical();
-                            foreach (var editor in this.viewsDebugEditors) {
+                        if (target.worldDebugSettings.collectStatistic == true) {
 
-                                GUILayoutExt.Separator();
-                                editor.Value.target = this.target as InitializerBase;
-                                if (editor.Value.OnDrawGUI() == true) {
-
+                            GUILayout.BeginHorizontal();
+                            GUILayout.Space(10f);
+                            {
+                                GUILayout.BeginVertical();
+                                var statObj = (ME.ECS.Debug.StatisticsObject)EditorGUILayout.ObjectField("Statistic Object",
+                                                                                                        target.worldDebugSettings.statisticsObject,
+                                                                                                        typeof(ME.ECS.Debug.StatisticsObject),
+                                                                                                        allowSceneObjects: false);
+                                if (target.worldDebugSettings.statisticsObject != statObj) {
+                                    
+                                    target.worldDebugSettings.statisticsObject = statObj;
                                     isDirty = true;
 
                                 }
+                                if (statObj == null) {
 
+                                    EditorGUILayout.HelpBox("Object is None, create custom statistic object or create default one.", MessageType.Warning);
+                                    if (GUILayout.Button("Create Default") == true) {
+
+                                        statObj = ME.ECS.Debug.StatisticsObject.CreateInstance<ME.ECS.Debug.StatisticsObject>();
+                                        var path = AssetDatabase.GetAssetPath(this.target);
+                                        var dir = System.IO.Path.GetDirectoryName(path);
+                                        path = dir + "/" + this.target.name + "_StatisticObject.asset";
+                                        AssetDatabase.CreateAsset(statObj, path);
+                                        AssetDatabase.ImportAsset(path);
+
+                                        var so = AssetDatabase.LoadAssetAtPath<ME.ECS.Debug.StatisticsObject>(path);
+                                        target.worldDebugSettings.statisticsObject = so;
+                                        isDirty = true;
+
+                                    }
+
+                                }
+                                GUILayout.Space(10f);
+                                GUILayout.EndVertical();
                             }
-                            GUILayout.EndVertical();
+                            GUILayout.EndHorizontal();
+
                         }
-                        GUILayout.EndHorizontal();
-                        
+
                     }
-                    
+
+                    {
+                        
+                        GUILayoutExt.ToggleLeft(
+                            ref target.worldDebugSettings.showViewsOnScene,
+                            ref isDirty,
+                            "Show Views in Hierarchy",
+                            "Editor-only feature. If checked, views module always show views on scene.");
+
+                        if (this.viewsDebugEditors != null) {
+
+                            GUILayout.BeginHorizontal();
+                            GUILayout.Space(10f);
+                            {
+                                GUILayout.BeginVertical();
+                                foreach (var editor in this.viewsDebugEditors) {
+
+                                    GUILayoutExt.Separator();
+                                    editor.Value.target = this.target as InitializerBase;
+                                    if (editor.Value.OnDrawGUI() == true) {
+
+                                        isDirty = true;
+
+                                    }
+
+                                }
+                                GUILayout.EndVertical();
+                            }
+                            GUILayout.EndHorizontal();
+
+                        }
+
+                    }
+
                 }
 
                 {
@@ -579,6 +635,7 @@ namespace ME.ECSEditor {
                 if (isDirty == true) {
                     
                     EditorUtility.SetDirty(this.target);
+                    AssetDatabase.ForceReserializeAssets(new string[] { AssetDatabase.GetAssetPath(this.target) });
 
                 }
 

@@ -1271,25 +1271,87 @@ namespace ME.ECSEditor {
 
                                 GUILayoutExt.Box(2f, 4f, () => {
 
-                                    var inUseCount = filters.GetAllFiltersArchetypeCount();
-                                    var max = Archetype.MAX_BIT_INDEX + 1;
-                                    var percent = Mathf.FloorToInt(inUseCount / (float)max * 100);
-                                    GUILayout.Label($"Components in use: {inUseCount}/{max} ({percent}%)");
-                                    var fillColor = new Color32(80, 229, 80, 255);
-                                    if (percent >= 99) {
-                                        
-                                        fillColor = new Color32(229, 80, 80, 255);
-                                        EditorGUILayout.HelpBox("Seems like you have reached limit of bits for Archetype. Increase size in Initializer Defines.", MessageType.Error);
-                                        
-                                    } else if (percent >= 80) {
-                                        
-                                        fillColor = new Color32(189, 180, 40, 255);
-                                        EditorGUILayout.HelpBox("Seems like you are approaching the limit of max bits for Archetype. Increase size in Initializer Defines.", MessageType.Warning);
-                                        
+                                    {
+                                        var inUseCount = filters.GetAllFiltersArchetypeCount();
+                                        var max = Archetype.MAX_BIT_INDEX + 1;
+                                        var percent = Mathf.FloorToInt(inUseCount / (float)max * 100);
+                                        GUILayout.Label($"Components in use: {inUseCount}/{max} ({percent}%)");
+                                        var fillColor = new Color32(80, 229, 80, 255);
+                                        if (percent >= 99) {
+
+                                            fillColor = new Color32(229, 80, 80, 255);
+                                            EditorGUILayout.HelpBox("Seems like you have reached limit of bits for Archetype. Increase size in Initializer Defines.",
+                                                                    MessageType.Error);
+
+                                        } else if (percent >= 80) {
+
+                                            fillColor = new Color32(189, 180, 40, 255);
+                                            EditorGUILayout.HelpBox("Seems like you are approaching the limit of max bits for Archetype. Increase size in Initializer Defines.",
+                                                                    MessageType.Warning);
+
+                                        }
+
+                                        GUILayoutExt.ProgressBar(inUseCount, max, new Color(0f, 0f, 0f, 0.5f), fillColor);
                                     }
                                     
-                                    GUILayoutExt.ProgressBar(inUseCount, max, new Color(0f, 0f, 0f, 0.5f), fillColor);
-                                    
+                                    if (world.debugSettings.collectStatistic == true) {
+
+                                        var statObj = world.debugSettings.statisticsObject;
+                                        if (statObj != null) {
+
+                                            var state = worldEditor.IsFoldOutCustom(statObj);
+                                            GUILayoutExt.FoldOut(ref state, "Statistics", () => {
+
+                                                GUILayoutExt.DrawHeader("Entity Statistics");
+                                                GUILayout.Label($"Statistic updated every time you run the world. Currently running times: {statObj.startsCount}");
+                                                var currentCapacity = world.entitiesCapacity;
+                                                var capacity = statObj.GetRecommendedCapacity();
+                                                if (currentCapacity < capacity) {
+                                                    EditorGUILayout.HelpBox($"Recommendation: Add world.SetEntitiesCapacity({capacity}) into Initializer.", MessageType.Warning);
+                                                }
+
+                                                GUILayout.Space(10f);
+                                                {
+                                                    GUILayoutExt.Box(2f, 2f, () => {
+                                                        
+                                                        GUILayout.Label($"Reset State Max: {statObj.reset.max}");
+                                                        
+                                                    });
+                                                    GUILayoutExt.Box(2f, 2f, () => {
+                                                        
+                                                        GUILayout.Label($"All Min: {statObj.all.min}");
+                                                        GUILayout.Label($"All Max: {statObj.all.max}");
+                                                        
+                                                    });
+
+                                                    for (int i = 0; i < statObj.items.Count; ++i) {
+
+                                                        var item = statObj.items[i];
+                                                        GUILayout.Label($"Key: {item.key}");
+                                                        GUILayoutExt.Box(2f, 2f, () => {
+
+                                                            GUILayout.Label($"Min: {item.stat.min}");
+                                                            GUILayout.Label($"Max: {item.stat.max}");
+                                                            var capacityKey = statObj.GetRecommendedCapacity(item.key);
+                                                            if (currentCapacity < capacityKey) {
+                                                                EditorGUILayout.HelpBox(
+                                                                    $"Recommendation: Add world.SetEntitiesCapacity({capacityKey}) into Initializer for this key.",
+                                                                    MessageType.Warning);
+                                                            }
+
+                                                        });
+
+                                                    }
+                                                }
+                                                GUILayout.Space(10f);
+
+                                            });
+                                            worldEditor.SetFoldOutCustom(statObj, state);
+                                            
+                                        }
+                                        
+                                    }
+
                                     GUILayout.Label($"State Tick: {worldEditor.world.GetStateTick()}");
                                     GUILayout.Label($"Tick: {worldEditor.world.GetCurrentTick()}");
                                     GUILayout.Label($"Tick Time: {worldEditor.world.GetTickTime()}ms.");

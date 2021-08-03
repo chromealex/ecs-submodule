@@ -81,13 +81,16 @@ namespace ME.ECS {
     public struct WorldDebugSettings {
 
         public bool createGameObjectsRepresentation;
+        public bool collectStatistic;
+        public ME.ECS.Debug.StatisticsObject statisticsObject;
         public bool showViewsOnScene;
         public WorldDebugViewsSettings viewsSettings;
 
         public static WorldDebugSettings Default => new WorldDebugSettings() {
             createGameObjectsRepresentation = false,
+            collectStatistic = true,
             showViewsOnScene = false,
-            viewsSettings = new WorldDebugViewsSettings()
+            viewsSettings = new WorldDebugViewsSettings(),
         };
 
     }
@@ -218,6 +221,11 @@ namespace ME.ECS {
 
             this.InitializeGlobalEvents();
 
+            #if UNITY_EDITOR
+            this.OnDebugWorldCreated();
+            this.SetDebugStatisticKey(null);
+            #endif
+            
             this.isActive = true;
 
         }
@@ -740,6 +748,16 @@ namespace ME.ECS {
         public Tick GetStateTick() {
 
             return this.GetState().tick;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Tick GetLastSavedTick() {
+
+            var net = this.GetModule<StatesHistory.IStatesHistoryModuleBase>();
+            return net.GetLastSavedTick();
 
         }
 
