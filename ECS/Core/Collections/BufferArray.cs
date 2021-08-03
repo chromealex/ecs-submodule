@@ -72,7 +72,7 @@ namespace ME.ECS.Collections {
             
             this.disposeSentinel = PoolClass<DisposeSentinel>.Spawn();
             this.disposeSentinel.arr = PoolArray<T>.Spawn(length);
-            this.disposeSentinel.tick = Worlds.currentWorld.GetCurrentTick();
+            this.disposeSentinel.tick = Worlds.currentWorld.GetLastSavedTick();
             this.isCreated = true;
             this.Length = length;
 
@@ -141,7 +141,7 @@ namespace ME.ECS.Collections {
         public void Set(int index, T value) {
             
             if (this.isCreated == false || index >= this.Length) throw new System.IndexOutOfRangeException($"Index: {index} [0..{this.Length}], Tick: {Worlds.currentWorld.GetCurrentTick()}");
-            if (this.disposeSentinel.tick != Worlds.currentWorld.GetCurrentTick()) this.CloneInternalArray();
+            if (this.disposeSentinel.tick != Worlds.currentWorld.GetLastSavedTick()) this.CloneInternalArray();
             this.disposeSentinel.arr[index] = value;
             
         }
