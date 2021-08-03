@@ -4,6 +4,21 @@ using UnityEngine;
 
 namespace ME.ECS.Debug {
 
+    [System.Serializable]
+    public struct EntityStatistic {
+
+        public int min;
+        public int max;
+
+        public void OnCreateEntity(Entity entity) {
+
+            if (entity.id < this.min) this.min = entity.id;
+            if (entity.id > this.max) this.max = entity.id;
+
+        }
+
+    }
+
     [CreateAssetMenu(menuName = "ME.ECS/Debug/Statistics Object")]
     public class StatisticsObject : ScriptableObject {
 

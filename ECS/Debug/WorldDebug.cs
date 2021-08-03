@@ -1,21 +1,6 @@
 ﻿#if UNITY_EDITOR
 namespace ME.ECS {
 
-    [System.Serializable]
-    public struct EntityStatistic {
-
-        public int min;
-        public int max;
-
-        public void OnCreateEntity(Entity entity) {
-
-            if (entity.id < this.min) this.min = entity.id;
-            if (entity.id > this.max) this.max = entity.id;
-
-        }
-
-    }
-    
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
