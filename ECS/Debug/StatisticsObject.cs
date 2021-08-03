@@ -39,6 +39,8 @@ namespace ME.ECS.Debug {
             
             ++this.startsCount;
             
+            this.SetDirty();
+            
         }
 
         public int GetRecommendedCapacity(string key = null) {
@@ -67,6 +69,8 @@ namespace ME.ECS.Debug {
                 
                 this.reset.OnCreateEntity(entity);
                 this.all.min = this.reset.max;
+                
+                this.SetDirty();
                 return;
                 
             }
@@ -78,6 +82,8 @@ namespace ME.ECS.Debug {
                 this.SetCustom(key, entity);
                 
             }
+            
+            this.SetDirty();
 
         }
 
@@ -127,6 +133,14 @@ namespace ME.ECS.Debug {
                 this.items.Add(item);
 
             }
+            
+        }
+
+        private void SetDirty() {
+            
+            #if UNITY_EDITOR
+            UnityEditor.EditorUtility.SetDirty(this);
+            #endif
             
         }
 
