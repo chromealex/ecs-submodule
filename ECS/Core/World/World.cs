@@ -203,6 +203,7 @@ namespace ME.ECS {
 
             this.currentState = default;
             this.resetState = default;
+            this.hasResetState = false;
             this.currentStep = default;
             this.checkpointCollector = default;
             this.tickTime = default;
