@@ -41,11 +41,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public DataDictionary(int capacity = 0) {
-
-            this.dataObject = new DataObject<DictionaryCopyable<TKey, TValue>, DataDictionaryProvider<TKey, TValue>>(PoolDictionaryCopyable<TKey, TValue>.Spawn(64));
-
-        }
+        public DataDictionary(int capacity = 0) : this(PoolDictionaryCopyable<TKey, TValue>.Spawn(capacity)) {}
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

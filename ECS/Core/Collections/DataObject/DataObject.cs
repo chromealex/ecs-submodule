@@ -136,8 +136,9 @@ namespace ME.ECS.Collections {
 
             if (this.disposeSentinel.tick != Worlds.currentWorld.GetLastSavedTick()) {
                 this.CloneInternalArray();
+            } else {
+                default(TProvider).Recycle(ref this.disposeSentinel.data);
             }
-
             this.disposeSentinel.data = value;
 
         }
