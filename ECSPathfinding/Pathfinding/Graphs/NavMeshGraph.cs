@@ -152,7 +152,10 @@ namespace ME.ECS.Pathfinding {
 
         public override bool ClampPosition(Vector3 worldPosition, Constraint constraint, out Vector3 position) {
 
-            if (UnityEngine.AI.NavMesh.SamplePosition(worldPosition, out var hit, 1000f, constraint.checkArea == true ? (int)constraint.areaMask : -1) == true) {
+            if (UnityEngine.AI.NavMesh.SamplePosition(worldPosition, out var hit, 1000f, new NavMeshQueryFilter() {
+                agentTypeID = this.agentTypeId,
+                areaMask = constraint.checkArea == true ? (int)constraint.areaMask : -1,
+            }) == true) {
 
                 position = hit.position;
                 return true;
