@@ -750,7 +750,7 @@ namespace ME.ECS {
             coneAngle *= Mathf.Deg2Rad;
             
             var dir = (target - position).normalized;
-            var dot = Vector2.Dot(dir, direction.normalized);
+            var dot = Mathf.Clamp(Vector2.Dot(dir, direction.normalized), -1f, 1f);
             var angle = Mathf.Acos(dot);
             
             return angle < coneAngle * 0.5f;
