@@ -27,7 +27,7 @@ namespace ME.ECS.Collections {
             public TValue value; // Value of entry
 
         }
-
+        
         [ME.ECS.Serializer.SerializeField]
         private int[] _buckets;
         [ME.ECS.Serializer.SerializeField]
@@ -183,7 +183,7 @@ namespace ME.ECS.Collections {
             this.Clear(copy);
             foreach (var item in other) {
 
-                this.TryInsert(item.Key, item.Value, InsertionBehavior.ThrowOnExisting, copy);
+                this.Insert(item.Key, item.Value, true, copy);
 
             }
 
@@ -570,6 +570,85 @@ namespace ME.ECS.Collections {
 
             this._entries = new Entry[size];
             this._freeList = -1;
+        }
+
+        private void Insert<TElementCopy>(TKey key, TValue value, bool add, TElementCopy copy) where TElementCopy : IArrayElementCopy<TValue> {
+
+            if (key == null) {
+                throw new ArgumentNullException();
+            }
+
+            if (this._buckets == null) {
+                this.Initialize(0);
+            }
+
+            var hashCode = this._comparer.GetHashCode(key) & 0x7FFFFFFF;
+            var targetBucket = hashCode % this._buckets.Length;
+
+            #if FEATURE_RANDOMIZED_STRING_HASHING
+            int collisionCount = 0;
+            #endif
+
+            for (var i = this._buckets[targetBucket]; i >= 0; i = this._entries[i].next) {
+                if (this._entries[i].hashCode == hashCode && this._comparer.Equals(this._entries[i].key, key)) {
+                    if (add) {
+                        throw new ArgumentException();
+                    }
+
+                    copy.Copy(value, ref this._entries[i].value);
+                    this._version++;
+                    return;
+                }
+
+                #if FEATURE_RANDOMIZED_STRING_HASHING
+                collisionCount++;
+                #endif
+            }
+
+            int index;
+            if (this._freeCount > 0) {
+                index = this._freeList;
+                this._freeList = this._entries[index].next;
+                this._freeCount--;
+            } else {
+                if (this._count == this._entries.Length) {
+                    this.Resize();
+                    targetBucket = hashCode % this._buckets.Length;
+                }
+
+                index = this._count;
+                this._count++;
+            }
+
+            this._entries[index].hashCode = hashCode;
+            this._entries[index].next = this._buckets[targetBucket];
+            this._entries[index].key = key;
+			copy.Copy(value, ref this._entries[index].value);
+            this._buckets[targetBucket] = index;
+            this._version++;
+
+            #if FEATURE_RANDOMIZED_STRING_HASHING
+#if FEATURE_CORECLR
+            // In case we hit the collision threshold we'll need to switch to the comparer which is using randomized string hashing
+            // in this case will be EqualityComparer<string>.Default.
+            // Note, randomized string hashing is turned on by default on coreclr so EqualityComparer<string>.Default will
+            // be using randomized string hashing
+
+            if (collisionCount > HashHelpers.HashCollisionThreshold && comparer == NonRandomizedStringEqualityComparer.Default)
+            {
+                comparer = (IEqualityComparer<TKey>) EqualityComparer<string>.Default;
+                Resize(entries.Length, true);
+            }
+#else
+            if(collisionCount > HashHelpers.HashCollisionThreshold && HashHelpers.IsWellKnownEqualityComparer(comparer))
+            {
+                comparer = (IEqualityComparer<TKey>) HashHelpers.GetRandomizedEqualityComparer(comparer);
+                Resize(entries.Length, true);
+            }
+#endif // FEATURE_CORECLR
+
+            #endif
+
         }
 
         private void Insert(TKey key, TValue value, bool add) {
