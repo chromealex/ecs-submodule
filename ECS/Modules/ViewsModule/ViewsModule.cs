@@ -808,7 +808,7 @@ namespace ME.ECS.Views {
 
             }
 
-            if (this.world.HasStep(WorldStep.LogicTick) == true) {
+            if (this.world.isActive == true && this.world.HasStep(WorldStep.LogicTick) == true) {
 
                 throw new InStateException();
 

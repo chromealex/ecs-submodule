@@ -120,6 +120,7 @@ namespace ME.ECS {
 
             Worlds.DeInitializeBegin();
             var w = world;
+            w.isActive = false;
             Worlds.currentWorld = w;
             Worlds.current = w;
             world.RecycleResetState<TState>();

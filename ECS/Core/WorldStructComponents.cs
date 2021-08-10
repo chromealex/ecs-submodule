@@ -2865,7 +2865,7 @@ namespace ME.ECS {
         public void RemoveData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
 
             #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+            if (this.isActive == true && this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
                 
                 OutOfStateException.ThrowWorldStateCheck();
                 
