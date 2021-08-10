@@ -107,7 +107,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public abstract void UseLifetimeStep(World world, byte step, float deltaTime);
+        public abstract bool UseLifetimeStep(World world, byte step, float deltaTime);
 
         public abstract void CopyFrom(StructRegistryBase other);
 
@@ -479,7 +479,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public override void UseLifetimeStep(World world, byte step, float deltaTime) {
+        public override bool UseLifetimeStep(World world, byte step, float deltaTime) {
 
             if (this.lifetimeData != null) {
 
@@ -489,28 +489,36 @@ namespace ME.ECS {
                     data.lifetime -= deltaTime;
                     if (data.lifetime <= 0f) {
 
-                        this.UseLifetimeStep(data.entityId, world, step);
+                        if (this.UseLifetimeStep(data.entityId, world, step) == true) {
+
+                            this.lifetimeData.RemoveAt(i);
+                            --i;
+                            --cnt;
+
+                        }
 
                     }
 
                 }
 
-                this.lifetimeData.Clear();
+                return this.lifetimeData.Count == 0;
 
             }
+
+            return true;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void UseLifetimeStep(int id, World world, byte step) {
+        private bool UseLifetimeStep(int id, World world, byte step) {
 
             ref var state = ref this.componentsStates.arr[id];
             if (state - 1 == step) {
 
                 var entity = world.GetEntityById(id);
-                if (entity.generation == 0) return;
+                if (entity.generation == 0) return true;
                 
                 state = 0;
                 if (AllComponentTypes<TComponent>.isTag == false) this.components[id] = default;
@@ -525,7 +533,11 @@ namespace ME.ECS {
                 world.RaiseEntityActionOnRemove<TComponent>(in entity);
                 #endif
 
+                return true;
+
             }
+
+            return false;
 
         }
 
@@ -2028,16 +2040,20 @@ namespace ME.ECS {
             if (list.Count > 0) {
 
                 var bStep = (byte)step;
+                var cnt = list.Count;
+                var c = 0;
                 foreach (var idx in list) {
 
                     ref var reg = ref this.currentState.structComponents.list.arr[idx];
                     if (reg == null) continue;
 
-                    reg.UseLifetimeStep(this, bStep, deltaTime);
+                    if (reg.UseLifetimeStep(this, bStep, deltaTime) == true) {
+                        ++c;
+                    }
 
                 }
 
-                list.Clear();
+                if (c == cnt) list.Clear();
 
             }
             
