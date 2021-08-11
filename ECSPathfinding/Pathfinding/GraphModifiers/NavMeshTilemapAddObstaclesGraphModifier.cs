@@ -14,6 +14,8 @@ namespace ME.ECS.Pathfinding {
             [NavMeshArea]
             public int tag;
             public float height;
+            public bool customSize;
+            public Vector2 size;
 
         }
 
@@ -44,7 +46,7 @@ namespace ME.ECS.Pathfinding {
                             transform = Matrix4x4.TRS(this.tilemap.GetCellCenterWorld(pos) - this.tilemap.layoutGrid.cellGap,
                                                       this.tilemap.transform.rotation,
                                                       this.tilemap.transform.lossyScale) * this.tilemap.orientationMatrix * this.tilemap.GetTransformMatrix(pos),
-                            size = new Vector3(this.tilemap.layoutGrid.cellSize.x, this.tilemap.layoutGrid.cellSize.y, item.height),
+                            size = new Vector3(item.customSize == true ? item.size.x : this.tilemap.layoutGrid.cellSize.x, item.customSize == true ? item.size.y : this.tilemap.layoutGrid.cellSize.y, item.height),
                         };
 
                         if (item.height < navMeshGraph.minHeight) navMeshGraph.SetMinMaxHeight(item.height, navMeshGraph.maxHeight);
