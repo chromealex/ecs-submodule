@@ -19,8 +19,8 @@ namespace #NAMESPACE# {
         public World world { get; set; }
         
         void ISystemBase.OnConstruct() {
-        
-            this.feature = this.world.GetFeature<#FEATURE#>();
+            
+            this.GetFeature(out this.feature);
             
         }
         
