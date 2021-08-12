@@ -703,6 +703,8 @@ namespace ME.ECS.Views {
         #endif
         public void DestroyAllViews(in Entity entity) {
 
+            if (this.world.isActive == false) return;
+
             if (this.world.HasResetState() == false && entity.Has<ViewComponent>() == true) {
 
                 for (var id = this.list.Length - 1; id >= 0; --id) {
