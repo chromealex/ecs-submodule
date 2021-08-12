@@ -66,7 +66,8 @@ namespace ME.ECS.Pathfinding.Features.PathfindingAstar.Systems {
                     
                     var path = results.arr[i];
                     //UnityEngine.Debug.Log("Path build: " + i + " :: " + path.result);
-                    if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete) {
+                    if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete ||
+                        path.result == ME.ECS.Pathfinding.PathCompleteState.CompletePartial) {
 
                         this.pathfindingFeature.SetPathAstar(in task.entity, path, task.constraint, task.from, task.to, task.alignToGraphNodes);
 

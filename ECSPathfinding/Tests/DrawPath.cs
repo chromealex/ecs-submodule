@@ -25,7 +25,8 @@ public class DrawPath : MonoBehaviour {
         cons.graphMask = this.constraint.graphMask;
         var graph = this.pathfinding.GetNearest(this.transform.position, this.constraint).graph as ME.ECS.Pathfinding.GridGraph;
         var path = this.pathfinding.CalculatePath<ME.ECS.Pathfinding.PathCornersModifier, ME.ECS.Pathfinding.PathfindingFlowFieldProcessor>(this.transform.position, this.to.position, this.constraint, graph, new ME.ECS.Pathfinding.PathCornersModifier(), 0, this.useBurst);
-        if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete) {
+        if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete ||
+            path.result == ME.ECS.Pathfinding.PathCompleteState.CompletePartial) {
 
             var fromNode = graph.GetNearest(this.transform.position, this.constraint);
             var toNode = graph.GetNearest(this.to.position, this.constraint);

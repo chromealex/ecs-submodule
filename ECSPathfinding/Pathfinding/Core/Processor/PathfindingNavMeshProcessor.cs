@@ -114,6 +114,12 @@ namespace ME.ECS.Pathfinding {
                     };
                     job.Execute();
 
+                    if ((result & UnityEngine.Experimental.AI.PathQueryStatus.PartialResult) != 0) {
+                        
+                        this.pathResults[0] |= (int)UnityEngine.Experimental.AI.PathQueryStatus.PartialResult;
+                        
+                    }
+
                     vertexSide.Dispose();
                     straightPathFlags.Dispose();
                     pathInternal.Dispose();
@@ -170,7 +176,7 @@ namespace ME.ECS.Pathfinding {
                 var cornerCount = pathResults[1];
                 pathResults.Dispose();
                 
-                if (pathStatus == UnityEngine.Experimental.AI.PathQueryStatus.Success) {
+                if ((pathStatus & UnityEngine.Experimental.AI.PathQueryStatus.Success) != 0) {
 
                     if (cornerCount >= 2) {
 
@@ -206,7 +212,15 @@ namespace ME.ECS.Pathfinding {
                             
                         }
 
-                        path.result = PathCompleteState.Complete;
+                        if ((pathStatus & UnityEngine.Experimental.AI.PathQueryStatus.PartialResult) != 0) {
+                            
+                            path.result = PathCompleteState.CompletePartial;
+                            
+                        } else {
+
+                            path.result = PathCompleteState.Complete;
+
+                        }
 
                     } else {
 
@@ -358,7 +372,7 @@ namespace ME.ECS.Pathfinding {
                 swModifier = System.Diagnostics.Stopwatch.StartNew();
             }
 
-            if (path.result == PathCompleteState.Complete) {
+            if ((path.result & PathCompleteState.Complete) != 0) {
 
                 path = pathModifier.Run(path, constraint);
 

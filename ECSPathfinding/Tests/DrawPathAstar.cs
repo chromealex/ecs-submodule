@@ -23,7 +23,8 @@ public class DrawPathAstar : MonoBehaviour {
 
         var graph = this.pathfinding.GetNearest(this.transform.position, this.constraint).graph as ME.ECS.Pathfinding.GridGraph;
         var path = this.pathfinding.CalculatePath<ME.ECS.Pathfinding.PathModifierEmpty, ME.ECS.Pathfinding.PathfindingAstarProcessor>(this.transform.position, this.to.position, this.constraint, graph, new ME.ECS.Pathfinding.PathModifierEmpty(), 0, this.useBurst);
-        if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete) {
+        if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete ||
+            path.result == ME.ECS.Pathfinding.PathCompleteState.CompletePartial) {
 
             for (int i = 1; i < path.nodes.Count; ++i) {
 

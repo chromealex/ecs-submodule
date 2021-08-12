@@ -11,6 +11,7 @@ namespace ME.ECS.Pathfinding {
 
         NotCalculated = 0,
         Complete,
+        CompletePartial,
         NotExist,
 
     }
