@@ -35,6 +35,7 @@ namespace ME.ECS.Debug {
                 var list = new System.Collections.Generic.List<IStructComponentBase>();
                 foreach (var reg in registries) {
 
+                    if (reg == null) continue;
                     var comp = reg.GetObject(this.entity);
                     if (comp != null) list.Add(comp);
 
@@ -56,6 +57,7 @@ namespace ME.ECS.Debug {
                 var list = new System.Collections.Generic.List<SharedGroup>();
                 foreach (var reg in registries) {
                     
+                    if (reg == null) continue;
                     var groups = reg.GetSharedGroups(this.entity);
                     if (groups != null) {
 
