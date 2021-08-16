@@ -20,6 +20,16 @@ namespace ME.ECS {
 
     }
 
+    /// <summary>
+    /// Used in data configs
+    /// If component has this interface - data will be deinitialized in DataConfig::Apply method on removing component
+    /// </summary>
+    public interface IComponentDeinitializable {
+
+        void Deinitialize(in Entity entity);
+
+    }
+
 }
 
 namespace ME.ECS.DataConfigs {
@@ -107,7 +117,18 @@ namespace ME.ECS.DataConfigs {
             var world = Worlds.currentWorld;
             for (int i = 0; i < this.removeStructComponents.Length; ++i) {
 
-                world.RemoveData(in entity, this.GetComponentDataIndexByTypeRemoveWithCache(this.removeStructComponents[i], i));
+                var dataIndex = this.GetComponentDataIndexByTypeRemoveWithCache(this.removeStructComponents[i], i);
+                if (world.HasDataBit(in entity, dataIndex) == true) {
+                    
+                    if (this.removeStructComponents[i] is IComponentDeinitializable deinitializable) {
+
+                        deinitializable.Deinitialize(in entity);
+
+                    }
+
+                    world.RemoveData(in entity, dataIndex);
+                    
+                }
 
             }
 
