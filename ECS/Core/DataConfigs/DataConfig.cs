@@ -119,8 +119,9 @@ namespace ME.ECS.DataConfigs {
 
                 var dataIndex = this.GetComponentDataIndexByTypeRemoveWithCache(this.removeStructComponents[i], i);
                 if (world.HasDataBit(in entity, dataIndex) == true) {
-                    
-                    if (this.removeStructComponents[i] is IComponentDeinitializable deinitializable) {
+
+                    var data = world.ReadData(in entity, dataIndex);
+                    if (data is IComponentDeinitializable deinitializable) {
 
                         deinitializable.Deinitialize(in entity);
 
