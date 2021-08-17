@@ -122,6 +122,7 @@ namespace ME.ECS.Serializer {
             ser.Add(new TickSerializer());
             ser.Add(new HistoryEventSerializer());
             ser.Add(new BufferArraySerializer());
+			ser.Add(new DisposeSentinelSerializer());
             return ser;
 
         }
