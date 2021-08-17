@@ -228,6 +228,7 @@ namespace ME.ECS.Collections {
         #endif
         public System.Array GetArray() {
 
+            if (this.isCreated == false) return null;
             return this.arr.ToArray();
 
         }
