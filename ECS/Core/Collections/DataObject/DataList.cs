@@ -36,6 +36,7 @@ namespace ME.ECS.Collections {
     [GeneratorIgnoreManagedType]
     public struct DataList<T> : IDataObject<ListCopyable<T>> {
 
+        [ME.ECS.Serializer.SerializeField]
         private DataObject<ListCopyable<T>, DataListProvider<T>> dataObject;
 
         #if INLINE_METHODS

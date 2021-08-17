@@ -36,6 +36,7 @@ namespace ME.ECS.Collections {
     [GeneratorIgnoreManagedType]
     public struct DataDictionary<TKey, TValue> : IDataObject<DictionaryCopyable<TKey, TValue>> {
 
+        [ME.ECS.Serializer.SerializeField]
         private DataObject<DictionaryCopyable<TKey, TValue>, DataDictionaryProvider<TKey, TValue>> dataObject;
 
         #if INLINE_METHODS
