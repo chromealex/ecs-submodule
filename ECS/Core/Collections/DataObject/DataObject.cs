@@ -101,7 +101,7 @@ namespace ME.ECS.Collections {
         public ref readonly T Read() {
 
             if (this.isCreated == false) {
-                throw new System.Exception($"Tick: {Worlds.currentWorld.GetCurrentTick()}");
+                throw new System.Exception($"Try to read collection that has been already disposed. Tick: {Worlds.currentWorld.GetCurrentTick()}");
             }
 
             return ref this.disposeSentinel.data;
@@ -114,7 +114,7 @@ namespace ME.ECS.Collections {
         public ref T Get() {
 
             if (this.isCreated == false) {
-                throw new System.Exception($"Tick: {Worlds.currentWorld.GetCurrentTick()}");
+                throw new System.Exception($"Try to read collection that has been already disposed. Tick: {Worlds.currentWorld.GetCurrentTick()}");
             }
 
             if (this.disposeSentinel.tick != Worlds.currentWorld.GetLastSavedTick()) {
@@ -131,7 +131,7 @@ namespace ME.ECS.Collections {
         public void Set(T value) {
 
             if (this.isCreated == false) {
-                throw new System.Exception($"Tick: {Worlds.currentWorld.GetCurrentTick()}");
+                throw new System.Exception($"Try to read collection that has been already disposed. Tick: {Worlds.currentWorld.GetCurrentTick()}");
             }
 
             if (this.disposeSentinel.tick != Worlds.currentWorld.GetLastSavedTick()) {
