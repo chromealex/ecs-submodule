@@ -42,6 +42,40 @@ namespace ME.ECS.Collections {
 
     }
 
+    public interface IDisposeSentinel
+    {
+        public object Data { get; set; }
+
+        public Tick Tick { get; set; }
+    }
+
+    public class DisposeSentinel<T, TProvider> : System.IDisposable, IDisposeSentinel where TProvider : struct, IDataObjectProvider<T> {
+
+        public T data;
+        public Tick tick;
+
+        object IDisposeSentinel.Data { get => data; set => data = (T)value; }
+
+        Tick IDisposeSentinel.Tick { get => tick; set => tick = value; }
+
+        ~DisposeSentinel() {
+
+            this.Dispose();
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Dispose() {
+
+            this.tick = Tick.Invalid;
+            PoolClass<DisposeSentinel<T, TProvider>>.Recycle(this);
+            default(TProvider).Recycle(ref this.data);
+
+        }
+    }
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
@@ -50,31 +84,9 @@ namespace ME.ECS.Collections {
     [GeneratorIgnoreManagedType]
     public struct DataObject<T, TProvider> : IDataObject<T> where TProvider : struct, IDataObjectProvider<T> {
 
-        private class DisposeSentinel : System.IDisposable {
-
-            public T data;
-            public Tick tick;
-
-            ~DisposeSentinel() {
-
-                this.Dispose();
-
-            }
-
-            #if INLINE_METHODS
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Dispose() {
-
-                this.tick = Tick.Invalid;
-                PoolClass<DisposeSentinel>.Recycle(this);
-                default(TProvider).Recycle(ref this.data);
-
-            }
-
-        }
-
-        private DisposeSentinel disposeSentinel;
+        [ME.ECS.Serializer.SerializeField]
+        private DisposeSentinel<T, TProvider> disposeSentinel;
+        [ME.ECS.Serializer.SerializeField]
         private bool isCreated;
 
         #if INLINE_METHODS
@@ -82,7 +94,7 @@ namespace ME.ECS.Collections {
         #endif
         public DataObject(T data) {
 
-            this.disposeSentinel = PoolClass<DisposeSentinel>.Spawn();
+            this.disposeSentinel = PoolClass<DisposeSentinel<T, TProvider>>.Spawn();
             this.disposeSentinel.data = data;
             this.disposeSentinel.tick = Worlds.currentWorld.GetLastSavedTick();
             this.isCreated = true;
@@ -160,7 +172,7 @@ namespace ME.ECS.Collections {
 
             this.disposeSentinel.tick = Worlds.currentWorld.GetLastSavedTick();
             var previousData = this.disposeSentinel.data;
-            this.disposeSentinel = PoolClass<DisposeSentinel>.Spawn();
+            this.disposeSentinel = PoolClass<DisposeSentinel<T, TProvider>>.Spawn();
             default(TProvider).Clone(previousData, ref this.disposeSentinel.data);
 
         }
