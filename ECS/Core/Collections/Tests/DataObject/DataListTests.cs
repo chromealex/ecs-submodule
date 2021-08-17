@@ -1,31 +1,33 @@
-﻿
 namespace ME.ECS.Collections.Tests {
 
-    public class DataArrayTests {
-        
+    public class DataListTests {
+
         [NUnit.Framework.TestAttribute]
         public void WriteDataInTwoTicks() {
 
             this.Initialize();
 
-            var arr = new ME.ECS.Collections.DataArray<int>(10);
-            var src = arr.GetHashCode();
-            for (int i = 0; i < arr.Length; ++i) {
-                
-                arr[i] = i;
-                
-            }
-            
-            Worlds.currentWorld.SetFromToTicks(0, 1);
-            Worlds.currentWorld.UpdateLogic(0f);
-            
-            for (int i = 0; i < arr.Length; ++i) {
-                
-                arr[i] = i;
-                
+            var intList = new ME.ECS.Collections.DataList<int>(10);
+            var src = intList.GetHashCode();
+
+            var list = intList.Get();
+            for (int i = 0; i < list.Capacity; ++i) {
+
+                list.Add(i);
+
             }
 
-            NUnit.Framework.Assert.True(src != arr.GetHashCode());
+            Worlds.currentWorld.SetFromToTicks(0, 1);
+            Worlds.currentWorld.UpdateLogic(0f);
+
+            var list2 = intList.Get();
+            for (int i = 0; i < list2.Count; ++i) {
+
+                list2[i] = i;
+
+            }
+
+            NUnit.Framework.Assert.True(src != intList.GetHashCode());
 
             this.DeInitialize();
 
@@ -36,14 +38,13 @@ namespace ME.ECS.Collections.Tests {
 
             this.Initialize();
 
-            var arr = new ME.ECS.Collections.DataArray<int>(10);
-            var src = arr.GetHashCode();
-            for (int i = 0; i < arr.Length; ++i) {
-                
-                arr[i] = i;
-                
-            }
-            NUnit.Framework.Assert.True(src == arr.GetHashCode());
+            var intList = new ME.ECS.Collections.DataList<int>(10);
+            var src = intList.GetHashCode();
+
+            var newList = PoolListCopyable<int>.Spawn(10);
+            intList.Set(newList);
+
+            NUnit.Framework.Assert.True(src == intList.GetHashCode());
 
             this.DeInitialize();
 
@@ -54,19 +55,21 @@ namespace ME.ECS.Collections.Tests {
 
             this.Initialize();
 
-            var arr = new ME.ECS.Collections.DataArray<int>(10);
-            for (int i = 0; i < arr.Length; ++i) {
-                
-                arr[i] = i;
-                
+            var intList = new ME.ECS.Collections.DataList<int>(10);
+            var list = intList.Get();
+            for (int i = 0; i < list.Capacity; ++i) {
+
+                list.Add(i);
+
             }
 
-            for (int i = 0; i < arr.Length; ++i) {
-                
-                NUnit.Framework.Assert.True(arr[i] == i);
-                
+            var rList = intList.Read();
+            for (int i = 0; i < rList.Count; ++i) {
+
+                NUnit.Framework.Assert.True(rList[i] == i);
+
             }
-            
+
             this.DeInitialize();
 
         }
@@ -84,13 +87,13 @@ namespace ME.ECS.Collections.Tests {
             this.world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
             this.world.SetSeed(1u);
             this.world.SaveResetState<TestState>();
-            
+
         }
 
         private void DeInitialize() {
-            
+
             WorldUtilities.ReleaseWorld<TestState>(ref this.world);
-            
+
         }
 
     }
