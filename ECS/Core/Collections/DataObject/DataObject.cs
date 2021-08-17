@@ -44,9 +44,13 @@ namespace ME.ECS.Collections {
 
     public interface IDisposeSentinel
     {
-        public object Data { get; set; }
+        public object GetData();
 
-        public Tick Tick { get; set; }
+        public void SetData(object data);
+
+        public Tick GetTick();
+
+        public void SetTick(Tick tick);
     }
 
     public class DisposeSentinel<T, TProvider> : System.IDisposable, IDisposeSentinel where TProvider : struct, IDataObjectProvider<T> {
@@ -54,9 +58,25 @@ namespace ME.ECS.Collections {
         public T data;
         public Tick tick;
 
-        object IDisposeSentinel.Data { get => data; set => data = (T)value; }
+        object IDisposeSentinel.GetData()
+        {
+            return data;
+        }
 
-        Tick IDisposeSentinel.Tick { get => tick; set => tick = value; }
+        void IDisposeSentinel.SetData(object data)
+        {
+            this.data = (T)data; 
+        }
+
+        Tick IDisposeSentinel.GetTick()
+        {
+            return tick;
+        }
+
+        void IDisposeSentinel.SetTick(Tick tick)
+        {
+            this.tick = tick;
+        }
 
         ~DisposeSentinel() {
 

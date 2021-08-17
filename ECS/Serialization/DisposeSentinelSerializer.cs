@@ -17,8 +17,8 @@ namespace ME.ECS.Serializer {
             Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(type.GenericTypeArguments[0]));
             Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(type.GenericTypeArguments[1]));
 
-            packer.PackInternal(sentinel.Data);
-            Int64Serializer.PackDirect(packer, sentinel.Tick);
+            packer.PackInternal(sentinel.GetData());
+            Int64Serializer.PackDirect(packer, sentinel.GetTick());
         }
 
         public object Unpack(Packer packer) {
@@ -32,8 +32,8 @@ namespace ME.ECS.Serializer {
             var poolClassType = typeof(PoolClass<>).MakeGenericType(sentinelType);
             var spawnMethod = poolClassType.GetMethod("Spawn", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
             var sentinel = (IDisposeSentinel)spawnMethod.Invoke(null, null);
-			sentinel.Data = packer.UnpackInternal();
-			sentinel.Tick = Int64Serializer.UnpackDirect(packer);
+            sentinel.SetData(packer.UnpackInternal());
+            sentinel.SetTick(Int64Serializer.UnpackDirect(packer));
 
             return sentinel;
         } 
