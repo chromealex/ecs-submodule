@@ -395,7 +395,14 @@ namespace ME.ECSEditor {
 
                 if (GUILayoutExt.allStructComponents == null) {
 
-	                GUILayoutExt.allStructComponents = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).Where(x => x.IsValueType == true && typeof(IStructComponentBase).IsAssignableFrom(x) == true && typeof(IComponentRuntime).IsAssignableFrom(x) == false).ToArray();
+	                GUILayoutExt.allStructComponents = AppDomain.CurrentDomain.GetAssemblies()
+	                                                            .SelectMany(x => x.GetTypes())
+	                                                            .Where(x => 
+		                                                                   x.IsValueType == true &&
+		                                                                   typeof(IStructComponentBase).IsAssignableFrom(x) == true &&
+		                                                                   typeof(IComponentRuntime).IsAssignableFrom(x) == false
+		                                                                   )
+	                                                            .ToArray();
 
                 }
 
@@ -494,7 +501,14 @@ namespace ME.ECSEditor {
 
                 if (GUILayoutExt.allStructComponents == null) {
 
-	                GUILayoutExt.allStructComponents = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).Where(x => x.IsValueType == true && typeof(IStructComponentBase).IsAssignableFrom(x)).ToArray();
+	                GUILayoutExt.allStructComponents = AppDomain.CurrentDomain.GetAssemblies()
+	                                                            .SelectMany(x => x.GetTypes())
+	                                                            .Where(x => 
+		                                                                   x.IsValueType == true &&
+		                                                                   typeof(IStructComponentBase).IsAssignableFrom(x) == true &&
+		                                                                   typeof(IComponentRuntime).IsAssignableFrom(x) == false
+	                                                            )
+	                                                            .ToArray();
 
                 }
 
