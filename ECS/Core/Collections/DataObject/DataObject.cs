@@ -142,7 +142,7 @@ namespace ME.ECS.Collections {
                 throw new System.Exception($"Try to read collection that has been already disposed. Tick: {Worlds.currentWorld.GetCurrentTick()}");
             }
 
-            if (this.disposeSentinel.tick != Worlds.currentWorld.GetLastSavedTick()) {
+            if (this.disposeSentinel.tick == Tick.Invalid || this.disposeSentinel.tick != Worlds.currentWorld.GetLastSavedTick()) {
                 this.CloneInternalArray();
             }
 
@@ -159,7 +159,7 @@ namespace ME.ECS.Collections {
                 throw new System.Exception($"Try to read collection that has been already disposed. Tick: {Worlds.currentWorld.GetCurrentTick()}");
             }
 
-            if (this.disposeSentinel.tick != Worlds.currentWorld.GetLastSavedTick()) {
+            if (this.disposeSentinel.tick == Tick.Invalid || this.disposeSentinel.tick != Worlds.currentWorld.GetLastSavedTick()) {
                 this.CloneInternalArray();
             } else {
                 default(TProvider).Recycle(ref this.disposeSentinel.data);
@@ -183,7 +183,8 @@ namespace ME.ECS.Collections {
         #endif
         private void CloneInternalArray() {
 
-            this.disposeSentinel.tick = Worlds.currentWorld.GetLastSavedTick();
+            var lastTick = Worlds.currentWorld.GetLastSavedTick();
+            this.disposeSentinel.tick = lastTick == Tick.Invalid ? Tick.Zero : lastTick;
             var previousData = this.disposeSentinel.data;
             this.disposeSentinel = PoolClass<DisposeSentinel<T, TProvider>>.Spawn();
             default(TProvider).Clone(previousData, ref this.disposeSentinel.data);
