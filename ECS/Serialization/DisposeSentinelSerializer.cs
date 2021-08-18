@@ -4,7 +4,7 @@ namespace ME.ECS.Serializer {
 
     public struct DisposeSentinelSerializer : ITypeSerializer, ITypeSerializerInherit {
 
-        public byte GetTypeValue() => (byte)TypeValue.DataObject;
+        public byte GetTypeValue() => (byte)TypeValue.DisposeSentinel;
 
         public System.Type GetTypeSerialized() => typeof(IDisposeSentinel);
 
@@ -19,6 +19,7 @@ namespace ME.ECS.Serializer {
 
             packer.PackInternal(sentinel.GetData());
             Int64Serializer.PackDirect(packer, sentinel.GetTick());
+            
         }
 
         public object Unpack(Packer packer) {
@@ -36,7 +37,9 @@ namespace ME.ECS.Serializer {
             sentinel.SetTick(Int64Serializer.UnpackDirect(packer));
 
             return sentinel;
-        } 
+
+        }
+
     }
 
 }

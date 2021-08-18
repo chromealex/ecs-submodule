@@ -69,6 +69,8 @@ namespace ME.ECS.Serializer {
         View = 225,
         
         BufferArray = 224,
+        DisposeSentinel = 223,
+        
     }
     
     [System.AttributeUsageAttribute(System.AttributeTargets.Field | System.AttributeTargets.Property)]

@@ -28,7 +28,6 @@ namespace ME.ECS.Collections {
     public interface IDataObjectProvider<T> {
 
         void Clone(T from, ref T to);
-
         void Recycle(ref T value);
 
     }
@@ -42,15 +41,13 @@ namespace ME.ECS.Collections {
 
     }
 
-    public interface IDisposeSentinel
-    {
-        public object GetData();
-
-        public void SetData(object data);
-
-        public Tick GetTick();
-
-        public void SetTick(Tick tick);
+    public interface IDisposeSentinel {
+        
+        object GetData();
+        void SetData(object data);
+        Tick GetTick();
+        void SetTick(Tick tick);
+        
     }
 
     public class DisposeSentinel<T, TProvider> : System.IDisposable, IDisposeSentinel where TProvider : struct, IDataObjectProvider<T> {
@@ -58,23 +55,19 @@ namespace ME.ECS.Collections {
         public T data;
         public Tick tick;
 
-        object IDisposeSentinel.GetData()
-        {
-            return data;
+        object IDisposeSentinel.GetData() {
+            return this.data;
         }
 
-        void IDisposeSentinel.SetData(object data)
-        {
+        void IDisposeSentinel.SetData(object data) {
             this.data = (T)data; 
         }
 
-        Tick IDisposeSentinel.GetTick()
-        {
-            return tick;
+        Tick IDisposeSentinel.GetTick() {
+            return this.tick;
         }
 
-        void IDisposeSentinel.SetTick(Tick tick)
-        {
+        void IDisposeSentinel.SetTick(Tick tick) {
             this.tick = tick;
         }
 
