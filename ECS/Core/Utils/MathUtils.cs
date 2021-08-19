@@ -756,6 +756,52 @@ namespace ME.ECS {
             return angle < coneAngle * 0.5f;
 
         }
+        
+        private static float[] Factorial = new float[] {
+            1.0f,
+            1.0f,
+            2.0f,
+            6.0f,
+            24.0f,
+            120.0f,
+            720.0f,
+            5040.0f,
+            40320.0f,
+            362880.0f,
+            3628800.0f,
+            39916800.0f,
+            479001600.0f,
+            6227020800.0f,
+            87178291200.0f,
+            1307674368000.0f,
+            20922789888000.0f,
+        };
+        
+        private static float Binomial(int n, int i) {
+            
+            float a1 = MathUtils.Factorial[n];
+            float a2 = MathUtils.Factorial[i];
+            float a3 = MathUtils.Factorial[n - i];
+            var ni = a1 / (a2 * a3);
+            return ni;
+            
+        }
+        
+        public static float Bernstein(int n, int i, float t) {
+            
+            float ti = Mathf.Pow(t, i);
+            float tnMinusI = Mathf.Pow((1 - t), (n - i));
+
+            float basis = MathUtils.Binomial(n, i) * ti * tnMinusI;
+            return basis;
+            
+        }
+        
+        public static Vector3 CalculateBezier(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
+        
+            return (Mathf.Pow(1 - t, 3) * p0) + (3 * Mathf.Pow(1 - t, 2) * t * p1) + (3 * (1 - t) * t * t * p2) + (t * t * t * p3);
+            
+        }
 
     }
 
