@@ -828,10 +828,13 @@ namespace ME.ECS {
             public void Copy(SharedGroupData @from, ref SharedGroupData to) {
                 
                 to.data = from.data;
+                ArrayUtils.Copy(from.states, ref to.states);
                 
             }
 
             public void Recycle(SharedGroupData item) {
+                
+                PoolArray<bool>.Recycle(ref item.states);
                 
             }
 
