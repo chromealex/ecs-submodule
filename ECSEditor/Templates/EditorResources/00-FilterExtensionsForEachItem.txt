@@ -1,101 +1,58 @@
-﻿/*
-#if INLINE_METHODS
-[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-public static void ForEach<#ITEMS_TYPE#>(this Filter filter, R<#ITEMS_TYPE#> onEach) #ITEMS_WHERE# {
-    filter.GetBounds(out var min, out var max);
-    var entities = filter.world.currentState.storage.cache;
-    var buffer = new EntityBuffer<#ITEMS_TYPE#>(filter.world, entities, min, max);
-    for (int i = min; i <= max; ++i) { var e = entities.arr[i]; var id = e.id; onEach.Invoke(in e, #ITEMS_GET#); }
+﻿internal static class Jobs#FORMS#<#ITEMS_TYPE#> #ITEMS_WHERE# {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<#ITEMS_TYPE#> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<#ITEMS_TYPE#> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FD#FORMS#<#ITEMS_TYPE#>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), #ITEMS_GET#);
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
 }
-#if INLINE_METHODS
-[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-public static void ForEach<TCustom0, #ITEMS_TYPE#>(this Filter filter, in TCustom0 custom0, RCP#INDEX#<TCustom0, #ITEMS_TYPE#> onEach) #ITEMS_WHERE# {
-    filter.GetBounds(out var min, out var max);
-    var entities = filter.world.currentState.storage.cache;
-    var buffer = new EntityBuffer<#ITEMS_TYPE#>(filter.world, entities, min, max);
-    for (int i = min; i <= max; ++i) { var e = entities.arr[i]; var id = e.id; onEach.Invoke(in custom0, in e, #ITEMS_GET#); }
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FD#FORMS#<#ITEMS_TYPE#>> ForEach<#ITEMS_TYPE#>(this in Filter filter, ME.ECS.Filters.FD#FORMS#<#ITEMS_TYPE#> onEach) #ITEMS_WHERE# {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FD#FORMS#<#ITEMS_TYPE#>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FD#FORMS#<#ITEMS_TYPE#>> task, in Filter filterInternal, ME.ECS.Filters.FD#FORMS#<#ITEMS_TYPE#> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<#ITEMS_TYPE#>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new Jobs#FORMS#<#ITEMS_TYPE#>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(Jobs#FORMS#<#ITEMS_TYPE#>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<#ITEMS_TYPE#>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), #ITEMS_GET#);
+            bag.Push();
+
+        }
+
+    });
+    
 }
-#if INLINE_METHODS
-[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-public static void ForEach<TCustom0, TCustom1, #ITEMS_TYPE#>(this Filter filter, in TCustom0 custom0, in TCustom1 custom1, RCP#INDEX#<TCustom0, TCustom1, #ITEMS_TYPE#> onEach) #ITEMS_WHERE# {
-    filter.GetBounds(out var min, out var max);
-    var entities = filter.world.currentState.storage.cache;
-    var buffer = new EntityBuffer<#ITEMS_TYPE#>(filter.world, entities, min, max);
-    for (int i = min; i <= max; ++i) { var e = entities.arr[i]; var id = e.id; onEach.Invoke(in custom0, in custom1, in e, #ITEMS_GET#); }
-}
-#if INLINE_METHODS
-[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-public static void ForEach<TCustom0, TCustom1, TCustom2, #ITEMS_TYPE#>(this Filter filter, in TCustom0 custom0, in TCustom1 custom1, in TCustom2 custom2, RCP#INDEX#<TCustom0, TCustom1, TCustom2, #ITEMS_TYPE#> onEach) #ITEMS_WHERE# {
-    filter.GetBounds(out var min, out var max);
-    var entities = filter.world.currentState.storage.cache;
-    var buffer = new EntityBuffer<#ITEMS_TYPE#>(filter.world, entities, min, max);
-    for (int i = min; i <= max; ++i) { var e = entities.arr[i]; var id = e.id; onEach.Invoke(in custom0, in custom1, in custom2, in e, #ITEMS_GET#); }
-}
-#if INLINE_METHODS
-[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-public static void ForEach<TCustom0, TCustom1, TCustom2, TCustom3, #ITEMS_TYPE#>(this Filter filter, in TCustom0 custom0, in TCustom1 custom1, in TCustom2 custom2, in TCustom3 custom3, RCP#INDEX#<TCustom0, TCustom1, TCustom2, TCustom3, #ITEMS_TYPE#> onEach) #ITEMS_WHERE# {
-    filter.GetBounds(out var min, out var max);
-    var entities = filter.world.currentState.storage.cache;
-    var buffer = new EntityBuffer<#ITEMS_TYPE#>(filter.world, entities, min, max);
-    for (int i = min; i <= max; ++i) { var e = entities.arr[i]; var id = e.id; onEach.Invoke(in custom0, in custom1, in custom2, in custom3, in e, #ITEMS_GET#); }
-}
-#if INLINE_METHODS
-[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-public static void ForEach<TCustom0, TCustom1, TCustom2, TCustom3, TCustom4, #ITEMS_TYPE#>(this Filter filter, in TCustom0 custom0, in TCustom1 custom1, in TCustom2 custom2, in TCustom3 custom3, in TCustom4 custom4, RCP#INDEX#<TCustom0, TCustom1, TCustom2, TCustom3, TCustom4, #ITEMS_TYPE#> onEach) #ITEMS_WHERE# {
-    filter.GetBounds(out var min, out var max);
-    var entities = filter.world.currentState.storage.cache;
-    var buffer = new EntityBuffer<#ITEMS_TYPE#>(filter.world, entities, min, max);
-    for (int i = min; i <= max; ++i) { var e = entities.arr[i]; var id = e.id; onEach.Invoke(in custom0, in custom1, in custom2, in custom3, in custom4, in e, #ITEMS_GET#); }
-}
-#if INLINE_METHODS
-[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-public static void ForEach<TCustom0, TCustom1, TCustom2, TCustom3, TCustom4, TCustom5, #ITEMS_TYPE#>(this Filter filter, in TCustom0 custom0, in TCustom1 custom1, in TCustom2 custom2, in TCustom3 custom3, in TCustom4 custom4, in TCustom5 custom5, RCP#INDEX#<TCustom0, TCustom1, TCustom2, TCustom3, TCustom4, TCustom5, #ITEMS_TYPE#> onEach) #ITEMS_WHERE# {
-    filter.GetBounds(out var min, out var max);
-    var entities = filter.world.currentState.storage.cache;
-    var buffer = new EntityBuffer<#ITEMS_TYPE#>(filter.world, entities, min, max);
-    for (int i = min; i <= max; ++i) { var e = entities.arr[i]; var id = e.id; onEach.Invoke(in custom0, in custom1, in custom2, in custom3, in custom4, in custom5, in e, #ITEMS_GET#); }
-}
-#if INLINE_METHODS
-[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-public static void ForEach<TCustom0, TCustom1, TCustom2, TCustom3, TCustom4, TCustom5, TCustom6, #ITEMS_TYPE#>(this Filter filter, in TCustom0 custom0, in TCustom1 custom1, in TCustom2 custom2, in TCustom3 custom3, in TCustom4 custom4, in TCustom5 custom5, in TCustom6 custom6, RCP#INDEX#<TCustom0, TCustom1, TCustom2, TCustom3, TCustom4, TCustom5, TCustom6, #ITEMS_TYPE#> onEach) #ITEMS_WHERE# {
-    filter.GetBounds(out var min, out var max);
-    var entities = filter.world.currentState.storage.cache;
-    var buffer = new EntityBuffer<#ITEMS_TYPE#>(filter.world, entities, min, max);
-    for (int i = min; i <= max; ++i) { var e = entities.arr[i]; var id = e.id; onEach.Invoke(in custom0, in custom1, in custom2, in custom3, in custom4, in custom5, in custom6, in e, #ITEMS_GET#); }
-}
-#if INLINE_METHODS
-[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-public static void ForEach<TCustom0, TCustom1, TCustom2, TCustom3, TCustom4, TCustom5, TCustom6, TCustom7, #ITEMS_TYPE#>(this Filter filter, in TCustom0 custom0, in TCustom1 custom1, in TCustom2 custom2, in TCustom3 custom3, in TCustom4 custom4, in TCustom5 custom5, in TCustom6 custom6, in TCustom7 custom7, RCP#INDEX#<TCustom0, TCustom1, TCustom2, TCustom3, TCustom4, TCustom5, TCustom6, TCustom7, #ITEMS_TYPE#> onEach) #ITEMS_WHERE# {
-    filter.GetBounds(out var min, out var max);
-    var entities = filter.world.currentState.storage.cache;
-    var buffer = new EntityBuffer<#ITEMS_TYPE#>(filter.world, entities, min, max);
-    for (int i = min; i <= max; ++i) { var e = entities.arr[i]; var id = e.id; onEach.Invoke(in custom0, in custom1, in custom2, in custom3, in custom4, in custom5, in custom6, in custom7, in e, #ITEMS_GET#); }
-}
-#if INLINE_METHODS
-[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-public static void ForEach<TCustom0, TCustom1, TCustom2, TCustom3, TCustom4, TCustom5, TCustom6, TCustom7, TCustom8, #ITEMS_TYPE#>(this Filter filter, in TCustom0 custom0, in TCustom1 custom1, in TCustom2 custom2, in TCustom3 custom3, in TCustom4 custom4, in TCustom5 custom5, in TCustom6 custom6, in TCustom7 custom7, in TCustom8 custom8, RCP#INDEX#<TCustom0, TCustom1, TCustom2, TCustom3, TCustom4, TCustom5, TCustom6, TCustom7, TCustom8, #ITEMS_TYPE#> onEach) #ITEMS_WHERE# {
-    filter.GetBounds(out var min, out var max);
-    var entities = filter.world.currentState.storage.cache;
-    var buffer = new EntityBuffer<#ITEMS_TYPE#>(filter.world, entities, min, max);
-    for (int i = min; i <= max; ++i) { var e = entities.arr[i]; var id = e.id; onEach.Invoke(in custom0, in custom1, in custom2, in custom3, in custom4, in custom5, in custom6, in custom7, in custom8, in e, #ITEMS_GET#); }
-}
-#if INLINE_METHODS
-[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-public static void ForEach<TCustom0, TCustom1, TCustom2, TCustom3, TCustom4, TCustom5, TCustom6, TCustom7, TCustom8, TCustom9, #ITEMS_TYPE#>(this Filter filter, in TCustom0 custom0, in TCustom1 custom1, in TCustom2 custom2, in TCustom3 custom3, in TCustom4 custom4, in TCustom5 custom5, in TCustom6 custom6, in TCustom7 custom7, in TCustom8 custom8, in TCustom9 custom9, RCP#INDEX#<TCustom0, TCustom1, TCustom2, TCustom3, TCustom4, TCustom5, TCustom6, TCustom7, TCustom8, TCustom9, #ITEMS_TYPE#> onEach) #ITEMS_WHERE# {
-    filter.GetBounds(out var min, out var max);
-    var entities = filter.world.currentState.storage.cache;
-    var buffer = new EntityBuffer<#ITEMS_TYPE#>(filter.world, entities, min, max);
-    for (int i = min; i <= max; ++i) { var e = entities.arr[i]; var id = e.id; onEach.Invoke(in custom0, in custom1, in custom2, in custom3, in custom4, in custom5, in custom6, in custom7, in custom8, in custom9, in e, #ITEMS_GET#); }
-}
-*/

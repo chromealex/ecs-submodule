@@ -171,7 +171,7 @@ namespace ME.ECS.Tests {
 
         }
 
-        [Unity.Burst.BurstCompileAttribute]
+        [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true)]
         public struct FilterBagJobTest : Unity.Jobs.IJob, IBurst {
 
             public Buffers.FilterBag<TestData, TestData2> data;
@@ -212,23 +212,37 @@ namespace ME.ECS.Tests {
 
             public void AdvanceTick(in float deltaTime) {
 
-                var job = new FilterBagJobTest() {
-                    data = new Buffers.FilterBag<TestData, TestData2>(this.filter, Unity.Collections.Allocator.TempJob),
-                };
-                var sw = System.Diagnostics.Stopwatch.StartNew();
-                sw.Start();
-                var handle = job.Schedule();
-                handle.Complete();
-                sw.Stop();
-                var step1 = sw.ElapsedMilliseconds;
+                {
+                    var sw = System.Diagnostics.Stopwatch.StartNew();
+                    sw.Start();
+                    var job = new FilterBagJobTest() {
+                        data = new Buffers.FilterBag<TestData, TestData2>(this.filter, Unity.Collections.Allocator.TempJob),
+                    };
+                    var handle = job.Schedule();
+                    handle.Complete();
+                    sw.Stop();
+                    var step1 = sw.ElapsedMilliseconds;
 
-                sw = System.Diagnostics.Stopwatch.StartNew();
-                sw.Start();
-                job.data.Push();
+                    sw = System.Diagnostics.Stopwatch.StartNew();
+                    sw.Start();
+                    job.data.Push();
+
+                    sw.Stop();
+                    UnityEngine.Debug.Log(step1 + "ms, " + sw.ElapsedMilliseconds + "ms. Entities: " + this.filter.Count + ": " + this.testEntity + " has data: " +
+                                          this.testEntity.Read<TestData>().a);
+                }
+
+                {
+                    var sw = System.Diagnostics.Stopwatch.StartNew();
+                    sw.Start();
+                    this.filter.ForEach((in Entity entity, in TestData2 data2, ref TestData data) => {
+                        ++data.a;
+                    }).WithBurst().Do();
+                    sw.Stop();
+                    UnityEngine.Debug.Log(sw.ElapsedMilliseconds + "ms. Entities: " + this.filter.Count + ": " + this.testEntity + " has data: " +
+                                          this.testEntity.Read<TestData>().a);
+                }
                 
-                sw.Stop();
-                UnityEngine.Debug.Log(step1 + "ms, " + sw.ElapsedMilliseconds + "ms. Entities: " + this.filter.Count + ": " + this.testEntity + " has data: " + this.testEntity.Read<TestData>().a);
-
             }
 
         }
