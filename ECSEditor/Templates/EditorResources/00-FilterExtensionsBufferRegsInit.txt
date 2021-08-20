@@ -1,0 +1,2 @@
+var regT#INDEX# = (StructComponents<T#INDEX#>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T#INDEX#>()];
+regT#INDEX#.Merge();

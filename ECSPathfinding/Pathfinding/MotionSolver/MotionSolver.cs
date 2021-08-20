@@ -97,13 +97,13 @@ namespace ME.ECS.Pathfinding {
 
                 for (var i = 0; i < this.bodies.Length; ++i) {
 
-                    var entityIdA = this.bodies.GetEntityIdByIndex(i);
+                    var entityIdA = i;
                     ref readonly var a = ref this.bodies.ReadT0(entityIdA);
                     for (var m = 0; m < this.obstacles.Length; ++m) {
 
                         if (this.output[0] >= this.bodyVsObstacleCollisionsBuffer.Length) break;
 
-                        var entityIdB = this.bodies.GetEntityIdByIndex(i);
+                        var entityIdB = m;
                         ref readonly var b = ref this.obstacles.ReadT0(entityIdB);
 
                         var difference = a.position - b.position;
@@ -149,7 +149,7 @@ namespace ME.ECS.Pathfinding {
                         if (j == i) continue;
                         if (this.output[1] >= this.bodyVsBodyCollisionsBuffer.Length) break;
 
-                        var entityIdB = this.bodies.GetEntityIdByIndex(j);
+                        var entityIdB = j;
                         ref readonly var b = ref this.bodies.ReadT0(entityIdB);
 
                         if ((a.collisionMask & b.layer) == 0 && (b.layer & a.collisionMask) == 0) {
@@ -248,7 +248,7 @@ namespace ME.ECS.Pathfinding {
             
             public void Execute(int index) {
                 
-                var entityId = this.bodies.GetEntityIdByIndex(index);
+                var entityId = index;
                 ref var body = ref this.bodies.GetT0(entityId);
                 body.velocity *= this.velocityDumping;
                 
@@ -264,8 +264,7 @@ namespace ME.ECS.Pathfinding {
             
             public void Execute(int index) {
 
-                var entityId = this.bodies.GetEntityIdByIndex(index);
-                ref var body = ref this.bodies.GetT0(entityId);
+                ref var body = ref this.bodies.GetT0(index);
                 if (body.isStatic == 0) {
                     
                     body.position += body.velocity * this.substepDeltaTime;

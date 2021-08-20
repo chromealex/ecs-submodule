@@ -6,10 +6,19 @@ namespace ME.ECS {
 
     using Filters;
     using Buffers;
+    using ME.ECS.Collections;
     
     namespace Buffers {
 
-        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0> {
+    public byte containsT0;
+    public byte opsT0;
+    public Entity entity;
+    public T0 t0;
+}
+
+#if ECS_COMPILE_IL2CPP_OPTIONS
 [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
@@ -17,94 +26,73 @@ namespace ME.ECS {
 public struct FilterBag<T0>  where T0:struct,IStructComponentBase {
 
     public readonly int Length;
-    public int index;
-    private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0>> arr;
     
-    private DataBuffer<T0> buffer0;
-
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
-
         var world = filter.world;
-        var arrEntities = world.currentState.storage.cache;
-        this.index = -1;
         this.Length = filter.Count;
-        this.max = filter.Count;
-        
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0>>(this.Length, allocator);
         var idx = 0;
         foreach (var entity in filter) {
-            
-            this.filterEntities[idx++] = entity.id;
-            
+            this.arr[idx] = new DataBufferStruct<T0>() {
+                entity = entity,
+                containsT0 = regT0.componentsStates[entity.id],
+opsT0 = 0,
+t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,
+            };
+            ++idx;
         }
-        
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
-
-        
     }
 
-    public int GetEntityIdByIndex(int index) {
-
-        return this.filterEntities[index];
-
-    }
-    
     public void Push() {
-
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-
-        
-        if (changedCount > 0) world.UpdateAllFilters();
-        
-        this.Dispose();
-        
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
     }
-
-    public void Revert() {
-        
-        this.buffer0.Dispose();
-
-
+}
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
-
-    }
-
-    public void Reset() {
-
-        this.index = -1;
-
     }
     
-    public bool MoveNext() {
-        
-        ++this.index;
-        return this.index < this.max;
+    public int GetEntityId(int index) => this.arr[index].entity.id;
 
-    }
-    
-    private void Dispose() {
-        
-        this.filterEntities.Dispose();
-        
-    }
+    public ref readonly Entity GetEntity(int index) => ref this.arr.GetRefRead(index).entity;
+
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
 
     #region API
-    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
-public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
-public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
-public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
-public bool HasT0(int id) { return this.buffer0.Has(id); }
-public bool HasT0() { return this.buffer0.Has(this.filterEntities[this.index]); }
-
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 |= 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
     #endregion
 
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1> {
+    public byte containsT0;public byte containsT1;
+    public byte opsT0;public byte opsT1;
+    public Entity entity;
+    public T0 t0;public T1 t1;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -115,107 +103,89 @@ public bool HasT0() { return this.buffer0.Has(this.filterEntities[this.index]); 
 public struct FilterBag<T0,T1>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase {
 
     public readonly int Length;
-    public int index;
-    private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1>> arr;
     
-    private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;
-
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
-
         var world = filter.world;
-        var arrEntities = world.currentState.storage.cache;
-        this.index = -1;
         this.Length = filter.Count;
-        this.max = filter.Count;
-        
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1>>(this.Length, allocator);
         var idx = 0;
         foreach (var entity in filter) {
-            
-            this.filterEntities[idx++] = entity.id;
-            
+            this.arr[idx] = new DataBufferStruct<T0,T1>() {
+                entity = entity,
+                containsT0 = regT0.componentsStates[entity.id],
+opsT0 = 0,
+t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,containsT1 = regT1.componentsStates[entity.id],
+opsT1 = 0,
+t1 = regT1.components.Length > 0 ? regT1.components.data.arr[entity.id] : default,
+            };
+            ++idx;
         }
-        
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
-this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
-
-        
     }
 
-    public int GetEntityIdByIndex(int index) {
-
-        return this.filterEntities[index];
-
-    }
-    
     public void Push() {
-
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-
-        
-        if (changedCount > 0) world.UpdateAllFilters();
-        
-        this.Dispose();
-        
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
     }
-
-    public void Revert() {
-        
-        this.buffer0.Dispose();
-this.buffer1.Dispose();
-
-
-        this.Dispose();
-
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
     }
-
-    public void Reset() {
-
-        this.index = -1;
-
+}
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
     }
     
-    public bool MoveNext() {
-        
-        ++this.index;
-        return this.index < this.max;
+    public int GetEntityId(int index) => this.arr[index].entity.id;
 
-    }
-    
-    private void Dispose() {
-        
-        this.filterEntities.Dispose();
-        
-    }
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
 
     #region API
-    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
-public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
-public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
-public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
-public bool HasT0(int id) { return this.buffer0.Has(id); }
-public bool HasT0() { return this.buffer0.Has(this.filterEntities[this.index]); }
-public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
-public void SetT1(in T1 data) { this.buffer1.Set(this.filterEntities[this.index], in data); }
-public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
-public ref T1 GetT1() { return ref this.buffer1.Get(this.filterEntities[this.index]); }
-public void RemoveT1(int id) { this.buffer1.Remove(id); }
-public void RemoveT1() { this.buffer1.Remove(this.filterEntities[this.index]); }
-public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
-public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntities[this.index]); }
-public bool HasT1(int id) { return this.buffer1.Has(id); }
-public bool HasT1() { return this.buffer1.Has(this.filterEntities[this.index]); }
-
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 |= 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 |= 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 |= 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 |= 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
     #endregion
 
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2> {
+    public byte containsT0;public byte containsT1;public byte containsT2;
+    public byte opsT0;public byte opsT1;public byte opsT2;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -226,120 +196,107 @@ public bool HasT1() { return this.buffer1.Has(this.filterEntities[this.index]); 
 public struct FilterBag<T0,T1,T2>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase {
 
     public readonly int Length;
-    public int index;
-    private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2>> arr;
     
-    private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;
-
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
-
         var world = filter.world;
-        var arrEntities = world.currentState.storage.cache;
-        this.index = -1;
         this.Length = filter.Count;
-        this.max = filter.Count;
-        
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2>>(this.Length, allocator);
         var idx = 0;
         foreach (var entity in filter) {
-            
-            this.filterEntities[idx++] = entity.id;
-            
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2>() {
+                entity = entity,
+                containsT0 = regT0.componentsStates[entity.id],
+opsT0 = 0,
+t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,containsT1 = regT1.componentsStates[entity.id],
+opsT1 = 0,
+t1 = regT1.components.Length > 0 ? regT1.components.data.arr[entity.id] : default,containsT2 = regT2.componentsStates[entity.id],
+opsT2 = 0,
+t2 = regT2.components.Length > 0 ? regT2.components.data.arr[entity.id] : default,
+            };
+            ++idx;
         }
-        
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
-this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
-this.buffer2 = new DataBuffer<T2>(world, arrEntities, allocator);
-
-        
     }
 
-    public int GetEntityIdByIndex(int index) {
-
-        return this.filterEntities[index];
-
-    }
-    
     public void Push() {
-
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-
-        
-        if (changedCount > 0) world.UpdateAllFilters();
-        
-        this.Dispose();
-        
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
     }
-
-    public void Revert() {
-        
-        this.buffer0.Dispose();
-this.buffer1.Dispose();
-this.buffer2.Dispose();
-
-
-        this.Dispose();
-
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
     }
-
-    public void Reset() {
-
-        this.index = -1;
-
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
     }
     
-    public bool MoveNext() {
-        
-        ++this.index;
-        return this.index < this.max;
+    public int GetEntityId(int index) => this.arr[index].entity.id;
 
-    }
-    
-    private void Dispose() {
-        
-        this.filterEntities.Dispose();
-        
-    }
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
 
     #region API
-    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
-public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
-public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
-public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
-public bool HasT0(int id) { return this.buffer0.Has(id); }
-public bool HasT0() { return this.buffer0.Has(this.filterEntities[this.index]); }
-public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
-public void SetT1(in T1 data) { this.buffer1.Set(this.filterEntities[this.index], in data); }
-public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
-public ref T1 GetT1() { return ref this.buffer1.Get(this.filterEntities[this.index]); }
-public void RemoveT1(int id) { this.buffer1.Remove(id); }
-public void RemoveT1() { this.buffer1.Remove(this.filterEntities[this.index]); }
-public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
-public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntities[this.index]); }
-public bool HasT1(int id) { return this.buffer1.Has(id); }
-public bool HasT1() { return this.buffer1.Has(this.filterEntities[this.index]); }
-public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
-public void SetT2(in T2 data) { this.buffer2.Set(this.filterEntities[this.index], in data); }
-public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
-public ref T2 GetT2() { return ref this.buffer2.Get(this.filterEntities[this.index]); }
-public void RemoveT2(int id) { this.buffer2.Remove(id); }
-public void RemoveT2() { this.buffer2.Remove(this.filterEntities[this.index]); }
-public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
-public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.filterEntities[this.index]); }
-public bool HasT2(int id) { return this.buffer2.Has(id); }
-public bool HasT2() { return this.buffer2.Has(this.filterEntities[this.index]); }
-
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 |= 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 |= 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 |= 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 |= 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 |= 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 |= 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 |= 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
     #endregion
 
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2,T3> {
+    public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;
+    public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;public T3 t3;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -350,133 +307,125 @@ public bool HasT2() { return this.buffer2.Has(this.filterEntities[this.index]); 
 public struct FilterBag<T0,T1,T2,T3>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase {
 
     public readonly int Length;
-    public int index;
-    private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3>> arr;
     
-    private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;
-
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
-
         var world = filter.world;
-        var arrEntities = world.currentState.storage.cache;
-        this.index = -1;
         this.Length = filter.Count;
-        this.max = filter.Count;
-        
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+regT3.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3>>(this.Length, allocator);
         var idx = 0;
         foreach (var entity in filter) {
-            
-            this.filterEntities[idx++] = entity.id;
-            
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3>() {
+                entity = entity,
+                containsT0 = regT0.componentsStates[entity.id],
+opsT0 = 0,
+t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,containsT1 = regT1.componentsStates[entity.id],
+opsT1 = 0,
+t1 = regT1.components.Length > 0 ? regT1.components.data.arr[entity.id] : default,containsT2 = regT2.componentsStates[entity.id],
+opsT2 = 0,
+t2 = regT2.components.Length > 0 ? regT2.components.data.arr[entity.id] : default,containsT3 = regT3.componentsStates[entity.id],
+opsT3 = 0,
+t3 = regT3.components.Length > 0 ? regT3.components.data.arr[entity.id] : default,
+            };
+            ++idx;
         }
-        
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
-this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
-this.buffer2 = new DataBuffer<T2>(world, arrEntities, allocator);
-this.buffer3 = new DataBuffer<T3>(world, arrEntities, allocator);
-
-        
     }
 
-    public int GetEntityIdByIndex(int index) {
-
-        return this.filterEntities[index];
-
-    }
-    
     public void Push() {
-
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-
-        
-        if (changedCount > 0) world.UpdateAllFilters();
-        
-        this.Dispose();
-        
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
     }
-
-    public void Revert() {
-        
-        this.buffer0.Dispose();
-this.buffer1.Dispose();
-this.buffer2.Dispose();
-this.buffer3.Dispose();
-
-
-        this.Dispose();
-
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
     }
-
-    public void Reset() {
-
-        this.index = -1;
-
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT3;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT3);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT3, in data.t3);
+            ++changedCount;
+        }
+    }
+}
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
     }
     
-    public bool MoveNext() {
-        
-        ++this.index;
-        return this.index < this.max;
+    public int GetEntityId(int index) => this.arr[index].entity.id;
 
-    }
-    
-    private void Dispose() {
-        
-        this.filterEntities.Dispose();
-        
-    }
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
 
     #region API
-    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
-public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
-public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
-public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
-public bool HasT0(int id) { return this.buffer0.Has(id); }
-public bool HasT0() { return this.buffer0.Has(this.filterEntities[this.index]); }
-public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
-public void SetT1(in T1 data) { this.buffer1.Set(this.filterEntities[this.index], in data); }
-public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
-public ref T1 GetT1() { return ref this.buffer1.Get(this.filterEntities[this.index]); }
-public void RemoveT1(int id) { this.buffer1.Remove(id); }
-public void RemoveT1() { this.buffer1.Remove(this.filterEntities[this.index]); }
-public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
-public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntities[this.index]); }
-public bool HasT1(int id) { return this.buffer1.Has(id); }
-public bool HasT1() { return this.buffer1.Has(this.filterEntities[this.index]); }
-public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
-public void SetT2(in T2 data) { this.buffer2.Set(this.filterEntities[this.index], in data); }
-public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
-public ref T2 GetT2() { return ref this.buffer2.Get(this.filterEntities[this.index]); }
-public void RemoveT2(int id) { this.buffer2.Remove(id); }
-public void RemoveT2() { this.buffer2.Remove(this.filterEntities[this.index]); }
-public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
-public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.filterEntities[this.index]); }
-public bool HasT2(int id) { return this.buffer2.Has(id); }
-public bool HasT2() { return this.buffer2.Has(this.filterEntities[this.index]); }
-public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
-public void SetT3(in T3 data) { this.buffer3.Set(this.filterEntities[this.index], in data); }
-public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
-public ref T3 GetT3() { return ref this.buffer3.Get(this.filterEntities[this.index]); }
-public void RemoveT3(int id) { this.buffer3.Remove(id); }
-public void RemoveT3() { this.buffer3.Remove(this.filterEntities[this.index]); }
-public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
-public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.filterEntities[this.index]); }
-public bool HasT3(int id) { return this.buffer3.Has(id); }
-public bool HasT3() { return this.buffer3.Has(this.filterEntities[this.index]); }
-
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 |= 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 |= 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 |= 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 |= 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 |= 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 |= 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 |= 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 |= 0x4; data.containsT3 = 0; }
+public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 |= 0x2; data.containsT3 = 1; }
+public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 |= 0x2; return ref data.t3; }
+public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
     #endregion
 
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2,T3,T4> {
+    public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;
+    public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -487,146 +436,143 @@ public bool HasT3() { return this.buffer3.Has(this.filterEntities[this.index]); 
 public struct FilterBag<T0,T1,T2,T3,T4>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase {
 
     public readonly int Length;
-    public int index;
-    private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4>> arr;
     
-    private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;
-
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
-
         var world = filter.world;
-        var arrEntities = world.currentState.storage.cache;
-        this.index = -1;
         this.Length = filter.Count;
-        this.max = filter.Count;
-        
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+regT3.Merge();var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+regT4.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4>>(this.Length, allocator);
         var idx = 0;
         foreach (var entity in filter) {
-            
-            this.filterEntities[idx++] = entity.id;
-            
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4>() {
+                entity = entity,
+                containsT0 = regT0.componentsStates[entity.id],
+opsT0 = 0,
+t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,containsT1 = regT1.componentsStates[entity.id],
+opsT1 = 0,
+t1 = regT1.components.Length > 0 ? regT1.components.data.arr[entity.id] : default,containsT2 = regT2.componentsStates[entity.id],
+opsT2 = 0,
+t2 = regT2.components.Length > 0 ? regT2.components.data.arr[entity.id] : default,containsT3 = regT3.componentsStates[entity.id],
+opsT3 = 0,
+t3 = regT3.components.Length > 0 ? regT3.components.data.arr[entity.id] : default,containsT4 = regT4.componentsStates[entity.id],
+opsT4 = 0,
+t4 = regT4.components.Length > 0 ? regT4.components.data.arr[entity.id] : default,
+            };
+            ++idx;
         }
-        
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
-this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
-this.buffer2 = new DataBuffer<T2>(world, arrEntities, allocator);
-this.buffer3 = new DataBuffer<T3>(world, arrEntities, allocator);
-this.buffer4 = new DataBuffer<T4>(world, arrEntities, allocator);
-
-        
     }
 
-    public int GetEntityIdByIndex(int index) {
-
-        return this.filterEntities[index];
-
-    }
-    
     public void Push() {
-
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-
-        
-        if (changedCount > 0) world.UpdateAllFilters();
-        
-        this.Dispose();
-        
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
     }
-
-    public void Revert() {
-        
-        this.buffer0.Dispose();
-this.buffer1.Dispose();
-this.buffer2.Dispose();
-this.buffer3.Dispose();
-this.buffer4.Dispose();
-
-
-        this.Dispose();
-
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
     }
-
-    public void Reset() {
-
-        this.index = -1;
-
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT3;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT3);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT3, in data.t3);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT4;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT4);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT4, in data.t4);
+            ++changedCount;
+        }
+    }
+}
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
     }
     
-    public bool MoveNext() {
-        
-        ++this.index;
-        return this.index < this.max;
+    public int GetEntityId(int index) => this.arr[index].entity.id;
 
-    }
-    
-    private void Dispose() {
-        
-        this.filterEntities.Dispose();
-        
-    }
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
 
     #region API
-    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
-public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
-public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
-public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
-public bool HasT0(int id) { return this.buffer0.Has(id); }
-public bool HasT0() { return this.buffer0.Has(this.filterEntities[this.index]); }
-public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
-public void SetT1(in T1 data) { this.buffer1.Set(this.filterEntities[this.index], in data); }
-public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
-public ref T1 GetT1() { return ref this.buffer1.Get(this.filterEntities[this.index]); }
-public void RemoveT1(int id) { this.buffer1.Remove(id); }
-public void RemoveT1() { this.buffer1.Remove(this.filterEntities[this.index]); }
-public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
-public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntities[this.index]); }
-public bool HasT1(int id) { return this.buffer1.Has(id); }
-public bool HasT1() { return this.buffer1.Has(this.filterEntities[this.index]); }
-public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
-public void SetT2(in T2 data) { this.buffer2.Set(this.filterEntities[this.index], in data); }
-public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
-public ref T2 GetT2() { return ref this.buffer2.Get(this.filterEntities[this.index]); }
-public void RemoveT2(int id) { this.buffer2.Remove(id); }
-public void RemoveT2() { this.buffer2.Remove(this.filterEntities[this.index]); }
-public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
-public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.filterEntities[this.index]); }
-public bool HasT2(int id) { return this.buffer2.Has(id); }
-public bool HasT2() { return this.buffer2.Has(this.filterEntities[this.index]); }
-public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
-public void SetT3(in T3 data) { this.buffer3.Set(this.filterEntities[this.index], in data); }
-public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
-public ref T3 GetT3() { return ref this.buffer3.Get(this.filterEntities[this.index]); }
-public void RemoveT3(int id) { this.buffer3.Remove(id); }
-public void RemoveT3() { this.buffer3.Remove(this.filterEntities[this.index]); }
-public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
-public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.filterEntities[this.index]); }
-public bool HasT3(int id) { return this.buffer3.Has(id); }
-public bool HasT3() { return this.buffer3.Has(this.filterEntities[this.index]); }
-public void SetT4(int id, in T4 data) { this.buffer4.Set(id, in data); }
-public void SetT4(in T4 data) { this.buffer4.Set(this.filterEntities[this.index], in data); }
-public ref T4 GetT4(int id) { return ref this.buffer4.Get(id); }
-public ref T4 GetT4() { return ref this.buffer4.Get(this.filterEntities[this.index]); }
-public void RemoveT4(int id) { this.buffer4.Remove(id); }
-public void RemoveT4() { this.buffer4.Remove(this.filterEntities[this.index]); }
-public ref readonly T4 ReadT4(int id) { return ref this.buffer4.Read(id); }
-public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.filterEntities[this.index]); }
-public bool HasT4(int id) { return this.buffer4.Has(id); }
-public bool HasT4() { return this.buffer4.Has(this.filterEntities[this.index]); }
-
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 |= 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 |= 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 |= 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 |= 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 |= 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 |= 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 |= 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 |= 0x4; data.containsT3 = 0; }
+public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 |= 0x2; data.containsT3 = 1; }
+public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 |= 0x2; return ref data.t3; }
+public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 |= 0x4; data.containsT4 = 0; }
+public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 |= 0x2; data.containsT4 = 1; }
+public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 |= 0x2; return ref data.t4; }
+public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }
     #endregion
 
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2,T3,T4,T5> {
+    public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;
+    public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -637,159 +583,161 @@ public bool HasT4() { return this.buffer4.Has(this.filterEntities[this.index]); 
 public struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase {
 
     public readonly int Length;
-    public int index;
-    private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5>> arr;
     
-    private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;private DataBuffer<T5> buffer5;
-
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
-
         var world = filter.world;
-        var arrEntities = world.currentState.storage.cache;
-        this.index = -1;
         this.Length = filter.Count;
-        this.max = filter.Count;
-        
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+regT3.Merge();var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+regT4.Merge();var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+regT5.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5>>(this.Length, allocator);
         var idx = 0;
         foreach (var entity in filter) {
-            
-            this.filterEntities[idx++] = entity.id;
-            
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5>() {
+                entity = entity,
+                containsT0 = regT0.componentsStates[entity.id],
+opsT0 = 0,
+t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,containsT1 = regT1.componentsStates[entity.id],
+opsT1 = 0,
+t1 = regT1.components.Length > 0 ? regT1.components.data.arr[entity.id] : default,containsT2 = regT2.componentsStates[entity.id],
+opsT2 = 0,
+t2 = regT2.components.Length > 0 ? regT2.components.data.arr[entity.id] : default,containsT3 = regT3.componentsStates[entity.id],
+opsT3 = 0,
+t3 = regT3.components.Length > 0 ? regT3.components.data.arr[entity.id] : default,containsT4 = regT4.componentsStates[entity.id],
+opsT4 = 0,
+t4 = regT4.components.Length > 0 ? regT4.components.data.arr[entity.id] : default,containsT5 = regT5.componentsStates[entity.id],
+opsT5 = 0,
+t5 = regT5.components.Length > 0 ? regT5.components.data.arr[entity.id] : default,
+            };
+            ++idx;
         }
-        
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
-this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
-this.buffer2 = new DataBuffer<T2>(world, arrEntities, allocator);
-this.buffer3 = new DataBuffer<T3>(world, arrEntities, allocator);
-this.buffer4 = new DataBuffer<T4>(world, arrEntities, allocator);
-this.buffer5 = new DataBuffer<T5>(world, arrEntities, allocator);
-
-        
     }
 
-    public int GetEntityIdByIndex(int index) {
-
-        return this.filterEntities[index];
-
-    }
-    
     public void Push() {
-
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-
-        
-        if (changedCount > 0) world.UpdateAllFilters();
-        
-        this.Dispose();
-        
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
     }
-
-    public void Revert() {
-        
-        this.buffer0.Dispose();
-this.buffer1.Dispose();
-this.buffer2.Dispose();
-this.buffer3.Dispose();
-this.buffer4.Dispose();
-this.buffer5.Dispose();
-
-
-        this.Dispose();
-
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
     }
-
-    public void Reset() {
-
-        this.index = -1;
-
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT3;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT3);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT3, in data.t3);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT4;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT4);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT4, in data.t4);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT5;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT5);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT5, in data.t5);
+            ++changedCount;
+        }
+    }
+}
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
     }
     
-    public bool MoveNext() {
-        
-        ++this.index;
-        return this.index < this.max;
+    public int GetEntityId(int index) => this.arr[index].entity.id;
 
-    }
-    
-    private void Dispose() {
-        
-        this.filterEntities.Dispose();
-        
-    }
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
 
     #region API
-    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
-public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
-public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
-public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
-public bool HasT0(int id) { return this.buffer0.Has(id); }
-public bool HasT0() { return this.buffer0.Has(this.filterEntities[this.index]); }
-public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
-public void SetT1(in T1 data) { this.buffer1.Set(this.filterEntities[this.index], in data); }
-public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
-public ref T1 GetT1() { return ref this.buffer1.Get(this.filterEntities[this.index]); }
-public void RemoveT1(int id) { this.buffer1.Remove(id); }
-public void RemoveT1() { this.buffer1.Remove(this.filterEntities[this.index]); }
-public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
-public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntities[this.index]); }
-public bool HasT1(int id) { return this.buffer1.Has(id); }
-public bool HasT1() { return this.buffer1.Has(this.filterEntities[this.index]); }
-public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
-public void SetT2(in T2 data) { this.buffer2.Set(this.filterEntities[this.index], in data); }
-public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
-public ref T2 GetT2() { return ref this.buffer2.Get(this.filterEntities[this.index]); }
-public void RemoveT2(int id) { this.buffer2.Remove(id); }
-public void RemoveT2() { this.buffer2.Remove(this.filterEntities[this.index]); }
-public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
-public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.filterEntities[this.index]); }
-public bool HasT2(int id) { return this.buffer2.Has(id); }
-public bool HasT2() { return this.buffer2.Has(this.filterEntities[this.index]); }
-public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
-public void SetT3(in T3 data) { this.buffer3.Set(this.filterEntities[this.index], in data); }
-public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
-public ref T3 GetT3() { return ref this.buffer3.Get(this.filterEntities[this.index]); }
-public void RemoveT3(int id) { this.buffer3.Remove(id); }
-public void RemoveT3() { this.buffer3.Remove(this.filterEntities[this.index]); }
-public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
-public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.filterEntities[this.index]); }
-public bool HasT3(int id) { return this.buffer3.Has(id); }
-public bool HasT3() { return this.buffer3.Has(this.filterEntities[this.index]); }
-public void SetT4(int id, in T4 data) { this.buffer4.Set(id, in data); }
-public void SetT4(in T4 data) { this.buffer4.Set(this.filterEntities[this.index], in data); }
-public ref T4 GetT4(int id) { return ref this.buffer4.Get(id); }
-public ref T4 GetT4() { return ref this.buffer4.Get(this.filterEntities[this.index]); }
-public void RemoveT4(int id) { this.buffer4.Remove(id); }
-public void RemoveT4() { this.buffer4.Remove(this.filterEntities[this.index]); }
-public ref readonly T4 ReadT4(int id) { return ref this.buffer4.Read(id); }
-public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.filterEntities[this.index]); }
-public bool HasT4(int id) { return this.buffer4.Has(id); }
-public bool HasT4() { return this.buffer4.Has(this.filterEntities[this.index]); }
-public void SetT5(int id, in T5 data) { this.buffer5.Set(id, in data); }
-public void SetT5(in T5 data) { this.buffer5.Set(this.filterEntities[this.index], in data); }
-public ref T5 GetT5(int id) { return ref this.buffer5.Get(id); }
-public ref T5 GetT5() { return ref this.buffer5.Get(this.filterEntities[this.index]); }
-public void RemoveT5(int id) { this.buffer5.Remove(id); }
-public void RemoveT5() { this.buffer5.Remove(this.filterEntities[this.index]); }
-public ref readonly T5 ReadT5(int id) { return ref this.buffer5.Read(id); }
-public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.filterEntities[this.index]); }
-public bool HasT5(int id) { return this.buffer5.Has(id); }
-public bool HasT5() { return this.buffer5.Has(this.filterEntities[this.index]); }
-
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 |= 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 |= 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 |= 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 |= 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 |= 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 |= 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 |= 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 |= 0x4; data.containsT3 = 0; }
+public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 |= 0x2; data.containsT3 = 1; }
+public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 |= 0x2; return ref data.t3; }
+public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 |= 0x4; data.containsT4 = 0; }
+public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 |= 0x2; data.containsT4 = 1; }
+public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 |= 0x2; return ref data.t4; }
+public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 |= 0x4; data.containsT5 = 0; }
+public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 |= 0x2; data.containsT5 = 1; }
+public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 |= 0x2; return ref data.t5; }
+public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }
     #endregion
 
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6> {
+    public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;public byte containsT6;
+    public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -800,172 +748,179 @@ public bool HasT5() { return this.buffer5.Has(this.filterEntities[this.index]); 
 public struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase {
 
     public readonly int Length;
-    public int index;
-    private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6>> arr;
     
-    private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;private DataBuffer<T5> buffer5;private DataBuffer<T6> buffer6;
-
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
-
         var world = filter.world;
-        var arrEntities = world.currentState.storage.cache;
-        this.index = -1;
         this.Length = filter.Count;
-        this.max = filter.Count;
-        
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+regT3.Merge();var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+regT4.Merge();var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+regT5.Merge();var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+regT6.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6>>(this.Length, allocator);
         var idx = 0;
         foreach (var entity in filter) {
-            
-            this.filterEntities[idx++] = entity.id;
-            
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6>() {
+                entity = entity,
+                containsT0 = regT0.componentsStates[entity.id],
+opsT0 = 0,
+t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,containsT1 = regT1.componentsStates[entity.id],
+opsT1 = 0,
+t1 = regT1.components.Length > 0 ? regT1.components.data.arr[entity.id] : default,containsT2 = regT2.componentsStates[entity.id],
+opsT2 = 0,
+t2 = regT2.components.Length > 0 ? regT2.components.data.arr[entity.id] : default,containsT3 = regT3.componentsStates[entity.id],
+opsT3 = 0,
+t3 = regT3.components.Length > 0 ? regT3.components.data.arr[entity.id] : default,containsT4 = regT4.componentsStates[entity.id],
+opsT4 = 0,
+t4 = regT4.components.Length > 0 ? regT4.components.data.arr[entity.id] : default,containsT5 = regT5.componentsStates[entity.id],
+opsT5 = 0,
+t5 = regT5.components.Length > 0 ? regT5.components.data.arr[entity.id] : default,containsT6 = regT6.componentsStates[entity.id],
+opsT6 = 0,
+t6 = regT6.components.Length > 0 ? regT6.components.data.arr[entity.id] : default,
+            };
+            ++idx;
         }
-        
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
-this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
-this.buffer2 = new DataBuffer<T2>(world, arrEntities, allocator);
-this.buffer3 = new DataBuffer<T3>(world, arrEntities, allocator);
-this.buffer4 = new DataBuffer<T4>(world, arrEntities, allocator);
-this.buffer5 = new DataBuffer<T5>(world, arrEntities, allocator);
-this.buffer6 = new DataBuffer<T6>(world, arrEntities, allocator);
-
-        
     }
 
-    public int GetEntityIdByIndex(int index) {
-
-        return this.filterEntities[index];
-
-    }
-    
     public void Push() {
-
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer6.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-
-        
-        if (changedCount > 0) world.UpdateAllFilters();
-        
-        this.Dispose();
-        
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
     }
-
-    public void Revert() {
-        
-        this.buffer0.Dispose();
-this.buffer1.Dispose();
-this.buffer2.Dispose();
-this.buffer3.Dispose();
-this.buffer4.Dispose();
-this.buffer5.Dispose();
-this.buffer6.Dispose();
-
-
-        this.Dispose();
-
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
     }
-
-    public void Reset() {
-
-        this.index = -1;
-
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT3;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT3);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT3, in data.t3);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT4;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT4);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT4, in data.t4);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT5;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT5);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT5, in data.t5);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT6;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT6);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT6, in data.t6);
+            ++changedCount;
+        }
+    }
+}
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
     }
     
-    public bool MoveNext() {
-        
-        ++this.index;
-        return this.index < this.max;
+    public int GetEntityId(int index) => this.arr[index].entity.id;
 
-    }
-    
-    private void Dispose() {
-        
-        this.filterEntities.Dispose();
-        
-    }
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
 
     #region API
-    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
-public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
-public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
-public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
-public bool HasT0(int id) { return this.buffer0.Has(id); }
-public bool HasT0() { return this.buffer0.Has(this.filterEntities[this.index]); }
-public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
-public void SetT1(in T1 data) { this.buffer1.Set(this.filterEntities[this.index], in data); }
-public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
-public ref T1 GetT1() { return ref this.buffer1.Get(this.filterEntities[this.index]); }
-public void RemoveT1(int id) { this.buffer1.Remove(id); }
-public void RemoveT1() { this.buffer1.Remove(this.filterEntities[this.index]); }
-public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
-public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntities[this.index]); }
-public bool HasT1(int id) { return this.buffer1.Has(id); }
-public bool HasT1() { return this.buffer1.Has(this.filterEntities[this.index]); }
-public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
-public void SetT2(in T2 data) { this.buffer2.Set(this.filterEntities[this.index], in data); }
-public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
-public ref T2 GetT2() { return ref this.buffer2.Get(this.filterEntities[this.index]); }
-public void RemoveT2(int id) { this.buffer2.Remove(id); }
-public void RemoveT2() { this.buffer2.Remove(this.filterEntities[this.index]); }
-public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
-public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.filterEntities[this.index]); }
-public bool HasT2(int id) { return this.buffer2.Has(id); }
-public bool HasT2() { return this.buffer2.Has(this.filterEntities[this.index]); }
-public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
-public void SetT3(in T3 data) { this.buffer3.Set(this.filterEntities[this.index], in data); }
-public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
-public ref T3 GetT3() { return ref this.buffer3.Get(this.filterEntities[this.index]); }
-public void RemoveT3(int id) { this.buffer3.Remove(id); }
-public void RemoveT3() { this.buffer3.Remove(this.filterEntities[this.index]); }
-public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
-public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.filterEntities[this.index]); }
-public bool HasT3(int id) { return this.buffer3.Has(id); }
-public bool HasT3() { return this.buffer3.Has(this.filterEntities[this.index]); }
-public void SetT4(int id, in T4 data) { this.buffer4.Set(id, in data); }
-public void SetT4(in T4 data) { this.buffer4.Set(this.filterEntities[this.index], in data); }
-public ref T4 GetT4(int id) { return ref this.buffer4.Get(id); }
-public ref T4 GetT4() { return ref this.buffer4.Get(this.filterEntities[this.index]); }
-public void RemoveT4(int id) { this.buffer4.Remove(id); }
-public void RemoveT4() { this.buffer4.Remove(this.filterEntities[this.index]); }
-public ref readonly T4 ReadT4(int id) { return ref this.buffer4.Read(id); }
-public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.filterEntities[this.index]); }
-public bool HasT4(int id) { return this.buffer4.Has(id); }
-public bool HasT4() { return this.buffer4.Has(this.filterEntities[this.index]); }
-public void SetT5(int id, in T5 data) { this.buffer5.Set(id, in data); }
-public void SetT5(in T5 data) { this.buffer5.Set(this.filterEntities[this.index], in data); }
-public ref T5 GetT5(int id) { return ref this.buffer5.Get(id); }
-public ref T5 GetT5() { return ref this.buffer5.Get(this.filterEntities[this.index]); }
-public void RemoveT5(int id) { this.buffer5.Remove(id); }
-public void RemoveT5() { this.buffer5.Remove(this.filterEntities[this.index]); }
-public ref readonly T5 ReadT5(int id) { return ref this.buffer5.Read(id); }
-public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.filterEntities[this.index]); }
-public bool HasT5(int id) { return this.buffer5.Has(id); }
-public bool HasT5() { return this.buffer5.Has(this.filterEntities[this.index]); }
-public void SetT6(int id, in T6 data) { this.buffer6.Set(id, in data); }
-public void SetT6(in T6 data) { this.buffer6.Set(this.filterEntities[this.index], in data); }
-public ref T6 GetT6(int id) { return ref this.buffer6.Get(id); }
-public ref T6 GetT6() { return ref this.buffer6.Get(this.filterEntities[this.index]); }
-public void RemoveT6(int id) { this.buffer6.Remove(id); }
-public void RemoveT6() { this.buffer6.Remove(this.filterEntities[this.index]); }
-public ref readonly T6 ReadT6(int id) { return ref this.buffer6.Read(id); }
-public ref readonly T6 ReadT6() { return ref this.buffer6.Read(this.filterEntities[this.index]); }
-public bool HasT6(int id) { return this.buffer6.Has(id); }
-public bool HasT6() { return this.buffer6.Has(this.filterEntities[this.index]); }
-
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 |= 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 |= 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 |= 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 |= 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 |= 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 |= 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 |= 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 |= 0x4; data.containsT3 = 0; }
+public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 |= 0x2; data.containsT3 = 1; }
+public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 |= 0x2; return ref data.t3; }
+public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 |= 0x4; data.containsT4 = 0; }
+public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 |= 0x2; data.containsT4 = 1; }
+public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 |= 0x2; return ref data.t4; }
+public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 |= 0x4; data.containsT5 = 0; }
+public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 |= 0x2; data.containsT5 = 1; }
+public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 |= 0x2; return ref data.t5; }
+public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 |= 0x4; data.containsT6 = 0; }
+public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 |= 0x2; data.containsT6 = 1; }
+public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 |= 0x2; return ref data.t6; }
+public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }
     #endregion
 
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7> {
+    public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;public byte containsT6;public byte containsT7;
+    public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -976,185 +931,197 @@ public bool HasT6() { return this.buffer6.Has(this.filterEntities[this.index]); 
 public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase {
 
     public readonly int Length;
-    public int index;
-    private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7>> arr;
     
-    private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;private DataBuffer<T5> buffer5;private DataBuffer<T6> buffer6;private DataBuffer<T7> buffer7;
-
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
-
         var world = filter.world;
-        var arrEntities = world.currentState.storage.cache;
-        this.index = -1;
         this.Length = filter.Count;
-        this.max = filter.Count;
-        
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+regT3.Merge();var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+regT4.Merge();var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+regT5.Merge();var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+regT6.Merge();var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+regT7.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7>>(this.Length, allocator);
         var idx = 0;
         foreach (var entity in filter) {
-            
-            this.filterEntities[idx++] = entity.id;
-            
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7>() {
+                entity = entity,
+                containsT0 = regT0.componentsStates[entity.id],
+opsT0 = 0,
+t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,containsT1 = regT1.componentsStates[entity.id],
+opsT1 = 0,
+t1 = regT1.components.Length > 0 ? regT1.components.data.arr[entity.id] : default,containsT2 = regT2.componentsStates[entity.id],
+opsT2 = 0,
+t2 = regT2.components.Length > 0 ? regT2.components.data.arr[entity.id] : default,containsT3 = regT3.componentsStates[entity.id],
+opsT3 = 0,
+t3 = regT3.components.Length > 0 ? regT3.components.data.arr[entity.id] : default,containsT4 = regT4.componentsStates[entity.id],
+opsT4 = 0,
+t4 = regT4.components.Length > 0 ? regT4.components.data.arr[entity.id] : default,containsT5 = regT5.componentsStates[entity.id],
+opsT5 = 0,
+t5 = regT5.components.Length > 0 ? regT5.components.data.arr[entity.id] : default,containsT6 = regT6.componentsStates[entity.id],
+opsT6 = 0,
+t6 = regT6.components.Length > 0 ? regT6.components.data.arr[entity.id] : default,containsT7 = regT7.componentsStates[entity.id],
+opsT7 = 0,
+t7 = regT7.components.Length > 0 ? regT7.components.data.arr[entity.id] : default,
+            };
+            ++idx;
         }
-        
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
-this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
-this.buffer2 = new DataBuffer<T2>(world, arrEntities, allocator);
-this.buffer3 = new DataBuffer<T3>(world, arrEntities, allocator);
-this.buffer4 = new DataBuffer<T4>(world, arrEntities, allocator);
-this.buffer5 = new DataBuffer<T5>(world, arrEntities, allocator);
-this.buffer6 = new DataBuffer<T6>(world, arrEntities, allocator);
-this.buffer7 = new DataBuffer<T7>(world, arrEntities, allocator);
-
-        
     }
 
-    public int GetEntityIdByIndex(int index) {
-
-        return this.filterEntities[index];
-
-    }
-    
     public void Push() {
-
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer6.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer7.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-
-        
-        if (changedCount > 0) world.UpdateAllFilters();
-        
-        this.Dispose();
-        
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
     }
-
-    public void Revert() {
-        
-        this.buffer0.Dispose();
-this.buffer1.Dispose();
-this.buffer2.Dispose();
-this.buffer3.Dispose();
-this.buffer4.Dispose();
-this.buffer5.Dispose();
-this.buffer6.Dispose();
-this.buffer7.Dispose();
-
-
-        this.Dispose();
-
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
     }
-
-    public void Reset() {
-
-        this.index = -1;
-
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT3;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT3);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT3, in data.t3);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT4;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT4);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT4, in data.t4);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT5;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT5);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT5, in data.t5);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT6;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT6);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT6, in data.t6);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT7;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT7);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT7, in data.t7);
+            ++changedCount;
+        }
+    }
+}
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
     }
     
-    public bool MoveNext() {
-        
-        ++this.index;
-        return this.index < this.max;
+    public int GetEntityId(int index) => this.arr[index].entity.id;
 
-    }
-    
-    private void Dispose() {
-        
-        this.filterEntities.Dispose();
-        
-    }
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
 
     #region API
-    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
-public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
-public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
-public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
-public bool HasT0(int id) { return this.buffer0.Has(id); }
-public bool HasT0() { return this.buffer0.Has(this.filterEntities[this.index]); }
-public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
-public void SetT1(in T1 data) { this.buffer1.Set(this.filterEntities[this.index], in data); }
-public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
-public ref T1 GetT1() { return ref this.buffer1.Get(this.filterEntities[this.index]); }
-public void RemoveT1(int id) { this.buffer1.Remove(id); }
-public void RemoveT1() { this.buffer1.Remove(this.filterEntities[this.index]); }
-public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
-public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntities[this.index]); }
-public bool HasT1(int id) { return this.buffer1.Has(id); }
-public bool HasT1() { return this.buffer1.Has(this.filterEntities[this.index]); }
-public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
-public void SetT2(in T2 data) { this.buffer2.Set(this.filterEntities[this.index], in data); }
-public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
-public ref T2 GetT2() { return ref this.buffer2.Get(this.filterEntities[this.index]); }
-public void RemoveT2(int id) { this.buffer2.Remove(id); }
-public void RemoveT2() { this.buffer2.Remove(this.filterEntities[this.index]); }
-public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
-public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.filterEntities[this.index]); }
-public bool HasT2(int id) { return this.buffer2.Has(id); }
-public bool HasT2() { return this.buffer2.Has(this.filterEntities[this.index]); }
-public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
-public void SetT3(in T3 data) { this.buffer3.Set(this.filterEntities[this.index], in data); }
-public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
-public ref T3 GetT3() { return ref this.buffer3.Get(this.filterEntities[this.index]); }
-public void RemoveT3(int id) { this.buffer3.Remove(id); }
-public void RemoveT3() { this.buffer3.Remove(this.filterEntities[this.index]); }
-public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
-public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.filterEntities[this.index]); }
-public bool HasT3(int id) { return this.buffer3.Has(id); }
-public bool HasT3() { return this.buffer3.Has(this.filterEntities[this.index]); }
-public void SetT4(int id, in T4 data) { this.buffer4.Set(id, in data); }
-public void SetT4(in T4 data) { this.buffer4.Set(this.filterEntities[this.index], in data); }
-public ref T4 GetT4(int id) { return ref this.buffer4.Get(id); }
-public ref T4 GetT4() { return ref this.buffer4.Get(this.filterEntities[this.index]); }
-public void RemoveT4(int id) { this.buffer4.Remove(id); }
-public void RemoveT4() { this.buffer4.Remove(this.filterEntities[this.index]); }
-public ref readonly T4 ReadT4(int id) { return ref this.buffer4.Read(id); }
-public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.filterEntities[this.index]); }
-public bool HasT4(int id) { return this.buffer4.Has(id); }
-public bool HasT4() { return this.buffer4.Has(this.filterEntities[this.index]); }
-public void SetT5(int id, in T5 data) { this.buffer5.Set(id, in data); }
-public void SetT5(in T5 data) { this.buffer5.Set(this.filterEntities[this.index], in data); }
-public ref T5 GetT5(int id) { return ref this.buffer5.Get(id); }
-public ref T5 GetT5() { return ref this.buffer5.Get(this.filterEntities[this.index]); }
-public void RemoveT5(int id) { this.buffer5.Remove(id); }
-public void RemoveT5() { this.buffer5.Remove(this.filterEntities[this.index]); }
-public ref readonly T5 ReadT5(int id) { return ref this.buffer5.Read(id); }
-public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.filterEntities[this.index]); }
-public bool HasT5(int id) { return this.buffer5.Has(id); }
-public bool HasT5() { return this.buffer5.Has(this.filterEntities[this.index]); }
-public void SetT6(int id, in T6 data) { this.buffer6.Set(id, in data); }
-public void SetT6(in T6 data) { this.buffer6.Set(this.filterEntities[this.index], in data); }
-public ref T6 GetT6(int id) { return ref this.buffer6.Get(id); }
-public ref T6 GetT6() { return ref this.buffer6.Get(this.filterEntities[this.index]); }
-public void RemoveT6(int id) { this.buffer6.Remove(id); }
-public void RemoveT6() { this.buffer6.Remove(this.filterEntities[this.index]); }
-public ref readonly T6 ReadT6(int id) { return ref this.buffer6.Read(id); }
-public ref readonly T6 ReadT6() { return ref this.buffer6.Read(this.filterEntities[this.index]); }
-public bool HasT6(int id) { return this.buffer6.Has(id); }
-public bool HasT6() { return this.buffer6.Has(this.filterEntities[this.index]); }
-public void SetT7(int id, in T7 data) { this.buffer7.Set(id, in data); }
-public void SetT7(in T7 data) { this.buffer7.Set(this.filterEntities[this.index], in data); }
-public ref T7 GetT7(int id) { return ref this.buffer7.Get(id); }
-public ref T7 GetT7() { return ref this.buffer7.Get(this.filterEntities[this.index]); }
-public void RemoveT7(int id) { this.buffer7.Remove(id); }
-public void RemoveT7() { this.buffer7.Remove(this.filterEntities[this.index]); }
-public ref readonly T7 ReadT7(int id) { return ref this.buffer7.Read(id); }
-public ref readonly T7 ReadT7() { return ref this.buffer7.Read(this.filterEntities[this.index]); }
-public bool HasT7(int id) { return this.buffer7.Has(id); }
-public bool HasT7() { return this.buffer7.Has(this.filterEntities[this.index]); }
-
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 |= 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 |= 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 |= 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 |= 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 |= 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 |= 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 |= 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 |= 0x4; data.containsT3 = 0; }
+public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 |= 0x2; data.containsT3 = 1; }
+public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 |= 0x2; return ref data.t3; }
+public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 |= 0x4; data.containsT4 = 0; }
+public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 |= 0x2; data.containsT4 = 1; }
+public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 |= 0x2; return ref data.t4; }
+public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 |= 0x4; data.containsT5 = 0; }
+public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 |= 0x2; data.containsT5 = 1; }
+public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 |= 0x2; return ref data.t5; }
+public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 |= 0x4; data.containsT6 = 0; }
+public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 |= 0x2; data.containsT6 = 1; }
+public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 |= 0x2; return ref data.t6; }
+public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 |= 0x4; data.containsT7 = 0; }
+public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 |= 0x2; data.containsT7 = 1; }
+public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 |= 0x2; return ref data.t7; }
+public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }
     #endregion
 
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8> {
+    public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;public byte containsT6;public byte containsT7;public byte containsT8;
+    public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -1165,196 +1132,205 @@ public bool HasT7() { return this.buffer7.Has(this.filterEntities[this.index]); 
 public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase {
 
     public readonly int Length;
-    public int index;
-    private readonly int max;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<int> filterEntities;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8>> arr;
     
-    private DataBuffer<T0> buffer0;private DataBuffer<T1> buffer1;private DataBuffer<T2> buffer2;private DataBuffer<T3> buffer3;private DataBuffer<T4> buffer4;private DataBuffer<T5> buffer5;private DataBuffer<T6> buffer6;private DataBuffer<T7> buffer7;private DataBuffer<T8> buffer8;
-
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
-
         var world = filter.world;
-        var arrEntities = world.currentState.storage.cache;
-        this.index = -1;
         this.Length = filter.Count;
-        this.max = filter.Count;
-        
-        this.filterEntities = new Unity.Collections.NativeArray<int>(filter.Count, allocator);
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+regT3.Merge();var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+regT4.Merge();var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+regT5.Merge();var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+regT6.Merge();var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+regT7.Merge();var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+regT8.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8>>(this.Length, allocator);
         var idx = 0;
         foreach (var entity in filter) {
-            
-            this.filterEntities[idx++] = entity.id;
-            
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8>() {
+                entity = entity,
+                containsT0 = regT0.componentsStates[entity.id],
+opsT0 = 0,
+t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,containsT1 = regT1.componentsStates[entity.id],
+opsT1 = 0,
+t1 = regT1.components.Length > 0 ? regT1.components.data.arr[entity.id] : default,containsT2 = regT2.componentsStates[entity.id],
+opsT2 = 0,
+t2 = regT2.components.Length > 0 ? regT2.components.data.arr[entity.id] : default,containsT3 = regT3.componentsStates[entity.id],
+opsT3 = 0,
+t3 = regT3.components.Length > 0 ? regT3.components.data.arr[entity.id] : default,containsT4 = regT4.componentsStates[entity.id],
+opsT4 = 0,
+t4 = regT4.components.Length > 0 ? regT4.components.data.arr[entity.id] : default,containsT5 = regT5.componentsStates[entity.id],
+opsT5 = 0,
+t5 = regT5.components.Length > 0 ? regT5.components.data.arr[entity.id] : default,containsT6 = regT6.componentsStates[entity.id],
+opsT6 = 0,
+t6 = regT6.components.Length > 0 ? regT6.components.data.arr[entity.id] : default,containsT7 = regT7.componentsStates[entity.id],
+opsT7 = 0,
+t7 = regT7.components.Length > 0 ? regT7.components.data.arr[entity.id] : default,containsT8 = regT8.componentsStates[entity.id],
+opsT8 = 0,
+t8 = regT8.components.Length > 0 ? regT8.components.data.arr[entity.id] : default,
+            };
+            ++idx;
         }
-        
-        this.buffer0 = new DataBuffer<T0>(world, arrEntities, allocator);
-this.buffer1 = new DataBuffer<T1>(world, arrEntities, allocator);
-this.buffer2 = new DataBuffer<T2>(world, arrEntities, allocator);
-this.buffer3 = new DataBuffer<T3>(world, arrEntities, allocator);
-this.buffer4 = new DataBuffer<T4>(world, arrEntities, allocator);
-this.buffer5 = new DataBuffer<T5>(world, arrEntities, allocator);
-this.buffer6 = new DataBuffer<T6>(world, arrEntities, allocator);
-this.buffer7 = new DataBuffer<T7>(world, arrEntities, allocator);
-this.buffer8 = new DataBuffer<T8>(world, arrEntities, allocator);
-
-        
     }
 
-    public int GetEntityIdByIndex(int index) {
-
-        return this.filterEntities[index];
-
-    }
-    
     public void Push() {
-
         var world = Worlds.currentWorld;
         var changedCount = 0;
-        changedCount += this.buffer0.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer1.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer2.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer3.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer4.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer5.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer6.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer7.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-changedCount += this.buffer8.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);
-
-        
-        if (changedCount > 0) world.UpdateAllFilters();
-        
-        this.Dispose();
-        
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
     }
-
-    public void Revert() {
-        
-        this.buffer0.Dispose();
-this.buffer1.Dispose();
-this.buffer2.Dispose();
-this.buffer3.Dispose();
-this.buffer4.Dispose();
-this.buffer5.Dispose();
-this.buffer6.Dispose();
-this.buffer7.Dispose();
-this.buffer8.Dispose();
-
-
-        this.Dispose();
-
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
     }
-
-    public void Reset() {
-
-        this.index = -1;
-
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT3;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT3);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT3, in data.t3);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT4;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT4);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT4, in data.t4);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT5;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT5);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT5, in data.t5);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT6;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT6);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT6, in data.t6);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT7;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT7);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT7, in data.t7);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT8;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT8);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT8, in data.t8);
+            ++changedCount;
+        }
+    }
+}
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
     }
     
-    public bool MoveNext() {
-        
-        ++this.index;
-        return this.index < this.max;
+    public int GetEntityId(int index) => this.arr[index].entity.id;
 
-    }
-    
-    private void Dispose() {
-        
-        this.filterEntities.Dispose();
-        
-    }
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
 
     #region API
-    public void SetT0(int id, in T0 data) { this.buffer0.Set(id, in data); }
-public void SetT0(in T0 data) { this.buffer0.Set(this.filterEntities[this.index], in data); }
-public ref T0 GetT0(int id) { return ref this.buffer0.Get(id); }
-public ref T0 GetT0() { return ref this.buffer0.Get(this.filterEntities[this.index]); }
-public void RemoveT0(int id) { this.buffer0.Remove(id); }
-public void RemoveT0() { this.buffer0.Remove(this.filterEntities[this.index]); }
-public ref readonly T0 ReadT0(int id) { return ref this.buffer0.Read(id); }
-public ref readonly T0 ReadT0() { return ref this.buffer0.Read(this.filterEntities[this.index]); }
-public bool HasT0(int id) { return this.buffer0.Has(id); }
-public bool HasT0() { return this.buffer0.Has(this.filterEntities[this.index]); }
-public void SetT1(int id, in T1 data) { this.buffer1.Set(id, in data); }
-public void SetT1(in T1 data) { this.buffer1.Set(this.filterEntities[this.index], in data); }
-public ref T1 GetT1(int id) { return ref this.buffer1.Get(id); }
-public ref T1 GetT1() { return ref this.buffer1.Get(this.filterEntities[this.index]); }
-public void RemoveT1(int id) { this.buffer1.Remove(id); }
-public void RemoveT1() { this.buffer1.Remove(this.filterEntities[this.index]); }
-public ref readonly T1 ReadT1(int id) { return ref this.buffer1.Read(id); }
-public ref readonly T1 ReadT1() { return ref this.buffer1.Read(this.filterEntities[this.index]); }
-public bool HasT1(int id) { return this.buffer1.Has(id); }
-public bool HasT1() { return this.buffer1.Has(this.filterEntities[this.index]); }
-public void SetT2(int id, in T2 data) { this.buffer2.Set(id, in data); }
-public void SetT2(in T2 data) { this.buffer2.Set(this.filterEntities[this.index], in data); }
-public ref T2 GetT2(int id) { return ref this.buffer2.Get(id); }
-public ref T2 GetT2() { return ref this.buffer2.Get(this.filterEntities[this.index]); }
-public void RemoveT2(int id) { this.buffer2.Remove(id); }
-public void RemoveT2() { this.buffer2.Remove(this.filterEntities[this.index]); }
-public ref readonly T2 ReadT2(int id) { return ref this.buffer2.Read(id); }
-public ref readonly T2 ReadT2() { return ref this.buffer2.Read(this.filterEntities[this.index]); }
-public bool HasT2(int id) { return this.buffer2.Has(id); }
-public bool HasT2() { return this.buffer2.Has(this.filterEntities[this.index]); }
-public void SetT3(int id, in T3 data) { this.buffer3.Set(id, in data); }
-public void SetT3(in T3 data) { this.buffer3.Set(this.filterEntities[this.index], in data); }
-public ref T3 GetT3(int id) { return ref this.buffer3.Get(id); }
-public ref T3 GetT3() { return ref this.buffer3.Get(this.filterEntities[this.index]); }
-public void RemoveT3(int id) { this.buffer3.Remove(id); }
-public void RemoveT3() { this.buffer3.Remove(this.filterEntities[this.index]); }
-public ref readonly T3 ReadT3(int id) { return ref this.buffer3.Read(id); }
-public ref readonly T3 ReadT3() { return ref this.buffer3.Read(this.filterEntities[this.index]); }
-public bool HasT3(int id) { return this.buffer3.Has(id); }
-public bool HasT3() { return this.buffer3.Has(this.filterEntities[this.index]); }
-public void SetT4(int id, in T4 data) { this.buffer4.Set(id, in data); }
-public void SetT4(in T4 data) { this.buffer4.Set(this.filterEntities[this.index], in data); }
-public ref T4 GetT4(int id) { return ref this.buffer4.Get(id); }
-public ref T4 GetT4() { return ref this.buffer4.Get(this.filterEntities[this.index]); }
-public void RemoveT4(int id) { this.buffer4.Remove(id); }
-public void RemoveT4() { this.buffer4.Remove(this.filterEntities[this.index]); }
-public ref readonly T4 ReadT4(int id) { return ref this.buffer4.Read(id); }
-public ref readonly T4 ReadT4() { return ref this.buffer4.Read(this.filterEntities[this.index]); }
-public bool HasT4(int id) { return this.buffer4.Has(id); }
-public bool HasT4() { return this.buffer4.Has(this.filterEntities[this.index]); }
-public void SetT5(int id, in T5 data) { this.buffer5.Set(id, in data); }
-public void SetT5(in T5 data) { this.buffer5.Set(this.filterEntities[this.index], in data); }
-public ref T5 GetT5(int id) { return ref this.buffer5.Get(id); }
-public ref T5 GetT5() { return ref this.buffer5.Get(this.filterEntities[this.index]); }
-public void RemoveT5(int id) { this.buffer5.Remove(id); }
-public void RemoveT5() { this.buffer5.Remove(this.filterEntities[this.index]); }
-public ref readonly T5 ReadT5(int id) { return ref this.buffer5.Read(id); }
-public ref readonly T5 ReadT5() { return ref this.buffer5.Read(this.filterEntities[this.index]); }
-public bool HasT5(int id) { return this.buffer5.Has(id); }
-public bool HasT5() { return this.buffer5.Has(this.filterEntities[this.index]); }
-public void SetT6(int id, in T6 data) { this.buffer6.Set(id, in data); }
-public void SetT6(in T6 data) { this.buffer6.Set(this.filterEntities[this.index], in data); }
-public ref T6 GetT6(int id) { return ref this.buffer6.Get(id); }
-public ref T6 GetT6() { return ref this.buffer6.Get(this.filterEntities[this.index]); }
-public void RemoveT6(int id) { this.buffer6.Remove(id); }
-public void RemoveT6() { this.buffer6.Remove(this.filterEntities[this.index]); }
-public ref readonly T6 ReadT6(int id) { return ref this.buffer6.Read(id); }
-public ref readonly T6 ReadT6() { return ref this.buffer6.Read(this.filterEntities[this.index]); }
-public bool HasT6(int id) { return this.buffer6.Has(id); }
-public bool HasT6() { return this.buffer6.Has(this.filterEntities[this.index]); }
-public void SetT7(int id, in T7 data) { this.buffer7.Set(id, in data); }
-public void SetT7(in T7 data) { this.buffer7.Set(this.filterEntities[this.index], in data); }
-public ref T7 GetT7(int id) { return ref this.buffer7.Get(id); }
-public ref T7 GetT7() { return ref this.buffer7.Get(this.filterEntities[this.index]); }
-public void RemoveT7(int id) { this.buffer7.Remove(id); }
-public void RemoveT7() { this.buffer7.Remove(this.filterEntities[this.index]); }
-public ref readonly T7 ReadT7(int id) { return ref this.buffer7.Read(id); }
-public ref readonly T7 ReadT7() { return ref this.buffer7.Read(this.filterEntities[this.index]); }
-public bool HasT7(int id) { return this.buffer7.Has(id); }
-public bool HasT7() { return this.buffer7.Has(this.filterEntities[this.index]); }
-public void SetT8(int id, in T8 data) { this.buffer8.Set(id, in data); }
-public void SetT8(in T8 data) { this.buffer8.Set(this.filterEntities[this.index], in data); }
-public ref T8 GetT8(int id) { return ref this.buffer8.Get(id); }
-public ref T8 GetT8() { return ref this.buffer8.Get(this.filterEntities[this.index]); }
-public void RemoveT8(int id) { this.buffer8.Remove(id); }
-public void RemoveT8() { this.buffer8.Remove(this.filterEntities[this.index]); }
-public ref readonly T8 ReadT8(int id) { return ref this.buffer8.Read(id); }
-public ref readonly T8 ReadT8() { return ref this.buffer8.Read(this.filterEntities[this.index]); }
-public bool HasT8(int id) { return this.buffer8.Has(id); }
-public bool HasT8() { return this.buffer8.Has(this.filterEntities[this.index]); }
-
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 |= 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 |= 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 |= 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 |= 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 |= 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 |= 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 |= 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 |= 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 |= 0x4; data.containsT3 = 0; }
+public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 |= 0x2; data.containsT3 = 1; }
+public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 |= 0x2; return ref data.t3; }
+public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 |= 0x4; data.containsT4 = 0; }
+public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 |= 0x2; data.containsT4 = 1; }
+public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 |= 0x2; return ref data.t4; }
+public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 |= 0x4; data.containsT5 = 0; }
+public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 |= 0x2; data.containsT5 = 1; }
+public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 |= 0x2; return ref data.t5; }
+public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 |= 0x4; data.containsT6 = 0; }
+public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 |= 0x2; data.containsT6 = 1; }
+public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 |= 0x2; return ref data.t6; }
+public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 |= 0x4; data.containsT7 = 0; }
+public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 |= 0x2; data.containsT7 = 1; }
+public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 |= 0x2; return ref data.t7; }
+public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 |= 0x4; data.containsT8 = 0; }
+public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 |= 0x2; data.containsT8 = 1; }
+public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 |= 0x2; return ref data.t8; }
+public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }
     #endregion
 
 }

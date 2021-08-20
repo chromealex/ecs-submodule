@@ -6,6 +6,7 @@ namespace ME.ECS {
 
     using Filters;
     using Buffers;
+    using ME.ECS.Collections;
     
     namespace Buffers {
 

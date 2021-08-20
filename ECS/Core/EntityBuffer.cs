@@ -3,9 +3,75 @@
 #endif
 
 using ME.ECS.Collections;
+using Unity.Jobs;
 
 namespace ME.ECS {
 
+    public static class DataBufferUtils {
+
+        public static void ForEach<T0>(this Filter filter, ME.ECS.Filters.R<T0> onEach)  where T0:struct,IStructComponentBase {
+            
+            var bag = new ME.ECS.Buffers.FilterBag<T0>(filter, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) {
+
+                onEach.Invoke(in bag.GetEntity(i), ref bag.GetT0(i));
+
+            }
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void PushRemove_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg) where T : struct, IStructComponentBase {
+            
+            if (WorldUtilities.IsComponentAsTag<T>() == false) reg.components[entity.id] = default;
+            ref var state = ref reg.componentsStates.arr[entity.id];
+            if (state > 0) {
+
+                state = 0;
+                if (ComponentTypes<T>.typeId >= 0) {
+
+                    world.currentState.storage.archetypes.Remove<T>(in entity);
+                    world.UpdateFilterByStructComponent<T>(in entity);
+
+                }
+
+            }
+                    
+            world.currentState.storage.versions.Increment(in entity);
+            if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void PushSet_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg, in T data) where T : struct, IStructComponentBase {
+            
+            if (WorldUtilities.IsComponentAsTag<T>() == false) reg.components[entity.id] = data;
+            ref var state = ref reg.componentsStates.arr[entity.id];
+            if (state == 0) {
+
+                state = 1;
+                if (ComponentTypes<T>.typeId >= 0) {
+
+                    world.currentState.storage.archetypes.Set<T>(in entity);
+                    world.UpdateFilterByStructComponent<T>(in entity);
+
+                }
+
+            }
+
+            world.currentState.storage.versions.Increment(in entity);
+            if (AllComponentTypes<T>.isVersioned == true) reg.versions.arr[entity.id] = world.GetCurrentTick();
+            if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
+            if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
+            
+        }
+
+    }
+    
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),

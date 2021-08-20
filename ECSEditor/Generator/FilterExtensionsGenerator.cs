@@ -12,7 +12,7 @@ namespace ME.ECSEditor {
             foreach (var asm in asms) {
 
                 var asset = UnityEditor.AssetDatabase.GUIDToAssetPath(asm);
-                var dir = System.IO.Path.GetDirectoryName(asset) + "/Core/Filters/CodeGenerator";
+                var dir = $"{System.IO.Path.GetDirectoryName(asset)}/Core/Filters/CodeGenerator";
                 if (System.IO.Directory.Exists(dir) == false) continue;
 
                 var outputDelegates = string.Empty;
@@ -25,14 +25,14 @@ namespace ME.ECSEditor {
                     var itemsType = "T0";
                     for (int i = 1; i < j; ++i) {
 
-                        itemsType += ",T" + i.ToString();
+                        itemsType += $",T{i}";
 
                     }
 
                     var items = "ref T0 t0";
                     for (int i = 1; i < j; ++i) {
 
-                        items += ", ref T" + i.ToString() + " t" + i.ToString();
+                        items += $", ref T{i} t{i}";
 
                     }
 
@@ -41,7 +41,7 @@ namespace ME.ECSEditor {
                         res = res.Replace("#ITEMS_TYPE#", itemsType);
                         res = res.Replace("#ITEMS#", items);
                         res = res.Replace("#INDEX#", j.ToString());
-                        outputDelegates += res + "\n";
+                        outputDelegates += $"{res}\n";
                     }
                     
                     {
@@ -49,14 +49,14 @@ namespace ME.ECSEditor {
                         var itemsWhere = " where T0:struct,IStructComponentBase";
                         for (int i = 1; i < j; ++i) {
 
-                            itemsWhere += " where T" + i.ToString() + ":struct,IStructComponentBase";
+                            itemsWhere += $" where T{i}:struct,IStructComponentBase";
 
                         }
 
                         var itemsGet = "ref buffer.GetT0(id)";
                         for (int i = 1; i < j; ++i) {
 
-                            itemsGet += ", ref buffer.GetT" + i.ToString() + "(id)";
+                            itemsGet += $", ref buffer.GetT{i}(id)";
 
                         }
 
@@ -65,7 +65,7 @@ namespace ME.ECSEditor {
                         res = res.Replace("#ITEMS_WHERE#", itemsWhere);
                         res = res.Replace("#ITEMS_GET#", itemsGet);
                         res = res.Replace("#INDEX#", j.ToString());
-                        outputForEach += res + "\n";
+                        outputForEach += $"{res}\n";
                         
                     }
                     
@@ -81,38 +81,80 @@ namespace ME.ECSEditor {
 
                         }
                         
-                        var itemsInit = string.Empty;
+                        var dataBufferContains = EditorUtilities.Load<UnityEngine.TextAsset>("ECSEditor/Templates/EditorResources/00-FilterExtensionsBufferDataBufferContains.txt", isRequired: true).text;
+                        var dataBufferContainsOutput = string.Empty;
                         for (int i = 0; i < j; ++i) {
 
-                            itemsInit += "this.buffer" + i.ToString() + " = new DataBuffer<T" + i.ToString() + ">(world, arrEntities, allocator);\n";
+                            var text = dataBufferContains;
+                            text = text.Replace("#INDEX#", i.ToString());
+                            dataBufferContainsOutput += text;
 
                         }
 
-                        var itemsPush = string.Empty;
+                        var dataBufferOps = EditorUtilities.Load<UnityEngine.TextAsset>("ECSEditor/Templates/EditorResources/00-FilterExtensionsBufferDataBufferOps.txt", isRequired: true).text;
+                        var dataBufferOpsOutput = string.Empty;
                         for (int i = 0; i < j; ++i) {
 
-                            itemsPush += $"changedCount += this.buffer{i.ToString()}.Push(world, world.currentState.storage.cache, this.max, this.filterEntities);\n";
+                            var text = dataBufferOps;
+                            text = text.Replace("#INDEX#", i.ToString());
+                            dataBufferOpsOutput += text;
 
                         }
 
-                        var itemsDispose = string.Empty;
+                        var dataBufferData = EditorUtilities.Load<UnityEngine.TextAsset>("ECSEditor/Templates/EditorResources/00-FilterExtensionsBufferDataBufferData.txt", isRequired: true).text;
+                        var dataBufferDataOutput = string.Empty;
                         for (int i = 0; i < j; ++i) {
 
-                            itemsDispose += $"this.buffer{i.ToString()}.Dispose();\n";
+                            var text = dataBufferData;
+                            text = text.Replace("#INDEX#", i.ToString());
+                            dataBufferDataOutput += text;
+
+                        }
+
+                        var regsInit = EditorUtilities.Load<UnityEngine.TextAsset>("ECSEditor/Templates/EditorResources/00-FilterExtensionsBufferRegsInit.txt", isRequired: true).text;
+                        var regsInitOutput = string.Empty;
+                        for (int i = 0; i < j; ++i) {
+
+                            var text = regsInit;
+                            text = text.Replace("#INDEX#", i.ToString());
+                            regsInitOutput += text;
+
+                        }
+
+                        var regsInitFill = EditorUtilities.Load<UnityEngine.TextAsset>("ECSEditor/Templates/EditorResources/00-FilterExtensionsBufferRegsInitFill.txt", isRequired: true).text;
+                        var regsInitFillOutput = string.Empty;
+                        for (int i = 0; i < j; ++i) {
+
+                            var text = regsInitFill;
+                            text = text.Replace("#INDEX#", i.ToString());
+                            regsInitFillOutput += text;
+
+                        }
+
+                        var pushRegsInit = EditorUtilities.Load<UnityEngine.TextAsset>("ECSEditor/Templates/EditorResources/00-FilterExtensionsBufferPushRegsInit.txt", isRequired: true).text;
+                        var pushRegsInitOutput = string.Empty;
+                        for (int i = 0; i < j; ++i) {
+
+                            var text = pushRegsInit;
+                            text = text.Replace("#INDEX#", i.ToString());
+                            pushRegsInitOutput += text;
+
+                        }
+
+                        var pushOps = EditorUtilities.Load<UnityEngine.TextAsset>("ECSEditor/Templates/EditorResources/00-FilterExtensionsBufferPushOps.txt", isRequired: true).text;
+                        var pushOpsOutput = string.Empty;
+                        for (int i = 0; i < j; ++i) {
+
+                            var text = pushOps;
+                            text = text.Replace("#INDEX#", i.ToString());
+                            pushOpsOutput += text;
 
                         }
 
                         var itemsWhere = " where T0:struct,IStructComponentBase";
                         for (int i = 1; i < j; ++i) {
 
-                            itemsWhere += " where T" + i.ToString() + ":struct,IStructComponentBase";
-
-                        }
-        
-                        var itemsBuffer = "private DataBuffer<T0> buffer0;";
-                        for (int i = 1; i < j; ++i) {
-
-                            itemsBuffer += "private DataBuffer<T" + i.ToString() + "> buffer" + i.ToString() + ";";
+                            itemsWhere += $" where T{i}:struct,IStructComponentBase";
 
                         }
         
@@ -120,12 +162,17 @@ namespace ME.ECSEditor {
                         res = res.Replace("#ITEMS_TYPE#", itemsType);
                         res = res.Replace("#ITEMS_WHERE#", itemsWhere);
                         res = res.Replace("#ITEMS_METHODS#", itemsMethods);
-                        res = res.Replace("#ITEMS_INIT#", itemsInit);
-                        res = res.Replace("#ITEMS_PUSH#", itemsPush);
-                        res = res.Replace("#ITEMS_DISPOSE#", itemsDispose);
-                        res = res.Replace("#ITEMS_BUFFER#", itemsBuffer);
+                        
+                        res = res.Replace("#DATABUFFER_CONTAINS#", dataBufferContainsOutput);
+                        res = res.Replace("#DATABUFFER_OPS#", dataBufferOpsOutput);
+                        res = res.Replace("#DATABUFFER_DATA#", dataBufferDataOutput);
+                        res = res.Replace("#REGS_INIT#", regsInitOutput);
+                        res = res.Replace("#REGS_FILL#", regsInitFillOutput);
+                        res = res.Replace("#PUSH_REGS_INIT#", pushRegsInitOutput);
+                        res = res.Replace("#PUSH_OPS#", pushOpsOutput);
+                        
                         res = res.Replace("#INDEX#", j.ToString());
-                        buffers += res + "\n";
+                        buffers += $"{res}\n";
                         
                     }
 

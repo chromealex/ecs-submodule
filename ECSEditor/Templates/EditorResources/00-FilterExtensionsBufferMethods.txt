@@ -1,10 +1,5 @@
-public void SetT#INDEX#(int id, in T#INDEX# data) { this.buffer#INDEX#.Set(id, in data); }
-public void SetT#INDEX#(in T#INDEX# data) { this.buffer#INDEX#.Set(this.filterEntities[this.index], in data); }
-public ref T#INDEX# GetT#INDEX#(int id) { return ref this.buffer#INDEX#.Get(id); }
-public ref T#INDEX# GetT#INDEX#() { return ref this.buffer#INDEX#.Get(this.filterEntities[this.index]); }
-public void RemoveT#INDEX#(int id) { this.buffer#INDEX#.Remove(id); }
-public void RemoveT#INDEX#() { this.buffer#INDEX#.Remove(this.filterEntities[this.index]); }
-public ref readonly T#INDEX# ReadT#INDEX#(int id) { return ref this.buffer#INDEX#.Read(id); }
-public ref readonly T#INDEX# ReadT#INDEX#() { return ref this.buffer#INDEX#.Read(this.filterEntities[this.index]); }
-public bool HasT#INDEX#(int id) { return this.buffer#INDEX#.Has(id); }
-public bool HasT#INDEX#() { return this.buffer#INDEX#.Has(this.filterEntities[this.index]); }
+public void RemoveT#INDEX#(int index) { ref var data = ref this.arr.GetRef(index); data.opsT#INDEX# |= 0x4; data.containsT#INDEX# = 0; }
+public void Set(int index, in T#INDEX# component) { ref var data = ref this.arr.GetRef(index); data.t#INDEX# = component; data.opsT#INDEX# |= 0x2; data.containsT#INDEX# = 1; }
+public ref T#INDEX# GetT#INDEX#(int index) { ref var data = ref this.arr.GetRef(index); data.opsT#INDEX# |= 0x2; return ref data.t#INDEX#; }
+public ref readonly T#INDEX# ReadT#INDEX#(int index) { return ref this.arr.GetRefRead(index).t#INDEX#; }
+public bool HasT#INDEX#(int index) { return this.arr.GetRefRead(index).containsT#INDEX# > 0; }

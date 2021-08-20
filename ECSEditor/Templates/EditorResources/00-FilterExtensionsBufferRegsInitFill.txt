@@ -1,0 +1,3 @@
+containsT#INDEX# = regT#INDEX#.componentsStates[entity.id],
+opsT#INDEX# = 0,
+t#INDEX# = regT#INDEX#.components.Length > 0 ? regT#INDEX#.components.data.arr[entity.id] : default,

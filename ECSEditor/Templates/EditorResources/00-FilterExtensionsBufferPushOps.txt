@@ -1,0 +1,12 @@
+{
+    var op = data.opsT#INDEX#;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT#INDEX#);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT#INDEX#, in data.t#INDEX#);
+            ++changedCount;
+        }
+    }
+}

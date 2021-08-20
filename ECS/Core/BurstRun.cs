@@ -15,52 +15,6 @@ namespace ME.ECS {
 
     }
 
-    public interface IBurstExecute { }
-
-    public interface IBurstExecute<T0, T1> : IBurstExecute where T0 : struct, IStructComponentBase where T1 : struct, IStructComponentBase {
-
-        Unity.Burst.FunctionPointer<BurstSystem<T0, T1>.SystemFunctionPointerDelegate> GetBurstMethod();
-
-    }
-
-    [BurstCompile(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true, Debug = false)]
-    public static unsafe class BurstSystem<T0, T1> where T0 : struct, IStructComponentBase where T1 : struct, IStructComponentBase {
-
-        [BurstCompile(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true, Debug = false)]
-        public struct Temp {
-
-            public FunctionPointer<SystemFunctionPointerDelegate> systemMethod;
-            public Buffers.FilterBag<T0, T1> bag;
-
-        }
-        
-        public delegate void SystemFunctionPointerDelegate(in Buffers.FilterBag<T0, T1> bag, ref T0 t0, ref T1 t1);
-
-        [BurstCompile(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true, Debug = false)]
-        private static void Method(ref void* temp) {
-
-            UnsafeUtility.CopyPtrToStructure(temp, out Temp j);
-            j.systemMethod.Invoke(in j.bag, ref j.bag.GetT0(), ref j.bag.GetT1());
-            UnsafeUtility.CopyStructureToPtr(ref j, temp);
-
-        }
-
-        public static void Run(IBurstExecute<T0, T1> system, Filter filter) {
-
-            var systemMethod = system.GetBurstMethod();
-            var temp = new Temp() {
-                bag = new Buffers.FilterBag<T0, T1>(filter, Unity.Collections.Allocator.Temp),
-                systemMethod = systemMethod,//UnsafeUtility.AddressOf(ref systemMethod),
-            };
-            var objAddr = UnsafeUtility.AddressOf(ref temp);
-            var m = BurstCompiler.CompileFunctionPointer((FunctionPointerDelegate)BurstSystem<T0, T1>.Method);
-            m.Invoke(ref objAddr);
-            temp.bag.Push();
-
-        }
-
-    }
-
     [BurstCompile(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true, Debug = false)]
     public static unsafe class Burst<T> where T : struct, IBurst {
 

@@ -178,12 +178,12 @@ namespace ME.ECS.Tests {
 
             public void Execute() {
 
-                while (this.data.MoveNext() == true) {
+                for (int i = 0; i < this.data.Length; ++i) {
 
-                    ref var comp = ref this.data.GetT0();
+                    ref var comp = ref this.data.GetT0(i);
                     comp.a += 1;
                     
-                    this.data.RemoveT1();
+                    this.data.RemoveT1(i);
 
                 }
                 
@@ -260,8 +260,8 @@ namespace ME.ECS.Tests {
                 }
             }
             
-            world.SetEntitiesCapacity(2000);
-            for (int i = 0; i < 2000; ++i) {
+            world.SetEntitiesCapacity(10000);
+            for (int i = 0; i < 10000; ++i) {
                 
                 var test = new Entity("Test");
                 test.Set(new TestData());
@@ -282,6 +282,8 @@ namespace ME.ECS.Tests {
             world.PreUpdate(1f);
             world.Update(1f);
             world.LateUpdate(1f);
+            
+            WorldUtilities.ReleaseWorld<TestState>(ref world);
 
         }
 
