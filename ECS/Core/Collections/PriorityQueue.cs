@@ -191,7 +191,7 @@
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     [System.Serializable]
-    public struct PriorityQueueNative<T> {
+    public struct PriorityQueueNative<T> where T : unmanaged {
 
         private struct Node {
 

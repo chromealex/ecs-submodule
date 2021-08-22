@@ -39,7 +39,7 @@ namespace ME.ECS {
     #endif
     public struct FiltersTree {
 
-        public struct FilterBurst : System.IComparable<FilterBurst> {
+        public struct FilterBurst : System.IComparable<FilterBurst>, System.IEquatable<FilterBurst> {
 
             public int id;
             public Archetype contains;
@@ -49,6 +49,12 @@ namespace ME.ECS {
 
                 return this.id.CompareTo(other.id);
 
+            }
+
+            public bool Equals(FilterBurst other) {
+                
+                return this.id == other.id;
+                
             }
 
         }

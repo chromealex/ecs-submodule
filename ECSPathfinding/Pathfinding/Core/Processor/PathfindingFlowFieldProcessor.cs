@@ -136,7 +136,7 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        public struct NativeQueue<T> where T : struct {
+        public struct NativeQueue<T> where T : unmanaged {
 
             public int Count;
             public Unity.Collections.NativeList<T> arr;

@@ -101,7 +101,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static unsafe bool Resize<T>(int index, ref Unity.Collections.NativeList<T> arr, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : struct {
+        public static unsafe bool Resize<T>(int index, ref Unity.Collections.NativeList<T> arr, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : unmanaged {
 
             const int offset = 1;
 
@@ -123,7 +123,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void Copy<T>(in Unity.Collections.NativeList<T> fromArr, ref Unity.Collections.NativeList<T> arr) where T : struct {
+        public static void Copy<T>(in Unity.Collections.NativeList<T> fromArr, ref Unity.Collections.NativeList<T> arr) where T : unmanaged {
 
             switch (fromArr.IsCreated) {
                 case false when arr.IsCreated == false:

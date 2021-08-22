@@ -61,7 +61,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static ref T GetRef<T>(this Unity.Collections.NativeList<T> array, int index) where T : struct {
+        public static ref T GetRef<T>(this Unity.Collections.NativeList<T> array, int index) where T : unmanaged {
             if (index < 0 || index >= array.Length)
                 throw new ArgumentOutOfRangeException(nameof(index));
             unsafe {
@@ -77,7 +77,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static ref T GetRefRead<T>(this Unity.Collections.NativeList<T> array, int index) where T : struct {
+        public static ref T GetRefRead<T>(this Unity.Collections.NativeList<T> array, int index) where T : unmanaged {
             if (index < 0 || index >= array.Length)
                 throw new ArgumentOutOfRangeException(nameof(index));
             unsafe {
