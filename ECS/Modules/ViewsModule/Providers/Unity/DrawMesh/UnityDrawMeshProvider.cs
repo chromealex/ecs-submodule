@@ -363,7 +363,7 @@ namespace ME.ECS.Views.Providers {
         public override void OnConstruct() {
 
             this.psItems = PoolDictionary<long, DrawMeshSystemItem>.Spawn(100);
-            this.pool = new PoolInternalBase(typeof(DrawMeshViewBase), null, null);
+            this.pool = new PoolInternalBase(typeof(DrawMeshViewBase));
 
         }
 

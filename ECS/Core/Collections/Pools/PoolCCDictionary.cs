@@ -11,27 +11,26 @@ namespace ME.ECS {
 	#endif
 	public static class PoolCCDictionary<TKey, TValue> {
 
-		private static int capacity;
-		private static PoolInternalBase pool = new PoolInternalBase(typeof(CCDictionary<TKey, TValue>), () => new CCDictionary<TKey, TValue>(CCDictionary<TKey, TValue>.DefaultConcurrencyLevel, PoolCCDictionary<TKey, TValue>.capacity), (x) => ((CCDictionary<TKey, TValue>)x).Clear());
+		public struct Data {
 
-		public static CCDictionary<TKey, TValue> Spawn(int capacity) {
+			public int capacity;
+			public int threadsCount;
 
-			PoolCCDictionary<TKey, TValue>.capacity = capacity;
-			return (CCDictionary<TKey, TValue>)PoolCCDictionary<TKey, TValue>.pool.Spawn();
-		    
+		}
+
+		public static CCDictionary<TKey, TValue> Spawn(int capacity, int threadsCount = 8) {
+
+			return Pools.current.PoolSpawn(new Data() {
+				capacity = capacity,
+				threadsCount = threadsCount,
+			}, (data) => new CCDictionary<TKey, TValue>(data.threadsCount, data.capacity), (x) => x.Clear());
+			
 		}
 
 		public static void Recycle(ref CCDictionary<TKey, TValue> dic) {
 
-			PoolCCDictionary<TKey, TValue>.pool.Recycle(dic);
-			dic = null;
-
-		}
-
-		public static void Recycle(CCDictionary<TKey, TValue> dic) {
-
-			PoolCCDictionary<TKey, TValue>.pool.Recycle(dic);
-
+			Pools.current.PoolRecycle(ref dic);
+			
 		}
 
 	}

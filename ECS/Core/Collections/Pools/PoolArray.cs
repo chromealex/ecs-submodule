@@ -11,29 +11,6 @@ namespace ME.ECS {
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public static class PoolArrayUtilities {
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static int GetArrayLengthPot(int length) {
-
-            var bucketIndex = 0;
-            while (1 << bucketIndex < length && bucketIndex < 30) {
-                ++bucketIndex;
-            }
-
-            return 1 << bucketIndex;
-
-        }
-
-    }
-
-    #if ECS_COMPILE_IL2CPP_OPTIONS
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-    #endif
     public static class PoolArrayNative<T> where T : struct {
         
         #if INLINE_METHODS
@@ -62,7 +39,99 @@ namespace ME.ECS {
         }
         
     }
+
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
+    public class PoolArray<T> {
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        internal static int GetSize(int minimumLength) {
+
+            var bucketIndex = 0;
+            while (1 << bucketIndex < minimumLength && bucketIndex < 30) {
+                ++bucketIndex;
+            }
+            if (bucketIndex == 30) {
+                throw new System.ArgumentException("Too high minimum length");
+            }
+            return 1 << bucketIndex;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static T[] Claim(int length) {
+
+            return System.Buffers.ArrayPool<T>.Shared.Rent(length);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Release(ref T[] arr) {
+
+            if (arr == null) return;
+            System.Buffers.ArrayPool<T>.Shared.Return(arr);
+            arr = null;
+            
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static BufferArray<T> Spawn(int length, bool realSize = false) {
+
+            var arr = PoolArray<T>.Claim(length);
+            var size = (realSize == true ? arr.Length : length);
+            var buffer = new BufferArray<T>(arr, length, realSize == true ? arr.Length : -1);
+            System.Array.Clear(buffer.arr, 0, size);
+
+            return buffer;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Recycle(ref BufferArray<T> buffer) {
+
+            T[] arr = buffer.arr;
+            if (arr != null) System.Array.Clear(arr, 0, arr.Length);
+            PoolArray<T>.Release(ref arr);
+            buffer = new BufferArray<T>(null, 0);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Recycle(BufferArray<T> buffer) {
+
+            T[] arr = buffer.arr;
+            if (arr != null) System.Array.Clear(arr, 0, arr.Length);
+            PoolArray<T>.Release(ref arr);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Recycle(ref T[] buffer) {
+
+            buffer = null;
+
+        }
+
+    }
     
+    /*
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
@@ -81,11 +150,7 @@ namespace ME.ECS {
         /// Internal pool.
         /// The arrays in each bucket have lengths of 2^i
         /// </summary>
-        #if MULTITHREAD_SUPPORT
-		private static readonly CCStack<T[]>[] pool = new CCStack<T[]>[PoolArray<T>.MAX_STACK_SIZE];
-        #else
         private static readonly System.Collections.Generic.Stack<T[]>[] pool = new System.Collections.Generic.Stack<T[]>[PoolArray<T>.MAX_STACK_SIZE];
-        #endif
         //private static readonly System.Collections.Generic.Stack<T[]>[] pool = new System.Collections.Generic.Stack<T[]>[PoolArray<T>.MAX_STACK_SIZE];
         private static readonly System.Collections.Generic.Stack<T[]>[] exactPool = new System.Collections.Generic.Stack<T[]>[PoolArray<T>.MaximumExactArrayLength + 1];
 
@@ -95,41 +160,16 @@ namespace ME.ECS {
 
         public static void Initialize() {
 
-            #if MULTITHREAD_SUPPORT
-			lock (PoolArray<T>.pool) {
-            #endif
-
             if (PoolArray<T>.pool[0] == null) {
 
                 for (int i = 0; i < PoolArray<T>.MAX_STACK_SIZE; ++i) {
 
                     var bucketIndex = i;
-                    #if MULTITHREAD_SUPPORT
-						PoolArray<T>.pool[bucketIndex] = new CCStack<T[]>(usePool: true);
-                    #else
                     PoolArray<T>.pool[bucketIndex] = new System.Collections.Generic.Stack<T[]>();
-                    #endif
-
+                    
                 }
 
             }
-
-            #if MULTITHREAD_SUPPORT
-			}
-            #endif
-
-        }
-
-        internal static int GetSize(int minimumLength) {
-
-            var bucketIndex = 0;
-            while (1 << bucketIndex < minimumLength && bucketIndex < 30) {
-                ++bucketIndex;
-            }
-            if (bucketIndex == 30) {
-                throw new System.ArgumentException("Too high minimum length");
-            }
-            return 1 << bucketIndex;
 
         }
 
@@ -160,13 +200,6 @@ namespace ME.ECS {
 
             if (PoolArray<T>.pool[0] == null) PoolArray<T>.Initialize();
 
-            #if MULTITHREAD_SUPPORT
-			if (PoolArray<T>.pool[bucketIndex].TryPop(out var result) == true) {
-
-				return result;
-
-			}
-            #else
             var pool = PoolArray<T>.pool[bucketIndex];
             if (pool.Count > 0) {
 
@@ -185,25 +218,7 @@ namespace ME.ECS {
                 return arrPooled;
 
             }
-            #endif
 
-            /*lock (PoolArray<T>.pool) {
-                
-                if (PoolArray<T>.pool[bucketIndex] == null) {
-                    PoolArray<T>.pool[bucketIndex] = new System.Collections.Generic.Stack<T[]>();
-                }
-
-                if (PoolArray<T>.pool[bucketIndex].Count > 0) {
-                    var array= PoolArray<T>.pool[bucketIndex].Pop();
-                    outArrays.Add(array);
-                    return array;
-                }
-
-            }
-            
-            var arr = new T[1 << bucketIndex];
-            outArrays.Add(arr);
-            return arr;*/
             var arr = new T[1 << bucketIndex];
             #if UNITY_EDITOR
             PoolArray<T>.outArrays.Add(arr);
@@ -235,13 +250,6 @@ namespace ME.ECS {
             if (length <= PoolArray<T>.MaximumExactArrayLength) {
                 var stack = PoolArray<T>.exactPool[length];
                 return stack.Pop();
-                /*lock (PoolArray<T>.pool) {
-                    var stack = PoolArray<T>.exactPool[length];
-                    if (stack != null && stack.Count > 0) {
-                        var array = stack.Pop();
-                        return array;
-                    }
-                }*/
             }
 
             return new T[length];
@@ -263,10 +271,6 @@ namespace ME.ECS {
             if (array == null || array.Length == 0) {
                 return;
             }
-
-            /*if (array.GetType() != typeof(T[])) {
-                throw new System.ArgumentException("Expected array type " + typeof(T[]).Name + " but found " + array.GetType().Name + "\nAre you using the correct generic class?\n");
-            }*/
 
             var isPowerOfTwo = array.Length != 0 && (array.Length & (array.Length - 1)) == 0;
             if (!isPowerOfTwo && !allowNonPowerOfTwo && array.Length != 0) {
@@ -340,32 +344,6 @@ namespace ME.ECS {
 
             }
 
-            /*
-            lock (PoolArray<T>.pool) {
-                if (isPowerOfTwo) {
-                    var bucketIndex = 0;
-                    while (1 << bucketIndex < array.Length && bucketIndex < 30) {
-                        bucketIndex++;
-                    }
-
-                    if (PoolArray<T>.pool[bucketIndex] == null) {
-                        PoolArray<T>.pool[bucketIndex] = new System.Collections.Generic.Stack<T[]>();
-                    }
-
-                    if (outArrays.Contains(array) == false) {
-                        UnityEngine.Debug.LogError("You are trying to push array that already in pool!");
-                    }
-                    PoolArray<T>.pool[bucketIndex].Push(array);
-                    outArrays.Remove(array);
-                } else if (array.Length <= PoolArray<T>.MaximumExactArrayLength) {
-                    var stack = PoolArray<T>.exactPool[array.Length];
-                    if (stack == null) {
-                        stack = PoolArray<T>.exactPool[array.Length] = new System.Collections.Generic.Stack<T[]>();
-                    }
-
-                    stack.Push(array);
-                }
-            }*/
             array = null;
         }
 
@@ -418,6 +396,6 @@ namespace ME.ECS {
 
         }
 
-    }
+    }*/
 
 }

@@ -24,7 +24,7 @@ namespace ME.ECS.Serializer {
         public static string UnpackDirect(Packer packer) {
 
             var length = Int32Serializer.UnpackDirect(packer);
-            var sb = PoolClass<System.Text.StringBuilder>.Spawn();
+            var sb = new System.Text.StringBuilder(length);
             sb.Clear();
             sb.Capacity = length;
             for (int i = 0; i < length; ++i) {
@@ -33,7 +33,6 @@ namespace ME.ECS.Serializer {
                 
             }
             var res = sb.ToString();
-            PoolClass<System.Text.StringBuilder>.Recycle(ref sb);
             return res;
 
         }

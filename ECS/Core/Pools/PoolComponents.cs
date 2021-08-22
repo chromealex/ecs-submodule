@@ -9,83 +9,39 @@ namespace ME.ECS {
 	#endif
     public static class PoolRegistries {
 
-	    private static Dictionary<long, PoolInternalBase> pool = new Dictionary<long, PoolInternalBase>();
-	    
-	    public static StructRegistryBase Spawn<T>() where T : struct, IStructComponentBase {
+		public struct Data {
 
-		    var key = WorldUtilities.GetAllComponentTypeId<T>();
-		    var obj = (StructComponents<T>)PoolRegistries.Spawn_INTERNAL(key, out var pool);
-		    if (obj != null) return obj;
+		}
 
-		    return PoolInternalBase.Create<StructComponents<T>>(pool);
+		public static StructComponents<T> Spawn<T>() where T : struct, IStructComponentBase {
 
-	    }
+			return Pools.current.PoolSpawn(new Data(), (data) => new StructComponents<T>(), null);
+			
+		}
 
-	    public static StructRegistryBase SpawnCopyable<T>() where T : struct, IStructComponentBase, IStructCopyable<T> {
+		public static StructComponentsCopyable<T> SpawnCopyable<T>() where T : struct, IStructComponentBase, IStructCopyable<T> {
 
-		    var key = WorldUtilities.GetAllComponentTypeId<T>();
-		    var obj = (StructComponentsCopyable<T>)PoolRegistries.Spawn_INTERNAL(key, out var pool);
-		    if (obj != null) return obj;
+			return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsCopyable<T>(), null);
+			
+		}
 
-		    return PoolInternalBase.Create<StructComponentsCopyable<T>>(pool);
+		public static StructComponentsDisposable<T> SpawnDisposable<T>() where T : struct, IStructComponentBase, IComponentDisposable {
 
-	    }
+			return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsDisposable<T>(), null);
+			
+		}
 
-	    public static StructRegistryBase SpawnDisposable<T>() where T : struct, IStructComponentBase, IComponentDisposable {
+		public static void Recycle(StructRegistryBase dic) {
 
-		    var key = WorldUtilities.GetAllComponentTypeId<T>();
-		    var obj = (StructComponentsDisposable<T>)PoolRegistries.Spawn_INTERNAL(key, out var pool);
-		    if (obj != null) return obj;
+			Pools.current.PoolRecycle(ref dic);
+			
+		}
 
-		    return PoolInternalBase.Create<StructComponentsDisposable<T>>(pool);
+		public static void Recycle(ref StructRegistryBase dic) {
 
-	    }
-
-	    private static object Spawn_INTERNAL(int key, out PoolInternalBase pool) {
-		    
-		    if (PoolRegistries.pool.TryGetValue(key, out pool) == true) {
-
-			    var obj = pool.Spawn();
-			    if (obj != null) return obj;
-
-		    } else {
-                
-			    pool = new PoolInternalBase(typeof(StructRegistryBase), null, null);
-			    var obj = pool.Spawn();
-			    PoolRegistries.pool.Add(key, pool);
-			    if (obj != null) return obj;
-
-		    }
-
-		    return null;
-
-	    }
-
-	    private static void Recycle_INTERNAL(int key, object system) {
-		    
-		    PoolInternalBase pool;
-		    if (PoolRegistries.pool.TryGetValue(key, out pool) == true) {
-
-			    pool.Recycle(system);
-                
-		    } else {
-                
-			    pool = new PoolInternalBase(typeof(StructRegistryBase), null, null);
-			    pool.Recycle(system);
-			    PoolRegistries.pool.Add(key, pool);
-                
-		    }
-		    
-	    }
-
-	    public static void Recycle(StructRegistryBase system) {
-
-		    if (system == null) return;
-		    
-		    var key = system.GetAllTypeBit();
-		    PoolRegistries.Recycle_INTERNAL(key, system);
-		    
-	    }
+			Pools.current.PoolRecycle(ref dic);
+			
+		}
 
     }
 

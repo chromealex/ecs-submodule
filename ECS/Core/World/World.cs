@@ -187,6 +187,8 @@ namespace ME.ECS {
 
         void IPoolableSpawn.OnSpawn() {
 
+            this.InitializePools();
+            
             this.isPaused = false;
 
             this.worldThread = System.Threading.Thread.CurrentThread;
@@ -293,7 +295,12 @@ namespace ME.ECS {
             //PoolInternalBaseNoStackPool.Clear();
             //PoolInternalBase.Clear();
 
+            this.DeInitializePools();
+
         }
+
+        partial void InitializePools();
+        partial void DeInitializePools();
 
         /// <summary>
         /// Returns last frame CPF

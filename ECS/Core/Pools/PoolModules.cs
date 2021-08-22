@@ -9,53 +9,26 @@ namespace ME.ECS {
     #endif
     public static class PoolModules {
 
-        private static Dictionary<int, PoolInternalBase> pool = new Dictionary<int, PoolInternalBase>();
-	    
+        public struct Data {
+
+        }
+
         public static T Spawn<T>() where T : class, IModuleBase, new() {
 
-            var key = WorldUtilities.GetKey<T>();
-            PoolInternalBase pool;
-            if (PoolModules.pool.TryGetValue(key, out pool) == true) {
-
-                var obj = pool.Spawn();
-                if (obj != null) return (T)obj;
-
-            } else {
-                
-                pool = new PoolInternalBase(typeof(T), null, null);
-                var obj = (T)pool.Spawn();
-                PoolModules.pool.Add(key, pool);
-                if (obj != null) return obj;
-
-            }
-
-            return new T();
-
+            return Pools.current.PoolSpawn(new Data(), (data) => new T(), null);
+			
         }
 
         public static void Recycle<T>(ref T system) where T : class, IModuleBase {
 
-            PoolModules.Recycle(system);
-            system = null;
-
+            Pools.current.PoolRecycle(ref system);
+			
         }
 
         public static void Recycle<T>(T system) where T : class, IModuleBase {
 
-            var key = WorldUtilities.GetKey(system.GetType());
-            PoolInternalBase pool;
-            if (PoolModules.pool.TryGetValue(key, out pool) == true) {
-
-                pool.Recycle(system);
-                
-            } else {
-                
-                pool = new PoolInternalBase(typeof(T), null, null);
-                pool.Recycle(system);
-                PoolModules.pool.Add(key, pool);
-                
-            }
-
+            Pools.current.PoolRecycle(ref system);
+			
         }
 
     }

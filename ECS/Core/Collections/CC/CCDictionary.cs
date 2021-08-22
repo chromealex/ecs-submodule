@@ -580,7 +580,7 @@ namespace ME.ECS.Collections {
                             }
  
                             value = curr.m_value;
-                            PoolClassMainThread<Node>.Recycle(ref curr);
+                            PoolClass<Node>.Recycle(ref curr);
                             tables.m_countPerLock[lockNo]--;
                             return true;
                         }
@@ -734,7 +734,7 @@ namespace ME.ECS.Collections {
                 for (int i = 0; i < this.m_tables.m_buckets.Length; ++i) {
 
                     var node = this.m_tables.m_buckets[i];
-                    PoolClassMainThread<Node>.Recycle(ref node);
+                    PoolClass<Node>.Recycle(ref node);
     
                 }
                 
@@ -983,7 +983,7 @@ namespace ME.ECS.Collections {
                                 }
                                 else
                                 {
-                                    var newNode = PoolClassMainThread<Node>.Spawn();
+                                    var newNode = PoolClass<Node>.Spawn();
                                     newNode.m_hashcode = hashcode;
                                     newNode.m_key = node.m_key;
                                     newNode.m_next = node.m_next;
@@ -1026,7 +1026,7 @@ namespace ME.ECS.Collections {
 #endif
  
                     // The key was not found in the bucket. Insert the key-value pair.
-                    var vNode = PoolClassMainThread<Node>.Spawn();
+                    var vNode = PoolClass<Node>.Spawn();
                     vNode.m_key = key;
                     vNode.m_value = value;
                     vNode.m_hashcode = hashcode;
@@ -2066,7 +2066,7 @@ namespace ME.ECS.Collections {
  
                         GetBucketAndLockNo(nodeHashCode, out newBucketNo, out newLockNo, newBuckets.Length, newLocks.Length);
 
-                        var vNode = PoolClassMainThread<Node>.Spawn();
+                        var vNode = PoolClass<Node>.Spawn();
                         vNode.m_key = current.m_key;
                         vNode.m_hashcode = nodeHashCode;
                         vNode.m_value = current.m_value;

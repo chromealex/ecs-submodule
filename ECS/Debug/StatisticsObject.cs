@@ -136,7 +136,7 @@ namespace ME.ECS.Debug {
             
         }
 
-        private void SetDirty() {
+        new private void SetDirty() {
             
             #if UNITY_EDITOR
             UnityEditor.EditorUtility.SetDirty(this);

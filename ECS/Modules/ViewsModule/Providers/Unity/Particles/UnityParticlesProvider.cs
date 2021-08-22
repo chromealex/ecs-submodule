@@ -492,11 +492,9 @@ namespace ME.ECS.Views.Providers {
         public override void OnConstruct() {
 
             this.psItems = PoolDictionary<long, ParticleSystemItem>.Spawn(100);
-            this.pool = new PoolInternalBase(typeof(ParticleViewBase), null, null);
+            this.pool = new PoolInternalBase(typeof(ParticleViewBase));
 
-            UnityEngine.ParticleSystem particleSystem;
-            UnityEngine.ParticleSystemRenderer particleSystemRenderer;
-            this.CreateParticleSystemInstance("Main-" + this.GetType().ToString(), out particleSystem, out particleSystemRenderer);
+            this.CreateParticleSystemInstance($"Main-{this.GetType()}", out var particleSystem, out var particleSystemRenderer);
 
             var mainModule = particleSystem.main;
             mainModule.startSize = 1f;

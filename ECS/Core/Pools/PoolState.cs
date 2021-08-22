@@ -10,25 +10,26 @@ namespace ME.ECS {
 	#endif
 	public static class PoolStates<T> where T : State, new() {
 
-		private static PoolInternalBase pool = new PoolInternalBase(typeof(T), () => new T(), null);
+		public struct Data {
+
+		}
 
 		public static T Spawn() {
-		    
-			return (T)PoolStates<T>.pool.Spawn();
-		    
+
+			return Pools.current.PoolSpawn(new Data(), (data) => new T(), null);
+			
 		}
 
-		public static void Recycle(ref T instance) {
-		    
-			PoolStates<T>.pool.Recycle(instance);
-			instance = null;
+		public static void Recycle(ref T system) {
 
+			Pools.current.PoolRecycle(ref system);
+			
 		}
 
-		public static void Recycle(T instance) {
-		    
-			PoolStates<T>.pool.Recycle(instance);
-		    
+		public static void Recycle(T system) {
+
+			Pools.current.PoolRecycle(ref system);
+			
 		}
 
 	}

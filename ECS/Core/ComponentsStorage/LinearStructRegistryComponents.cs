@@ -1217,8 +1217,8 @@ namespace ME.ECS {
             this.nextFrameTasks = PoolCCList<ITask>.Spawn();
             this.nextTickTasks = PoolCCList<ITask>.Spawn();
             this.dirtyMap = PoolListCopyable<int>.Spawn(10);
-            this.listLifetimeTick = PoolHashSetCopyable<int>.Spawn(10);
-            this.listLifetimeFrame = PoolHashSetCopyable<int>.Spawn(10);
+            this.listLifetimeTick = PoolHashSetCopyable<int>.Spawn();
+            this.listLifetimeFrame = PoolHashSetCopyable<int>.Spawn();
 
             ArrayUtils.Resize(100, ref this.list, false);
             this.isCreated = true;

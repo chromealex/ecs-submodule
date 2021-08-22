@@ -10,35 +10,26 @@ namespace ME.ECS {
     #endif
     public static class PoolDictionaryCopyable<TKey, TValue> {
 
-        private static IEqualityComparer<TKey> customComparer;
-        private static int capacity;
-        private static PoolInternalBase pool = new PoolInternalBase(typeof(DictionaryCopyable<TKey, TValue>), () => new DictionaryCopyable<TKey, TValue>(PoolDictionaryCopyable<TKey, TValue>.capacity, PoolDictionaryCopyable<TKey, TValue>.customComparer), (x) => ((DictionaryCopyable<TKey, TValue>)x).Clear());
+        public struct Data {
+
+            public IEqualityComparer<TKey> customComparer;
+            public int capacity;
+
+        }
 
         public static DictionaryCopyable<TKey, TValue> Spawn(int capacity, IEqualityComparer<TKey> customComparer = null) {
 
-            PoolDictionaryCopyable<TKey, TValue>.capacity = capacity;
-            PoolDictionaryCopyable<TKey, TValue>.customComparer = customComparer;
-            return (DictionaryCopyable<TKey, TValue>)PoolDictionaryCopyable<TKey, TValue>.pool.Spawn();
-		    
-        }
-
-        public static void Prewarm(int count) {
-
-            PoolDictionaryCopyable<TKey, TValue>.pool.Prewarm(count);
-
+            return Pools.current.PoolSpawn(new Data() {
+                capacity = capacity,
+                customComparer = customComparer,
+            }, (data) => new DictionaryCopyable<TKey, TValue>(data.capacity, data.customComparer), x => x.Clear());
+			
         }
 
         public static void Recycle(ref DictionaryCopyable<TKey, TValue> dic) {
 
-            PoolDictionaryCopyable<TKey, TValue>.pool.Recycle(dic);
-            dic = null;
-
-        }
-
-        public static void Recycle(DictionaryCopyable<TKey, TValue> dic) {
-
-            PoolDictionaryCopyable<TKey, TValue>.pool.Recycle(dic);
-
+            Pools.current.PoolRecycle(ref dic);
+			
         }
 
     }

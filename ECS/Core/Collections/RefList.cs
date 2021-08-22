@@ -57,9 +57,9 @@ namespace ME.ECS.Collections {
             this.fromIndex = 0;
             if (this.freePeek == null) this.freePeek = PoolQueueCopyable<int>.Spawn(capacity);
             this.freePeek.Clear();
-            if (this.free == null) this.free = PoolHashSetCopyable<int>.Spawn(capacity);
+            if (this.free == null) this.free = PoolHashSetCopyable<int>.Spawn();
             this.free.Clear();
-            if (this.freePrepared == null) this.freePrepared = PoolHashSetCopyable<int>.Spawn(capacity);
+            if (this.freePrepared == null) this.freePrepared = PoolHashSetCopyable<int>.Spawn();
             this.freePrepared.Clear();
             this.Resize_INTERNAL(capacity);
 
@@ -289,7 +289,7 @@ namespace ME.ECS.Collections {
             ArrayUtils.Copy(in other.arr, ref this.arr);
 
             if (this.freePrepared != null) PoolHashSetCopyable<int>.Recycle(ref this.freePrepared);
-            this.freePrepared = PoolHashSetCopyable<int>.Spawn(other.freePrepared.Count);
+            this.freePrepared = PoolHashSetCopyable<int>.Spawn();
             this.freePrepared.CopyFrom(other.freePrepared);
 
             if (this.freePeek != null) PoolQueueCopyable<int>.Recycle(ref this.freePeek);
@@ -297,7 +297,7 @@ namespace ME.ECS.Collections {
             this.freePeek.CopyFrom(other.freePeek);
 
             if (this.free != null) PoolHashSetCopyable<int>.Recycle(ref this.free);
-            this.free = PoolHashSetCopyable<int>.Spawn(other.free.Count);
+            this.free = PoolHashSetCopyable<int>.Spawn();
             this.free.CopyFrom(other.free);
 
             this.size = other.size;

@@ -144,7 +144,7 @@ namespace ME.ECS.Collections {
             Node lastNode = null;
             foreach (T element in collection)
             {
-                Node newNode = (this.usePool == true ? PoolClassMainThread<Node>.Spawn() : new Node());
+                Node newNode = (this.usePool == true ? PoolClass<Node>.Spawn() : new Node());
                 newNode.m_value = element;
                 newNode.m_next = lastNode;
                 lastNode = newNode;
@@ -252,7 +252,7 @@ namespace ME.ECS.Collections {
 
                 while (current != null) {
 
-                    PoolClassMainThread<Node>.Recycle(ref current);
+                    PoolClass<Node>.Recycle(ref current);
                     current = current.m_next;
 
                 }
@@ -348,7 +348,7 @@ namespace ME.ECS.Collections {
             // lock freedom. If the CAS fails, we add some back off to statistically decrease
             // contention at the head, and then go back around and retry.
  
-            Node newNode = (this.usePool == true ? PoolClassMainThread<Node>.Spawn() : new Node());
+            Node newNode = (this.usePool == true ? PoolClass<Node>.Spawn() : new Node());
             newNode.m_value = item;
             newNode.m_next = m_head;
             if (Interlocked.CompareExchange(ref m_head, newNode, newNode.m_next) == newNode.m_next)
@@ -546,7 +546,7 @@ namespace ME.ECS.Collections {
             {
                 result = head.m_value;
                 if (this.usePool == true) {
-                    PoolClassMainThread<Node>.Recycle(ref head);
+                    PoolClass<Node>.Recycle(ref head);
                 }
                 return true;
             }
@@ -644,7 +644,7 @@ namespace ME.ECS.Collections {
             if (TryPopCore(1, out poppedNode) == 1)
             {
                 result = poppedNode.m_value;
-                if (this.usePool == true) PoolClassMainThread<Node>.Recycle(ref poppedNode);
+                if (this.usePool == true) PoolClass<Node>.Recycle(ref poppedNode);
                 return true;
             }
  

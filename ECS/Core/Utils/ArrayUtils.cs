@@ -256,7 +256,7 @@ namespace ME.ECS {
 
             if (arr == null) {
 
-                arr = PoolHashSetCopyable<T>.Spawn(fromArr.Count);
+                arr = PoolHashSetCopyable<T>.Spawn();
 
             }
 
