@@ -59,7 +59,7 @@ namespace ME.ECSEditor {
             
             if (isRequired == true) {
 
-                throw new System.IO.FileNotFoundException($"Could not find editor resource {path}");
+                throw new System.IO.FileNotFoundException($"Could not find editor resource {path} of type {typeof(T)}");
 
             }
             
