@@ -10,16 +10,6 @@ namespace ME.ECS.Collections {
     
     using Unity.Collections;
 
-    public static class NativeBufferArrayExt {
-        
-        public static int IndexOf<T, U>(this NativeBufferArray<T> array, U value) where T : struct, System.IEquatable<U> {
-            
-            return array.arr.IndexOf(value);
-            
-        }
-
-    }
-
     /// <summary>
     /// NativeBufferArray<T> for native array
     /// Note: Beware of readonly instruction - it will readonly in build, but in editor it is non-readonly because of PropertyDrawer
