@@ -118,7 +118,7 @@ namespace ME.ECS.Serializer {
         private Dictionary<System.Type, Item> serializersBaseType;
         private Dictionary<byte, Item> serializersByTypeValue;
 
-        private void Init(int capacity) {
+        public void Init(int capacity) {
 
             if (this.id == 0) this.id = ++Serializers.idIncrement;
             if (this.serializers == null) this.serializers = PoolDictionary<System.Type, Item>.Spawn(capacity);
@@ -235,6 +235,8 @@ namespace ME.ECS.Serializer {
 
     public static class Serializer {
 
+        public const int BUFFER_CAPACITY = 1024;
+
         public static Serializers GetInternalSerializers() {
             
             var serializers = new Serializers();
@@ -287,6 +289,19 @@ namespace ME.ECS.Serializer {
 
         }
 
+        public static byte[] PackStatic<T>(T obj, Serializers staticSerializers) {
+            
+            var packer = new Packer(staticSerializers, new System.IO.MemoryStream(Serializer.BUFFER_CAPACITY));
+
+            var serializer = new GenericSerializer();
+            serializer.Pack(packer, obj, typeof(T));
+
+            var result = packer.ToArray();
+            packer.Dispose();
+            return result;
+
+        }
+
         public static byte[] Pack<T>(T obj) {
 
             return Serializer.Pack(obj, new Serializers());
@@ -302,7 +317,7 @@ namespace ME.ECS.Serializer {
             serializersInternal.Dispose();
             customSerializers.Dispose();
 
-            var packer = new Packer(serializers, new System.IO.MemoryStream());
+            var packer = new Packer(serializers, new System.IO.MemoryStream(Serializer.BUFFER_CAPACITY));
 
             var serializer = new GenericSerializer();
             serializer.Pack(packer, obj, typeof(T));
@@ -310,6 +325,7 @@ namespace ME.ECS.Serializer {
             var bytes = packer.ToArray();
             
             serializers.Dispose();
+            packer.Dispose();
             
             return bytes;
 
@@ -318,14 +334,26 @@ namespace ME.ECS.Serializer {
         public static byte[] Pack<T>(Serializers allSerializers, T obj) {
 
             byte[] bytes = null;
-            var packer = new Packer(allSerializers, new System.IO.MemoryStream());
+            var packer = new Packer(allSerializers, new System.IO.MemoryStream(Serializer.BUFFER_CAPACITY));
 
             var serializer = new GenericSerializer();
             serializer.Pack(packer, obj, typeof(T));
 
             bytes = packer.ToArray();
+            packer.Dispose();
             allSerializers.Dispose();
             return bytes;
+
+        }
+
+        public static T UnpackStatic<T>(byte[] bytes, Serializers staticSerializers) {
+
+            var packer = Serializer.SetupDefaultPacker(bytes, staticSerializers);
+
+            var serializer = new GenericSerializer();
+            var result = (T)serializer.Unpack(packer, typeof(T));
+            packer.Dispose();
+            return result;
 
         }
 
@@ -349,6 +377,7 @@ namespace ME.ECS.Serializer {
             var instance   = (T)serializer.Unpack(packer, typeof(T));
             customSerializers.Dispose();
             packer.serializers.Dispose();
+            packer.Dispose();
             return instance;
 
         }
@@ -360,6 +389,7 @@ namespace ME.ECS.Serializer {
             var serializer = new GenericSerializer();
             var instance   = (T)serializer.Unpack(packer, typeof(T));
             allSerializers.Dispose();
+            packer.Dispose();
             return instance;
 
         }
@@ -370,6 +400,7 @@ namespace ME.ECS.Serializer {
             new GenericSerializer().Unpack(packer, objectToOverwrite);
             customSerializers.Dispose();
             packer.serializers.Dispose();
+            packer.Dispose();
             return objectToOverwrite;
 
         }
@@ -385,7 +416,7 @@ namespace ME.ECS.Serializer {
 
             System.IO.MemoryStream stream;
             if (bytes == null) {
-                stream = new System.IO.MemoryStream();
+                stream = new System.IO.MemoryStream(Serializer.BUFFER_CAPACITY);
             } else {
                 stream = new System.IO.MemoryStream(bytes);
             }
@@ -397,7 +428,7 @@ namespace ME.ECS.Serializer {
             
             System.IO.MemoryStream stream;
             if (bytes == null) {
-                stream = new System.IO.MemoryStream();
+                stream = new System.IO.MemoryStream(Serializer.BUFFER_CAPACITY);
             } else {
                 stream = new System.IO.MemoryStream(bytes);
             }
@@ -407,7 +438,7 @@ namespace ME.ECS.Serializer {
 
     }
 
-    public class Packer {
+    public struct Packer {
 
         public struct PackerObject {
 
@@ -432,8 +463,14 @@ namespace ME.ECS.Serializer {
 
                 return new Meta() {
                     metaTypeId = 0,
-                    meta = new Dictionary<System.Type, MetaType>()
+                    meta = PoolDictionary<System.Type, MetaType>.Spawn(8),
                 };
+
+            }
+
+            public void Dispose() {
+
+                PoolDictionary<System.Type, MetaType>.Recycle(ref this.meta);
 
             }
 
@@ -492,6 +529,12 @@ namespace ME.ECS.Serializer {
             this.meta = Meta.Create();
             this.serializers = serializers;
             this.stream = stream;
+
+        }
+
+        public void Dispose() {
+
+            this.meta.Dispose();
 
         }
 

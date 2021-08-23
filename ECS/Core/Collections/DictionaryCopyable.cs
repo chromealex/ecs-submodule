@@ -545,9 +545,9 @@ namespace ME.ECS.Collections {
         }
 
         private int FindEntry(TKey key) {
-            if (key == null) {
+            /*if (key == default) {
                 throw new ArgumentNullException();
-            }
+            }*/
 
             if (this._buckets != null) {
                 var hashCode = this._comparer.GetHashCode(key) & 0x7FFFFFFF;
