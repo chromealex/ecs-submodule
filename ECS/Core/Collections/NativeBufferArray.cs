@@ -92,6 +92,17 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        internal NativeBufferArray(int length) {
+
+            this.Length = length;
+            this.isCreated = length > 0;
+            this.arr = new NativeArray<T>(length, Allocator.Persistent);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         internal NativeBufferArray(T[] arr) {
 
             this.Length = arr.Length;

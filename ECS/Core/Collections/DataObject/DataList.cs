@@ -11,6 +11,9 @@ namespace ME.ECS.Collections {
     #endif
     public struct DataListProvider<T> : IDataObjectProvider<ListCopyable<T>> {
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Clone(ListCopyable<T> from, ref ListCopyable<T> to) {
 
             to = PoolListCopyable<T>.Spawn(from.Capacity);
@@ -18,6 +21,9 @@ namespace ME.ECS.Collections {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Recycle(ref ListCopyable<T> value) {
 
             if (value != null) {
@@ -36,8 +42,15 @@ namespace ME.ECS.Collections {
     [GeneratorIgnoreManagedType]
     public struct DataList<T> : IDataObject<ListCopyable<T>> {
 
+        public int Count => this.Read().Count;
+
         [ME.ECS.Serializer.SerializeField]
         private DataObject<ListCopyable<T>, DataListProvider<T>> dataObject;
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool IsCreated() => this.dataObject.IsCreated();
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

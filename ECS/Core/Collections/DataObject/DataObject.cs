@@ -11,12 +11,18 @@ namespace ME.ECS.Collections {
     #endif
     public struct DataObjectDefaultProvider<T> : IDataObjectProvider<T> where T : struct {
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Clone(T from, ref T to) {
 
             to = from;
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Recycle(ref T value) {
 
             value = default;
@@ -38,6 +44,7 @@ namespace ME.ECS.Collections {
         ref T Get();
         void Set(T value);
         void Dispose();
+        bool IsCreated();
 
     }
 
@@ -105,6 +112,11 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public bool IsCreated() => this.isCreated;
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public DataObject(T data) {
 
             this.disposeSentinel = PoolClass<DisposeSentinel<T, TProvider>>.Spawn();
@@ -123,7 +135,11 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref readonly T Read() {
+        public
+            #if CSHARP_8_OR_NEWER
+            readonly
+            #endif
+            ref readonly T Read() {
 
             if (this.isCreated == false) {
                 throw new System.Exception($"Try to read collection that has been already disposed. Tick: {Worlds.currentWorld.GetCurrentTick()}");
@@ -202,6 +218,12 @@ namespace ME.ECS.Collections {
     public struct DataObject<T> : IDataObject<T> where T : struct {
 
         private DataObject<T, DataObjectDefaultProvider<T>> dataObject;
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool IsCreated() => this.dataObject.IsCreated();
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif

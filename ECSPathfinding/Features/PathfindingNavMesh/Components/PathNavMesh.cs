@@ -2,24 +2,10 @@
 
 namespace ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components {
 
-    public struct PathNavMesh : IStructCopyable<PathNavMesh> {
+    public struct PathNavMesh : IComponent {
 
         public ME.ECS.Pathfinding.PathCompleteState result;
-        public ME.ECS.Collections.NativeBufferArray<UnityEngine.Vector3> path;
-
-        void IStructCopyable<PathNavMesh>.CopyFrom(in PathNavMesh other) {
-
-            this.result = other.result;
-            NativeArrayUtils.Copy(other.path, ref this.path);
-
-        }
-
-        void IStructCopyable<PathNavMesh>.OnRecycle() {
-
-            this.result = default;
-            this.path = this.path.Dispose();
-
-        }
+        public ME.ECS.Collections.NativeDataBufferArray<UnityEngine.Vector3> path;
 
     }
 

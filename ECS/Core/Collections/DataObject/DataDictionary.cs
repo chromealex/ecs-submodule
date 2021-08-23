@@ -11,6 +11,9 @@ namespace ME.ECS.Collections {
     #endif
     public struct DataDictionaryProvider<TKey, TValue> : IDataObjectProvider<DictionaryCopyable<TKey, TValue>> {
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Clone(DictionaryCopyable<TKey, TValue> from, ref DictionaryCopyable<TKey, TValue> to) {
 
             to = PoolDictionaryCopyable<TKey, TValue>.Spawn(from.Count);
@@ -18,6 +21,9 @@ namespace ME.ECS.Collections {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Recycle(ref DictionaryCopyable<TKey, TValue> value) {
 
             if (value != null) {
@@ -38,6 +44,11 @@ namespace ME.ECS.Collections {
 
         [ME.ECS.Serializer.SerializeField]
         private DataObject<DictionaryCopyable<TKey, TValue>, DataDictionaryProvider<TKey, TValue>> dataObject;
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool IsCreated() => this.dataObject.IsCreated();
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

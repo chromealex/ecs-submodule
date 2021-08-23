@@ -90,11 +90,12 @@ namespace ME.ECS.Pathfinding.Features {
 
             if (entity.Has<ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh>() == true) {
                 ref var oldPath = ref entity.Get<ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh>();
-                oldPath.path = oldPath.path.Dispose();
+                oldPath.path.Dispose();
+                oldPath.path = default;
             }
             entity.Set(new ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh() {
                 result = path.result,
-                path = NativeBufferArray<UnityEngine.Vector3>.From(path.navMeshPoints),
+                path = new NativeDataBufferArray<UnityEngine.Vector3>(path.navMeshPoints.ToBufferArray()),
             });
             entity.Set(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
 
