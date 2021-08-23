@@ -20,6 +20,9 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
         private int clicksCount;
         private float prevPressedTime;
 
+        private UnityEngine.Vector3 gesturePitchPointer1LastPos;
+        private UnityEngine.Vector3 gesturePitchPointer2LastPos;
+
         public World world { get; set; }
         
         void IModuleBase.OnConstruct() {
@@ -57,6 +60,63 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
 
                 }
                 
+            }
+            
+            if (InputUtils.GetPointersCount() == 2) {
+
+                var forceMove = false;
+                if (InputUtils.IsPointerDown(0) == true ||
+                    InputUtils.IsPointerDown(1) == true) {
+
+                    if (this.GetWorldPointer(0, out var wp1) == true &&
+                        this.GetWorldPointer(1, out var wp2) == true) {
+
+                        this.world.AddMarker(new Markers.InputGesturePitchDown() {
+                            pointer1 = new InputPointerData(0, wp1, InputEventType.PointerDown),
+                            pointer2 = new InputPointerData(1, wp2, InputEventType.PointerDown),
+                        });
+
+                        forceMove = true;
+
+                    }
+
+                } else if (InputUtils.IsPointerUp(0) == true ||
+                           InputUtils.IsPointerUp(1) == true) {
+
+                    if (this.GetWorldPointer(0, out var wp1) == false) wp1 = this.gesturePitchPointer1LastPos;
+                    if (this.GetWorldPointer(1, out var wp2) == false) wp2 = this.gesturePitchPointer2LastPos;
+
+                    this.world.AddMarker(new Markers.InputGesturePitchUp() {
+                        pointer1 = new InputPointerData(0, wp1, InputEventType.PointerUp),
+                        pointer2 = new InputPointerData(1, wp2, InputEventType.PointerUp),
+                    });
+
+                }
+                
+                if (InputUtils.IsPointerPressed(0) == true ||
+                    InputUtils.IsPointerPressed(1) == true) {
+
+                    if (this.GetWorldPointer(0, out var wp1) == true &&
+                        this.GetWorldPointer(1, out var wp2) == true) {
+
+                        if (forceMove == true ||
+                            (this.gesturePitchPointer1LastPos - wp1).sqrMagnitude > this.feature.gesturePitchMinDragThreshold ||
+                            (this.gesturePitchPointer2LastPos - wp2).sqrMagnitude > this.feature.gesturePitchMinDragThreshold) {
+
+                            this.world.AddMarker(new Markers.InputGesturePitchMove() {
+                                pointer1 = new InputPointerData(0, wp1, InputEventType.PointerDragMove),
+                                pointer2 = new InputPointerData(1, wp2, InputEventType.PointerDragMove),
+                            });
+                            
+                            this.gesturePitchPointer1LastPos = wp1;
+                            this.gesturePitchPointer2LastPos = wp2;
+
+                        }
+
+                    }
+
+                }
+
             }
             
             if (InputUtils.IsPointerDown(0) == true) {
@@ -207,6 +267,24 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
 
         }
 
+        private bool GetWorldPointer(int pointerId, out UnityEngine.Vector3 result) {
+
+            result = default;
+            if (this.feature.camera == null) return false;
+
+            var pos = InputUtils.GetPointerPosition(pointerId);
+            var ray = this.feature.camera.ScreenPointToRay(pos);
+            if (UnityEngine.Physics.Raycast(ray, out var hit, this.feature.raycastDistance, this.feature.raycastMask) == true) {
+
+                result = hit.point;
+                return true;
+
+            }
+
+            return false;
+
+        }
+        
         private bool GetWorldPointer(out UnityEngine.Vector3 result) {
 
             result = default;

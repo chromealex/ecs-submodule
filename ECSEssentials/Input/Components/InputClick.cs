@@ -7,7 +7,7 @@ namespace ME.ECS.Essentials.Input.Components {
         InputPointerData setData { set; get; }
         
     }
-    
+
     public struct InputPointerClick : IInputPointerComponent {
 
         public InputPointerData data;

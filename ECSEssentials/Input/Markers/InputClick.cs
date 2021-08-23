@@ -2,12 +2,12 @@
 
 namespace ME.ECS.Essentials.Input.Input.Markers {
 
-    public interface IInputPointerMarker : IMarker {
+    public interface IInputPointerMarker : IEventMarker {
 
         InputPointerData data { get; }
 
     }
-    
+
     public struct InputPointerClick : IInputPointerMarker {
 
         public InputPointerData serializedData;

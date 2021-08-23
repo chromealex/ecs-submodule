@@ -4,7 +4,19 @@
     using inp = UnityEngine.Input;
     
     public static class InputUtils {
+        
+        public static int GetPointersCount() {
 
+            if (inp.touchSupported == false) {
+
+                return 1;
+                
+            }
+
+            return inp.touchCount;
+
+        }
+            
         public static Vector3 GetPointerPosition(int index) {
 
             if (inp.touchCount > 0 && inp.touchCount >= index + 1) {

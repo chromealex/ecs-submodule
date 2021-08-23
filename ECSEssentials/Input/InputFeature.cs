@@ -9,6 +9,14 @@ namespace ME.ECS.Essentials {
     namespace Input.Systems {}
     namespace Input.Markers {}
 
+    public interface IEventMarker : IMarker {}
+
+    public interface IGestureMarker : IMarker {
+
+        UnityEngine.Vector3 worldPosition { get; }
+
+    }
+
     public enum InputEventType {
 
         Any = 0,
@@ -19,6 +27,10 @@ namespace ME.ECS.Essentials {
         PointerDragBegin,
         PointerDragMove,
         PointerDragEnd,
+        
+        GesturePitchDown,
+        GesturePitchMove,
+        GesturePitchUp,
 
     }
     
@@ -104,6 +116,70 @@ namespace ME.ECS.Essentials {
 
     }
     
+    public struct InputGesture<TMarker, TComponent> where TMarker : struct, ME.ECS.Essentials.Input.Input.Markers.IInputGesture2FingersMarker where TComponent : struct, IInputGesture2FingersComponent {
+
+        private readonly ME.ECS.Network.INetworkModuleBase networkModule;
+        private readonly RPCId rpcId;
+        private readonly InputFeature networkObject;
+        private readonly object tag;
+        private readonly InputEventType inputEventType;
+        private System.Func<Entity> getEntity;
+        
+        public InputGesture(InputFeature feature, InputEventType inputEventType, ME.ECS.Network.INetworkModuleBase networkModule, System.Action<Entity, TMarker> rpc) {
+
+            this.networkModule = networkModule;
+            this.networkObject = feature;
+            this.getEntity = null;
+            this.rpcId = default;
+            this.tag = default;
+            this.inputEventType = inputEventType;
+            
+            this.tag = this.networkObject;
+            this.rpcId = this.networkModule.RegisterRPC(rpc.Method);
+
+        }
+
+        public void SetPlayerEntityReceiver(System.Func<Entity> getEntity) {
+
+            this.getEntity = getEntity;
+
+        }
+
+        public void Execute() {
+
+            var world = Worlds.currentWorld;
+            if (world.GetMarker(out TMarker marker) == true) {
+
+                this.Execute(marker);
+
+            }
+
+        }
+
+        private void Execute(TMarker marker) {
+
+            var entity = this.getEntity.Invoke();
+            this.networkModule.RPC(this.tag, this.rpcId, entity, marker);
+
+        }
+
+        public void RPC(Entity player, TMarker marker) {
+
+            if (this.networkObject.IsAllowed(player, this.inputEventType, marker.worldPosition) == true) {
+
+                //UnityEngine.Debug.Log("RPC: " + marker + " :: " + typeof(TComponent) + " on entity " + player + ", position: " + marker.data.worldPosition);
+                player.Set(new TComponent() {
+                    setPointer1 = marker.pointer1,
+                    setPointer2 = marker.pointer2,
+                }, ComponentLifetime.NotifyAllSystems);
+                player.Set<HasAnyInput>(ComponentLifetime.NotifyAllSystems);
+
+            }
+
+        }
+
+    }
+    
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -138,6 +214,13 @@ namespace ME.ECS.Essentials {
         [UnityEngine.TooltipAttribute("Drag move threshold in world meters")]
         public float dragMoveThreshold = 0.2f;
         
+        [UnityEngine.Header("Gestures (Pitch)")]
+        public bool gesturePitchUp;
+        public bool gesturePitchDown;
+        public bool gesturePitchMove;
+        [UnityEngine.TooltipAttribute("Pitch drag move threshold in world meters")]
+        public float gesturePitchMinDragThreshold;
+        
         private InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerClick, InputPointerClick> pointerClickEvent;
         private InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDoubleClick, InputPointerDoubleClick> pointerDoubleClickEvent;
         private InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDragBegin, InputPointerDragBegin> pointerDragBeginEvent;
@@ -145,6 +228,9 @@ namespace ME.ECS.Essentials {
         private InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDragEnd, InputPointerDragEnd> pointerDragEndEvent;
         private InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerUp, InputPointerUp> pointerUpEvent;
         private InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDown, InputPointerDown> pointerDownEvent;
+        private InputGesture<ME.ECS.Essentials.Input.Input.Markers.InputGesturePitchUp, InputGesturePitchUp> gesturePitchUpEvent;
+        private InputGesture<ME.ECS.Essentials.Input.Input.Markers.InputGesturePitchDown, InputGesturePitchDown> gesturePitchDownEvent;
+        private InputGesture<ME.ECS.Essentials.Input.Input.Markers.InputGesturePitchMove, InputGesturePitchMove> gesturePitchMoveEvent;
 
         internal UnityEngine.Camera camera;
         private Filter inputMaskFilter;
@@ -162,6 +248,10 @@ namespace ME.ECS.Essentials {
             if (this.pointerDragEnd == true) this.pointerDragEndEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDragEnd, InputPointerDragEnd>(this, InputEventType.PointerDragEnd, net, this.RPC);
             if (this.pointerUp == true) this.pointerUpEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerUp, InputPointerUp>(this, InputEventType.PointerUp, net, this.RPC);
             if (this.pointerDown == true) this.pointerDownEvent = new InputAction<ME.ECS.Essentials.Input.Input.Markers.InputPointerDown, InputPointerDown>(this, InputEventType.PointerDown, net, this.RPC);
+
+            if (this.gesturePitchDown == true) this.gesturePitchDownEvent = new InputGesture<ME.ECS.Essentials.Input.Input.Markers.InputGesturePitchDown, InputGesturePitchDown>(this, InputEventType.GesturePitchDown, net, this.RPC);
+            if (this.gesturePitchMove == true) this.gesturePitchMoveEvent = new InputGesture<ME.ECS.Essentials.Input.Input.Markers.InputGesturePitchMove, InputGesturePitchMove>(this, InputEventType.GesturePitchMove, net, this.RPC);
+            if (this.gesturePitchUp == true) this.gesturePitchUpEvent = new InputGesture<ME.ECS.Essentials.Input.Input.Markers.InputGesturePitchUp, InputGesturePitchUp>(this, InputEventType.GesturePitchUp, net, this.RPC);
 
             this.AddModule<ME.ECS.Essentials.Input.Input.Modules.InputModule>();
             this.AddSystem<ME.ECS.Essentials.Input.Input.Systems.SendMessagesSystem>();
@@ -316,6 +406,10 @@ namespace ME.ECS.Essentials {
             if (this.pointerDragEnd == true) this.pointerDragEndEvent.SetPlayerEntityReceiver(getEntity);
             if (this.pointerUp == true) this.pointerUpEvent.SetPlayerEntityReceiver(getEntity);
             if (this.pointerDown == true) this.pointerDownEvent.SetPlayerEntityReceiver(getEntity);
+            
+            if (this.gesturePitchDown == true) this.gesturePitchDownEvent.SetPlayerEntityReceiver(getEntity);
+            if (this.gesturePitchMove == true) this.gesturePitchMoveEvent.SetPlayerEntityReceiver(getEntity);
+            if (this.gesturePitchUp == true) this.gesturePitchUpEvent.SetPlayerEntityReceiver(getEntity);
 
         }
 
@@ -328,6 +422,10 @@ namespace ME.ECS.Essentials {
             if (this.pointerDragEnd == true) this.pointerDragEndEvent.Execute();
             if (this.pointerUp == true) this.pointerUpEvent.Execute();
             if (this.pointerDown == true) this.pointerDownEvent.Execute();
+            
+            if (this.gesturePitchDown == true) this.gesturePitchDownEvent.Execute();
+            if (this.gesturePitchMove == true) this.gesturePitchMoveEvent.Execute();
+            if (this.gesturePitchUp == true) this.gesturePitchUpEvent.Execute();
 
         }
         
@@ -338,6 +436,9 @@ namespace ME.ECS.Essentials {
         private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputPointerDragEnd marker) { this.pointerDragEndEvent.RPC(player, marker); }
         private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputPointerUp marker) { this.pointerUpEvent.RPC(player, marker); }
         private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputPointerDown marker) { this.pointerDownEvent.RPC(player, marker); }
+        private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputGesturePitchDown marker) { this.gesturePitchDownEvent.RPC(player, marker); }
+        private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputGesturePitchMove marker) { this.gesturePitchMoveEvent.RPC(player, marker); }
+        private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputGesturePitchUp marker) { this.gesturePitchUpEvent.RPC(player, marker); }
 
     }
 
