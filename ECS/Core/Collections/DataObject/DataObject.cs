@@ -80,6 +80,7 @@ namespace ME.ECS.Collections {
 
         ~DisposeSentinel() {
 
+            if (Unity.Collections.NativeLeakDetection.Mode != Unity.Collections.NativeLeakDetectionMode.Disabled) UnityEngine.Debug.Log($"Object collected. Suppress and reused. Data: {this.data}");
             this.Dispose();
 
         }
@@ -123,11 +124,12 @@ namespace ME.ECS.Collections {
             this.disposeSentinel.data = data;
             this.disposeSentinel.tick = Worlds.currentWorld.GetLastSavedTick();
             this.isCreated = true;
-
+            
         }
 
         public override int GetHashCode() {
-
+            
+            if (this.isCreated == false) return 0;
             return this.disposeSentinel.data.GetHashCode();
 
         }

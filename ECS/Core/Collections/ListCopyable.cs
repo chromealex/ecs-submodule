@@ -159,6 +159,7 @@
 
         public bool Remove(T item) {
 
+            if (this.Count == 0) return false;
             var index = System.Array.IndexOf(this.innerArray.arr, item, 0, this.Count);
             if (index >= 0) {
                 this.RemoveAt(index);
@@ -203,6 +204,7 @@
         }
 
         public bool Contains(T item) {
+            if (this.Count == 0) return false;
             return System.Array.IndexOf(this.innerArray.arr, item, 0, this.Count) != -1;
         }
 

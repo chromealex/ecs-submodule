@@ -86,7 +86,10 @@ namespace ME.ECS.Collections {
         #endif
         public NativeDataBufferArray(int length = 0) {
 
+            var mode = Unity.Collections.NativeLeakDetection.Mode;
+            Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
             this.dataObject = new DataObject<NativeBufferArray<T>, NativeDataBufferArrayProvider<T>>(new NativeBufferArray<T>(length));
+            Unity.Collections.NativeLeakDetection.Mode = mode;
             this.Length = length;
 
         }
@@ -96,7 +99,10 @@ namespace ME.ECS.Collections {
         #endif
         public NativeDataBufferArray(BufferArray<T> data) {
 
+            var mode = Unity.Collections.NativeLeakDetection.Mode;
+            Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
             this.dataObject = new DataObject<NativeBufferArray<T>, NativeDataBufferArrayProvider<T>>(new NativeBufferArray<T>(data));
+            Unity.Collections.NativeLeakDetection.Mode = mode;
             this.Length = data.Length;
 
         }

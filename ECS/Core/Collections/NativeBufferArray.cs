@@ -360,7 +360,7 @@ namespace ME.ECS.Collections {
                 content += "[" + i + "] " + this.arr[i] + "\n";
             }
 
-            return "BufferArray<>[" + this.Length + "]:\n" + content;
+            return "NativeBufferArray<>[" + this.Length + "]:\n" + content;
 
         }
 
