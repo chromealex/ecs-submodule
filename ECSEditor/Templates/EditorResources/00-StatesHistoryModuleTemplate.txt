@@ -13,6 +13,8 @@
     #endif
     public sealed class StatesHistoryModule : ME.ECS.StatesHistory.StatesHistoryModule<TState> {
 
+        private uint ticks;
+        
         protected override uint GetQueueCapacity() {
 
             // Here you can set up history states capacity
