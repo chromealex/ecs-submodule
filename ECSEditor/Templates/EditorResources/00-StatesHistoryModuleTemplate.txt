@@ -27,6 +27,18 @@
 
         }
 
+        public void SetTicksForInput(uint ticks) {
+
+            this.ticks = ticks;
+
+        }
+        
+        protected override uint GetTicksForInput() {
+
+            return this.ticks;
+
+        }
+
     }
 
 }
