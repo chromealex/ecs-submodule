@@ -2,9 +2,9 @@
 #define INLINE_METHODS
 #endif
 
-using Unity.Collections;
-
 namespace ME.ECS {
+
+    using Collections;
 
     public static class FilterBurstExt {
 
@@ -84,7 +84,7 @@ namespace ME.ECS {
 
                 var data = filterData.GetBurstData();
                 NativeArrayUtils.Resize(this.index, ref this.filters, true);
-                var idx = this.filters.arr.IndexOf(data);
+                var idx = this.filters.IndexOf(data);
                 if (idx == -1) {
 
                     this.filters[this.index] = data;
