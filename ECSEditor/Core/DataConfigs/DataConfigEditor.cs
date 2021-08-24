@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Reflection;
 using ME.ECS.Extensions;
 
 namespace ME.ECSEditor {
@@ -6,695 +7,482 @@ namespace ME.ECSEditor {
     using UnityEngine;
     using UnityEditor;
     using ME.ECS;
+    using UnityEditor.UIElements;
+    using UnityEngine.UIElements;
 
     [UnityEditor.CustomEditor(typeof(ME.ECS.DataConfigs.DataConfig), true)]
     [CanEditMultipleObjects]
     public class DataConfigEditor : Editor {
 
-        private struct Registry {
-
-            public IStructComponentBase data;
-            public int index;
-
-        }
-
-        private static readonly WorldsViewerEditor.WorldEditor multipleWorldEditor = new WorldsViewerEditor.WorldEditor();
-        private static readonly System.Collections.Generic.Dictionary<Object, WorldsViewerEditor.WorldEditor> worldEditors = new System.Collections.Generic.Dictionary<Object, WorldsViewerEditor.WorldEditor>();
-
-        private SerializedProperty sharedGroupId;
-        private SerializedProperty componentsProperty;
-        
-        protected virtual void OnEnable() {
-
-            this.sharedGroupId = this.serializedObject.FindProperty("sharedGroupId");
-            this.componentsProperty = this.serializedObject.FindProperty("structComponents");
-            
-            foreach (var target in this.targets) {
-
-                var config = (ME.ECS.DataConfigs.DataConfig)target;
-                if (config.templates == null) config.templates = new string[0];
-                foreach (var guid in config.templates) {
-
-                    var path = AssetDatabase.GUIDToAssetPath(guid);
-                    if (string.IsNullOrEmpty(path) == true) continue;
-                    
-                    var template = AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfigTemplate>(path);
-                    if (template != null) template.Use(config);
-
-                }
-
-            }
-            
-        }
-
-        private bool CanMove(ME.ECS.DataConfigs.DataConfig dataConfig, int from, int to) {
-
-            var arr = dataConfig.structComponents;
-            if (to < 0 || to >= arr.Length) return false;
-
-            return true;
-
-        }
-        
-        private void MoveElement(ME.ECS.DataConfigs.DataConfig dataConfig, int from, int to) {
-            
-            var arr = dataConfig.structComponents;
-            var old = arr[to];
-            arr[to] = arr[from];
-            arr[from] = old;
-
-            GUILayoutExt.DropCachedFields();
-
-            this.Save(dataConfig);
-
-        }
-
-        private string search;
-        public override void OnInspectorGUI() {
-            
-            var dataConfig = (ME.ECS.DataConfigs.DataConfig)this.target;
-            if (dataConfig is ME.ECS.DataConfigs.DataConfigTemplate == false) {
-
-                foreach (var target in this.targets) {
-
-                    var dc = (ME.ECS.DataConfigs.DataConfig)target;
-                    if (dc.sharedGroupId == 0) {
-
-                        dc.sharedGroupId = ME.ECS.MathUtils.GetHash(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(dc)));
-                        this.Save(dc);
-
-                    }
-
-                }
-
-                GUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-                this.serializedObject.Update();
-                var sharedIdLabelStyle = new GUIStyle(EditorStyles.miniBoldLabel);
-                sharedIdLabelStyle.alignment = TextAnchor.MiddleRight;
-                EditorGUILayout.LabelField("Shared ID:", sharedIdLabelStyle);
-                EditorGUILayout.PropertyField(this.sharedGroupId, new GUIContent(string.Empty), GUILayout.Width(100f));
-                this.serializedObject.ApplyModifiedProperties();
-                GUILayout.EndHorizontal();
-
-            }
-
-            this.search = GUILayoutExt.SearchField("Search", this.search);
-            
-            {
-                var style = new GUIStyle(EditorStyles.toolbar);
-                style.fixedHeight = 0f;
-                style.stretchHeight = true;
-
-                var backStyle = new GUIStyle(EditorStyles.label);
-                backStyle.normal.background = Texture2D.whiteTexture;
-
-                var slice = new ME.ECS.DataConfigs.DataConfigSlice();
-                var isMultiple = false;
-                if (this.targets.Length > 1) {
-
-                    slice = ME.ECS.DataConfigs.DataConfigSlice.Distinct(this.targets.Cast<ME.ECS.DataConfigs.DataConfig>().ToArray());
-                    isMultiple = true;
-
-                } else {
-
-                    var config = (ME.ECS.DataConfigs.DataConfig)this.target;
-                    slice = new ME.ECS.DataConfigs.DataConfigSlice() {
-                        configs = new[] {
-                            config
-                        },
-                        structComponentsTypes = config.structComponents.Where(x => x != null).Select(x => x.GetType()).ToArray(),
-                    };
-
-                }
-
-                var usedComponentsAll = new System.Collections.Generic.HashSet<System.Type>();
-                foreach (var cfg in slice.configs) {
-
-                    var componentTypes = cfg.GetStructComponentTypes();
-                    foreach (var cType in componentTypes) {
-
-                        if (usedComponentsAll.Contains(cType) == false) usedComponentsAll.Add(cType);
-
-                    }
-
-                    if (DataConfigEditor.worldEditors.TryGetValue(cfg, out var worldEditor) == false) {
-
-                        worldEditor = new WorldsViewerEditor.WorldEditor();
-                        DataConfigEditor.worldEditors.Add(cfg, worldEditor);
-
-                    }
-
-                }
-
-                if (isMultiple == true) {
-
-                    GUILayoutExt.DrawHeader("The Same Components:");
-
-                    GUILayoutExt.Padding(4f, () => {
-
-                        var kz = 0;
-                        for (int i = 0; i < slice.structComponentsTypes.Length; ++i) {
-
-                            var type = slice.structComponentsTypes[i];
-                            var component = slice.configs[0].GetByType(slice.configs[0].structComponents, type);
-                            if (GUILayoutExt.IsSearchValid(component, this.search) == false) continue;
-                            var components = slice.configs.Select(x => x.GetByType(x.structComponents, type)).ToArray();
-
-                            var backColor = GUI.backgroundColor;
-                            GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
-
-                            GUILayout.BeginVertical(backStyle);
-                            {
-                                GUI.backgroundColor = backColor;
-                                var editor = WorldsViewerEditor.GetEditor(components);
-                                if (editor != null) {
-
-                                    EditorGUI.BeginChangeCheck();
-                                    editor.OnDrawGUI();
-                                    if (EditorGUI.EndChangeCheck() == true) {
-
-                                        slice.Set(components);
-                                        this.Save(slice.configs);
-
-                                    }
-
-                                } else {
-
-                                    var componentName = GUILayoutExt.GetStringCamelCaseSpace(component.GetType().Name);
-                                    var fieldsCount = GUILayoutExt.GetFieldsCount(component);
-                                    if (fieldsCount == 0) {
-
-                                        EditorGUI.BeginDisabledGroup(true);
-                                        EditorGUILayout.Toggle(componentName, true);
-                                        EditorGUI.EndDisabledGroup();
-
-                                    } else if (fieldsCount == 1) {
-
-                                        var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, components, componentName);
-                                        if (changed == true) {
-
-                                            slice.Set(components);
-                                            this.Save(slice.configs);
-
-                                        }
-
-                                    } else {
-
-                                        GUILayout.BeginHorizontal();
-                                        {
-                                            GUILayout.Space(18f);
-                                            GUILayout.BeginVertical();
-                                            {
-
-                                                var key = "ME.ECS.WorldsViewerEditor.FoldoutTypes." + component.GetType().FullName;
-                                                var foldout = EditorPrefs.GetBool(key, true);
-                                                GUILayoutExt.FoldOut(ref foldout, componentName, () => {
-
-                                                    var changed = GUILayoutExt.DrawFields(DataConfigEditor.multipleWorldEditor, components);
-                                                    if (changed == true) {
-
-                                                        slice.Set(components);
-                                                        this.Save(slice.configs);
-
-                                                    }
-
-                                                });
-                                                EditorPrefs.SetBool(key, foldout);
-
-                                            }
-                                            GUILayout.EndVertical();
-                                        }
-                                        GUILayout.EndHorizontal();
-
-                                    }
-
-                                }
-
-                                GUILayoutExt.DrawComponentHelp(component.GetType());
-                                this.DrawShared(component);
-                                
-                            }
-                            GUILayout.EndVertical();
-
-                            GUILayoutExt.Separator();
-
-                        }
-
-                    });
-
-                    GUILayoutExt.DrawAddComponentMenu(usedComponentsAll, (addType, isUsed) => {
-
-                        foreach (var dataConfigInner in slice.configs) {
-
-                            if (isUsed == true) {
-
-                                this.OnRemoveComponent(addType);
-                                usedComponentsAll.Remove(addType);
-                                for (int i = 0; i < dataConfigInner.structComponents.Length; ++i) {
-
-                                    if (dataConfigInner.structComponents[i].GetType() == addType) {
-
-                                        var list = dataConfigInner.structComponents.ToList();
-                                        list.RemoveAt(i);
-                                        dataConfigInner.structComponents = list.ToArray();
-                                        //dataConfigInner.OnScriptLoad();
-                                        this.Save(dataConfigInner);
-                                        break;
-
-                                    }
-
-                                }
-
-                            } else {
-
-                                usedComponentsAll.Add(addType);
-                                System.Array.Resize(ref dataConfigInner.structComponents, dataConfigInner.structComponents.Length + 1);
-                                dataConfigInner.structComponents[dataConfigInner.structComponents.Length - 1] = (IStructComponentBase)System.Activator.CreateInstance(addType);
-                                //dataConfigInner.OnScriptLoad();
-                                this.Save(dataConfigInner);
-                                this.OnAddComponent(addType);
-
-                            }
-
-                        }
-
-                    });
-
-                    return;
-
-                }
-
-                GUILayoutExt.DrawHeader("Add Struct Components:");
-                GUILayoutExt.Separator();
-
-                GUILayoutExt.Padding(4f, () => {
-
-                    var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
-
-                    this.serializedObject.Update();
-                    
-                    if (GUILayoutExt.DrawFieldsSingle(this.search, this.target, DataConfigEditor.multipleWorldEditor, dataConfig.structComponents,
-                                                      (index, component, prop) => {
-                                                          
-                                                          GUILayout.BeginVertical();
-                                                          
-                                                      },
-                                                      (index, component, prop) => {
-
-                        if (component == null) {
-
-                            GUILayout.EndVertical();
-                            GUILayoutExt.Separator();
-                            return;
-
-                        }
-
-                        usedComponents.Add(component.GetType());
-                                                          
-                        GUILayoutExt.DrawComponentHelp(component.GetType());
-                        this.DrawComponentTemplatesUsage(dataConfig, component);
-                        this.DrawShared(component);
-                        
-                        GUILayout.EndVertical();
-                        
-                        {
+        private VisualElement rootVisualElement;
+        private SerializedObject serializedObjectCopy;
+
+        private static IMGUIContainer CreateTemplatesButton(DataConfigEditor editor, 
+                                                            System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate> usedComponents,
+                                                            VisualElement rootElement,
+                                                            VisualElement templatesContainer,
+                                                            SerializedProperty source,
+                                                            SerializedObject so,
+                                                            System.Action<SerializedObject, ME.ECS.DataConfigs.DataConfigTemplate> onAddTemplate,
+                                                            System.Action<SerializedObject, ME.ECS.DataConfigs.DataConfigTemplate> onRemoveTemplate) {
+
+            var container = new IMGUIContainer(() => {
+                
+                GUILayoutExt.DrawManageDataConfigTemplateMenu(usedComponents, (template, isUsed) => {
+
+                    var path = AssetDatabase.GetAssetPath(template);
+                    var guid = AssetDatabase.AssetPathToGUID(path);
+                    if (string.IsNullOrEmpty(guid) == true) return;
+
+                    if (isUsed == true) {
+
+                        var copy = source.Copy();
+                        var i = 0;
+                        var enterChildren = true;
+                        while (copy.NextVisible(enterChildren) == true) {
+
+                            enterChildren = false;
+
+                            if (copy.propertyType != SerializedPropertyType.String) continue;
                             
-                            var lastRect = GUILayoutUtility.GetLastRect();
-                            if (Event.current.type == EventType.ContextClick && lastRect.Contains(Event.current.mousePosition) == true) {
+                            if (copy.stringValue == guid) {
 
-                                var menu = new GenericMenu();
-                                if (this.CanMove(dataConfig, index, index - 1) == true) {
-                                    menu.AddItem(new GUIContent("Move Up"), false, () => { this.MoveElement(dataConfig, index, index - 1); });
-                                } else {
-                                    menu.AddDisabledItem(new GUIContent("Move Up"));
-                                }
-
-                                if (this.CanMove(dataConfig, index, index + 1) == true) {
-                                    menu.AddItem(new GUIContent("Move Down"), false, () => { this.MoveElement(dataConfig, index, index + 1); });
-                                } else {
-                                    menu.AddDisabledItem(new GUIContent("Move Down"));
-                                }
-
-                                menu.AddItem(new GUIContent("Delete"), false, () => {
-
-                                    var list = dataConfig.structComponents.ToList();
-                                    this.OnRemoveComponent(list[index].GetType());
-                                    list.RemoveAt(index);
-                                    dataConfig.structComponents = list.ToArray();
-                                    //dataConfig.OnScriptLoad();
-                                    this.Save(dataConfig);
-
-                                });
-
-                                this.OnComponentMenu(menu, index);
-
-                                menu.ShowAsContext();
+                                usedComponents.Remove(template);
+                                source.DeleteArrayElementAtIndex(i);
+                                so.ApplyModifiedProperties();
+                                onRemoveTemplate.Invoke(so, template);
+                                break;
 
                             }
+
+                            ++i;
 
                         }
                         
-                        GUILayoutExt.Separator();
+                    } else {
 
-                    }, (index, component) => {
-                                                          
-                                                          this.Save(dataConfig);
-
-                                                      }) == true) {
-            
-                        this.Save(dataConfig);
-            
+                        usedComponents.Add(template);
+                        onAddTemplate.Invoke(so, template);
+                        
+                        ++source.arraySize;
+                        var elem = source.GetArrayElementAtIndex(source.arraySize - 1);
+                        elem.stringValue = guid;
+                        so.ApplyModifiedProperties();
+                        
                     }
-                    
-                    GUILayoutExt.DrawAddComponentMenu(usedComponents, (addType, isUsed) => {
 
-                        if (isUsed == true) {
+                    editor.Save();
+                    BuildContainer(editor, rootElement, so);
 
-                            this.OnRemoveComponent(addType);
-                            usedComponents.Remove(addType);
-                            for (int i = 0; i < dataConfig.structComponents.Length; ++i) {
-
-                                if (dataConfig.structComponents[i].GetType() == addType) {
-
-                                    var list = dataConfig.structComponents.ToList();
-                                    list.RemoveAt(i);
-                                    dataConfig.structComponents = list.ToArray();
-                                    //dataConfig.OnScriptLoad();
-                                    this.Save(dataConfig);
-                                    break;
-
-                                }
-
-                            }
-
-                        } else {
-
-                            usedComponents.Add(addType);
-                            System.Array.Resize(ref dataConfig.structComponents, dataConfig.structComponents.Length + 1);
-                            dataConfig.structComponents[dataConfig.structComponents.Length - 1] = (IStructComponentBase)System.Activator.CreateInstance(addType);
-                            //dataConfig.OnScriptLoad();
-                            this.Save(dataConfig);
-                            this.OnAddComponent(addType);
-
-                        }
-
-                    });
-
-                    this.serializedObject.ApplyModifiedProperties();
-                    
                 });
                 
-                GUILayoutExt.DrawHeader("Remove Struct Components:");
-                GUILayoutExt.Separator();
+            });
+            container.AddToClassList("add-template-menu-button-imgui");
 
-                // Remove struct components
-                GUILayoutExt.Padding(4f, () => {
+            return container;
 
-                    var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
+        }
+        
+        private static IMGUIContainer CreateButton(DataConfigEditor editor, System.Collections.Generic.HashSet<System.Type> usedComponents, SerializedProperty source, VisualElement elements, bool noFields) {
+            
+            var addMenuButton = new IMGUIContainer(() => {
 
-                    var kz = 0;
-                    var registries = dataConfig.removeStructComponents;
-                    for (int i = 0; i < registries.Length; ++i) {
+                GUILayoutExt.DrawAddComponentMenu(usedComponents, (type, isUsed) => {
 
-                        var registry = registries[i];
-                        if (GUILayoutExt.IsSearchValid(registry, this.search) == false) continue;
-                        var type = registry.GetType();
+                    if (isUsed == false) {
 
                         usedComponents.Add(type);
 
-                        var backColor = GUI.backgroundColor;
-                        GUI.backgroundColor = new Color(1f, 1f, 1f, kz++ % 2 == 0 ? 0f : 0.05f);
+                        ++source.arraySize;
+                        var elem = source.GetArrayElementAtIndex(source.arraySize - 1);
+                        elem.managedReferenceValue = System.Activator.CreateInstance(type);
 
-                        GUILayout.BeginVertical(backStyle);
-                        {
-                            GUI.backgroundColor = backColor;
-                            var componentName = GUILayoutExt.GetStringCamelCaseSpace(type.Name);
+                        if (noFields == true) {
 
-                            EditorGUI.BeginDisabledGroup(true);
-                            EditorGUILayout.Toggle(componentName, true);
-                            EditorGUI.EndDisabledGroup();
-
-                            GUILayoutExt.DrawComponentHelp(type);
-                            this.DrawComponentTemplatesUsage(dataConfig, dataConfig.removeStructComponents[i]);
+                            editor.OnAddComponentFromRemoveList(type);
+                            
+                        } else {
+                        
+                            editor.OnAddComponent(type);
 
                         }
-                        GUILayout.EndVertical();
+                        
+                    } else {
 
-                        GUILayoutExt.Separator();
+                        var copy = source.Copy();
+                        var i = 0;
+                        var enterChildren = true;
+                        while (copy.NextVisible(enterChildren) == true) {
 
-                    }
+                            enterChildren = false;
+                            if (copy.propertyType != SerializedPropertyType.ManagedReference) continue;
 
-                    GUILayoutExt.DrawAddComponentMenu(usedComponents, (addType, isUsed) => {
+                            GetTypeFromManagedReferenceFullTypeName(copy.managedReferenceFullTypename, out var compType);
+                            if (compType == type) {
 
-                        if (isUsed == true) {
+                                usedComponents.Remove(type);
+                                source.DeleteArrayElementAtIndex(i);
+                                
+                                if (noFields == true) {
 
-                            this.OnRemoveComponentFromRemoveList(addType);
-                            usedComponents.Remove(addType);
-                            for (int i = 0; i < dataConfig.removeStructComponents.Length; ++i) {
-
-                                if (dataConfig.removeStructComponents[i].GetType() == addType) {
-
-                                    var list = dataConfig.removeStructComponents.ToList();
-                                    list.RemoveAt(i);
-                                    dataConfig.removeStructComponents = list.ToArray();
-                                    //dataConfig.OnScriptLoad();
-                                    this.Save(dataConfig);
-                                    break;
+                                    editor.OnRemoveComponentFromRemoveList(type);
+                            
+                                } else {
+                        
+                                    editor.OnRemoveComponent(type);
 
                                 }
 
+                                break;
+
                             }
 
-                        } else {
-
-                            usedComponents.Add(addType);
-                            System.Array.Resize(ref dataConfig.removeStructComponents, dataConfig.removeStructComponents.Length + 1);
-                            dataConfig.removeStructComponents[dataConfig.removeStructComponents.Length - 1] = (IStructComponentBase)System.Activator.CreateInstance(addType);
-                            //dataConfig.OnScriptLoad();
-                            this.Save(dataConfig);
-                            this.OnAddComponentFromRemoveList(addType);
+                            ++i;
 
                         }
+                        
+                    }
 
-                    });
+                    source.serializedObject.ApplyModifiedProperties();
+                    editor.Save();
+                    BuildInspectorProperties(editor, usedComponents, source, elements, noFields);
 
                 });
 
-                if ((dataConfig is ME.ECS.DataConfigs.DataConfigTemplate) == false) this.DrawTemplates(dataConfig);
+            });
+            addMenuButton.AddToClassList("add-component-menu-button-imgui");
 
-            }
-            
-        }
-
-        private void DrawShared(IStructComponentBase component) {
-            
-            GUILayout.BeginHorizontal();
-            {
-                var styleLabel = new GUIStyle(EditorStyles.miniLabel);
-                styleLabel.richText = true;
-                if (component is IComponentShared) {
-
-                    EditorGUI.BeginDisabledGroup(true);
-                    EditorGUILayout.LabelField(new GUIContent("<color=#7f7><i>Shared</i></color>"), styleLabel);
-                    EditorGUI.EndDisabledGroup();
-
-                    GUILayout.Space(10f);
-
-                }
-
-                if (component is IComponentStatic) {
-
-                    EditorGUI.BeginDisabledGroup(true);
-                    EditorGUILayout.LabelField(new GUIContent("<color=#7ff><i>Static</i></color>"), styleLabel);
-                    EditorGUI.EndDisabledGroup();
-
-                }
-            }
-            GUILayout.EndHorizontal();
+            return addMenuButton;
 
         }
 
-        protected virtual void OnComponentMenu(GenericMenu menu, int index) { }
-        protected virtual void OnAddComponentFromRemoveList(System.Type type) { }
-        protected virtual void OnRemoveComponentFromRemoveList(System.Type type) { }
-        protected virtual void OnAddComponent(System.Type type) { }
-        protected virtual void OnRemoveComponent(System.Type type) { }
+        protected virtual void OnEnable() {
+            
+            this.serializedObjectCopy = this.serializedObject;
 
-        private void DrawTemplates(ME.ECS.DataConfigs.DataConfig dataConfig) {
+        }
 
-            GUILayoutExt.DrawHeader("Used Templates:");
-            GUILayoutExt.Separator();
+        public override UnityEngine.UIElements.VisualElement CreateInspectorGUI() {
+            
+            var container = new UnityEngine.UIElements.VisualElement();
+            this.rootVisualElement = container;
+            container.styleSheets.Add(EditorUtilities.Load<UnityEngine.UIElements.StyleSheet>("ECSEditor/Core/DataConfigs/styles.uss", isRequired: true));
+            container.Bind(this.serializedObjectCopy);
+
+            BuildContainer(this, container, this.serializedObjectCopy);
+            
+            return container;
+
+        }
+
+        public virtual void OnComponentMenu(GenericMenu menu, int index) { }
+        public virtual void OnAddComponentFromRemoveList(System.Type type) { }
+        public virtual void OnRemoveComponentFromRemoveList(System.Type type) { }
+        public virtual void OnAddComponent(System.Type type) { }
+        public virtual void OnRemoveComponent(System.Type type) { }
+
+        public virtual void BuildUsedTemplates(VisualElement container, SerializedObject so) {
+            
+            var header = new Label("Used Templates:");
+            header.AddToClassList("header");
+            container.Add(header);
+
+            var templatesContainer = new VisualElement();
+            container.Add(templatesContainer);
+            var source = so.FindProperty("templates");
 
             var usedComponents = new System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate>();
-            if (dataConfig.templates != null) {
+            BuildTemplates(usedComponents, templatesContainer, source);
+            
+            container.Add(CreateTemplatesButton(this, usedComponents, container, templatesContainer, source, so, OnAddTemplate, OnRemoveTemplate));
+            
+        }
 
-                var rect = new Rect(0f, 0f, EditorGUIUtility.currentViewWidth, 1000f);
-                var style = new GUIStyle("AssetLabel Partial");
-                var buttonRects = EditorGUIUtility.GetFlowLayoutedRects(rect, style, 4f, 4f, dataConfig.templates.Select(x => {
-                    
-                    var guid = x;
-                    if (string.IsNullOrEmpty(guid) == true) return string.Empty;
-                    
-                    var path = AssetDatabase.GUIDToAssetPath(guid);
-                    if (string.IsNullOrEmpty(path) == true) return string.Empty;
-                    
-                    var template = AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfigTemplate>(path);
-                    if (template == null) return string.Empty;
+        public static void BuildContainer(DataConfigEditor editor, VisualElement container, SerializedObject so) {
+            
+            var structComponents = new VisualElement();
+            var removeStructComponents = new VisualElement();
 
-                    return template.name;
+            container.Clear();
 
-                }).ToList());
-                GUILayout.BeginHorizontal();
-                GUILayout.EndHorizontal();
-                var areaRect = GUILayoutUtility.GetLastRect();
-                for (int i = 0; i < buttonRects.Count; ++i) areaRect.height = Mathf.Max(0f, buttonRects[i].yMax);
+            var searchField = new ToolbarSearchField();
+            searchField.AddToClassList("search-field");
+            searchField.RegisterValueChangedCallback((evt) => {
 
-                GUILayoutUtility.GetRect(areaRect.width, areaRect.height);
+                var search = evt.newValue.ToLower();
+                Search(search, structComponents);
+                Search(search, removeStructComponents);
                 
-                GUI.BeginGroup(areaRect);
-                for (int i = 0; i < dataConfig.templates.Length; ++i) {
+            });
+            container.Add(searchField);
 
-                    var guid = dataConfig.templates[i];
-                    if (string.IsNullOrEmpty(guid) == true) continue;
+            {
+                var header = new Label("Components:");
+                header.AddToClassList("header");
+                container.Add(header);
+                container.Add(structComponents);
+                var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
+                var source = so.FindProperty("structComponents");
+                BuildInspectorProperties(editor, usedComponents, source, structComponents, noFields: false);
+                container.Add(CreateButton(editor, usedComponents, source, structComponents, noFields: false));
+            }
 
-                    var path = AssetDatabase.GUIDToAssetPath(guid);
-                    if (string.IsNullOrEmpty(path) == true) continue;
+            {
+                var header = new Label("Remove Components:");
+                header.AddToClassList("header");
+                container.Add(header);
+                container.Add(removeStructComponents);
+                var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
+                var source = so.FindProperty("removeStructComponents");
+                BuildInspectorProperties(editor, usedComponents, source, removeStructComponents, noFields: true);
+                container.Add(CreateButton(editor, usedComponents, source, removeStructComponents, noFields: true));
+            }
 
-                    var template = AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfigTemplate>(path);
-                    if (template == null) continue;
+            editor.BuildUsedTemplates(container, so);
 
-                    if (usedComponents.Contains(template) == false) usedComponents.Add(template);
+        }
+
+        private static void OnAddTemplate(SerializedObject so, ME.ECS.DataConfigs.DataConfigTemplate template) {
+            
+            var config = so.targetObject as ME.ECS.DataConfigs.DataConfig;
+            config.AddTemplate(template);
+            so.UpdateIfRequiredOrScript();
+
+        }
+
+        private static void OnRemoveTemplate(SerializedObject so, ME.ECS.DataConfigs.DataConfigTemplate template) {
+            
+            var config = so.targetObject as ME.ECS.DataConfigs.DataConfig;
+            var allTemplates = new System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate>();
+            foreach (var guid in config.templates) {
+
+                if (string.IsNullOrEmpty(guid) == true) continue;
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                if (string.IsNullOrEmpty(path) == true) continue;
+                var temp = AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfigTemplate>(path);
+                if (temp == null) continue;
+                allTemplates.Add(temp);
+
+            }
+            config.RemoveTemplate(template, allTemplates);
+            so.UpdateIfRequiredOrScript();
+
+        }
+
+        public void Save() {
+
+            foreach (var target in this.targets) {
+                
+                ((ME.ECS.DataConfigs.DataConfig)target).Save();
+                
+            }
+            
+        }
+
+        private static void BuildTemplates(System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate> usedComponents, VisualElement templatesContainer, SerializedProperty source) {
+            
+            source = source.Copy();
+            templatesContainer.Clear();
+            templatesContainer.AddToClassList("templates-container");
+                
+            for (int i = 0; i < source.arraySize; ++i) {
                     
-                }
-
-                for (int i = 0; i < dataConfig.templates.Length; ++i) {
-
-                    var guid = dataConfig.templates[i];
-                    if (string.IsNullOrEmpty(guid) == true) continue;
-                    
-                    var path = AssetDatabase.GUIDToAssetPath(guid);
-                    if (string.IsNullOrEmpty(path) == true) continue;
-                    
-                    var template = AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfigTemplate>(path);
-                    if (template == null) continue;
-
-                    if (GUI.Button(buttonRects[i], template.name, style) == true) {
+                var elem = source.GetArrayElementAtIndex(i);
+                var guid = elem.stringValue;
+                if (string.IsNullOrEmpty(guid) == true) continue;
                         
-                        EditorGUIUtility.PingObject(template);
-                        //this.RemoveTemplate(dataConfig, template, usedComponents);
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                if (string.IsNullOrEmpty(path) == true) continue;
                         
-                    }
+                var template = AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfigTemplate>(path);
+                if (template == null) continue;
+                    
+                if (usedComponents.Contains(template) == false) usedComponents.Add(template);
+                    
+                var button = new Button(() => {
+                        
+                    EditorGUIUtility.PingObject(template);
 
-                }
-                GUI.EndGroup();
+                });
+                button.AddToClassList("template-button");
+                button.text = template.name;
+                templatesContainer.Add(button);
 
             }
 
-            GUILayoutExt.DrawManageDataConfigTemplateMenu(usedComponents, (template, isUsed) => {
+        }
 
-                var path = AssetDatabase.GetAssetPath(template);
-                var guid = AssetDatabase.AssetPathToGUID(path);
-                if (string.IsNullOrEmpty(guid) == true) return;
-                
-                if (isUsed == true) {
+        private static void Search(string search, VisualElement container) {
+            
+            var isEmpty = string.IsNullOrEmpty(search);
+            var build = container.Query().Class("element").Build();
+            var i = 0;
+            build.ForEach((elem) => {
 
-                    usedComponents.Remove(template);
-                    for (int i = 0; i < dataConfig.templates.Length; ++i) {
-
-                        if (dataConfig.templates[i] == guid) {
-
-                            this.RemoveTemplate(dataConfig, template, usedComponents);
-                            break;
-
-                        }
-
-                    }
-
+                var oddEven = false;
+                if (isEmpty == true) {
+                    elem.RemoveFromClassList("search-not-found");
+                    elem.RemoveFromClassList("search-found");
+                    oddEven = true;
+                } else if (elem.name.ToLower().Contains(search) == true) {
+                    elem.RemoveFromClassList("search-not-found");
+                    elem.AddToClassList("search-found");
+                    oddEven = true;
                 } else {
+                    elem.RemoveFromClassList("search-found");
+                    elem.AddToClassList("search-not-found");
+                }
 
-                    usedComponents.Add(template);
-                    if (dataConfig.templates == null) dataConfig.templates = new string[0];
-                    System.Array.Resize(ref dataConfig.templates, dataConfig.templates.Length + 1);
-                    dataConfig.templates[dataConfig.templates.Length - 1] = guid;
-                    dataConfig.AddTemplate(template);
-                    //dataConfig.OnScriptLoad();
-                    this.Save(dataConfig);
-                    
+                if (oddEven == true) {
+
+                    elem.RemoveFromClassList("odd");
+                    elem.RemoveFromClassList("even");
+                    elem.AddToClassList(i % 2 == 0 ? "even" : "odd");
+
+                    ++i;
+                        
                 }
 
             });
 
         }
 
-        private void DrawComponentTemplatesUsage(ME.ECS.DataConfigs.DataConfig dataConfig, object component) {
+        private static void BuildInspectorProperties(DataConfigEditor editor, System.Collections.Generic.HashSet<System.Type> usedComponents, SerializedProperty obj, UnityEngine.UIElements.VisualElement container, bool noFields) {
 
-            if (dataConfig.templates != null && dataConfig.templates.Length > 1) {
+            obj = obj.Copy();
+            container.Clear();
+            var source = obj.Copy();
+            SerializedProperty iterator = obj;
+            if (iterator.NextVisible(true) == false) return;
+            iterator.NextVisible(true);
+            var depth = iterator.depth;
+            var i = 0;
+            do {
+
+                if (iterator.propertyType != SerializedPropertyType.ManagedReference) continue;
+
+                var element = new VisualElement();
+                element.AddToClassList("element");
+
+                GetTypeFromManagedReferenceFullTypeName(iterator.managedReferenceFullTypename, out var type);
+                element.AddToClassList("element");
+                element.AddToClassList(i % 2 == 0 ? "even" : "odd");
+                element.RegisterCallback<UnityEngine.UIElements.ContextClickEvent, int>((evt, idx) => {
+                    
+                    var menu = new GenericMenu();
+                    menu.AddItem(new GUIContent("Delete"), false, () => {
+
+                        usedComponents.Remove(type);
+                        source.DeleteArrayElementAtIndex(idx);
+                        source.serializedObject.ApplyModifiedProperties();
+                        editor.Save();
+                        BuildInspectorProperties(editor, usedComponents, source, container, noFields);
+
+                    });
+                    editor.OnComponentMenu(menu, idx);
+                    menu.ShowAsContext();
+                    
+                }, i);
                 
-                GUILayout.BeginHorizontal();
-                var list = new System.Collections.Generic.List<ME.ECS.DataConfigs.DataConfigTemplate>();
-                for (int i = 0; i < dataConfig.templates.Length; ++i) {
+                if (type != null && usedComponents.Contains(type) == false) usedComponents.Add(type);
+                if (type == null) {
 
-                    var guid = dataConfig.templates[i];
-                    if (string.IsNullOrEmpty(guid) == true) continue;
+                    var label = new UnityEngine.UIElements.Label("MISSING: " + iterator.managedReferenceFullTypename);
+                    element.name = "missing";
+                    label.AddToClassList("inner-element");
+                    label.AddToClassList("missing-label");
+                    element.Add(label);
+
+                } else if (iterator.hasVisibleChildren == false || noFields == true) {
+
+                    var horizontal = new UnityEngine.UIElements.VisualElement();
+                    horizontal.AddToClassList("inner-element");
+                    horizontal.AddToClassList("no-fields-container");
+                    element.name = type.Name;
                     
-                    var path = AssetDatabase.GUIDToAssetPath(guid);
-                    if (string.IsNullOrEmpty(path) == true) continue;
+                    var toggle = new UnityEngine.UIElements.Toggle();
+                    toggle.AddToClassList("no-fields-toggle");
+                    toggle.SetEnabled(false);
+                    toggle.SetValueWithoutNotify(true);
+                    horizontal.Add(toggle);
+
+                    var label = new UnityEngine.UIElements.Label(GUILayoutExt.GetStringCamelCaseSpace(type.Name));
+                    label.AddToClassList("no-fields-label");
+                    horizontal.Add(label);
+
+                    element.Add(horizontal);
+
+                } else {
                     
-                    var template = AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfigTemplate>(path);
-                    if (template == null) continue;
+                    var label = GUILayoutExt.GetStringCamelCaseSpace(type.Name);
+                    if (iterator.hasVisibleChildren == true) {
 
-                    if (template.HasByType(template.structComponents, component) == true) {
+                        var childs = iterator.Copy();
+                        //var height = EditorGUI.GetPropertyHeight(childs, false);
+                        var cnt = childs.CountInProperty();
+                        if (cnt == 2/* || (height <= 22f && childs.isExpanded == false)*/) iterator.NextVisible(true);
 
-                        list.Add(template);
+                    }
+                    
+                    var propertyField = new PropertyField(iterator.Copy(), label);
+                    propertyField.BindProperty(iterator.Copy());
+                    propertyField.AddToClassList("property-field");
+                    propertyField.AddToClassList("inner-element");
+                    element.name = type.Name;
+                    element.Add(propertyField);
+                    
+                }
 
+                if (type != null) {
+                    
+                    var helps = type.GetCustomAttributes(typeof(ComponentHelpAttribute), false);
+                    if (helps.Length > 0) {
+
+                        var label = new UnityEngine.UIElements.Label(((ComponentHelpAttribute)helps[0]).comment);
+                        label.AddToClassList("comment");
+                        element.Add(label);
+                        
+                    }
+
+                    if (typeof(IComponentStatic).IsAssignableFrom(type) == true) {
+                        
+                        var label = new UnityEngine.UIElements.Label("Static");
+                        label.AddToClassList("static-component");
+                        element.Add(label);
+                        
+                    }
+
+                    if (typeof(IComponentShared).IsAssignableFrom(type) == true) {
+                        
+                        var label = new UnityEngine.UIElements.Label("Shared");
+                        label.AddToClassList("shared-component");
+                        element.Add(label);
+                        
                     }
 
                 }
-
-                if (list.Count > 1) {
-
-                    var style = new GUIStyle("AssetLabel Partial");
-                    foreach (var item in list) {
-
-                        GUILayout.Label(item.name, style);
-
-                    }
-
-                }
-                GUILayout.EndHorizontal();
                 
+                container.Add(element);
+                ++i;
+
+            } while (iterator.NextVisible(false) == true && depth <= iterator.depth);
+            
+        }
+
+        internal static bool GetTypeFromManagedReferenceFullTypeName(string managedReferenceFullTypename, out System.Type managedReferenceInstanceType) {
+            
+            managedReferenceInstanceType = null;
+            var parts = managedReferenceFullTypename.Split(' ');
+            if (parts.Length == 2) {
+                var assemblyPart = parts[0];
+                var nsClassnamePart = parts[1];
+                managedReferenceInstanceType = System.Type.GetType($"{nsClassnamePart}, {assemblyPart}");
             }
+
+            return managedReferenceInstanceType != null;
             
         }
         
-        private void RemoveTemplate(ME.ECS.DataConfigs.DataConfig dataConfig, ME.ECS.DataConfigs.DataConfigTemplate template, System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate> allTemplates) {
-            
-            var path = AssetDatabase.GetAssetPath(template);
-            var guid = AssetDatabase.AssetPathToGUID(path);
-            if (string.IsNullOrEmpty(guid) == true) return;
-
-            var list = dataConfig.templates.ToList();
-            list.Remove(guid);
-            dataConfig.templates = list.ToArray();
-            dataConfig.RemoveTemplate(template, allTemplates);
-            //dataConfig.OnScriptLoad();
-            this.Save(dataConfig);
-            
-        }
-
-        protected void Save(ME.ECS.DataConfigs.DataConfig dataConfig, bool dirtyOnly = false) {
-            
-            dataConfig.Save(dirtyOnly);
-            
-        }
-
-        protected void Save(ME.ECS.DataConfigs.DataConfig[] dataConfigs, bool dirtyOnly = false) {
-
-            foreach (var dataConfig in dataConfigs) dataConfig.Save(dirtyOnly);
-
-        }
-
     }
 
 }

@@ -369,6 +369,18 @@ namespace ME.ECS.DataConfigs {
 
         }
         
+        public void AddByType(IStructComponentBase component) {
+
+            this.AddTo(ref this.structComponents, component);
+
+        }
+
+        public void RemoveByType<T>() where T: IStructComponentBase {
+
+            this.RemoveFrom(ref this.structComponents, typeof(T));
+
+        }
+
         public void SetByType(IStructComponentBase component) {
 
 	        var type = component.GetType();
@@ -508,7 +520,7 @@ namespace ME.ECS.DataConfigs {
             return true;
 
         }
-
+        
         public bool OnAddToTemplate(DataConfigTemplate template, System.Type componentType) {
             
             if (this.HasByType(this.structComponents, componentType) == true) {

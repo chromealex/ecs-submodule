@@ -1,0 +1,124 @@
+.header {
+    padding: 10px 10px 10px 10px;
+    margin: 4px 0px 4px 0px;
+    -unity-font-style: bold;
+    border-bottom-color: rgba(0, 0, 0, 0.5);
+    border-top-color: rgba(0, 0, 0, 0.5);
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.comment-field {
+}
+
+.templates-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.template-button {
+    border-radius: 5px;
+    font-size: 10px;
+    background-color: #157cc6;
+    color: white;
+    margin: 2px 2px 2px 2px;
+}
+
+.search-field {
+    width: auto;
+}
+
+.drag-handler {
+    background-color: #1a73e8;
+    width: 10px;
+    height: 10px;
+}
+
+.shared-component {
+    color: #1a73e8;
+    font-size: 10px;
+    align-self: flex-end;
+}
+
+.static-component {
+    color: #69a55b;
+    font-size: 10px;
+    align-self: flex-end;
+}
+
+.element {
+    display: initial;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.search-not-found {
+    display: none;
+}
+
+.search-found {
+    display: flex;
+}
+
+.even {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.odd {
+    background-color: rgba(255, 255, 255, 0);
+}
+
+.missing-label {
+    color: rgba(255, 100, 100, 1);
+    -unity-font-style: italic;
+}
+
+.no-fields-container {
+    flex-direction: row;
+}
+
+.no-fields-toggle {
+    align-self: flex-start;
+}
+
+.no-fields-label {
+    align-self: flex-start;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.property-field {
+    -unity-font-style: bold;
+    align-self: stretch;
+}
+
+.element .inner-element {
+    padding-left: 4px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.element .inner-element.property-field .unity-foldout__toggle {
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.element .inner-element.property-field .unity-foldout__toggle:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.comment {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.add-component-menu-button-imgui {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    align-self: center;
+}
+
+.add-template-menu-button-imgui {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    align-self: center;
+}
