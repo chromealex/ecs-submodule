@@ -10,9 +10,16 @@ namespace ME.ECSEditor {
     using UnityEditor.UIElements;
     using UnityEngine.UIElements;
 
+    public interface IEditorContainer {
+
+        void Save();
+        void OnComponentMenu(GenericMenu menu, int index);
+
+    }
+
     [UnityEditor.CustomEditor(typeof(ME.ECS.DataConfigs.DataConfig), true)]
     [CanEditMultipleObjects]
-    public class DataConfigEditor : Editor {
+    public class DataConfigEditor : Editor, IEditorContainer {
 
         private VisualElement rootVisualElement;
         private SerializedObject serializedObjectCopy;
@@ -312,7 +319,7 @@ namespace ME.ECSEditor {
 
         }
 
-        private static void Search(string search, VisualElement container) {
+        public static void Search(string search, VisualElement container) {
             
             var isEmpty = string.IsNullOrEmpty(search);
             var build = container.Query().Class("element").Build();
@@ -347,7 +354,14 @@ namespace ME.ECSEditor {
 
         }
 
-        private static void BuildInspectorProperties(DataConfigEditor editor, System.Collections.Generic.HashSet<System.Type> usedComponents, SerializedProperty obj, UnityEngine.UIElements.VisualElement container, bool noFields) {
+        public static void BuildInspectorProperties(IEditorContainer editor, System.Collections.Generic.HashSet<System.Type> usedComponents, SerializedProperty obj,
+                                                    UnityEngine.UIElements.VisualElement container, bool noFields, System.Action<int, PropertyField> onBuild = null) {
+
+            BuildInspectorPropertiesElement(string.Empty, editor, usedComponents, obj, container, noFields, onBuild);
+
+        }
+
+        public static void BuildInspectorPropertiesElement(string elementPath, IEditorContainer editor, System.Collections.Generic.HashSet<System.Type> usedComponents, SerializedProperty obj, UnityEngine.UIElements.VisualElement container, bool noFields, System.Action<int, PropertyField> onBuild = null) {
 
             obj = obj.Copy();
             container.Clear();
@@ -357,34 +371,48 @@ namespace ME.ECSEditor {
             if (iterator.NextVisible(true) == false) return;
             var depth = iterator.depth;
             var i = 0;
+            var iteratorNext = iterator.Copy();
             do {
 
+                if (string.IsNullOrEmpty(elementPath) == false) {
+
+                    iterator = iteratorNext.FindPropertyRelative(elementPath);
+
+                } else {
+
+                    iterator = iteratorNext;
+
+                }
                 if (iterator.propertyType != SerializedPropertyType.ManagedReference) continue;
 
                 var element = new VisualElement();
                 element.AddToClassList("element");
 
                 GetTypeFromManagedReferenceFullTypeName(iterator.managedReferenceFullTypename, out var type);
-                element.AddToClassList("element");
                 element.AddToClassList(i % 2 == 0 ? "even" : "odd");
                 element.RegisterCallback<UnityEngine.UIElements.ContextClickEvent, int>((evt, idx) => {
                     
                     var menu = new GenericMenu();
-                    menu.AddItem(new GUIContent("Delete"), false, () => {
+                    if (usedComponents != null) {
+                        
+                        menu.AddItem(new GUIContent("Delete"), false, () => {
 
-                        usedComponents.Remove(type);
-                        source.DeleteArrayElementAtIndex(idx);
-                        source.serializedObject.ApplyModifiedProperties();
-                        editor.Save();
-                        BuildInspectorProperties(editor, usedComponents, source, container, noFields);
+                            usedComponents?.Remove(type);
+                            source.DeleteArrayElementAtIndex(idx);
+                            source.serializedObject.ApplyModifiedProperties();
+                            editor.Save();
+                            BuildInspectorProperties(editor, usedComponents, source, container, noFields);
 
-                    });
+                        });
+                        
+                    }
+
                     editor.OnComponentMenu(menu, idx);
                     menu.ShowAsContext();
                     
                 }, i);
                 
-                if (type != null && usedComponents.Contains(type) == false) usedComponents.Add(type);
+                if (type != null && usedComponents?.Contains(type) == false) usedComponents?.Add(type);
                 if (type == null) {
 
                     var label = new UnityEngine.UIElements.Label("MISSING: " + iterator.managedReferenceFullTypename);
@@ -425,7 +453,8 @@ namespace ME.ECSEditor {
                     }
                     
                     var propertyField = new PropertyField(iterator.Copy(), label);
-                    propertyField.BindProperty(iterator.Copy());
+                    propertyField.BindProperty(iterator);
+                    onBuild?.Invoke(i, propertyField);
                     propertyField.AddToClassList("property-field");
                     propertyField.AddToClassList("inner-element");
                     element.name = type.Name;
@@ -448,6 +477,7 @@ namespace ME.ECSEditor {
                         
                         var label = new UnityEngine.UIElements.Label("Static");
                         label.AddToClassList("static-component");
+                        element.AddToClassList("has-static-component");
                         element.Add(label);
                         
                     }
@@ -456,6 +486,7 @@ namespace ME.ECSEditor {
                         
                         var label = new UnityEngine.UIElements.Label("Shared");
                         label.AddToClassList("shared-component");
+                        element.AddToClassList("has-shared-component");
                         element.Add(label);
                         
                     }
@@ -465,7 +496,7 @@ namespace ME.ECSEditor {
                 container.Add(element);
                 ++i;
 
-            } while (iterator.NextVisible(false) == true && depth <= iterator.depth);
+            } while (iteratorNext.NextVisible(false) == true && depth <= iteratorNext.depth);
             
         }
 
