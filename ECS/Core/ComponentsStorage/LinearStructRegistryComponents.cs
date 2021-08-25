@@ -32,6 +32,7 @@ namespace ME.ECS {
 
         public abstract int GetTypeBit();
         public abstract int GetAllTypeBit();
+        public abstract bool IsTag();
 
         public abstract void UpdateVersion(in Entity entity);
         public abstract void UpdateVersionNoState(in Entity entity);
@@ -320,6 +321,12 @@ namespace ME.ECS {
         public uint GetVersionNotStated(in Entity entity) {
 
             return this.versionsNoState.arr[entity.id];
+
+        }
+
+        public override bool IsTag() {
+
+            return WorldUtilities.IsComponentAsTag<TComponent>();
 
         }
 

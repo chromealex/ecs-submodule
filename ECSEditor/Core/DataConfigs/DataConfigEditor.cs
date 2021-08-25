@@ -354,7 +354,7 @@ namespace ME.ECSEditor {
             var source = obj.Copy();
             SerializedProperty iterator = obj;
             if (iterator.NextVisible(true) == false) return;
-            iterator.NextVisible(true);
+            if (iterator.NextVisible(true) == false) return;
             var depth = iterator.depth;
             var i = 0;
             do {

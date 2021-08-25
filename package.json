@@ -7,6 +7,7 @@
   "dependencies": {
     "com.unity.collections": "1.0.0-pre.3",
     "com.unity.ui": "1.0.0-preview.16",
+    "com.unity.addressables": "1.18.13",
     "com.unity.burst": "1.5.3",
     "com.unity.mathematics": "1.2.1"
   },
