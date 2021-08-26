@@ -21,8 +21,9 @@ namespace ME.ECSEditor {
         
             var prop = property.Copy();
             var enter = true;
+            var depth = prop.depth;
             var count = 0;
-            while (prop.NextVisible(enter) == true) {
+            while (prop.NextVisible(enter) == true && prop.depth > depth) {
 
                 ++count;
                 enter = false;
