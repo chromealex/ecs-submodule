@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd"
+>
+    <engine:Foldout class="foldout" text="World (Hash: ###)" value="true">
+        <engine:VisualElement class="label-groups">
+            <engine:VisualElement class="label-group">
+                <engine:Label text="Components in use:" class="label-group-label" />
+                <engine:Label text="###/### (###%" class="label-group-value" />
+            </engine:VisualElement>
+            <engine:VisualElement class="progressbar">
+                <engine:VisualElement class="fill" style="width:25%" />
+            </engine:VisualElement>
+            <engine:VisualElement class="label-group">
+                <engine:Label text="State Tick:" class="label-group-label" />
+                <engine:Label text="0" class="label-group-value" />
+            </engine:VisualElement>
+            <engine:VisualElement class="label-group">
+                <engine:Label text="Tick:" class="label-group-label" />
+                <engine:Label text="0" class="label-group-value" />
+            </engine:VisualElement>
+            <engine:VisualElement class="label-group">
+                <engine:Label text="Tick Time:" class="label-group-label" />
+                <engine:Label text="0ms" class="label-group-value" />
+            </engine:VisualElement>
+            <engine:VisualElement class="label-group">
+                <engine:Label text="Time:" class="label-group-label" />
+                <engine:Label text="0ms" class="label-group-value" />
+            </engine:VisualElement>
+            <engine:VisualElement class="label-group">
+                <engine:Label text="State Memory Usage:" class="label-group-label" />
+                <engine:Label text="0 KB" class="label-group-value" />
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement class="block-container">
+            <engine:Foldout class="systems table foldout" text="Systems (###)" value="false">
+                <engine:VisualElement class="table-item">
+                    <engine:Label class="table-column1 table-caption" text="System" />
+                    <engine:Label class="table-column2 table-caption" text="Logic" />
+                    <engine:Label class="table-column3 table-caption" text="Visual" />
+                </engine:VisualElement>
+            </engine:Foldout>
+            <engine:Foldout class="modules table foldout" text="Modules (###)" value="false">
+                <engine:VisualElement class="table-item">
+                    <engine:Label class="table-column1 table-caption" text="Module" />
+                    <engine:Label class="table-column2 table-caption" text="Logic" />
+                    <engine:Label class="table-column3 table-caption" text="Visual" />
+                </engine:VisualElement>
+            </engine:Foldout>
+        </engine:VisualElement>
+    </engine:Foldout>
+</engine:UXML>

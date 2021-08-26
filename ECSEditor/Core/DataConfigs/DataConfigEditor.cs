@@ -448,7 +448,7 @@ namespace ME.ECSEditor {
                         var childs = iterator.Copy();
                         //var height = EditorGUI.GetPropertyHeight(childs, false);
                         var cnt = childs.CountInProperty();
-                        if (cnt == 2/* || (height <= 22f && childs.isExpanded == false)*/) iterator.NextVisible(true);
+                        if (cnt <= 2/* || (height <= 22f && childs.isExpanded == false)*/) iterator.NextVisible(true);
 
                     }
                     

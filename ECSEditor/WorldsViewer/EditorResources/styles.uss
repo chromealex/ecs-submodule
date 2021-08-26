@@ -1,0 +1,113 @@
+TemplateContainer {
+    flex-grow: 1;
+}
+
+.content {
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+.content #Worlds {
+    width: 280px;
+    min-width: 100px;
+}
+
+.content #Content {
+    width: auto;
+    min-width: 200px;
+}
+
+.label-group {
+    flex-direction: row;
+    margin: 2px 0px 2px 0px;
+}
+
+.label-group-label {
+    margin-right: 10px;
+}
+
+.label-group-value {
+    -unity-font-style: bold;
+}
+
+.progressbar {
+    margin-top: 2px;
+    margin-bottom: 2px;
+    margin-right: 10px;
+    height: 6px;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.progressbar .fill {
+    height: 100%;
+    background-color: #157cc6;
+}
+
+.block-container {
+}
+
+.foldout {
+    display: initial;
+    background-color: rgba(255, 255, 255, 0.02);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    border-bottom-width: 1px;
+    border-top-width: 1px;
+    border-left-width: 1px;
+    border-radius: 5px;
+    min-height: 32px;
+    margin-top: 2px;
+    justify-content: center;
+}
+
+.foldout .unity-foldout__toggle {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    margin: 2px;
+    margin-left: 2px;
+    border-radius: 5px;
+    -unity-font-style: bold;
+}
+
+.foldout .unity-foldout__toggle:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.table {}
+.table-item {
+    flex-direction: row;
+}
+.table-column1 {
+    width: 60%;
+    margin: 1px 3px 3px 1px;
+}
+.table-column2 {
+    width: 40px;
+    margin: 1px 3px 3px 1px;
+    align-content: center;
+}
+.table-column3 {
+    width: 40px;
+    margin: 1px 3px 3px 1px;
+    align-content: center;
+}
+.table-caption {
+    -unity-font-style: bold;
+}
+
+.unity_toggle__input {
+    justify-content: center;
+    background-color: red;
+}
+
+.table_column .unity_toggle__input {
+    justify-content: center;
+    background-color: red;
+}
+
+.selectable-label {
+}
+
+.selectable-label .unity-base-text-field__input {
+    border-width: 0px;
+    background-color: rgba(0, 0, 0, 0.05);
+}
