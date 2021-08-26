@@ -576,7 +576,7 @@ namespace ME.ECS.Collections {
             do {
 
                 var nodeEntity = node;
-                var nodeLink = node.Get<IntrusiveListNode>();
+                ref readonly var nodeLink = ref node.Read<IntrusiveListNode>();
                 var nodeData = nodeLink.data;
                 node = nodeLink.next;
                 if (nodeData == entityData) {
@@ -601,7 +601,7 @@ namespace ME.ECS.Collections {
             do {
 
                 var nodeEntity = node;
-                var nodeLink = node.Get<IntrusiveListNode>();
+                ref readonly var nodeLink = ref node.Read<IntrusiveListNode>();
                 node = nodeLink.next;
                 if (idx == index) {
 
