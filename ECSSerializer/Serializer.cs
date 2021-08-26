@@ -438,7 +438,7 @@ namespace ME.ECS.Serializer {
 
     }
 
-    public struct Packer {
+    public class Packer {
 
         public struct PackerObject {
 
