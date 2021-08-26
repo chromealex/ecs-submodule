@@ -240,10 +240,10 @@ namespace ME.ECS {
             var list = PoolListCopyable<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
             if (this.ForEachEntity(list) == true) {
 
-                for (int i = 0; i < list.Count; ++i) {
+                for (int i = list.Count - 1; i >= 0; --i) {
 
                     ref var item = ref list[i];
-                    if (item.IsAlive() == true) this.RemoveEntity(item);
+                    if (item.IsAlive() == true) this.RemoveEntity(item, cleanUpHierarchy: false);
 
                 }
 
@@ -255,7 +255,7 @@ namespace ME.ECS {
             PoolArray<bool>.Recycle(ref this.currentSystemContextFiltersUsed);
             this.currentSystemContextFiltersUsedAnyChanged = default;
 
-            for (int i = 0; i < this.filterActions.Count; ++i) {
+            for (int i = this.filterActions.Count - 1; i >= 0; --i) {
 
                 this.filterActions[i].Dispose();
 
@@ -274,7 +274,7 @@ namespace ME.ECS {
 
             PoolDictionary<System.Type, IFeatureBase>.Recycle(ref this.features);
 
-            for (int i = 0; i < this.systemGroupsLength; ++i) {
+            for (int i = this.systemGroupsLength - 1; i >= 0; --i) {
 
                 this.systemGroups.arr[i].Deconstruct();
 
@@ -282,7 +282,7 @@ namespace ME.ECS {
 
             PoolArray<SystemGroup>.Recycle(ref this.systemGroups);
 
-            for (int i = 0; i < this.modules.Count; ++i) {
+            for (int i = this.modules.Count - 1; i >= 0; --i) {
 
                 this.modules[i].OnDeconstruct();
                 PoolModules.Recycle(this.modules[i]);
@@ -1644,7 +1644,7 @@ namespace ME.ECS {
             
         }
 
-        public bool RemoveEntity(in Entity entity) {
+        public bool RemoveEntity(in Entity entity, bool cleanUpHierarchy = true) {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -1656,7 +1656,7 @@ namespace ME.ECS {
 
             if (this.currentState.storage.Dealloc(in entity) == true) {
 
-                ECSTransformHierarchy.OnEntityDestroy(in entity);
+                if (cleanUpHierarchy == true) ECSTransformHierarchy.OnEntityDestroy(in entity);
                 this.RemoveFromFilters_INTERNAL(entity);
                 this.DestroyEntityPlugins(in entity);
 
