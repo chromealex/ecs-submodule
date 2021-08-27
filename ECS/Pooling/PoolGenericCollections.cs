@@ -85,7 +85,7 @@ namespace ME.ECS {
 
 		}
 
-		public static SortedSet<TValue> Spawn(int capacity) {
+		public static SortedSet<TValue> Spawn() {
 
 			return Pools.current.PoolSpawn(new Data() {
 			}, (data) => new SortedSet<TValue>(), x => x.Clear());
@@ -122,7 +122,8 @@ namespace ME.ECS {
 		public static HashSet<TValue> Spawn(int capacity = 8) {
 
 			return Pools.current.PoolSpawn(new Data() {
-			}, (data) => new HashSet<TValue>(/*data.capacity*/), x => x.Clear());
+				capacity = capacity,
+			}, (data) => new System.Collections.Generic.HashSet<TValue>(), x => x.Clear());
 			
 		}
 
