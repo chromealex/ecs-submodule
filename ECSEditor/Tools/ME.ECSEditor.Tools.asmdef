@@ -1,0 +1,20 @@
+{
+    "name": "ME.ECSEditor.Tools",
+    "rootNamespace": "",
+    "references": [
+        "GUID:a8f5934c873d146a498587cd9c8e9fe0",
+        "GUID:2ece66b544d324812a43e54b6d31cffd",
+        "GUID:8979e5b9ed38b420d8191f6eb2c94074"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

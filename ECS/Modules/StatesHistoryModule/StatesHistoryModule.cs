@@ -782,7 +782,7 @@ namespace ME.ECS.StatesHistory {
                             var orderId = kv.Key;
                             using (NoStackTrace.All) {
                                 
-                                UnityEngine.Debug.LogError("[World #" + this.world.id + "] Remote Hash (Client Id: " + orderId + "): " + tick + ":" + remoteHash + ", Local Hash: " + tick + ":" + localHash);
+                                UnityEngine.Debug.LogError($"[World #{this.world.id}] Remote Hash (Client Id: {orderId}): {tick}:{remoteHash}, Local Hash: {tick}:{localHash}");
                                 
                             }
 

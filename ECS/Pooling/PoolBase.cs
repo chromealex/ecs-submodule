@@ -411,9 +411,15 @@ namespace ME.ECS {
 
             if (PoolInternalBase.isStackTraceEnabledSet == true) return PoolInternalBase.isStackTraceEnabled;
 
-            var key = "ME.Pools.StackTraceEnabled";
-            PoolInternalBase.isStackTraceEnabled = UnityEditor.EditorPrefs.GetBool(key, false);
-            PoolInternalBase.isStackTraceEnabledSet = true;
+            try {
+
+                var key = "ME.Pools.StackTraceEnabled";
+                PoolInternalBase.isStackTraceEnabled = UnityEditor.EditorPrefs.GetBool(key, false);
+                PoolInternalBase.isStackTraceEnabledSet = true;
+
+            } catch (System.Exception) {
+            
+            }
 
             return PoolInternalBase.isStackTraceEnabled;
 

@@ -63,12 +63,12 @@ namespace ME.ECSEditor {
             var val = this.syncTableFoldState;
             GUILayoutExt.FoldOut(ref val, "Sync Table", () => {
 
-                var padding = 2f;
-                var margin = 2f;
-                var col1 = 60f;
-                var col2 = 50f;
-                var col3 = 22f;
-                var cellHeight = 22f;
+                const float padding = 2f;
+                const float margin = 2f;
+                const float col1 = 60f;
+                const float col2 = 50f;
+                const float col3 = 22f;
+                const float cellHeight = 22f;
                 var tableStyle = (GUIStyle)"Box";
 
                 GUILayout.BeginHorizontal();

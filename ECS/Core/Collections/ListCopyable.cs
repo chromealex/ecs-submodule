@@ -1,4 +1,11 @@
 ﻿namespace ME.ECS.Collections {
+
+    public interface IListCopyableBase {
+
+        void Add(object obj);
+        void Clear();
+
+    }
     
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
@@ -6,7 +13,7 @@
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     [System.Serializable]
-    public sealed class ListCopyable<T> : IPoolableSpawn, IPoolableRecycle, System.Collections.Generic.IEnumerable<T> {
+    public sealed class ListCopyable<T> : IPoolableSpawn, IPoolableRecycle, IListCopyableBase, System.Collections.Generic.IEnumerable<T> {
 
         private const int DefaultCapacity = 8;
         private static bool isValueType;
@@ -117,6 +124,12 @@
 
             this.Count -= count;
             System.Array.Clear(this.innerArray.arr, this.Count, count);
+            
+        }
+
+        void IListCopyableBase.Add(object obj) {
+            
+            this.Add((T)obj);
             
         }
         
