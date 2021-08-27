@@ -103,6 +103,7 @@ namespace ME.ECSEditor {
                         ++source.arraySize;
                         var elem = source.GetArrayElementAtIndex(source.arraySize - 1);
                         elem.managedReferenceValue = System.Activator.CreateInstance(type);
+                        source.serializedObject.ApplyModifiedProperties();
 
                         if (noFields == true) {
 
@@ -116,41 +117,10 @@ namespace ME.ECSEditor {
                         
                     } else {
 
-                        var copy = source.Copy();
-                        var i = 0;
-                        var enterChildren = true;
-                        while (copy.NextVisible(enterChildren) == true) {
-
-                            enterChildren = false;
-                            if (copy.propertyType != SerializedPropertyType.ManagedReference) continue;
-
-                            GetTypeFromManagedReferenceFullTypeName(copy.managedReferenceFullTypename, out var compType);
-                            if (compType == type) {
-
-                                usedComponents.Remove(type);
-                                source.DeleteArrayElementAtIndex(i);
-                                
-                                if (noFields == true) {
-
-                                    editor.OnRemoveComponentFromRemoveList(type);
-                            
-                                } else {
-                        
-                                    editor.OnRemoveComponent(type);
-
-                                }
-
-                                break;
-
-                            }
-
-                            ++i;
-
-                        }
+                        RemoveComponent(editor, usedComponents, source, type, noFields);
                         
                     }
 
-                    source.serializedObject.ApplyModifiedProperties();
                     editor.Save();
                     BuildInspectorProperties(editor, usedComponents, source, elements, noFields);
 
@@ -361,6 +331,43 @@ namespace ME.ECSEditor {
 
         }
 
+        private static void RemoveComponent(DataConfigEditor editor, System.Collections.Generic.HashSet<System.Type> usedComponents, SerializedProperty source, System.Type type, bool noFields) {
+            
+            var copy = source.Copy();
+            var i = 0;
+            var enterChildren = true;
+            while (copy.NextVisible(enterChildren) == true) {
+
+                enterChildren = false;
+                if (copy.propertyType != SerializedPropertyType.ManagedReference) continue;
+
+                GetTypeFromManagedReferenceFullTypeName(copy.managedReferenceFullTypename, out var compType);
+                if (compType == type) {
+
+                    usedComponents.Remove(type);
+                    source.DeleteArrayElementAtIndex(i);
+                    source.serializedObject.ApplyModifiedProperties();
+                                
+                    if (noFields == true) {
+
+                        editor.OnRemoveComponentFromRemoveList(type);
+                            
+                    } else {
+                        
+                        editor.OnRemoveComponent(type);
+
+                    }
+
+                    break;
+
+                }
+
+                ++i;
+
+            }
+
+        }
+
         public static void BuildInspectorPropertiesElement(string elementPath, IEditorContainer editor, System.Collections.Generic.HashSet<System.Type> usedComponents, SerializedProperty obj, UnityEngine.UIElements.VisualElement container, bool noFields, System.Action<int, PropertyField> onBuild = null) {
 
             obj = obj.Copy();
@@ -396,10 +403,8 @@ namespace ME.ECSEditor {
                     if (usedComponents != null) {
                         
                         menu.AddItem(new GUIContent("Delete"), false, () => {
-
-                            usedComponents?.Remove(type);
-                            source.DeleteArrayElementAtIndex(idx);
-                            source.serializedObject.ApplyModifiedProperties();
+                            
+                            RemoveComponent((DataConfigEditor)editor, usedComponents, source, type, noFields);
                             editor.Save();
                             BuildInspectorProperties(editor, usedComponents, source, container, noFields);
 

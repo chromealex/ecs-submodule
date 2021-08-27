@@ -36,7 +36,7 @@ namespace ME.ECS.DataConfigs {
 
             foreach (var config in this.usedIn) {
                 
-                config.OnAddToTemplate(this, type);
+                if (config != null) config.OnAddToTemplate(this, type);
                 
             }
             
@@ -46,7 +46,7 @@ namespace ME.ECS.DataConfigs {
 
             foreach (var config in this.usedIn) {
                 
-                config.OnRemoveFromTemplate(this, type);
+                if (config != null) config.OnRemoveFromTemplate(this, type);
                 
             }
             
