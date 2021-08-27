@@ -26,7 +26,7 @@ namespace ME.ECS.DataConfigs {
             
             foreach (var config in this.usedIn) {
                 
-                config.UpdateValue(this.structComponents[index]);
+                if (config != null) config.UpdateValue(this.structComponents[index]);
                 
             }
             
@@ -56,7 +56,7 @@ namespace ME.ECS.DataConfigs {
 
             foreach (var config in this.usedIn) {
                 
-                config.OnAddToTemplateRemoveList(this, type);
+                if (config != null) config.OnAddToTemplateRemoveList(this, type);
                 
             }
             
@@ -66,7 +66,7 @@ namespace ME.ECS.DataConfigs {
 
             foreach (var config in this.usedIn) {
                 
-                config.OnRemoveFromTemplateRemoveList(this, type);
+                if (config != null) config.OnRemoveFromTemplateRemoveList(this, type);
                 
             }
             
