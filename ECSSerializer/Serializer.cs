@@ -233,9 +233,18 @@ namespace ME.ECS.Serializer {
 
     }
 
+    public enum SerializerMode {
+
+        SerializableOnlyFields,
+        AllFields,
+
+    }
+
     public static class Serializer {
 
         public const int BUFFER_CAPACITY = 1024;
+
+        public static SerializerMode mode = SerializerMode.SerializableOnlyFields;
 
         public static Serializers GetInternalSerializers() {
             
@@ -302,13 +311,7 @@ namespace ME.ECS.Serializer {
 
         }
 
-        public static byte[] Pack<T>(T obj) {
-
-            return Serializer.Pack(obj, new Serializers());
-
-        }
-
-        public static byte[] Pack<T>(T obj, Serializers customSerializers) {
+        public static byte[] Pack<T>(T obj, System.Type type, Serializers customSerializers) {
 
             var serializersInternal = Serializer.GetInternalSerializers();
             var serializers = Serializer.GetDefaultSerializers();
@@ -320,7 +323,7 @@ namespace ME.ECS.Serializer {
             var packer = new Packer(serializers, new System.IO.MemoryStream(Serializer.BUFFER_CAPACITY));
 
             var serializer = new GenericSerializer();
-            serializer.Pack(packer, obj, typeof(T));
+            serializer.Pack(packer, obj, type);
 
             var bytes = packer.ToArray();
             
@@ -328,6 +331,18 @@ namespace ME.ECS.Serializer {
             packer.Dispose();
             
             return bytes;
+
+        }
+
+        public static byte[] Pack<T>(T obj) {
+
+            return Serializer.Pack(obj, obj.GetType(), new Serializers());
+
+        }
+
+        public static byte[] Pack<T>(T obj, Serializers customSerializers) {
+
+            return Serializer.Pack(obj, obj.GetType(), customSerializers);
 
         }
 

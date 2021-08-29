@@ -12,6 +12,7 @@ namespace ME.ECSEditor.Tools {
         public static void Show() {
             
             var window = CheckCopyableComponents.CreateInstance<CheckCopyableComponents>();
+            window.titleContent = new UnityEngine.GUIContent("Copyable Components Checker");
             ((EditorWindow)window).Show();
             
         }
@@ -442,6 +443,8 @@ namespace ME.ECSEditor.Tools {
             var test1Status = Status.None;
             var test2Status = Status.None;
 
+            var poolMode = ME.ECS.Pools.isActive;
+            ME.ECS.Pools.isActive = false;
             try {
 
                 {
@@ -513,6 +516,7 @@ namespace ME.ECSEditor.Tools {
                 Debug.LogError(ex);
                 
             }
+            ME.ECS.Pools.isActive = poolMode;
 
             container.RemoveFromClassList("status-checking");
 
@@ -521,9 +525,12 @@ namespace ME.ECSEditor.Tools {
         }
 
         private bool IsInstancesEquals(object obj1, object obj2) {
-            
+
+            var mode = ME.ECS.Serializer.Serializer.mode;
+            ME.ECS.Serializer.Serializer.mode = ME.ECS.Serializer.SerializerMode.AllFields;
             var packedSource = ME.ECS.Serializer.Serializer.Pack(obj1);
             var packedTarget = ME.ECS.Serializer.Serializer.Pack(obj2);
+            ME.ECS.Serializer.Serializer.mode = mode;
 
             var isEquals = (packedSource.Length == packedTarget.Length);
             if (isEquals == true) {
@@ -538,9 +545,11 @@ namespace ME.ECSEditor.Tools {
 
                 }
 
+                return true;
+
             }
 
-            return true;
+            return false;
 
         }
         

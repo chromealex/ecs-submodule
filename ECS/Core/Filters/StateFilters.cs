@@ -1152,6 +1152,7 @@ namespace ME.ECS {
         internal bool hasShared;
         
         internal NativeBufferArray<bool> dataContains;
+        [Extensions.TestIgnoreAttribute]
         internal NativeBufferArray<bool> dataVersions;
         
         private bool forEachMode;
@@ -1495,6 +1496,7 @@ namespace ME.ECS {
         void IPoolableRecycle.OnRecycle() {
 
             this.isPooled = true;
+            this.forEachMode = false;
 
             PoolArrayNative<bool>.Recycle(ref this.dataContains);
             if (this.onVersionChangedOnly == true) PoolArrayNative<bool>.Recycle(ref this.dataVersions);
@@ -1635,6 +1637,7 @@ namespace ME.ECS {
         public void CopyFrom(FilterData other) {
 
             this.isPooled = other.isPooled;
+            this.forEachMode = other.forEachMode;
 
             this.id = other.id;
             this.min = other.min;
@@ -1644,6 +1647,9 @@ namespace ME.ECS {
 
             this.onVersionChangedOnly = other.onVersionChangedOnly;
 
+            this.requests.CopyFrom(other.requests);
+            this.requestsRemoveEntity.CopyFrom(other.requestsRemoveEntity);
+            
             this.predicateOnAdd = other.predicateOnAdd;
             this.predicateOnRemove = other.predicateOnRemove;
 

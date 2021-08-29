@@ -78,6 +78,13 @@
         
         public void InitialCopyOf(CCList<T> other) {
 
+            if (other == null) {
+
+                this.OnRecycle();
+                return;
+
+            }
+
             for (int i = 0; i < other.array.Length; ++i) {
 
                 if (other.array[i] != null) {

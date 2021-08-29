@@ -178,6 +178,19 @@ namespace ME.ECS.Collections {
             this.Insert(key, value, true);
         }
 
+        public void CopyFrom(DictionaryCopyable<TKey, TValue> other) {
+
+            this.Clear();
+            foreach (var item in other) {
+
+                this.Add(item.Key, item.Value);
+
+            }
+
+            this._version = other._version;
+
+        }
+
         public void CopyFrom<TElementCopy>(DictionaryCopyable<TKey, TValue> other, TElementCopy copy) where TElementCopy : IArrayElementCopy<TValue> {
 
             this.Clear(copy);
@@ -186,6 +199,8 @@ namespace ME.ECS.Collections {
                 this.Insert(item.Key, item.Value, true, copy);
 
             }
+
+            this._version = other._version;
 
         }
 

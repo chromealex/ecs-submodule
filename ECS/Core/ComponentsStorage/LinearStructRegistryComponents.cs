@@ -1582,50 +1582,62 @@ namespace ME.ECS {
         #endif
         public void OnRecycle() {
 
-            for (int i = 0; i < this.nextFrameTasks.array.Length; ++i) {
+            if (this.nextFrameTasks != null) {
 
-                if (this.nextFrameTasks.array[i] == null) continue;
+                for (int i = 0; i < this.nextFrameTasks.array.Length; ++i) {
 
-                for (int j = 0; j < this.nextFrameTasks.array[i].Length; ++j) {
+                    if (this.nextFrameTasks.array[i] == null) continue;
 
-                    if (this.nextFrameTasks.array[i][j] == null) continue;
+                    for (int j = 0; j < this.nextFrameTasks.array[i].Length; ++j) {
 
-                    this.nextFrameTasks.array[i][j].Recycle();
+                        if (this.nextFrameTasks.array[i][j] == null) continue;
 
-                }
+                        this.nextFrameTasks.array[i][j].Recycle();
 
-            }
-
-            PoolCCList<ITask>.Recycle(ref this.nextFrameTasks);
-
-            for (int i = 0; i < this.nextTickTasks.array.Length; ++i) {
-
-                if (this.nextTickTasks.array[i] == null) continue;
-
-                for (int j = 0; j < this.nextTickTasks.array[i].Length; ++j) {
-
-                    if (this.nextTickTasks.array[i][j] == null) continue;
-
-                    this.nextTickTasks.array[i][j].Recycle();
+                    }
 
                 }
 
+                PoolCCList<ITask>.Recycle(ref this.nextFrameTasks);
+
             }
 
-            PoolCCList<ITask>.Recycle(ref this.nextTickTasks);
+            if (this.nextTickTasks != null) {
 
-            for (int i = 0; i < this.list.Length; ++i) {
+                for (int i = 0; i < this.nextTickTasks.array.Length; ++i) {
 
-                if (this.list.arr[i] != null) {
+                    if (this.nextTickTasks.array[i] == null) continue;
 
-                    PoolRegistries.Recycle(this.list.arr[i]);
-                    this.list.arr[i] = null;
+                    for (int j = 0; j < this.nextTickTasks.array[i].Length; ++j) {
+
+                        if (this.nextTickTasks.array[i][j] == null) continue;
+
+                        this.nextTickTasks.array[i][j].Recycle();
+
+                    }
 
                 }
 
+                PoolCCList<ITask>.Recycle(ref this.nextTickTasks);
+
             }
 
-            PoolArray<StructRegistryBase>.Recycle(ref this.list);
+            if (this.list.arr != null) {
+
+                for (int i = 0; i < this.list.Length; ++i) {
+
+                    if (this.list.arr[i] != null) {
+
+                        PoolRegistries.Recycle(this.list.arr[i]);
+                        this.list.arr[i] = null;
+
+                    }
+
+                }
+
+                PoolArray<StructRegistryBase>.Recycle(ref this.list);
+
+            }
 
             if (this.dirtyMap != null) PoolListCopyable<int>.Recycle(ref this.dirtyMap);
             if (this.listLifetimeTick != null) PoolHashSetCopyable<int>.Recycle(ref this.listLifetimeTick);
@@ -1729,37 +1741,45 @@ namespace ME.ECS {
 
             {
 
-                for (int i = 0; i < this.nextFrameTasks.array.Length; ++i) {
+                if (this.nextFrameTasks != null) {
 
-                    if (this.nextFrameTasks.array[i] == null) continue;
+                    for (int i = 0; i < this.nextFrameTasks.array.Length; ++i) {
 
-                    for (int j = 0; j < this.nextFrameTasks.array[i].Length; ++j) {
+                        if (this.nextFrameTasks.array[i] == null) continue;
 
-                        if (this.nextFrameTasks.array[i][j] == null) continue;
+                        for (int j = 0; j < this.nextFrameTasks.array[i].Length; ++j) {
 
-                        this.nextFrameTasks.array[i][j].Recycle();
+                            if (this.nextFrameTasks.array[i][j] == null) continue;
 
-                    }
+                            this.nextFrameTasks.array[i][j].Recycle();
 
-                }
-
-                PoolCCList<ITask>.Recycle(ref this.nextFrameTasks);
-
-                for (int i = 0; i < this.nextTickTasks.array.Length; ++i) {
-
-                    if (this.nextTickTasks.array[i] == null) continue;
-
-                    for (int j = 0; j < this.nextTickTasks.array[i].Length; ++j) {
-
-                        if (this.nextTickTasks.array[i][j] == null) continue;
-
-                        this.nextTickTasks.array[i][j].Recycle();
+                        }
 
                     }
 
+                    PoolCCList<ITask>.Recycle(ref this.nextFrameTasks);
+
                 }
 
-                PoolCCList<ITask>.Recycle(ref this.nextTickTasks);
+                if (this.nextTickTasks != null) {
+
+                    for (int i = 0; i < this.nextTickTasks.array.Length; ++i) {
+
+                        if (this.nextTickTasks.array[i] == null) continue;
+
+                        for (int j = 0; j < this.nextTickTasks.array[i].Length; ++j) {
+
+                            if (this.nextTickTasks.array[i][j] == null) continue;
+
+                            this.nextTickTasks.array[i][j].Recycle();
+
+                        }
+
+                    }
+
+                    PoolCCList<ITask>.Recycle(ref this.nextTickTasks);
+
+                }
 
                 this.nextFrameTasks = PoolCCList<ITask>.Spawn();
                 this.nextFrameTasks.InitialCopyOf(other.nextFrameTasks);

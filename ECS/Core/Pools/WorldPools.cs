@@ -16,8 +16,13 @@ namespace ME.ECS {
 
         partial void DeInitializePools() {
 
-            this.currentPools.Clear();
-            Pools.current = this.prevPools;
+            if (this.currentPools != null) {
+                this.currentPools.Clear();
+                Pools.current = this.prevPools;
+            }
+            
+            this.prevPools = null;
+            this.currentPools = null;
 
         }
 

@@ -13,6 +13,18 @@ namespace ME.ECS.Serializer {
                                                                          System.Reflection.BindingFlags.Instance |
                                                                          System.Reflection.BindingFlags.Public |
                                                                          System.Reflection.BindingFlags.NonPublic) {
+
+            if (Serializer.mode == SerializerMode.AllFields) {
+
+                var fieldInfosArr = Enumerable.Cast<System.Reflection.MemberInfo>(type.GetAllFields(flags)).ToArray();
+                return fieldInfosArr
+                                    .OrderByDescending(x => Attribute.IsDefined(x, typeof(OrderAttribute)))
+                                    .ThenBy(x => ((OrderAttribute)x.GetCustomAttributes(typeof(OrderAttribute), false)
+                                        .SingleOrDefault())?.order)
+                                    .ThenBy(x => x.Name)
+                                    .ToArray();
+
+            }
             
             if (ReflectionHelper.fieldInfoCache.TryGetValue(type, out var fieldInfos) == false) {
 

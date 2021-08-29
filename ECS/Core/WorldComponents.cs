@@ -22,7 +22,10 @@ namespace ME.ECS {
         }
 
         partial void OnRecycleComponents() {
-            
+
+            this.sharedEntity = default;
+            this.sharedEntityInitialized = false;
+
         }
         
     }

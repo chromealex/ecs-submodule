@@ -80,6 +80,11 @@ namespace ME.ECS {
         #endif
         public static void Release(ref T[] arr) {
 
+            if (Pools.isActive == false) {
+                arr = default;
+                return;
+            }
+
             if (arr == null) return;
             ME.ECS.Buffers.ArrayPool<T>.Shared.Return(arr);
             arr = null;
@@ -91,6 +96,8 @@ namespace ME.ECS {
         #endif
         public static BufferArray<T> Spawn(int length, bool realSize = false) {
 
+            if (Pools.isActive == false) return new BufferArray<T>(new T[length], length);
+            
             var arr = PoolArray<T>.Claim(length);
             var size = (realSize == true ? arr.Length : length);
             var buffer = new BufferArray<T>(arr, length, realSize == true ? arr.Length : -1);
@@ -105,6 +112,11 @@ namespace ME.ECS {
         #endif
         public static void Recycle(ref BufferArray<T> buffer) {
 
+            if (Pools.isActive == false) {
+                buffer = default;
+                return;
+            }
+
             T[] arr = buffer.arr;
             if (arr != null) System.Array.Clear(arr, 0, arr.Length);
             PoolArray<T>.Release(ref arr);
@@ -116,6 +128,11 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public static void Recycle(BufferArray<T> buffer) {
+
+            if (Pools.isActive == false) {
+                buffer = default;
+                return;
+            }
 
             T[] arr = buffer.arr;
             if (arr != null) System.Array.Clear(arr, 0, arr.Length);

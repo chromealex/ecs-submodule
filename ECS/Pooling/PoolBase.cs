@@ -8,6 +8,7 @@ namespace ME.ECS {
 
     public class Pools {
 
+        public static bool isActive = true;
         public static IPoolImplementation current = new PoolImplementation(isNull: true);
 
     }
@@ -31,6 +32,12 @@ namespace ME.ECS {
 
         public T Spawn<T, TState>(TState state, System.Func<TState, T> constructor, System.Action<T> destructor = null) where T : class {
 
+            if (Pools.isActive == false) {
+                var instance = constructor.Invoke(state);
+                PoolInternalBase.CallOnSpawn(instance, null);
+                return instance;
+            }
+
             var type = typeof(T);
             if (this.pool.TryGetValue(type, out var pool) == true) {
 
@@ -47,6 +54,12 @@ namespace ME.ECS {
 
         public bool Recycle<T>(ref T obj) where T : class {
             
+            if (Pools.isActive == false) {
+                PoolInternalBase.CallOnDespawn(obj, null);
+                obj = default;
+                return false;
+            }
+
             var type = typeof(T);
             if (this.pool.TryGetValue(type, out var pool) == true) {
 

@@ -194,7 +194,9 @@ namespace ME.ECS {
             this.worldThread = System.Threading.Thread.CurrentThread;
             
             #if UNITY_EDITOR
-            Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobDebuggerEnabled = false;
+            try {
+                Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobDebuggerEnabled = false;
+            } catch (System.Exception) { }
             #endif
 
             this.currentSystemContextFiltersUsed = PoolArray<bool>.Spawn(World.FILTERS_CACHE_CAPACITY);
@@ -235,6 +237,8 @@ namespace ME.ECS {
 
         void IPoolableRecycle.OnRecycle() {
 
+            this.id = default;
+            
             this.DisposeGlobalEvents();
 
             var list = PoolListCopyable<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
@@ -248,29 +252,29 @@ namespace ME.ECS {
                 }
 
             }
-
             PoolListCopyable<Entity>.Recycle(ref list);
-            this.GetState().storage.ApplyDead();
+            this.GetState()?.storage.ApplyDead();
 
             PoolArray<bool>.Recycle(ref this.currentSystemContextFiltersUsed);
             this.currentSystemContextFiltersUsedAnyChanged = default;
 
-            for (int i = this.filterActions.Count - 1; i >= 0; --i) {
+            if (this.filterActions != null) {
 
-                this.filterActions[i].Dispose();
+                for (int i = this.filterActions.Count - 1; i >= 0; --i) {
+
+                    this.filterActions[i].Dispose();
+
+                }
+
+                PoolList<FilterAction>.Recycle(ref this.filterActions);
 
             }
-
-            PoolList<FilterAction>.Recycle(ref this.filterActions);
-
-            this.worldThread = null;
-            this.isActive = false;
 
             this.OnRecycleMarkers();
             this.OnRecycleComponents();
             this.OnRecycleStructComponents();
 
-            PoolArray<bool>.Recycle(ref FiltersDirectCache.dic.arr[this.id]);
+            if (FiltersDirectCache.dic.arr != null) PoolArray<bool>.Recycle(ref FiltersDirectCache.dic.arr[this.id]);
 
             PoolDictionary<System.Type, IFeatureBase>.Recycle(ref this.features);
 
@@ -282,16 +286,35 @@ namespace ME.ECS {
 
             PoolArray<SystemGroup>.Recycle(ref this.systemGroups);
 
-            for (int i = this.modules.Count - 1; i >= 0; --i) {
+            if (this.modules != null) {
 
-                this.modules[i].OnDeconstruct();
-                PoolModules.Recycle(this.modules[i]);
+                for (int i = this.modules.Count - 1; i >= 0; --i) {
+
+                    this.modules[i].OnDeconstruct();
+                    PoolModules.Recycle(this.modules[i]);
+
+                }
+
+                PoolListCopyable<IModuleBase>.Recycle(ref this.modules);
+                PoolListCopyable<ModuleState>.Recycle(ref this.statesModules);
 
             }
 
-            PoolListCopyable<IModuleBase>.Recycle(ref this.modules);
-            PoolListCopyable<ModuleState>.Recycle(ref this.statesModules);
-
+            this.worldThread = null;
+            this.isActive = false;
+            
+            this.simulationFromTick = default;
+            this.simulationToTick = default;
+            this.currentState = default;
+            this.resetState = default;
+            this.hasResetState = false;
+            this.currentStep = default;
+            this.checkpointCollector = default;
+            this.tickTime = default;
+            this.timeSinceStart = default;
+            this.entitiesCapacity = default;
+            this.isPaused = false;
+            
             //PoolInternalBaseNoStackPool.Clear();
             //PoolInternalBase.Clear();
 
@@ -1625,6 +1648,7 @@ namespace ME.ECS {
 
         public bool ForEachEntity(ListCopyable<Entity> results) {
 
+            if (this.currentState == null) return false;
             return this.currentState.storage.ForEach(results);
 
         }

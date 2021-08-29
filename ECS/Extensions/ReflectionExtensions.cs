@@ -2,6 +2,12 @@
 
 namespace ME.ECS.Extensions {
 
+    public class TestIgnoreAttribute : System.Attribute {
+
+        
+
+    }
+    
     public static class ReflectionEx {
 
         public static System.Type GetUnderlyingType(this System.Reflection.MemberInfo member) {

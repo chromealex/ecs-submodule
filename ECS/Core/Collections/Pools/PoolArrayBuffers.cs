@@ -285,7 +285,8 @@ namespace ME.ECS.Buffers {
 
             internal void Return(T[] array) {
                 if (array.Length != this._bufferLength) {
-                    throw new ArgumentException("Array is not from pool", nameof(array));
+                    //throw new ArgumentException("Array is not from pool", nameof(array));
+                    return;
                 }
 
                 var lockTaken = false;

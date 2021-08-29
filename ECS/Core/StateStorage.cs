@@ -142,6 +142,7 @@ namespace ME.ECS {
         #endif
         public void CopyFrom(Storage other) {
 
+            this.isCreated = other.isCreated;
             NativeArrayUtils.Copy(other.cache, ref this.cache);
             ArrayUtils.Copy(other.alive, ref this.alive);
             ArrayUtils.Copy(other.dead, ref this.dead);

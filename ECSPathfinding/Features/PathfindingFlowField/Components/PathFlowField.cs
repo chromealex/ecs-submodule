@@ -13,6 +13,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Components {
             
             this.from = other.from;
             this.to = other.to;
+            this.cacheEnabled = other.cacheEnabled;
             ArrayUtils.Copy(other.flowField, ref this.flowField);
             
         }
@@ -21,6 +22,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Components {
 
             this.from = default;
             this.to = default;
+            this.cacheEnabled = default;
             /*if (this.cacheEnabled == false) */PoolArray<byte>.Recycle(ref this.flowField);
             
         }

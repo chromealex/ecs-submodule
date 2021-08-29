@@ -50,6 +50,9 @@ namespace ME.ECS {
         }
 
         public virtual void OnRecycle() {
+
+            this.tick = default;
+            this.randomState = default;
             
             WorldUtilities.Release(ref this.filters);
             WorldUtilities.Release(ref this.structComponents);
