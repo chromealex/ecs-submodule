@@ -146,6 +146,7 @@ namespace ME.ECSEditor {
             if (components.Length != this.temp.components.Length) {
 
                 this.RebuildComponents(this.componentsContainer.contentContainer);
+                this.temp.components = components;
                 return;
 
             }
@@ -155,12 +156,13 @@ namespace ME.ECSEditor {
                 if (components[i].dataIndex != this.temp.components[i].dataIndex) {
 
                     this.RebuildComponents(this.componentsContainer.contentContainer);
+                    this.temp.components = components;
                     return;
                     
                 }
                 
             }
-
+            
             this.temp.components = components;
 
         }

@@ -20,6 +20,8 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
         private int clicksCount;
         private float prevPressedTime;
 
+        private bool isPitchDown;
+
         private UnityEngine.Vector3 gesturePitchPointer1LastPos;
         private UnityEngine.Vector3 gesturePitchPointer2LastPos;
 
@@ -75,6 +77,7 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                             pointer1 = new InputPointerData(0, wp1, InputEventType.PointerDown),
                             pointer2 = new InputPointerData(1, wp2, InputEventType.PointerDown),
                         });
+                        this.isPitchDown = true;
 
                         forceMove = true;
 
@@ -90,11 +93,14 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                         pointer1 = new InputPointerData(0, wp1, InputEventType.PointerUp),
                         pointer2 = new InputPointerData(1, wp2, InputEventType.PointerUp),
                     });
+                    this.isPitchDown = false;
+                    return;
 
                 }
                 
-                if (InputUtils.IsPointerPressed(0) == true ||
-                    InputUtils.IsPointerPressed(1) == true) {
+                if (this.isPitchDown == true &&
+                    (InputUtils.IsPointerPressed(0) == true ||
+                    InputUtils.IsPointerPressed(1) == true)) {
 
                     if (this.GetWorldPointer(0, out var wp1) == true &&
                         this.GetWorldPointer(1, out var wp2) == true) {
@@ -116,6 +122,8 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                     }
 
                 }
+
+                return;
 
             }
             
