@@ -156,6 +156,10 @@ namespace ME.ECS.Pathfinding {
 
         private void OnRecycle() {
 
+            this.clonePathfinding = false;
+            this.defaultProcessor = new PathfindingNavMeshProcessor();
+            this.logLevel = default;
+
             if (this.graphs != null) {
 
                 for (int i = 0; i < this.graphs.Count; ++i) {
@@ -172,6 +176,7 @@ namespace ME.ECS.Pathfinding {
         
         public void CopyFrom(Pathfinding other) {
 
+            this.clonePathfinding = other.clonePathfinding;
             this.defaultProcessor = other.defaultProcessor;
             this.logLevel = other.logLevel;
 

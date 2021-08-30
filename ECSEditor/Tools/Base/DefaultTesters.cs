@@ -22,6 +22,24 @@ namespace ME.ECSEditor.Tools {
             
         }
 
+        public class UnityObject : ITestGenerator {
+
+            public int priority => 5;
+
+            public bool IsValid(System.Type type) {
+
+                return type.IsClass == true && typeof(UnityEngine.Object).IsAssignableFrom(type);
+
+            }
+
+            public object Fill(ITester tester, object instance, System.Type type) {
+                
+                return null;
+
+            }
+
+        }
+
         public class Class : ITestGenerator {
 
             public int priority => 100;
@@ -95,7 +113,7 @@ namespace ME.ECSEditor.Tools {
                 
             }
 
-            public bool CheckEquals(ITester tester, object obj1, object obj2, string path) {
+            public bool CheckEquals(System.Reflection.MemberInfo rootType, ITester tester, object obj1, object obj2, string path, bool objectEqualsCheck) {
                 
                 var dic1 = (System.Collections.IDictionary)obj1;
                 var dic2 = (System.Collections.IDictionary)obj2;
@@ -124,7 +142,7 @@ namespace ME.ECSEditor.Tools {
                 var i = 0;
                 foreach (var val2 in dic2.Values) {
 
-                    if (tester.IsInstanceEquals(list[i], val2, path) == false) return false;
+                    if (tester.IsInstanceEquals(rootType, list[i], val2, path, objectEqualsCheck) == false) return false;
                     ++i;
 
                 }
@@ -177,7 +195,7 @@ namespace ME.ECSEditor.Tools {
                 
             }
 
-            public bool CheckEquals(ITester tester, object obj1, object obj2, string path) {
+            public bool CheckEquals(System.Reflection.MemberInfo rootType, ITester tester, object obj1, object obj2, string path, bool objectEqualsCheck) {
                 
                 var dic1 = (System.Collections.IDictionary)obj1;
                 var dic2 = (System.Collections.IDictionary)obj2;
@@ -206,7 +224,7 @@ namespace ME.ECSEditor.Tools {
                 var i = 0;
                 foreach (var val2 in dic2.Values) {
 
-                    if (tester.IsInstanceEquals(list[i], val2, path) == false) return false;
+                    if (tester.IsInstanceEquals(rootType, list[i], val2, path, objectEqualsCheck) == false) return false;
                     ++i;
 
                 }
@@ -265,7 +283,7 @@ namespace ME.ECSEditor.Tools {
                 
             }
 
-            public bool CheckEquals(ITester tester, object obj1, object obj2, string path) {
+            public bool CheckEquals(System.Reflection.MemberInfo rootType, ITester tester, object obj1, object obj2, string path, bool objectEqualsCheck) {
                 
                 var dic1 = (System.Array)obj1;
                 var dic2 = (System.Array)obj2;
@@ -274,7 +292,7 @@ namespace ME.ECSEditor.Tools {
 
                 for (int i = 0; i < dic1.Length; ++i) {
 
-                    if (tester.IsInstanceEquals(dic1.GetValue(i), dic2.GetValue(i), path) == false) return false;
+                    if (tester.IsInstanceEquals(rootType, dic1.GetValue(i), dic2.GetValue(i), path, objectEqualsCheck) == false) return false;
 
                 }
 
@@ -294,7 +312,7 @@ namespace ME.ECSEditor.Tools {
 
             }
 
-            public bool CheckEquals(ITester tester, object obj1, object obj2, string path) {
+            public bool CheckEquals(System.Reflection.MemberInfo rootType, ITester tester, object obj1, object obj2, string path, bool objectEqualsCheck) {
                 
                 var dic1 = (System.Collections.IList)obj1;
                 var dic2 = (System.Collections.IList)obj2;
@@ -303,7 +321,7 @@ namespace ME.ECSEditor.Tools {
 
                 for (int i = 0; i < dic1.Count; ++i) {
 
-                    if (tester.IsInstanceEquals(dic1[i], dic2[i], path) == false) return false;
+                    if (tester.IsInstanceEquals(rootType, dic1[i], dic2[i], path, objectEqualsCheck) == false) return false;
 
                 }
 
@@ -354,7 +372,7 @@ namespace ME.ECSEditor.Tools {
 
             }
 
-            public bool CheckEquals(ITester tester, object obj1, object obj2, string path) {
+            public bool CheckEquals(System.Reflection.MemberInfo rootType, ITester tester, object obj1, object obj2, string path, bool objectEqualsCheck) {
                 
                 var dic1 = (ME.ECS.Collections.IBufferArray)obj1;
                 var dic2 = (ME.ECS.Collections.IBufferArray)obj2;
@@ -369,7 +387,7 @@ namespace ME.ECSEditor.Tools {
 
                 for (int i = 0; i < arr1.Length; ++i) {
 
-                    if (tester.IsInstanceEquals(arr1.GetValue(i), arr2.GetValue(i), path) == false) return false;
+                    if (tester.IsInstanceEquals(rootType, arr1.GetValue(i), arr2.GetValue(i), path, objectEqualsCheck) == false) return false;
 
                 }
 
@@ -395,7 +413,7 @@ namespace ME.ECSEditor.Tools {
 
             }
 
-            public bool CheckEquals(ITester tester, object obj1, object obj2, string path) {
+            public bool CheckEquals(System.Reflection.MemberInfo rootType, ITester tester, object obj1, object obj2, string path, bool objectEqualsCheck) {
                 
                 var dic1 = (ME.ECS.Collections.IBufferArray)obj1;
                 var dic2 = (ME.ECS.Collections.IBufferArray)obj2;
@@ -410,7 +428,7 @@ namespace ME.ECSEditor.Tools {
                 
                 for (int i = 0; i < arr1.Length; ++i) {
 
-                    if (tester.IsInstanceEquals(arr1.GetValue(i), arr2.GetValue(i), path) == false) return false;
+                    if (tester.IsInstanceEquals(rootType, arr1.GetValue(i), arr2.GetValue(i), path, objectEqualsCheck) == false) return false;
 
                 }
 
@@ -436,7 +454,7 @@ namespace ME.ECSEditor.Tools {
 
             }
 
-            public bool CheckEquals(ITester tester, object obj1, object obj2, string path) {
+            public bool CheckEquals(System.Reflection.MemberInfo rootType, ITester tester, object obj1, object obj2, string path, bool objectEqualsCheck) {
                 
                 var dic1 = (System.Collections.IEnumerable)obj1;
                 var dic2 = (System.Collections.IEnumerable)obj2;
@@ -463,7 +481,7 @@ namespace ME.ECSEditor.Tools {
 
                 for (int i = 0; i < list1.Count; ++i) {
 
-                    if (tester.IsInstanceEquals(list1[i], list2[i], path) == false) return false;
+                    if (tester.IsInstanceEquals(rootType, list1[i], list2[i], path, objectEqualsCheck) == false) return false;
 
                 }
 
