@@ -571,14 +571,6 @@ namespace ME.ECS {
 
         public override IStructComponentBase GetObject(Entity entity) {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
             //var bucketId = this.GetBucketId(in entity.id, out var index);
             var index = entity.id;
             //this.CheckResize(in index);
@@ -608,14 +600,6 @@ namespace ME.ECS {
         }
 
         public override IStructComponentBase GetSharedObject(Entity entity, uint groupId) {
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
 
             if (this.sharedGroups.Has(entity.id, groupId) == false) return null;
             return this.sharedGroups.Get(entity.id, groupId);
