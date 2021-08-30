@@ -100,8 +100,8 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                         this.GetWorldPointer(1, out var wp2) == true) {
 
                         if (forceMove == true ||
-                            (this.gesturePitchPointer1LastPos - wp1).sqrMagnitude > this.feature.gesturePitchMinDragThreshold ||
-                            (this.gesturePitchPointer2LastPos - wp2).sqrMagnitude > this.feature.gesturePitchMinDragThreshold) {
+                            (this.gesturePitchPointer1LastPos - wp1).sqrMagnitude >= this.feature.gesturePitchMinDragThreshold ||
+                            (this.gesturePitchPointer2LastPos - wp2).sqrMagnitude >= this.feature.gesturePitchMinDragThreshold) {
 
                             this.world.AddMarker(new Markers.InputGesturePitchMove() {
                                 pointer1 = new InputPointerData(0, wp1, InputEventType.PointerDragMove),
