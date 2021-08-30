@@ -238,7 +238,9 @@ namespace ME.ECS {
         void IPoolableRecycle.OnRecycle() {
 
             this.id = default;
-            
+            this.worldThread = null;
+            this.isActive = false;
+
             this.DisposeGlobalEvents();
 
             var list = PoolListCopyable<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
@@ -300,9 +302,6 @@ namespace ME.ECS {
 
             }
 
-            this.worldThread = null;
-            this.isActive = false;
-            
             this.simulationFromTick = default;
             this.simulationToTick = default;
             this.currentState = default;

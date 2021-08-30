@@ -4,16 +4,12 @@
     using inp = UnityEngine.Input;
     
     public static class InputUtils {
-        
+
         public static int GetPointersCount() {
 
-            if (inp.touchSupported == false) {
+            if (inp.touchCount > 0) return inp.touchCount;
 
-                return 1;
-                
-            }
-
-            return inp.touchCount;
+            return 1;
 
         }
             
