@@ -67,8 +67,9 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
             if (InputUtils.GetPointersCount() == 2) {
 
                 var forceMove = false;
-                if (InputUtils.IsPointerDown(0) == true ||
-                    InputUtils.IsPointerDown(1) == true) {
+                if (this.isPitchDown == false &&
+                    (InputUtils.IsPointerDown(0) == true ||
+                    InputUtils.IsPointerDown(1) == true)) {
 
                     if (this.GetWorldPointer(0, out var wp1) == true &&
                         this.GetWorldPointer(1, out var wp2) == true) {
@@ -83,8 +84,11 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
 
                     }
 
-                } else if (InputUtils.IsPointerUp(0) == true ||
-                           InputUtils.IsPointerUp(1) == true) {
+                }
+                
+                if (this.isPitchDown == true &&
+                    (InputUtils.IsPointerUp(0) == true ||
+                    InputUtils.IsPointerUp(1) == true)) {
 
                     if (this.GetWorldPointer(0, out var wp1) == false) wp1 = this.gesturePitchPointer1LastPos;
                     if (this.GetWorldPointer(1, out var wp2) == false) wp2 = this.gesturePitchPointer2LastPos;
