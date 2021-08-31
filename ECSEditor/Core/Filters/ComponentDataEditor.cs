@@ -193,7 +193,7 @@ namespace ME.ECSEditor {
                     }
                     obj.ApplyModifiedProperties();
 
-                });
+                }, showRuntime: true);
             }
 
         }

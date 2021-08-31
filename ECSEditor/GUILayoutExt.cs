@@ -312,6 +312,7 @@ namespace ME.ECSEditor {
  
         }
 	    
+	    private static System.Type[] allStructComponentsWithoutRuntime;
 	    private static System.Type[] allStructComponents;
 
 	    public static void DrawManageDataConfigTemplateMenu(System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate> usedComponents, System.Action<ME.ECS.DataConfigs.DataConfigTemplate, bool> onAdd) {
@@ -375,7 +376,7 @@ namespace ME.ECSEditor {
  
 	    }
 
-	    public static void DrawAddComponentMenu(Rect rect, System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd) {
+	    public static void DrawAddComponentMenu(Rect rect, System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool showRuntime) {
 		    
             GUIStyle style = new GUIStyle(GUI.skin.button);
             style.fontSize = 12;
@@ -399,10 +400,22 @@ namespace ME.ECSEditor {
 	                                                            .SelectMany(x => x.GetTypes())
 	                                                            .Where(x => 
 		                                                                   x.IsValueType == true &&
-		                                                                   typeof(IStructComponentBase).IsAssignableFrom(x) == true &&
-		                                                                   typeof(IComponentRuntime).IsAssignableFrom(x) == false
-		                                                                   )
+		                                                                   typeof(IStructComponentBase).IsAssignableFrom(x) == true
+	                                                            )
 	                                                            .ToArray();
+
+                }
+
+                if (GUILayoutExt.allStructComponentsWithoutRuntime == null) {
+
+	                GUILayoutExt.allStructComponentsWithoutRuntime = AppDomain.CurrentDomain.GetAssemblies()
+	                                                                          .SelectMany(x => x.GetTypes())
+	                                                                          .Where(x => 
+		                                                                                 x.IsValueType == true &&
+		                                                                                 typeof(IStructComponentBase).IsAssignableFrom(x) == true &&
+		                                                                                 typeof(IComponentRuntime).IsAssignableFrom(x) == false
+	                                                                          )
+	                                                                          .ToArray();
 
                 }
 
@@ -422,7 +435,7 @@ namespace ME.ECSEditor {
 	                separator = '.',
 	                
                 };
-                var arr = GUILayoutExt.allStructComponents;
+                var arr = showRuntime == true ? GUILayoutExt.allStructComponents : GUILayoutExt.allStructComponentsWithoutRuntime;
                 foreach (var type in arr) {
 
 	                var isUsed = usedComponents.Contains(type);
@@ -481,7 +494,7 @@ namespace ME.ECSEditor {
  
 	    }
 
-	    public static void DrawAddComponentMenu(System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd) {
+	    public static void DrawAddComponentMenu(System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool showRuntime) {
 		    
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
@@ -505,10 +518,22 @@ namespace ME.ECSEditor {
 	                                                            .SelectMany(x => x.GetTypes())
 	                                                            .Where(x => 
 		                                                                   x.IsValueType == true &&
-		                                                                   typeof(IStructComponentBase).IsAssignableFrom(x) == true &&
-		                                                                   typeof(IComponentRuntime).IsAssignableFrom(x) == false
+		                                                                   typeof(IStructComponentBase).IsAssignableFrom(x) == true
 	                                                            )
 	                                                            .ToArray();
+
+                }
+
+                if (GUILayoutExt.allStructComponentsWithoutRuntime == null) {
+
+	                GUILayoutExt.allStructComponentsWithoutRuntime = AppDomain.CurrentDomain.GetAssemblies()
+	                                                                          .SelectMany(x => x.GetTypes())
+	                                                                          .Where(x => 
+		                                                                                 x.IsValueType == true &&
+		                                                                                 typeof(IStructComponentBase).IsAssignableFrom(x) == true &&
+		                                                                                 typeof(IComponentRuntime).IsAssignableFrom(x) == false
+	                                                                          )
+	                                                                          .ToArray();
 
                 }
 
@@ -527,7 +552,7 @@ namespace ME.ECSEditor {
 	                separator = '.',
 	                
                 };
-                var arr = GUILayoutExt.allStructComponents;
+                var arr = showRuntime == true ? GUILayoutExt.allStructComponents : GUILayoutExt.allStructComponentsWithoutRuntime;
                 foreach (var type in arr) {
 
 	                var isUsed = usedComponents.Contains(type);
@@ -619,7 +644,7 @@ namespace ME.ECSEditor {
 		                
 			    }
 
-		    });
+		    }, showRuntime: true);
 		    
         }
 

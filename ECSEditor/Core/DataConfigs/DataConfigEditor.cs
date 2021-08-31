@@ -124,7 +124,7 @@ namespace ME.ECSEditor {
                     editor.Save();
                     BuildInspectorProperties(editor, usedComponents, source, elements, noFields);
 
-                });
+                }, showRuntime: noFields);
 
             });
             addMenuButton.AddToClassList("add-component-menu-button-imgui");

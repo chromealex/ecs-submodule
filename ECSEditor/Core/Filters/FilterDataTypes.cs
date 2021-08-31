@@ -94,7 +94,7 @@ namespace ME.ECSEditor {
                     }
                     obj.ApplyModifiedProperties();
 
-                });
+                }, showRuntime: true);
             }
 
             position.y += FilterDataTypesEditor.editButtonHeight;
