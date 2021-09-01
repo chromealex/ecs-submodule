@@ -10,12 +10,19 @@ namespace ME.ECS.Collections {
 
     public static class NativeExt {
 
+        [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
+        private static void CheckArray(int index, int length) {
+            
+            if (index < 0 || index >= length)
+                throw new ArgumentOutOfRangeException(nameof(index));
+
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public static ref T GetRef<T>(this Unity.Collections.NativeSlice<T> array, int index) where T : struct {
-            if (index < 0 || index >= array.Length)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            CheckArray(index, array.Length);
             unsafe {
                 var ptr = array.GetUnsafePtr();
                 #if UNITY_2020_1_OR_NEWER
@@ -30,8 +37,7 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public static ref T GetRef<T>(this Unity.Collections.NativeArray<T> array, int index) where T : struct {
-            if (index < 0 || index >= array.Length)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            CheckArray(index, array.Length);
             unsafe {
                 var ptr = array.GetUnsafePtr();
                 #if UNITY_2020_1_OR_NEWER
@@ -46,8 +52,7 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public static ref readonly T GetRefRead<T>(this Unity.Collections.NativeArray<T> array, int index) where T : struct {
-            if (index < 0 || index >= array.Length)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            CheckArray(index, array.Length);
             unsafe {
                 var ptr = array.GetUnsafeReadOnlyPtr();
                 #if UNITY_2020_1_OR_NEWER
@@ -62,8 +67,7 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public static ref T GetRef<T>(this Unity.Collections.NativeList<T> array, int index) where T : unmanaged {
-            if (index < 0 || index >= array.Length)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            CheckArray(index, array.Length);
             unsafe {
                 var ptr = array.GetUnsafePtr();
                 #if UNITY_2020_1_OR_NEWER
@@ -78,8 +82,7 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public static ref T GetRefRead<T>(this Unity.Collections.NativeList<T> array, int index) where T : unmanaged {
-            if (index < 0 || index >= array.Length)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            CheckArray(index, array.Length);
             unsafe {
                 var ptr = array.GetUnsafeReadOnlyPtr();
                 #if UNITY_2020_1_OR_NEWER
@@ -95,8 +98,7 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public static ref T GetRef<T>(this NativeArrayBurst<T> array, int index) where T : struct {
-            if (index < 0 || index >= array.Length)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            CheckArray(index, array.Length);
             unsafe {
                 var ptr = array.GetUnsafePtr();
                 #if UNITY_2020_1_OR_NEWER
@@ -111,8 +113,7 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public static ref T GetRefRead<T>(this NativeArrayBurst<T> array, int index) where T : struct {
-            if (index < 0 || index >= array.Length)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            CheckArray(index, array.Length);
             unsafe {
                 var ptr = array.GetUnsafePtr();
                 #if UNITY_2020_1_OR_NEWER
