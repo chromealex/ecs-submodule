@@ -88,6 +88,11 @@ namespace ME.ECS {
                 ++this.values.arr[entity.id];
             }
 
+            #if ENTITY_VERSION_INCREMENT_ACTIONS
+            World world = Worlds.currentWorld;
+            world.RaiseEntityVersionIncrementAction(entity, this.values.arr[entity.id]);
+            #endif
+
         }
 
         #if INLINE_METHODS
@@ -98,6 +103,11 @@ namespace ME.ECS {
             unchecked {
                 ++this.values.arr[entityId];
             }
+
+            #if ENTITY_VERSION_INCREMENT_ACTIONS
+            World world = Worlds.currentWorld;
+            world.RaiseEntityVersionIncrementAction(world.GetEntityById(entityId), this.values.arr[entityId]);
+            #endif
 
         }
 

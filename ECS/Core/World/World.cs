@@ -1223,6 +1223,30 @@ namespace ME.ECS {
         #endif
         #endregion
 
+        #region EntityVersionIncrementActions
+        #if ENTITY_VERSION_INCREMENT_ACTIONS
+        private event System.Action<Entity, int> onEntityVersionIncrement;
+
+        public void RaiseEntityVersionIncrementAction(in Entity entity, int version) {
+
+            this.onEntityVersionIncrement?.Invoke(entity, version);
+
+        }
+
+        public void RegisterEntityVersionIncrementAction(System.Action<Entity, int> action) {
+
+            onEntityVersionIncrement += action;
+
+        }
+
+        public void UnRegisterEntityVersionIncrementAction(System.Action<Entity, int> action) {
+
+            onEntityVersionIncrement -= action;
+
+        }
+        #endif
+        #endregion
+
         public void Register(FilterAction filterAction) {
 
             this.filterActions.Add(filterAction);

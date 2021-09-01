@@ -124,6 +124,13 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("ENTITY_VERSION_INCREMENT_ACTIONS", "Turn on to raise events on entity version increments.", () => {
+                #if ENTITY_VERSION_INCREMENT_ACTIONS
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
             new InitializerBase.DefineInfo("ENTITY_API_VERSION1_TURN_OFF", "Turn off Entity API with SetData/ReadData/GetData methods.", () => {
                 #if ENTITY_API_VERSION1_TURN_OFF
                 return true;
