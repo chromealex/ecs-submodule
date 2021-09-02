@@ -1008,7 +1008,7 @@ namespace ME.ECS.StatesHistory {
                 newState.tick = tick;
                 this.states.Set(tick, newState);*/
 
-                //this.statesHistory.Store(tick, this.world.GetState<TState>());
+                this.statesHistory.Store(tick, this.world.GetState<TState>());
 
             }
             
