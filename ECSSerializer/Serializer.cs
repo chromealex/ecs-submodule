@@ -311,6 +311,17 @@ namespace ME.ECS.Serializer {
 
         }
 
+        public static T UnpackStatic<T>(byte[] bytes, Serializers staticSerializers) {
+
+            var packer = Serializer.SetupDefaultPacker(staticSerializers, bytes);
+
+            var serializer = new GenericSerializer();
+            var result = (T)serializer.Unpack(packer, typeof(T));
+            packer.Dispose();
+            return result;
+
+        }
+
         public static byte[] Pack<T>(T obj, System.Type type, Serializers customSerializers) {
 
             var serializersInternal = Serializer.GetInternalSerializers();
@@ -358,17 +369,6 @@ namespace ME.ECS.Serializer {
             packer.Dispose();
             allSerializers.Dispose();
             return bytes;
-
-        }
-
-        public static T UnpackStatic<T>(byte[] bytes, Serializers staticSerializers) {
-
-            var packer = Serializer.SetupDefaultPacker(bytes, staticSerializers);
-
-            var serializer = new GenericSerializer();
-            var result = (T)serializer.Unpack(packer, typeof(T));
-            packer.Dispose();
-            return result;
 
         }
 
