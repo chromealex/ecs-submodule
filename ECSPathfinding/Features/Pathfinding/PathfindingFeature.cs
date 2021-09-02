@@ -88,11 +88,11 @@ namespace ME.ECS.Pathfinding.Features {
 
         public void SetPathNavMesh(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 from, UnityEngine.Vector3 to) {
 
-            if (entity.Has<ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh>() == true) {
+            /*if (entity.Has<ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh>() == true) {
                 ref var oldPath = ref entity.Get<ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh>();
                 oldPath.path.Dispose();
                 oldPath.path = default;
-            }
+            }*/
             entity.Set(new ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh() {
                 result = path.result,
                 path = new NativeDataBufferArray<UnityEngine.Vector3>(path.navMeshPoints.ToBufferArray()),
