@@ -861,29 +861,19 @@ namespace ME.ECS {
             return PoolRegistries.SpawnDisposable<TComponent>();
 
         }
+        
+        public override void OnRecycle() {
 
-        /*public override void OnRecycle() {
-
-            if (this.sharedGroups.sharedGroups != null) {
-
-                foreach (var kv in this.sharedGroups.sharedGroups) {
-
-                    kv.Value.data.OnDispose();
-
-                }
-
-            }
-
-            for (int i = 0; i < this.componentsStates.Length; ++i) {
+            for (int i = 0; i < this.components.Length; ++i) {
                 
-                if (this.componentsStates.arr[i] > 0) this.components[i].OnDispose();
+                if (this.componentsStates[i] > 0) this.components[i].OnDispose();
                 
             }
             
             base.OnRecycle();
             
-        }*/
-        
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
