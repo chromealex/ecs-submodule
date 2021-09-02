@@ -936,6 +936,23 @@ namespace ME.ECS.Views {
 
             var hasChanged = false;
 
+            if (this.world.currentState == null) {
+                
+                // Recycle all views
+                for (var id = this.list.Length - 1; id >= 0; --id) {
+                    
+                    ref var views = ref this.list.arr[id];
+                    var currentViewInstance = views.mainView;
+                    if (currentViewInstance == null) continue;
+                    
+                    this.RecycleView_INTERNAL(ref currentViewInstance);
+                    
+                }
+
+                return true;
+
+            }
+
             // Recycle all views that doesn't required
             for (var id = this.list.Length - 1; id >= 0; --id) {
 
@@ -968,29 +985,33 @@ namespace ME.ECS.Views {
 
 
             var allEntities = this.world.GetAliveEntities();
-            for (int j = 0; j < allEntities.Count; ++j) {
+            if (allEntities != null) {
+                
+                for (int j = 0; j < allEntities.Count; ++j) {
 
-                ref var entityId = ref allEntities[j];
+                    ref var entityId = ref allEntities[j];
 
-                var ent = this.world.GetEntityById(entityId);
-                ref readonly var view = ref ent.Read<ViewComponent>();
-                if (view.viewInfo.entity != Entity.Empty) {
+                    var ent = this.world.GetEntityById(entityId);
+                    ref readonly var view = ref ent.Read<ViewComponent>();
+                    if (view.viewInfo.entity != Entity.Empty) {
 
-                    if (this.IsRenderingNow(in view.viewInfo) == true) {
+                        if (this.IsRenderingNow(in view.viewInfo) == true) {
 
-                        // is rendering now - skip
+                            // is rendering now - skip
 
-                    } else {
+                        } else {
 
-                        // is not rendering now
-                        // create required instance
-                        this.CreateVisualInstance(in view.seed, in view.viewInfo);
-                        hasChanged = true;
+                            // is not rendering now
+                            // create required instance
+                            this.CreateVisualInstance(in view.seed, in view.viewInfo);
+                            hasChanged = true;
+
+                        }
 
                     }
 
                 }
-
+                
             }
 
             return hasChanged;
@@ -1017,28 +1038,31 @@ namespace ME.ECS.Views {
             if (this.world.settings.turnOffViews == true) return;
 
             var hasChanged = this.UpdateRequests();
+            if (this.world.currentState != null) {
 
-            for (var id = this.list.Length - 1; id >= 0; --id) {
+                for (var id = this.list.Length - 1; id >= 0; --id) {
 
-                ref var views = ref this.list.arr[id];
-                var currentViewInstance = views.mainView;
-                if (currentViewInstance == null) continue;
-                if (currentViewInstance.entity.IsAliveWithBoundsCheck() == false) continue;
+                    ref var views = ref this.list.arr[id];
+                    var currentViewInstance = views.mainView;
+                    if (currentViewInstance == null) continue;
+                    if (currentViewInstance.entity.IsAliveWithBoundsCheck() == false) continue;
 
-                var version = currentViewInstance.entity.GetVersion();
-                if (this.forceUpdateState == true || version != currentViewInstance.entityVersion) {
+                    var version = currentViewInstance.entity.GetVersion();
+                    if (this.forceUpdateState == true || version != currentViewInstance.entityVersion) {
 
-                    currentViewInstance.entityVersion = version;
-                    currentViewInstance.ApplyState(deltaTime, immediately: false);
+                        currentViewInstance.entityVersion = version;
+                        currentViewInstance.ApplyState(deltaTime, immediately: false);
+
+                    }
+
+                    currentViewInstance.OnUpdate(deltaTime);
+                    currentViewInstance.UpdateParticlesSimulation(deltaTime);
 
                 }
 
-                currentViewInstance.OnUpdate(deltaTime);
-                currentViewInstance.UpdateParticlesSimulation(deltaTime);
+                this.forceUpdateState = false;
 
             }
-
-            this.forceUpdateState = false;
 
             // Update providers
             foreach (var providerKv in this.registryPrefabToProvider) {

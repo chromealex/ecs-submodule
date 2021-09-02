@@ -15,6 +15,7 @@ namespace ME.ECS.Collections {
         [BurstCompatible(GenericTypeArguments = new[] { typeof(int), typeof(int) })]
         public static int IndexOf<T, U>(this NativeBufferArray<T> array, U value) where T : struct, System.IEquatable<U> {
 
+            if (array.isCreated == false) return -1;
             return array.arr.IndexOf(value);
             
         }
@@ -34,11 +35,11 @@ namespace ME.ECS.Collections {
     [System.Serializable]
     public readonly struct NativeBufferArray<T> : System.IEquatable<NativeBufferArray<T>>, IBufferArray where T : struct {
 
-        public static NativeBufferArray<T> Empty = new NativeBufferArray<T>(default, 0);
+        public static NativeBufferArray<T> Empty = new NativeBufferArray<T>();
 
         internal readonly NativeArray<T> arr;
         public readonly int Length;
-        public readonly bool isCreated;
+        public bool isCreated => this.arr.IsCreated;
 
         public unsafe System.IntPtr GetUnsafePtr() {
             return (System.IntPtr)this.arr.GetUnsafePtr();
@@ -74,7 +75,6 @@ namespace ME.ECS.Collections {
         internal NativeBufferArray(NativeArray<T> arr, int length, int realLength) {
 
             this.Length = length;
-            this.isCreated = (length > 0 && arr.IsCreated == true);
             this.arr = arr;
             
         }
@@ -85,7 +85,6 @@ namespace ME.ECS.Collections {
         internal NativeBufferArray(T[] arr, int length, int realLength) {
 
             this.Length = length;
-            this.isCreated = (length > 0 && arr != null);
             this.arr = new NativeArray<T>(arr, Allocator.Persistent);
 
         }
@@ -96,7 +95,6 @@ namespace ME.ECS.Collections {
         internal NativeBufferArray(int length) {
 
             this.Length = length;
-            this.isCreated = length > 0;
             this.arr = new NativeArray<T>(length, Allocator.Persistent);
 
         }
@@ -107,7 +105,6 @@ namespace ME.ECS.Collections {
         internal NativeBufferArray(T[] arr) {
 
             this.Length = arr.Length;
-            this.isCreated = arr.Length > 0;
             this.arr = new NativeArray<T>(arr, Allocator.Persistent);
 
         }
@@ -118,13 +115,8 @@ namespace ME.ECS.Collections {
         internal NativeBufferArray(NativeArray<T> arr) {
 
             this.Length = arr.Length;
-            this.isCreated = arr.Length > 0;
-            if (this.isCreated == true) {
-                this.arr = new NativeArray<T>(arr, Allocator.Persistent);
-            } else {
-                this.arr = default;
-            }
-
+            this.arr = new NativeArray<T>(arr, Allocator.Persistent);
+            
         }
 
         #if INLINE_METHODS
@@ -133,13 +125,8 @@ namespace ME.ECS.Collections {
         internal NativeBufferArray(NativeBufferArray<T> arr) {
 
             this.Length = arr.Length;
-            this.isCreated = arr.Length > 0;
-            if (this.isCreated == true) {
-                this.arr = new NativeArray<T>(arr.arr, Allocator.Persistent);
-            } else {
-                this.arr = default;
-            }
-
+            this.arr = new NativeArray<T>(arr.arr, Allocator.Persistent);
+            
         }
 
         #if INLINE_METHODS
@@ -148,13 +135,8 @@ namespace ME.ECS.Collections {
         internal NativeBufferArray(BufferArray<T> arr) {
 
             this.Length = arr.Length;
-            this.isCreated = arr.Length > 0;
-            if (this.isCreated == true) {
-                this.arr = new NativeArray<T>(arr.arr, Allocator.Persistent);
-            } else {
-                this.arr = default;
-            }
-
+            this.arr = new NativeArray<T>(arr.arr, Allocator.Persistent);
+            
         }
 
         #if INLINE_METHODS
@@ -163,13 +145,8 @@ namespace ME.ECS.Collections {
         internal NativeBufferArray(ListCopyable<T> arr) {
 
             this.Length = arr.Count;
-            this.isCreated = arr.Count > 0;
-            if (this.isCreated == true) {
-                this.arr = new NativeArray<T>(arr.innerArray.arr, Allocator.Persistent);
-            } else {
-                this.arr = default;
-            }
-
+            this.arr = new NativeArray<T>(arr.innerArray.arr, Allocator.Persistent);
+            
         }
 
         public static NativeBufferArray<T> From(NativeArray<T> arr) {
@@ -289,7 +266,7 @@ namespace ME.ECS.Collections {
         #endif
         public NativeBufferArray<T> Dispose() {
 
-            if (this.arr.IsCreated == true) this.arr.Dispose();
+            if (this.isCreated == true) this.arr.Dispose();
             return NativeBufferArray<T>.Empty;
 
         }

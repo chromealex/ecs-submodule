@@ -177,7 +177,7 @@ namespace ME.ECS {
             } else {
 
                 id = ++this.entityId;
-                NativeArrayUtils.Resize(id, ref this.cache, true);
+                NativeArrayUtils.Resize(id, ref this.cache);
 
             }
 

@@ -198,10 +198,21 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static bool Resize<T>(int index, ref NativeBufferArray<T> arr, bool resizeWithOffset = false) where T : struct {
+        public static bool Resize<T>(int index, ref NativeBufferArray<T> arr) where T : struct {
 
             if (index < arr.Length) return false;
 
+            var newArr = PoolArrayNative<T>.Spawn(index + 1);
+            if (arr.isCreated == true) {
+                
+                Unity.Collections.NativeArray<T>.Copy(arr.arr, 0, newArr.arr, 0, arr.Length);
+                arr.Dispose();
+                
+            }
+            
+            arr = newArr;
+            
+            /*
             var offset = (resizeWithOffset == true ? 2 : 1);
             if (arr.isCreated == false) {
 
@@ -223,6 +234,7 @@ namespace ME.ECS {
             Unity.Collections.NativeArray<T>.Copy(arr.arr, 0, newArr.arr, 0, arr.Length);
             arr.Dispose();
             arr = newArr;
+            */
             
             return true;
 

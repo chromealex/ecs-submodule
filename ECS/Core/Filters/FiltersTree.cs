@@ -83,10 +83,10 @@ namespace ME.ECS {
             public void Add(FilterData filterData) {
 
                 var data = filterData.GetBurstData();
-                NativeArrayUtils.Resize(this.index, ref this.filters, true);
                 var idx = this.filters.IndexOf(data);
                 if (idx == -1) {
 
+                    NativeArrayUtils.Resize(this.index, ref this.filters);
                     this.filters[this.index] = data;
                     ++this.index;
 

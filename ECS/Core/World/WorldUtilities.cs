@@ -124,8 +124,8 @@ namespace ME.ECS {
             Worlds.currentWorld = w;
             Worlds.current = w;
             world.RecycleResetState<TState>();
-            PoolClass<World>.Recycle(ref w);
             world.RecycleStates<TState>();
+            PoolClass<World>.Recycle(ref w);
             Worlds.UnRegister(world);
             Worlds.DeInitializeEnd();
             world = null;

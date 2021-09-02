@@ -191,7 +191,7 @@ namespace ME.ECS {
             
         }
 
-        protected virtual void InjectFilter(Filter filter) {}
+        protected virtual void InjectFilter(ref FilterBuilder builder) {}
         
         protected abstract void OnConstruct();
         protected abstract void OnDeconstruct();

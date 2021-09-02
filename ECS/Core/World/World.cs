@@ -116,8 +116,6 @@ namespace ME.ECS {
         internal BufferArray<SystemGroup> systemGroups;
         internal int systemGroupsLength;
 
-        internal List<FilterAction> filterActions;
-
         internal ListCopyable<ModuleState> statesModules;
 
         internal ICheckpointCollector checkpointCollector;
@@ -219,7 +217,6 @@ namespace ME.ECS {
             this.statesModules = PoolListCopyable<ModuleState>.Spawn(World.MODULES_CAPACITY);
             this.systemGroups = PoolArray<SystemGroup>.Spawn(World.SYSTEMS_CAPACITY);
             this.systemGroupsLength = 0;
-            this.filterActions = PoolList<FilterAction>.Spawn(4);
 
             this.OnSpawnStructComponents();
             this.OnSpawnComponents();
@@ -259,18 +256,6 @@ namespace ME.ECS {
 
             PoolArray<bool>.Recycle(ref this.currentSystemContextFiltersUsed);
             this.currentSystemContextFiltersUsedAnyChanged = default;
-
-            if (this.filterActions != null) {
-
-                for (int i = this.filterActions.Count - 1; i >= 0; --i) {
-
-                    this.filterActions[i].Dispose();
-
-                }
-
-                PoolList<FilterAction>.Recycle(ref this.filterActions);
-
-            }
 
             this.OnRecycleMarkers();
             this.OnRecycleComponents();
@@ -978,15 +963,9 @@ namespace ME.ECS {
 
         }
 
-        internal FilterData GetFilterByHashCode(int hashCode) {
+        public FilterData GetFilterEquals(FilterBuilder builder) {
 
-            return this.currentState.filters.GetByHashCode(hashCode);
-
-        }
-
-        public FilterData GetFilterEquals(FilterData other) {
-
-            return this.currentState.filters.GetFilterEquals(other);
+            return this.currentState.filters.GetFilterEquals(builder);
 
         }
 
@@ -1246,12 +1225,6 @@ namespace ME.ECS {
         }
         #endif
         #endregion
-
-        public void Register(FilterAction filterAction) {
-
-            this.filterActions.Add(filterAction);
-
-        }
 
         public void Register(FilterData filterRef) {
 
@@ -1678,6 +1651,7 @@ namespace ME.ECS {
 
         public ListCopyable<int> GetAliveEntities() {
 
+            if (this.currentState == null) return null;
             return this.currentState.storage.GetAlive();
 
         }

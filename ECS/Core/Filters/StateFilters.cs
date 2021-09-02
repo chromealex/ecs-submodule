@@ -377,14 +377,15 @@ namespace ME.ECS {
 
         }
 
-        public FilterData GetFilterEquals(FilterData other) {
+        public FilterData GetFilterEquals(FilterBuilder builder) {
 
             for (int i = 0; i < this.filters.Length; ++i) {
 
                 ref readonly var filter = ref this.filters.arr[i];
                 if (filter != null) {
 
-                    if (filter.GetHashCode() == other.GetHashCode() && filter.IsEquals(other) == true) {
+                    if (filter.GetHashCode() == builder.GetHashCode() &&
+                        filter.IsEquals(builder) == true) {
 
                         return filter;
 
@@ -475,13 +476,13 @@ namespace ME.ECS {
         internal MultipleFilterEnumerator(MultipleFilter set) {
 
             this.iterateSecondary = false;
-            this.primaryEnumerator = set.primary.GetEnumerator();
-            this.secondaryEnumerator = set.secondary.GetEnumerator();
+            this.primaryEnumerator = set.primaryFilter.GetEnumerator();
+            this.secondaryEnumerator = set.secondaryFilter.GetEnumerator();
             this.useSecondary = set.useSecondary;
             if (this.useSecondary == true) {
 
                 var count = 0;
-                set.primary.GetBounds(out var min, out var max);
+                set.primaryFilter.GetBounds(out var min, out var max);
                 if (max >= min) {
                     
                     count = max - min + 1;
@@ -606,13 +607,15 @@ namespace ME.ECS {
     #endif
     public struct MultipleFilter {
 
-        internal Filter primary;
-        internal Filter secondary;
+        internal Filter primaryFilter;
+        internal Filter secondaryFilter;
+        internal FilterBuilder primary;
+        internal FilterBuilder secondary;
         internal bool useSecondary;
 
         public int Count {
             get {
-                return this.primary.Count + (this.useSecondary == true ? this.secondary.Count : 0);
+                return this.primaryFilter.Count + (this.useSecondary == true ? this.secondaryFilter.Count : 0);
             }
         }
         
@@ -684,8 +687,8 @@ namespace ME.ECS {
         public MultipleFilter Push(ref MultipleFilter filter) {
 
             filter.useSecondary = this.useSecondary;
-            this.primary.Push(ref filter.primary, checkExist: true);
-            if (this.useSecondary == true) this.secondary.Push(ref filter.secondary, checkExist: false);
+            Filter.Push(ref filter.primaryFilter, this.primary, checkExist: true);
+            if (this.useSecondary == true) Filter.Push(ref filter.secondaryFilter, this.secondary, checkExist: false);
             return this;
 
         }
@@ -716,14 +719,14 @@ namespace ME.ECS {
 
         public NativeBufferArray<Entity> ToArray() {
 
-            if (this.useSecondary == false) return this.primary.ToArray();
+            if (this.useSecondary == false) return this.primaryFilter.ToArray();
             
-            var arr = PoolArrayNative<Entity>.Spawn(this.primary.Count + this.secondary.Count);
-            var primaryArray = this.primary.ToArray();
-            NativeArrayUtils.Copy(primaryArray, 0, ref arr, 0, this.primary.Count);
+            var arr = PoolArrayNative<Entity>.Spawn(this.primaryFilter.Count + this.secondaryFilter.Count);
+            var primaryArray = this.primaryFilter.ToArray();
+            NativeArrayUtils.Copy(primaryArray, 0, ref arr, 0, this.primaryFilter.Count);
             primaryArray.Dispose();
-            var secondaryArray = this.secondary.ToArray();
-            if (secondaryArray.Length > 0) NativeArrayUtils.Copy(secondaryArray, 0, ref arr, this.primary.Count, this.secondary.Count);
+            var secondaryArray = this.secondaryFilter.ToArray();
+            if (secondaryArray.Length > 0) NativeArrayUtils.Copy(secondaryArray, 0, ref arr, this.primaryFilter.Count, this.secondaryFilter.Count);
             secondaryArray.Dispose();
             return arr;
 
@@ -856,6 +859,147 @@ namespace ME.ECS {
 
     }
 
+    public struct FilterBuilder {
+
+        internal string name;
+        internal World world;
+        internal bool onVersionChangedOnly;
+        internal Archetype with;
+        internal Archetype without;
+        internal Archetype withShared;
+        internal Archetype withoutShared;
+        internal System.Action<FilterData> actions;
+
+        public override int GetHashCode() {
+
+            var hashCode = this.with.GetHashCode() ^ this.without.GetHashCode()
+                           ^ this.withShared.GetHashCode() ^ this.withoutShared.GetHashCode()
+                           ^ (this.onVersionChangedOnly == true ? 1 : 0);
+            
+            return hashCode;
+
+        }
+        
+        public Filter Push() {
+
+            var filter = new Filter();
+            return this.Push(ref filter);
+
+        }
+
+        public Filter Push(ref Filter filter, bool checkExist = true) {
+
+            return Filter.Push(ref filter, this, checkExist);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public FilterBuilder OnVersionChangedOnly() {
+
+            this.onVersionChangedOnly = true;
+            return this;
+
+        }
+
+        #if !ENTITY_API_VERSION1_TURN_OFF
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public FilterBuilder WithStructComponent<TComponent>() where TComponent : struct, IStructComponentBase {
+
+            return this.With<TComponent>();
+
+        }
+
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public FilterBuilder WithoutStructComponent<TComponent>() where TComponent : struct, IStructComponentBase {
+
+            return this.Without<TComponent>();
+
+        }
+        #endif
+
+        #if !ENTITY_API_VERSION2_TURN_OFF
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public FilterBuilder With<TComponent>() where TComponent : struct, IStructComponentBase {
+
+            WorldUtilities.SetComponentTypeId<TComponent>();
+            this.with.Add<TComponent>();
+            this.actions += (filterData) => {
+
+                filterData.WithStructComponent<TComponent>();
+
+            };
+            return this;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public FilterBuilder Without<TComponent>() where TComponent : struct, IStructComponentBase {
+
+            WorldUtilities.SetComponentTypeId<TComponent>();
+            this.without.Add<TComponent>();
+            this.actions += (filterData) => {
+
+                filterData.WithoutStructComponent<TComponent>();
+
+            };
+            return this;
+
+        }
+        #endif
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public FilterBuilder WithShared<TComponent>() where TComponent : struct, IStructComponentBase {
+
+            WorldUtilities.SetComponentTypeId<TComponent>();
+            this.withShared.Add<TComponent>();
+            this.actions += (filterData) => {
+
+                filterData.WithSharedComponent<TComponent>();
+
+            };
+            return this;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public FilterBuilder WithoutShared<TComponent>() where TComponent : struct, IStructComponentBase {
+
+            WorldUtilities.SetComponentTypeId<TComponent>();
+            this.withoutShared.Add<TComponent>();
+            this.actions += (filterData) => {
+
+                filterData.WithoutSharedComponent<TComponent>();
+
+            };
+            return this;
+
+        }
+
+        [System.ObsoleteAttribute("Entity actions in filters are no longer available")]
+        public FilterBuilder SetOnEntityAdd<T>(T predicate) where T : class, IFilterAction => this;
+        [System.ObsoleteAttribute("Entity actions in filters are no longer available")]
+        public FilterBuilder SetOnEntityRemove<T>(T predicate) where T : class, IFilterAction => this;
+
+    }
+
+    public delegate void FilterInjectionDelegate(ref FilterBuilder builder);
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
@@ -865,20 +1009,19 @@ namespace ME.ECS {
 
         internal int id;
         internal World world;
-        private FilterData temp;
 
         public static Filter Empty => new Filter();
-        internal static System.Action<Filter> injections;
+        internal static FilterInjectionDelegate injections;
 
         public int Count => this.world.GetFilter(this.id).Count;
 
-        public static void RegisterInject(System.Action<Filter> onFilter) {
+        public static void RegisterInject(FilterInjectionDelegate onFilter) {
 
             Filter.injections += onFilter;
 
         }
 
-        public static void UnregisterInject(System.Action<Filter> onFilter) {
+        public static void UnregisterInject(FilterInjectionDelegate onFilter) {
 
             Filter.injections -= onFilter;
             
@@ -932,133 +1075,11 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public Filter SetOnEntityAdd<T>(T predicate) where T : class, IFilterAction {
-
-            this.temp.SetOnEntityAdd(predicate);
-            return this;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public Filter SetOnEntityRemove<T>(T predicate) where T : class, IFilterAction {
-
-            this.temp.SetOnEntityRemove(predicate);
-            return this;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public bool IsAlive() {
 
             return Worlds.currentWorld.HasFilter(this.id);
 
         }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public Filter Push() {
-
-            var filter = new Filter();
-            return this.Push(ref filter);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public Filter Push(ref Filter filter, bool checkExist = true) {
-
-            if (Filter.injections != null) Filter.injections.Invoke(this);
-
-            FilterData filterData = null;
-            this.temp.Push(ref filterData, checkExist);
-            filter.id = filterData.id;
-            filter.world = Worlds.currentWorld;
-            filter.temp = null;
-            return filter;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public Filter OnVersionChangedOnly() {
-
-            this.temp.OnVersionChangedOnly();
-            return this;
-
-        }
-
-        #if !ENTITY_API_VERSION1_TURN_OFF
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public Filter WithStructComponent<TComponent>() where TComponent : struct, IStructComponentBase {
-
-            this.temp.WithStructComponent<TComponent>();
-            return this;
-
-        }
-
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public Filter WithoutStructComponent<TComponent>() where TComponent : struct, IStructComponentBase {
-
-            this.temp.WithoutStructComponent<TComponent>();
-            return this;
-
-        }
-        #endif
-
-        #if !ENTITY_API_VERSION2_TURN_OFF
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public Filter With<TComponent>() where TComponent : struct, IStructComponentBase {
-
-            this.temp.WithStructComponent<TComponent>();
-            return this;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public Filter Without<TComponent>() where TComponent : struct, IStructComponentBase {
-
-            this.temp.WithoutStructComponent<TComponent>();
-            return this;
-
-        }
-        
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public Filter WithShared<TComponent>() where TComponent : struct, IStructComponentBase {
-
-            this.temp.WithSharedComponent<TComponent>();
-            return this;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public Filter WithoutShared<TComponent>() where TComponent : struct, IStructComponentBase {
-
-            this.temp.WithoutSharedComponent<TComponent>();
-            return this;
-
-        }
-        #endif
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -1090,13 +1111,11 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Filter Create(string customName = null) {
+        public static FilterBuilder Create(string customName = null) {
 
-            var filter = FilterData.Create(customName);
-            return new Filter() {
-                id = filter.id,
+            return new FilterBuilder() {
+                name = customName,
                 world = Worlds.currentWorld,
-                temp = filter,
             };
 
         }
@@ -1104,16 +1123,40 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Filter CreateFromData(FilterDataTypes filterDataTypes, string customName = null) {
+        public static FilterBuilder CreateFromData(FilterDataTypes filterDataTypes, string customName = null) {
 
-            var filter = FilterData.Create(customName).With(filterDataTypes.with).Without(filterDataTypes.without);
+            /*var filter = FilterData.Create(customName).With(filterDataTypes.with).Without(filterDataTypes.without);
             var f = new Filter() {
                 id = filter.id,
                 world = Worlds.currentWorld,
-                temp = filter,
             };
 
-            return f;
+            return f;*/
+            return default;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        internal static Filter Push(ref Filter filter, FilterBuilder builder, bool checkExist = true) {
+
+            if (Filter.injections != null) Filter.injections.Invoke(ref builder);
+
+            var filterData = (checkExist == true ? builder.world.GetFilterEquals(builder) : null);
+            if (filterData == null) {
+                filterData = FilterData.Create(builder.name);
+            } else {
+                filterData.AddAlias(builder.name);
+                #if UNITY_EDITOR
+                filterData.OnEditorFilterAddStackTrace(filterData.GetEditorStackTraceFilename(0), filterData.GetEditorStackTraceLineNumber(0));
+                #endif
+                                                                      
+            }
+            filterData.Push(ref builder);
+            filter.id = filterData.id;
+            filter.world = builder.world;
+            return filter;
 
         }
 
@@ -1282,7 +1325,7 @@ namespace ME.ECS {
 
         }
 
-        private void AddAlias(string name) {
+        internal void AddAlias(string name) {
 
             if (string.IsNullOrEmpty(name) == true) return;
 
@@ -1480,6 +1523,8 @@ namespace ME.ECS {
             this.min = int.MaxValue;
             this.max = int.MinValue;
 
+            this.hasShared = false;
+            
             this.predicateOnAdd = null;
             this.predicateOnRemove = null;
 
@@ -1497,7 +1542,7 @@ namespace ME.ECS {
 
             this.isPooled = true;
             this.forEachMode = false;
-
+            
             PoolArrayNative<bool>.Recycle(ref this.dataContains);
             if (this.onVersionChangedOnly == true) PoolArrayNative<bool>.Recycle(ref this.dataVersions);
             #if MULTITHREAD_SUPPORT
@@ -1510,6 +1555,8 @@ namespace ME.ECS {
 
             this.min = int.MaxValue;
             this.max = int.MinValue;
+
+            this.hasShared = false;
 
             this.predicateOnAdd = null;
             this.predicateOnRemove = null;
@@ -1969,25 +2016,6 @@ namespace ME.ECS {
 
         }
 
-        /*#if INLINE_METHODS
-[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-        private bool ContainsAllNodes(Entity entity) {
-            
-            for (int i = 0; i < this.nodesCount; ++i) {
-
-                if (this.nodes[i].Execute(entity) == false) {
-
-                    return false;
-
-                }
-
-            }
-
-            return true;
-
-        }*/
-
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -2022,12 +2050,13 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public bool IsEquals(FilterData filter) {
+        public bool IsEquals(FilterBuilder builder) {
 
-            if (this.GetArchetypeContains() == filter.GetArchetypeContains() &&
-                this.GetArchetypeNotContains() == filter.GetArchetypeNotContains() &&
-                this.onVersionChangedOnly == filter.onVersionChangedOnly &&
-                this.GetType() == filter.GetType()) {
+            if (this.GetArchetypeContains() == builder.with &&
+                this.GetArchetypeNotContains() == builder.without &&
+                this.sharedArchetypeContains == builder.withShared &&
+                this.sharedArchetypeNotContains == builder.withoutShared &&
+                this.onVersionChangedOnly == builder.onVersionChangedOnly) {
 
                 return true;
 
@@ -2039,8 +2068,7 @@ namespace ME.ECS {
 
         public override int GetHashCode() {
 
-            var hashCode = this.GetType().GetHashCode()
-                            ^ this.archetypeContains.GetHashCode() ^ this.archetypeNotContains.GetHashCode()
+            var hashCode = this.archetypeContains.GetHashCode() ^ this.archetypeNotContains.GetHashCode()
                             ^ this.sharedArchetypeContains.GetHashCode() ^ this.sharedArchetypeNotContains.GetHashCode()
                             ^ (this.onVersionChangedOnly == true ? 1 : 0);
             
@@ -2048,47 +2076,20 @@ namespace ME.ECS {
 
         }
 
-        public FilterData Push() {
+        public FilterData Push(ref FilterBuilder builder) {
 
-            FilterData filter = null;
-            return this.Push(ref filter);
+            // Apply filter actions
+            builder.actions.Invoke(this);
+            // Postprocess all actions
+            this.setupVersioned?.Invoke(this);
+            this.setupVersioned = null;
 
-        }
-
-        public FilterData Push(ref FilterData filter, bool checkExist = true) {
-
-            var world = Worlds.currentWorld;
-            if (checkExist == false || world.HasFilter(this.id) == false) {
-
-                var existsFilter = (this.onVersionChangedOnly == true ? null : world.GetFilterEquals(this));
-                if (existsFilter != null) {
-
-                    filter = existsFilter;
-                    filter.AddAlias(this.name);
-                    #if UNITY_EDITOR
-                    filter.OnEditorFilterAddStackTrace(this.editorStackTraceFile[0], this.editorStackTraceLineNumber[0]);
-                    #endif
-                    this.Recycle();
-                    return existsFilter;
-
-                } else {
-
-                    this.id = world.currentState.filters.AllocateNextId();
-
-                    filter = this;
-                    filter.setupVersioned?.Invoke(filter);
-                    filter.setupVersioned = null;
-                    world.currentState.filters.RegisterInAllArchetype(in this.archetypeContains);
-                    world.currentState.filters.RegisterInAllArchetype(in this.archetypeNotContains);
-                    world.Register(this);
-
-                }
-
-            } else {
-
-                UnityEngine.Debug.LogWarning(string.Format("World #{0} already has filter {1}!", world.id, this));
-
-            }
+            var world = builder.world;
+            world.currentState.filters.RegisterInAllArchetype(in this.archetypeContains);
+            world.currentState.filters.RegisterInAllArchetype(in this.archetypeNotContains);
+            world.currentState.filters.RegisterInAllArchetype(in this.sharedArchetypeContains);
+            world.currentState.filters.RegisterInAllArchetype(in this.sharedArchetypeNotContains);
+            world.Register(this);
 
             return this;
 
@@ -2214,7 +2215,7 @@ namespace ME.ECS {
 
         public static FilterData Create(string customName = null) {
 
-            var nextId = Worlds.currentWorld.currentState.filters.GetNextId();
+            var nextId = Worlds.currentWorld.currentState.filters.AllocateNextId();
             var f = PoolFilters.Spawn<FilterData>();
             f.setupVersioned = null;
             f.id = nextId;
