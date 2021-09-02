@@ -2606,7 +2606,7 @@ namespace ME.ECS {
         private void RunTick(Tick tick, float fixedDeltaTime) {
 
             #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.BeginSample(tick.ToString());
+            UnityEngine.Profiling.Profiler.BeginSample("Tick");
             #endif
 
             ////////////////

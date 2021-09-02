@@ -800,12 +800,13 @@ namespace ME.ECS {
 
             ref readonly var arr = ref this.set.dataContains.arr;
             ref var ver = ref this.set.dataVersions;
+            ref readonly var verArr = ref ver.arr;
             do {
 
                 ++this.index;
                 if (this.index > this.max) return false;
-                if (arr[this.index] != true) continue;
-                if (this.onVersionChangedOnly == true && ver[this.index] == false) continue;
+                if (arr.GetRefRead(this.index) != true) continue;
+                if (this.onVersionChangedOnly == true && verArr.GetRefRead(this.index) == false) continue;
                 
                 break;
 
