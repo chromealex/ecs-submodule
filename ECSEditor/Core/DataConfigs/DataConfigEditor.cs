@@ -100,6 +100,7 @@ namespace ME.ECSEditor {
 
                         usedComponents.Add(type);
 
+                        source.serializedObject.Update();
                         ++source.arraySize;
                         var elem = source.GetArrayElementAtIndex(source.arraySize - 1);
                         elem.managedReferenceValue = System.Activator.CreateInstance(type);
@@ -344,6 +345,7 @@ namespace ME.ECSEditor {
                 GetTypeFromManagedReferenceFullTypeName(copy.managedReferenceFullTypename, out var compType);
                 if (compType == type) {
 
+                    source.serializedObject.Update();
                     usedComponents.Remove(type);
                     source.DeleteArrayElementAtIndex(i);
                     source.serializedObject.ApplyModifiedProperties();
