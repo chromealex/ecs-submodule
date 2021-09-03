@@ -17,9 +17,10 @@ namespace ME.ECS.Collections.Tests {
                 
             }
             
-            Worlds.currentWorld.SetFromToTicks(0, 1);
-            Worlds.currentWorld.UpdateLogic(0f);
+            Worlds.currentWorld.SetFromToTicks(0, 40);
+            Worlds.currentWorld.UpdateLogic(0.033f);
             
+            arr = ref bufferArr.Get();
             for (int i = 0; i < arr.Length; ++i) {
                 
                 arr[i] = i;
@@ -74,9 +75,17 @@ namespace ME.ECS.Collections.Tests {
 
         }
 
-        private class TestState : State {
+        public class TestState : State { }
 
-            
+        public class TestStatesHistoryModule : ME.ECS.StatesHistory.StatesHistoryModule<TestState> {
+
+            protected override uint GetTicksPerState() {
+                return 2;
+            }
+
+            protected override uint GetQueueCapacity() {
+                return 10;
+            }
 
         }
 
@@ -85,6 +94,7 @@ namespace ME.ECS.Collections.Tests {
         
             WorldUtilities.CreateWorld<TestState>(ref this.world, 0.033f);
             this.world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
+            this.world.AddModule<TestStatesHistoryModule>();
             this.world.SetSeed(1u);
             this.world.SaveResetState<TestState>();
             

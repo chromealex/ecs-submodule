@@ -97,6 +97,8 @@ namespace ME.ECS.Tests {
             world.Update(1f);
             world.LateUpdate(1f);
 
+            WorldUtilities.ReleaseWorld<TestState>(ref world);
+
         }
 
         private class TestSystem : ISystem, IAdvanceTick {
@@ -168,6 +170,8 @@ namespace ME.ECS.Tests {
             world.PreUpdate(1f);
             world.Update(1f);
             world.LateUpdate(1f);
+
+            WorldUtilities.ReleaseWorld<TestState>(ref world);
 
         }
 

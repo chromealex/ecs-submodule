@@ -23,22 +23,6 @@ namespace ME.ECS.Collections.Tests {
         }
 
         [NUnit.Framework.TestAttribute]
-        public void WriteData() {
-
-            this.Initialize();
-
-            var intObj = new ME.ECS.Collections.DataObject<int>(10);
-            var src = intObj.GetHashCode();
-
-            intObj.Set(56);
-
-            NUnit.Framework.Assert.True(src == intObj.GetHashCode());
-
-            this.DeInitialize();
-
-        }
-
-        [NUnit.Framework.TestAttribute]
         public void ReadData() {
 
             this.Initialize();
@@ -52,20 +36,19 @@ namespace ME.ECS.Collections.Tests {
 
         }
 
-        private class TestState : State {
+        public class TestState : State {}
 
-            
-
-        }
+        public class TestStatesHistoryModule : ME.ECS.StatesHistory.StatesHistoryModule<TestState> { }
 
         private World world;
         private void Initialize() {
-
+        
             WorldUtilities.CreateWorld<TestState>(ref this.world, 0.033f);
             this.world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
+            this.world.AddModule<TestStatesHistoryModule>();
             this.world.SetSeed(1u);
             this.world.SaveResetState<TestState>();
-
+            
         }
 
         private void DeInitialize() {

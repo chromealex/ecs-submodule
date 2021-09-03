@@ -34,23 +34,6 @@ namespace ME.ECS.Collections.Tests {
         }
 
         [NUnit.Framework.TestAttribute]
-        public void WriteData() {
-
-            this.Initialize();
-
-            var intDic = new ME.ECS.Collections.DataDictionary<int, int>(10);
-            var src = intDic.GetHashCode();
-
-            var newDic = PoolDictionaryCopyable<int, int>.Spawn(10);
-            intDic.Set(newDic);
-
-            NUnit.Framework.Assert.True(src == intDic.GetHashCode());
-
-            this.DeInitialize();
-
-        }
-
-        [NUnit.Framework.TestAttribute]
         public void ReadData() {
 
             this.Initialize();
@@ -74,26 +57,35 @@ namespace ME.ECS.Collections.Tests {
 
         }
 
-        private class TestState : State {
+        public class TestState : State { }
 
+        public class TestStatesHistoryModule : ME.ECS.StatesHistory.StatesHistoryModule<TestState> {
 
+            protected override uint GetTicksPerState() {
+                return 2;
+            }
+
+            protected override uint GetQueueCapacity() {
+                return 10;
+            }
 
         }
 
         private World world;
         private void Initialize() {
-
+        
             WorldUtilities.CreateWorld<TestState>(ref this.world, 0.033f);
             this.world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
+            this.world.AddModule<TestStatesHistoryModule>();
             this.world.SetSeed(1u);
             this.world.SaveResetState<TestState>();
-
+            
         }
 
         private void DeInitialize() {
-
+            
             WorldUtilities.ReleaseWorld<TestState>(ref this.world);
-
+            
         }
 
     }
