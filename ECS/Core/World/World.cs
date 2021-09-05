@@ -1214,13 +1214,13 @@ namespace ME.ECS {
 
         public void RegisterEntityVersionIncrementAction(System.Action<Entity, int> action) {
 
-            onEntityVersionIncrement += action;
+            this.onEntityVersionIncrement += action;
 
         }
 
         public void UnRegisterEntityVersionIncrementAction(System.Action<Entity, int> action) {
 
-            onEntityVersionIncrement -= action;
+            this.onEntityVersionIncrement -= action;
 
         }
         #endif
