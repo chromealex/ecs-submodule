@@ -146,6 +146,32 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void Copy<T>(in BufferArray<T> fromArr, int sourceIndex, ref NativeBufferArray<T> arr, int destIndex, int length) where T : struct {
+
+            if (fromArr.isCreated == false) {
+
+                if (arr.isCreated == true) PoolArrayNative<T>.Recycle(ref arr);
+                arr = NativeBufferArray<T>.Empty;
+                return;
+
+            }
+
+            if (arr.isCreated == false) {
+
+                if (arr.isCreated == true) PoolArrayNative<T>.Recycle(ref arr);
+                arr = PoolArrayNative<T>.Spawn(destIndex + length);
+
+            }
+
+            var newArr = arr.arr;
+            NativeArrayUtils.Copy(fromArr, sourceIndex, ref newArr, destIndex, length);
+            arr = new NativeBufferArray<T>(newArr, fromArr.Length);
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T>(in NativeBufferArray<T> fromArr, int sourceIndex, ref NativeBufferArray<T> arr, int destIndex, int length) where T : struct {
 
             if (fromArr.isCreated == false) {

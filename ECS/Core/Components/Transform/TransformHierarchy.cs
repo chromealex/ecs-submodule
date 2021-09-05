@@ -130,7 +130,7 @@ namespace ME.ECS {
             do {
 
                 root = container;
-                container = container.Get<Container>(false).entity;
+                container = container.Read<Container>().entity;
 
             } while (container.IsAlive() == true);
 
@@ -143,7 +143,7 @@ namespace ME.ECS {
         #endif
         private static bool FindInHierarchy(in Entity child, in Entity root) {
 
-            ref var childChilds = ref child.Get<Childs>(createIfNotExists: false);
+            var childChilds = child.Read<Childs>();
             if (childChilds.childs.Contains(root) == true) {
 
                 return true;

@@ -7,7 +7,7 @@ namespace ME.ECS.Collections.Tests {
 
         private ME.ECS.Collections.BufferArraySliced<ME.ECS.Name.Name> Prepare() {
 
-            var data = new ME.ECS.Collections.BufferArraySliced<ME.ECS.Name.Name>(new ME.ECS.Collections.BufferArray<ME.ECS.Name.Name>());
+            var data = new ME.ECS.Collections.BufferArraySliced<ME.ECS.Name.Name>(new BufferArray<ME.ECS.Name.Name>());
             data = data.Resize(2, false, out _);
             
             data[0] = new ME.ECS.Name.Name() { value = "1" };
@@ -47,6 +47,8 @@ namespace ME.ECS.Collections.Tests {
             data.value = "Test";
             UnityEngine.Debug.Assert(buffer[5].value == data.value);
             
+            buffer.Dispose();
+
         }
 
         [NUnit.Framework.TestAttribute]
@@ -56,6 +58,8 @@ namespace ME.ECS.Collections.Tests {
             UnityEngine.Debug.Assert(buffer[5].value == "6");
             UnityEngine.Debug.Assert(buffer[11].value == "12");
             UnityEngine.Debug.Assert(buffer.Length == 14);
+
+            buffer.Dispose();
 
         }
 
@@ -73,6 +77,8 @@ namespace ME.ECS.Collections.Tests {
             
             merged[16] = new ME.ECS.Name.Name() { value = "17" };
             merged[17] = new ME.ECS.Name.Name() { value = "18" };
+            
+            merged.Dispose();
 
         }
 

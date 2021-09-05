@@ -50,8 +50,8 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private void CalculateJob(in Entity entity, in NativeBufferArray<FiltersTree.FilterBurst> contains, in NativeBufferArray<FiltersTree.FilterBurst> notContains, out Unity.Collections.NativeList<int> containsResult, out Unity.Collections.NativeList<int> notContainsResult) {
 
-            containsResult = new Unity.Collections.NativeList<int>(Unity.Collections.Allocator.Persistent);
-            notContainsResult = new Unity.Collections.NativeList<int>(Unity.Collections.Allocator.Persistent);
+            containsResult = new Unity.Collections.NativeList<int>(Unity.Collections.Allocator.Temp);
+            notContainsResult = new Unity.Collections.NativeList<int>(Unity.Collections.Allocator.Temp);
 
             ref var archetypeEntities = ref Worlds.currentWorld.currentState.storage.archetypes;
             var jobContains = new UpdateFiltersJob() {

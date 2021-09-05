@@ -2,6 +2,9 @@
 #define INLINE_METHODS
 #endif
 
+using FLOAT3 = UnityEngine.Vector3;
+using QUATERNION = UnityEngine.Quaternion;
+
 namespace ME.ECS {
 
     using Transform;
@@ -11,23 +14,23 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void SetLocalPosition(this in Entity child, in UnityEngine.Vector3 position) {
+        public static void SetLocalPosition(this in Entity child, in FLOAT3 position) {
             
-            Worlds.currentWorld.SetData(in child, new Position() { x = position.x, y = position.y, z = position.z });
+            Worlds.currentWorld.SetData(in child, new Position() { value = position });
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void SetPosition(this in Entity child, in UnityEngine.Vector3 position) {
+        public static void SetPosition(this in Entity child, in FLOAT3 position) {
 
             ref readonly var container = ref child.Read<Container>();
             if (container.entity.IsEmpty() == false) {
 
                 var containerRotation = container.entity.GetRotation();
                 var containerPosition = container.entity.GetPosition();
-                child.SetLocalPosition(UnityEngine.Quaternion.Inverse(containerRotation) * (position - containerPosition));
+                child.SetLocalPosition(QUATERNION.Inverse(containerRotation) * (position - containerPosition));
 
             } else {
 
@@ -40,13 +43,13 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void SetRotation(this in Entity child, in UnityEngine.Quaternion rotation) {
+        public static void SetRotation(this in Entity child, in QUATERNION rotation) {
 
             ref readonly var container = ref child.Read<Container>();
             if (container.entity.IsEmpty() == false) {
 
                 var containerRotation = container.entity.GetRotation();
-                var containerRotationInverse = UnityEngine.Quaternion.Inverse(containerRotation);
+                var containerRotationInverse = QUATERNION.Inverse(containerRotation);
                 child.SetLocalRotation(containerRotationInverse * rotation);
 
             } else {
@@ -60,7 +63,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void SetLocalScale(this in Entity child, in UnityEngine.Vector3 scale) {
+        public static void SetLocalScale(this in Entity child, in FLOAT3 scale) {
 
             Worlds.currentWorld.SetData(in child, scale.ToScaleStruct());
 
@@ -69,7 +72,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static UnityEngine.Vector3 GetPosition(this in Entity child) {
+        public static FLOAT3 GetPosition(this in Entity child) {
 
             var position = child.Read<Position>().ToVector3();
             ref readonly var container = ref child.Read<Container>();
@@ -88,7 +91,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static UnityEngine.Vector3 GetLocalPosition(this in Entity child) {
+        public static FLOAT3 GetLocalPosition(this in Entity child) {
 
             return child.Read<Position>().ToVector3();
 
@@ -97,7 +100,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void SetLocalRotation(this in Entity child, in UnityEngine.Quaternion rotation) {
+        public static void SetLocalRotation(this in Entity child, in QUATERNION rotation) {
 
             Worlds.currentWorld.SetData(in child, rotation.ToRotationStruct());
 
@@ -106,7 +109,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static UnityEngine.Quaternion GetLocalRotation(this in Entity child) {
+        public static QUATERNION GetLocalRotation(this in Entity child) {
 
             return child.Read<Rotation>().ToQuaternion();
 
@@ -115,7 +118,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static UnityEngine.Quaternion GetRotation(this in Entity child) {
+        public static QUATERNION GetRotation(this in Entity child) {
 
             var worldRot = child.Read<Rotation>().ToQuaternion();
             ref readonly var container = ref child.Read<Container>();
@@ -133,7 +136,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static UnityEngine.Vector3 GetLocalScale(this in Entity child) {
+        public static FLOAT3 GetLocalScale(this in Entity child) {
 
             return child.Read<Scale>().ToVector3();
 
@@ -142,54 +145,54 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Position ToPositionStruct(this in UnityEngine.Vector3 v) {
+        public static Position ToPositionStruct(this in FLOAT3 v) {
 
-            return new Position() { x = v.x, y = v.y, z = v.z };
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static UnityEngine.Vector3 ToVector3(this in Position v) {
-
-            return new UnityEngine.Vector3() { x = v.x, y = v.y, z = v.z };
+            return new Position() { value = v };
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Rotation ToRotationStruct(this in UnityEngine.Quaternion v) {
+        public static FLOAT3 ToVector3(this in Position v) {
 
-            return new Rotation() { x = v.x, y = v.y, z = v.z, w = v.w };
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static UnityEngine.Quaternion ToQuaternion(this in Rotation v) {
-
-            return new UnityEngine.Quaternion() { x = (float)v.x, y = (float)v.y, z = (float)v.z, w = (float)v.w };
+            return v.value;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Scale ToScaleStruct(this in UnityEngine.Vector3 v) {
+        public static Rotation ToRotationStruct(this in QUATERNION v) {
 
-            return new Scale() { x = v.x, y = v.y, z = v.z };
+            return new Rotation() { value = v };
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static UnityEngine.Vector3 ToVector3(this in Scale v) {
+        public static QUATERNION ToQuaternion(this in Rotation v) {
 
-            return new UnityEngine.Vector3() { x = v.x, y = v.y, z = v.z };
+            return v.value;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Scale ToScaleStruct(this in FLOAT3 v) {
+
+            return new Scale() { value = v };
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FLOAT3 ToVector3(this in Scale v) {
+
+            return v.value;
 
         }
 

@@ -43,9 +43,9 @@ regT0.Merge();
         foreach (var entity in filter) {
             this.arr[idx] = new DataBufferStruct<T0>() {
                 entity = entity,
-                containsT0 = regT0.componentsStates[entity.id],
+                containsT0 = regT0.components[entity.id].state,
 opsT0 = 0,
-t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,
             };
             ++idx;
         }
@@ -121,11 +121,11 @@ regT1.Merge();
         foreach (var entity in filter) {
             this.arr[idx] = new DataBufferStruct<T0,T1>() {
                 entity = entity,
-                containsT0 = regT0.componentsStates[entity.id],
+                containsT0 = regT0.components[entity.id].state,
 opsT0 = 0,
-t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,containsT1 = regT1.componentsStates[entity.id],
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
 opsT1 = 0,
-t1 = regT1.components.Length > 0 ? regT1.components.data.arr[entity.id] : default,
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,
             };
             ++idx;
         }
@@ -217,13 +217,13 @@ regT2.Merge();
         foreach (var entity in filter) {
             this.arr[idx] = new DataBufferStruct<T0,T1,T2>() {
                 entity = entity,
-                containsT0 = regT0.componentsStates[entity.id],
+                containsT0 = regT0.components[entity.id].state,
 opsT0 = 0,
-t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,containsT1 = regT1.componentsStates[entity.id],
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
 opsT1 = 0,
-t1 = regT1.components.Length > 0 ? regT1.components.data.arr[entity.id] : default,containsT2 = regT2.componentsStates[entity.id],
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
 opsT2 = 0,
-t2 = regT2.components.Length > 0 ? regT2.components.data.arr[entity.id] : default,
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,
             };
             ++idx;
         }
@@ -331,15 +331,15 @@ regT3.Merge();
         foreach (var entity in filter) {
             this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3>() {
                 entity = entity,
-                containsT0 = regT0.componentsStates[entity.id],
+                containsT0 = regT0.components[entity.id].state,
 opsT0 = 0,
-t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,containsT1 = regT1.componentsStates[entity.id],
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
 opsT1 = 0,
-t1 = regT1.components.Length > 0 ? regT1.components.data.arr[entity.id] : default,containsT2 = regT2.componentsStates[entity.id],
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
 opsT2 = 0,
-t2 = regT2.components.Length > 0 ? regT2.components.data.arr[entity.id] : default,containsT3 = regT3.componentsStates[entity.id],
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,containsT3 = regT3.components[entity.id].state,
 opsT3 = 0,
-t3 = regT3.components.Length > 0 ? regT3.components.data.arr[entity.id] : default,
+t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : default,
             };
             ++idx;
         }
@@ -463,17 +463,17 @@ regT4.Merge();
         foreach (var entity in filter) {
             this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4>() {
                 entity = entity,
-                containsT0 = regT0.componentsStates[entity.id],
+                containsT0 = regT0.components[entity.id].state,
 opsT0 = 0,
-t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,containsT1 = regT1.componentsStates[entity.id],
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
 opsT1 = 0,
-t1 = regT1.components.Length > 0 ? regT1.components.data.arr[entity.id] : default,containsT2 = regT2.componentsStates[entity.id],
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
 opsT2 = 0,
-t2 = regT2.components.Length > 0 ? regT2.components.data.arr[entity.id] : default,containsT3 = regT3.componentsStates[entity.id],
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,containsT3 = regT3.components[entity.id].state,
 opsT3 = 0,
-t3 = regT3.components.Length > 0 ? regT3.components.data.arr[entity.id] : default,containsT4 = regT4.componentsStates[entity.id],
+t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : default,containsT4 = regT4.components[entity.id].state,
 opsT4 = 0,
-t4 = regT4.components.Length > 0 ? regT4.components.data.arr[entity.id] : default,
+t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : default,
             };
             ++idx;
         }
@@ -613,19 +613,19 @@ regT5.Merge();
         foreach (var entity in filter) {
             this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5>() {
                 entity = entity,
-                containsT0 = regT0.componentsStates[entity.id],
+                containsT0 = regT0.components[entity.id].state,
 opsT0 = 0,
-t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,containsT1 = regT1.componentsStates[entity.id],
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
 opsT1 = 0,
-t1 = regT1.components.Length > 0 ? regT1.components.data.arr[entity.id] : default,containsT2 = regT2.componentsStates[entity.id],
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
 opsT2 = 0,
-t2 = regT2.components.Length > 0 ? regT2.components.data.arr[entity.id] : default,containsT3 = regT3.componentsStates[entity.id],
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,containsT3 = regT3.components[entity.id].state,
 opsT3 = 0,
-t3 = regT3.components.Length > 0 ? regT3.components.data.arr[entity.id] : default,containsT4 = regT4.componentsStates[entity.id],
+t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : default,containsT4 = regT4.components[entity.id].state,
 opsT4 = 0,
-t4 = regT4.components.Length > 0 ? regT4.components.data.arr[entity.id] : default,containsT5 = regT5.componentsStates[entity.id],
+t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : default,containsT5 = regT5.components[entity.id].state,
 opsT5 = 0,
-t5 = regT5.components.Length > 0 ? regT5.components.data.arr[entity.id] : default,
+t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : default,
             };
             ++idx;
         }
@@ -781,21 +781,21 @@ regT6.Merge();
         foreach (var entity in filter) {
             this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6>() {
                 entity = entity,
-                containsT0 = regT0.componentsStates[entity.id],
+                containsT0 = regT0.components[entity.id].state,
 opsT0 = 0,
-t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,containsT1 = regT1.componentsStates[entity.id],
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
 opsT1 = 0,
-t1 = regT1.components.Length > 0 ? regT1.components.data.arr[entity.id] : default,containsT2 = regT2.componentsStates[entity.id],
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
 opsT2 = 0,
-t2 = regT2.components.Length > 0 ? regT2.components.data.arr[entity.id] : default,containsT3 = regT3.componentsStates[entity.id],
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,containsT3 = regT3.components[entity.id].state,
 opsT3 = 0,
-t3 = regT3.components.Length > 0 ? regT3.components.data.arr[entity.id] : default,containsT4 = regT4.componentsStates[entity.id],
+t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : default,containsT4 = regT4.components[entity.id].state,
 opsT4 = 0,
-t4 = regT4.components.Length > 0 ? regT4.components.data.arr[entity.id] : default,containsT5 = regT5.componentsStates[entity.id],
+t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : default,containsT5 = regT5.components[entity.id].state,
 opsT5 = 0,
-t5 = regT5.components.Length > 0 ? regT5.components.data.arr[entity.id] : default,containsT6 = regT6.componentsStates[entity.id],
+t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : default,containsT6 = regT6.components[entity.id].state,
 opsT6 = 0,
-t6 = regT6.components.Length > 0 ? regT6.components.data.arr[entity.id] : default,
+t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : default,
             };
             ++idx;
         }
@@ -967,23 +967,23 @@ regT7.Merge();
         foreach (var entity in filter) {
             this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7>() {
                 entity = entity,
-                containsT0 = regT0.componentsStates[entity.id],
+                containsT0 = regT0.components[entity.id].state,
 opsT0 = 0,
-t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,containsT1 = regT1.componentsStates[entity.id],
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
 opsT1 = 0,
-t1 = regT1.components.Length > 0 ? regT1.components.data.arr[entity.id] : default,containsT2 = regT2.componentsStates[entity.id],
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
 opsT2 = 0,
-t2 = regT2.components.Length > 0 ? regT2.components.data.arr[entity.id] : default,containsT3 = regT3.componentsStates[entity.id],
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,containsT3 = regT3.components[entity.id].state,
 opsT3 = 0,
-t3 = regT3.components.Length > 0 ? regT3.components.data.arr[entity.id] : default,containsT4 = regT4.componentsStates[entity.id],
+t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : default,containsT4 = regT4.components[entity.id].state,
 opsT4 = 0,
-t4 = regT4.components.Length > 0 ? regT4.components.data.arr[entity.id] : default,containsT5 = regT5.componentsStates[entity.id],
+t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : default,containsT5 = regT5.components[entity.id].state,
 opsT5 = 0,
-t5 = regT5.components.Length > 0 ? regT5.components.data.arr[entity.id] : default,containsT6 = regT6.componentsStates[entity.id],
+t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : default,containsT6 = regT6.components[entity.id].state,
 opsT6 = 0,
-t6 = regT6.components.Length > 0 ? regT6.components.data.arr[entity.id] : default,containsT7 = regT7.componentsStates[entity.id],
+t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : default,containsT7 = regT7.components[entity.id].state,
 opsT7 = 0,
-t7 = regT7.components.Length > 0 ? regT7.components.data.arr[entity.id] : default,
+t7 = AllComponentTypes<T7>.isTag == false ? regT7.components[entity.id].data : default,
             };
             ++idx;
         }
@@ -1171,25 +1171,25 @@ regT8.Merge();
         foreach (var entity in filter) {
             this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8>() {
                 entity = entity,
-                containsT0 = regT0.componentsStates[entity.id],
+                containsT0 = regT0.components[entity.id].state,
 opsT0 = 0,
-t0 = regT0.components.Length > 0 ? regT0.components.data.arr[entity.id] : default,containsT1 = regT1.componentsStates[entity.id],
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
 opsT1 = 0,
-t1 = regT1.components.Length > 0 ? regT1.components.data.arr[entity.id] : default,containsT2 = regT2.componentsStates[entity.id],
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
 opsT2 = 0,
-t2 = regT2.components.Length > 0 ? regT2.components.data.arr[entity.id] : default,containsT3 = regT3.componentsStates[entity.id],
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,containsT3 = regT3.components[entity.id].state,
 opsT3 = 0,
-t3 = regT3.components.Length > 0 ? regT3.components.data.arr[entity.id] : default,containsT4 = regT4.componentsStates[entity.id],
+t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : default,containsT4 = regT4.components[entity.id].state,
 opsT4 = 0,
-t4 = regT4.components.Length > 0 ? regT4.components.data.arr[entity.id] : default,containsT5 = regT5.componentsStates[entity.id],
+t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : default,containsT5 = regT5.components[entity.id].state,
 opsT5 = 0,
-t5 = regT5.components.Length > 0 ? regT5.components.data.arr[entity.id] : default,containsT6 = regT6.componentsStates[entity.id],
+t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : default,containsT6 = regT6.components[entity.id].state,
 opsT6 = 0,
-t6 = regT6.components.Length > 0 ? regT6.components.data.arr[entity.id] : default,containsT7 = regT7.componentsStates[entity.id],
+t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : default,containsT7 = regT7.components[entity.id].state,
 opsT7 = 0,
-t7 = regT7.components.Length > 0 ? regT7.components.data.arr[entity.id] : default,containsT8 = regT8.componentsStates[entity.id],
+t7 = AllComponentTypes<T7>.isTag == false ? regT7.components[entity.id].data : default,containsT8 = regT8.components[entity.id].state,
 opsT8 = 0,
-t8 = regT8.components.Length > 0 ? regT8.components.data.arr[entity.id] : default,
+t8 = AllComponentTypes<T8>.isTag == false ? regT8.components[entity.id].data : default,
             };
             ++idx;
         }

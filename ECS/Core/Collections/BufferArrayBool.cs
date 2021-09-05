@@ -53,7 +53,7 @@ namespace ME.ECS.Collections {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             get {
-                return (this.arr.arr[index / BufferArrayBool.SIZE] & (1 << (index % BufferArrayBool.SIZE))) != 0;
+                return (this.arr.arr[index / BufferArrayBool.SIZE] & (StorageType)(1 << (index % BufferArrayBool.SIZE))) != 0;
             }
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
