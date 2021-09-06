@@ -641,13 +641,12 @@ namespace ME.ECS {
 
                 var hasFrom = (from.state > 0);
                 var hasTo = (to.state > 0);
+                if (hasFrom == false && hasTo == false) return;
 
-                if (hasFrom == false && hasTo == false) {
-                    
-                    from.data.OnRecycle();
-                    to.data.OnRecycle();
-                    
-                } else if (hasFrom == false && hasTo == true) {
+                to.state = from.state;
+                to.version = from.version;
+
+                if (hasFrom == false && hasTo == true) {
                     
                     from.data.OnRecycle();
                     to.data.OnRecycle();
