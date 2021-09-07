@@ -2258,8 +2258,8 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isTag == true) return ref AllComponentTypes<TComponent>.empty;
             if (incrementVersion == true) {
 
-                storage.versions.Increment(in entity);
                 reg.UpdateVersion(ref bucket);
+                storage.versions.Increment(in entity);
                 if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
                 if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
@@ -2295,6 +2295,7 @@ namespace ME.ECS {
             ref var storage = ref this.currentState.storage;
             ref var bucket = ref reg.components[entity.id];
             ref var state = ref bucket.state;
+            reg.UpdateVersion(ref bucket);
             if (state == 0) {
 
                 reg.Replace(ref bucket, default);
@@ -2311,7 +2312,6 @@ namespace ME.ECS {
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
             #endif
             storage.versions.Increment(in entity);
-            reg.UpdateVersion(ref bucket);
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
@@ -2353,6 +2353,7 @@ namespace ME.ECS {
             ref var bucket = ref reg.components[entity.id];
             ref var state = ref bucket.state;
             reg.Replace(ref bucket, in data);
+            reg.UpdateVersion(ref bucket);
             if (state == 0) {
 
                 state = 1;
@@ -2368,7 +2369,6 @@ namespace ME.ECS {
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
             #endif
             storage.versions.Increment(in entity);
-            reg.UpdateVersion(ref bucket);
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
