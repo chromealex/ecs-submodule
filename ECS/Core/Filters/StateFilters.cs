@@ -226,8 +226,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal void RemoveFromFilters_INTERNAL(in Entity entity) {
+        internal void RemoveFromAllFilters(in Entity entity) {
 
+            var visited = PoolHashSet<int>.Spawn(10);
             ref readonly var bits = ref this.currentState.storage.archetypes.types.Read(entity.id);
             var bitsCount = bits.BitsCount;
             for (int i = 0; i < bitsCount; ++i) {
@@ -238,15 +239,18 @@ namespace ME.ECS {
                     for (int f = 0; f < filters.Length; ++f) {
 
                         ref readonly var filterId = ref filters.Read(f);
+                        if (visited.Contains(filterId.id) == true) continue;
+                        visited.Add(filterId.id);
                         var filter = this.GetFilter(filterId.id);
                         filter.OnEntityDestroy(in entity);
-                        filter.OnRemoveEntity(in entity);
+                        FilterData.OnRemoveEntity(ref filter.data, in entity);
 
                     }
                     
                 }
                 
             }
+            PoolHashSet<int>.Recycle(ref visited);
             
         }
 
@@ -744,7 +748,7 @@ namespace ME.ECS {
         private readonly FilterData set;
         private readonly int max;
         private int index;
-        private readonly bool onVersionChangedOnly;
+        private readonly byte onVersionChangedOnly;
         
         private readonly State state;
 
@@ -761,7 +765,7 @@ namespace ME.ECS {
             }
 
             this.state = this.set.world.currentState;
-            this.onVersionChangedOnly = this.set.onVersionChangedOnly;
+            this.onVersionChangedOnly = this.set.data.onVersionChangedOnly;
             this.set.SetForEachMode(true);
 
         }
@@ -790,31 +794,29 @@ namespace ME.ECS {
         #endif
         public bool MoveNext() {
 
-            if (this.set.hasShared == true) {
+            if (this.set.data.hasShared == 1) {
 
                 ref var entArchetype = ref this.set.world.currentState.storage.archetypes.Get(0);
-                if (entArchetype.Has(in this.set.sharedArchetypeContains) == false) return false;
-                if (entArchetype.HasNot(in this.set.sharedArchetypeNotContains) == false) return false;
+                if (entArchetype.Has(in this.set.data.sharedArchetypeContains) == false) return false;
+                if (entArchetype.HasNot(in this.set.data.sharedArchetypeNotContains) == false) return false;
                 
             }
 
-            ref readonly var arr = ref this.set.dataContains.arr;
-            ref var ver = ref this.set.dataVersions;
-            ref readonly var verArr = ref ver.arr;
+            ref readonly var arr = ref this.set.data.dataContains;
             do {
 
                 ++this.index;
                 if (this.index > this.max) return false;
-                if (arr.GetRefRead(this.index) != true) continue;
-                if (this.onVersionChangedOnly == true && verArr.GetRefRead(this.index) == false) continue;
+                if (arr.GetRefRead(this.index) != 1) continue;
+                if (this.onVersionChangedOnly == 1 && this.set.data.dataVersions.GetRefRead(this.index) == 0) continue;
                 
                 break;
 
             } while (true);
 
-            if (this.onVersionChangedOnly == true) {
+            if (this.onVersionChangedOnly == 1) {
 
-                ver[this.index] = false;
+                this.set.data.dataVersions[this.index] = 0;
 
             }
 
@@ -1189,35 +1191,10 @@ namespace ME.ECS {
         }
 
         private System.Action<FilterData> setupVersioned;
-        internal Archetype archetypeContains;
-        internal Archetype archetypeNotContains;
-        internal Archetype sharedArchetypeContains;
-        internal Archetype sharedArchetypeNotContains;
-        internal bool hasShared;
         
-        internal NativeBufferArray<bool> dataContains;
-        [Extensions.TestIgnoreAttribute]
-        internal NativeBufferArray<bool> dataVersions;
-        
-        private bool forEachMode;
-        #if MULTITHREAD_SUPPORT
-        private CCList<Entity> requests;
-        private CCList<Entity> requestsRemoveEntity;
-        #else
-        private ListCopyable<Entity> requests;
-        private ListCopyable<Entity> requestsRemoveEntity;
-        #endif
-        private int min;
-        private int max;
-
+        public FilterBurstData data;
         internal BufferArray<string> aliases;
-        private int dataCount;
-
-        private IFilterAction predicateOnAdd;
-        private IFilterAction predicateOnRemove;
-
-        internal bool onVersionChangedOnly;
-
+        
         public bool isPooled;
 
         #if UNITY_EDITOR
@@ -1238,27 +1215,28 @@ namespace ME.ECS {
             
             return new FiltersTree.FilterBurst() {
                 id = this.id,
-                contains = this.archetypeContains,
-                notContains = this.archetypeNotContains,
+                contains = this.data.archetypeContains,
+                notContains = this.data.archetypeNotContains,
             };
             
         }
 
         public void Clear() {
 
-            for (int i = 0; i < this.dataContains.Length; ++i) {
+            this.data.archetypes = this.world.currentState.storage.archetypes;
+            for (int i = 0; i < this.data.dataContains.Length; ++i) {
 
-                if (this.dataContains.arr[i] == true) {
+                if (this.data.dataContains[i] == 1) {
 
-                    this.Remove_INTERNAL(in this.world.currentState.storage.cache[i]);
+                    FilterData.Remove_INTERNAL(ref this.data, in this.world.currentState.storage.cache[i]);
 
                 }
 
             }
 
-            if (this.onVersionChangedOnly == true) NativeArrayUtils.Clear(this.dataVersions);
-            NativeArrayUtils.Clear(this.dataContains);
-            this.dataCount = 0;
+            if (this.data.onVersionChangedOnly == 1) NativeArrayUtils.Clear(this.data.dataVersions);
+            NativeArrayUtils.Clear(this.data.dataContains);
+            this.data.count = 0;
 
         }
 
@@ -1276,22 +1254,22 @@ namespace ME.ECS {
 
         internal void SetEntityCapacity(int capacity) {
 
-            NativeArrayUtils.Resize(capacity, ref this.dataContains);
-            if (this.onVersionChangedOnly == true) NativeArrayUtils.Resize(capacity, ref this.dataVersions);
+            NativeArrayUtils.Resize(capacity, ref this.data.dataContains, resizeWithOffset: true);
+            if (this.data.onVersionChangedOnly == 1) NativeArrayUtils.Resize(capacity, ref this.data.dataVersions, resizeWithOffset: true);
 
         }
 
         internal void OnEntityCreate(in Entity entity) {
 
-            NativeArrayUtils.Resize(entity.id, ref this.dataContains);
-            if (this.onVersionChangedOnly == true) NativeArrayUtils.Resize(entity.id, ref this.dataVersions);
+            NativeArrayUtils.Resize(entity.id, ref this.data.dataContains, resizeWithOffset: true);
+            if (this.data.onVersionChangedOnly == 1) NativeArrayUtils.Resize(entity.id, ref this.data.dataVersions, resizeWithOffset: true);
 
         }
 
         internal void OnEntityDestroy(in Entity entity) {
 
-            NativeArrayUtils.Resize(entity.id, ref this.dataContains);
-            if (this.onVersionChangedOnly == true) NativeArrayUtils.Resize(entity.id, ref this.dataVersions);
+            NativeArrayUtils.Resize(entity.id, ref this.data.dataContains, resizeWithOffset: true);
+            if (this.data.onVersionChangedOnly == 1) NativeArrayUtils.Resize(entity.id, ref this.data.dataVersions, resizeWithOffset: true);
 
         }
 
@@ -1443,14 +1421,14 @@ namespace ME.ECS {
         #endif
         public void GetBounds(out int min, out int max) {
 
-            min = this.min;
-            max = this.max;
+            min = this.data.min;
+            max = this.data.max;
 
         }
 
         public void UseVersioned() {
 
-            if (this.onVersionChangedOnly == true) NativeArrayUtils.Clear(this.dataVersions);
+            if (this.data.onVersionChangedOnly == 1) NativeArrayUtils.Clear(this.data.dataVersions);
 
         }
 
@@ -1460,11 +1438,11 @@ namespace ME.ECS {
         public NativeBufferArray<Entity> ToArray() {
 
             int customCount = 0;
-            if (this.onVersionChangedOnly == true) {
+            if (this.data.onVersionChangedOnly == 1) {
 
-                for (int i = this.min; i <= this.max; ++i) {
+                for (int i = this.data.min; i <= this.data.max; ++i) {
 
-                    if (this.dataContains.arr[i] == true && this.dataVersions.arr[i] == true) {
+                    if (this.data.dataContains[i] == 1 && this.data.dataVersions[i] == 1) {
 
                         ++customCount;
 
@@ -1474,19 +1452,19 @@ namespace ME.ECS {
 
             } else {
 
-                customCount = (this.dataCount >= this.requestsRemoveEntity.Count ? this.dataCount - this.requestsRemoveEntity.Count : 0);
+                customCount = (this.data.count >= this.data.requestsRemoveCount ? this.data.count - this.data.requestsRemoveCount : 0);
 
             }
 
             var data = PoolArrayNative<Entity>.Spawn(customCount);
-            for (int i = this.min, k = 0; i <= this.max; ++i) {
+            for (int i = this.data.min, k = 0; i <= this.data.max; ++i) {
 
-                if (this.dataContains.arr[i] == true) {
+                if (this.data.dataContains[i] == 1) {
 
-                    if (this.onVersionChangedOnly == true) {
+                    if (this.data.onVersionChangedOnly == 1) {
 
-                        if (this.dataVersions.arr[i] == false) continue;
-                        this.dataVersions[i] = false;
+                        if (this.data.dataVersions[i] == 0) continue;
+                        this.data.dataVersions[i] = 0;
 
                     }
 
@@ -1504,32 +1482,22 @@ namespace ME.ECS {
 
             this.isPooled = false;
 
-            //this.requests = PoolArray<Entity>.Spawn(Filter.REQUESTS_CAPACITY);
-            //this.requestsRemoveEntity = PoolArray<Entity>.Spawn(Filter.REQUESTS_CAPACITY);
-            #if MULTITHREAD_SUPPORT
-            this.requests = PoolCCList<Entity>.Spawn();
-            this.requestsRemoveEntity = PoolCCList<Entity>.Spawn();
-            #else
-            this.requests = PoolListCopyable<Entity>.Spawn(FilterData.REQUESTS_CAPACITY);
-            this.requestsRemoveEntity = PoolListCopyable<Entity>.Spawn(FilterData.REQUESTS_CAPACITY);
-            #endif
-            this.dataContains = PoolArrayNative<bool>.Spawn(FilterData.ENTITIES_CAPACITY);
-            this.dataCount = 0;
-
             this.id = default;
             if (this.aliases.arr != null) PoolArray<string>.Recycle(ref this.aliases);
-            this.archetypeContains = default;
-            this.archetypeNotContains = default;
-
-            this.min = int.MaxValue;
-            this.max = int.MinValue;
-
-            this.hasShared = false;
-            
-            this.predicateOnAdd = null;
-            this.predicateOnRemove = null;
-
-            this.onVersionChangedOnly = default;
+            this.data = new FilterBurstData() {
+                requests = new Unity.Collections.NativeArray<Entity>(FilterData.REQUESTS_CAPACITY, Unity.Collections.Allocator.Persistent),
+                requestsRemoveEntity = new Unity.Collections.NativeArray<Entity>(FilterData.REQUESTS_CAPACITY, Unity.Collections.Allocator.Persistent),
+                dataContains = new Unity.Collections.NativeArray<byte>(FilterData.ENTITIES_CAPACITY, Unity.Collections.Allocator.Persistent),
+                dataVersions = default,
+                archetypeContains = default,
+                archetypeNotContains = default,
+                counters = new Unity.Collections.NativeArray<int>(5, Unity.Collections.Allocator.Persistent),
+                hasShared = 0,
+                forEachMode = 0,
+                onVersionChangedOnly = 0,
+            };
+            this.data.counters[0] = int.MaxValue;
+            this.data.counters[1] = int.MinValue;
 
             #if UNITY_EDITOR
             this.editorTypes = null;
@@ -1541,34 +1509,13 @@ namespace ME.ECS {
 
         void IPoolableRecycle.OnRecycle() {
 
-            this.isPooled = true;
-            this.forEachMode = false;
+            this.data.Dispose();
+            this.data = default;
             
-            PoolArrayNative<bool>.Recycle(ref this.dataContains);
-            if (this.onVersionChangedOnly == true) PoolArrayNative<bool>.Recycle(ref this.dataVersions);
-            #if MULTITHREAD_SUPPORT
-            PoolCCList<Entity>.Recycle(ref this.requestsRemoveEntity);
-            PoolCCList<Entity>.Recycle(ref this.requests);
-            #else
-            PoolListCopyable<Entity>.Recycle(ref this.requests);
-            PoolListCopyable<Entity>.Recycle(ref this.requestsRemoveEntity);
-            #endif
-
-            this.min = int.MaxValue;
-            this.max = int.MinValue;
-
-            this.hasShared = false;
-
-            this.predicateOnAdd = null;
-            this.predicateOnRemove = null;
-
-            this.onVersionChangedOnly = default;
-
-            this.dataCount = 0;
-            this.archetypeContains = default;
-            this.archetypeNotContains = default;
-            this.id = default;
             if (this.aliases.arr != null) PoolArray<string>.Recycle(ref this.aliases);
+            this.id = default;
+
+            this.isPooled = true;
 
             #if UNITY_EDITOR
             this.editorTypes = null;
@@ -1584,8 +1531,8 @@ namespace ME.ECS {
         public bool IsForEntity(int entityId) {
 
             ref var arch = ref this.world.currentState.storage.archetypes;
-            ref var cont = ref this.archetypeContains;
-            ref var notCont = ref this.archetypeNotContains;
+            ref var cont = ref this.data.archetypeContains;
+            ref var notCont = ref this.data.archetypeNotContains;
             
             ref var previousArchetype = ref arch.prevTypes[entityId];
             if (previousArchetype.Has(in cont) == true &&
@@ -1608,7 +1555,7 @@ namespace ME.ECS {
         #endif
         public Archetype GetArchetypeContains() {
 
-            return this.archetypeContains;
+            return this.data.archetypeContains;
 
         }
 
@@ -1617,7 +1564,7 @@ namespace ME.ECS {
         #endif
         public Archetype GetArchetypeNotContains() {
 
-            return this.archetypeNotContains;
+            return this.data.archetypeNotContains;
 
         }
 
@@ -1626,15 +1573,103 @@ namespace ME.ECS {
         #endif
         public void SetForEachMode(bool state) {
 
-            this.forEachMode = state;
+            this.data.forEachMode = state == true ? (byte)1 : (byte)0;
             if (state == false) {
 
-                if (this.world.currentSystemContext == null) {
+                this.ApplyAllRequests();
 
-                    this.ApplyAllRequests();
+            }
 
-                }
+        }
 
+        public struct FilterBurstData {
+
+            // Readonly
+            public byte forEachMode;
+            public byte hasShared;
+            public ArchetypeEntities archetypes;
+            public Archetype archetypeContains;
+            public Archetype archetypeNotContains;
+            public Archetype sharedArchetypeContains;
+            public Archetype sharedArchetypeNotContains;
+            public byte onVersionChangedOnly;
+            
+            // Read&Write
+            [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
+            public Unity.Collections.NativeArray<Entity> requests;
+            [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
+            public Unity.Collections.NativeArray<Entity> requestsRemoveEntity;
+            [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
+            public Unity.Collections.NativeArray<byte> dataContains;
+            [Extensions.TestIgnoreAttribute]
+            [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
+            public Unity.Collections.NativeArray<byte> dataVersions;
+            [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
+            public Unity.Collections.NativeArray<int> counters;
+
+            public ref int min => ref this.counters.GetRef(0);
+            public ref int max => ref this.counters.GetRef(1);
+            public ref int count => ref this.counters.GetRef(2);
+            public ref int requestsCount => ref this.counters.GetRef(3);
+            public ref int requestsRemoveCount => ref this.counters.GetRef(4);
+
+            public void CopyFrom(in FilterBurstData other) {
+                
+                this.forEachMode = other.forEachMode;
+
+                this.counters.CopyFrom(other.counters);
+
+                this.onVersionChangedOnly = other.onVersionChangedOnly;
+
+                this.archetypeContains = other.archetypeContains;
+                this.archetypeNotContains = other.archetypeNotContains;
+                this.sharedArchetypeContains = other.sharedArchetypeContains;
+                this.sharedArchetypeNotContains = other.sharedArchetypeNotContains;
+                this.hasShared = other.hasShared;
+
+                NativeArrayUtils.Copy(in other.requests, ref this.requests);
+                NativeArrayUtils.Copy(in other.requestsRemoveEntity, ref this.requestsRemoveEntity);
+                NativeArrayUtils.Copy(in other.dataContains, ref this.dataContains);
+                if (this.onVersionChangedOnly == 1) NativeArrayUtils.Copy(in other.dataVersions, ref this.dataVersions);
+
+            }
+
+            public void Dispose() {
+                
+                this.dataContains.Dispose();
+                this.requests.Dispose();
+                this.requestsRemoveEntity.Dispose();
+                if (this.onVersionChangedOnly == 1) this.dataVersions.Dispose();
+                this.counters.Dispose();
+
+            }
+
+        }
+
+        [Unity.Burst.BurstCompile(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
+        private struct ApplyRequestsJob : IJobParallelFor {
+
+            public FilterBurstData data;
+
+            public void Execute(int index) {
+
+                ref var dataRef = ref this.data;
+                FilterData.OnUpdateForced_INTERNAL(ref dataRef, in dataRef.requests.GetRefRead(index));
+
+            }
+
+        }
+
+        [Unity.Burst.BurstCompile(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
+        private struct ApplyRequestsJobToRemove : IJobParallelFor {
+
+            public FilterBurstData data;
+
+            public void Execute(int index) {
+                
+                ref var dataRef = ref this.data;
+                FilterData.Remove_INTERNAL(ref dataRef, in dataRef.requestsRemoveEntity.GetRefRead(index));
+                
             }
 
         }
@@ -1644,72 +1679,32 @@ namespace ME.ECS {
         #endif
         public void ApplyAllRequests() {
 
-            {
+            var job = new ApplyRequestsJob() {
+                data = this.data,
+            };
+            var jobHandle = job.Schedule(this.data.requestsCount, 64);
 
-                var requests = this.requests;
-                for (int i = 0, cnt = requests.Count; i < cnt; ++i) {
+            var jobRemove = new ApplyRequestsJobToRemove() {
+                data = this.data,
+            };
+            var jobRemoveHandle = jobRemove.Schedule(this.data.requestsRemoveCount, 64);
 
-                    this.OnUpdateForced_INTERNAL(requests[i]);
+            JobHandle.CompleteAll(ref jobHandle, ref jobRemoveHandle);
 
-                }
-
-                //System.Array.Clear(requests.arr, 0, requests.Length);
-                #if MULTITHREAD_SUPPORT
-                requests.ClearNoCC();
-                #else
-                requests.Clear();
-                #endif
-
-            }
-
-            {
-
-                var requests = this.requestsRemoveEntity;
-                for (int i = 0, cnt = requests.Count; i < cnt; ++i) {
-
-                    this.Remove_INTERNAL(requests[i]);
-
-                }
-
-                //System.Array.Clear(requests.arr, 0, requests.Length);
-                #if MULTITHREAD_SUPPORT
-                requests.ClearNoCC();
-                #else
-                requests.Clear();
-                #endif
-
-            }
+            this.data.requestsCount = 0;
+            this.data.requestsRemoveCount = 0;
 
         }
 
         public void CopyFrom(FilterData other) {
 
             this.isPooled = other.isPooled;
-            this.forEachMode = other.forEachMode;
-
-            this.id = other.id;
-            this.min = other.min;
-            this.max = other.max;
-            this.dataCount = other.dataCount;
-            ArrayUtils.Copy(in other.aliases, ref this.aliases);
-
-            this.onVersionChangedOnly = other.onVersionChangedOnly;
-
-            this.requests.CopyFrom(other.requests);
-            this.requestsRemoveEntity.CopyFrom(other.requestsRemoveEntity);
             
-            this.predicateOnAdd = other.predicateOnAdd;
-            this.predicateOnRemove = other.predicateOnRemove;
-
-            this.archetypeContains = other.archetypeContains;
-            this.archetypeNotContains = other.archetypeNotContains;
-            this.sharedArchetypeContains = other.sharedArchetypeContains;
-            this.sharedArchetypeNotContains = other.sharedArchetypeNotContains;
-            this.hasShared = other.hasShared;
-
-            NativeArrayUtils.Copy(in other.dataContains, ref this.dataContains);
-            if (this.onVersionChangedOnly == true) NativeArrayUtils.Copy(in other.dataVersions, ref this.dataVersions);
-
+            this.data.CopyFrom(other.data);
+            
+            this.id = other.id;
+            ArrayUtils.Copy(in other.aliases, ref this.aliases);
+            
             #if UNITY_EDITOR
             this.editorTypes = other.editorTypes;
             this.editorStackTraceFile = other.editorStackTraceFile;
@@ -1723,7 +1718,7 @@ namespace ME.ECS {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             get {
-                return this.dataCount;
+                return this.data.count;
             }
         }
 
@@ -1732,17 +1727,17 @@ namespace ME.ECS {
         #endif
         public bool Contains(in Entity entity) {
 
-            return this.world.GetFilter(this.id).Contains_INTERNAL(entity.id);
+            return FilterData.Contains_INTERNAL(ref this.world.GetFilter(this.id).data.dataContains, entity.id) == 1 ? true : false;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private bool Contains_INTERNAL(int entityId) {
+        private static byte Contains_INTERNAL(ref Unity.Collections.NativeArray<byte> arr, int entityId) {
 
-            if (entityId >= this.dataContains.Length) return false;
-            return this.dataContains.arr[entityId];
+            if (entityId >= arr.Length) return 0;
+            return arr[entityId];
 
         }
 
@@ -1771,7 +1766,8 @@ namespace ME.ECS {
         #endif
         public bool OnUpdate(in Entity entity) {
 
-            return this.OnUpdate_INTERNAL(in entity);
+            this.data.archetypes = this.world.currentState.storage.archetypes;
+            return FilterData.OnUpdate_INTERNAL(ref this.data, in entity);
 
         }
 
@@ -1780,7 +1776,8 @@ namespace ME.ECS {
         #endif
         public bool OnAddComponent(in Entity entity) {
 
-            return this.OnUpdate_INTERNAL(in entity);
+            this.data.archetypes = this.world.currentState.storage.archetypes;
+            return FilterData.OnUpdate_INTERNAL(ref this.data, in entity);
 
         }
 
@@ -1789,26 +1786,27 @@ namespace ME.ECS {
         #endif
         public bool OnRemoveComponent(in Entity entity) {
 
-            return this.OnUpdate_INTERNAL(in entity);
+            this.data.archetypes = this.world.currentState.storage.archetypes;
+            return FilterData.OnUpdate_INTERNAL(ref this.data, in entity);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private bool OnUpdateForced_INTERNAL(in Entity entity) {
+        private static bool OnUpdateForced_INTERNAL(ref FilterBurstData data, in Entity entity) {
 
             if (entity.generation == Entity.GENERATION_ZERO) return false;
 
-            var isExists = this.Contains_INTERNAL(entity.id);
-            this.Update_INTERNAL(in entity);
-            if (isExists == true) {
+            var isExists = FilterData.Contains_INTERNAL(ref data.dataContains, entity.id);
+            FilterData.Update_INTERNAL(ref data, in entity);
+            if (isExists == 1) {
 
-                return this.CheckRemove(in entity);
+                return FilterData.CheckRemove(ref data, in entity);
 
             } else {
 
-                return this.CheckAdd(in entity);
+                return FilterData.CheckAdd(ref data, in entity);
 
             }
 
@@ -1817,76 +1815,91 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private bool OnUpdate_INTERNAL(in Entity entity) {
+        private static bool OnUpdate_INTERNAL(ref FilterBurstData data, in Entity entity) {
 
             if (entity.generation == Entity.GENERATION_ZERO) return false;
 
-            if (this.world.currentSystemContext != null) {
+            if (data.forEachMode == 1) {
 
-                this.world.currentSystemContextFiltersUsed.arr[this.id] = true;
-                this.world.currentSystemContextFiltersUsedAnyChanged = true;
-                this.requests.Add(entity);
+                for (int i = 0; i < data.requestsRemoveCount; ++i) {
+
+                    if (data.requestsRemoveEntity[i] == entity) {
+                        
+                        data.requestsRemoveEntity[i] = default;
+                        data.requestsRemoveEntity[i] = data.requestsRemoveEntity[data.requestsRemoveCount - 1];
+                        data.requestsRemoveEntity[data.requestsRemoveCount - 1] = default;
+                        --data.requestsRemoveCount;
+                        break;
+
+                    }
+                    
+                }
+
+                var cnt = data.requestsCount;
+                NativeArrayUtils.Resize(cnt, ref data.requests, resizeWithOffset: true);
+                data.requests[cnt] = entity;
+                System.Threading.Interlocked.Increment(ref data.requestsCount);
                 return false;
 
             }
 
-            if (this.forEachMode == true) {
+            var isExists = FilterData.Contains_INTERNAL(ref data.dataContains, entity.id);
+            FilterData.Update_INTERNAL(ref data, in entity);
+            if (isExists == 1) {
 
-                this.requests.Add(entity);
-                return false;
-
-            }
-
-            var isExists = this.Contains_INTERNAL(entity.id);
-            this.Update_INTERNAL(in entity);
-            if (isExists == true) {
-
-                return this.CheckRemove(in entity);
+                return FilterData.CheckRemove(ref data, in entity);
 
             } else {
 
-                return this.CheckAdd(in entity);
+                return FilterData.CheckAdd(ref data, in entity);
 
             }
 
         }
 
-        internal bool OnRemoveEntity(in Entity entity) {
+        internal static bool OnRemoveEntity(ref FilterBurstData data, in Entity entity) {
 
             if (entity.generation == Entity.GENERATION_ZERO) return false;
 
-            if (this.world.currentSystemContext != null) {
+            if (data.forEachMode == 1) {
 
-                this.world.currentSystemContextFiltersUsed.arr[this.id] = true;
-                this.world.currentSystemContextFiltersUsedAnyChanged = true;
+                for (int i = 0; i < data.requestsCount; ++i) {
+
+                    if (data.requests[i] == entity) {
+                        
+                        data.requests[i] = default;
+                        data.requests[i] = data.requests[data.requestsCount - 1];
+                        data.requests[data.requestsCount - 1] = default;
+                        --data.requestsCount;
+                        break;
+
+                    }
+                    
+                }
+
                 //this.requestsRemoveEntity.TryAdd(entity.version, entity);
-                this.requestsRemoveEntity.Add(entity);
+                var cnt = data.requestsRemoveCount;
+                NativeArrayUtils.Resize(cnt, ref data.requestsRemoveEntity, resizeWithOffset: true);
+                data.requestsRemoveEntity[cnt] = entity;
+                System.Threading.Interlocked.Increment(ref data.requestsRemoveCount);
                 return false;
 
             }
 
-            if (this.forEachMode == true) {
-
-                //this.requestsRemoveEntity.TryAdd(entity.version, entity);
-                this.requestsRemoveEntity.Add(entity);
-                return false;
-
-            }
-
-            return this.Remove_INTERNAL(entity);
+            return FilterData.Remove_INTERNAL(ref data, entity);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal void Update_INTERNAL(in Entity entity) {
+        internal static void Update_INTERNAL(ref FilterBurstData data, in Entity entity) {
 
-            if (this.onVersionChangedOnly == true) {
+            if (data.onVersionChangedOnly == 1) {
 
                 var idx = entity.id;
-                this.dataVersions[idx] = true;
-                this.UpdateMinMaxAdd(idx);
+                data.dataVersions[idx] = 1;
+                FilterData.UpdateMinMaxAdd(ref data, idx);
 
             }
 
@@ -1895,17 +1908,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal bool Add_INTERNAL(in Entity entity) {
+        internal static bool Add_INTERNAL(ref FilterBurstData data, in Entity entity) {
 
             var idx = entity.id;
-            ref var res = ref this.dataContains[idx];
-            if (res == false) {
+            ref var res = ref data.dataContains.GetRef(idx);
+            if (res == 0) {
 
-                res = true;
-                ++this.dataCount;
-                this.UpdateMinMaxAdd(idx);
-
-                if (this.predicateOnAdd != null) this.predicateOnAdd.Execute(in entity);
+                res = 1;
+                System.Threading.Interlocked.Increment(ref data.count);
+                FilterData.UpdateMinMaxAdd(ref data, idx);
                 return true;
 
             }
@@ -1917,18 +1928,16 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal bool Remove_INTERNAL(in Entity entity) {
+        internal static bool Remove_INTERNAL(ref FilterBurstData data, in Entity entity) {
 
             var idx = entity.id;
-            ref var res = ref this.dataContains[idx];
-            if (res == true) {
+            ref var res = ref data.dataContains.GetRef(idx);
+            if (res == 1) {
 
-                res = false;
-                if (this.onVersionChangedOnly == true) this.dataVersions[idx] = false;
-                --this.dataCount;
-                this.UpdateMinMaxRemove(idx);
-
-                if (this.predicateOnRemove != null) this.predicateOnRemove.Execute(in entity);
+                res = 0;
+                if (data.onVersionChangedOnly == 1) data.dataVersions[idx] = 0;
+                System.Threading.Interlocked.Decrement(ref data.count);
+                FilterData.UpdateMinMaxRemove(ref data, idx);
                 return true;
 
             }
@@ -1941,41 +1950,67 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public int GetMaxEntityId() {
-            return this.max;
+            return this.data.max;
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void UpdateMinMaxAdd(int idx) {
+        private static void UpdateMinMaxAdd(ref FilterBurstData data, int idx) {
 
-            if (idx < this.min) this.min = idx;
-            if (idx > this.max) this.max = idx;
-
+            InterlockedExtension.AssignIfNewValueSmaller(ref data.min, idx);
+            InterlockedExtension.AssignIfNewValueBigger(ref data.max, idx);
+            
         }
 
+        public static class InterlockedExtension {
+
+            public static bool AssignIfNewValueSmaller(ref int target, int newValue) {
+                int snapshot;
+                bool stillLess;
+                do {
+                    snapshot = target;
+                    stillLess = newValue < snapshot;
+                } while (stillLess && System.Threading.Interlocked.CompareExchange(ref target, newValue, snapshot) != snapshot);
+
+                return stillLess;
+            }
+
+            public static bool AssignIfNewValueBigger(ref int target, int newValue) {
+                int snapshot;
+                bool stillMore;
+                do {
+                    snapshot = target;
+                    stillMore = newValue > snapshot;
+                } while (stillMore && System.Threading.Interlocked.CompareExchange(ref target, newValue, snapshot) != snapshot);
+
+                return stillMore;
+            }
+
+        }
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void UpdateMinMaxRemove(int idx) {
+        private static void UpdateMinMaxRemove(ref FilterBurstData data, int idx) {
 
-            if (idx == this.min && idx == this.max) {
+            if (idx == data.min && idx == data.max) {
 
-                this.min = int.MaxValue;
-                this.max = int.MinValue;
+                data.min = int.MaxValue;
+                data.max = int.MinValue;
                 return;
 
             }
 
-            if (idx == this.min) {
+            if (idx == data.min) {
 
                 // Update new min (find next index)
                 var changed = false;
-                for (int i = idx; i < this.dataContains.Length; ++i) {
+                for (int i = idx; i < data.dataContains.Length; ++i) {
 
-                    if (this.dataContains.arr[i] == true) {
+                    if (data.dataContains[i] == 1) {
 
-                        this.min = i;
+                        data.min = i;
                         changed = true;
                         break;
 
@@ -1985,21 +2020,21 @@ namespace ME.ECS {
 
                 if (changed == false) {
 
-                    this.min = int.MaxValue;
+                    data.min = int.MaxValue;
 
                 }
 
             }
 
-            if (idx == this.max) {
+            if (idx == data.max) {
 
                 // Update new max (find prev index)
                 var changed = false;
                 for (int i = idx; i >= 0; --i) {
 
-                    if (this.dataContains.arr[i] == true) {
+                    if (data.dataContains[i] == 1) {
 
-                        this.max = i;
+                        data.max = i;
                         changed = true;
                         break;
 
@@ -2009,7 +2044,7 @@ namespace ME.ECS {
 
                 if (changed == false) {
 
-                    this.max = int.MinValue;
+                    data.max = int.MinValue;
 
                 }
 
@@ -2020,14 +2055,14 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private bool CheckAdd(in Entity entity) {
+        private static bool CheckAdd(ref FilterBurstData data, in Entity entity) {
 
             // If entity doesn't exist in cache - try to add if entity's archetype fit with contains & notContains
-            ref var entArchetype = ref this.world.currentState.storage.archetypes.Get(entity.id);
-            if (entArchetype.Has(in this.archetypeContains) == false) return false;
-            if (entArchetype.HasNot(in this.archetypeNotContains) == false) return false;
+            ref var entArchetype = ref data.archetypes.Get(entity.id);
+            if (entArchetype.Has(in data.archetypeContains) == false) return false;
+            if (entArchetype.HasNot(in data.archetypeNotContains) == false) return false;
 
-            this.Add_INTERNAL(in entity);
+            FilterData.Add_INTERNAL(ref data, in entity);
 
             return true;
 
@@ -2036,15 +2071,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private bool CheckRemove(in Entity entity) {
+        private static bool CheckRemove(ref FilterBurstData data, in Entity entity) {
 
             // If entity already exists in cache - try to remove if entity's archetype doesn't fit with contains & notContains
-            ref var entArchetype = ref this.world.currentState.storage.archetypes.Get(entity.id);
-            var allContains = entArchetype.Has(in this.archetypeContains);
-            var allNotContains = entArchetype.HasNot(in this.archetypeNotContains);
+            ref var entArchetype = ref data.archetypes.Get(entity.id);
+            var allContains = entArchetype.Has(in data.archetypeContains);
+            var allNotContains = entArchetype.HasNot(in data.archetypeNotContains);
             if (allContains == true && allNotContains == true) return false;
 
-            return this.Remove_INTERNAL(in entity);
+            return FilterData.Remove_INTERNAL(ref data, in entity);
 
         }
 
@@ -2055,9 +2090,9 @@ namespace ME.ECS {
 
             if (this.GetArchetypeContains() == builder.with &&
                 this.GetArchetypeNotContains() == builder.without &&
-                this.sharedArchetypeContains == builder.withShared &&
-                this.sharedArchetypeNotContains == builder.withoutShared &&
-                this.onVersionChangedOnly == builder.onVersionChangedOnly) {
+                this.data.sharedArchetypeContains == builder.withShared &&
+                this.data.sharedArchetypeNotContains == builder.withoutShared &&
+                this.data.onVersionChangedOnly == (builder.onVersionChangedOnly == true ? 1 : 0)) {
 
                 return true;
 
@@ -2069,9 +2104,9 @@ namespace ME.ECS {
 
         public override int GetHashCode() {
 
-            var hashCode = this.archetypeContains.GetHashCode() ^ this.archetypeNotContains.GetHashCode()
-                            ^ this.sharedArchetypeContains.GetHashCode() ^ this.sharedArchetypeNotContains.GetHashCode()
-                            ^ (this.onVersionChangedOnly == true ? 1 : 0);
+            var hashCode = this.data.archetypeContains.GetHashCode() ^ this.data.archetypeNotContains.GetHashCode()
+                            ^ this.data.sharedArchetypeContains.GetHashCode() ^ this.data.sharedArchetypeNotContains.GetHashCode()
+                            ^ this.data.onVersionChangedOnly;
             
             return hashCode;
 
@@ -2086,27 +2121,11 @@ namespace ME.ECS {
             this.setupVersioned = null;
 
             var world = builder.world;
-            world.currentState.filters.RegisterInAllArchetype(in this.archetypeContains);
-            world.currentState.filters.RegisterInAllArchetype(in this.archetypeNotContains);
-            world.currentState.filters.RegisterInAllArchetype(in this.sharedArchetypeContains);
-            world.currentState.filters.RegisterInAllArchetype(in this.sharedArchetypeNotContains);
+            world.currentState.filters.RegisterInAllArchetype(in this.data.archetypeContains);
+            world.currentState.filters.RegisterInAllArchetype(in this.data.archetypeNotContains);
+            world.currentState.filters.RegisterInAllArchetype(in this.data.sharedArchetypeContains);
+            world.currentState.filters.RegisterInAllArchetype(in this.data.sharedArchetypeNotContains);
             world.Register(this);
-
-            return this;
-
-        }
-
-        public FilterData SetOnEntityAdd<T>(T predicate) where T : class, IFilterAction {
-
-            this.predicateOnAdd = predicate;
-
-            return this;
-
-        }
-
-        public FilterData SetOnEntityRemove<T>(T predicate) where T : class, IFilterAction {
-
-            this.predicateOnRemove = predicate;
 
             return this;
 
@@ -2114,7 +2133,7 @@ namespace ME.ECS {
 
         public FilterData OnVersionChangedOnly() {
 
-            this.onVersionChangedOnly = true;
+            this.data.onVersionChangedOnly = 1;
 
             return this;
 
@@ -2128,7 +2147,7 @@ namespace ME.ECS {
                 var type = components[i].GetType();
                 if (ComponentTypesRegistry.allTypeId.TryGetValue(type, out var bit) == true) {
                 
-                    this.archetypeContains.AddBit(bit);
+                    this.data.archetypeContains.AddBit(bit);
                     #if UNITY_EDITOR
                     this.AddTypeToEditorWith(type);
                     #endif
@@ -2149,7 +2168,7 @@ namespace ME.ECS {
                 var type = components[i].GetType();
                 if (ComponentTypesRegistry.allTypeId.TryGetValue(type, out var bit) == true) {
                 
-                    this.archetypeNotContains.AddBit(bit);
+                    this.data.archetypeNotContains.AddBit(bit);
                     #if UNITY_EDITOR
                     this.AddTypeToEditorWithout(type);
                     #endif
@@ -2166,8 +2185,8 @@ namespace ME.ECS {
         public FilterData WithStructComponent<TComponent>() where TComponent : struct, IStructComponentBase {
 
             WorldUtilities.SetComponentTypeId<TComponent>();
-            this.setupVersioned += (f) => WorldUtilities.SetComponentAsFilterVersioned<TComponent>(f.onVersionChangedOnly);
-            this.archetypeContains.Add<TComponent>();
+            this.setupVersioned += (f) => WorldUtilities.SetComponentAsFilterVersioned<TComponent>(f.data.onVersionChangedOnly == 1 ? true : false);
+            this.data.archetypeContains.Add<TComponent>();
             #if UNITY_EDITOR
             this.AddTypeToEditorWith<TComponent>();
             #endif
@@ -2179,8 +2198,8 @@ namespace ME.ECS {
         public FilterData WithoutStructComponent<TComponent>() where TComponent : struct, IStructComponentBase {
 
             WorldUtilities.SetComponentTypeId<TComponent>();
-            this.setupVersioned += (f) => WorldUtilities.SetComponentAsFilterVersioned<TComponent>(f.onVersionChangedOnly);
-            this.archetypeNotContains.Add<TComponent>();
+            this.setupVersioned += (f) => WorldUtilities.SetComponentAsFilterVersioned<TComponent>(f.data.onVersionChangedOnly == 1 ? true : false);
+            this.data.archetypeNotContains.Add<TComponent>();
             #if UNITY_EDITOR
             this.AddTypeToEditorWithout<TComponent>();
             #endif
@@ -2192,8 +2211,8 @@ namespace ME.ECS {
         public FilterData WithSharedComponent<TComponent>() where TComponent : struct, IStructComponentBase {
 
             WorldUtilities.SetComponentTypeId<TComponent>();
-            this.sharedArchetypeContains.Add<TComponent>();
-            this.hasShared = true;
+            this.data.sharedArchetypeContains.Add<TComponent>();
+            this.data.hasShared = 1;
             #if UNITY_EDITOR
             this.AddTypeToEditorWithShared<TComponent>();
             #endif
@@ -2205,8 +2224,8 @@ namespace ME.ECS {
         public FilterData WithoutSharedComponent<TComponent>() where TComponent : struct, IStructComponentBase {
 
             WorldUtilities.SetComponentTypeId<TComponent>();
-            this.sharedArchetypeNotContains.Add<TComponent>();
-            this.hasShared = true;
+            this.data.sharedArchetypeNotContains.Add<TComponent>();
+            this.data.hasShared = 1;
             #if UNITY_EDITOR
             this.AddTypeToEditorWithoutShared<TComponent>();
             #endif

@@ -132,6 +132,14 @@ namespace ME.ECS {
 
         public override IStructComponentBase GetObject(Entity entity) {
 
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
             var index = entity.id;
             ref var bucket = ref this.components[index];
             if (bucket.state > 0) {
@@ -184,14 +192,6 @@ namespace ME.ECS {
 
         public override bool RemoveObject(Entity entity) {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
             var index = entity.id;
             ref var bucket = ref this.components[index];
             if (bucket.state > 0) {
@@ -231,14 +231,6 @@ namespace ME.ECS {
         #endif
         public override bool Has(in Entity entity) {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.generation == 0) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
             return this.components[entity.id].state > 0;
 
         }
@@ -248,14 +240,6 @@ namespace ME.ECS {
         #endif
         public override bool Remove(in Entity entity, bool clearAll = false) {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-            
             var index = entity.id;
             if (index >= this.components.Length) return false;
             ref var bucket = ref this.components[index];

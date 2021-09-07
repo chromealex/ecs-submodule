@@ -286,7 +286,7 @@ namespace ME.ECS {
             ref var contains = ref this.itemsContains;
             ref var notContains = ref this.itemsNotContains;
 
-            if (filter.onVersionChangedOnly == true) {
+            if (filter.data.onVersionChangedOnly == 1) {
 
                 contains = ref this.itemsContainsVersioned;
                 notContains = ref this.itemsNotContainsVersioned;
@@ -295,10 +295,10 @@ namespace ME.ECS {
 
             {
 
-                var bits = filter.archetypeContains.BitsCount;
+                var bits = filter.data.archetypeContains.BitsCount;
                 for (var i = 0; i <= bits; ++i) {
 
-                    if (filter.archetypeContains.HasBit(i) == true) {
+                    if (filter.data.archetypeContains.HasBit(i) == true) {
 
                         ArrayUtils.Resize(i, ref contains, true);
                         ref var item = ref contains.arr[i];
@@ -316,10 +316,10 @@ namespace ME.ECS {
 
             {
 
-                var bits = filter.archetypeNotContains.BitsCount;
+                var bits = filter.data.archetypeNotContains.BitsCount;
                 for (var i = 0; i <= bits; ++i) {
 
-                    if (filter.archetypeNotContains.HasBit(i) == true) {
+                    if (filter.data.archetypeNotContains.HasBit(i) == true) {
 
                         ArrayUtils.Resize(i, ref notContains, true);
                         ref var item = ref notContains.arr[i];

@@ -1678,7 +1678,7 @@ namespace ME.ECS {
             if (this.currentState.storage.Dealloc(in entity) == true) {
 
                 if (cleanUpHierarchy == true) ECSTransformHierarchy.OnEntityDestroy(in entity);
-                this.RemoveFromFilters_INTERNAL(entity);
+                this.RemoveFromAllFilters(entity);
                 this.DestroyEntityPlugins(in entity);
 
                 this.currentState.storage.IncrementGeneration(in entity);
@@ -2438,10 +2438,10 @@ namespace ME.ECS {
             public Unity.Collections.NativeSlice<Entity> slice;
             [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
             [Unity.Collections.ReadOnlyAttribute]
-            public Unity.Collections.NativeArray<bool> dataContains;
+            public Unity.Collections.NativeArray<byte> dataContains;
             [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
             [Unity.Collections.ReadOnlyAttribute]
-            public Unity.Collections.NativeArray<bool> dataVersions;
+            public Unity.Collections.NativeArray<byte> dataVersions;
             public float deltaTime;
 
             void Unity.Jobs.IJobParallelFor.Execute(int index) {
@@ -2449,7 +2449,7 @@ namespace ME.ECS {
                 var entity = this.slice[index];
                 if (entity.IsAlive() == false) return;
 
-                if (this.dataContains[entity.id] == true && (this.dataVersions.IsCreated == false || this.dataVersions[entity.id] == true)) {
+                if (this.dataContains[entity.id] == 1 && (this.dataVersions.IsCreated == false || this.dataVersions[entity.id] == 1)) {
                     Worlds.currentWorld.currentSystemContextFilter.AdvanceTick(entity, in this.deltaTime);
                 }
 
@@ -2865,8 +2865,8 @@ namespace ME.ECS {
                                         if (min < max) {
 
                                             var filter = this.GetFilter(system.filter.id);
-                                            var arrContains = filter.dataContains.arr;
-                                            var arrVersions = (filter.onVersionChangedOnly == true ? filter.dataVersions.arr : default);
+                                            var arrContains = filter.data.dataContains;
+                                            var arrVersions = (filter.data.onVersionChangedOnly == 1 ? filter.data.dataVersions : default);
 
                                             var length = max - min;
                                             var job = new ForeachFilterJob() {

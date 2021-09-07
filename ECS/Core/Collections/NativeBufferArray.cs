@@ -33,11 +33,11 @@ namespace ME.ECS.Collections {
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     [System.Serializable]
-    public readonly struct NativeBufferArray<T> : System.IEquatable<NativeBufferArray<T>>, IBufferArray where T : struct {
+    public struct NativeBufferArray<T> : System.IEquatable<NativeBufferArray<T>>, IBufferArray where T : struct {
 
         public static NativeBufferArray<T> Empty = new NativeBufferArray<T>();
 
-        internal readonly NativeArray<T> arr;
+        internal NativeArray<T> arr;
         public readonly int Length;
         public bool isCreated => this.arr.IsCreated;
 

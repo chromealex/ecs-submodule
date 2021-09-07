@@ -64,7 +64,7 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                 
             }
             
-            if (InputUtils.GetPointersCount() == 2) {
+            if (InputUtils.GetPointersCount() == 2 || this.isPitchDown == true) {
 
                 var forceMove = false;
                 if (this.isPitchDown == false &&
@@ -127,7 +127,7 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
 
                 }
 
-                return;
+                if (this.isPitchDown == true) return;
 
             }
             

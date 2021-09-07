@@ -79,9 +79,14 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static bool Resize<T>(int index, ref Unity.Collections.NativeArray<T> arr, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : struct {
+        public static bool Resize<T>(int index, ref Unity.Collections.NativeArray<T> arr, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent, bool resizeWithOffset = false) where T : struct {
 
-            const int offset = 1;
+            int offset = 1;
+            if (resizeWithOffset == true) {
+
+                offset *= 2;
+
+            }
 
             if (arr.IsCreated == false) arr = new Unity.Collections.NativeArray<T>(index * offset + 1, allocator);
             if (index < arr.Length) return false;

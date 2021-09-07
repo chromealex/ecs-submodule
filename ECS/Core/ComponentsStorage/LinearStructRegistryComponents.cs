@@ -1000,6 +1000,14 @@ namespace ME.ECS {
         #endif
         public void RemoveAll(in Entity entity) {
 
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
             for (int i = 0, cnt = this.nextFrameTasks.Count; i < cnt; ++i) {
 
                 if (this.nextFrameTasks[i] == null) continue;

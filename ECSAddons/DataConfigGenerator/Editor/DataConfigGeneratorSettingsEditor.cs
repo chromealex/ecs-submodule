@@ -274,7 +274,9 @@ namespace ME.ECS.DataConfigGenerator {
 
             string size = uwr.GetResponseHeader("Content-Length");
 
-            if (uwr.isNetworkError || uwr.isHttpError)
+            if (uwr.result == UnityEngine.Networking.UnityWebRequest.Result.ConnectionError ||
+                uwr.result == UnityEngine.Networking.UnityWebRequest.Result.ProtocolError ||
+                uwr.result == UnityEngine.Networking.UnityWebRequest.Result.DataProcessingError)
             {
                 if (result != null)
                     result(-1);
@@ -364,7 +366,7 @@ namespace ME.ECS.DataConfigGenerator {
                 
                 DataConfigGeneratorSettingsEditor.logs[DataConfigGeneratorSettingsEditor.logs.Count - 1] = LogItem.LogSystem($"Downloaded: {request.downloadedBytes}/{fileSize} bytes ({(request.downloadProgress >= 0f ? Mathf.FloorToInt(request.downloadProgress * 100f).ToString() : "0")}%)");
 
-                var isOk = (request.isHttpError == false && request.isNetworkError == false && request.responseCode > 0);
+                var isOk = (request.result == UnityEngine.Networking.UnityWebRequest.Result.Success && request.responseCode > 0);
                 if (isOk == true) {
                 
                     DataConfigGeneratorSettingsEditor.logs.Add(LogItem.LogSystem($"Response: {request.responseCode} OK"));
