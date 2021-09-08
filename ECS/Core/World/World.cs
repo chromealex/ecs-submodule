@@ -459,10 +459,23 @@ namespace ME.ECS {
             
             for (int i = groupsOffset; i < this.systemGroupsLength; ++i) {
 
+                if (this.isActive == false) {
+                    
+                    // Break loading at this point - may be we call Unload world
+                    return;
+                    
+                }
                 var group = this.systemGroups.arr[i];
                 if (group.runtimeSystem.systemLoadable == null) continue;
                 for (int j = sysOffset; j < group.runtimeSystem.systemLoadable.Count; ++j) {
 
+                    if (this.isActive == false) {
+                    
+                        // Break loading at this point - may be we call Unload world
+                        return;
+                    
+                    }
+                    
                     var loadableSystem = group.runtimeSystem.systemLoadable[j];
                     if (loadableSystem is ILoadableSync) {
 
