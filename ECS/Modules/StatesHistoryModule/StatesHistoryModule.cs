@@ -294,7 +294,7 @@ namespace ME.ECS.StatesHistory {
         
         public World world { get; set; }
         
-        void IModuleBase.OnConstruct() {
+        public virtual void OnConstruct() {
 
             this.oldestTick = Tick.Invalid;
             this.lastSavedStateTick = Tick.Invalid;
@@ -310,7 +310,7 @@ namespace ME.ECS.StatesHistory {
 
         }
 
-        void IModuleBase.OnDeconstruct() {
+        public virtual void OnDeconstruct() {
 
             //this.maxTick = Tick.Zero;
             this.prewarmed = false;
