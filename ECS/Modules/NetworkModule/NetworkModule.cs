@@ -446,6 +446,7 @@ namespace ME.ECS.Network {
                 evt.rpcId = rpcId;
                 evt.objId = key.objId;
                 evt.groupId = key.groupId;
+                evt.order = this.GetRPCOrder();
 
                 // If event run only on local machine
                 // we need to write data through all states and run this event immediately on each
@@ -482,7 +483,6 @@ namespace ME.ECS.Network {
                 }
 
                 // Set up other event data
-                evt.order = this.GetRPCOrder();
                 evt.localOrder = ++this.localOrderIndex;
                 evt.storeInHistory = storeInHistory;
 

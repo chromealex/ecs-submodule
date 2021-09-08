@@ -297,34 +297,27 @@ namespace ME.ECS.Serializer {
             return serializers;
 
         }
-        
-        public static byte[] PackStatic<T>(T obj, Serializers staticSerializers) {
 
-            var packer = PoolClass<Packer>.Spawn();
-            packer.Initialize(staticSerializers, Serializer.BUFFER_CAPACITY);
+        public static byte[] PackStatic<T>(T obj, Serializers staticSerializers) {
             
+            var packer = new Packer(staticSerializers, new System.IO.MemoryStream(Serializer.BUFFER_CAPACITY));
+
             var serializer = new GenericSerializer();
             serializer.Pack(packer, obj, typeof(T));
 
             var result = packer.ToArray();
-            packer.DeInitialize();
-            PoolClass<Packer>.Recycle(ref packer);
+            packer.Dispose();
             return result;
 
         }
 
         public static T UnpackStatic<T>(byte[] bytes, Serializers staticSerializers) {
 
-            var packer = PoolClass<Packer>.Spawn();
-            packer.Initialize(staticSerializers, Serializer.BUFFER_CAPACITY, bytes);
+            var packer = Serializer.SetupDefaultPacker(staticSerializers, bytes);
 
-            var packerObject = PackerObjectSerializer.UnpackDirect(packer);
-            packer.Initialize(packerObject.meta, packerObject.data);
-            
             var serializer = new GenericSerializer();
             var result = (T)serializer.Unpack(packer, typeof(T));
-            packer.DeInitialize();
-            PoolClass<Packer>.Recycle(ref packer);
+            packer.Dispose();
             return result;
 
         }
@@ -534,39 +527,16 @@ namespace ME.ECS.Serializer {
         internal Serializers serializers;
         private System.IO.MemoryStream stream;
         private Meta meta;
-        
-        public Packer() {}
 
-        public void Initialize(Serializers serializers, int capacity, byte[] bytes = null) {
+        public static Packer FromStream(Serializers serializers, System.IO.MemoryStream stream) {
 
-            this.meta = Meta.Create();
-            this.serializers = serializers;
-            if (this.stream == null) {
-                this.stream = PoolClass<System.IO.MemoryStream>.Spawn();
-                this.stream.Capacity = capacity;
-            }
-            this.stream.Position = 0;
-            if (bytes != null) this.stream.Write(bytes, 0, bytes.Length);
-            this.stream.Position = 0;
-            
-        }
+            var packer = new Packer(serializers, stream);
+            var packerObject = PackerObjectSerializer.UnpackDirect(packer);
+            packer.meta = packerObject.meta;
+            packer.stream = new System.IO.MemoryStream(packerObject.data);
 
-        public void Initialize(Meta meta, byte[] bytes = null) {
+            return packer;
 
-            this.meta = meta;
-            if (this.stream == null) {
-                this.stream = PoolClass<System.IO.MemoryStream>.Spawn();
-            }
-            this.stream.Position = 0;
-            if (bytes != null) this.stream.Write(bytes, 0, bytes.Length);
-            this.stream.Position = 0;
-            
-        }
-
-        public void DeInitialize() {
-            
-            this.meta.Dispose();
-            
         }
 
         public Packer(Serializers serializers, System.IO.MemoryStream stream) {
@@ -574,17 +544,6 @@ namespace ME.ECS.Serializer {
             this.meta = Meta.Create();
             this.serializers = serializers;
             this.stream = stream;
-
-        }
-        
-        public static Packer FromStream(Serializers serializers, System.IO.MemoryStream stream) {
-
-            var packer = new Packer(serializers, stream);
-            var packerObject = PackerObjectSerializer.UnpackDirect(packer);
-            packer.meta = packerObject.meta;
-            packer.stream = new System.IO.MemoryStream(packerObject.data);
-            
-            return packer;
 
         }
 
@@ -598,16 +557,17 @@ namespace ME.ECS.Serializer {
 
             var obj = new PackerObject();
             obj.meta = this.meta;
-            obj.data = this.stream.GetBuffer();
+            obj.data = this.stream.ToArray();
 
             byte[] output = null;
-            
-            var packer = PoolClass<Packer>.Spawn();
-            packer.Initialize(this.serializers, this.stream.Capacity);
-            PackerObjectSerializer.PackDirect(packer, obj);
-            output = packer.stream.GetBuffer();
-            packer.DeInitialize();
-            PoolClass<Packer>.Recycle(ref packer);
+            using (var stream = new System.IO.MemoryStream(this.stream.Capacity)) {
+
+                var packer = new Packer(this.serializers, stream);
+                PackerObjectSerializer.PackDirect(packer, obj);
+
+                output = stream.ToArray();
+
+            }
 
             return output;
 

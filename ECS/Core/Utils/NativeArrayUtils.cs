@@ -166,7 +166,7 @@ namespace ME.ECS {
                     return;
             }
 
-            if (arr.IsCreated == false || arr.Length < fromArr.Length) {
+            if (arr.IsCreated == false || arr.Length != fromArr.Length) {
 
                 if (arr.IsCreated == true) arr.Dispose();
                 arr = new Unity.Collections.NativeArray<T>(fromArr.Length, Unity.Collections.Allocator.Persistent);
