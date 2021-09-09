@@ -18,7 +18,7 @@ namespace ME.ECSEditor {
     }
 
     [UnityEditor.CustomEditor(typeof(ME.ECS.DataConfigs.DataConfig), true)]
-    [CanEditMultipleObjects]
+    //[CanEditMultipleObjects]
     public class DataConfigEditor : Editor, IEditorContainer {
 
         private VisualElement rootVisualElement;
