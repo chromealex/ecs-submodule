@@ -11,14 +11,8 @@ namespace ME.ECSEditor {
 
         public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
 
-            var x = property.FindPropertyRelative("x");
-            var y = property.FindPropertyRelative("y");
-            var z = property.FindPropertyRelative("z");
-            var v = new UnityEngine.Vector3(x.floatValue, y.floatValue, z.floatValue);
-            v = UnityEditor.EditorGUI.Vector3Field(position, label, v);
-            x.floatValue = v.x;
-            y.floatValue = v.y;
-            z.floatValue = v.z;
+            var value = property.FindPropertyRelative("value");
+            UnityEditor.EditorGUI.PropertyField(position, value, label);
 
         }
 
@@ -35,16 +29,8 @@ namespace ME.ECSEditor {
 
         public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
 
-            var x = property.FindPropertyRelative("x");
-            var y = property.FindPropertyRelative("y");
-            var z = property.FindPropertyRelative("z");
-            var w = property.FindPropertyRelative("z");
-            var v = new UnityEngine.Quaternion(x.floatValue, y.floatValue, z.floatValue, w.floatValue);
-            v = UnityEngine.Quaternion.Euler(UnityEditor.EditorGUI.Vector3Field(position, label, v.eulerAngles));
-            x.floatValue = v.x;
-            y.floatValue = v.y;
-            z.floatValue = v.z;
-            w.floatValue = v.w;
+            var value = property.FindPropertyRelative("value");
+            UnityEditor.EditorGUI.PropertyField(position, value, label);
 
         }
 
@@ -61,14 +47,8 @@ namespace ME.ECSEditor {
 
         public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
 
-            var x = property.FindPropertyRelative("x");
-            var y = property.FindPropertyRelative("y");
-            var z = property.FindPropertyRelative("z");
-            var v = new UnityEngine.Vector3(x.floatValue, y.floatValue, z.floatValue);
-            v = UnityEditor.EditorGUI.Vector3Field(position, label, v);
-            x.floatValue = v.x;
-            y.floatValue = v.y;
-            z.floatValue = v.z;
+            var value = property.FindPropertyRelative("value");
+            UnityEditor.EditorGUI.PropertyField(position, value, label);
 
         }
 
@@ -85,12 +65,8 @@ namespace ME.ECSEditor {
 
         public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
 
-            var x = property.FindPropertyRelative("x");
-            var y = property.FindPropertyRelative("y");
-            var v = new UnityEngine.Vector2(x.floatValue, y.floatValue);
-            v = UnityEditor.EditorGUI.Vector2Field(position, label, v);
-            x.floatValue = v.x;
-            y.floatValue = v.y;
+            var value = property.FindPropertyRelative("value");
+            UnityEditor.EditorGUI.PropertyField(position, value, label);
 
         }
 
@@ -107,8 +83,8 @@ namespace ME.ECSEditor {
 
         public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
 
-            var v = property.FindPropertyRelative("x");
-            v.floatValue = UnityEditor.EditorGUI.FloatField(position, label, v.floatValue);
+            var value = property.FindPropertyRelative("value");
+            UnityEditor.EditorGUI.PropertyField(position, value, label);
 
         }
 
@@ -125,12 +101,8 @@ namespace ME.ECSEditor {
 
         public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
 
-            var x = property.FindPropertyRelative("x");
-            var y = property.FindPropertyRelative("y");
-            var v = new UnityEngine.Vector2(x.floatValue, y.floatValue);
-            v = UnityEditor.EditorGUI.Vector2Field(position, label, v);
-            x.floatValue = v.x;
-            y.floatValue = v.y;
+            var value = property.FindPropertyRelative("value");
+            UnityEditor.EditorGUI.PropertyField(position, value, label);
 
         }
 

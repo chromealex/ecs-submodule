@@ -8,8 +8,6 @@ namespace ME.ECS.Pathfinding {
         public struct Item {
 
             public UnityEngine.Tilemaps.TileBase requiredTile;
-            public bool checkSprite;
-            public Sprite[] spriteOneOf;
             
             [NavMeshArea]
             public int tag;
@@ -22,42 +20,44 @@ namespace ME.ECS.Pathfinding {
         public UnityEngine.Tilemaps.Tilemap tilemap;
         public Item[] items;
         public BoundsInt bounds;
-
+        
         public override void ApplyBeforeConnections(Graph graph) {
 
+            var cache = PoolDictionary<int, Item>.Spawn(100);
+            foreach (var item in this.items) {
+
+                cache.Add(item.requiredTile.GetInstanceID(), item);
+
+            }
+            
             var navMeshGraph = graph as NavMeshGraph;
             foreach (var pos in this.bounds.allPositionsWithin) {
 
                 UnityEngine.Vector3Int localPlace = new UnityEngine.Vector3Int(pos.x, pos.y, pos.z);
                 var tile = this.tilemap.GetTile(localPlace);
+                if (tile == null) continue;
 
-                UnityEngine.AI.NavMeshBuildSource source = default;
-                bool sourceFound = false;
-                for (int i = 0; i < this.items.Length; ++i) {
+                if (cache.TryGetValue(tile.GetInstanceID(), out var item) == true) {
+                    
+                    var source = new UnityEngine.AI.NavMeshBuildSource {
+                        area = item.tag,
+                        shape = UnityEngine.AI.NavMeshBuildSourceShape.Box,
+                        transform = Matrix4x4.TRS(this.tilemap.GetCellCenterWorld(pos) - this.tilemap.layoutGrid.cellGap,
+                                                  this.tilemap.transform.rotation,
+                                                  this.tilemap.transform.lossyScale) * this.tilemap.orientationMatrix * this.tilemap.GetTransformMatrix(pos),
+                        size = new Vector3(item.customSize == true ? item.size.x : this.tilemap.layoutGrid.cellSize.x, item.customSize == true ? item.size.y : this.tilemap.layoutGrid.cellSize.y, item.height),
+                    };
+                    
+                    if (item.height < navMeshGraph.minHeight) navMeshGraph.SetMinMaxHeight(item.height, navMeshGraph.maxHeight);
+                    if (item.height > navMeshGraph.maxHeight) navMeshGraph.SetMinMaxHeight(navMeshGraph.minHeight, item.height);
 
-                    var item = this.items[i];
-                    if ((item.checkSprite == false && (item.requiredTile == null || item.requiredTile == tile)) ||
-                        (item.checkSprite == true && System.Array.IndexOf(item.spriteOneOf, this.tilemap.GetSprite(localPlace)) >= 0)) {
-
-                        sourceFound = true;
-                        source = new UnityEngine.AI.NavMeshBuildSource {
-                            area = item.tag,
-                            shape = UnityEngine.AI.NavMeshBuildSourceShape.Box,
-                            transform = Matrix4x4.TRS(this.tilemap.GetCellCenterWorld(pos) - this.tilemap.layoutGrid.cellGap,
-                                                      this.tilemap.transform.rotation,
-                                                      this.tilemap.transform.lossyScale) * this.tilemap.orientationMatrix * this.tilemap.GetTransformMatrix(pos),
-                            size = new Vector3(item.customSize == true ? item.size.x : this.tilemap.layoutGrid.cellSize.x, item.customSize == true ? item.size.y : this.tilemap.layoutGrid.cellSize.y, item.height),
-                        };
-
-                        if (item.height < navMeshGraph.minHeight) navMeshGraph.SetMinMaxHeight(item.height, navMeshGraph.maxHeight);
-                        if (item.height > navMeshGraph.maxHeight) navMeshGraph.SetMinMaxHeight(navMeshGraph.minHeight, item.height);
-
-                    }
-
+                    navMeshGraph.AddBuildSource(source);
+                    
                 }
-                if (sourceFound == true) navMeshGraph.AddBuildSource(source);
                 
             }
+            
+            PoolDictionary<int, Item>.Recycle(ref cache);
 
         }
 
@@ -77,12 +77,11 @@ namespace ME.ECS.Pathfinding {
                 for (int i = 0; i < this.items.Length; ++i) {
 
                     var item = this.items[i];
-                    if ((item.checkSprite == false && (item.requiredTile == null || item.requiredTile == tile)) ||
-                        (item.checkSprite == true && System.Array.IndexOf(item.spriteOneOf, this.tilemap.GetSprite(tilePosition)) >= 0)) {
+                    if (item.requiredTile == null || item.requiredTile == tile) {
 
                         height = item.height;
-
                         return true;
+                        
                     }
 
                 }
@@ -90,6 +89,7 @@ namespace ME.ECS.Pathfinding {
             }
 
             return false;
+            
         }
 
         public void GetMinMaxHeight(out float min, out float max) {
@@ -105,8 +105,8 @@ namespace ME.ECS.Pathfinding {
                 if (item.height > max) max = item.height;
 
             }
+            
         }
-
 
         public override void OnDrawGizmos() {
 

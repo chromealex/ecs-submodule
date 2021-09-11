@@ -202,7 +202,9 @@ namespace ME.ECS.DataConfigs {
 
 	        if (this.isPrewarmed == true) return;
             #if UNITY_EDITOR
-            if (Application.isPlaying == false) return;
+            try {
+                if (Application.isPlaying == false) return;
+            } catch (System.Exception) { }
             #endif
 	        
 	        System.Array.Resize(ref this.removeStructComponentsDataTypeIds, this.removeStructComponents.Length);

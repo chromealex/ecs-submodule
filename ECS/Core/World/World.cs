@@ -1256,10 +1256,12 @@ namespace ME.ECS {
             var list = PoolListCopyable<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
             if (this.ForEachEntity(list) == true) {
 
+                var maxId = this.currentState.storage.GetMaxId();
+                ComponentsInitializerWorld.Init(new Entity(maxId, 0));
+                
                 for (int i = 0; i < list.Count; ++i) {
 
                     ref var item = ref list[i];
-                    ComponentsInitializerWorld.Init(in item);
                     this.UpdateFiltersOnFilterCreate(item);
 
                 }

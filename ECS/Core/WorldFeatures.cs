@@ -88,7 +88,7 @@ namespace ME.ECS {
         }
 
         private void InitializePre(World world, System.Collections.IList features) {
-        
+
             for (int i = 0; i < features.Count; ++i) {
 
                 var item = (FeatureData)features[i];
@@ -103,7 +103,7 @@ namespace ME.ECS {
                         this.InitializePre(world, item.GetSubFeatures());
 
                     }
-
+                    
                 }
 
             }
@@ -178,7 +178,7 @@ namespace ME.ECS {
 
         internal void DoConstruct() {
             
-            this.systemGroup = new SystemGroup(this.world, this.name);
+            this.systemGroup = new SystemGroup(this.world, this.GetType().Name);
             Filter.RegisterInject(this.InjectFilter);
             this.OnConstruct();
             Filter.UnregisterInject(this.InjectFilter);

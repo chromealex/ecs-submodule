@@ -139,7 +139,9 @@ namespace ME.ECS.Debug {
         new private void SetDirty() {
             
             #if UNITY_EDITOR
-            UnityEditor.EditorUtility.SetDirty(this);
+            try {
+                UnityEditor.EditorUtility.SetDirty(this);
+            } catch (System.Exception) { }
             #endif
             
         }

@@ -50,6 +50,8 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         internal EntityVersions versions;
 
+        public int GetMaxId() => this.entityId;
+
         public override int GetHashCode() {
 
             if (this.dead == null) return 0;

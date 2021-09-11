@@ -21,6 +21,21 @@ namespace ME.ECSEditor {
         public TempDataObject temp;
         private ME.ECS.Debug.EntityProxyDebugger debug;
 
+        private readonly System.Collections.Generic.Dictionary<int, UnityEditor.UIElements.PropertyField> fieldsCacheComponents = new System.Collections.Generic.Dictionary<int, PropertyField>();
+        private readonly System.Collections.Generic.Dictionary<int, UnityEditor.UIElements.PropertyField> fieldsCacheSharedComponents = new System.Collections.Generic.Dictionary<int, PropertyField>();
+        private VisualElement rootElement;
+        private VisualElement componentsContainer;
+        private VisualElement sharedComponentsContainer;
+        private VisualElement content;
+        private bool componentsDirty;
+        private bool sharedComponentsDirty;
+        
+        private VisualElement entityContainer;
+        private VisualElement entityContainerWarning;
+        private Label entityId;
+        private Label entityGen;
+        private Label entityVersion;
+
         public void Save() {
             
         }
@@ -68,6 +83,13 @@ namespace ME.ECSEditor {
                     this.RegisterSharedComponentsCallbacks();
                 }
                 
+            } else {
+                
+                this.rootElement.Clear();
+                var element = new Label("No active world found");
+                element.AddToClassList("world-not-found");
+                this.rootElement.Add(element);
+
             }
 
         }
@@ -224,21 +246,6 @@ namespace ME.ECSEditor {
             
         }
 
-        private readonly System.Collections.Generic.Dictionary<int, UnityEditor.UIElements.PropertyField> fieldsCacheComponents = new System.Collections.Generic.Dictionary<int, PropertyField>();
-        private readonly System.Collections.Generic.Dictionary<int, UnityEditor.UIElements.PropertyField> fieldsCacheSharedComponents = new System.Collections.Generic.Dictionary<int, PropertyField>();
-        private VisualElement rootElement;
-        private VisualElement componentsContainer;
-        private VisualElement sharedComponentsContainer;
-        private VisualElement content;
-        private bool componentsDirty;
-        private bool sharedComponentsDirty;
-        
-        private VisualElement entityContainer;
-        private VisualElement entityContainerWarning;
-        private Label entityId;
-        private Label entityGen;
-        private Label entityVersion;
-        
         public override VisualElement CreateInspectorGUI() {
             
             var container = new VisualElement();
@@ -355,6 +362,9 @@ namespace ME.ECSEditor {
             
             var element = new VisualElement();
             var so = new SerializedObject(this.temp);
+            foreach (var fields in this.fieldsCacheComponents) {
+                fields.Value.Unbind();
+            }
             var source = so.FindProperty("components");
             this.fieldsCacheComponents.Clear();
             DataConfigEditor.BuildInspectorPropertiesElement("data",
@@ -369,6 +379,20 @@ namespace ME.ECSEditor {
                                                               
                                                              });
 
+            /*
+            this.fieldsCacheComponents.Clear();
+            var prop = so.FindProperty("components");
+            for (int i = 0; i < prop.arraySize; ++i) {
+
+                var propField = prop.GetArrayElementAtIndex(i);
+                var dataField = propField.FindPropertyRelative("data");
+                var field = new PropertyField(dataField);
+                field.BindProperty(dataField);
+                element.Add(field);
+                this.fieldsCacheComponents.Add(i, field);
+
+            }*/
+            
             this.componentsDirty = true;
             
             container.Add(element);

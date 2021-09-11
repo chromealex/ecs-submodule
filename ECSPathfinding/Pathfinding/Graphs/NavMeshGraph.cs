@@ -29,7 +29,7 @@ namespace ME.ECS.Pathfinding {
         private NavMeshBuildSettings buildSettings;
         private UnityEngine.Experimental.AI.NavMeshQuery query;
         
-        private List<NavMeshBuildSource> buildSources = new List<NavMeshBuildSource>();
+        private List<NavMeshBuildSource> buildSources = new List<NavMeshBuildSource>(5000);
         private List<NavMeshBuildSource> tempSources = new List<NavMeshBuildSource>(1000);
 
         public void AddBuildSource(in NavMeshBuildSource buildSource) {
