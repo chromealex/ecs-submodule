@@ -26,7 +26,7 @@ namespace ME.ECS.Pathfinding {
             var cache = PoolDictionary<int, Item>.Spawn(100);
             foreach (var item in this.items) {
 
-                cache.Add(item.requiredTile.GetInstanceID(), item);
+                cache.Add(item.requiredTile == null ? 0 : item.requiredTile.GetInstanceID(), item);
 
             }
             
@@ -35,9 +35,8 @@ namespace ME.ECS.Pathfinding {
 
                 UnityEngine.Vector3Int localPlace = new UnityEngine.Vector3Int(pos.x, pos.y, pos.z);
                 var tile = this.tilemap.GetTile(localPlace);
-                if (tile == null) continue;
-
-                if (cache.TryGetValue(tile.GetInstanceID(), out var item) == true) {
+                var id = tile == null ? 0 : tile.GetInstanceID();
+                if (cache.TryGetValue(id, out var item) == true) {
                     
                     var source = new UnityEngine.AI.NavMeshBuildSource {
                         area = item.tag,
