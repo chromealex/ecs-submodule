@@ -1222,7 +1222,7 @@ namespace ME.ECS {
 
             if (entity.generation == Entity.GENERATION_ZERO) return false;
 
-            if (data.forEachMode == 1) {
+            if (data.forEachMode > 0) {
 
                 for (int i = 0; i < data.requestsRemoveCount; ++i) {
 
@@ -1264,7 +1264,7 @@ namespace ME.ECS {
 
             if (entity.generation == Entity.GENERATION_ZERO) return false;
 
-            if (data.forEachMode == 1) {
+            if (data.forEachMode > 0) {
 
                 for (int i = 0; i < data.requestsCount; ++i) {
 
@@ -1906,7 +1906,26 @@ namespace ME.ECS {
         #endif
         public void SetForEachMode(bool state) {
 
-            this.data.forEachMode = state == true ? (byte)1 : (byte)0;
+            if (state == true) {
+
+                #if WORLD_EXCEPTIONS
+                if (this.data.forEachMode == 255) {
+                    throw new System.Exception("Filter: Max forEachMode has reached. Please, decrease foreach instructions.");
+                }
+                #endif
+                ++this.data.forEachMode;
+                
+            } else {
+                
+                #if WORLD_EXCEPTIONS
+                if (this.data.forEachMode == 0) {
+                    throw new System.Exception("Filter: Call SetForEachMode(false), but filter has not in foreach mode on.");
+                }
+                #endif
+                --this.data.forEachMode;
+                
+            }
+            
             if (state == false) {
 
                 this.ApplyAllRequests();
