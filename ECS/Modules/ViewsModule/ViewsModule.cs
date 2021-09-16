@@ -476,16 +476,22 @@ namespace ME.ECS.Views {
     #endif
     public partial class ViewsModule : IViewModule, IUpdatePost, IModulePhysicsUpdate {
 
+        internal struct ProviderInfo {
+
+            public IViewsProvider provider;
+            public IViewsProviderInitializer initializer;
+
+        }
+
         private const int REGISTRY_PROVIDERS_CAPACITY = 100;
         private const int REGISTRY_CAPACITY = 100;
         private const int VIEWS_CAPACITY = 1000;
-        private const int INTERNAL_ENTITIES_CACHE_CAPACITY = 100;
-        private const int INTERNAL_COMPONENTS_CACHE_CAPACITY = 10;
 
         private BufferArray<Views> list;
         private HashSet<ViewInfo> rendering;
         private Dictionary<ViewId, IViewsProviderInitializerBase> registryPrefabToProviderInitializer;
         private Dictionary<ViewId, IViewsProvider> registryPrefabToProvider;
+        private Dictionary<System.Type, ProviderInfo> registryTypeToProviderInfo;
         private Dictionary<IView, ViewId> registryPrefabToId;
         private Dictionary<ViewId, IView> registryIdToPrefab;
         private ViewId viewSourceIdRegistry;
@@ -503,6 +509,7 @@ namespace ME.ECS.Views {
             this.rendering = PoolHashSet<ViewInfo>.Spawn(ViewsModule.VIEWS_CAPACITY);
             this.registryPrefabToId = PoolDictionary<IView, ViewId>.Spawn(ViewsModule.REGISTRY_CAPACITY);
             this.registryIdToPrefab = PoolDictionary<ViewId, IView>.Spawn(ViewsModule.REGISTRY_CAPACITY);
+            this.registryTypeToProviderInfo = PoolDictionary<System.Type, ProviderInfo>.Spawn(ViewsModule.REGISTRY_CAPACITY);
 
             this.registryPrefabToProvider = PoolDictionary<ViewId, IViewsProvider>.Spawn(ViewsModule.REGISTRY_PROVIDERS_CAPACITY);
             this.registryPrefabToProviderInitializer = PoolDictionary<ViewId, IViewsProviderInitializerBase>.Spawn(ViewsModule.REGISTRY_PROVIDERS_CAPACITY);
@@ -532,6 +539,16 @@ namespace ME.ECS.Views {
 
             PoolListCopyable<IView>.Recycle(ref temp);
 
+            foreach (var item in this.registryTypeToProviderInfo) {
+
+                var info = item.Value;
+                info.provider.world = null;
+                info.provider.OnDeconstruct();
+                info.initializer.Destroy(info.provider);
+
+            }
+
+            PoolDictionary<System.Type, ProviderInfo>.Recycle(ref this.registryTypeToProviderInfo);
             PoolDictionary<ViewId, IViewsProvider>.Recycle(ref this.registryPrefabToProvider);
             PoolDictionary<ViewId, IViewsProviderInitializerBase>.Recycle(ref this.registryPrefabToProviderInitializer);
 
@@ -763,12 +780,26 @@ namespace ME.ECS.Views {
         private void RegisterViewSource_INTERNAL<TProvider>(TProvider providerInitializer) where TProvider : struct, IViewsProviderInitializer {
             
             ++this.viewSourceIdRegistry;
-            var viewsProvider = (IViewsProviderInitializer)providerInitializer;
-            var provider = viewsProvider.Create();
-            provider.world = this.world;
-            provider.OnConstruct();
-            this.registryPrefabToProvider.Add(this.viewSourceIdRegistry, provider);
-            this.registryPrefabToProviderInitializer.Add(this.viewSourceIdRegistry, viewsProvider);
+
+            if (this.registryTypeToProviderInfo.TryGetValue(typeof(TProvider), out var existProvider) == true) {
+                
+                this.registryPrefabToProvider.Add(this.viewSourceIdRegistry, existProvider.provider);
+                this.registryPrefabToProviderInitializer.Add(this.viewSourceIdRegistry, existProvider.initializer);
+                
+            } else {
+
+                var viewsProviderInitializer = (IViewsProviderInitializer)providerInitializer;
+                var provider = viewsProviderInitializer.Create();
+                provider.world = this.world;
+                provider.OnConstruct();
+                this.registryPrefabToProvider.Add(this.viewSourceIdRegistry, provider);
+                this.registryPrefabToProviderInitializer.Add(this.viewSourceIdRegistry, viewsProviderInitializer);
+                this.registryTypeToProviderInfo.Add(typeof(TProvider), new ProviderInfo() {
+                    provider = provider,
+                    initializer = viewsProviderInitializer,
+                });
+
+            }
 
         }
 
@@ -818,10 +849,6 @@ namespace ME.ECS.Views {
 
             if (this.registryPrefabToId.TryGetValue(prefab, out var viewId) == true) {
 
-                var provider = this.registryPrefabToProvider[viewId];
-                provider.world = null;
-                provider.OnDeconstruct();
-                ((IViewsProviderInitializer)this.registryPrefabToProviderInitializer[viewId]).Destroy(provider);
                 this.registryPrefabToProviderInitializer.Remove(viewId);
                 this.registryPrefabToProvider.Remove(viewId);
                 this.registryPrefabToId.Remove(prefab);

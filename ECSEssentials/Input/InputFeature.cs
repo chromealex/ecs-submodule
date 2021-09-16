@@ -95,8 +95,12 @@ namespace ME.ECS.Essentials {
 
         private void Execute(TMarker marker) {
 
-            var entity = this.getEntity.Invoke();
-            this.networkModule.RPC(this.tag, this.rpcId, entity, marker);
+            if (this.getEntity != null) {
+
+                var entity = this.getEntity.Invoke();
+                this.networkModule.RPC(this.tag, this.rpcId, entity, marker);
+
+            }
 
         }
 

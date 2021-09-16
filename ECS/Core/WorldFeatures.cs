@@ -96,7 +96,8 @@ namespace ME.ECS {
 
                     var instance = (world.settings.createInstanceForFeatures == true ? UnityEngine.Object.Instantiate(item.GetSource()) : item.GetSource());
                     if (world.settings.createInstanceForFeatures == true) instance.name = item.GetSource().name;
-                    world.AddFeature(item.featureInstance = instance, doConstruct: false);
+                    item.featureInstance = instance;
+                    world.AddFeature(instance, doConstruct: false);
 
                     if (item.GetSubFeatures() != null) {
 
