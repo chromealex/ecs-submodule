@@ -25,6 +25,11 @@ namespace ME.ECS {
 
         public void Clear() {
 
+            foreach (var item in this.pool) {
+
+                item.Value.Clean();
+
+            }
             this.pool.Clear();
             this.pool = null;
 
@@ -60,13 +65,26 @@ namespace ME.ECS {
                 return false;
             }
 
-            var type = typeof(T);
-            if (this.pool.TryGetValue(type, out var pool) == true) {
+            {
+                var type = typeof(T);
+                if (this.pool.TryGetValue(type, out var pool) == true) {
 
-                pool.Recycle(obj);
-                obj = default;
-                return true;
+                    pool.Recycle(obj);
+                    obj = default;
+                    return true;
 
+                }
+            }
+
+            {
+                var type = obj.GetType();
+                if (this.pool.TryGetValue(type, out var pool) == true) {
+
+                    pool.Recycle(obj);
+                    obj = default;
+                    return true;
+
+                }
             }
 
             return false;
@@ -394,8 +412,17 @@ namespace ME.ECS {
 
         }
 
-        protected virtual void OnClear() {
+        public void Clean() {
             
+            this.OnClear();
+            
+        }
+
+        protected virtual void OnClear() {
+
+            if (PoolInternalBase.list.Count > 0) {
+                PoolInternalBase.list.Remove(this);
+            }
             this.cache.Clear();
             this.destructor = null;
             
