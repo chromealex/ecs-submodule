@@ -194,11 +194,11 @@ namespace ME.ECS.Network {
 
             this.world.SetNetworkModule(this);
 
+            this.RegisterObject(this, -1, -1);
             this.RegisterRPC(NetworkModule<TState>.CANCEL_EVENT_RPC_ID, new System.Action<byte[]>(this.CancelEvent_RPC).Method);
             this.RegisterRPC(NetworkModule<TState>.PING_RPC_ID, new System.Action<double, bool>(this.Ping_RPC).Method);
             this.RegisterRPC(NetworkModule<TState>.SYNC_RPC_ID, new System.Action<Tick, int>(this.Sync_RPC).Method);
-            this.RegisterObject(this, -1, -1);
-
+            
             this.OnInitialize();
 
         }

@@ -49,18 +49,23 @@ namespace ME.ECS.Collections {
             return (System.IntPtr)this.arr.GetUnsafeReadOnlyPtr();
         }
 
+        [System.Diagnostics.ConditionalAttribute("ENABLE_UNITY_COLLECTIONS_CHECKS")]
+        private void CheckBounds(int index) {
+            if (this.isCreated == false || index >= this.Length) throw new System.IndexOutOfRangeException($"Index: {index} [0..{this.Length}], Tick: {Worlds.currentWorld.GetCurrentTick()}");
+        }
+
         public ref T this[int index] {
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             get {
-                if (this.isCreated == false || index >= this.Length) throw new System.IndexOutOfRangeException($"Index: {index} [0..{this.Length}], Tick: {Worlds.currentWorld.GetCurrentTick()}");
+                this.CheckBounds(index);
                 return ref this.arr.GetRef(index);
             }
         }
 
         public ref readonly T Read(int index) {
-            if (this.isCreated == false || index >= this.Length) throw new System.IndexOutOfRangeException($"Index: {index} [0..{this.Length}], Tick: {Worlds.currentWorld.GetCurrentTick()}");
+            this.CheckBounds(index);
             return ref this.arr.GetRefRead(index);
         }
         

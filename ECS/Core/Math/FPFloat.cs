@@ -529,6 +529,11 @@ namespace ME.ECS {
             return pfloat.Pow2(exp * log2);
         }
 
+        [System.Diagnostics.ConditionalAttribute("ENABLE_UNITY_COLLECTIONS_CHECKS")]
+        private static void ThrowNegativeValueException() {
+            throw new System.ArgumentOutOfRangeException("Negative value passed to Sqrt", "x");
+        }
+
         /// <summary>
         /// Returns the square root of a specified number.
         /// </summary>
@@ -540,7 +545,8 @@ namespace ME.ECS {
             if (xl < 0) {
                 // We cannot represent infinities like Single and Double, and Sqrt is
                 // mathematically undefined for x < 0. So we just throw an exception.
-                throw new System.ArgumentOutOfRangeException("Negative value passed to Sqrt", "x");
+                ThrowNegativeValueException();
+                return default;
             }
 
             var num = (ulong)xl;

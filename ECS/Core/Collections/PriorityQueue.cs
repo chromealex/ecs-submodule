@@ -269,8 +269,14 @@
 
                 return returnVal;
             } else {
-                throw new System.Exception("Queue is empty");
+                this.EmptyException();
+                return default;
             }
+        }
+
+        [System.Diagnostics.ConditionalAttribute("ENABLE_UNITY_COLLECTIONS_CHECKS")]
+        private void EmptyException() {
+            throw new System.Exception("Queue is empty");
         }
 
         /// <summary>
