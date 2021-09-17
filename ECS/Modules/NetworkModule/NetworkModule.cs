@@ -207,6 +207,26 @@ namespace ME.ECS.Network {
 
             this.OnDeInitialize();
 
+            this.replayMode = default;
+            this.asyncMode = default;
+
+            this.localOrderIndex = default;
+            this.rpcId = default;
+            this.ping = default;
+
+            this.pingTime = default;
+            this.syncTime = default;
+            this.syncedTick = default;
+            this.syncHash = default;
+            this.syncTickSent = default;
+            this.revertingTo = default;
+            this.isReverting = default;
+            
+            this.currentObjectRegistryId = default;
+            
+            this.world.SetNetworkModule(null);
+            this.statesHistoryModule = null;
+
             this.UnRegisterObject(this, -1);
             this.currentObjectRegistryId = 1000;
 

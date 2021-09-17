@@ -266,32 +266,26 @@ namespace ME.ECS.StatesHistory {
         private const int OLDEST_TICK_THRESHOLD = 1;
         
         private const int POOL_EVENTS_CAPACITY = 1000;
-        private const int POOL_HISTORY_SIZE = 100;
         private const int POOL_HISTORY_CAPACITY = 2;
         private const int POOL_SYNCHASH_CAPACITY = 10;
 
         private const uint DEFAULT_QUEUE_CAPACITY = 10u;
         private const uint DEFAULT_TICKS_PER_STATE = 100u;
         
-        //private StatesCircularQueue<TState> states;
         private ME.ECS.Network.StatesHistory<TState> statesHistory;
         private Dictionary<Tick, ME.ECS.Collections.SortedList<long, HistoryEvent>> events;
         private Dictionary<Tick, Dictionary<int, int>> syncHashTable;
-        //private Tick maxTick;
+        
         private bool prewarmed;
-        //private Tick beginAddEventsTick;
         private int beginAddEventsCount;
         private bool beginAddEvents;
-        private IEventRunner eventRunner;
-
         private int statEventsAdded;
         private int statPlayedEvents;
-
         private Tick oldestTick;
         private Tick lastSavedStateTick;
-        
         private Tick pauseStoreStateSinceTick;
         
+        private IEventRunner eventRunner;
         public World world { get; set; }
         
         public virtual void OnConstruct() {
@@ -300,11 +294,15 @@ namespace ME.ECS.StatesHistory {
             this.lastSavedStateTick = Tick.Invalid;
             this.pauseStoreStateSinceTick = Tick.Invalid;
             
+            this.prewarmed = false;
+            this.beginAddEventsCount = 0;
+            this.beginAddEvents = false;
+            this.statEventsAdded = 0;
+            this.statPlayedEvents = 0;
+            
             this.statesHistory = new ME.ECS.Network.StatesHistory<TState>(this.world, this.GetQueueCapacity());
-            //this.states = new StatesCircularQueue<TState>(this.GetTicksPerState(), this.GetQueueCapacity());
             this.events = PoolDictionary<Tick, ME.ECS.Collections.SortedList<long, HistoryEvent>>.Spawn(StatesHistoryModule<TState>.POOL_EVENTS_CAPACITY);
             this.syncHashTable = PoolDictionary<Tick, Dictionary<int, int>>.Spawn(StatesHistoryModule<TState>.POOL_SYNCHASH_CAPACITY);
-            //PoolSortedList<long, HistoryEvent>.Prewarm(StatesHistoryModule<TState>.POOL_HISTORY_SIZE, StatesHistoryModule<TState>.POOL_HISTORY_CAPACITY);
             
             this.world.SetStatesHistoryModule(this);
 
@@ -312,9 +310,9 @@ namespace ME.ECS.StatesHistory {
 
         public virtual void OnDeconstruct() {
 
-            //this.maxTick = Tick.Zero;
+            this.eventRunner = default;
+
             this.prewarmed = false;
-            //this.beginAddEventsTick = Tick.Zero;
             this.beginAddEventsCount = 0;
             this.beginAddEvents = false;
             this.statEventsAdded = 0;
@@ -324,6 +322,7 @@ namespace ME.ECS.StatesHistory {
             this.pauseStoreStateSinceTick = Tick.Invalid;
             
             this.statesHistory.DiscardAll();
+            this.statesHistory = null;
             
             this.world.SetStatesHistoryModule(null);
             
@@ -348,9 +347,6 @@ namespace ME.ECS.StatesHistory {
                 
             }
             PoolDictionary<Tick, Dictionary<int, int>>.Recycle(ref this.syncHashTable);
-
-            //this.states.Recycle();
-            //this.states = null;
 
         }
 

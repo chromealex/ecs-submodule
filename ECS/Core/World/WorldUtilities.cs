@@ -11,12 +11,6 @@ namespace ME.ECS {
     #endif
     public static class WorldUtilities {
 
-        private static class TypesCache<T> {
-
-            internal static int typeId = 0;
-
-        }
-
         public static void SetWorld(World world) {
 
             Worlds.currentWorld = world;
@@ -30,6 +24,7 @@ namespace ME.ECS {
         public static TState CreateState<TState>() where TState : State, new() {
 
             var state = PoolStates<TState>.Spawn();
+            ME.WeakRef.Reg(state);
             state.tick = default;
             state.randomState = default;
             return state;
@@ -120,34 +115,16 @@ namespace ME.ECS {
 
             Worlds.DeInitializeBegin();
             var w = world;
+            var id = w.id;
             w.isActive = false;
             Worlds.currentWorld = w;
             Worlds.current = w;
             world.RecycleResetState<TState>();
             world.RecycleStates<TState>();
             PoolClass<World>.Recycle(ref w);
-            Worlds.UnRegister(world);
+            Worlds.UnRegister(world, id);
             Worlds.DeInitializeEnd();
             world = null;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static int GetKey<T>() {
-
-            if (TypesCache<T>.typeId == 0) TypesCache<T>.typeId = typeof(T).GetHashCode();
-            return TypesCache<T>.typeId;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static int GetKey(in System.Type type) {
-
-            return type.GetHashCode();
 
         }
 

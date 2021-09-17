@@ -687,6 +687,7 @@ namespace ME.ECS.Views {
             if (this.registryPrefabToProvider.TryGetValue(viewInfo.prefabSourceId, out provider) == true) {
 
                 var instance = provider.Spawn(this.GetViewSource(viewInfo.prefabSourceId), viewInfo.prefabSourceId, in viewInfo.entity);
+                ME.WeakRef.Reg(instance);
                 var instanceInternal = (IViewBaseInternal)instance;
                 instanceInternal.Setup(this.world, viewInfo);
                 this.Register(instance);

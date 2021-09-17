@@ -59,6 +59,8 @@ namespace ME.ECS {
 
         public bool Recycle<T>(ref T obj) where T : class {
             
+            if (obj == null) return false;
+            
             if (Pools.isActive == false) {
                 PoolInternalBase.CallOnDespawn(obj, null);
                 obj = default;
@@ -375,7 +377,6 @@ namespace ME.ECS {
 
         protected Stack<object> cache = new Stack<object>();
         private HashSet<object> contains = new HashSet<object>();
-        protected System.Action<object> destructor;
         protected System.Type poolType;
         private int poolBytesSize;
         protected int poolAllocated;
@@ -424,7 +425,7 @@ namespace ME.ECS {
                 PoolInternalBase.list.Remove(this);
             }
             this.cache.Clear();
-            this.destructor = null;
+            this.contains.Clear();
             
         }
 

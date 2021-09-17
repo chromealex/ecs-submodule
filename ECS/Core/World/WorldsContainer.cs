@@ -48,10 +48,10 @@ namespace ME.ECS {
             
         }
         
-        public static void UnRegister(World world) {
+        public static void UnRegister(World world, int id) {
             
             if (Worlds.registeredWorlds != null) Worlds.registeredWorlds.Remove(world);
-            if (Worlds.cache != null) Worlds.cache.Remove(world.id);
+            if (Worlds.cache != null) Worlds.cache.Remove(id);
 
             if (world == Worlds.currentWorld) {
 

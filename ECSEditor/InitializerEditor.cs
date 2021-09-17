@@ -174,6 +174,13 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("ME_ECS_COLLECT_WEAK_REFERENCES", "Collect weak references for ecs modules and provide public api (weak/unweak).", () => {
+                #if ME_ECS_COLLECT_WEAK_REFERENCES
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugOnly),
         };
         
         private bool settingsFoldOut {

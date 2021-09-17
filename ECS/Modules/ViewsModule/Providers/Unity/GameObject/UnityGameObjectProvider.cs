@@ -308,6 +308,7 @@ namespace ME.ECS.Views.Providers {
         public override void OnConstruct() {
 
             this.pool = new PoolGameObject<MonoBehaviourView>();
+            ME.WeakRef.Reg(this.pool);
 
         }
 

@@ -186,6 +186,7 @@ namespace ME.ECS {
         void IPoolableSpawn.OnSpawn() {
 
             this.InitializePools();
+            ME.WeakRef.Reg(this);
             
             this.isPaused = false;
 
@@ -234,7 +235,6 @@ namespace ME.ECS {
 
         void IPoolableRecycle.OnRecycle() {
 
-            this.id = default;
             this.worldThread = null;
             this.isActive = false;
 
@@ -298,7 +298,8 @@ namespace ME.ECS {
             this.timeSinceStart = default;
             this.entitiesCapacity = default;
             this.isPaused = false;
-            
+            this.id = default;
+
             //PoolInternalBaseNoStackPool.Clear();
             //PoolInternalBase.Clear();
 
@@ -1780,6 +1781,7 @@ namespace ME.ECS {
             WorldUtilities.SetWorld(this);
 
             var instance = PoolModules.Spawn<TModule>();
+            ME.WeakRef.Reg(instance);
             instance.world = this;
             if (instance is IModuleValidation instanceValidate) {
 
@@ -1879,7 +1881,8 @@ namespace ME.ECS {
                 }
 
             }
-
+            
+            ME.WeakRef.Reg(instance);
             this.features.Add(instance.GetType(), instance);
             if (doConstruct == true) ((FeatureBase)instance).DoConstruct();
 
