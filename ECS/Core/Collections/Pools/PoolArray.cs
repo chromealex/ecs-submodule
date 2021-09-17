@@ -86,7 +86,7 @@ namespace ME.ECS {
             }
 
             if (arr == null) return;
-            ME.ECS.Buffers.ArrayPool<T>.Shared.Return(arr);
+            ME.ECS.Buffers.ArrayPool<T>.Shared.Return(arr, true);
             arr = null;
             
         }
