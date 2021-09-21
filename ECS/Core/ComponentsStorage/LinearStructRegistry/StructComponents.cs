@@ -7,10 +7,12 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public class StructComponents<TComponent> : StructComponentsBase<TComponent> where TComponent : struct, IStructComponentBase {
+    public partial class StructComponents<TComponent> : StructComponentsBase<TComponent> where TComponent : struct, IStructComponentBase {
 
         [ME.ECS.Serializer.SerializeField]
         internal BufferArraySliced<Component<TComponent>> components;
+        [ME.ECS.Serializer.SerializeField]
+        private long maxVersion;
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -46,7 +48,11 @@ namespace ME.ECS {
         #endif
         public override void UpdateVersion(in Entity entity) {
 
-            if (AllComponentTypes<TComponent>.isVersioned == true) this.components[entity.id].version = this.world.GetCurrentTick();
+            if (AllComponentTypes<TComponent>.isVersioned == true) {
+                var v = (long)this.world.GetCurrentTick();
+                this.components[entity.id].version = v;
+                this.maxVersion = (v > this.maxVersion ? v : this.maxVersion);
+            }
 
         }
 
@@ -55,7 +61,10 @@ namespace ME.ECS {
         #endif
         public override void UpdateVersion(ref Component<TComponent> bucket) {
 
-            if (AllComponentTypes<TComponent>.isVersioned == true) bucket.version = this.world.GetCurrentTick();
+            if (AllComponentTypes<TComponent>.isVersioned == true) {
+                bucket.version = this.world.GetCurrentTick();
+                this.maxVersion = (bucket.version > this.maxVersion ? bucket.version : this.maxVersion);
+            }
 
         }
 
@@ -71,6 +80,7 @@ namespace ME.ECS {
         public override void OnRecycle() {
 
             this.components = this.components.Dispose();
+            this.maxVersion = default;
             base.OnRecycle();
             
         }
@@ -152,7 +162,7 @@ namespace ME.ECS {
 
         }
 
-        public override bool SetObject(Entity entity, IStructComponentBase data) {
+        public override bool SetObject(in Entity entity, IStructComponentBase data) {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -190,7 +200,7 @@ namespace ME.ECS {
             
         }
 
-        public override bool RemoveObject(Entity entity) {
+        public override bool RemoveObject(in Entity entity) {
 
             var index = entity.id;
             ref var bucket = ref this.components[index];
@@ -275,6 +285,7 @@ namespace ME.ECS {
             base.CopyFrom(other);
             var _other = (StructComponents<TComponent>)other;
             ArrayUtils.Copy(in _other.components, ref this.components);
+            this.maxVersion = _other.maxVersion;
 
         }
         

@@ -107,6 +107,30 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public void Set(in EntitiesGroup group, int index) {
+
+            NativeArrayUtils.Copy(this.types, group.fromId, ref this.prevTypes, group.fromId, group.Length);
+            for (int i = group.fromId; i <= group.toId; ++i) {
+                this.types[i].AddBit(index);
+            }
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Remove(in EntitiesGroup group, int index) {
+
+            NativeArrayUtils.Copy(this.types, group.fromId, ref this.prevTypes, group.fromId, group.Length);
+            for (int i = group.fromId; i <= group.toId; ++i) {
+                this.types[i].SubtractBit(index);
+            }
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Set(in Entity entity, int index) {
 
             var id = entity.id;
@@ -127,7 +151,43 @@ namespace ME.ECS {
             this.types[id].Add<T>();
             
         }
-        
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Set<T>(int entityId) {
+
+            var id = entityId;
+            var val = this.Get(id);
+            this.prevTypes[id] = val;
+            this.types[id].Add<T>();
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Set(int entityId, int index) {
+
+            var id = entityId;
+            var val = this.Get(id);
+            this.prevTypes[id] = val;
+            this.types[id].AddBit(index);
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Remove(int entityId, int index) {
+
+            var id = entityId;
+            var val = this.Get(id);
+            this.prevTypes[id] = val;
+            this.types[id].SubtractBit(index);
+            
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif

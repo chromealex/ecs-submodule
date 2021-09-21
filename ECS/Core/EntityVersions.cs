@@ -130,6 +130,15 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Reset(int fromId, int toId) {
+
+            System.Array.Clear(this.values.arr, fromId, toId - fromId);
+
+        }
+
     }
 
 }

@@ -35,7 +35,7 @@ namespace ME.ECS {
 namespace ME.ECS.DataConfigs {
 
     [CreateAssetMenu(menuName = "ME.ECS/Data Config")]
-    public class DataConfig : ScriptableObject {
+    public partial class DataConfig : ScriptableObject {
 
         public struct SharedData : IStructCopyable<SharedData> {
 

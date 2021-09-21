@@ -142,17 +142,21 @@
         public void AddRange(BufferArray<T> items) {
             var arrayLength = items.Count;
             this.EnsureCapacity(this.Count + arrayLength + 1);
-            for (var i = 0; i < arrayLength; i++) {
+            System.Array.Copy(items.arr, 0, this.innerArray.arr, this.Count, arrayLength);
+            this.Count += arrayLength;
+            /*for (var i = 0; i < arrayLength; i++) {
                 this.innerArray.arr[this.Count++] = items.arr[i];
-            }
+            }*/
         }
 
         public void AddRange(ListCopyable<T> items) {
             var arrayLength = items.Count;
             this.EnsureCapacity(this.Count + arrayLength + 1);
-            for (var i = 0; i < arrayLength; i++) {
+            System.Array.Copy(items.innerArray.arr, 0, this.innerArray.arr, this.Count, arrayLength);
+            this.Count += arrayLength;
+            /*for (var i = 0; i < arrayLength; i++) {
                 this.innerArray.arr[this.Count++] = items[i];
-            }
+            }*/
         }
 
         public void AddRange(System.Collections.Generic.IList<T> items) {

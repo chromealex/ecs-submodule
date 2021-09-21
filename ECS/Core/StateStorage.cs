@@ -168,6 +168,33 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public void Alloc(int count, ref EntitiesGroup group, bool copyMode) {
+
+            var lastId = ++this.entityId + count;
+            NativeArrayUtils.Resize(lastId, ref this.cache);
+
+            this.aliveCount += count;
+
+            var from = this.entityId;
+            var id = this.entityId;
+            var list = PoolArray<int>.Spawn(count);
+            for (int i = 0; i < list.Length; ++i) {
+                this.cache.arr[id] = new Entity(id, 1);
+                list.arr[i] = id++;
+            }
+            this.alive.AddRange(list);
+            PoolArray<int>.Recycle(ref list);
+            this.versions.Reset(this.entityId);
+
+            this.entityId += count;
+
+            group = new EntitiesGroup(from, from + count - 1, new Unity.Collections.NativeSlice<Entity>(this.cache.arr, from, count), copyMode);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ref Entity Alloc() {
 
             int id = -1;

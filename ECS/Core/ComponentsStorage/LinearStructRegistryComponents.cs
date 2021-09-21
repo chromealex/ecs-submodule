@@ -9,10 +9,10 @@ namespace ME.ECS {
     public interface IStructRegistryBase {
 
         IStructComponentBase GetObject(Entity entity);
-        bool SetObject(Entity entity, IStructComponentBase data);
+        bool SetObject(in Entity entity, IStructComponentBase data);
         IStructComponentBase GetSharedObject(Entity entity, uint groupId);
-        bool SetSharedObject(Entity entity, IStructComponentBase data, uint groupId);
-        bool RemoveObject(Entity entity);
+        bool SetSharedObject(in Entity entity, IStructComponentBase data, uint groupId);
+        bool RemoveObject(in Entity entity);
         bool HasType(System.Type type);
 
     }
@@ -37,7 +37,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public abstract class StructRegistryBase : IStructRegistryBase, IPoolableRecycle {
+    public abstract partial class StructRegistryBase : IStructRegistryBase, IPoolableRecycle {
 
         public World world {
             get {
@@ -54,11 +54,11 @@ namespace ME.ECS {
         
         public abstract bool HasType(System.Type type);
         public abstract IStructComponentBase GetObject(Entity entity);
-        public abstract bool SetObject(Entity entity, IStructComponentBase data);
+        public abstract bool SetObject(in Entity entity, IStructComponentBase data);
         public abstract System.Collections.Generic.ICollection<uint> GetSharedGroups(Entity entity);
         public abstract IStructComponentBase GetSharedObject(Entity entity, uint groupId);
-        public abstract bool SetSharedObject(Entity entity, IStructComponentBase data, uint groupId);
-        public abstract bool RemoveObject(Entity entity);
+        public abstract bool SetSharedObject(in Entity entity, IStructComponentBase data, uint groupId);
+        public abstract bool RemoveObject(in Entity entity);
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -123,7 +123,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public abstract class StructComponentsBase<TComponent> : StructRegistryBase where TComponent : struct, IStructComponentBase {
+    public abstract partial class StructComponentsBase<TComponent> : StructRegistryBase where TComponent : struct, IStructComponentBase {
 
         public struct SharedGroupData {
 
@@ -465,7 +465,7 @@ namespace ME.ECS {
 
         }
 
-        public override bool SetSharedObject(Entity entity, IStructComponentBase data, uint groupId) {
+        public override bool SetSharedObject(in Entity entity, IStructComponentBase data, uint groupId) {
             
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {

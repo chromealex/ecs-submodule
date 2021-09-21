@@ -36,6 +36,21 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static ref T GetRefRead<T>(this Unity.Collections.NativeSlice<T> array, int index) where T : struct {
+            CheckArray(index, array.Length);
+            unsafe {
+                var ptr = array.GetUnsafeReadOnlyPtr();
+                #if UNITY_2020_1_OR_NEWER
+                return ref UnsafeUtility.ArrayElementAsRef<T>(ptr, index);
+                #else
+                throw new Exception("UnsafeUtility.ArrayElementAsRef");
+                #endif
+            }
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static ref T GetRef<T>(this Unity.Collections.NativeArray<T> array, int index) where T : struct {
             CheckArray(index, array.Length);
             unsafe {
