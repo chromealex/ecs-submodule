@@ -201,11 +201,11 @@ namespace ME.ECS.DataConfigs {
         public void Prewarm() {
 
 	        if (this.isPrewarmed == true) return;
-            #if UNITY_EDITOR
+            /*#if UNITY_EDITOR
             try {
                 if (Application.isPlaying == false) return;
             } catch (System.Exception) { }
-            #endif
+            #endif*/
 	        
 	        System.Array.Resize(ref this.removeStructComponentsDataTypeIds, this.removeStructComponents.Length);
 	        for (int i = 0; i < this.removeStructComponents.Length; ++i) {
@@ -214,6 +214,7 @@ namespace ME.ECS.DataConfigs {
 
 	        }
 
+            this.typeIndexToArrayIndex.Clear();
 	        System.Array.Resize(ref this.structComponentsDataTypeIds, this.structComponents.Length);
 	        for (int i = 0; i < this.structComponents.Length; ++i) {
 

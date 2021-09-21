@@ -1,4 +1,5 @@
 using ME.ECS.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace ME.ECS {
 
@@ -7,21 +8,27 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public readonly struct EntitiesGroup {
+    public readonly struct EntitiesGroup : System.IDisposable {
 
         public readonly bool copyMode;
         public readonly int Length;
         public readonly int fromId;
         public readonly int toId;
-        public readonly Unity.Collections.NativeSlice<Entity> slice;
+        public readonly Unity.Collections.NativeArray<Entity> slice;
 
-        public EntitiesGroup(int fromId, int toId, Unity.Collections.NativeSlice<Entity> slice, bool copyMode) {
+        public EntitiesGroup(int fromId, int toId, Unity.Collections.NativeArray<Entity> slice, bool copyMode) {
 
             this.fromId = fromId;
             this.toId = toId;
             this.Length = this.toId - this.fromId + 1;
             this.slice = slice;
             this.copyMode = copyMode;
+
+        }
+
+        public void Dispose() {
+
+            this.slice.Dispose();
 
         }
 
@@ -46,6 +53,7 @@ namespace ME.ECS {
             var world = Worlds.current;
             ref var container = ref world.GetStructComponents();
             var reg = container.list[typeId];
+            reg.Merge();
             reg.SetObject(in this, component);
 
         }
@@ -124,7 +132,6 @@ namespace ME.ECS {
 
             /// <summary>
             /// Apply config onto the group.
-            /// IComponentInitializable/IComponentDeinitializable will not be called.
             /// </summary>
             /// <param name="group"></param>
             public virtual void Apply(in EntitiesGroup group) {
@@ -135,6 +142,44 @@ namespace ME.ECS {
                 for (int i = 0; i < this.removeStructComponents.Length; ++i) {
 
                     var dataIndex = this.GetComponentDataIndexByTypeRemoveWithCache(this.removeStructComponents[i], i);
+                    if (group.copyMode == true) {
+                    
+                        var maxEntity = group.slice[group.slice.Length - 1];
+                        if (world.HasDataBit(in maxEntity, dataIndex) == true) {
+                            for (int e = 0; e < group.Length; ++e) {
+
+                                ref readonly var entity = ref group.slice.GetRefRead(e);
+                                var data = world.ReadData(in entity, dataIndex);
+                                if (data is IComponentDeinitializable deinitializable) {
+
+                                    deinitializable.Deinitialize(in entity);
+
+                                }
+
+                            }
+
+                        }
+                        
+                    } else {
+                        
+                        for (int e = 0; e < group.Length; ++e) {
+
+                            ref readonly var entity = ref group.slice.GetRefRead(e);
+                            if (world.HasDataBit(in entity, dataIndex) == true) {
+
+                                var data = world.ReadData(in entity, dataIndex);
+                                if (data is IComponentDeinitializable deinitializable) {
+
+                                    deinitializable.Deinitialize(in entity);
+
+                                }
+
+                            }
+
+                        }
+                        
+                    }
+
                     group.Remove(dataIndex);
 
                 }
@@ -142,6 +187,13 @@ namespace ME.ECS {
                 for (int i = 0; i < this.structComponents.Length; ++i) {
 
                     var dataIndex = this.GetComponentDataIndexByTypeWithCache(this.structComponents[i], i);
+                    if (this.structComponents[i] is IComponentInitializable initializable) {
+
+                        for (int e = 0; e < group.Length; ++e) {
+                            initializable.Initialize(in group.slice.GetRefRead(e));
+                        }
+
+                    }
                     if (this.structComponents[i] is IComponentStatic) continue;
 
                     var isShared = (this.structComponents[i] is IComponentShared);
@@ -306,7 +358,7 @@ namespace ME.ECS {
         /// if false some optimizations will be skipped.
         /// </param>
         /// <returns></returns>
-        public EntitiesGroup AddEntities(int count, bool copyMode) {
+        public EntitiesGroup AddEntities(int count, Unity.Collections.Allocator allocator, bool copyMode) {
             
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -319,7 +371,7 @@ namespace ME.ECS {
             var group = new EntitiesGroup();
             if (count <= 0) return group;
             
-            this.currentState.storage.Alloc(count, ref group, copyMode);
+            this.currentState.storage.Alloc(count, ref group, allocator, copyMode);
             this.UpdateEntityOnCreate(in group);
 
             return group;

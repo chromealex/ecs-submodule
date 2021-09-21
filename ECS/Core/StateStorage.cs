@@ -168,7 +168,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Alloc(int count, ref EntitiesGroup group, bool copyMode) {
+        public void Alloc(int count, ref EntitiesGroup group, Unity.Collections.Allocator allocator, bool copyMode) {
 
             var lastId = ++this.entityId + count;
             NativeArrayUtils.Resize(lastId, ref this.cache);
@@ -188,7 +188,10 @@ namespace ME.ECS {
 
             this.entityId += count;
 
-            group = new EntitiesGroup(from, from + count - 1, new Unity.Collections.NativeSlice<Entity>(this.cache.arr, from, count), copyMode);
+            var slice = new Unity.Collections.NativeSlice<Entity>(this.cache.arr, from, count);
+            var array = new Unity.Collections.NativeArray<Entity>(count, allocator, Unity.Collections.NativeArrayOptions.UninitializedMemory);
+            slice.CopyTo(array);
+            group = new EntitiesGroup(from, from + count - 1, array, copyMode);
 
         }
 
