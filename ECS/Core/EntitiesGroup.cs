@@ -61,6 +61,20 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public BufferArray<Component<T>> Get<T>() where T : struct, IStructComponentBase {
+            
+            var typeId = WorldUtilities.GetAllComponentTypeId<T>();
+            var world = Worlds.current;
+            ref var container = ref world.GetStructComponents();
+            var reg = (StructComponents<T>)container.list[typeId];
+            reg.Merge();
+            return reg.components.data;
+
+        }
+
         /// <summary>
         /// Write component data to the storage.
         /// Using foreach to set up.
