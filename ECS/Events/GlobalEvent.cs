@@ -5,27 +5,71 @@ namespace ME.ECS {
     [CreateAssetMenu(menuName = "ME.ECS/Global Event")]
     public class GlobalEvent : ScriptableObject {
 
+        private static System.Collections.Generic.Dictionary<uint, GlobalEvent> staticEvents = new System.Collections.Generic.Dictionary<uint, GlobalEvent>();
+
+        public uint id;
         public bool debugMode;
         public GlobalEvent[] callOthers = new GlobalEvent[0];
         
         public delegate void GlobalEventDelegate(in Entity entity);
         public event GlobalEventDelegate events;
-        
+
+        #if UNITY_EDITOR
+        public void OnValidate() {
+
+            if (this.id == 0u) {
+
+                var path = UnityEditor.AssetDatabase.GetAssetPath(this);
+                this.id = MathUtils.GetHash(path);
+
+            }
+            
+        }
+        #endif
+
+        public static void ResetCache() {
+
+            GlobalEvent.staticEvents.Clear();
+
+        }
+
+        private static GlobalEvent GetInstance(GlobalEvent globalEvent) {
+
+            if (globalEvent.id > 0u) {
+
+                if (GlobalEvent.staticEvents.TryGetValue(globalEvent.id, out var evt) == true && evt != null) {
+                    
+                    return evt;
+                    
+                }
+
+                GlobalEvent.staticEvents.Remove(globalEvent.id);
+                GlobalEvent.staticEvents.Add(globalEvent.id, globalEvent);
+                
+            }
+
+            return globalEvent;
+
+        }
+
         public virtual void Subscribe(GlobalEventDelegate callback) {
 
-            this.events += callback;
+            var evt = GlobalEvent.GetInstance(this);
+            evt.events += callback;
 
         }
         
         public virtual void Unsubscribe(GlobalEventDelegate callback) {
-            
-            this.events -= callback;
+
+            var evt = GlobalEvent.GetInstance(this);
+            evt.events -= callback;
             
         }
 
         public virtual void Run(in Entity entity) {
             
-            if (this.events != null) this.events.Invoke(entity);
+            var evt = GlobalEvent.GetInstance(this);
+            if (evt.events != null) evt.events.Invoke(entity);
             
         }
 
@@ -43,9 +87,11 @@ namespace ME.ECS {
 
         public virtual bool Cancel(in Entity entity, World.GlobalEventType globalEventType) {
             
-            for (int i = 0; i < this.callOthers.Length; ++i) this.callOthers[i].Cancel(in entity, globalEventType);
+            var evt = GlobalEvent.GetInstance(this);
+            
+            for (int i = 0; i < evt.callOthers.Length; ++i) evt.callOthers[i].Cancel(in entity, globalEventType);
 
-            return Worlds.currentWorld.CancelGlobalEvent(this, in entity, globalEventType);
+            return Worlds.currentWorld.CancelGlobalEvent(evt, in entity, globalEventType);
             
         }
 
@@ -63,6 +109,8 @@ namespace ME.ECS {
 
         public virtual void Execute(in Entity entity, World.GlobalEventType globalEventType) {
             
+            var evt = GlobalEvent.GetInstance(this);
+
             // If we are reverting - skip visual events
             if (globalEventType == World.GlobalEventType.Visual) {
 
@@ -78,15 +126,15 @@ namespace ME.ECS {
 
             }
 
-            if (this.debugMode == true) {
+            if (evt.debugMode == true) {
                 
-                UnityEngine.Debug.Log($"[GlobalEvent] Execute called on {this.name} with entity {entity}");
+                UnityEngine.Debug.Log($"[GlobalEvent] Execute called on {evt.name} with entity {entity}");
                 
             }
             
-            for (int i = 0; i < this.callOthers.Length; ++i) this.callOthers[i].Execute(in entity, globalEventType);
+            for (int i = 0; i < evt.callOthers.Length; ++i) evt.callOthers[i].Execute(in entity, globalEventType);
 
-            Worlds.currentWorld.RegisterGlobalEvent(this, in entity, globalEventType);
+            Worlds.currentWorld.RegisterGlobalEvent(evt, in entity, globalEventType);
             
         }
 

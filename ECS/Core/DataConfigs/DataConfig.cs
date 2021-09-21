@@ -69,9 +69,9 @@ namespace ME.ECS.DataConfigs {
 
         }
 
+        public uint sharedGroupId;
         [SerializeReference]
         public IStructComponentBase[] structComponents = new IStructComponentBase[0];
-        public uint sharedGroupId;
         [SerializeReference]
         public IStructComponentBase[] removeStructComponents = new IStructComponentBase[0];
 

@@ -1044,6 +1044,8 @@ namespace ME.ECS {
         }
 
         internal void DisposeGlobalEvents() {
+
+            GlobalEvent.ResetCache();
             
             PoolList<GlobalEventFrameItem>.Recycle(ref this.globalEventFrameItems);
             PoolHashSet<long>.Recycle(ref this.globalEventFrameEvents);
