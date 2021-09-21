@@ -198,16 +198,20 @@ namespace ME.ECS.DataConfigs {
 	        
         }
         
-        public void Prewarm() {
+        public void Prewarm(bool forced = false) {
 
-	        if (this.isPrewarmed == true) return;
-            /*#if UNITY_EDITOR
-            try {
-                if (Application.isPlaying == false) return;
-            } catch (System.Exception) { }
-            #endif*/
-	        
-	        System.Array.Resize(ref this.removeStructComponentsDataTypeIds, this.removeStructComponents.Length);
+            if (forced == false) {
+
+                if (this.isPrewarmed == true) return;
+                #if UNITY_EDITOR
+                try {
+                    if (Application.isPlaying == false) return;
+                } catch (System.Exception) { }
+                #endif
+
+            }
+
+            System.Array.Resize(ref this.removeStructComponentsDataTypeIds, this.removeStructComponents.Length);
 	        for (int i = 0; i < this.removeStructComponents.Length; ++i) {
 
 		        this.removeStructComponentsDataTypeIds[i] = this.GetComponentDataIndexByType(this.removeStructComponents[i]);

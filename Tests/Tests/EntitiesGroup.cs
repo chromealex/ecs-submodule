@@ -159,6 +159,8 @@ namespace ME.ECS.Tests {
                     group.AddSystem(new TestSystem() {
                         testValueCount = count,
                     });
+                    
+                    config.Prewarm(true);
 
                     var entitiesGroup = world.AddEntities(count, Unity.Collections.Allocator.Temp, copyMode: true);
                     config.Apply(entitiesGroup);
