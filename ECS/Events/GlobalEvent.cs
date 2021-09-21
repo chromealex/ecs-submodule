@@ -21,6 +21,7 @@ namespace ME.ECS {
 
                 var path = UnityEditor.AssetDatabase.GetAssetPath(this);
                 this.id = MathUtils.GetHash(path);
+                UnityEditor.EditorUtility.SetDirty(this);
 
             }
             
