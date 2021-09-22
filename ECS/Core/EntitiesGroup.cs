@@ -26,10 +26,24 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Dispose() {
 
             this.slice.Dispose();
 
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void InstantiateView(ViewId viewId) {
+            
+            var world = Worlds.current;
+            var viewsModule = world.GetModule<ME.ECS.Views.ViewsModule>();
+            viewsModule.InstantiateView(viewId, in this);
+            
         }
 
         #if INLINE_METHODS
@@ -121,6 +135,59 @@ namespace ME.ECS {
             reg.Merge();
             reg.Remove(in this);
             this.UpdateFilters();
+
+        }
+
+    }
+
+    namespace Views {
+
+        public partial class ViewsModule {
+
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            public void InstantiateView(ViewId sourceId, in EntitiesGroup group) {
+
+                if (this.world.settings.turnOffViews == true) return;
+
+                // Called by tick system
+                if (this.world.HasStep(WorldStep.LogicTick) == false && this.world.HasResetState() == true) {
+
+                    throw new OutOfStateException();
+
+                }
+
+                if (this.registryIdToPrefab.ContainsKey(sourceId) == false) {
+
+                    throw new ViewRegistryNotFoundException(sourceId);
+
+                }
+
+                var components = group.Get<ViewComponent>();
+                for (int i = group.fromId, k = 0; i <= group.toId; ++i, ++k) {
+                    
+                    var entity = group.slice[k];
+                    var viewInfo = new ViewInfo(entity, sourceId, this.world.GetStateTick());
+                    var view = new ViewComponent() {
+                        viewInfo = viewInfo,
+                        seed = (uint)this.world.GetSeedValue(),
+                    };
+                    ref var comp = ref components.arr[k];
+                    comp.state = 1;
+                    comp.data = view;
+                    
+                    if (this.world.HasResetState() == false) {
+
+                        this.CreateVisualInstance(in view.seed, in view.viewInfo);
+
+                    }
+
+                }
+                
+                this.isRequestsDirty = true;
+
+            }
 
         }
 
