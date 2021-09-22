@@ -202,6 +202,24 @@ namespace ME.ECS {
             /// </summary>
             /// <param name="group"></param>
             public virtual void Apply(in EntitiesGroup group) {
+                
+                if (this.GetType() == typeof(DataConfig)) {
+                    
+                    this.ApplyImpl(in group);
+                    
+                } else {
+                    
+                    for (int e = 0; e < group.slice.Length; ++e) {
+                        
+                        this.Apply(group.slice[e]);
+                        
+                    }
+                    
+                }
+                
+            }
+            
+            protected void ApplyImpl(in EntitiesGroup group) {
 
                 this.Prewarm();
 
