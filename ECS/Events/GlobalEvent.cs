@@ -111,7 +111,7 @@ namespace ME.ECS {
         public virtual void Execute(in Entity entity, World.GlobalEventType globalEventType) {
             
             var evt = GlobalEvent.GetInstance(this);
-
+            
             // If we are reverting - skip visual events
             if (globalEventType == World.GlobalEventType.Visual) {
 
@@ -129,7 +129,7 @@ namespace ME.ECS {
 
             if (evt.debugMode == true) {
                 
-                UnityEngine.Debug.Log($"[GlobalEvent] Execute called on {evt.name} with entity {entity}");
+                UnityEngine.Debug.Log($"[GlobalEvent] Execute called on {evt.name} (#{evt.id}) with entity {entity}");
                 
             }
             
