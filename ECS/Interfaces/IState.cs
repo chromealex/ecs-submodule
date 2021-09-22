@@ -19,6 +19,8 @@ namespace ME.ECS {
         internal StructComponentsContainer structComponents;
         [ME.ECS.Serializer.SerializeField]
         internal Storage storage;
+        [ME.ECS.Serializer.SerializeField]
+        internal GlobalEventStorage globalEvents;
         
         /// <summary>
         /// Return most unique hash
@@ -35,6 +37,7 @@ namespace ME.ECS {
             world.Register(ref this.filters, freeze, restore);
             world.Register(ref this.structComponents, freeze, restore);
             world.Register(ref this.storage, freeze, restore);
+            this.globalEvents.Initialize();
 
         }
 
@@ -46,6 +49,7 @@ namespace ME.ECS {
             this.filters.CopyFrom(other.filters);
             this.structComponents.CopyFrom(other.structComponents);
             this.storage.CopyFrom(other.storage);
+            this.globalEvents.CopyFrom(in other.globalEvents);
 
         }
 
@@ -54,6 +58,8 @@ namespace ME.ECS {
             this.tick = default;
             this.randomState = default;
             
+            this.globalEvents.DeInitialize();
+            this.globalEvents = default;
             WorldUtilities.Release(ref this.filters);
             WorldUtilities.Release(ref this.structComponents);
             WorldUtilities.Release(ref this.storage);

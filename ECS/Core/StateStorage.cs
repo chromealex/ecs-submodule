@@ -153,7 +153,7 @@ namespace ME.ECS {
             this.entityId = other.entityId;
             this.archetypes.CopyFrom(other.archetypes);
             this.versions.CopyFrom(other.versions);
-
+            
         }
 
         #if INLINE_METHODS

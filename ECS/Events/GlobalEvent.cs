@@ -14,6 +14,24 @@ namespace ME.ECS {
         public delegate void GlobalEventDelegate(in Entity entity);
         public event GlobalEventDelegate events;
 
+        public static GlobalEvent GetEventById(uint id) {
+
+            if (GlobalEvent.staticEvents.TryGetValue(id, out var value) == true) {
+
+                return value;
+
+            }
+
+            return null;
+
+        }
+        
+        public override int GetHashCode() {
+            
+            return this.id > 0u ? (int)this.id : base.GetHashCode();
+            
+        }
+
         #if UNITY_EDITOR
         public void OnValidate() {
 
@@ -113,7 +131,7 @@ namespace ME.ECS {
             var evt = GlobalEvent.GetInstance(this);
             
             // If we are reverting - skip visual events
-            if (globalEventType == World.GlobalEventType.Visual) {
+            /*if (globalEventType == World.GlobalEventType.Visual) {
 
                 if (Worlds.currentWorld.HasResetState() == true) {
 
@@ -125,7 +143,7 @@ namespace ME.ECS {
 
                 }
 
-            }
+            }*/
 
             if (evt.debugMode == true) {
                 

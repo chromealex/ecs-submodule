@@ -1030,17 +1030,11 @@ namespace ME.ECS {
         private List<GlobalEventFrameItem> globalEventFrameItems;
         private HashSet<long> globalEventFrameEvents;
 
-        private List<GlobalEventFrameItem> globalEventLogicItems;
-        private HashSet<long> globalEventLogicEvents;
-
         internal void InitializeGlobalEvents() {
             
             this.globalEventFrameItems = PoolList<GlobalEventFrameItem>.Spawn(10);
             this.globalEventFrameEvents = PoolHashSet<long>.Spawn(10);
 
-            this.globalEventLogicItems = PoolList<GlobalEventFrameItem>.Spawn(10);
-            this.globalEventLogicEvents = PoolHashSet<long>.Spawn(10);
-            
         }
 
         internal void DisposeGlobalEvents() {
@@ -1049,9 +1043,6 @@ namespace ME.ECS {
             
             PoolList<GlobalEventFrameItem>.Recycle(ref this.globalEventFrameItems);
             PoolHashSet<long>.Recycle(ref this.globalEventFrameEvents);
-            
-            PoolList<GlobalEventFrameItem>.Recycle(ref this.globalEventLogicItems);
-            PoolHashSet<long>.Recycle(ref this.globalEventLogicEvents);
             
         }
 
@@ -1071,15 +1062,15 @@ namespace ME.ECS {
 
             } else if (globalEventType == GlobalEventType.Logic) {
 
-                for (int i = 0; i < this.globalEventLogicItems.Count; ++i) {
+                for (int i = 0; i < this.currentState.globalEvents.globalEventLogicItems.Count; ++i) {
 
-                    var item = this.globalEventLogicItems[i];
-                    item.globalEvent.Run(in item.data);
+                    var item = this.currentState.globalEvents.globalEventLogicItems[i];
+                    GlobalEvent.GetEventById(item.globalEvent).Run(in item.data);
 
                 }
 
-                this.globalEventLogicItems.Clear();
-                this.globalEventLogicEvents.Clear();
+                this.currentState.globalEvents.globalEventLogicItems.Clear();
+                this.currentState.globalEvents.globalEventLogicEvents.Clear();
 
             }
 
@@ -1109,23 +1100,8 @@ namespace ME.ECS {
 
             } else if (globalEventType == GlobalEventType.Logic) {
 
-                if (this.globalEventLogicEvents.Contains(key) == true) {
-
-                    for (int i = 0; i < this.globalEventLogicItems.Count; ++i) {
-
-                        var item = this.globalEventLogicItems[i];
-                        if (item.globalEvent == globalEvent && item.data == entity) {
-
-                            this.globalEventLogicEvents.Remove(key);
-                            this.globalEventLogicItems.RemoveAt(i);
-                            return true;
-
-                        }
-
-                    }
-
-                }
-
+                this.currentState.globalEvents.Remove(globalEvent, in entity);
+                
             }
 
             return false;
@@ -1149,16 +1125,8 @@ namespace ME.ECS {
 
             } else if (globalEventType == GlobalEventType.Logic) {
 
-                if (this.globalEventLogicEvents.Contains(key) == false) {
-
-                    this.globalEventLogicEvents.Add(key);
-                    this.globalEventLogicItems.Add(new GlobalEventFrameItem() {
-                        globalEvent = globalEvent,
-                        data = entity,
-                    });
-
-                }
-
+                this.currentState.globalEvents.Add(globalEvent, in entity);
+                
             }
 
         }
