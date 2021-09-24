@@ -9,17 +9,21 @@ namespace ME.ECSEditor.Tools {
             var listType = type.GetGenericTypeDefinition().MakeGenericType(genericType);
             var arr = Utils.CreateArray(tester, type);
 
-            var newTypes = new System.Type[ctorValues.Length + 1];
-            newTypes[0] = arr.GetType();
-            for (int i = 0; i < ctorValues.Length; ++i) {
+            var newTypes = (ctorValues == null ? null : new System.Type[ctorValues.Length + 1]);
+            var newValues = (ctorValues == null ? null : new object[ctorValues.Length + 1]);
+            if (ctorValues != null) {
+                
+                newTypes[0] = arr.GetType();
+                for (int i = 0; i < ctorValues.Length; ++i) {
 
-                newTypes[i + 1] = ctorValues[i].GetType();
+                    newTypes[i + 1] = ctorValues[i].GetType();
+
+                }
+                
+                newValues[0] = arr;
+                System.Array.Copy(ctorValues, 0, newValues, 1, ctorValues.Length);
 
             }
-            
-            var newValues = new object[ctorValues.Length + 1];
-            newValues[0] = arr;
-            System.Array.Copy(ctorValues, 0, newValues, 1, ctorValues.Length);
 
             var ctor = listType.GetConstructor(
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public,

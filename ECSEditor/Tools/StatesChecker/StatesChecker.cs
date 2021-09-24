@@ -87,6 +87,12 @@ namespace ME.ECSEditor.Tools {
                     },
                 });
                 collectedComponents.Add(new TestItem() {
+                    type = typeof(ME.ECS.FilterBurstData),
+                    tests = new [] {
+                        new TestInfo(TestMethod.CopyFrom),
+                    },
+                });
+                collectedComponents.Add(new TestItem() {
                     type = typeof(ME.ECS.FiltersStorage),
                     tests = new [] {
                         new TestInfo(TestMethod.CopyFrom),

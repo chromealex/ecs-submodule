@@ -2,6 +2,25 @@ namespace ME.ECSEditor.Tools {
 
     namespace Testers {
 
+        public class StackTraceClass : ITestGenerator {
+
+            public int priority => 100;
+
+            public bool IsValid(System.Type type) {
+
+                return type == typeof(System.Diagnostics.StackTrace);
+
+            }
+
+            public object Fill(ITester tester, object instance, System.Type type) {
+            
+                var item = Utils.CreateInstance(type);
+                return item;
+                
+            }
+            
+        }
+
         public class Struct : ITestGenerator {
 
             public int priority => 100;
@@ -71,12 +90,12 @@ namespace ME.ECSEditor.Tools {
 
         public class EnumerableGeneric : ITestGenerator {
 
-            public int priority => 1;
+            public int priority => 2;
             
             public bool IsValid(System.Type type) {
 
                 return typeof(System.Collections.IEnumerable).IsAssignableFrom(type) == true &&
-                       type.IsGenericType == true;
+                       type.IsGenericType == true && type.IsValueType == false;
 
             }
 
@@ -409,6 +428,7 @@ namespace ME.ECSEditor.Tools {
 
             public bool IsValid(System.Type type) {
 
+                if (type.IsGenericType == true && type.GetGenericTypeDefinition() == typeof(ME.ECS.Collections.NativeBufferArray<>)) return true;
                 return typeof(ME.ECS.Collections.NativeBufferArray<>).IsAssignableFrom(type);
 
             }
@@ -438,7 +458,7 @@ namespace ME.ECSEditor.Tools {
 
             public object Fill(ITester tester, object instance, System.Type type) {
 
-                return Utils.FillGenericType(tester, type, null);
+                return Utils.FillGenericType(tester, type, new object[1] { Utils.CreateArray(tester, type) });
                 
             }
 
@@ -450,6 +470,7 @@ namespace ME.ECSEditor.Tools {
 
             public bool IsValid(System.Type type) {
 
+                if (type.IsGenericType == true && type.GetGenericTypeDefinition() == typeof(Unity.Collections.NativeArray<>)) return true;
                 return typeof(Unity.Collections.NativeArray<>).IsAssignableFrom(type);
 
             }

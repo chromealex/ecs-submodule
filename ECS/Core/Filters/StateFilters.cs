@@ -1439,6 +1439,7 @@ namespace ME.ECS {
         // Readonly
         public byte forEachMode;
         public byte hasShared;
+        [Extensions.TestIgnoreAttribute]
         public ArchetypeEntities archetypes;
         public Archetype archetypeContains;
         public Archetype archetypeNotContains;

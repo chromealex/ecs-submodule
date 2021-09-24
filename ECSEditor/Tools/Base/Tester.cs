@@ -46,6 +46,7 @@ namespace ME.ECSEditor.Tools {
         CopyFrom,
         Recycle,
         DirectCopy,
+        Dispose,
 
     }
 
@@ -270,13 +271,41 @@ namespace ME.ECSEditor.Tools {
                 }
 
             } else if (testMethod == TestMethod.Recycle) {
-                
+                             
+                 try {
+                     
+                     var methods = type.GetMethods(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                     foreach (var method in methods) {
+ 
+                         if (method.Name.EndsWith("Recycle") == true &&
+                             method.GetParameters().Length == 0) {
+ 
+                             method.Invoke(context.instance, null);
+                             break;
+ 
+                         }
+ 
+                     }
+                     
+                     if (this.IsInstanceEquals(type, context.instance, context.defaultInstance, rootPath: type.Name) == true) {
+                         return true;
+                     } else {
+                         return false;
+                     }
+                     
+                 } catch (System.Exception ex) {
+                     UnityEngine.Debug.LogException(ex);
+                     return false;
+                 }
+                 
+            } else if (testMethod == TestMethod.Dispose) {
+
                 try {
-                    
+
                     var methods = type.GetMethods(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
                     foreach (var method in methods) {
 
-                        if (method.Name.EndsWith("Recycle") == true &&
+                        if (method.Name.EndsWith("Dispose") == true &&
                             method.GetParameters().Length == 0) {
 
                             method.Invoke(context.instance, null);
@@ -285,18 +314,18 @@ namespace ME.ECSEditor.Tools {
                         }
 
                     }
-                    
+
                     if (this.IsInstanceEquals(type, context.instance, context.defaultInstance, rootPath: type.Name) == true) {
                         return true;
                     } else {
                         return false;
                     }
-                    
+
                 } catch (System.Exception ex) {
                     UnityEngine.Debug.LogException(ex);
                     return false;
                 }
-                
+
             }
             
             return false;

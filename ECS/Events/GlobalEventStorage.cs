@@ -79,8 +79,8 @@ namespace ME.ECS {
 
         public void CopyFrom(in GlobalEventStorage other) {
             
-            this.globalEventLogicItems.CopyFrom(other.globalEventLogicItems);
-            this.globalEventLogicEvents.CopyFrom(other.globalEventLogicEvents);
+            ArrayUtils.Copy(other.globalEventLogicItems, ref this.globalEventLogicItems);
+            ArrayUtils.Copy(other.globalEventLogicEvents, ref this.globalEventLogicEvents);
             
         }
         
