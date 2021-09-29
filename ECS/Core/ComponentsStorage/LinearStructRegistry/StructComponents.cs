@@ -250,6 +250,23 @@ namespace ME.ECS {
         #endif
         public override bool Remove(in Entity entity, bool clearAll = false) {
 
+            if (this.lifetimeData != null) {
+
+                for (int i = 0, cnt = this.lifetimeData.Count; i < cnt; ++i) {
+                    
+                    var item = this.lifetimeData[i];
+                    if (item.entityId == entity.id) {
+                        
+                        this.lifetimeData.RemoveAt(i);
+                        --i;
+                        --cnt;
+
+                    }
+                    
+                }
+
+            }
+
             var index = entity.id;
             if (index >= this.components.Length) return false;
             ref var bucket = ref this.components[index];
