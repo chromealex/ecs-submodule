@@ -883,7 +883,7 @@ namespace ME.ECS.Views {
         #endif
         public bool UnRegister(IView instance) {
 
-            instance.DoDeInitialize();
+            if (instance != null) instance.DoDeInitialize();
 
             var viewInfo = new ViewInfo(instance.entity, instance.prefabSourceId, instance.creationTick);
             if (this.rendering.Remove(viewInfo) == true) {

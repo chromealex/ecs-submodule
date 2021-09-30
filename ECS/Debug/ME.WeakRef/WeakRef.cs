@@ -56,6 +56,7 @@ namespace ME {
         [UnityEditor.MenuItem("ME.ECS/Debug/List Weak References")]
         public static void ListMenu() {
             
+            System.GC.Collect();
             WeakRef.List();
             
         }
