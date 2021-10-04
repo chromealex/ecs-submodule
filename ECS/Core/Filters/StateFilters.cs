@@ -781,6 +781,7 @@ namespace ME.ECS {
         public void Dispose() {
 
             this.set.SetForEachMode(false);
+            this.set.UseVersioned();
 
         }
 
