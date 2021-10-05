@@ -2016,7 +2016,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref readonly TComponent ReadData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
+        public ref readonly TComponent ReadData<TComponent>(in Entity entity) where TComponent : struct, IStructComponentBase {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -2053,7 +2053,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref TComponent GetData<TComponent>(in Entity entity, bool createIfNotExists = true) where TComponent : struct, IStructComponent {
+        public ref TComponent GetData<TComponent>(in Entity entity, bool createIfNotExists = true) where TComponent : struct, IStructComponentBase {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
