@@ -6,6 +6,8 @@ namespace ME.ECS.Tests {
         private class TestState : State {}
         private struct TestComponent : IStructComponent {}
 
+        private struct TestOneShotComponent : IComponentOneShot {}
+
         private struct TestComponentCopyable : IStructCopyable<TestComponentCopyable> {
 
             public int data;
@@ -19,6 +21,37 @@ namespace ME.ECS.Tests {
             public void OnRecycle() {
 
                 this.data = default;
+
+            }
+
+        }
+
+        private class TestOneShotSystem : ISystem, IAdvanceTick {
+
+            public Entity entity;
+            public int count;
+
+            public World world { get; set; }
+
+            private Filter filter;
+            
+            public void OnConstruct() {
+                
+                this.filter = Filter.Create("Test").With<TestOneShotComponent>().Push();
+                this.entity = this.world.AddEntity();
+                this.entity.SetOneShot(new TestOneShotComponent());
+                this.count = 1;
+
+            }
+
+            public void OnDeconstruct() {
+                
+            }
+
+            public void AdvanceTick(in float deltaTime) {
+                
+                NUnit.Framework.Assert.IsTrue(this.filter.Count == this.count);
+                this.count = 0;
 
             }
 
@@ -81,9 +114,47 @@ namespace ME.ECS.Tests {
                 return ME.ECS.Network.NetworkType.RunLocal | ME.ECS.Network.NetworkType.SendToNet;
             }
 
-
         }
         
+        [NUnit.Framework.TestAttribute]
+        public void AddOneShot() {
+
+            World world = null;
+            WorldUtilities.CreateWorld<TestState>(ref world, 0.033f);
+            var sys = new TestOneShotSystem();
+            {
+                world.AddModule<TestStatesHistoryModule>();
+                world.AddModule<TestNetworkModule>();
+                world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
+                world.SetSeed(1u);
+                {
+                    WorldUtilities.InitComponentTypeId<TestOneShotComponent>(false, isOneShot: true);
+                    ComponentsInitializerWorld.Setup((e) => {
+                
+                        e.ValidateDataOneShot<TestOneShotComponent>();
+                
+                    });
+                }
+                {
+                    
+                    var group = new SystemGroup(world, "TestGroup");
+                    group.AddSystem(sys);
+
+                }
+            }
+            world.SaveResetState<TestState>();
+            
+            NUnit.Framework.Assert.IsTrue(sys.entity.HasOneShot<TestOneShotComponent>());
+            
+            world.SetFromToTicks(0, 2);
+            world.Update(2f);
+            
+            NUnit.Framework.Assert.IsFalse(sys.entity.HasOneShot<TestOneShotComponent>());
+            
+            WorldUtilities.ReleaseWorld<TestState>(ref world);
+
+        }
+
         [NUnit.Framework.TestAttribute]
         public void AddRemoveWithFilter() {
 

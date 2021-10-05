@@ -885,6 +885,60 @@ namespace ME.ECS {
             }
 
         }
+        
+        #region OneShot
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public void ValidateOneShot<TComponent>(bool isTag = false) where TComponent : struct, IStructComponentBase, IComponentOneShot {
+
+            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
+            this.ValidateOneShot<TComponent>(code, isTag);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public void ValidateOneShot<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase, IComponentOneShot {
+
+            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            this.ValidateOneShot<TComponent>(code, isTag);
+            var reg = (StructComponentsOneShot<TComponent>)this.list.arr[code];
+            reg.Validate(in entity);
+
+        }
+        
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        private void ValidateOneShot<TComponent>(int code, bool isTag) where TComponent : struct, IStructComponentBase, IComponentOneShot {
+
+            if (ArrayUtils.WillResize(code, ref this.list) == true) {
+
+                ArrayUtils.Resize(code, ref this.list, true);
+
+            }
+
+            if (this.list.arr[code] == null) {
+
+                var instance = PoolRegistries.SpawnOneShot<TComponent>();
+                this.list.arr[code] = instance;
+
+            }
+
+        }
+        #endregion
 
         #region Copyable
         #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -1380,6 +1434,12 @@ namespace ME.ECS {
         public void ValidateData<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase {
 
             this.currentState.structComponents.Validate<TComponent>(in entity, isTag);
+
+        }
+
+        public void ValidateDataOneShot<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase, IComponentOneShot {
+
+            this.currentState.structComponents.ValidateOneShot<TComponent>(in entity, isTag);
 
         }
 
@@ -2096,7 +2156,58 @@ namespace ME.ECS {
             return ref state;
 
         }
-        
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref byte SetDataOneShot<TComponent>(in Entity entity, in TComponent data) where TComponent : struct, IComponentOneShot {
+            
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            ref var storage = ref this.currentState.storage;
+            ref var bucket = ref reg.components[entity.id];
+            ref var state = ref bucket.state;
+            reg.Replace(ref bucket, in data);
+            reg.UpdateVersion(ref bucket);
+            if (state == 0) {
+
+                if (ComponentTypes<TComponent>.typeId >= 0) {
+
+                    storage.archetypes.Set<TComponent>(in entity);
+                    this.UpdateFilterByStructComponent<TComponent>(in entity);
+
+                }
+
+            }
+            #if ENTITY_ACTIONS
+            this.RaiseEntityActionOnAdd<TComponent>(in entity);
+            #endif
+            storage.versions.Increment(in entity);
+            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
+            if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
+
+            state = (byte)(ComponentLifetime.NotifyAllSystemsBelow + 1);
+            this.AddToLifetimeIndex<TComponent>(in entity, ComponentLifetime.NotifyAllSystemsBelow, 0f);
+            
+            return ref state;
+            
+        }
+
         /// <summary>
         /// Lifetime default is Infinite
         /// </summary>

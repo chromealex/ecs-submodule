@@ -13,11 +13,11 @@ namespace ME.ECSEditor {
         private const string DIRECTORY_CONTAINS = "/Components/";
         private static readonly System.Type SEARCH_TYPE = typeof(ME.ECS.IStructComponentBase);
         private const string CONTENT_ITEM = @"
-            structComponentsContainer.Validate#COPYABLE##DISPOSABLE#<#TYPENAME#>(#ISTAG#);";
+            structComponentsContainer.Validate#COPYABLE##DISPOSABLE##ONESHOT#<#TYPENAME#>(#ISTAG#);";
         private const string CONTENT_ITEM2 = @"
-            entity.ValidateData#COPYABLE##DISPOSABLE#<#TYPENAME#>(#ISTAG#);";
+            entity.ValidateData#COPYABLE##DISPOSABLE##ONESHOT#<#TYPENAME#>(#ISTAG#);";
         private const string CONTENT_ITEM3 = @"
-            WorldUtilities.InitComponentTypeId<#TYPENAME#>(#ISTAG#, #ISCOPYABLE#, #ISDISPOSABLE#, #ISVERSIONED#, #ISVERSIONED_NOSTATE#, #ISSHARED#);";
+            WorldUtilities.InitComponentTypeId<#TYPENAME#>(#ISTAG#, #ISCOPYABLE#, #ISDISPOSABLE#, #ISVERSIONED#, #ISVERSIONED_NOSTATE#, #ISSHARED#, #ISONESHOT#);";
         private const bool AUTO_COMPILE_DEFAULT = true;
 
         static StructComponentsGenerator() {

@@ -381,6 +381,7 @@ namespace ME.ECSEditor {
                     var isCopyable = typeof(ME.ECS.IStructCopyableBase).IsAssignableFrom(type);
                     var isStatic = typeof(ME.ECS.IComponentStatic).IsAssignableFrom(type);
                     var isDisposable = typeof(ME.ECS.IComponentDisposable).IsAssignableFrom(type);
+                    var isOneShot = typeof(ME.ECS.IComponentOneShot).IsAssignableFrom(type);
                     var isShared = typeof(ME.ECS.IComponentShared).IsAssignableFrom(type);
                     var isVersioned = typeof(ME.ECS.IVersioned).IsAssignableFrom(type);
                     var isVersionedNoState = typeof(ME.ECS.IVersionedNoState).IsAssignableFrom(type);
@@ -402,6 +403,7 @@ namespace ME.ECSEditor {
                     resItem = resItem.Replace("#TYPENAME#", entityType);
                     resItem = resItem.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
                     resItem = resItem.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
+                    resItem = resItem.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
                     resItem = resItem.Replace("\r\n", "\n");
                     
                     /*
@@ -423,6 +425,7 @@ namespace ME.ECSEditor {
                         resItem2 = resItem2.Replace("#ISSHARED#", isShared == true ? "true" : "false");
                         resItem2 = resItem2.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
                         resItem2 = resItem2.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
+                        resItem2 = resItem2.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
                         resItem2 = resItem2.Replace("\r\n", "\n");
                         
                         /*
@@ -446,6 +449,7 @@ namespace ME.ECSEditor {
                         resItem3 = resItem3.Replace("#ISSHARED#", isShared == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
+                        resItem3 = resItem3.Replace("#ISONESHOT#", isOneShot == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
                         resItem3 = resItem3.Replace("\r\n", "\n");

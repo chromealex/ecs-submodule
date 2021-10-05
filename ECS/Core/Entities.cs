@@ -42,6 +42,7 @@ namespace ME.ECS {
         public static bool isCopyable = false;
         public static bool isShared = false;
         public static bool isDisposable = false;
+        public static bool isOneShot = false;
         public static bool isInHash = true;
         public static TComponent empty = default;
 
@@ -106,6 +107,16 @@ namespace ME.ECS {
         public static Entity ValidateData<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase {
 
             Worlds.currentWorld.ValidateData<TComponent>(in entity, isTag);
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity ValidateDataOneShot<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IComponentOneShot {
+
+            Worlds.currentWorld.ValidateDataOneShot<TComponent>(in entity, isTag);
             return entity;
 
         }
@@ -376,6 +387,35 @@ namespace ME.ECS {
         public static Entity RemoveShared<TComponent>(this in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
 
             Worlds.currentWorld.RemoveSharedData<TComponent>(in entity, groupId);
+            return entity;
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static bool HasOneShot<TComponent>(this in Entity entity) where TComponent : struct, IComponentOneShot {
+
+            return Worlds.currentWorld.HasData<TComponent>(in entity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity SetOneShot<TComponent>(this in Entity entity) where TComponent : struct, IComponentOneShot {
+
+            Worlds.currentWorld.SetDataOneShot(in entity, new TComponent());
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity SetOneShot<TComponent>(this in Entity entity, in TComponent data) where TComponent : struct, IComponentOneShot {
+
+            Worlds.currentWorld.SetDataOneShot(in entity, data);
             return entity;
 
         }
