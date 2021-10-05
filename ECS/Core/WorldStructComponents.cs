@@ -40,7 +40,7 @@ namespace ME.ECS {
 
     public interface IComponentRuntime { }
     
-    public interface IComponentOneShot : IStructComponentBase { }
+    public interface IComponentOneShot : IStructComponentBase, IComponentRuntime { }
 
     public interface IVersioned : IStructComponentBase { }
 

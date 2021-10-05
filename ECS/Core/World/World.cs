@@ -175,6 +175,7 @@ namespace ME.ECS {
         private State resetState;
         private bool hasResetState;
         internal State currentState;
+        internal StructComponentsContainer structComponentsNoState;
         //private uint seed;
         private int cpf; // CPF = Calculations per frame
         internal int entitiesCapacity;
@@ -197,6 +198,9 @@ namespace ME.ECS {
                 Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobDebuggerEnabled = false;
             } catch (System.Exception) { }
             #endif
+            
+            this.structComponentsNoState = new StructComponentsContainer();
+            this.structComponentsNoState.Initialize(true);
 
             this.currentSystemContextFiltersUsed = PoolArray<bool>.Spawn(World.FILTERS_CACHE_CAPACITY);
             this.currentSystemContextFiltersUsedAnyChanged = false;
@@ -237,6 +241,8 @@ namespace ME.ECS {
 
             this.worldThread = null;
             this.isActive = false;
+
+            this.structComponentsNoState.OnRecycle();
 
             this.DisposeGlobalEvents();
 

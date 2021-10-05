@@ -391,53 +391,6 @@ namespace ME.ECS {
 
         }
         
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static bool HasOneShot<TComponent>(this in Entity entity) where TComponent : struct, IComponentOneShot {
-
-            return Worlds.currentWorld.HasData<TComponent>(in entity);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static Entity SetOneShot<TComponent>(this in Entity entity) where TComponent : struct, IComponentOneShot {
-
-            Worlds.currentWorld.SetDataOneShot(in entity, new TComponent());
-            return entity;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static Entity SetOneShot<TComponent>(this in Entity entity, in TComponent data) where TComponent : struct, IComponentOneShot {
-
-            Worlds.currentWorld.SetDataOneShot(in entity, data);
-            return entity;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static ref TComponent GetOneShot<TComponent>(this in Entity entity) where TComponent : struct, IComponentOneShot {
-
-            return ref Worlds.currentWorld.GetData<TComponent>(in entity);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static ref readonly TComponent ReadOneShot<TComponent>(this in Entity entity) where TComponent : struct, IComponentOneShot {
-
-            return ref Worlds.currentWorld.ReadData<TComponent>(in entity);
-
-        }
-
     }
     #endif
 

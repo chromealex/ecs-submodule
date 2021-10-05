@@ -1439,7 +1439,7 @@ namespace ME.ECS {
 
         public void ValidateDataOneShot<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase, IComponentOneShot {
 
-            this.currentState.structComponents.ValidateOneShot<TComponent>(in entity, isTag);
+            this.structComponentsNoState.ValidateOneShot<TComponent>(in entity, isTag);
 
         }
 
@@ -1505,11 +1505,21 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         private void UseLifetimeStep(ComponentLifetime step, float deltaTime) {
+        
+            this.UseLifetimeStep(step, deltaTime, ref this.currentState.structComponents);
+            this.UseLifetimeStep(step, deltaTime, ref this.structComponentsNoState);
+            
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        private void UseLifetimeStep(ComponentLifetime step, float deltaTime, ref StructComponentsContainer structComponentsContainer) {
 
-            var list = this.currentState.structComponents.listLifetimeTick;
+            var list = structComponentsContainer.listLifetimeTick;
             if (step == ComponentLifetime.NotifyAllModules || step == ComponentLifetime.NotifyAllModulesBelow) {
 
-                list = this.currentState.structComponents.listLifetimeFrame;
+                list = structComponentsContainer.listLifetimeFrame;
 
             }
             
@@ -1520,7 +1530,7 @@ namespace ME.ECS {
                 var c = 0;
                 foreach (var idx in list) {
 
-                    ref var reg = ref this.currentState.structComponents.list.arr[idx];
+                    ref var reg = ref structComponentsContainer.list.arr[idx];
                     if (reg == null) continue;
 
                     if (reg.UseLifetimeStep(this, bStep, deltaTime) == true) {
@@ -1538,19 +1548,19 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void AddToLifetimeIndex<TComponent>(in Entity entity, ComponentLifetime lifetime, float secondsLifetime) where TComponent : struct, IStructComponentBase {
+        private void AddToLifetimeIndex<TComponent>(in Entity entity, ComponentLifetime lifetime, float secondsLifetime, ref StructComponentsContainer structComponents) where TComponent : struct, IStructComponentBase {
             
-            var list = this.currentState.structComponents.listLifetimeTick;
+            var list = structComponents.listLifetimeTick;
             if (lifetime == ComponentLifetime.NotifyAllModules || lifetime == ComponentLifetime.NotifyAllModulesBelow) {
 
-                list = this.currentState.structComponents.listLifetimeFrame;
+                list = structComponents.listLifetimeFrame;
 
             }
             
             var idx = WorldUtilities.GetAllComponentTypeId<TComponent>();
             if (list.Contains(idx) == false) list.Add(idx);
             
-            ref var r = ref this.currentState.structComponents.list.arr[idx];
+            ref var r = ref structComponents.list.arr[idx];
             var reg = (StructComponents<TComponent>)r;
             if (reg.lifetimeData == null) reg.lifetimeData = PoolListCopyable<LifetimeData>.Spawn(10);
             reg.lifetimeData.Add(new LifetimeData() {
@@ -1999,7 +2009,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public bool HasData<TComponent>(in Entity entity) where TComponent : struct, IStructComponentBase {
+        public bool HasData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -2016,7 +2026,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref readonly TComponent ReadData<TComponent>(in Entity entity) where TComponent : struct, IStructComponentBase {
+        public ref readonly TComponent ReadData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -2053,7 +2063,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref TComponent GetData<TComponent>(in Entity entity, bool createIfNotExists = true) where TComponent : struct, IStructComponentBase {
+        public ref TComponent GetData<TComponent>(in Entity entity, bool createIfNotExists = true) where TComponent : struct, IStructComponent {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -2155,57 +2165,6 @@ namespace ME.ECS {
 
             return ref state;
 
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public ref byte SetDataOneShot<TComponent>(in Entity entity, in TComponent data) where TComponent : struct, IComponentOneShot {
-            
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            ref var storage = ref this.currentState.storage;
-            ref var bucket = ref reg.components[entity.id];
-            ref var state = ref bucket.state;
-            reg.Replace(ref bucket, in data);
-            reg.UpdateVersion(ref bucket);
-            if (state == 0) {
-
-                if (ComponentTypes<TComponent>.typeId >= 0) {
-
-                    storage.archetypes.Set<TComponent>(in entity);
-                    this.UpdateFilterByStructComponent<TComponent>(in entity);
-
-                }
-
-            }
-            #if ENTITY_ACTIONS
-            this.RaiseEntityActionOnAdd<TComponent>(in entity);
-            #endif
-            storage.versions.Increment(in entity);
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
-            if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-
-            state = (byte)(ComponentLifetime.NotifyAllSystemsBelow + 1);
-            this.AddToLifetimeIndex<TComponent>(in entity, ComponentLifetime.NotifyAllSystemsBelow, 0f);
-            
-            return ref state;
-            
         }
 
         /// <summary>
@@ -2347,7 +2306,7 @@ namespace ME.ECS {
                 if (lifetime == ComponentLifetime.Infinite) return;
                 state = (byte)(lifetime + 1);
 
-                this.AddToLifetimeIndex<TComponent>(in entity, lifetime, secondsLifetime);
+                this.AddToLifetimeIndex<TComponent>(in entity, lifetime, secondsLifetime, ref this.currentState.structComponents);
 
             }
 
