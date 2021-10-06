@@ -338,6 +338,7 @@ namespace ME.ECS.DataConfigGenerator {
 
         public string[] GetCreatedConfigs() {
 
+            if (this.createdConfigs == null) return new string[0];
             return this.createdConfigs.Keys.ToArray();
 
         }
