@@ -1243,7 +1243,7 @@ namespace ME.ECS {
             if (this.ForEachEntity(list) == true) {
 
                 var maxId = this.currentState.storage.GetMaxId();
-                ComponentsInitializerWorld.Init(new Entity(maxId, 0));
+                ComponentsInitializerWorld.Init(new Entity(maxId, 1));
                 
                 for (int i = 0; i < list.Count; ++i) {
 
