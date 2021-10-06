@@ -143,6 +143,50 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
 
     }
 
+    public struct SpriteObjectParser : IParser, IDefaultParser {
+
+        public bool IsValid(System.Type fieldType) {
+            return typeof(Object).IsAssignableFrom(fieldType);
+        }
+
+        public bool Parse(string data, System.Type fieldType, out object result) {
+            
+            if (DataConfigGenerator.TryToParse("sprite://", data, out var path) == true) {
+
+                result = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(path);
+                return true;
+
+            }
+
+            result = null;
+            return false;
+
+        }
+
+    }
+
+    public struct TextureObjectParser : IParser, IDefaultParser {
+
+        public bool IsValid(System.Type fieldType) {
+            return typeof(Object).IsAssignableFrom(fieldType);
+        }
+
+        public bool Parse(string data, System.Type fieldType, out object result) {
+            
+            if (DataConfigGenerator.TryToParse("tex://", data, out var path) == true) {
+
+                result = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture>(path);
+                return true;
+
+            }
+
+            result = null;
+            return false;
+
+        }
+
+    }
+
     public struct ViewParser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
