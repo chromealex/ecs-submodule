@@ -133,7 +133,7 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
             
             if (InputUtils.IsPointerDown(0) == true) {
 
-                if (this.feature.IsAllowedUIEvents() == true || InputUtils.IsPointerOverUI(0) == false) {
+                if (this.feature.IsAllowedUIEvents() == true && InputUtils.IsPointerOverUI(0) == false) {
 
                     if (this.GetWorldPointer(out var worldPos) == true) {
 
