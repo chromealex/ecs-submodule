@@ -1969,17 +1969,39 @@ namespace ME.ECS {
         #endif
         public void ApplyAllRequests() {
 
-            var job = new ApplyRequestsJob() {
-                data = this.data,
-            };
-            var jobHandle = job.Schedule(this.data.requestsCount, 64);
+            JobHandle jobHandle = default;
+            JobHandle jobRemoveHandle = default;
+            if (this.data.requestsCount > 0) {
 
-            var jobRemove = new ApplyRequestsJobToRemove() {
-                data = this.data,
-            };
-            var jobRemoveHandle = jobRemove.Schedule(this.data.requestsRemoveCount, 64);
+                var job = new ApplyRequestsJob() {
+                    data = this.data,
+                };
+                jobHandle = job.Schedule(this.data.requestsCount, 64);
 
-            JobHandle.CompleteAll(ref jobHandle, ref jobRemoveHandle);
+            }
+
+            if (this.data.requestsRemoveCount > 0) {
+
+                var jobRemove = new ApplyRequestsJobToRemove() {
+                    data = this.data,
+                };
+                jobRemoveHandle = jobRemove.Schedule(this.data.requestsRemoveCount, 64);
+
+            }
+
+            if (this.data.requestsCount > 0 && this.data.requestsRemoveCount > 0) {
+
+                JobHandle.CompleteAll(ref jobHandle, ref jobRemoveHandle);
+
+            } else if (this.data.requestsCount > 0) {
+
+                jobHandle.Complete();
+
+            } else if (this.data.requestsRemoveCount > 0) {
+                
+                jobRemoveHandle.Complete();
+                
+            }
 
             this.data.requestsCount = 0;
             this.data.requestsRemoveCount = 0;
