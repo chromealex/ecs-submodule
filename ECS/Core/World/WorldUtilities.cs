@@ -178,7 +178,6 @@ namespace ME.ECS {
             ComponentTypesRegistry.reset += () => {
 
                 AllComponentTypes<TComponent>.typeId = -1;
-                ComponentTypes<TComponent>.typeId = -1;
                 AllComponentTypes<TComponent>.isTag = false;
 
             };
