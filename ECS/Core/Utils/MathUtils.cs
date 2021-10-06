@@ -400,6 +400,13 @@ namespace ME.ECS {
 
         }
 
+        public static Vector3 GetSpiralPointByIndex(Vector3 center, int index, float radius = 1f) {
+
+            var offset = MathUtils.GetSpiralPointByIndex(Vector2Int.zero, index);
+            return center + new Vector3(offset.x * radius, 0f, offset.y * radius);
+
+        }
+
         public static Vector2Int GetSpiralPointByIndex(Vector2Int center, int index) {
 
             if (index == 0) return center;
