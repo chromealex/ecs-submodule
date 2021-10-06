@@ -58,6 +58,12 @@ go://Assets/path/to/your/gameObject.prefab
 ```
 component://Assets/path/to/your/gameObject/with/component.prefab
 ```
+```
+sprite://Assets/path/to/your/sprite.png
+```
+```
+tex://Assets/path/to/your/texture.png
+```
 
 ### Custom Parsers
 
