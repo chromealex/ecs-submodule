@@ -566,13 +566,15 @@ namespace ME.ECS.DataConfigGenerator {
                 return true;
                 
             } else if (fieldType == typeof(float)) {
-                
-                result = float.Parse(data);
+
+                data = data.Replace(",", ".");
+                result = float.Parse(data, System.Globalization.CultureInfo.InvariantCulture);
                 return true;
                 
             } else if (fieldType == typeof(double)) {
                 
-                result = double.Parse(data);
+                data = data.Replace(",", ".");
+                result = double.Parse(data, System.Globalization.CultureInfo.InvariantCulture);
                 return true;
                 
             } else if (fieldType == typeof(long)) {
