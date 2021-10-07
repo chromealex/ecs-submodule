@@ -273,7 +273,6 @@ namespace ME.ECS.Essentials {
 
         public bool IsAllowedUIEvents() {
 
-            if (this.world.HasSharedData<InputAllowUI>() == false) return true;
             return this.world.ReadSharedData<InputAllowUI>().allow;
 
         }
