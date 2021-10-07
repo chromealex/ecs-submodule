@@ -65,6 +65,17 @@
 
         }
 
+        private static bool IsPointerOverUIObject(int id) {
+            
+            var eventDataCurrentPosition = new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current);
+            eventDataCurrentPosition.position = InputUtils.GetPointerPosition(id).XY();
+
+            System.Collections.Generic.List<UnityEngine.EventSystems.RaycastResult> results = new System.Collections.Generic.List<UnityEngine.EventSystems.RaycastResult>();
+            UnityEngine.EventSystems.EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+            return results.Count > 0;
+            
+        }
+        
         public static bool IsPointerOverUI(int index) {
 
             if (inp.touchCount > 0 && inp.touchCount >= index + 1) {
@@ -72,9 +83,7 @@
                 var touch = inp.GetTouch(index);
                 if (touch.phase == TouchPhase.Began) {
 
-                    return UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() == true ||
-                           UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(touch.fingerId) == true ||
-                           UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject != null;
+                    return InputUtils.IsPointerOverUIObject(touch.fingerId) == true;
 
                 }
 
@@ -82,7 +91,7 @@
 
             }
 
-            return UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
+            return InputUtils.IsPointerOverUIObject(index);
 
         }
 
