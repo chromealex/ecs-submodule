@@ -73,7 +73,8 @@
                 if (touch.phase == TouchPhase.Began) {
 
                     return UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() == true ||
-                           UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(touch.fingerId) == true;
+                           UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(touch.fingerId) == true ||
+                           UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject != null;
 
                 }
 
