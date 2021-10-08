@@ -1,12 +1,14 @@
 {
     "name": "ECSAssembly",
+    "rootNamespace": "",
     "references": [
         "GUID:2665a8d13d1b3f18800f46e256720795",
         "GUID:d8b63aba1907145bea998dd612889d6b",
         "GUID:a8f5934c873d146a498587cd9c8e9fe0",
         "GUID:948ed582966c54c1988774d66ffc3446",
         "GUID:1e50cf49f12c346f5ab77c5d33b0db51",
-        "GUID:e0cd26848372d4e5c891c569017e11f1"
+        "GUID:e0cd26848372d4e5c891c569017e11f1",
+        "GUID:4a488f777cb1e4ad0a18abe773e05b9d"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

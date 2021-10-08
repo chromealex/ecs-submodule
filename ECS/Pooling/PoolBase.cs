@@ -129,10 +129,13 @@ namespace ME.ECS {
             if (this.isNull == true) {
                 var res = constructor.Invoke(state);
                 PoolInternalBase.CallOnSpawn(res, null);
+                //ME.WeakRef.Reg(res);
                 return res;
             }
-            return this.pools.Spawn<T, TState>(state, constructor, destructor);
-            
+            var instance = this.pools.Spawn<T, TState>(state, constructor, destructor);
+            //ME.WeakRef.Reg(instance);
+            return instance;
+
         }
 
         void IPoolImplementation.PoolRecycle<T>(ref T obj) {

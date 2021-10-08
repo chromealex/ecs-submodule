@@ -187,7 +187,9 @@ namespace ME.ECS {
         }
 
         internal void DoDeconstruct() {
-            
+
+            this.world = null;
+            this.systemGroup = default;
             this.OnDeconstruct();
             
         }

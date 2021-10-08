@@ -8,7 +8,19 @@ namespace ME.ECS.Buffers {
     using Debugger = System.Diagnostics.Debugger;
     using SpinLock = System.Threading.SpinLock;
 
-    public abstract class ArrayPool<T> {
+    public static class ArrayPools {
+
+        public static System.Collections.Generic.HashSet<ArrayPoolBase> pools = new System.Collections.Generic.HashSet<ArrayPoolBase>();
+
+    }
+
+    public abstract class ArrayPoolBase {
+
+        public abstract void Clear();
+
+    }
+    
+    public abstract class ArrayPool<T> : ArrayPoolBase {
 
         private static ArrayPool<T> s_sharedInstance;
 
@@ -168,6 +180,16 @@ namespace ME.ECS.Buffers {
 
         private int Id => this.GetHashCode();
 
+        public override void Clear() {
+
+            for (int i = 0; i < this._buckets.Length; ++i) {
+                
+                if (this._buckets[i] != null) this._buckets[i].Clear();
+                
+            }
+            
+        }
+
         public override T[] Rent(int minimumLength) {
             if (minimumLength < 0) {
                 throw new ArgumentOutOfRangeException(nameof(minimumLength));
@@ -175,6 +197,12 @@ namespace ME.ECS.Buffers {
 
             if (minimumLength == 0) {
                 return DefaultArrayPool<T>.s_emptyArray ?? (DefaultArrayPool<T>.s_emptyArray = new T[0]);
+            }
+
+            if (ArrayPools.pools.Contains(this) == false) {
+
+                ArrayPools.pools.Add(this);
+
             }
 
             var log = ArrayPoolEventSource.Log;
@@ -253,6 +281,16 @@ namespace ME.ECS.Buffers {
             }
 
             internal int Id => this.GetHashCode();
+
+            internal void Clear() {
+
+                for (int i = 0; i < this._buffers.Length; ++i) {
+
+                    this._buffers[i] = null;
+
+                }
+                
+            }
 
             internal T[] Rent() {
                 var buffers = this._buffers;

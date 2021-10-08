@@ -20,6 +20,12 @@ namespace ME.ECS {
                 this.currentPools.Clear();
                 Pools.current = this.prevPools;
             }
+
+            foreach (var pool in ME.ECS.Buffers.ArrayPools.pools) {
+                
+                pool.Clear();
+                
+            }
             
             this.prevPools = null;
             this.currentPools = null;

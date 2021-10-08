@@ -1012,7 +1012,7 @@ namespace ME.ECS {
     public struct Filter {
 
         internal int id;
-        internal World world;
+        internal World world => Worlds.current;
 
         public static Filter Empty => new Filter();
         internal static FilterInjectionDelegate injections;
@@ -1159,7 +1159,6 @@ namespace ME.ECS {
             }
             filterData.Push(ref builder);
             filter.id = filterData.id;
-            filter.world = builder.world;
             return filter;
 
         }
