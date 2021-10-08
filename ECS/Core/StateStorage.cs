@@ -115,6 +115,9 @@ namespace ME.ECS {
             this.entityId = -1;
             this.archetypes = new ArchetypeEntities();//PoolClass<ArchetypeEntities>.Spawn();
             this.versions = new EntityVersions();//PoolClass<EntityVersions>.Spawn();
+            ME.WeakRef.Reg(this.alive);
+            ME.WeakRef.Reg(this.dead);
+            ME.WeakRef.Reg(this.deadPrepared);
 
         }
 

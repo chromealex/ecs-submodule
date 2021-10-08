@@ -33,7 +33,7 @@ namespace ME.ECS.Buffers {
 
         public abstract T[] Rent(int minimumLength);
 
-        public abstract void Return(T[] array, bool clearArray = false);
+        public abstract void Return(T[] array, bool clearArray = true);
 
     }
 
@@ -211,7 +211,7 @@ namespace ME.ECS.Buffers {
             return objArray1;
         }
 
-        public override void Return(T[] array, bool clearArray = false) {
+        public override void Return(T[] array, bool clearArray = true) {
             if (array == null) {
                 throw new ArgumentNullException(nameof(array));
             }

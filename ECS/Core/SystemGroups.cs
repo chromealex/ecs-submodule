@@ -328,6 +328,7 @@
             }
 
             var instance = PoolSystems.Spawn<TSystem>();
+            ME.WeakRef.Reg(instance);
             if (this.AddSystem(instance) == false) {
 
                 instance.world = null;

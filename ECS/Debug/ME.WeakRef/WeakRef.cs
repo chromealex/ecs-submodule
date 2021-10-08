@@ -64,12 +64,15 @@ namespace ME {
 
         public static void List() {
 
+            var prev = UnityEngine.Application.GetStackTraceLogType(LogType.Log);
+            UnityEngine.Application.SetStackTraceLogType(UnityEngine.LogType.Log, StackTraceLogType.None);
+            var cnt = 0;
             foreach (var item in items) {
 
                 if (item.reference.IsAlive == true) {
-                    
-                    var prev = UnityEngine.Application.GetStackTraceLogType(LogType.Log);
-                    UnityEngine.Application.SetStackTraceLogType(UnityEngine.LogType.Log, StackTraceLogType.None);
+
+                    ++cnt;
+                    if (cnt > 10) break;
                     var target = item.reference.Target;
                     if (target != null) {
                         if (target is Object obj) {
@@ -80,12 +83,11 @@ namespace ME {
                     } else {
                         Debug.Log(item.type.Name + ": " + target + "\n" + item.stack);
                     }
-
-                    UnityEngine.Application.SetStackTraceLogType(UnityEngine.LogType.Log, prev);
                     
                 }
                 
             }
+            UnityEngine.Application.SetStackTraceLogType(UnityEngine.LogType.Log, prev);
             
         }
 

@@ -356,6 +356,7 @@ namespace ME.ECS {
         public override StructRegistryBase Clone() {
 
             var reg = this.SpawnInstance();
+            ME.WeakRef.Reg(reg);
             this.Merge();
             reg.CopyFrom(this);
             return reg;
@@ -880,6 +881,7 @@ namespace ME.ECS {
             if (this.list.arr[code] == null) {
 
                 var instance = PoolRegistries.Spawn<TComponent>();
+                ME.WeakRef.Reg(instance);
                 this.list.arr[code] = instance;
 
             }
