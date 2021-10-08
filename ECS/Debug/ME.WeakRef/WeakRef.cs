@@ -64,6 +64,14 @@ namespace ME {
 
         public static void List() {
 
+            System.GC.Collect();
+            System.GC.Collect();
+            System.GC.Collect();
+            Resources.UnloadUnusedAssets();
+            System.GC.Collect();
+            System.GC.Collect();
+            System.GC.Collect();
+            
             var prev = UnityEngine.Application.GetStackTraceLogType(LogType.Log);
             UnityEngine.Application.SetStackTraceLogType(UnityEngine.LogType.Log, StackTraceLogType.None);
             var cnt = 0;
