@@ -80,7 +80,7 @@ namespace ME {
                 if (item.reference.IsAlive == true) {
 
                     ++cnt;
-                    if (cnt > 10) break;
+                    if (cnt > 20) break;
                     var target = item.reference.Target;
                     if (target != null) {
                         if (target is Object obj) {
