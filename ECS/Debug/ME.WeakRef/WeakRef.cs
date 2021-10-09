@@ -42,6 +42,12 @@ namespace ME {
                 stack = (stacktrace == true ? System.Environment.StackTrace : string.Empty),
             });
 
+            if (WeakRef.items.Count > 50) {
+                
+                WeakRef.items.RemoveAll(x => x.reference.IsAlive == false);
+                
+            }
+
         }
 
         [System.Diagnostics.ConditionalAttribute("ME_ECS_COLLECT_WEAK_REFERENCES")]
