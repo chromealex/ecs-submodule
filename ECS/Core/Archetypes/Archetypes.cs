@@ -53,6 +53,12 @@ namespace ME.ECS {
 
         }
 
+        public void CopyFrom(in Entity from, in Entity to) {
+            
+            this.types[to.id] = this.types[from.id];
+            
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif

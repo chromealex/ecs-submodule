@@ -297,6 +297,24 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static Entity SetAs<TComponent>(this in Entity entity, in Entity source) where TComponent : struct, IStructComponent {
+
+            if (source.Has<TComponent>() == true) {
+
+                entity.Set(source.Read<TComponent>());
+
+            } else {
+                
+                entity.Remove<TComponent>();
+                
+            }
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Entity Set<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
 
             Worlds.currentWorld.SetData<TComponent>(in entity);

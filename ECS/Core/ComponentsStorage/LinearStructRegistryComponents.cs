@@ -539,6 +539,23 @@ namespace ME.ECS {
 
             }
 
+            if (this.lifetimeData != null) {
+
+                for (int i = 0; i < this.lifetimeData.Count; ++i) {
+
+                    var data = this.lifetimeData[i];
+                    if (data.entityId == from.id) {
+
+                        data.entityId = to.id;
+                        this.lifetimeData.Add(data);
+                        break;
+
+                    }
+
+                }
+
+            }
+
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(in from, in to);
             if (this.CopyFromState(in from, in to) > 0) {
 

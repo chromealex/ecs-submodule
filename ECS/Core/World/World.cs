@@ -1567,6 +1567,7 @@ namespace ME.ECS {
             {
                 // Copy data
                 this.currentState.structComponents.CopyFrom(in from, in to);
+                this.currentState.storage.archetypes.CopyFrom(in from, in to);
                 this.UpdateFilters(in to);
             }
 
