@@ -48,6 +48,12 @@ namespace ME.ECS {
 
         public static void ResetCache() {
 
+            foreach (var item in GlobalEvent.staticEvents) {
+
+                item.Value.events = null;
+
+            }
+
             GlobalEvent.staticEvents.Clear();
 
         }
