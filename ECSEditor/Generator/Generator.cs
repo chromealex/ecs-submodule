@@ -502,6 +502,7 @@ namespace ME.ECSEditor {
                 if (attrs.Length > 0) continue;
                 
                 if (itemType.IsClass == true ||
+                    itemType.IsInterface == true ||
                     itemType.IsArrayOrList() == true) {
                     
                     if (typeof(UnityEngine.Object).IsAssignableFrom(itemType) == true) continue;
