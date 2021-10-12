@@ -2057,6 +2057,15 @@ namespace ME.ECS {
             return this.currentState.timers.Read(in entity, index);
 
         }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool RemoveTimer(in Entity entity, int index) {
+
+            return this.currentState.timers.Remove(in entity, index);
+
+        }
         #endregion
 
         #region HAS/GET/SET/READ/REMOVE

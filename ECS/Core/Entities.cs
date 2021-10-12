@@ -284,6 +284,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static bool RemoveTimer(this in Entity entity, int index) {
+
+            return Worlds.currentWorld.RemoveTimer(in entity, index);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Entity Remove<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
 
             Worlds.currentWorld.RemoveData<TComponent>(in entity);

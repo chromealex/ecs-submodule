@@ -107,6 +107,16 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool Remove(in Entity entity, int index) {
+            
+            var key = MathUtils.GetKey(entity.id, index);
+            return this.values.Remove(key);
+
+        }
+
     }
 
 }
