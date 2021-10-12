@@ -1705,6 +1705,12 @@ namespace ME.ECS {
                 EmptyEntityException.Throw(entity);
                 
             }
+            
+            if (AllComponentTypes<TComponent>.isTag == true) {
+
+                TagComponentException.Throw(entity);
+
+            }
             #endif
 
             if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
@@ -1720,7 +1726,6 @@ namespace ME.ECS {
             
             // Inline all manually
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            if (reg.sharedGroups.Has(entity.id, groupId) == false) return ref AllComponentTypes<TComponent>.empty;
             return ref reg.sharedGroups.Get(entity.id, groupId);
 
         }
@@ -1767,6 +1772,12 @@ namespace ME.ECS {
                 EmptyEntityException.Throw(entity);
                 
             }
+            
+            if (AllComponentTypes<TComponent>.isTag == true) {
+
+                TagComponentException.Throw(entity);
+
+            }
             #endif
 
             if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
@@ -1809,7 +1820,6 @@ namespace ME.ECS {
 
             }
 
-            if (AllComponentTypes<TComponent>.isTag == true) return ref AllComponentTypes<TComponent>.empty;
             if (incrementVersion == true) {
                 
                 // Increment versions for all entities stored this group
@@ -2097,10 +2107,15 @@ namespace ME.ECS {
                 EmptyEntityException.Throw(entity);
                 
             }
+            
+            if (AllComponentTypes<TComponent>.isTag == true) {
+
+                TagComponentException.Throw(entity);
+
+            }
             #endif
 
             // Inline all manually
-            if (AllComponentTypes<TComponent>.isTag == true) return ref AllComponentTypes<TComponent>.empty;
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             return ref reg.components[entity.id].data;
 
@@ -2134,6 +2149,12 @@ namespace ME.ECS {
                 EmptyEntityException.Throw(entity);
                 
             }
+            
+            if (AllComponentTypes<TComponent>.isTag == true) {
+
+                TagComponentException.Throw(entity);
+
+            }
             #endif
 
             // Inline all manually
@@ -2166,7 +2187,6 @@ namespace ME.ECS {
 
             }
 
-            if (AllComponentTypes<TComponent>.isTag == true) return ref AllComponentTypes<TComponent>.empty;
             if (incrementVersion == true) {
 
                 reg.UpdateVersion(ref bucket);

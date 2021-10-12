@@ -75,6 +75,28 @@ namespace ME.ECS {
 
     }
 
+    public class TagComponentException : System.Exception {
+
+        private TagComponentException() : base("[ME.ECS] You are trying to read tag component.") {}
+
+        private TagComponentException(Entity entity) : base("[ME.ECS] You are trying to read tag component: " + entity) {}
+
+        public static void Throw() {
+
+            throw new TagComponentException();
+
+        }
+
+        public static void Throw(Entity entity) {
+
+            if (entity.generation == 0) TagComponentException.Throw();
+            
+            throw new TagComponentException(entity);
+
+        }
+
+    }
+
     public class InStateException : System.Exception {
 
         public InStateException() : base("[ME.ECS] Could not perform action because current step is in state (" + Worlds.currentWorld.GetCurrentStep().ToString() + ").") {}

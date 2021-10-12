@@ -135,10 +135,15 @@ namespace ME.ECS {
                 EmptyEntityException.Throw(entity);
                 
             }
+            
+            if (AllComponentTypes<TComponent>.isTag == true) {
+
+                TagComponentException.Throw(entity);
+
+            }
             #endif
 
             // Inline all manually
-            if (AllComponentTypes<TComponent>.isTag == true) return ref AllComponentTypes<TComponent>.empty;
             var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[AllComponentTypes<TComponent>.typeId];
             return ref reg.components[entity.id].data;
 
@@ -154,6 +159,12 @@ namespace ME.ECS {
                 
                 EmptyEntityException.Throw(entity);
                 
+            }
+            
+            if (AllComponentTypes<TComponent>.isTag == true) {
+
+                TagComponentException.Throw(entity);
+
             }
             #endif
 
@@ -187,7 +198,6 @@ namespace ME.ECS {
 
             }
 
-            if (AllComponentTypes<TComponent>.isTag == true) return ref AllComponentTypes<TComponent>.empty;
             if (incrementVersion == true) {
 
                 reg.UpdateVersion(ref bucket);

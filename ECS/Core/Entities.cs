@@ -44,7 +44,6 @@ namespace ME.ECS {
         public static bool isDisposable = false;
         public static bool isOneShot = false;
         public static bool isInHash = true;
-        public static TComponent empty = default;
 
     }
 
