@@ -1682,6 +1682,7 @@ namespace ME.ECS {
                 if (cleanUpHierarchy == true) ECSTransformHierarchy.OnEntityDestroy(in entity);
                 this.RemoveFromAllFilters(entity);
                 this.DestroyEntityPlugins(in entity);
+                this.currentState.timers.OnEntityDestroy(in entity);
 
                 this.currentState.storage.IncrementGeneration(in entity);
 
