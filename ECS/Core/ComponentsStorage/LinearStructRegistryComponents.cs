@@ -1524,6 +1524,12 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         private void UseLifetimeStep(ComponentLifetime step, float deltaTime) {
+
+            if (step == ComponentLifetime.NotifyAllSystemsBelow) {
+                
+                this.currentState.timers.Update(deltaTime);
+                
+            }
         
             this.UseLifetimeStep(step, deltaTime, ref this.currentState.structComponents);
             this.UseLifetimeStep(step, deltaTime, ref this.structComponentsNoState);
@@ -1567,7 +1573,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void AddToLifetimeIndex<TComponent>(in Entity entity, ComponentLifetime lifetime, float secondsLifetime, ref StructComponentsContainer structComponents) where TComponent : struct, IStructComponentBase {
+        private static void AddToLifetimeIndex<TComponent>(in Entity entity, ComponentLifetime lifetime, float secondsLifetime, ref StructComponentsContainer structComponents) where TComponent : struct, IStructComponentBase {
             
             var list = structComponents.listLifetimeTick;
             if (lifetime == ComponentLifetime.NotifyAllModules || lifetime == ComponentLifetime.NotifyAllModulesBelow) {
@@ -2024,6 +2030,35 @@ namespace ME.ECS {
         }
         #endregion
 
+        #region TIMERS
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void SetTimer(in Entity entity, int index, float time) {
+
+            this.currentState.timers.Set(in entity, index, time);
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref float GetTimer(in Entity entity, int index) {
+
+            return ref this.currentState.timers.Get(in entity, index);
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public float ReadTimer(in Entity entity, int index) {
+
+            return this.currentState.timers.Read(in entity, index);
+
+        }
+        #endregion
+
         #region HAS/GET/SET/READ/REMOVE
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -2325,7 +2360,7 @@ namespace ME.ECS {
                 if (lifetime == ComponentLifetime.Infinite) return;
                 state = (byte)(lifetime + 1);
 
-                this.AddToLifetimeIndex<TComponent>(in entity, lifetime, secondsLifetime, ref this.currentState.structComponents);
+                World.AddToLifetimeIndex<TComponent>(in entity, lifetime, secondsLifetime, ref this.currentState.structComponents);
 
             }
 

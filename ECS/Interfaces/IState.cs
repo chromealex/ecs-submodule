@@ -16,6 +16,8 @@ namespace ME.ECS {
         // [ME.ECS.Serializer.SerializeField]
         public FiltersStorage filters;
         [ME.ECS.Serializer.SerializeField]
+        internal Timers timers;
+        [ME.ECS.Serializer.SerializeField]
         internal StructComponentsContainer structComponents;
         [ME.ECS.Serializer.SerializeField]
         internal Storage storage;
@@ -38,6 +40,7 @@ namespace ME.ECS {
             world.Register(ref this.structComponents, freeze, restore);
             world.Register(ref this.storage, freeze, restore);
             this.globalEvents.Initialize();
+            this.timers.Initialize();
 
         }
 
@@ -50,6 +53,7 @@ namespace ME.ECS {
             this.structComponents.CopyFrom(other.structComponents);
             this.storage.CopyFrom(other.storage);
             this.globalEvents.CopyFrom(in other.globalEvents);
+            this.timers.CopyFrom(in other.timers);
 
         }
 
@@ -58,6 +62,7 @@ namespace ME.ECS {
             this.tick = default;
             this.randomState = default;
             
+            this.timers.Dispose();
             this.globalEvents.DeInitialize();
             this.globalEvents = default;
             WorldUtilities.Release(ref this.filters);

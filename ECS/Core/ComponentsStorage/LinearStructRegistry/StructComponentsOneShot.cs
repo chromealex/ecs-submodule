@@ -246,7 +246,7 @@ namespace ME.ECS {
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
             state = (byte)(ComponentLifetime.NotifyAllSystemsBelow + 1);
-            this.AddToLifetimeIndex<TComponent>(in entity, ComponentLifetime.NotifyAllSystemsBelow, 0f, ref this.structComponentsNoState);
+            World.AddToLifetimeIndex<TComponent>(in entity, ComponentLifetime.NotifyAllSystemsBelow, 0f, ref this.structComponentsNoState);
             
             return ref state;
             
