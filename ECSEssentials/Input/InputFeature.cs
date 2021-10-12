@@ -265,6 +265,18 @@ namespace ME.ECS.Essentials {
         }
 
         protected override void OnDeconstruct() {
+
+            this.pointerClickEvent = default;
+            this.pointerDoubleClickEvent = default;
+            this.pointerDragBeginEvent = default;
+            this.pointerDragMoveEvent = default;
+            this.pointerDragEndEvent = default;
+            this.pointerUpEvent = default;
+            this.pointerDownEvent = default;
+            
+            this.gesturePitchDownEvent = default;
+            this.gesturePitchMoveEvent = default;
+            this.gesturePitchUpEvent = default;
             
             this.actions.Clear();
             this.camera = null;
