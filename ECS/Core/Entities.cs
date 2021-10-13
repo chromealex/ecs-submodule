@@ -337,7 +337,15 @@ namespace ME.ECS {
 
             if (source.Has<TComponent>() == true) {
 
-                entity.Set(source.Read<TComponent>());
+                if (AllComponentTypes<TComponent>.isTag == true) {
+
+                    entity.Set<TComponent>();
+
+                } else {
+                    
+                    entity.Set(source.Read<TComponent>());
+
+                }
 
             } else {
                 
