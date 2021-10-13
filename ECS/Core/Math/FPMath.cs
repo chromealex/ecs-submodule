@@ -6,6 +6,69 @@ namespace ME.ECS {
         public const float Deg2Rad = 0.017453292f;
         public const float Rad2Deg = 57.29578f;
         
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FPVector2 Abs(FPVector2 v) {
+
+            return new FPVector2(FPMath.Abs(v.x), FPMath.Abs(v.y));
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FPVector3 XY(this FPVector2 v, float z = 0f) {
+
+            return new FPVector3(v.x, v.y, z);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FPVector3 XZ(this FPVector2 v, float y = 0f) {
+
+            return new FPVector3(v.x, y, v.y);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FPVector2 XY(this FPVector3 v) {
+
+            return new FPVector2(v.x, v.y);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FPVector2 XZ(this FPVector3 v) {
+
+            return new FPVector2(v.x, v.z);
+
+        }
+
+        public static string ToStringDec(this pfloat value) {
+
+            return value.ToString();
+
+        }
+
+        public static string ToStringDec(this FPVector2 value) {
+
+            return value.x.ToStringDec() + "; " + value.y.ToStringDec();
+
+        }
+
+        public static string ToStringDec(this FPVector3 value) {
+
+            return value.x.ToStringDec() + "; " + value.y.ToStringDec() + "; " + value.z.ToStringDec();
+
+        }
+
         public static pfloat Angle(FPVector2 from, FPVector2 to) {
         
             var num = FPMath.Sqrt(from.sqrMagnitude * to.sqrMagnitude);
