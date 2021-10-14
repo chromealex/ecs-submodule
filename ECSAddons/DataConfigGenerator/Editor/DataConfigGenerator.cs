@@ -555,7 +555,12 @@ namespace ME.ECS.DataConfigGenerator {
 
             DataConfigGenerator.projectConfigs = this.allConfigs;
 
-            if (fieldType == typeof(int)) {
+            if (fieldType == typeof(bool)) {
+                
+                result = int.Parse(data) == 1 ? true : false;
+                return true;
+                
+            } else if (fieldType == typeof(int)) {
                 
                 result = int.Parse(data);
                 return true;
