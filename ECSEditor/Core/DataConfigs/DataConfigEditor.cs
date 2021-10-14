@@ -397,6 +397,7 @@ namespace ME.ECSEditor {
                 var element = new VisualElement();
                 element.AddToClassList("element");
 
+                var itCopy = iterator.Copy();
                 GetTypeFromManagedReferenceFullTypeName(iterator.managedReferenceFullTypename, out var type);
                 element.AddToClassList(i % 2 == 0 ? "even" : "odd");
                 element.RegisterCallback<UnityEngine.UIElements.ContextClickEvent, int>((evt, idx) => {
@@ -411,7 +412,15 @@ namespace ME.ECSEditor {
                             BuildInspectorProperties(editor, usedComponents, source, container, noFields);
 
                         });
-                        
+
+                        menu.AddItem(new GUIContent("Copy JSON"), false, () => {
+
+                            var instance = itCopy.GetValue();
+                            var json = JsonUtility.ToJson(instance, true);
+                            EditorGUIUtility.systemCopyBuffer = json;
+                            
+                        });
+
                     }
 
                     editor.OnComponentMenu(menu, idx);
