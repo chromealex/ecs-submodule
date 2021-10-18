@@ -400,12 +400,12 @@ namespace ME.ECS.DataConfigGenerator {
             Dictionary<string, FieldInfo> nameToField;
             Dictionary<string, PropertyInfo> nameToProperty;
             if (!JSONParser.fieldInfoCache.TryGetValue(type, out nameToField)) {
-                nameToField = JSONParser.CreateMemberNameDictionary(type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy));
+                nameToField = JSONParser.CreateMemberNameDictionary(type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy));
                 JSONParser.fieldInfoCache.Add(type, nameToField);
             }
 
             if (!JSONParser.propertyInfoCache.TryGetValue(type, out nameToProperty)) {
-                nameToProperty = JSONParser.CreateMemberNameDictionary(type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy));
+                nameToProperty = JSONParser.CreateMemberNameDictionary(type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy));
                 JSONParser.propertyInfoCache.Add(type, nameToProperty);
             }
 

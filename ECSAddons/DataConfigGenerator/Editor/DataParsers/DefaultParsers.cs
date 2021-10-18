@@ -253,4 +253,56 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
 
     }
 
+    public struct LocalizationKeyParser : IParser, IDefaultParser {
+
+        [System.Serializable]
+        public struct Key {
+
+            public string table;
+            public string keyId;
+            public string key;
+
+        }
+        
+        public bool IsValid(System.Type fieldType) {
+            return typeof(UnityEngine.Localization.LocalizedString).IsAssignableFrom(fieldType);
+        }
+
+        public bool Parse(string data, System.Type fieldType, out object result) {
+
+            var key = JSONParser.FromJson<Key>(data);
+            var keyId = key.keyId;
+            UnityEngine.Localization.Tables.TableEntryReference entry = null;
+            UnityEngine.Localization.Tables.TableReference table = null;
+            if (string.IsNullOrEmpty(keyId) == false) {
+
+                entry = (UnityEngine.Localization.Tables.TableEntryReference)long.Parse(keyId);
+
+            } else {
+                
+                entry = (UnityEngine.Localization.Tables.TableEntryReference)key.key;
+
+            }
+
+            if (key.table.StartsWith("GUID:") == true) {
+
+                table = (UnityEngine.Localization.Tables.TableReference)new System.Guid(key.table.Substring(5));
+
+            } else {
+                
+                table = (UnityEngine.Localization.Tables.TableReference)key.table;
+                
+            }
+            
+            result = new UnityEngine.Localization.LocalizedString() {
+                TableReference = table,
+                TableEntryReference = entry,
+            };
+            
+            return true;
+
+        }
+
+    }
+
 }
