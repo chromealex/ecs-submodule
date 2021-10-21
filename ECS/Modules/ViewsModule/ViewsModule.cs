@@ -42,7 +42,7 @@ namespace ME.ECS {
         #endif
         public static void ReplaceView(this Entity entity, ViewId viewId) {
 
-            Worlds.currentWorld.DestroyAllViews(in entity);
+            if (entity.Has<ViewComponent>() == true) Worlds.currentWorld.DestroyAllViews(in entity);
             Worlds.currentWorld.InstantiateView(viewId, entity);
 
         }
@@ -52,7 +52,7 @@ namespace ME.ECS {
         #endif
         public static void ReplaceView(this Entity entity, IView prefab) {
 
-            Worlds.currentWorld.DestroyAllViews(in entity);
+            if (entity.Has<ViewComponent>() == true) Worlds.currentWorld.DestroyAllViews(in entity);
             Worlds.currentWorld.InstantiateView(prefab, entity);
 
         }
