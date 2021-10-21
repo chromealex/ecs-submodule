@@ -13,7 +13,6 @@ namespace ME.ECS {
         public static World current;
         
         public static readonly List<World> registeredWorlds = new List<World>();
-        private static Dictionary<int, World> cache = new Dictionary<int, World>(1);
 
         internal static bool isInDeInitialization;
         public static void DeInitializeBegin() {
@@ -28,30 +27,15 @@ namespace ME.ECS {
             
         }
 
-        public static World GetWorld(int id) {
-
-            World world;
-            if (Worlds.cache.TryGetValue(id, out world) == true) {
-
-                return world;
-                
-            }
-
-            return null;
-
-        }
-
         public static void Register(World world) {
             
             Worlds.registeredWorlds.Add(world);
-            Worlds.cache.Add(world.id, world);
             
         }
         
         public static void UnRegister(World world, int id) {
             
             if (Worlds.registeredWorlds != null) Worlds.registeredWorlds.Remove(world);
-            if (Worlds.cache != null) Worlds.cache.Remove(id);
 
             if (world == Worlds.currentWorld) {
 

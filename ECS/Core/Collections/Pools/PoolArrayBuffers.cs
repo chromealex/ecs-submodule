@@ -22,7 +22,7 @@ namespace ME.ECS.Buffers {
     
     public abstract class ArrayPool<T> : ArrayPoolBase {
 
-        private static ArrayPool<T> s_sharedInstance;
+        protected static ArrayPool<T> s_sharedInstance;
 
         public static ArrayPool<T> Shared {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -187,7 +187,9 @@ namespace ME.ECS.Buffers {
                 if (this._buckets[i] != null) this._buckets[i].Clear();
                 
             }
-            
+
+            ArrayPool<T>.s_sharedInstance = null;
+
         }
 
         public override T[] Rent(int minimumLength) {

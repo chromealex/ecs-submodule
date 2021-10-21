@@ -32,6 +32,7 @@ namespace ME.ECS {
                 pool.Clear();
                 
             }
+            ME.ECS.Buffers.ArrayPools.pools.Clear();
             
             this.prevPools = null;
             this.currentPools = null;
