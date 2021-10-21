@@ -67,8 +67,8 @@ namespace ME.ECS {
                 result = notContainsResult,
             };
 
-            if (System.Threading.Thread.CurrentThread == this.worldThread) {
-                
+            if (WorldUtilities.IsMainThread() == true) {
+
                 JobHandle jobContainsHandle;
                 JobHandle jobNotContainsHandle;
 

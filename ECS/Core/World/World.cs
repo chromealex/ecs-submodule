@@ -136,6 +136,7 @@ namespace ME.ECS {
         public WorldDebugSettings debugSettings { get; internal set; }
 
         internal System.Threading.Thread worldThread;
+        internal System.Threading.Thread mainThread;
         
     }
 
@@ -240,6 +241,7 @@ namespace ME.ECS {
         void IPoolableRecycle.OnRecycle() {
 
             this.worldThread = null;
+            this.mainThread = null;
             this.isActive = false;
 
             this.structComponentsNoState.OnRecycle();
@@ -1612,6 +1614,14 @@ namespace ME.ECS {
             }
             #endif
 
+            #if WORLD_THREAD_CHECK
+            if (WorldUtilities.IsWorldThread() == false) {
+
+                WrongThreadException.Throw("AddEntity");
+                
+            }
+            #endif
+
             var isNew = this.currentState.storage.WillNew();
             ref var entity = ref this.currentState.storage.Alloc();
             this.UpdateEntityOnCreate(in entity, isNew);
@@ -2393,6 +2403,8 @@ namespace ME.ECS {
             if (this.isPaused == true) return;
             if (deltaTime < 0f) return;
 
+            this.mainThread = System.Threading.Thread.CurrentThread;
+            
             #if CHECKPOINT_COLLECTOR
             if (this.checkpointCollector != null) this.checkpointCollector.Reset();
             #endif
@@ -2440,7 +2452,7 @@ namespace ME.ECS {
 
             [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
             [Unity.Collections.ReadOnlyAttribute]
-            public Unity.Collections.NativeSlice<Entity> slice;
+            public NativeBufferArray<Entity> slice;
             [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
             [Unity.Collections.ReadOnlyAttribute]
             public Unity.Collections.NativeArray<byte> dataContains;
@@ -2451,10 +2463,10 @@ namespace ME.ECS {
 
             void Unity.Jobs.IJobParallelFor.Execute(int index) {
 
-                var entity = this.slice[index];
+                var entity = this.slice.Read(index);
                 if (entity.IsAlive() == false) return;
 
-                if (this.dataContains[entity.id] == 1 && (this.dataVersions.IsCreated == false || this.dataVersions[entity.id] == 1)) {
+                if (this.dataContains.GetRefRead(entity.id) == 1 && (this.dataVersions.IsCreated == false || this.dataVersions.GetRefRead(entity.id) == 1)) {
                     Worlds.currentWorld.currentSystemContextFilter.AdvanceTick(entity, in this.deltaTime);
                 }
 
@@ -2854,8 +2866,28 @@ namespace ME.ECS {
                                     #pragma warning restore
                                     if (this.settings.useJobsForSystems == true && jobs == true) {
 
+                                        var arrEntities = system.filter.ToArray();
+                                        
+                                        var filter = this.GetFilter(system.filter.id);
+                                        var currentPools = Pools.current;
+                                        Pools.current = this.currentThreadPools;
+                                        {
+                                            var job = new ForeachFilterJob() {
+                                                deltaTime = fixedDeltaTime,
+                                                slice = arrEntities,
+                                                dataContains = filter.data.dataContains,
+                                                dataVersions = (filter.data.onVersionChangedOnly == 1 ? filter.data.dataVersions : default),
+                                            };
+                                            var jobHandle = job.Schedule(arrEntities.Length, batch);
+                                            jobHandle.Complete();
+                                        }
+                                        Pools.current = currentPools;
+                                        
+                                        filter.UseVersioned();
+                                        
+                                        /*
                                         var arrEntities = this.currentState.storage.cache.arr;
-                                        system.filter.GetBounds(out var min, out var max);
+                                        system.filter.ToArray().GetBounds(out var min, out var max);
                                         if (min > max) {
 
                                             min = 0;
@@ -2885,7 +2917,7 @@ namespace ME.ECS {
 
                                             filter.UseVersioned();
 
-                                        }
+                                        }*/
 
                                     } else {
 

@@ -37,6 +37,7 @@ namespace ME.ECS.Collections {
 
         public static NativeBufferArray<T> Empty = new NativeBufferArray<T>();
 
+        [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
         internal NativeArray<T> arr;
         public readonly int Length;
         public bool isCreated => this.arr.IsCreated;

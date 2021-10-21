@@ -13,6 +13,148 @@ namespace ME.ECS {
 
     }
 
+    public struct DefaultThreadPools {
+
+        public System.Collections.Concurrent.ConcurrentDictionary<System.Type, ME.ECS.PoolInternalBaseThread> pool;
+
+        public void Init() {
+            
+            this.pool = new System.Collections.Concurrent.ConcurrentDictionary<System.Type, PoolInternalBaseThread>();
+
+        }
+
+        public void Clear() {
+
+            foreach (var item in this.pool) {
+
+                item.Value.Clean();
+
+            }
+            this.pool.Clear();
+            this.pool = null;
+
+        }
+
+        public T Spawn<T, TState>(TState state, System.Func<TState, T> constructor, System.Action<T> destructor = null) where T : class {
+
+            if (Pools.isActive == false) {
+                var instance = constructor.Invoke(state);
+                PoolInternalBaseThread.CallOnSpawn(instance, null);
+                return instance;
+            }
+
+            var type = typeof(T);
+            if (this.pool.TryGetValue(type, out var pool) == true) {
+
+                return (T)pool.Spawn();
+
+            }
+
+            pool = new PoolInternalThread<T, TState>(type, state, constructor, destructor);
+            if (this.pool.TryAdd(type, pool) == true) {
+
+                return (T)pool.Spawn();
+
+            }
+
+            if (this.pool.TryGetValue(type, out pool) == true) return (T)pool.Spawn();
+            
+            throw new System.Exception("Spawn failed");
+
+        }
+
+        public bool Recycle<T>(ref T obj) where T : class {
+            
+            if (obj == null) return false;
+            
+            if (Pools.isActive == false) {
+                PoolInternalBaseThread.CallOnDespawn(obj, null);
+                obj = default;
+                return false;
+            }
+
+            {
+                var type = typeof(T);
+                if (this.pool.TryGetValue(type, out var pool) == true) {
+
+                    pool.Recycle(obj);
+                    obj = default;
+                    return true;
+
+                }
+            }
+
+            {
+                var type = obj.GetType();
+                if (this.pool.TryGetValue(type, out var pool) == true) {
+
+                    pool.Recycle(obj);
+                    obj = default;
+                    return true;
+
+                }
+            }
+
+            return false;
+
+        }
+
+    }
+
+    public class PoolImplementationThread : IPoolImplementation {
+
+        private DefaultThreadPools pools;
+        public bool isNull;
+
+        public PoolImplementationThread(bool isNull) {
+
+            this.pools.Init();
+            this.isNull = isNull;
+
+        }
+
+        void IPoolImplementation.Clear() {
+
+            this.pools.Clear();
+
+        }
+
+        T IPoolImplementation.PoolSpawn<T>(System.Action<T> destructor) {
+
+            if (this.isNull == true) {
+                var res = new T();
+                PoolInternalBaseThread.CallOnSpawn(res, null);
+                return res;
+            }
+            return this.pools.Spawn<T, byte>(0, (state) => new T(), destructor);
+            
+        }
+
+        T IPoolImplementation.PoolSpawn<T, TState>(TState state, System.Func<TState, T> constructor, System.Action<T> destructor) {
+
+            if (this.isNull == true) {
+                var res = constructor.Invoke(state);
+                PoolInternalBaseThread.CallOnSpawn(res, null);
+                //ME.WeakRef.Reg(res);
+                return res;
+            }
+            var instance = this.pools.Spawn<T, TState>(state, constructor, destructor);
+            //ME.WeakRef.Reg(instance);
+            return instance;
+
+        }
+
+        void IPoolImplementation.PoolRecycle<T>(ref T obj) {
+
+            if (this.isNull == true || this.pools.Recycle(ref obj) == false) {
+                PoolInternalBaseThread.CallOnDespawn(obj, null);
+                obj = null;
+            }
+            
+        }
+
+    }
+
     public struct DefaultPools {
 
         public System.Collections.Generic.Dictionary<System.Type, ME.ECS.PoolInternalBase> pool;
@@ -803,6 +945,201 @@ namespace ME.ECS {
 
             ++this.poolDeallocated;
             ++PoolInternalBase.deallocated;
+
+            this.Destruct(instance);
+            
+            if (instance is IPoolableRecycle poolable) {
+
+                poolable.OnRecycle();
+
+            }
+
+            if (this.contains.Contains(instance) == false) {
+
+                this.contains.Add(instance);
+                this.cache.Push(instance);
+
+            } else {
+
+                UnityEngine.Debug.LogError($"You are trying to push instance {instance} that already in pool!");
+
+            }
+
+        }
+
+    }
+
+    public class PoolInternalThread<T, TState> : PoolInternalBaseThread where T : class {
+
+        public TState state;
+        protected System.Func<TState, T> constructor;
+        protected System.Action<T> destructor;
+
+        public PoolInternalThread(System.Type poolType, TState state, System.Func<TState, T> constructor, System.Action<T> destructor) : base(poolType) {
+
+            this.state = state;
+            this.constructor = constructor;
+            this.destructor = destructor;
+
+        }
+
+        protected override void OnClear() {
+            
+            base.OnClear();
+
+            this.state = default;
+            this.constructor = default;
+            this.destructor = default;
+
+        }
+
+        protected override void Construct(ref object item) {
+            
+            if (this.constructor != null && item == null) {
+
+                item = this.constructor.Invoke(this.state);
+
+            }
+            
+        }
+
+        protected override void Destruct(object item) {
+            
+            if (this.destructor != null) {
+
+                this.destructor.Invoke((T)item);
+
+            }
+            
+        }
+
+    }
+
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
+    public class PoolInternalBaseThread {
+
+        protected System.Collections.Concurrent.ConcurrentStack<object> cache = new System.Collections.Concurrent.ConcurrentStack<object>();
+        private ME.ECS.ConcurrentCollections.ConcurrentHashSet<object> contains = new ME.ECS.ConcurrentCollections.ConcurrentHashSet<object>();
+        
+        private static List<PoolInternalBaseThread> list = new List<PoolInternalBaseThread>();
+
+        public static void Clear() {
+
+            var pools = PoolInternalBaseThread.list;
+            for (int i = 0; i < pools.Count; ++i) {
+
+                var pool = pools[i];
+                pool.OnClear();
+
+            }
+
+            pools.Clear();
+
+        }
+
+        public void Clean() {
+            
+            this.OnClear();
+            
+        }
+
+        protected virtual void OnClear() {
+
+            if (PoolInternalBaseThread.list.Count > 0) {
+                PoolInternalBaseThread.list.Remove(this);
+            }
+            this.cache.Clear();
+            this.contains.Clear();
+            
+        }
+
+        public PoolInternalBaseThread(System.Type poolType) {
+
+            PoolInternalBaseThread.list.Add(this);
+
+        }
+
+        public static T Create<T>(PoolInternalBaseThread pool) where T : new() {
+
+            var instance = new T();
+            PoolInternalBaseThread.CallOnSpawn(instance, pool);
+
+            return instance;
+
+        }
+
+        public static void CallOnDespawn<T>(T instance, PoolInternalBaseThread pool) {
+            
+            if (instance is IPoolableRecycle poolable) {
+
+                poolable.OnRecycle();
+
+            }
+            
+        }
+
+        public static void CallOnSpawn<T>(T instance, PoolInternalBaseThread pool) {
+
+            if (instance is IPoolableSpawn poolable) {
+
+                poolable.OnSpawn();
+
+            }
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public virtual void Prewarm(int count) {
+
+            for (int i = 0; i < count; ++i) {
+
+                this.Recycle(this.Spawn());
+
+            }
+
+        }
+
+        protected virtual void Construct(ref object obj) {
+            
+        }
+
+        protected virtual void Destruct(object item) {
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public virtual object Spawn() {
+
+            if (this.cache.TryPop(out var item) == true) {
+
+                this.contains.TryRemove(item);
+                
+            }
+
+            this.Construct(ref item);
+            
+            if (item is IPoolableSpawn poolable) {
+
+                poolable.OnSpawn();
+
+            }
+
+            return item;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public virtual void Recycle(object instance) {
 
             this.Destruct(instance);
             

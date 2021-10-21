@@ -11,6 +11,18 @@ namespace ME.ECS {
     #endif
     public static class WorldUtilities {
 
+        public static bool IsMainThread() {
+
+            return Unity.Jobs.LowLevel.Unsafe.JobsUtility.IsExecutingJob == false && Worlds.current.mainThread == System.Threading.Thread.CurrentThread;
+
+        }
+
+        public static bool IsWorldThread() {
+
+            return Unity.Jobs.LowLevel.Unsafe.JobsUtility.IsExecutingJob == false && Worlds.current.worldThread == System.Threading.Thread.CurrentThread;
+
+        }
+
         public static void SetWorld(World world) {
 
             Worlds.currentWorld = world;
