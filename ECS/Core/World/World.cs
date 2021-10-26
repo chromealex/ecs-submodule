@@ -877,6 +877,7 @@ namespace ME.ECS {
                 var isPaused = this.isPaused;
                 this.Pause();
                 {
+                    
                     var currentTick = tick;
                     var prevStateTick = currentTick - currentTick % this.statesHistoryModule.GetTicksPerState();
                     var cacheSize = this.statesHistoryModule.GetCacheSize();
@@ -912,6 +913,22 @@ namespace ME.ECS {
 
         public void RewindTo(Tick tick, bool doVisualUpdate = true) {
 
+            {
+                if (tick <= 0) tick = 1;
+                this.timeSinceStart = (float)tick * this.GetTickTime();
+                
+                var prevState = this.statesHistoryModule.GetStateBeforeTick(tick);
+                if (prevState == null) prevState = this.GetResetState();
+
+                var sourceTick = prevState.tick;
+                var currentState = this.GetState();
+                currentState.CopyFrom(prevState);
+                currentState.Initialize(this, freeze: false, restore: true);
+                this.Simulate(sourceTick, tick, 0f);
+                this.Refresh(doVisualUpdate);
+            }
+
+            /*
             var currentTick = this.GetCurrentTick();
             if (tick >= currentTick) {
                 
@@ -923,11 +940,15 @@ namespace ME.ECS {
 
             if (tick <= 0) tick = 1;
             this.timeSinceStart = (float)tick * this.GetTickTime();
+            var prevState = this.statesHistoryModule.GetStateBeforeTick(tick);
+            if (prevState == null) prevState = this.GetResetState();
+            this.currentState.tick = prevState.tick;
             this.statesHistoryModule.HardResetTo(tick);
             this.GetModule<ME.ECS.Views.ViewsModule>().SetRequestsAsDirty();
             this.Refresh(doVisualUpdate);
 
             this.statesHistoryModule.ResumeStoreState();
+            */
 
         }
 
