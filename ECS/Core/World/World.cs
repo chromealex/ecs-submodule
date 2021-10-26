@@ -122,6 +122,7 @@ namespace ME.ECS {
 
         internal float tickTime;
         internal double timeSinceStart;
+        internal float speed;
         public bool isActive;
 
         public IContext currentSystemContext { get; internal set; }
@@ -191,6 +192,7 @@ namespace ME.ECS {
             ME.WeakRef.Reg(this);
             
             this.isPaused = false;
+            this.speed = 1f;
 
             this.worldThread = System.Threading.Thread.CurrentThread;
             
@@ -243,6 +245,7 @@ namespace ME.ECS {
             this.worldThread = null;
             this.mainThread = null;
             this.isActive = false;
+            this.speed = 0f;
 
             this.structComponentsNoState.OnRecycle();
 
@@ -843,6 +846,12 @@ namespace ME.ECS {
             LongBackwardRewind,
             ShortForwardRewind,
             LongForwardRewind,
+
+        }
+
+        public void SetSpeed(float speed) {
+
+            this.speed = speed;
 
         }
 
@@ -2415,6 +2424,8 @@ namespace ME.ECS {
 
             if (deltaTime < 0f) return;
 
+            deltaTime *= this.speed;
+
             this.UpdateVisualPre(deltaTime);
 
         }
@@ -2432,6 +2443,8 @@ namespace ME.ECS {
 
             // Setup current static variables
             WorldUtilities.SetWorld(this);
+            
+            deltaTime *= this.speed;
 
             // Update time
             this.timeSinceStart += deltaTime;
@@ -2450,6 +2463,8 @@ namespace ME.ECS {
         }
 
         public void LateUpdate(float deltaTime) {
+
+            deltaTime *= this.speed;
 
             this.UpdateVisualPost(deltaTime);
 
