@@ -24,6 +24,10 @@ namespace ME.ECS {
 
         private float timeElapsed;
         private int framesElapsed;
+        private int allFramesCount;
+        private double allFramesFps;
+
+        public int avgFps => this.allFramesCount > 0 ? (int)(this.allFramesFps / this.allFramesCount) : 0;
         public int fps { get; set; }
         public int minFps { get; set; }
         public int maxFps { get; set; }
@@ -51,6 +55,7 @@ namespace ME.ECS {
             
             this.timeElapsed += deltaTime;
             ++this.framesElapsed;
+            ++this.allFramesCount;
 
             if (this.timeElapsed > checkTime) {
 
@@ -60,6 +65,8 @@ namespace ME.ECS {
                 
                 this.framesElapsed = 0;
                 this.timeElapsed -= checkTime;
+
+                this.allFramesFps += this.fps;
 
             }
 
