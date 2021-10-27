@@ -16,8 +16,8 @@ namespace ME.ECS {
 
         public void Initialize() {
             
-            this.globalEventLogicItems = PoolListCopyable<GlobalEventFrameItem>.Spawn(10);
-            this.globalEventLogicEvents = PoolHashSetCopyable<long>.Spawn();
+            if (this.globalEventLogicItems == null) this.globalEventLogicItems = PoolListCopyable<GlobalEventFrameItem>.Spawn(10);
+            if (this.globalEventLogicEvents == null) this.globalEventLogicEvents = PoolHashSetCopyable<long>.Spawn();
 
         }
 

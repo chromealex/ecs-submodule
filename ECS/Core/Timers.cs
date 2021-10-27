@@ -15,8 +15,8 @@ namespace ME.ECS {
         #endif
         public void Initialize() {
 
-            this.values = PoolDictionaryCopyable<long, float>.Spawn(10);
-            this.indexes = PoolHashSetCopyable<int>.Spawn();
+            if (this.values == null) this.values = PoolDictionaryCopyable<long, float>.Spawn(10);
+            if (this.indexes == null) this.indexes = PoolHashSetCopyable<int>.Spawn();
 
         }
 
