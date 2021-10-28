@@ -1097,10 +1097,18 @@ namespace ME.ECS {
 
             if (globalEventType == GlobalEventType.Visual) {
 
-                for (int i = 0; i < this.globalEventFrameItems.Count; ++i) {
+                try {
 
-                    var item = this.globalEventFrameItems[i];
-                    item.globalEvent.Run(in item.data);
+                    for (int i = 0; i < this.globalEventFrameItems.Count; ++i) {
+
+                        var item = this.globalEventFrameItems[i];
+                        item.globalEvent.Run(in item.data);
+
+                    }
+
+                } catch (System.Exception ex) {
+
+                    UnityEngine.Debug.LogException(ex);
 
                 }
 
@@ -2068,7 +2076,7 @@ namespace ME.ECS {
             ////////////////
             this.currentStep |= WorldStep.ModulesVisualTick;
             ////////////////
-            {
+            try {
 
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.VisualTick);
@@ -2116,6 +2124,10 @@ namespace ME.ECS {
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.VisualTick);
                 #endif
 
+            } catch (System.Exception ex) {
+
+                UnityEngine.Debug.LogException(ex);
+
             }
             ////////////////
             this.currentStep &= ~WorldStep.ModulesVisualTick;
@@ -2124,7 +2136,7 @@ namespace ME.ECS {
             ////////////////
             this.currentStep |= WorldStep.SystemsVisualTick;
             ////////////////
-            {
+            try {
 
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.VisualTick);
@@ -2172,6 +2184,10 @@ namespace ME.ECS {
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.VisualTick);
                 #endif
 
+            } catch (System.Exception ex) {
+
+                UnityEngine.Debug.LogException(ex);
+
             }
             ////////////////
             this.currentStep &= ~WorldStep.SystemsVisualTick;
@@ -2198,7 +2214,7 @@ namespace ME.ECS {
             ////////////////
             this.currentStep |= WorldStep.ModulesVisualTick;
             ////////////////
-            {
+            try {
 
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.VisualTick);
@@ -2246,6 +2262,10 @@ namespace ME.ECS {
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.VisualTick);
                 #endif
 
+            } catch (System.Exception ex) {
+
+                UnityEngine.Debug.LogException(ex);
+
             }
             ////////////////
             this.currentStep &= ~WorldStep.ModulesVisualTick;
@@ -2263,7 +2283,7 @@ namespace ME.ECS {
             ////////////////
             this.currentStep |= WorldStep.ModulesVisualTick;
             ////////////////
-            {
+            try {
 
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.VisualTick);
@@ -2311,6 +2331,10 @@ namespace ME.ECS {
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.VisualTick);
                 #endif
 
+            } catch (System.Exception ex) {
+
+                UnityEngine.Debug.LogException(ex);
+
             }
             ////////////////
             this.currentStep &= ~WorldStep.ModulesVisualTick;
@@ -2319,7 +2343,7 @@ namespace ME.ECS {
             ////////////////
             this.currentStep |= WorldStep.SystemsVisualTick;
             ////////////////
-            {
+            try {
 
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.VisualTick);
@@ -2366,6 +2390,10 @@ namespace ME.ECS {
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.VisualTick);
                 #endif
+
+            } catch (System.Exception ex) {
+
+                UnityEngine.Debug.LogException(ex);
 
             }
             ////////////////
@@ -2665,7 +2693,7 @@ namespace ME.ECS {
             ////////////////
             this.currentStep |= WorldStep.PluginsLogicTick;
             ////////////////
-            {
+            try {
 
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTickPre", WorldStep.None);
@@ -2685,6 +2713,10 @@ namespace ME.ECS {
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTickPre", WorldStep.None);
                 #endif
 
+            } catch (System.Exception ex) {
+
+                UnityEngine.Debug.LogException(ex);
+
             }
             ////////////////
             this.currentStep &= ~WorldStep.PluginsLogicTick;
@@ -2693,7 +2725,7 @@ namespace ME.ECS {
             ////////////////
             this.currentStep |= WorldStep.ModulesLogicTick;
             ////////////////
-            {
+            try {
 
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.LogicTick);
@@ -2744,6 +2776,10 @@ namespace ME.ECS {
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.modules, WorldStep.LogicTick);
                 #endif
 
+            } catch (System.Exception ex) {
+
+                UnityEngine.Debug.LogException(ex);
+
             }
             ////////////////
             this.currentStep &= ~WorldStep.ModulesLogicTick;
@@ -2752,7 +2788,7 @@ namespace ME.ECS {
             ////////////////
             this.currentStep |= WorldStep.SystemsLogicTick;
             ////////////////
-            {
+            try {
 
                 // Pick random number
                 this.GetRandomValue();
@@ -3092,6 +3128,10 @@ namespace ME.ECS {
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.LogicTick);
                 #endif
 
+            } catch (System.Exception ex) {
+
+                UnityEngine.Debug.LogException(ex);
+
             }
             ////////////////
             this.currentStep &= ~WorldStep.SystemsLogicTick;
@@ -3110,7 +3150,7 @@ namespace ME.ECS {
             ////////////////
             this.currentStep |= WorldStep.PluginsLogicTick;
             ////////////////
-            {
+            try {
 
                 #if UNITY_EDITOR
                 UnityEngine.Profiling.Profiler.BeginSample($"ProcessGlobalEvents [Logic]");
@@ -3139,6 +3179,10 @@ namespace ME.ECS {
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("PlayPluginsForTickPost", WorldStep.None);
                 #endif
+
+            } catch (System.Exception ex) {
+
+                UnityEngine.Debug.LogException(ex);
 
             }
             ////////////////
@@ -3189,7 +3233,7 @@ namespace ME.ECS {
             ////////////////
             this.currentStep |= WorldStep.PluginsLogicSimulate;
             ////////////////
-            {
+            try {
 
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("SimulatePluginsForTicks", WorldStep.None);
@@ -3208,6 +3252,10 @@ namespace ME.ECS {
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("SimulatePluginsForTicks", WorldStep.None);
                 #endif
+
+            } catch (System.Exception ex) {
+
+                UnityEngine.Debug.LogException(ex);
 
             }
             ////////////////
