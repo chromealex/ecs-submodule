@@ -91,8 +91,12 @@ namespace ME.ECS.Collections {
         public void Dispose() {
 
             this.tick = Tick.Invalid;
-            PoolClass<DisposeSentinel<T, TProvider>>.Recycle(this);
             default(TProvider).Recycle(ref this.data);
+            try {
+                PoolClass<DisposeSentinel<T, TProvider>>.Recycle(this);
+            } catch (System.Exception ex) {
+                UnityEngine.Debug.LogWarning("DisposeSentinel recycling failed");
+            }
 
         }
     }
