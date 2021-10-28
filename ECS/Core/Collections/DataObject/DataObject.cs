@@ -95,7 +95,7 @@ namespace ME.ECS.Collections {
             try {
                 PoolClass<DisposeSentinel<T, TProvider>>.Recycle(this);
             } catch (System.Exception ex) {
-                UnityEngine.Debug.LogWarning("DisposeSentinel recycling failed");
+                UnityEngine.Debug.LogWarning("DisposeSentinel recycling failed: " + ex.Message);
             }
 
         }
