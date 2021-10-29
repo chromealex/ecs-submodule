@@ -162,16 +162,20 @@ namespace ME.ECS.Essentials {
 
         private void Execute(TMarker marker) {
 
-            var entity = this.getEntity.Invoke();
-            this.networkModule.RPC(this.tag, this.rpcId, entity, marker);
+            if (this.getEntity != null) {
 
+                var entity = this.getEntity.Invoke();
+                this.networkModule.RPC(this.tag, this.rpcId, entity, marker);
+
+            }
+            
         }
 
         public void RPC(Entity player, TMarker marker) {
 
             if (this.networkObject.IsAllowed(player, this.inputEventType, marker.worldPosition) == true) {
 
-                //UnityEngine.Debug.Log("RPC: " + marker + " :: " + typeof(TComponent) + " on entity " + player + ", position: " + marker.data.worldPosition);
+                //UnityEngine.Debug.Log("RPC: " + marker + " :: " + typeof(TComponent) + " on entity " + player + ", position: " + marker.worldPosition);
                 player.Set(new TComponent() {
                     setPointer1 = marker.pointer1,
                     setPointer2 = marker.pointer2,
