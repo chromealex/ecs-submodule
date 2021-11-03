@@ -131,7 +131,7 @@ namespace ME.ECS {
                                 out var notContainsResult);
 
             for (int i = 0, cnt = containsResult.Length; i < cnt; ++i) {
-                
+
                 var filter = this.GetFilter(containsResult[i]);
                 filter.OnUpdate(in entity);
 
@@ -234,19 +234,35 @@ namespace ME.ECS {
             for (int i = 0; i < bitsCount; ++i) {
 
                 if (bits.HasBit(i) == true) {
-                    
-                    var filters = this.currentState.filters.filtersTree.GetFiltersContainsFor(i);
-                    for (int f = 0; f < filters.Length; ++f) {
 
-                        ref readonly var filterId = ref filters.Read(f);
-                        if (visited.Contains(filterId.id) == true) continue;
-                        visited.Add(filterId.id);
-                        var filter = this.GetFilter(filterId.id);
-                        filter.OnEntityDestroy(in entity);
-                        FilterDataStatic.OnRemoveEntity(ref filter.data, in entity);
+                    {
+                        var filters = this.currentState.filters.filtersTree.GetFiltersContainsFor(i);
+                        for (int f = 0; f < filters.Length; ++f) {
 
+                            ref readonly var filterId = ref filters.Read(f);
+                            if (visited.Contains(filterId.id) == true) continue;
+                            visited.Add(filterId.id);
+                            var filter = this.GetFilter(filterId.id);
+                            filter.OnEntityDestroy(in entity);
+                            FilterDataStatic.OnRemoveEntity(ref filter.data, in entity);
+
+                        }
                     }
-                    
+
+                    {
+                        var filters = this.currentState.filters.filtersTree.GetFiltersNotContainsFor(i);
+                        for (int f = 0; f < filters.Length; ++f) {
+
+                            ref readonly var filterId = ref filters.Read(f);
+                            if (visited.Contains(filterId.id) == true) continue;
+                            visited.Add(filterId.id);
+                            var filter = this.GetFilter(filterId.id);
+                            filter.OnEntityDestroy(in entity);
+                            FilterDataStatic.OnRemoveEntity(ref filter.data, in entity);
+
+                        }
+                    }
+
                 }
                 
             }
@@ -1200,25 +1216,25 @@ namespace ME.ECS {
 
         }
 
-        public static bool OnUpdateForced_INTERNAL(ref FilterBurstData data, in Entity entity) {
+        public static bool OnUpdateForced_INTERNAL(ref FilterBurstData data, in Entity entity, byte updateMinMax) {
 
             if (entity.generation == Entity.GENERATION_ZERO) return false;
 
             var isExists = FilterDataStatic.Contains_INTERNAL(ref data.dataContains, entity.id);
-            FilterDataStatic.Update_INTERNAL(ref data, in entity);
+            FilterDataStatic.Update_INTERNAL(ref data, in entity, updateMinMax);
             if (isExists == 1) {
 
-                return FilterDataStatic.CheckRemove(ref data, in entity);
+                return FilterDataStatic.CheckRemove(ref data, in entity, updateMinMax);
 
             } else {
 
-                return FilterDataStatic.CheckAdd(ref data, in entity);
+                return FilterDataStatic.CheckAdd(ref data, in entity, updateMinMax);
 
             }
 
         }
 
-        public static bool OnUpdate_INTERNAL(ref FilterBurstData data, in Entity entity) {
+        public static bool OnUpdate_INTERNAL(ref FilterBurstData data, in Entity entity, byte updateMinMax) {
 
             if (entity.generation == Entity.GENERATION_ZERO) return false;
 
@@ -1247,14 +1263,14 @@ namespace ME.ECS {
             }
 
             var isExists = FilterDataStatic.Contains_INTERNAL(ref data.dataContains, entity.id);
-            FilterDataStatic.Update_INTERNAL(ref data, in entity);
+            FilterDataStatic.Update_INTERNAL(ref data, in entity, updateMinMax);
             if (isExists == 1) {
 
-                return FilterDataStatic.CheckRemove(ref data, in entity);
+                return FilterDataStatic.CheckRemove(ref data, in entity, updateMinMax);
 
             } else {
 
-                return FilterDataStatic.CheckAdd(ref data, in entity);
+                return FilterDataStatic.CheckAdd(ref data, in entity, updateMinMax);
 
             }
 
@@ -1289,23 +1305,23 @@ namespace ME.ECS {
 
             }
 
-            return FilterDataStatic.Remove_INTERNAL(ref data, entity);
+            return FilterDataStatic.Remove_INTERNAL(ref data, entity, 1);
 
         }
 
-        public static void Update_INTERNAL(ref FilterBurstData data, in Entity entity) {
+        public static void Update_INTERNAL(ref FilterBurstData data, in Entity entity, byte updateMinMax) {
 
             if (data.onVersionChangedOnly == 1) {
 
                 var idx = entity.id;
                 data.dataVersions[idx] = 1;
-                FilterDataStatic.UpdateMinMaxAdd(ref data, idx);
+                if (updateMinMax == 1) FilterDataStatic.UpdateMinMaxAdd(ref data, idx);
 
             }
 
         }
 
-        public static bool Add_INTERNAL(ref FilterBurstData data, in Entity entity) {
+        public static bool Add_INTERNAL(ref FilterBurstData data, in Entity entity, byte updateMinMax) {
 
             var idx = entity.id;
             ref var res = ref data.dataContains.GetRef(idx);
@@ -1313,7 +1329,7 @@ namespace ME.ECS {
 
                 res = 1;
                 System.Threading.Interlocked.Increment(ref data.count);
-                FilterDataStatic.UpdateMinMaxAdd(ref data, idx);
+                if (updateMinMax == 1) FilterDataStatic.UpdateMinMaxAdd(ref data, idx);
                 return true;
 
             }
@@ -1322,7 +1338,7 @@ namespace ME.ECS {
 
         }
 
-        public static bool Remove_INTERNAL(ref FilterBurstData data, in Entity entity) {
+        public static bool Remove_INTERNAL(ref FilterBurstData data, in Entity entity, byte updateMinMax) {
 
             var idx = entity.id;
             ref var res = ref data.dataContains.GetRef(idx);
@@ -1331,7 +1347,7 @@ namespace ME.ECS {
                 res = 0;
                 if (data.onVersionChangedOnly == 1) data.dataVersions[idx] = 0;
                 System.Threading.Interlocked.Decrement(ref data.count);
-                FilterDataStatic.UpdateMinMaxRemove(ref data, idx);
+                if (updateMinMax == 1) FilterDataStatic.UpdateMinMaxRemove(ref data, idx);
                 return true;
 
             }
@@ -1340,6 +1356,39 @@ namespace ME.ECS {
 
         }
 
+        /// <summary>
+        /// Updating filter bounds with new min-max based on full-search
+        /// </summary>
+        /// <thread>
+        /// Single thread support only
+        /// </thread>
+        /// <param name="data">Filter Data</param>
+        public static void UpdateMinMax(ref FilterBurstData data) {
+
+            for (int i = 0; i < data.requestsCount; ++i) {
+
+                var request = data.requests[i];
+                FilterDataStatic.UpdateMinMaxAdd(ref data, request.id);
+
+            }
+
+            for (int i = 0; i < data.requestsRemoveCount; ++i) {
+
+                var request = data.requestsRemoveEntity[i];
+                FilterDataStatic.UpdateMinMaxRemove(ref data, request.id);
+
+            }
+
+        }
+
+        /// <summary>
+        /// Updating filter bounds with new min-max based on focus added idx
+        /// </summary>
+        /// <thread>
+        /// Multiple threads support
+        /// </thread>
+        /// <param name="data">Filter Data</param>
+        /// <param name="idx">Entity Id</param>
         public static void UpdateMinMaxAdd(ref FilterBurstData data, int idx) {
 
             InterlockedExtension.AssignIfNewValueSmaller(ref data.min, idx);
@@ -1347,25 +1396,38 @@ namespace ME.ECS {
             
         }
 
+        /// <summary>
+        /// Updating filter bounds with new min-max based on focus removed idx
+        /// </summary>
+        /// <thread>
+        /// Single thread support only
+        /// </thread>
+        /// <param name="data">Filter Data</param>
+        /// <param name="idx">Entity Id</param>
         public static void UpdateMinMaxRemove(ref FilterBurstData data, int idx) {
 
-            if (idx == data.min && idx == data.max) {
+            var curMin = data.min;
+            var curMax = data.max;
+            if (idx == curMin && idx == curMax) {
 
-                data.min = int.MaxValue;
-                data.max = int.MinValue;
+                // Update only one entity - reset min-max
+                System.Threading.Interlocked.Exchange(ref data.min, int.MaxValue);
+                System.Threading.Interlocked.Exchange(ref data.max, int.MinValue);
                 return;
 
             }
 
-            if (idx == data.min) {
+            if (idx == curMin) {
 
                 // Update new min (find next index)
                 var changed = false;
+                var newIndex = -1;
                 for (int i = idx; i < data.dataContains.Length; ++i) {
 
                     if (data.dataContains[i] == 1) {
 
-                        data.min = i;
+                        // New index found
+                        newIndex = i;
                         changed = true;
                         break;
 
@@ -1374,14 +1436,19 @@ namespace ME.ECS {
                 }
 
                 if (changed == false) {
+                    
+                    // No index found
+                    System.Threading.Interlocked.Exchange(ref data.min, int.MaxValue);
 
-                    data.min = int.MaxValue;
+                } else {
+                    
+                    InterlockedExtension.AssignIfNewValueSmaller(ref data.min, newIndex);
 
                 }
 
             }
 
-            if (idx == data.max) {
+            if (idx == curMax) {
 
                 // Update new max (find prev index)
                 var changed = false;
@@ -1389,7 +1456,7 @@ namespace ME.ECS {
 
                     if (data.dataContains[i] == 1) {
 
-                        data.max = i;
+                        InterlockedExtension.AssignIfNewValueBigger(ref data.max, i);
                         changed = true;
                         break;
 
@@ -1399,7 +1466,7 @@ namespace ME.ECS {
 
                 if (changed == false) {
 
-                    data.max = int.MinValue;
+                    System.Threading.Interlocked.Exchange(ref data.max, int.MinValue);
 
                 }
 
@@ -1407,20 +1474,20 @@ namespace ME.ECS {
 
         }
 
-        public static bool CheckAdd(ref FilterBurstData data, in Entity entity) {
+        public static bool CheckAdd(ref FilterBurstData data, in Entity entity, byte updateMinMax) {
 
             // If entity doesn't exist in cache - try to add if entity's archetype fit with contains & notContains
             ref var entArchetype = ref data.archetypes.Get(entity.id);
             if (entArchetype.Has(in data.archetypeContains) == false) return false;
             if (entArchetype.HasNot(in data.archetypeNotContains) == false) return false;
 
-            FilterDataStatic.Add_INTERNAL(ref data, in entity);
+            FilterDataStatic.Add_INTERNAL(ref data, in entity, updateMinMax);
 
             return true;
 
         }
 
-        public static bool CheckRemove(ref FilterBurstData data, in Entity entity) {
+        public static bool CheckRemove(ref FilterBurstData data, in Entity entity, byte updateMinMax) {
 
             // If entity already exists in cache - try to remove if entity's archetype doesn't fit with contains & notContains
             ref var entArchetype = ref data.archetypes.Get(entity.id);
@@ -1428,7 +1495,7 @@ namespace ME.ECS {
             var allNotContains = entArchetype.HasNot(in data.archetypeNotContains);
             if (allContains == true && allNotContains == true) return false;
 
-            return FilterDataStatic.Remove_INTERNAL(ref data, in entity);
+            return FilterDataStatic.Remove_INTERNAL(ref data, in entity, updateMinMax);
 
         }
 
@@ -1562,11 +1629,14 @@ namespace ME.ECS {
 
                 if (this.data.dataContains[i] == 1) {
 
-                    FilterDataStatic.Remove_INTERNAL(ref this.data, in this.world.currentState.storage.cache[i]);
+                    FilterDataStatic.Remove_INTERNAL(ref this.data, in this.world.currentState.storage.cache[i], 0);
 
                 }
 
             }
+            
+            this.data.min = int.MaxValue;
+            this.data.max = int.MinValue;
 
             if (this.data.onVersionChangedOnly == 1) NativeArrayUtils.Clear(this.data.dataVersions);
             NativeArrayUtils.Clear(this.data.dataContains);
@@ -1927,7 +1997,7 @@ namespace ME.ECS {
                 
             }
             
-            if (state == false) {
+            if (state == false && this.data.forEachMode == 0) {
 
                 this.ApplyAllRequests();
 
@@ -1943,7 +2013,7 @@ namespace ME.ECS {
             public void Execute(int index) {
 
                 ref var dataRef = ref this.data;
-                FilterDataStatic.OnUpdateForced_INTERNAL(ref dataRef, in dataRef.requests.GetRefRead(index));
+                FilterDataStatic.OnUpdateForced_INTERNAL(ref dataRef, in dataRef.requests.GetRefRead(index), 0);
 
             }
 
@@ -1957,7 +2027,7 @@ namespace ME.ECS {
             public void Execute(int index) {
                 
                 ref var dataRef = ref this.data;
-                FilterDataStatic.Remove_INTERNAL(ref dataRef, in dataRef.requestsRemoveEntity.GetRefRead(index));
+                FilterDataStatic.Remove_INTERNAL(ref dataRef, in dataRef.requestsRemoveEntity.GetRefRead(index), 0);
                 
             }
 
@@ -1976,7 +2046,7 @@ namespace ME.ECS {
                     data = this.data,
                 };
                 jobHandle = job.Schedule(this.data.requestsCount, 64);
-
+                
             }
 
             if (this.data.requestsRemoveCount > 0) {
@@ -1985,7 +2055,7 @@ namespace ME.ECS {
                     data = this.data,
                 };
                 jobRemoveHandle = jobRemove.Schedule(this.data.requestsRemoveCount, 64);
-
+                
             }
 
             if (this.data.requestsCount > 0 && this.data.requestsRemoveCount > 0) {
@@ -2001,6 +2071,8 @@ namespace ME.ECS {
                 jobRemoveHandle.Complete();
                 
             }
+            
+            FilterDataStatic.UpdateMinMax(ref this.data);
 
             this.data.requestsCount = 0;
             this.data.requestsRemoveCount = 0;
@@ -2068,7 +2140,7 @@ namespace ME.ECS {
         public bool OnUpdate(in Entity entity) {
 
             this.data.archetypes = this.world.currentState.storage.archetypes;
-            return FilterDataStatic.OnUpdate_INTERNAL(ref this.data, in entity);
+            return FilterDataStatic.OnUpdate_INTERNAL(ref this.data, in entity, 1);
 
         }
 
@@ -2078,7 +2150,7 @@ namespace ME.ECS {
         public bool OnAddComponent(in Entity entity) {
 
             this.data.archetypes = this.world.currentState.storage.archetypes;
-            return FilterDataStatic.OnUpdate_INTERNAL(ref this.data, in entity);
+            return FilterDataStatic.OnUpdate_INTERNAL(ref this.data, in entity, 1);
 
         }
 
@@ -2088,7 +2160,7 @@ namespace ME.ECS {
         public bool OnRemoveComponent(in Entity entity) {
 
             this.data.archetypes = this.world.currentState.storage.archetypes;
-            return FilterDataStatic.OnUpdate_INTERNAL(ref this.data, in entity);
+            return FilterDataStatic.OnUpdate_INTERNAL(ref this.data, in entity, 1);
 
         }
 

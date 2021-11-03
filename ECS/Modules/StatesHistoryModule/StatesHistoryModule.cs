@@ -941,7 +941,7 @@ namespace ME.ECS.StatesHistory {
             if (historyEvent.storeInHistory == true) {
                 
                 ++this.statPlayedEvents;
-                //UnityEngine.Debug.LogError("Run event tick: " + historyEvent.tick + ", method: " + historyEvent.localOrder + ", currentTick: " + this.currentTick);
+                //UnityEngine.Debug.LogError("Run event tick: " + historyEvent.tick + ", method: " + historyEvent.localOrder + ", currentTick: " + this.world.currentState.tick);
                 
             }
             

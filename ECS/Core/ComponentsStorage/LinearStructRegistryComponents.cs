@@ -1416,6 +1416,7 @@ namespace ME.ECS {
         #endif
         partial void DestroyEntityPlugin1(Entity entity) {
 
+            this.structComponentsNoState.RemoveAll(in entity);
             this.currentState.structComponents.RemoveAll(in entity);
             this.currentState.storage.archetypes.Clear(in entity);
 

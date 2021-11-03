@@ -3221,7 +3221,6 @@ namespace ME.ECS {
 
             var state = this.GetState();
 
-            //UnityEngine.Debug.Log("Simulate " + from + " to " + to);
             this.cpf = to - from;
             var fixedDeltaTime = this.GetTickTime();
             for (state.tick = from; state.tick < to; ++state.tick) {

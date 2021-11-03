@@ -71,6 +71,7 @@ namespace ME.ECS.Network {
 
         void SetAsyncMode(bool state);
         void SetReplayMode(bool state);
+        bool IsReplayMode();
 
         void LoadHistoryStorage(ME.ECS.StatesHistory.HistoryStorage storage);
 
@@ -452,6 +453,12 @@ namespace ME.ECS.Network {
 
         private void CallRPC(object instance, RPCId rpcId, bool storeInHistory, object[] parameters) {
 
+            if (this.replayMode == true && storeInHistory == true) {
+                
+                throw new System.Exception("Calling RPC in replay mode is not allowed!");
+                
+            }
+
             if (this.world.HasStep(WorldStep.LogicTick) == true) {
 
                 InStateException.ThrowWorldStateCheck();
@@ -730,6 +737,8 @@ namespace ME.ECS.Network {
             this.asyncMode = state;
             
         }
+
+        public bool IsReplayMode() => this.replayMode;
 
         public void SetReplayMode(bool state) {
             

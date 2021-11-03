@@ -431,6 +431,9 @@ namespace ME.ECS.Essentials {
 
         public void Execute() {
             
+            var networkModule = this.world.GetModule<ME.ECS.Network.INetworkModuleBase>();
+            if (networkModule.IsReplayMode() == true) return;
+            
             if (this.pointerClick == true) this.pointerClickEvent.Execute();
             if (this.pointerDoubleClick == true) this.pointerDoubleClickEvent.Execute();
             if (this.pointerDragBegin == true) this.pointerDragBeginEvent.Execute();

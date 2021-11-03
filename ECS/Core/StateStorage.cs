@@ -222,6 +222,7 @@ namespace ME.ECS {
             if (e.generation == 0) e = new Entity(id, 1);
             this.versions.Reset(id);
             e = ref this.IncrementGeneration(in e);
+            //using (NoStackTrace.All) UnityEngine.Debug.Log("Alloc: " + e + ", tick: " + Worlds.current.GetCurrentTick());
             return ref e;
 
         }
@@ -233,6 +234,7 @@ namespace ME.ECS {
 
             if (this.IsAlive(entity.id, entity.generation) == false) return false;
 
+            //using (NoStackTrace.All) UnityEngine.Debug.Log("Dealloc: " + entity + ", tick: " + Worlds.current.GetCurrentTick());
             this.deadPrepared.Add(entity.id);
 
             return true;
@@ -264,7 +266,7 @@ namespace ME.ECS {
                     --this.aliveCount;
                     this.dead.Add(id);
                     this.alive.Remove(id);
-
+                    
                 }
 
                 this.deadPrepared.Clear();
