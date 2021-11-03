@@ -9,7 +9,8 @@
     "com.unity.ui": "1.0.0-preview.16",
     "com.unity.addressables": "1.18.13",
     "com.unity.burst": "1.5.3",
-    "com.unity.mathematics": "1.2.1"
+    "com.unity.mathematics": "1.2.1",
+    "com.unity.localization": "1.0.5"
   },
   "scopedRegistries": [
     {
