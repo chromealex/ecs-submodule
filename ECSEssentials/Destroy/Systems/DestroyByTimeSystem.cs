@@ -1,4 +1,8 @@
 ﻿using ME.ECS;
+using Unity.Jobs;
+using Unity.Burst;
+using ME.ECS.Buffers;
+using Unity.Collections;
 
 namespace ME.ECS.Essentials.Destroy.Systems {
 
@@ -11,37 +15,53 @@ namespace ME.ECS.Essentials.Destroy.Systems {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class DestroyByTimeSystem : ISystemFilter {
+    public sealed class DestroyByTimeSystem : ISystem, IAdvanceTick {
+        
+        private Filter filter;
         
         public World world { get; set; }
-        
-        void ISystemBase.OnConstruct() {}
+
+        void ISystemBase.OnConstruct() {
+            
+            Filter.Create("Filter-DestroyByTimeSystem")
+                                     .With<DestroyByTime>()
+                                     .Push(ref this.filter);
+                                     
+        }
         
         void ISystemBase.OnDeconstruct() {}
-        
-        bool ISystemFilter.jobs => false;
-        int ISystemFilter.jobsBatchCount => 64;
-        Filter ISystemFilter.filter { get; set; }
-        Filter ISystemFilter.CreateFilter() {
-            
-            return Filter.Create("Filter-DestroyByTimeSystem")
-                         .With<DestroyByTime>()
-                         .Push();
-            
-        }
 
-        void ISystemFilter.AdvanceTick(in Entity entity, in float deltaTime) {
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        private struct Job : IJobParallelFor {
+            
+            public FilterBag<DestroyByTime> bag;
+            public float deltaTime;
 
-            ref var timer = ref entity.Get<DestroyByTime>();
-            timer.time -= deltaTime;
-            if (timer.time <= 0f) {
+            public void Execute(int index) {
+
+                ref var timer = ref this.bag.GetT0(index);
+                timer.time -= this.deltaTime;
+                if (timer.time <= 0f) {
                 
-                this.world.RemoveEntity(in entity);
+                    this.bag.DestroyEntity(index);
                 
+                }
+
             }
 
         }
-    
+        
+        void IAdvanceTick.AdvanceTick(in float deltaTime) {
+
+            var bag = new FilterBag<DestroyByTime>(this.filter, Allocator.Temp);
+            new Job() {
+                bag = bag,
+                deltaTime = deltaTime,
+            }.Schedule(bag.Length, 64).Complete();
+            bag.Push();
+
+        }
+
     }
     
 }

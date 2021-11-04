@@ -19,6 +19,7 @@ namespace ME.ECS {
 public struct DataBufferStruct<T0> {
     public byte containsT0;
     public byte opsT0;
+    public byte entityOps;
     public Entity entity;
     public T0 t0;
 }
@@ -57,7 +58,10 @@ t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : d
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
         for (int i = 0; i < this.Length; ++i) {
             ref readonly var data = ref this.arr.GetRefRead(i);
-            {
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
     var op = data.opsT0;
     if (op != 0) {
         if ((op & 0x4) != 0) {
@@ -69,10 +73,13 @@ t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : d
         }
     }
 }
+            }
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
     }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
     
     public int GetEntityId(int index) => this.arr[index].entity.id;
 
@@ -96,6 +103,7 @@ public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0;
 public struct DataBufferStruct<T0,T1> {
     public byte containsT0;public byte containsT1;
     public byte opsT0;public byte opsT1;
+    public byte entityOps;
     public Entity entity;
     public T0 t0;public T1 t1;
 }
@@ -137,7 +145,10 @@ t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : d
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
         for (int i = 0; i < this.Length; ++i) {
             ref readonly var data = ref this.arr.GetRefRead(i);
-            {
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
     var op = data.opsT0;
     if (op != 0) {
         if ((op & 0x4) != 0) {
@@ -160,10 +171,13 @@ t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : d
         }
     }
 }
+            }
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
     }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
     
     public int GetEntityId(int index) => this.arr[index].entity.id;
 
@@ -191,6 +205,7 @@ public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0;
 public struct DataBufferStruct<T0,T1,T2> {
     public byte containsT0;public byte containsT1;public byte containsT2;
     public byte opsT0;public byte opsT1;public byte opsT2;
+    public byte entityOps;
     public Entity entity;
     public T0 t0;public T1 t1;public T2 t2;
 }
@@ -235,7 +250,10 @@ t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : d
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
         for (int i = 0; i < this.Length; ++i) {
             ref readonly var data = ref this.arr.GetRefRead(i);
-            {
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
     var op = data.opsT0;
     if (op != 0) {
         if ((op & 0x4) != 0) {
@@ -269,10 +287,13 @@ t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : d
         }
     }
 }
+            }
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
     }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
     
     public int GetEntityId(int index) => this.arr[index].entity.id;
 
@@ -304,6 +325,7 @@ public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0;
 public struct DataBufferStruct<T0,T1,T2,T3> {
     public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;
+    public byte entityOps;
     public Entity entity;
     public T0 t0;public T1 t1;public T2 t2;public T3 t3;
 }
@@ -351,7 +373,10 @@ t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : d
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
         for (int i = 0; i < this.Length; ++i) {
             ref readonly var data = ref this.arr.GetRefRead(i);
-            {
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
     var op = data.opsT0;
     if (op != 0) {
         if ((op & 0x4) != 0) {
@@ -396,10 +421,13 @@ t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : d
         }
     }
 }
+            }
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
     }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
     
     public int GetEntityId(int index) => this.arr[index].entity.id;
 
@@ -435,6 +463,7 @@ public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0;
 public struct DataBufferStruct<T0,T1,T2,T3,T4> {
     public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;
+    public byte entityOps;
     public Entity entity;
     public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;
 }
@@ -485,7 +514,10 @@ t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : d
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
         for (int i = 0; i < this.Length; ++i) {
             ref readonly var data = ref this.arr.GetRefRead(i);
-            {
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
     var op = data.opsT0;
     if (op != 0) {
         if ((op & 0x4) != 0) {
@@ -541,10 +573,13 @@ t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : d
         }
     }
 }
+            }
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
     }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
     
     public int GetEntityId(int index) => this.arr[index].entity.id;
 
@@ -584,6 +619,7 @@ public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0;
 public struct DataBufferStruct<T0,T1,T2,T3,T4,T5> {
     public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;
+    public byte entityOps;
     public Entity entity;
     public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;
 }
@@ -637,7 +673,10 @@ t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : d
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
         for (int i = 0; i < this.Length; ++i) {
             ref readonly var data = ref this.arr.GetRefRead(i);
-            {
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
     var op = data.opsT0;
     if (op != 0) {
         if ((op & 0x4) != 0) {
@@ -704,10 +743,13 @@ t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : d
         }
     }
 }
+            }
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
     }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
     
     public int GetEntityId(int index) => this.arr[index].entity.id;
 
@@ -751,6 +793,7 @@ public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0;
 public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6> {
     public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;public byte containsT6;
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;
+    public byte entityOps;
     public Entity entity;
     public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;
 }
@@ -807,7 +850,10 @@ t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : d
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
         for (int i = 0; i < this.Length; ++i) {
             ref readonly var data = ref this.arr.GetRefRead(i);
-            {
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
     var op = data.opsT0;
     if (op != 0) {
         if ((op & 0x4) != 0) {
@@ -885,10 +931,13 @@ t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : d
         }
     }
 }
+            }
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
     }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
     
     public int GetEntityId(int index) => this.arr[index].entity.id;
 
@@ -936,6 +985,7 @@ public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0;
 public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7> {
     public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;public byte containsT6;public byte containsT7;
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;
+    public byte entityOps;
     public Entity entity;
     public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;
 }
@@ -995,7 +1045,10 @@ t7 = AllComponentTypes<T7>.isTag == false ? regT7.components[entity.id].data : d
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
         for (int i = 0; i < this.Length; ++i) {
             ref readonly var data = ref this.arr.GetRefRead(i);
-            {
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
     var op = data.opsT0;
     if (op != 0) {
         if ((op & 0x4) != 0) {
@@ -1084,10 +1137,13 @@ t7 = AllComponentTypes<T7>.isTag == false ? regT7.components[entity.id].data : d
         }
     }
 }
+            }
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
     }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
     
     public int GetEntityId(int index) => this.arr[index].entity.id;
 
@@ -1139,6 +1195,7 @@ public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0;
 public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8> {
     public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;public byte containsT6;public byte containsT7;public byte containsT8;
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;
+    public byte entityOps;
     public Entity entity;
     public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;
 }
@@ -1201,7 +1258,10 @@ t8 = AllComponentTypes<T8>.isTag == false ? regT8.components[entity.id].data : d
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
         for (int i = 0; i < this.Length; ++i) {
             ref readonly var data = ref this.arr.GetRefRead(i);
-            {
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
     var op = data.opsT0;
     if (op != 0) {
         if ((op & 0x4) != 0) {
@@ -1301,10 +1361,13 @@ t8 = AllComponentTypes<T8>.isTag == false ? regT8.components[entity.id].data : d
         }
     }
 }
+            }
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
     }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
     
     public int GetEntityId(int index) => this.arr[index].entity.id;
 

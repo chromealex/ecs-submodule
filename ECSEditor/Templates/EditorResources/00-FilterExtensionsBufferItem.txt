@@ -2,6 +2,7 @@
 public struct DataBufferStruct<#ITEMS_TYPE#> {
     #DATABUFFER_CONTAINS#
     #DATABUFFER_OPS#
+    public byte entityOps;
     public Entity entity;
     #DATABUFFER_DATA#
 }
@@ -37,11 +38,17 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
         #PUSH_REGS_INIT#
         for (int i = 0; i < this.Length; ++i) {
             ref readonly var data = ref this.arr.GetRefRead(i);
-            #PUSH_OPS#
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                #PUSH_OPS#
+            }
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
     }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
     
     public int GetEntityId(int index) => this.arr[index].entity.id;
 
