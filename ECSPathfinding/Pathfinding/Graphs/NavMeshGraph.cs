@@ -122,31 +122,24 @@ namespace ME.ECS.Pathfinding {
             foreach (var vert in t.vertices) {
                 hash ^= (int)(vert.x * 1000000f);
             }
-            Debug.Log("NAV MESH HASH X: " + hash);
-
-            hash = 0;
+            
             foreach (var vert in t.vertices) {
                 hash ^= (int)(vert.y * 1000000f);
             }
-            Debug.Log("NAV MESH HASH Y: " + hash);
-
-            hash = 0;
+            
             foreach (var vert in t.vertices) {
                 hash ^= (int)(vert.z * 1000000f);
             }
-            Debug.Log("NAV MESH HASH Z: " + hash);
-
-            hash = 0;
+            
             foreach (var vert in t.indices) {
                 hash ^= (int)(vert);
             }
-            Debug.Log("NAV MESH HASH 2: " + hash);
-
-            hash = 0;
+            
             foreach (var vert in t.areas) {
                 hash ^= (int)(vert);
             }
-            Debug.Log("NAV MESH HASH 3: " + hash);
+            
+            Debug.Log("NavMeshGraph Hash: " + hash);
 
         }
 

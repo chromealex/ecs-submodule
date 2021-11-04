@@ -221,7 +221,7 @@ namespace ME.ECS {
             ref var e = ref this.cache[id];
             if (e.generation == 0) e = new Entity(id, 1);
             this.versions.Reset(id);
-            e = ref this.IncrementGeneration(in e);
+            //e = ref this.IncrementGeneration(in e);
             //using (NoStackTrace.All) UnityEngine.Debug.Log("Alloc: " + e + ", tick: " + Worlds.current.GetCurrentTick());
             return ref e;
 
