@@ -9,7 +9,7 @@ namespace ME.ECSEditor {
     public class WorldsViewerEditorWindow : EditorWindow {
 
         //[MenuItem("ME.ECS/Worlds Viewer 2...")]
-        public static void Show() {
+        public static void ShowWorldViewer() {
 
             var win = WorldsViewerEditorWindow.CreateInstance<WorldsViewerEditorWindow>();
             win.titleContent = new GUIContent("Worlds Viewer");
