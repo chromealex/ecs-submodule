@@ -498,7 +498,7 @@ namespace ME.ECS {
 
         }
 
-        public override void Construct(ref object item, TState state) {
+        public override void OnConstruct(ref object item, TState state) {
             
             if (this.constructor != null && item == null) {
 
