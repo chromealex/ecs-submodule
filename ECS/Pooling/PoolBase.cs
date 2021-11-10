@@ -471,7 +471,7 @@ namespace ME.ECS {
 
         public PoolInternalState(System.Type poolType) : base(poolType) {}
         
-        protected virtual void Construct(ref object item, TState state) {
+        public virtual void OnConstruct(ref object item, TState state) {
             
         }
 
@@ -498,7 +498,7 @@ namespace ME.ECS {
 
         }
 
-        protected override void Construct(ref object item, TState state) {
+        public override void Construct(ref object item, TState state) {
             
             if (this.constructor != null && item == null) {
 
@@ -835,7 +835,7 @@ namespace ME.ECS {
 
         protected void Construct<TState>(ref object obj, TState state) {
 
-            if (this is PoolInternalState<TState> pool) pool.Construct(ref obj, state);
+            if (this is PoolInternalState<TState> pool) pool.OnConstruct(ref obj, state);
 
         }
         
