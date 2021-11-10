@@ -121,6 +121,8 @@ namespace ME.ECS.Views.Providers {
     #endif
     public class NoViewProvider : ViewsProvider {
 
+        internal struct NullState {}
+        
         private PoolInternalBase pool;
 
         public override void OnConstruct() {
@@ -139,7 +141,7 @@ namespace ME.ECS.Views.Providers {
 
             var prefabSource = (NoView)prefab;
 
-            var obj = this.pool.Spawn();
+            var obj = this.pool.Spawn(new NullState());
             if (obj == null) {
 
                 obj = System.Activator.CreateInstance(prefab.GetType());

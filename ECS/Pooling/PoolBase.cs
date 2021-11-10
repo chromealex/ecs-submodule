@@ -188,14 +188,14 @@ namespace ME.ECS {
             var type = typeof(T);
             if (this.pool.TryGetValue(type, out var pool) == true) {
 
-                return (T)pool.Spawn();
+                return (T)pool.Spawn(state);
 
             }
 
-            pool = new PoolInternal<T, TState>(type, state, constructor, destructor);
+            pool = new PoolInternal<T, TState>(type, constructor, destructor);
             this.pool.Add(type, pool);
 
-            return (T)pool.Spawn();
+            return (T)pool.Spawn(state);
 
         }
 
@@ -467,15 +467,23 @@ namespace ME.ECS {
 
     }
 
-    public class PoolInternal<T, TState> : PoolInternalBase where T : class {
+    public class PoolInternalState<TState> : PoolInternalBase {
 
-        public TState state;
+        public PoolInternalState(System.Type poolType) : base(poolType) {}
+        
+        protected virtual void Construct(ref object item, TState state) {
+            
+        }
+
+    }
+
+    public class PoolInternal<T, TState> : PoolInternalState<TState> where T : class {
+
         protected System.Func<TState, T> constructor;
         protected System.Action<T> destructor;
 
-        public PoolInternal(System.Type poolType, TState state, System.Func<TState, T> constructor, System.Action<T> destructor) : base(poolType) {
+        public PoolInternal(System.Type poolType, System.Func<TState, T> constructor, System.Action<T> destructor) : base(poolType) {
 
-            this.state = state;
             this.constructor = constructor;
             this.destructor = destructor;
 
@@ -485,17 +493,16 @@ namespace ME.ECS {
             
             base.OnClear();
 
-            this.state = default;
             this.constructor = default;
             this.destructor = default;
 
         }
 
-        protected override void Construct(ref object item) {
+        protected override void Construct(ref object item, TState state) {
             
             if (this.constructor != null && item == null) {
 
-                item = this.constructor.Invoke(this.state);
+                item = this.constructor.Invoke(state);
 
             }
             
@@ -816,20 +823,22 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public virtual void Prewarm(int count) {
+        public virtual void Prewarm<TState>(int count, TState state) {
 
             for (int i = 0; i < count; ++i) {
 
-                this.Recycle(this.Spawn());
+                this.Recycle(this.Spawn(state));
 
             }
 
         }
 
-        protected virtual void Construct(ref object obj) {
-            
-        }
+        protected void Construct<TState>(ref object obj, TState state) {
 
+            if (this is PoolInternalState<TState> pool) pool.Construct(ref obj, state);
+
+        }
+        
         protected virtual void Destruct(object item) {
             
         }
@@ -837,7 +846,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public virtual object Spawn() {
+        public virtual object Spawn<TState>(TState state) {
 
             var item = (this.cache.Count > 0 ? this.cache.Pop() : null);
             if (item == null) {
@@ -853,7 +862,7 @@ namespace ME.ECS {
 
             }
 
-            this.Construct(ref item);
+            this.Construct(ref item, state);
             
             if (item is IPoolableSpawn poolable) {
 

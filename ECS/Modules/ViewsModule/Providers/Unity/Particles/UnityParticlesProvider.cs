@@ -481,6 +481,8 @@ namespace ME.ECS.Views.Providers {
     #endif
     public class UnityParticlesProvider : ViewsProvider {
 
+        internal struct NullState { }
+
         private System.Collections.Generic.Dictionary<long, ParticleSystemItem> psItems;
         private PoolInternalBase pool;
         private BufferArray<UnityEngine.ParticleSystem.Particle> particles;
@@ -576,7 +578,7 @@ namespace ME.ECS.Views.Providers {
 
             var prefabSource = (ParticleViewBase)prefab;
 
-            var obj = this.pool.Spawn();
+            var obj = this.pool.Spawn(new NullState());
             if (obj == null) {
 
                 obj = System.Activator.CreateInstance(prefab.GetType());

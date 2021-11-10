@@ -355,6 +355,8 @@ namespace ME.ECS.Views.Providers {
     #endif
     public class UnityDrawMeshProvider : ViewsProvider {
 
+        internal struct NullState {}
+
         private System.Collections.Generic.Dictionary<long, DrawMeshSystemItem> psItems;
         private PoolInternalBase pool;
         private BufferArray<UnityEngine.Matrix4x4> matrices;
@@ -376,7 +378,7 @@ namespace ME.ECS.Views.Providers {
 
         public override IView Spawn(IView prefab, ViewId prefabSourceId, in Entity targetEntity) {
 
-            var obj = this.pool.Spawn();
+            var obj = this.pool.Spawn(new NullState());
             if (obj == null) {
 
                 obj = System.Activator.CreateInstance(prefab.GetType());
