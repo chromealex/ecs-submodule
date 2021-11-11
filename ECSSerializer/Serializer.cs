@@ -473,35 +473,29 @@ namespace ME.ECS.Serializer {
 
             internal int metaTypeId;
             internal Dictionary<System.Type, MetaType> meta;
+            internal Dictionary<int, System.Type> typeById;
 
             public static Meta Create() {
 
                 return new Meta() {
                     metaTypeId = 0,
                     meta = PoolDictionary<System.Type, MetaType>.Spawn(8),
+                    typeById = PoolDictionary<int, System.Type>.Spawn(8),
                 };
 
             }
 
             public void Dispose() {
 
+                PoolDictionary<int, System.Type>.Recycle(ref this.typeById);
                 PoolDictionary<System.Type, MetaType>.Recycle(ref this.meta);
 
             }
 
             public System.Type GetMetaType(int typeId) {
 
-                foreach (var kv in this.meta) {
-
-                    if (kv.Value.id == typeId) {
-
-                        return kv.Key;
-
-                    }
-
-                }
-
-                return null;
+                this.typeById.TryGetValue(typeId, out var type);
+                return type;
 
             }
 
@@ -517,6 +511,7 @@ namespace ME.ECS.Serializer {
                 typeId.id = ++this.metaTypeId;
                 typeId.type = type.FullName;
                 this.meta.Add(type, typeId);
+                this.typeById.Add(typeId.id, type);
 
                 return typeId.id;
 
