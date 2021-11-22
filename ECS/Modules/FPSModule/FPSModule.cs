@@ -58,6 +58,7 @@ namespace ME.ECS {
             this.timeElapsed += deltaTime;
             ++this.framesElapsed;
             ++this.allFramesCount;
+            this.allFramesFps += this.fps;
 
             if (this.timeElapsed > checkTime) {
 
@@ -67,8 +68,6 @@ namespace ME.ECS {
                 
                 this.framesElapsed = 0;
                 this.timeElapsed -= checkTime;
-
-                this.allFramesFps += this.fps;
 
             }
 
