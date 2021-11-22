@@ -1,0 +1,15 @@
+﻿using ME.ECS;
+
+namespace #NAMESPACE# {
+
+    public struct #SCRIPTNAME# : IStructCopyable<#SCRIPTNAME#> {
+        
+        void IStructCopyable<#SCRIPTNAME#>.CopyFrom(in #SCRIPTNAME# other) {
+        }
+        
+        void IStructCopyable<#SCRIPTNAME#>.OnRecycle() {
+        }
+        
+    }
+    
+}
