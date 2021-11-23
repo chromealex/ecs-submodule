@@ -804,31 +804,39 @@ namespace ME.ECS {
             }
             #endif
 
-            for (int i = 0, cnt = this.nextFrameTasks.Count; i < cnt; ++i) {
+            if (this.nextFrameTasks != null) {
 
-                if (this.nextFrameTasks[i] == null) continue;
+                for (int i = 0, cnt = this.nextFrameTasks.Count; i < cnt; ++i) {
 
-                if (this.nextFrameTasks[i].GetEntity() == entity) {
+                    if (this.nextFrameTasks[i] == null) continue;
 
-                    this.nextFrameTasks[i].Recycle();
-                    this.nextFrameTasks.RemoveAt(i);
-                    --i;
-                    --cnt;
+                    if (this.nextFrameTasks[i].GetEntity() == entity) {
+
+                        this.nextFrameTasks[i].Recycle();
+                        this.nextFrameTasks.RemoveAt(i);
+                        --i;
+                        --cnt;
+
+                    }
 
                 }
 
             }
 
-            for (int i = 0, cnt = this.nextTickTasks.Count; i < cnt; ++i) {
+            if (this.nextTickTasks != null) {
 
-                if (this.nextTickTasks[i] == null) continue;
+                for (int i = 0, cnt = this.nextTickTasks.Count; i < cnt; ++i) {
 
-                if (this.nextTickTasks[i].GetEntity() == entity) {
+                    if (this.nextTickTasks[i] == null) continue;
 
-                    this.nextTickTasks[i].Recycle();
-                    this.nextTickTasks.RemoveAt(i);
-                    --i;
-                    --cnt;
+                    if (this.nextTickTasks[i].GetEntity() == entity) {
+
+                        this.nextTickTasks[i].Recycle();
+                        this.nextTickTasks.RemoveAt(i);
+                        --i;
+                        --cnt;
+
+                    }
 
                 }
 
