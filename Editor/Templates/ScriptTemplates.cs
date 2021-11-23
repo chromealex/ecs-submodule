@@ -17,7 +17,8 @@ namespace ME.ECSEditor {
         
         private const int CREATE_SYSTEM_PRIORITY = ScriptTemplates.CREATE_MENU_PRIORITY + 13;
         private const int CREATE_SYSTEM_FILTER_PRIORITY = ScriptTemplates.CREATE_MENU_PRIORITY + 14;
-        private const int CREATE_MODULE_PRIORITY = ScriptTemplates.CREATE_MENU_PRIORITY + 15;
+        private const int CREATE_SYSTEM_BURST_PRIORITY = ScriptTemplates.CREATE_MENU_PRIORITY + 15;
+        private const int CREATE_MODULE_PRIORITY = ScriptTemplates.CREATE_MENU_PRIORITY + 16;
         private const int CREATE_MARKER_PRIORITY = ScriptTemplates.CREATE_MENU_PRIORITY + 17;
         
         private const int CREATE_COMPONENT_STRUCT_PRIORITY = ScriptTemplates.CREATE_MENU_PRIORITY + 40;
@@ -398,6 +399,27 @@ MonoBehaviour:
             }
 
             ScriptTemplates.Create("New System with Filter.cs", "12-SystemFilterTemplate");
+
+        }
+
+        [UnityEditor.MenuItem("Assets/Create/ME.ECS/System with Burst", priority = ScriptTemplates.CREATE_SYSTEM_BURST_PRIORITY)]
+        public static void CreateSystemBurst() {
+
+            var obj = ScriptTemplates.GetSelectedDirectory();
+            if (obj != null) {
+
+                if (ScriptTemplates.GetFeature(obj, out var featureName) == true) {
+                    
+                    ScriptTemplates.Create("New System with Burst.cs", "13-SystemBurstFeatureTemplate", new Dictionary<string, string>() {
+                        { "FEATURE", featureName },
+                    });
+                    return;
+                    
+                }
+                
+            }
+
+            ScriptTemplates.Create("New System with Burst.cs", "13-SystemBurstTemplate");
 
         }
 
