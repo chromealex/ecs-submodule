@@ -1419,6 +1419,3276 @@ public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0;
 
 }
 
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> {
+    public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;public byte containsT6;public byte containsT7;public byte containsT8;public byte containsT9;
+    public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;
+    public byte entityOps;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;
+}
+
+#if ECS_COMPILE_IL2CPP_OPTIONS
+[Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+#endif
+public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+
+    public readonly int Length;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> arr;
+    
+    public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        var world = filter.world;
+        this.Length = filter.Count;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+regT3.Merge();var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+regT4.Merge();var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+regT5.Merge();var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+regT6.Merge();var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+regT7.Merge();var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+regT8.Merge();var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+regT9.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>(this.Length, allocator);
+        var idx = 0;
+        foreach (var entity in filter) {
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>() {
+                entity = entity,
+                containsT0 = regT0.components[entity.id].state,
+opsT0 = 0,
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
+opsT1 = 0,
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
+opsT2 = 0,
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,containsT3 = regT3.components[entity.id].state,
+opsT3 = 0,
+t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : default,containsT4 = regT4.components[entity.id].state,
+opsT4 = 0,
+t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : default,containsT5 = regT5.components[entity.id].state,
+opsT5 = 0,
+t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : default,containsT6 = regT6.components[entity.id].state,
+opsT6 = 0,
+t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : default,containsT7 = regT7.components[entity.id].state,
+opsT7 = 0,
+t7 = AllComponentTypes<T7>.isTag == false ? regT7.components[entity.id].data : default,containsT8 = regT8.components[entity.id].state,
+opsT8 = 0,
+t8 = AllComponentTypes<T8>.isTag == false ? regT8.components[entity.id].data : default,containsT9 = regT9.components[entity.id].state,
+opsT9 = 0,
+t9 = AllComponentTypes<T9>.isTag == false ? regT9.components[entity.id].data : default,
+            };
+            ++idx;
+        }
+    }
+
+    public void Push() {
+        var world = Worlds.currentWorld;
+        var changedCount = 0;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT3;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT3);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT3, in data.t3);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT4;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT4);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT4, in data.t4);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT5;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT5);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT5, in data.t5);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT6;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT6);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT6, in data.t6);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT7;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT7);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT7, in data.t7);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT8;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT8);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT8, in data.t8);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT9;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT9);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT9, in data.t9);
+            ++changedCount;
+        }
+    }
+}
+            }
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
+    }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
+    
+    public int GetEntityId(int index) => this.arr[index].entity.id;
+
+    public ref readonly Entity GetEntity(int index) => ref this.arr.GetRefRead(index).entity;
+
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
+
+    #region API
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
+public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
+public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
+public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
+public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
+public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
+public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
+public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
+public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
+public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
+public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
+public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
+public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
+public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
+public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }
+    #endregion
+
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> {
+    public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;public byte containsT6;public byte containsT7;public byte containsT8;public byte containsT9;public byte containsT10;
+    public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;
+    public byte entityOps;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;
+}
+
+#if ECS_COMPILE_IL2CPP_OPTIONS
+[Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+#endif
+public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+
+    public readonly int Length;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> arr;
+    
+    public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        var world = filter.world;
+        this.Length = filter.Count;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+regT3.Merge();var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+regT4.Merge();var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+regT5.Merge();var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+regT6.Merge();var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+regT7.Merge();var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+regT8.Merge();var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+regT9.Merge();var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+regT10.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>(this.Length, allocator);
+        var idx = 0;
+        foreach (var entity in filter) {
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>() {
+                entity = entity,
+                containsT0 = regT0.components[entity.id].state,
+opsT0 = 0,
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
+opsT1 = 0,
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
+opsT2 = 0,
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,containsT3 = regT3.components[entity.id].state,
+opsT3 = 0,
+t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : default,containsT4 = regT4.components[entity.id].state,
+opsT4 = 0,
+t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : default,containsT5 = regT5.components[entity.id].state,
+opsT5 = 0,
+t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : default,containsT6 = regT6.components[entity.id].state,
+opsT6 = 0,
+t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : default,containsT7 = regT7.components[entity.id].state,
+opsT7 = 0,
+t7 = AllComponentTypes<T7>.isTag == false ? regT7.components[entity.id].data : default,containsT8 = regT8.components[entity.id].state,
+opsT8 = 0,
+t8 = AllComponentTypes<T8>.isTag == false ? regT8.components[entity.id].data : default,containsT9 = regT9.components[entity.id].state,
+opsT9 = 0,
+t9 = AllComponentTypes<T9>.isTag == false ? regT9.components[entity.id].data : default,containsT10 = regT10.components[entity.id].state,
+opsT10 = 0,
+t10 = AllComponentTypes<T10>.isTag == false ? regT10.components[entity.id].data : default,
+            };
+            ++idx;
+        }
+    }
+
+    public void Push() {
+        var world = Worlds.currentWorld;
+        var changedCount = 0;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT3;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT3);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT3, in data.t3);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT4;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT4);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT4, in data.t4);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT5;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT5);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT5, in data.t5);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT6;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT6);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT6, in data.t6);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT7;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT7);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT7, in data.t7);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT8;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT8);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT8, in data.t8);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT9;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT9);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT9, in data.t9);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT10;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT10);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT10, in data.t10);
+            ++changedCount;
+        }
+    }
+}
+            }
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
+    }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
+    
+    public int GetEntityId(int index) => this.arr[index].entity.id;
+
+    public ref readonly Entity GetEntity(int index) => ref this.arr.GetRefRead(index).entity;
+
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
+
+    #region API
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
+public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
+public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
+public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
+public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
+public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
+public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
+public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
+public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
+public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
+public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
+public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
+public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
+public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
+public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
+public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
+public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }
+    #endregion
+
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> {
+    public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;public byte containsT6;public byte containsT7;public byte containsT8;public byte containsT9;public byte containsT10;public byte containsT11;
+    public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;public byte opsT11;
+    public byte entityOps;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;public T11 t11;
+}
+
+#if ECS_COMPILE_IL2CPP_OPTIONS
+[Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+#endif
+public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+
+    public readonly int Length;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> arr;
+    
+    public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        var world = filter.world;
+        this.Length = filter.Count;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+regT3.Merge();var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+regT4.Merge();var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+regT5.Merge();var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+regT6.Merge();var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+regT7.Merge();var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+regT8.Merge();var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+regT9.Merge();var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+regT10.Merge();var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+regT11.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(this.Length, allocator);
+        var idx = 0;
+        foreach (var entity in filter) {
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>() {
+                entity = entity,
+                containsT0 = regT0.components[entity.id].state,
+opsT0 = 0,
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
+opsT1 = 0,
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
+opsT2 = 0,
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,containsT3 = regT3.components[entity.id].state,
+opsT3 = 0,
+t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : default,containsT4 = regT4.components[entity.id].state,
+opsT4 = 0,
+t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : default,containsT5 = regT5.components[entity.id].state,
+opsT5 = 0,
+t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : default,containsT6 = regT6.components[entity.id].state,
+opsT6 = 0,
+t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : default,containsT7 = regT7.components[entity.id].state,
+opsT7 = 0,
+t7 = AllComponentTypes<T7>.isTag == false ? regT7.components[entity.id].data : default,containsT8 = regT8.components[entity.id].state,
+opsT8 = 0,
+t8 = AllComponentTypes<T8>.isTag == false ? regT8.components[entity.id].data : default,containsT9 = regT9.components[entity.id].state,
+opsT9 = 0,
+t9 = AllComponentTypes<T9>.isTag == false ? regT9.components[entity.id].data : default,containsT10 = regT10.components[entity.id].state,
+opsT10 = 0,
+t10 = AllComponentTypes<T10>.isTag == false ? regT10.components[entity.id].data : default,containsT11 = regT11.components[entity.id].state,
+opsT11 = 0,
+t11 = AllComponentTypes<T11>.isTag == false ? regT11.components[entity.id].data : default,
+            };
+            ++idx;
+        }
+    }
+
+    public void Push() {
+        var world = Worlds.currentWorld;
+        var changedCount = 0;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT3;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT3);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT3, in data.t3);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT4;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT4);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT4, in data.t4);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT5;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT5);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT5, in data.t5);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT6;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT6);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT6, in data.t6);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT7;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT7);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT7, in data.t7);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT8;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT8);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT8, in data.t8);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT9;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT9);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT9, in data.t9);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT10;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT10);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT10, in data.t10);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT11;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT11);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT11, in data.t11);
+            ++changedCount;
+        }
+    }
+}
+            }
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
+    }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
+    
+    public int GetEntityId(int index) => this.arr[index].entity.id;
+
+    public ref readonly Entity GetEntity(int index) => ref this.arr.GetRefRead(index).entity;
+
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
+
+    #region API
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
+public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
+public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
+public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
+public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
+public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
+public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
+public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
+public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
+public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
+public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
+public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
+public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
+public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
+public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
+public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
+public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
+public void Set(int index, in T11 component) { ref var data = ref this.arr.GetRef(index); data.t11 = component; data.opsT11 = 0x2; data.containsT11 = 1; }
+public ref T11 GetT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x2; return ref data.t11; }
+public ref readonly T11 ReadT11(int index) { return ref this.arr.GetRefRead(index).t11; }
+public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }
+    #endregion
+
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> {
+    public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;public byte containsT6;public byte containsT7;public byte containsT8;public byte containsT9;public byte containsT10;public byte containsT11;public byte containsT12;
+    public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;public byte opsT11;public byte opsT12;
+    public byte entityOps;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;public T11 t11;public T12 t12;
+}
+
+#if ECS_COMPILE_IL2CPP_OPTIONS
+[Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+#endif
+public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+
+    public readonly int Length;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> arr;
+    
+    public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        var world = filter.world;
+        this.Length = filter.Count;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+regT3.Merge();var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+regT4.Merge();var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+regT5.Merge();var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+regT6.Merge();var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+regT7.Merge();var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+regT8.Merge();var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+regT9.Merge();var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+regT10.Merge();var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+regT11.Merge();var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
+regT12.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(this.Length, allocator);
+        var idx = 0;
+        foreach (var entity in filter) {
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>() {
+                entity = entity,
+                containsT0 = regT0.components[entity.id].state,
+opsT0 = 0,
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
+opsT1 = 0,
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
+opsT2 = 0,
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,containsT3 = regT3.components[entity.id].state,
+opsT3 = 0,
+t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : default,containsT4 = regT4.components[entity.id].state,
+opsT4 = 0,
+t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : default,containsT5 = regT5.components[entity.id].state,
+opsT5 = 0,
+t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : default,containsT6 = regT6.components[entity.id].state,
+opsT6 = 0,
+t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : default,containsT7 = regT7.components[entity.id].state,
+opsT7 = 0,
+t7 = AllComponentTypes<T7>.isTag == false ? regT7.components[entity.id].data : default,containsT8 = regT8.components[entity.id].state,
+opsT8 = 0,
+t8 = AllComponentTypes<T8>.isTag == false ? regT8.components[entity.id].data : default,containsT9 = regT9.components[entity.id].state,
+opsT9 = 0,
+t9 = AllComponentTypes<T9>.isTag == false ? regT9.components[entity.id].data : default,containsT10 = regT10.components[entity.id].state,
+opsT10 = 0,
+t10 = AllComponentTypes<T10>.isTag == false ? regT10.components[entity.id].data : default,containsT11 = regT11.components[entity.id].state,
+opsT11 = 0,
+t11 = AllComponentTypes<T11>.isTag == false ? regT11.components[entity.id].data : default,containsT12 = regT12.components[entity.id].state,
+opsT12 = 0,
+t12 = AllComponentTypes<T12>.isTag == false ? regT12.components[entity.id].data : default,
+            };
+            ++idx;
+        }
+    }
+
+    public void Push() {
+        var world = Worlds.currentWorld;
+        var changedCount = 0;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT3;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT3);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT3, in data.t3);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT4;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT4);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT4, in data.t4);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT5;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT5);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT5, in data.t5);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT6;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT6);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT6, in data.t6);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT7;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT7);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT7, in data.t7);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT8;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT8);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT8, in data.t8);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT9;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT9);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT9, in data.t9);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT10;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT10);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT10, in data.t10);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT11;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT11);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT11, in data.t11);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT12;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT12);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT12, in data.t12);
+            ++changedCount;
+        }
+    }
+}
+            }
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
+    }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
+    
+    public int GetEntityId(int index) => this.arr[index].entity.id;
+
+    public ref readonly Entity GetEntity(int index) => ref this.arr.GetRefRead(index).entity;
+
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
+
+    #region API
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
+public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
+public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
+public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
+public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
+public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
+public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
+public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
+public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
+public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
+public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
+public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
+public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
+public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
+public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
+public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
+public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
+public void Set(int index, in T11 component) { ref var data = ref this.arr.GetRef(index); data.t11 = component; data.opsT11 = 0x2; data.containsT11 = 1; }
+public ref T11 GetT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x2; return ref data.t11; }
+public ref readonly T11 ReadT11(int index) { return ref this.arr.GetRefRead(index).t11; }
+public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
+public void Set(int index, in T12 component) { ref var data = ref this.arr.GetRef(index); data.t12 = component; data.opsT12 = 0x2; data.containsT12 = 1; }
+public ref T12 GetT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x2; return ref data.t12; }
+public ref readonly T12 ReadT12(int index) { return ref this.arr.GetRefRead(index).t12; }
+public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }
+    #endregion
+
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> {
+    public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;public byte containsT6;public byte containsT7;public byte containsT8;public byte containsT9;public byte containsT10;public byte containsT11;public byte containsT12;public byte containsT13;
+    public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;public byte opsT11;public byte opsT12;public byte opsT13;
+    public byte entityOps;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;public T11 t11;public T12 t12;public T13 t13;
+}
+
+#if ECS_COMPILE_IL2CPP_OPTIONS
+[Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+#endif
+public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+
+    public readonly int Length;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> arr;
+    
+    public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        var world = filter.world;
+        this.Length = filter.Count;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+regT3.Merge();var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+regT4.Merge();var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+regT5.Merge();var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+regT6.Merge();var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+regT7.Merge();var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+regT8.Merge();var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+regT9.Merge();var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+regT10.Merge();var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+regT11.Merge();var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
+regT12.Merge();var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
+regT13.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(this.Length, allocator);
+        var idx = 0;
+        foreach (var entity in filter) {
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>() {
+                entity = entity,
+                containsT0 = regT0.components[entity.id].state,
+opsT0 = 0,
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
+opsT1 = 0,
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
+opsT2 = 0,
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,containsT3 = regT3.components[entity.id].state,
+opsT3 = 0,
+t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : default,containsT4 = regT4.components[entity.id].state,
+opsT4 = 0,
+t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : default,containsT5 = regT5.components[entity.id].state,
+opsT5 = 0,
+t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : default,containsT6 = regT6.components[entity.id].state,
+opsT6 = 0,
+t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : default,containsT7 = regT7.components[entity.id].state,
+opsT7 = 0,
+t7 = AllComponentTypes<T7>.isTag == false ? regT7.components[entity.id].data : default,containsT8 = regT8.components[entity.id].state,
+opsT8 = 0,
+t8 = AllComponentTypes<T8>.isTag == false ? regT8.components[entity.id].data : default,containsT9 = regT9.components[entity.id].state,
+opsT9 = 0,
+t9 = AllComponentTypes<T9>.isTag == false ? regT9.components[entity.id].data : default,containsT10 = regT10.components[entity.id].state,
+opsT10 = 0,
+t10 = AllComponentTypes<T10>.isTag == false ? regT10.components[entity.id].data : default,containsT11 = regT11.components[entity.id].state,
+opsT11 = 0,
+t11 = AllComponentTypes<T11>.isTag == false ? regT11.components[entity.id].data : default,containsT12 = regT12.components[entity.id].state,
+opsT12 = 0,
+t12 = AllComponentTypes<T12>.isTag == false ? regT12.components[entity.id].data : default,containsT13 = regT13.components[entity.id].state,
+opsT13 = 0,
+t13 = AllComponentTypes<T13>.isTag == false ? regT13.components[entity.id].data : default,
+            };
+            ++idx;
+        }
+    }
+
+    public void Push() {
+        var world = Worlds.currentWorld;
+        var changedCount = 0;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT3;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT3);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT3, in data.t3);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT4;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT4);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT4, in data.t4);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT5;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT5);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT5, in data.t5);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT6;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT6);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT6, in data.t6);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT7;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT7);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT7, in data.t7);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT8;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT8);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT8, in data.t8);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT9;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT9);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT9, in data.t9);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT10;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT10);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT10, in data.t10);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT11;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT11);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT11, in data.t11);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT12;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT12);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT12, in data.t12);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT13;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT13);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT13, in data.t13);
+            ++changedCount;
+        }
+    }
+}
+            }
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
+    }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
+    
+    public int GetEntityId(int index) => this.arr[index].entity.id;
+
+    public ref readonly Entity GetEntity(int index) => ref this.arr.GetRefRead(index).entity;
+
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
+
+    #region API
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
+public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
+public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
+public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
+public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
+public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
+public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
+public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
+public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
+public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
+public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
+public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
+public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
+public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
+public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
+public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
+public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
+public void Set(int index, in T11 component) { ref var data = ref this.arr.GetRef(index); data.t11 = component; data.opsT11 = 0x2; data.containsT11 = 1; }
+public ref T11 GetT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x2; return ref data.t11; }
+public ref readonly T11 ReadT11(int index) { return ref this.arr.GetRefRead(index).t11; }
+public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
+public void Set(int index, in T12 component) { ref var data = ref this.arr.GetRef(index); data.t12 = component; data.opsT12 = 0x2; data.containsT12 = 1; }
+public ref T12 GetT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x2; return ref data.t12; }
+public ref readonly T12 ReadT12(int index) { return ref this.arr.GetRefRead(index).t12; }
+public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
+public void Set(int index, in T13 component) { ref var data = ref this.arr.GetRef(index); data.t13 = component; data.opsT13 = 0x2; data.containsT13 = 1; }
+public ref T13 GetT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x2; return ref data.t13; }
+public ref readonly T13 ReadT13(int index) { return ref this.arr.GetRefRead(index).t13; }
+public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }
+    #endregion
+
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> {
+    public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;public byte containsT6;public byte containsT7;public byte containsT8;public byte containsT9;public byte containsT10;public byte containsT11;public byte containsT12;public byte containsT13;public byte containsT14;
+    public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;public byte opsT11;public byte opsT12;public byte opsT13;public byte opsT14;
+    public byte entityOps;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;public T11 t11;public T12 t12;public T13 t13;public T14 t14;
+}
+
+#if ECS_COMPILE_IL2CPP_OPTIONS
+[Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+#endif
+public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+
+    public readonly int Length;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> arr;
+    
+    public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        var world = filter.world;
+        this.Length = filter.Count;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+regT3.Merge();var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+regT4.Merge();var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+regT5.Merge();var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+regT6.Merge();var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+regT7.Merge();var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+regT8.Merge();var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+regT9.Merge();var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+regT10.Merge();var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+regT11.Merge();var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
+regT12.Merge();var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
+regT13.Merge();var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
+regT14.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(this.Length, allocator);
+        var idx = 0;
+        foreach (var entity in filter) {
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>() {
+                entity = entity,
+                containsT0 = regT0.components[entity.id].state,
+opsT0 = 0,
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
+opsT1 = 0,
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
+opsT2 = 0,
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,containsT3 = regT3.components[entity.id].state,
+opsT3 = 0,
+t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : default,containsT4 = regT4.components[entity.id].state,
+opsT4 = 0,
+t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : default,containsT5 = regT5.components[entity.id].state,
+opsT5 = 0,
+t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : default,containsT6 = regT6.components[entity.id].state,
+opsT6 = 0,
+t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : default,containsT7 = regT7.components[entity.id].state,
+opsT7 = 0,
+t7 = AllComponentTypes<T7>.isTag == false ? regT7.components[entity.id].data : default,containsT8 = regT8.components[entity.id].state,
+opsT8 = 0,
+t8 = AllComponentTypes<T8>.isTag == false ? regT8.components[entity.id].data : default,containsT9 = regT9.components[entity.id].state,
+opsT9 = 0,
+t9 = AllComponentTypes<T9>.isTag == false ? regT9.components[entity.id].data : default,containsT10 = regT10.components[entity.id].state,
+opsT10 = 0,
+t10 = AllComponentTypes<T10>.isTag == false ? regT10.components[entity.id].data : default,containsT11 = regT11.components[entity.id].state,
+opsT11 = 0,
+t11 = AllComponentTypes<T11>.isTag == false ? regT11.components[entity.id].data : default,containsT12 = regT12.components[entity.id].state,
+opsT12 = 0,
+t12 = AllComponentTypes<T12>.isTag == false ? regT12.components[entity.id].data : default,containsT13 = regT13.components[entity.id].state,
+opsT13 = 0,
+t13 = AllComponentTypes<T13>.isTag == false ? regT13.components[entity.id].data : default,containsT14 = regT14.components[entity.id].state,
+opsT14 = 0,
+t14 = AllComponentTypes<T14>.isTag == false ? regT14.components[entity.id].data : default,
+            };
+            ++idx;
+        }
+    }
+
+    public void Push() {
+        var world = Worlds.currentWorld;
+        var changedCount = 0;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT3;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT3);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT3, in data.t3);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT4;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT4);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT4, in data.t4);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT5;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT5);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT5, in data.t5);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT6;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT6);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT6, in data.t6);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT7;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT7);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT7, in data.t7);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT8;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT8);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT8, in data.t8);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT9;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT9);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT9, in data.t9);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT10;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT10);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT10, in data.t10);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT11;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT11);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT11, in data.t11);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT12;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT12);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT12, in data.t12);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT13;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT13);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT13, in data.t13);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT14;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT14);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT14, in data.t14);
+            ++changedCount;
+        }
+    }
+}
+            }
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
+    }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
+    
+    public int GetEntityId(int index) => this.arr[index].entity.id;
+
+    public ref readonly Entity GetEntity(int index) => ref this.arr.GetRefRead(index).entity;
+
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
+
+    #region API
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
+public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
+public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
+public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
+public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
+public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
+public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
+public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
+public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
+public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
+public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
+public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
+public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
+public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
+public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
+public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
+public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
+public void Set(int index, in T11 component) { ref var data = ref this.arr.GetRef(index); data.t11 = component; data.opsT11 = 0x2; data.containsT11 = 1; }
+public ref T11 GetT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x2; return ref data.t11; }
+public ref readonly T11 ReadT11(int index) { return ref this.arr.GetRefRead(index).t11; }
+public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
+public void Set(int index, in T12 component) { ref var data = ref this.arr.GetRef(index); data.t12 = component; data.opsT12 = 0x2; data.containsT12 = 1; }
+public ref T12 GetT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x2; return ref data.t12; }
+public ref readonly T12 ReadT12(int index) { return ref this.arr.GetRefRead(index).t12; }
+public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
+public void Set(int index, in T13 component) { ref var data = ref this.arr.GetRef(index); data.t13 = component; data.opsT13 = 0x2; data.containsT13 = 1; }
+public ref T13 GetT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x2; return ref data.t13; }
+public ref readonly T13 ReadT13(int index) { return ref this.arr.GetRefRead(index).t13; }
+public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }public void RemoveT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x4; data.containsT14 = 0; }
+public void Set(int index, in T14 component) { ref var data = ref this.arr.GetRef(index); data.t14 = component; data.opsT14 = 0x2; data.containsT14 = 1; }
+public ref T14 GetT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x2; return ref data.t14; }
+public ref readonly T14 ReadT14(int index) { return ref this.arr.GetRefRead(index).t14; }
+public bool HasT14(int index) { return this.arr.GetRefRead(index).containsT14 > 0; }
+    #endregion
+
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> {
+    public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;public byte containsT6;public byte containsT7;public byte containsT8;public byte containsT9;public byte containsT10;public byte containsT11;public byte containsT12;public byte containsT13;public byte containsT14;public byte containsT15;
+    public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;public byte opsT11;public byte opsT12;public byte opsT13;public byte opsT14;public byte opsT15;
+    public byte entityOps;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;public T11 t11;public T12 t12;public T13 t13;public T14 t14;public T15 t15;
+}
+
+#if ECS_COMPILE_IL2CPP_OPTIONS
+[Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+#endif
+public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+
+    public readonly int Length;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> arr;
+    
+    public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        var world = filter.world;
+        this.Length = filter.Count;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+regT3.Merge();var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+regT4.Merge();var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+regT5.Merge();var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+regT6.Merge();var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+regT7.Merge();var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+regT8.Merge();var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+regT9.Merge();var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+regT10.Merge();var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+regT11.Merge();var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
+regT12.Merge();var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
+regT13.Merge();var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
+regT14.Merge();var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
+regT15.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(this.Length, allocator);
+        var idx = 0;
+        foreach (var entity in filter) {
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>() {
+                entity = entity,
+                containsT0 = regT0.components[entity.id].state,
+opsT0 = 0,
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
+opsT1 = 0,
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
+opsT2 = 0,
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,containsT3 = regT3.components[entity.id].state,
+opsT3 = 0,
+t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : default,containsT4 = regT4.components[entity.id].state,
+opsT4 = 0,
+t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : default,containsT5 = regT5.components[entity.id].state,
+opsT5 = 0,
+t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : default,containsT6 = regT6.components[entity.id].state,
+opsT6 = 0,
+t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : default,containsT7 = regT7.components[entity.id].state,
+opsT7 = 0,
+t7 = AllComponentTypes<T7>.isTag == false ? regT7.components[entity.id].data : default,containsT8 = regT8.components[entity.id].state,
+opsT8 = 0,
+t8 = AllComponentTypes<T8>.isTag == false ? regT8.components[entity.id].data : default,containsT9 = regT9.components[entity.id].state,
+opsT9 = 0,
+t9 = AllComponentTypes<T9>.isTag == false ? regT9.components[entity.id].data : default,containsT10 = regT10.components[entity.id].state,
+opsT10 = 0,
+t10 = AllComponentTypes<T10>.isTag == false ? regT10.components[entity.id].data : default,containsT11 = regT11.components[entity.id].state,
+opsT11 = 0,
+t11 = AllComponentTypes<T11>.isTag == false ? regT11.components[entity.id].data : default,containsT12 = regT12.components[entity.id].state,
+opsT12 = 0,
+t12 = AllComponentTypes<T12>.isTag == false ? regT12.components[entity.id].data : default,containsT13 = regT13.components[entity.id].state,
+opsT13 = 0,
+t13 = AllComponentTypes<T13>.isTag == false ? regT13.components[entity.id].data : default,containsT14 = regT14.components[entity.id].state,
+opsT14 = 0,
+t14 = AllComponentTypes<T14>.isTag == false ? regT14.components[entity.id].data : default,containsT15 = regT15.components[entity.id].state,
+opsT15 = 0,
+t15 = AllComponentTypes<T15>.isTag == false ? regT15.components[entity.id].data : default,
+            };
+            ++idx;
+        }
+    }
+
+    public void Push() {
+        var world = Worlds.currentWorld;
+        var changedCount = 0;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT3;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT3);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT3, in data.t3);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT4;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT4);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT4, in data.t4);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT5;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT5);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT5, in data.t5);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT6;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT6);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT6, in data.t6);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT7;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT7);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT7, in data.t7);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT8;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT8);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT8, in data.t8);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT9;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT9);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT9, in data.t9);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT10;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT10);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT10, in data.t10);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT11;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT11);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT11, in data.t11);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT12;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT12);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT12, in data.t12);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT13;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT13);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT13, in data.t13);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT14;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT14);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT14, in data.t14);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT15;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT15);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT15, in data.t15);
+            ++changedCount;
+        }
+    }
+}
+            }
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
+    }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
+    
+    public int GetEntityId(int index) => this.arr[index].entity.id;
+
+    public ref readonly Entity GetEntity(int index) => ref this.arr.GetRefRead(index).entity;
+
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
+
+    #region API
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
+public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
+public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
+public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
+public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
+public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
+public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
+public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
+public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
+public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
+public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
+public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
+public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
+public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
+public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
+public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
+public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
+public void Set(int index, in T11 component) { ref var data = ref this.arr.GetRef(index); data.t11 = component; data.opsT11 = 0x2; data.containsT11 = 1; }
+public ref T11 GetT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x2; return ref data.t11; }
+public ref readonly T11 ReadT11(int index) { return ref this.arr.GetRefRead(index).t11; }
+public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
+public void Set(int index, in T12 component) { ref var data = ref this.arr.GetRef(index); data.t12 = component; data.opsT12 = 0x2; data.containsT12 = 1; }
+public ref T12 GetT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x2; return ref data.t12; }
+public ref readonly T12 ReadT12(int index) { return ref this.arr.GetRefRead(index).t12; }
+public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
+public void Set(int index, in T13 component) { ref var data = ref this.arr.GetRef(index); data.t13 = component; data.opsT13 = 0x2; data.containsT13 = 1; }
+public ref T13 GetT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x2; return ref data.t13; }
+public ref readonly T13 ReadT13(int index) { return ref this.arr.GetRefRead(index).t13; }
+public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }public void RemoveT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x4; data.containsT14 = 0; }
+public void Set(int index, in T14 component) { ref var data = ref this.arr.GetRef(index); data.t14 = component; data.opsT14 = 0x2; data.containsT14 = 1; }
+public ref T14 GetT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x2; return ref data.t14; }
+public ref readonly T14 ReadT14(int index) { return ref this.arr.GetRefRead(index).t14; }
+public bool HasT14(int index) { return this.arr.GetRefRead(index).containsT14 > 0; }public void RemoveT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x4; data.containsT15 = 0; }
+public void Set(int index, in T15 component) { ref var data = ref this.arr.GetRef(index); data.t15 = component; data.opsT15 = 0x2; data.containsT15 = 1; }
+public ref T15 GetT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x2; return ref data.t15; }
+public ref readonly T15 ReadT15(int index) { return ref this.arr.GetRefRead(index).t15; }
+public bool HasT15(int index) { return this.arr.GetRefRead(index).containsT15 > 0; }
+    #endregion
+
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> {
+    public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;public byte containsT6;public byte containsT7;public byte containsT8;public byte containsT9;public byte containsT10;public byte containsT11;public byte containsT12;public byte containsT13;public byte containsT14;public byte containsT15;public byte containsT16;
+    public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;public byte opsT11;public byte opsT12;public byte opsT13;public byte opsT14;public byte opsT15;public byte opsT16;
+    public byte entityOps;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;public T11 t11;public T12 t12;public T13 t13;public T14 t14;public T15 t15;public T16 t16;
+}
+
+#if ECS_COMPILE_IL2CPP_OPTIONS
+[Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+#endif
+public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+
+    public readonly int Length;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> arr;
+    
+    public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        var world = filter.world;
+        this.Length = filter.Count;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+regT3.Merge();var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+regT4.Merge();var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+regT5.Merge();var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+regT6.Merge();var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+regT7.Merge();var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+regT8.Merge();var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+regT9.Merge();var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+regT10.Merge();var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+regT11.Merge();var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
+regT12.Merge();var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
+regT13.Merge();var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
+regT14.Merge();var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
+regT15.Merge();var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];
+regT16.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(this.Length, allocator);
+        var idx = 0;
+        foreach (var entity in filter) {
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>() {
+                entity = entity,
+                containsT0 = regT0.components[entity.id].state,
+opsT0 = 0,
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
+opsT1 = 0,
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
+opsT2 = 0,
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,containsT3 = regT3.components[entity.id].state,
+opsT3 = 0,
+t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : default,containsT4 = regT4.components[entity.id].state,
+opsT4 = 0,
+t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : default,containsT5 = regT5.components[entity.id].state,
+opsT5 = 0,
+t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : default,containsT6 = regT6.components[entity.id].state,
+opsT6 = 0,
+t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : default,containsT7 = regT7.components[entity.id].state,
+opsT7 = 0,
+t7 = AllComponentTypes<T7>.isTag == false ? regT7.components[entity.id].data : default,containsT8 = regT8.components[entity.id].state,
+opsT8 = 0,
+t8 = AllComponentTypes<T8>.isTag == false ? regT8.components[entity.id].data : default,containsT9 = regT9.components[entity.id].state,
+opsT9 = 0,
+t9 = AllComponentTypes<T9>.isTag == false ? regT9.components[entity.id].data : default,containsT10 = regT10.components[entity.id].state,
+opsT10 = 0,
+t10 = AllComponentTypes<T10>.isTag == false ? regT10.components[entity.id].data : default,containsT11 = regT11.components[entity.id].state,
+opsT11 = 0,
+t11 = AllComponentTypes<T11>.isTag == false ? regT11.components[entity.id].data : default,containsT12 = regT12.components[entity.id].state,
+opsT12 = 0,
+t12 = AllComponentTypes<T12>.isTag == false ? regT12.components[entity.id].data : default,containsT13 = regT13.components[entity.id].state,
+opsT13 = 0,
+t13 = AllComponentTypes<T13>.isTag == false ? regT13.components[entity.id].data : default,containsT14 = regT14.components[entity.id].state,
+opsT14 = 0,
+t14 = AllComponentTypes<T14>.isTag == false ? regT14.components[entity.id].data : default,containsT15 = regT15.components[entity.id].state,
+opsT15 = 0,
+t15 = AllComponentTypes<T15>.isTag == false ? regT15.components[entity.id].data : default,containsT16 = regT16.components[entity.id].state,
+opsT16 = 0,
+t16 = AllComponentTypes<T16>.isTag == false ? regT16.components[entity.id].data : default,
+            };
+            ++idx;
+        }
+    }
+
+    public void Push() {
+        var world = Worlds.currentWorld;
+        var changedCount = 0;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT3;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT3);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT3, in data.t3);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT4;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT4);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT4, in data.t4);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT5;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT5);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT5, in data.t5);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT6;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT6);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT6, in data.t6);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT7;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT7);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT7, in data.t7);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT8;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT8);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT8, in data.t8);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT9;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT9);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT9, in data.t9);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT10;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT10);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT10, in data.t10);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT11;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT11);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT11, in data.t11);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT12;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT12);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT12, in data.t12);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT13;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT13);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT13, in data.t13);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT14;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT14);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT14, in data.t14);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT15;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT15);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT15, in data.t15);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT16;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT16);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT16, in data.t16);
+            ++changedCount;
+        }
+    }
+}
+            }
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
+    }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
+    
+    public int GetEntityId(int index) => this.arr[index].entity.id;
+
+    public ref readonly Entity GetEntity(int index) => ref this.arr.GetRefRead(index).entity;
+
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
+
+    #region API
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
+public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
+public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
+public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
+public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
+public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
+public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
+public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
+public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
+public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
+public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
+public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
+public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
+public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
+public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
+public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
+public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
+public void Set(int index, in T11 component) { ref var data = ref this.arr.GetRef(index); data.t11 = component; data.opsT11 = 0x2; data.containsT11 = 1; }
+public ref T11 GetT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x2; return ref data.t11; }
+public ref readonly T11 ReadT11(int index) { return ref this.arr.GetRefRead(index).t11; }
+public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
+public void Set(int index, in T12 component) { ref var data = ref this.arr.GetRef(index); data.t12 = component; data.opsT12 = 0x2; data.containsT12 = 1; }
+public ref T12 GetT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x2; return ref data.t12; }
+public ref readonly T12 ReadT12(int index) { return ref this.arr.GetRefRead(index).t12; }
+public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
+public void Set(int index, in T13 component) { ref var data = ref this.arr.GetRef(index); data.t13 = component; data.opsT13 = 0x2; data.containsT13 = 1; }
+public ref T13 GetT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x2; return ref data.t13; }
+public ref readonly T13 ReadT13(int index) { return ref this.arr.GetRefRead(index).t13; }
+public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }public void RemoveT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x4; data.containsT14 = 0; }
+public void Set(int index, in T14 component) { ref var data = ref this.arr.GetRef(index); data.t14 = component; data.opsT14 = 0x2; data.containsT14 = 1; }
+public ref T14 GetT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x2; return ref data.t14; }
+public ref readonly T14 ReadT14(int index) { return ref this.arr.GetRefRead(index).t14; }
+public bool HasT14(int index) { return this.arr.GetRefRead(index).containsT14 > 0; }public void RemoveT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x4; data.containsT15 = 0; }
+public void Set(int index, in T15 component) { ref var data = ref this.arr.GetRef(index); data.t15 = component; data.opsT15 = 0x2; data.containsT15 = 1; }
+public ref T15 GetT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x2; return ref data.t15; }
+public ref readonly T15 ReadT15(int index) { return ref this.arr.GetRefRead(index).t15; }
+public bool HasT15(int index) { return this.arr.GetRefRead(index).containsT15 > 0; }public void RemoveT16(int index) { ref var data = ref this.arr.GetRef(index); data.opsT16 = 0x4; data.containsT16 = 0; }
+public void Set(int index, in T16 component) { ref var data = ref this.arr.GetRef(index); data.t16 = component; data.opsT16 = 0x2; data.containsT16 = 1; }
+public ref T16 GetT16(int index) { ref var data = ref this.arr.GetRef(index); data.opsT16 = 0x2; return ref data.t16; }
+public ref readonly T16 ReadT16(int index) { return ref this.arr.GetRefRead(index).t16; }
+public bool HasT16(int index) { return this.arr.GetRefRead(index).containsT16 > 0; }
+    #endregion
+
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> {
+    public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;public byte containsT6;public byte containsT7;public byte containsT8;public byte containsT9;public byte containsT10;public byte containsT11;public byte containsT12;public byte containsT13;public byte containsT14;public byte containsT15;public byte containsT16;public byte containsT17;
+    public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;public byte opsT11;public byte opsT12;public byte opsT13;public byte opsT14;public byte opsT15;public byte opsT16;public byte opsT17;
+    public byte entityOps;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;public T11 t11;public T12 t12;public T13 t13;public T14 t14;public T15 t15;public T16 t16;public T17 t17;
+}
+
+#if ECS_COMPILE_IL2CPP_OPTIONS
+[Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+#endif
+public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+
+    public readonly int Length;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> arr;
+    
+    public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        var world = filter.world;
+        this.Length = filter.Count;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+regT3.Merge();var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+regT4.Merge();var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+regT5.Merge();var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+regT6.Merge();var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+regT7.Merge();var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+regT8.Merge();var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+regT9.Merge();var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+regT10.Merge();var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+regT11.Merge();var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
+regT12.Merge();var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
+regT13.Merge();var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
+regT14.Merge();var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
+regT15.Merge();var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];
+regT16.Merge();var regT17 = (StructComponents<T17>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T17>()];
+regT17.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(this.Length, allocator);
+        var idx = 0;
+        foreach (var entity in filter) {
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>() {
+                entity = entity,
+                containsT0 = regT0.components[entity.id].state,
+opsT0 = 0,
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
+opsT1 = 0,
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
+opsT2 = 0,
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,containsT3 = regT3.components[entity.id].state,
+opsT3 = 0,
+t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : default,containsT4 = regT4.components[entity.id].state,
+opsT4 = 0,
+t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : default,containsT5 = regT5.components[entity.id].state,
+opsT5 = 0,
+t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : default,containsT6 = regT6.components[entity.id].state,
+opsT6 = 0,
+t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : default,containsT7 = regT7.components[entity.id].state,
+opsT7 = 0,
+t7 = AllComponentTypes<T7>.isTag == false ? regT7.components[entity.id].data : default,containsT8 = regT8.components[entity.id].state,
+opsT8 = 0,
+t8 = AllComponentTypes<T8>.isTag == false ? regT8.components[entity.id].data : default,containsT9 = regT9.components[entity.id].state,
+opsT9 = 0,
+t9 = AllComponentTypes<T9>.isTag == false ? regT9.components[entity.id].data : default,containsT10 = regT10.components[entity.id].state,
+opsT10 = 0,
+t10 = AllComponentTypes<T10>.isTag == false ? regT10.components[entity.id].data : default,containsT11 = regT11.components[entity.id].state,
+opsT11 = 0,
+t11 = AllComponentTypes<T11>.isTag == false ? regT11.components[entity.id].data : default,containsT12 = regT12.components[entity.id].state,
+opsT12 = 0,
+t12 = AllComponentTypes<T12>.isTag == false ? regT12.components[entity.id].data : default,containsT13 = regT13.components[entity.id].state,
+opsT13 = 0,
+t13 = AllComponentTypes<T13>.isTag == false ? regT13.components[entity.id].data : default,containsT14 = regT14.components[entity.id].state,
+opsT14 = 0,
+t14 = AllComponentTypes<T14>.isTag == false ? regT14.components[entity.id].data : default,containsT15 = regT15.components[entity.id].state,
+opsT15 = 0,
+t15 = AllComponentTypes<T15>.isTag == false ? regT15.components[entity.id].data : default,containsT16 = regT16.components[entity.id].state,
+opsT16 = 0,
+t16 = AllComponentTypes<T16>.isTag == false ? regT16.components[entity.id].data : default,containsT17 = regT17.components[entity.id].state,
+opsT17 = 0,
+t17 = AllComponentTypes<T17>.isTag == false ? regT17.components[entity.id].data : default,
+            };
+            ++idx;
+        }
+    }
+
+    public void Push() {
+        var world = Worlds.currentWorld;
+        var changedCount = 0;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];var regT17 = (StructComponents<T17>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T17>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT3;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT3);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT3, in data.t3);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT4;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT4);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT4, in data.t4);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT5;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT5);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT5, in data.t5);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT6;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT6);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT6, in data.t6);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT7;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT7);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT7, in data.t7);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT8;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT8);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT8, in data.t8);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT9;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT9);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT9, in data.t9);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT10;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT10);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT10, in data.t10);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT11;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT11);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT11, in data.t11);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT12;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT12);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT12, in data.t12);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT13;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT13);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT13, in data.t13);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT14;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT14);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT14, in data.t14);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT15;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT15);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT15, in data.t15);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT16;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT16);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT16, in data.t16);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT17;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT17);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT17, in data.t17);
+            ++changedCount;
+        }
+    }
+}
+            }
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
+    }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
+    
+    public int GetEntityId(int index) => this.arr[index].entity.id;
+
+    public ref readonly Entity GetEntity(int index) => ref this.arr.GetRefRead(index).entity;
+
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
+
+    #region API
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
+public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
+public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
+public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
+public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
+public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
+public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
+public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
+public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
+public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
+public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
+public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
+public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
+public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
+public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
+public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
+public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
+public void Set(int index, in T11 component) { ref var data = ref this.arr.GetRef(index); data.t11 = component; data.opsT11 = 0x2; data.containsT11 = 1; }
+public ref T11 GetT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x2; return ref data.t11; }
+public ref readonly T11 ReadT11(int index) { return ref this.arr.GetRefRead(index).t11; }
+public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
+public void Set(int index, in T12 component) { ref var data = ref this.arr.GetRef(index); data.t12 = component; data.opsT12 = 0x2; data.containsT12 = 1; }
+public ref T12 GetT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x2; return ref data.t12; }
+public ref readonly T12 ReadT12(int index) { return ref this.arr.GetRefRead(index).t12; }
+public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
+public void Set(int index, in T13 component) { ref var data = ref this.arr.GetRef(index); data.t13 = component; data.opsT13 = 0x2; data.containsT13 = 1; }
+public ref T13 GetT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x2; return ref data.t13; }
+public ref readonly T13 ReadT13(int index) { return ref this.arr.GetRefRead(index).t13; }
+public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }public void RemoveT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x4; data.containsT14 = 0; }
+public void Set(int index, in T14 component) { ref var data = ref this.arr.GetRef(index); data.t14 = component; data.opsT14 = 0x2; data.containsT14 = 1; }
+public ref T14 GetT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x2; return ref data.t14; }
+public ref readonly T14 ReadT14(int index) { return ref this.arr.GetRefRead(index).t14; }
+public bool HasT14(int index) { return this.arr.GetRefRead(index).containsT14 > 0; }public void RemoveT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x4; data.containsT15 = 0; }
+public void Set(int index, in T15 component) { ref var data = ref this.arr.GetRef(index); data.t15 = component; data.opsT15 = 0x2; data.containsT15 = 1; }
+public ref T15 GetT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x2; return ref data.t15; }
+public ref readonly T15 ReadT15(int index) { return ref this.arr.GetRefRead(index).t15; }
+public bool HasT15(int index) { return this.arr.GetRefRead(index).containsT15 > 0; }public void RemoveT16(int index) { ref var data = ref this.arr.GetRef(index); data.opsT16 = 0x4; data.containsT16 = 0; }
+public void Set(int index, in T16 component) { ref var data = ref this.arr.GetRef(index); data.t16 = component; data.opsT16 = 0x2; data.containsT16 = 1; }
+public ref T16 GetT16(int index) { ref var data = ref this.arr.GetRef(index); data.opsT16 = 0x2; return ref data.t16; }
+public ref readonly T16 ReadT16(int index) { return ref this.arr.GetRefRead(index).t16; }
+public bool HasT16(int index) { return this.arr.GetRefRead(index).containsT16 > 0; }public void RemoveT17(int index) { ref var data = ref this.arr.GetRef(index); data.opsT17 = 0x4; data.containsT17 = 0; }
+public void Set(int index, in T17 component) { ref var data = ref this.arr.GetRef(index); data.t17 = component; data.opsT17 = 0x2; data.containsT17 = 1; }
+public ref T17 GetT17(int index) { ref var data = ref this.arr.GetRef(index); data.opsT17 = 0x2; return ref data.t17; }
+public ref readonly T17 ReadT17(int index) { return ref this.arr.GetRefRead(index).t17; }
+public bool HasT17(int index) { return this.arr.GetRefRead(index).containsT17 > 0; }
+    #endregion
+
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> {
+    public byte containsT0;public byte containsT1;public byte containsT2;public byte containsT3;public byte containsT4;public byte containsT5;public byte containsT6;public byte containsT7;public byte containsT8;public byte containsT9;public byte containsT10;public byte containsT11;public byte containsT12;public byte containsT13;public byte containsT14;public byte containsT15;public byte containsT16;public byte containsT17;public byte containsT18;
+    public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;public byte opsT11;public byte opsT12;public byte opsT13;public byte opsT14;public byte opsT15;public byte opsT16;public byte opsT17;public byte opsT18;
+    public byte entityOps;
+    public Entity entity;
+    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;public T11 t11;public T12 t12;public T13 t13;public T14 t14;public T15 t15;public T16 t16;public T17 t17;public T18 t18;
+}
+
+#if ECS_COMPILE_IL2CPP_OPTIONS
+[Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+ Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+#endif
+public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+
+    public readonly int Length;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> arr;
+    
+    public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        var world = filter.world;
+        this.Length = filter.Count;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
+regT0.Merge();var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+regT1.Merge();var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+regT2.Merge();var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+regT3.Merge();var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+regT4.Merge();var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+regT5.Merge();var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+regT6.Merge();var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+regT7.Merge();var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+regT8.Merge();var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+regT9.Merge();var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+regT10.Merge();var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+regT11.Merge();var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
+regT12.Merge();var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
+regT13.Merge();var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
+regT14.Merge();var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
+regT15.Merge();var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];
+regT16.Merge();var regT17 = (StructComponents<T17>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T17>()];
+regT17.Merge();var regT18 = (StructComponents<T18>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T18>()];
+regT18.Merge();
+        this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(this.Length, allocator);
+        var idx = 0;
+        foreach (var entity in filter) {
+            this.arr[idx] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>() {
+                entity = entity,
+                containsT0 = regT0.components[entity.id].state,
+opsT0 = 0,
+t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : default,containsT1 = regT1.components[entity.id].state,
+opsT1 = 0,
+t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : default,containsT2 = regT2.components[entity.id].state,
+opsT2 = 0,
+t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : default,containsT3 = regT3.components[entity.id].state,
+opsT3 = 0,
+t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : default,containsT4 = regT4.components[entity.id].state,
+opsT4 = 0,
+t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : default,containsT5 = regT5.components[entity.id].state,
+opsT5 = 0,
+t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : default,containsT6 = regT6.components[entity.id].state,
+opsT6 = 0,
+t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : default,containsT7 = regT7.components[entity.id].state,
+opsT7 = 0,
+t7 = AllComponentTypes<T7>.isTag == false ? regT7.components[entity.id].data : default,containsT8 = regT8.components[entity.id].state,
+opsT8 = 0,
+t8 = AllComponentTypes<T8>.isTag == false ? regT8.components[entity.id].data : default,containsT9 = regT9.components[entity.id].state,
+opsT9 = 0,
+t9 = AllComponentTypes<T9>.isTag == false ? regT9.components[entity.id].data : default,containsT10 = regT10.components[entity.id].state,
+opsT10 = 0,
+t10 = AllComponentTypes<T10>.isTag == false ? regT10.components[entity.id].data : default,containsT11 = regT11.components[entity.id].state,
+opsT11 = 0,
+t11 = AllComponentTypes<T11>.isTag == false ? regT11.components[entity.id].data : default,containsT12 = regT12.components[entity.id].state,
+opsT12 = 0,
+t12 = AllComponentTypes<T12>.isTag == false ? regT12.components[entity.id].data : default,containsT13 = regT13.components[entity.id].state,
+opsT13 = 0,
+t13 = AllComponentTypes<T13>.isTag == false ? regT13.components[entity.id].data : default,containsT14 = regT14.components[entity.id].state,
+opsT14 = 0,
+t14 = AllComponentTypes<T14>.isTag == false ? regT14.components[entity.id].data : default,containsT15 = regT15.components[entity.id].state,
+opsT15 = 0,
+t15 = AllComponentTypes<T15>.isTag == false ? regT15.components[entity.id].data : default,containsT16 = regT16.components[entity.id].state,
+opsT16 = 0,
+t16 = AllComponentTypes<T16>.isTag == false ? regT16.components[entity.id].data : default,containsT17 = regT17.components[entity.id].state,
+opsT17 = 0,
+t17 = AllComponentTypes<T17>.isTag == false ? regT17.components[entity.id].data : default,containsT18 = regT18.components[entity.id].state,
+opsT18 = 0,
+t18 = AllComponentTypes<T18>.isTag == false ? regT18.components[entity.id].data : default,
+            };
+            ++idx;
+        }
+    }
+
+    public void Push() {
+        var world = Worlds.currentWorld;
+        var changedCount = 0;
+        var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];var regT17 = (StructComponents<T17>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T17>()];var regT18 = (StructComponents<T18>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T18>()];
+        for (int i = 0; i < this.Length; ++i) {
+            ref readonly var data = ref this.arr.GetRefRead(i);
+            if (data.entityOps == 0x1) {
+                world.RemoveEntity(in data.entity);
+            } else {
+                {
+    var op = data.opsT0;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT0);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT0, in data.t0);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT1;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT1);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT1, in data.t1);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT2;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT2);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT2, in data.t2);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT3;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT3);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT3, in data.t3);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT4;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT4);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT4, in data.t4);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT5;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT5);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT5, in data.t5);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT6;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT6);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT6, in data.t6);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT7;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT7);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT7, in data.t7);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT8;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT8);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT8, in data.t8);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT9;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT9);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT9, in data.t9);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT10;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT10);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT10, in data.t10);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT11;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT11);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT11, in data.t11);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT12;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT12);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT12, in data.t12);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT13;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT13);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT13, in data.t13);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT14;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT14);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT14, in data.t14);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT15;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT15);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT15, in data.t15);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT16;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT16);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT16, in data.t16);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT17;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT17);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT17, in data.t17);
+            ++changedCount;
+        }
+    }
+}{
+    var op = data.opsT18;
+    if (op != 0) {
+        if ((op & 0x4) != 0) {
+            DataBufferUtils.PushRemove_INTERNAL(world, in data.entity, regT18);
+            ++changedCount;
+        } else if ((op & 0x2) != 0) {
+            DataBufferUtils.PushSet_INTERNAL(world, in data.entity, regT18, in data.t18);
+            ++changedCount;
+        }
+    }
+}
+            }
+        }
+        //if (changedCount > 0) world.UpdateAllFilters();
+        this.Dispose();
+    }
+    
+    public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
+    
+    public int GetEntityId(int index) => this.arr[index].entity.id;
+
+    public ref readonly Entity GetEntity(int index) => ref this.arr.GetRefRead(index).entity;
+
+    public void Revert() => this.Dispose();
+
+    private void Dispose() => this.arr.Dispose();
+
+    #region API
+    public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
+public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
+public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
+public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
+public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
+public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
+public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
+public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
+public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
+public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
+public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
+public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
+public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
+public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
+public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
+public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
+public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
+public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
+public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
+public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
+public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
+public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
+public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
+public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
+public void Set(int index, in T11 component) { ref var data = ref this.arr.GetRef(index); data.t11 = component; data.opsT11 = 0x2; data.containsT11 = 1; }
+public ref T11 GetT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x2; return ref data.t11; }
+public ref readonly T11 ReadT11(int index) { return ref this.arr.GetRefRead(index).t11; }
+public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
+public void Set(int index, in T12 component) { ref var data = ref this.arr.GetRef(index); data.t12 = component; data.opsT12 = 0x2; data.containsT12 = 1; }
+public ref T12 GetT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x2; return ref data.t12; }
+public ref readonly T12 ReadT12(int index) { return ref this.arr.GetRefRead(index).t12; }
+public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
+public void Set(int index, in T13 component) { ref var data = ref this.arr.GetRef(index); data.t13 = component; data.opsT13 = 0x2; data.containsT13 = 1; }
+public ref T13 GetT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x2; return ref data.t13; }
+public ref readonly T13 ReadT13(int index) { return ref this.arr.GetRefRead(index).t13; }
+public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }public void RemoveT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x4; data.containsT14 = 0; }
+public void Set(int index, in T14 component) { ref var data = ref this.arr.GetRef(index); data.t14 = component; data.opsT14 = 0x2; data.containsT14 = 1; }
+public ref T14 GetT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x2; return ref data.t14; }
+public ref readonly T14 ReadT14(int index) { return ref this.arr.GetRefRead(index).t14; }
+public bool HasT14(int index) { return this.arr.GetRefRead(index).containsT14 > 0; }public void RemoveT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x4; data.containsT15 = 0; }
+public void Set(int index, in T15 component) { ref var data = ref this.arr.GetRef(index); data.t15 = component; data.opsT15 = 0x2; data.containsT15 = 1; }
+public ref T15 GetT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x2; return ref data.t15; }
+public ref readonly T15 ReadT15(int index) { return ref this.arr.GetRefRead(index).t15; }
+public bool HasT15(int index) { return this.arr.GetRefRead(index).containsT15 > 0; }public void RemoveT16(int index) { ref var data = ref this.arr.GetRef(index); data.opsT16 = 0x4; data.containsT16 = 0; }
+public void Set(int index, in T16 component) { ref var data = ref this.arr.GetRef(index); data.t16 = component; data.opsT16 = 0x2; data.containsT16 = 1; }
+public ref T16 GetT16(int index) { ref var data = ref this.arr.GetRef(index); data.opsT16 = 0x2; return ref data.t16; }
+public ref readonly T16 ReadT16(int index) { return ref this.arr.GetRefRead(index).t16; }
+public bool HasT16(int index) { return this.arr.GetRefRead(index).containsT16 > 0; }public void RemoveT17(int index) { ref var data = ref this.arr.GetRef(index); data.opsT17 = 0x4; data.containsT17 = 0; }
+public void Set(int index, in T17 component) { ref var data = ref this.arr.GetRef(index); data.t17 = component; data.opsT17 = 0x2; data.containsT17 = 1; }
+public ref T17 GetT17(int index) { ref var data = ref this.arr.GetRef(index); data.opsT17 = 0x2; return ref data.t17; }
+public ref readonly T17 ReadT17(int index) { return ref this.arr.GetRefRead(index).t17; }
+public bool HasT17(int index) { return this.arr.GetRefRead(index).containsT17 > 0; }public void RemoveT18(int index) { ref var data = ref this.arr.GetRef(index); data.opsT18 = 0x4; data.containsT18 = 0; }
+public void Set(int index, in T18 component) { ref var data = ref this.arr.GetRef(index); data.t18 = component; data.opsT18 = 0x2; data.containsT18 = 1; }
+public ref T18 GetT18(int index) { ref var data = ref this.arr.GetRef(index); data.opsT18 = 0x2; return ref data.t18; }
+public ref readonly T18 ReadT18(int index) { return ref this.arr.GetRefRead(index).t18; }
+public bool HasT18(int index) { return this.arr.GetRefRead(index).containsT18 > 0; }
+    #endregion
+
+}
+
 
 
     }
@@ -4603,6 +7873,9151 @@ public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRR<T0,T1,T
 
             var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>(filterInternal, Unity.Collections.Allocator.Persistent);
             for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(this in Filter filter, ME.ECS.Filters.FDWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> task, in Filter filterInternal, ME.ECS.Filters.FDWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(this in Filter filter, ME.ECS.Filters.FDRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> task, in Filter filterInternal, ME.ECS.Filters.FDRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(this in Filter filter, ME.ECS.Filters.FDRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> task, in Filter filterInternal, ME.ECS.Filters.FDRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(this in Filter filter, ME.ECS.Filters.FDRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(this in Filter filter, ME.ECS.Filters.FDRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(this in Filter filter, ME.ECS.Filters.FDRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(this in Filter filter, ME.ECS.Filters.FDRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(this in Filter filter, ME.ECS.Filters.FDWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> task, in Filter filterInternal, ME.ECS.Filters.FDWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(this in Filter filter, ME.ECS.Filters.FDRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> task, in Filter filterInternal, ME.ECS.Filters.FDRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(this in Filter filter, ME.ECS.Filters.FDRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> task, in Filter filterInternal, ME.ECS.Filters.FDRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(this in Filter filter, ME.ECS.Filters.FDRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(this in Filter filter, ME.ECS.Filters.FDRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(this in Filter filter, ME.ECS.Filters.FDRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(this in Filter filter, ME.ECS.Filters.FDRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(this in Filter filter, ME.ECS.Filters.FDWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> task, in Filter filterInternal, ME.ECS.Filters.FDWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(this in Filter filter, ME.ECS.Filters.FDRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> task, in Filter filterInternal, ME.ECS.Filters.FDRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(this in Filter filter, ME.ECS.Filters.FDRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> task, in Filter filterInternal, ME.ECS.Filters.FDRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(this in Filter filter, ME.ECS.Filters.FDRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(this in Filter filter, ME.ECS.Filters.FDRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(this in Filter filter, ME.ECS.Filters.FDRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(this in Filter filter, ME.ECS.Filters.FDRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),ref bag.GetT11(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),ref bag.GetT11(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(this in Filter filter, ME.ECS.Filters.FDWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> task, in Filter filterInternal, ME.ECS.Filters.FDWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(this in Filter filter, ME.ECS.Filters.FDRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> task, in Filter filterInternal, ME.ECS.Filters.FDRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(this in Filter filter, ME.ECS.Filters.FDRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> task, in Filter filterInternal, ME.ECS.Filters.FDRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(this in Filter filter, ME.ECS.Filters.FDRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(this in Filter filter, ME.ECS.Filters.FDRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(this in Filter filter, ME.ECS.Filters.FDRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(this in Filter filter, ME.ECS.Filters.FDRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),ref bag.GetT12(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),ref bag.GetT12(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(this in Filter filter, ME.ECS.Filters.FDWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> task, in Filter filterInternal, ME.ECS.Filters.FDWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(this in Filter filter, ME.ECS.Filters.FDRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> task, in Filter filterInternal, ME.ECS.Filters.FDRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(this in Filter filter, ME.ECS.Filters.FDRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> task, in Filter filterInternal, ME.ECS.Filters.FDRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(this in Filter filter, ME.ECS.Filters.FDRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(this in Filter filter, ME.ECS.Filters.FDRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(this in Filter filter, ME.ECS.Filters.FDRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(this in Filter filter, ME.ECS.Filters.FDRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),ref bag.GetT13(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),ref bag.GetT13(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this in Filter filter, ME.ECS.Filters.FDWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> task, in Filter filterInternal, ME.ECS.Filters.FDWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this in Filter filter, ME.ECS.Filters.FDRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> task, in Filter filterInternal, ME.ECS.Filters.FDRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this in Filter filter, ME.ECS.Filters.FDRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> task, in Filter filterInternal, ME.ECS.Filters.FDRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this in Filter filter, ME.ECS.Filters.FDRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this in Filter filter, ME.ECS.Filters.FDRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this in Filter filter, ME.ECS.Filters.FDRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this in Filter filter, ME.ECS.Filters.FDRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),ref bag.GetT14(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),ref bag.GetT14(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),ref bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),ref bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),ref bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),ref bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),in bag.GetT16(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),in bag.GetT16(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),in bag.GetT16(i),ref bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),in bag.GetT16(i),ref bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),in bag.GetT16(i),in bag.GetT17(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),in bag.GetT16(i),in bag.GetT17(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsWWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDWWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDWWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDWWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDWWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsWWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsWWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), ref bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRWWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),ref bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRWWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),ref bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRWWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),ref bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRWWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),ref bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRWWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),ref bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRWWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),ref bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRWWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),ref bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRWWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),ref bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRWWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),ref bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRWWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),ref bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRWWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),ref bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRWWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),ref bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRWWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),ref bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRWWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),ref bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRRWWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),ref bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRRRWWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),ref bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),in bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRRRRWW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),in bag.GetT16(i),ref bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),in bag.GetT16(i),in bag.GetT17(i),ref bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRRRRRW<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),in bag.GetT16(i),in bag.GetT17(i),ref bag.GetT18(i));
+            bag.Push();
+
+        }
+
+    });
+    
+}
+
+internal static class JobsRRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+    public unsafe struct Job : IJob {
+
+        [NativeDisableUnsafePtrRestriction]
+        public System.IntPtr fn;
+        public FunctionPointer<ForEachUtils.InternalDelegate> func;
+        public FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag;
+
+        public void Execute() {
+            var ptr = UnsafeUtility.AddressOf(ref this.bag);
+            this.func.Invoke((void*)this.fn, ptr);
+            UnsafeUtility.CopyPtrToStructure(ptr, out this.bag);
+        }
+    
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
+        public static void Run(void* fn, void* bagPtr) {
+            UnsafeUtility.CopyPtrToStructure(bagPtr, out FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> bag);
+            var del = new FunctionPointer<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>((System.IntPtr)fn);
+            for (int i = 0; i < bag.Length; ++i) {
+                del.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),in bag.GetT16(i),in bag.GetT17(i),in bag.GetT18(i));
+            }
+            UnsafeUtility.CopyStructureToPtr(ref bag, bagPtr);
+        }
+
+    }
+
+}
+
+public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> ForEach<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this in Filter filter, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEach)  where T0:struct,IStructComponentBase where T1:struct,IStructComponentBase where T2:struct,IStructComponentBase where T3:struct,IStructComponentBase where T4:struct,IStructComponentBase where T5:struct,IStructComponentBase where T6:struct,IStructComponentBase where T7:struct,IStructComponentBase where T8:struct,IStructComponentBase where T9:struct,IStructComponentBase where T10:struct,IStructComponentBase where T11:struct,IStructComponentBase where T12:struct,IStructComponentBase where T13:struct,IStructComponentBase where T14:struct,IStructComponentBase where T15:struct,IStructComponentBase where T16:struct,IStructComponentBase where T17:struct,IStructComponentBase where T18:struct,IStructComponentBase {
+    
+    return new ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> task, in Filter filterInternal, ME.ECS.Filters.FDRRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> onEachInternal) => {
+
+        if (task.withBurst == true) {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.TempJob);
+            var handle = GCHandle.Alloc(onEachInternal);
+            var job = new JobsRRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job() {
+                fn = Marshal.GetFunctionPointerForDelegate(onEachInternal),
+                func = BurstCompiler.CompileFunctionPointer<ForEachUtils.InternalDelegate>(JobsRRRRRRRRRRRRRRRRRRR<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>.Job.Run),
+                bag = bag,
+            };
+            job.Schedule().Complete();
+            handle.Free();
+            bag.Push();
+
+        } else {
+
+            var bag = new FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(filterInternal, Unity.Collections.Allocator.Persistent);
+            for (int i = 0; i < bag.Length; ++i) onEachInternal.Invoke(in bag.GetEntity(i), in bag.GetT0(i),in bag.GetT1(i),in bag.GetT2(i),in bag.GetT3(i),in bag.GetT4(i),in bag.GetT5(i),in bag.GetT6(i),in bag.GetT7(i),in bag.GetT8(i),in bag.GetT9(i),in bag.GetT10(i),in bag.GetT11(i),in bag.GetT12(i),in bag.GetT13(i),in bag.GetT14(i),in bag.GetT15(i),in bag.GetT16(i),in bag.GetT17(i),in bag.GetT18(i));
             bag.Push();
 
         }

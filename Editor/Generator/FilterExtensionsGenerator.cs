@@ -8,6 +8,8 @@ namespace ME.ECSEditor {
 
         [UnityEditor.MenuItem("ME.ECS/Generators/Generate Filters...")]
         public static void GenerateFilters() {
+
+            const int count = 20;
             
             var asms = UnityEditor.AssetDatabase.FindAssets("t:asmdef ECSAssembly");
             foreach (var asm in asms) {
@@ -20,7 +22,6 @@ namespace ME.ECSEditor {
                 var outputForEach = string.Empty;
                 var buffers = string.Empty;
                 
-                var count = 10;
                 for (int j = 1; j < count; ++j) {
 
                     var itemsType = "T0";
