@@ -90,7 +90,7 @@ namespace ME.ECS.Pathfinding {
                     area = 0,
                     shape = UnityEngine.AI.NavMeshBuildSourceShape.Box,
                     size = new Vector3(this.size.x, 0f, this.size.z),
-                    transform = Matrix4x4.TRS(new Vector3(0f, this.floorHeight, 0f), Quaternion.identity, Vector3.one),
+                    transform = Matrix4x4.TRS(new Vector3(this.graphCenter.x, this.floorHeight, this.graphCenter.z), Quaternion.identity, Vector3.one),
                 });
 
             }
@@ -112,11 +112,11 @@ namespace ME.ECS.Pathfinding {
             buildSettings.tileSize = this.tileSize;
             buildSettings.overrideVoxelSize = true;
             buildSettings.voxelSize = this.voxelSize;
-            var data = NavMeshBuilder.BuildNavMeshData(buildSettings, this.buildSources, bounds, this.graphCenter, Quaternion.identity);
+            var data = NavMeshBuilder.BuildNavMeshData(buildSettings, this.buildSources, bounds, Vector3.zero, Quaternion.identity);
             this.navMeshData = data;
             this.buildSettings = buildSettings;
             
-            this.navMeshDataInstance = UnityEngine.AI.NavMesh.AddNavMeshData(this.navMeshData, this.graphCenter, Quaternion.identity);
+            this.navMeshDataInstance = UnityEngine.AI.NavMesh.AddNavMeshData(this.navMeshData, Vector3.zero, Quaternion.identity);
             var t = NavMesh.CalculateTriangulation();
             var hash = 0;
             foreach (var vert in t.vertices) {
