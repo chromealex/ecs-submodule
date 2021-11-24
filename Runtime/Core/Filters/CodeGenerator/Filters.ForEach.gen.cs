@@ -35,6 +35,10 @@ public struct FilterBag<T0>  where T0:struct,IStructComponentBase {
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -50,9 +54,17 @@ t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : d
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -77,6 +89,10 @@ t0 = AllComponentTypes<T0>.isTag == false ? regT0.components[entity.id].data : d
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -119,6 +135,10 @@ public struct FilterBag<T0,T1>  where T0:struct,IStructComponentBase where T1:st
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -137,9 +157,17 @@ t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : d
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
@@ -175,6 +203,10 @@ t1 = AllComponentTypes<T1>.isTag == false ? regT1.components[entity.id].data : d
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -221,6 +253,10 @@ public struct FilterBag<T0,T1,T2>  where T0:struct,IStructComponentBase where T1
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -242,9 +278,17 @@ t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : d
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
@@ -291,6 +335,10 @@ t2 = AllComponentTypes<T2>.isTag == false ? regT2.components[entity.id].data : d
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -341,6 +389,10 @@ public struct FilterBag<T0,T1,T2,T3>  where T0:struct,IStructComponentBase where
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -365,9 +417,17 @@ t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : d
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
@@ -425,6 +485,10 @@ t3 = AllComponentTypes<T3>.isTag == false ? regT3.components[entity.id].data : d
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -479,6 +543,10 @@ public struct FilterBag<T0,T1,T2,T3,T4>  where T0:struct,IStructComponentBase wh
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -506,9 +574,17 @@ t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : d
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
@@ -577,6 +653,10 @@ t4 = AllComponentTypes<T4>.isTag == false ? regT4.components[entity.id].data : d
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -635,6 +715,10 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:struct,IStructComponentBase
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -665,9 +749,17 @@ t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : d
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
@@ -747,6 +839,10 @@ t5 = AllComponentTypes<T5>.isTag == false ? regT5.components[entity.id].data : d
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -809,6 +905,10 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:struct,IStructComponentB
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -842,9 +942,17 @@ t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : d
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
@@ -935,6 +1043,10 @@ t6 = AllComponentTypes<T6>.isTag == false ? regT6.components[entity.id].data : d
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -1001,6 +1113,10 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:struct,IStructCompone
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -1037,9 +1153,17 @@ t7 = AllComponentTypes<T7>.isTag == false ? regT7.components[entity.id].data : d
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
@@ -1141,6 +1265,10 @@ t7 = AllComponentTypes<T7>.isTag == false ? regT7.components[entity.id].data : d
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -1211,6 +1339,10 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:struct,IStructComp
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -1250,9 +1382,17 @@ t8 = AllComponentTypes<T8>.isTag == false ? regT8.components[entity.id].data : d
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
@@ -1365,6 +1505,10 @@ t8 = AllComponentTypes<T8>.isTag == false ? regT8.components[entity.id].data : d
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -1439,6 +1583,10 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:struct,IStructC
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -1481,9 +1629,17 @@ t9 = AllComponentTypes<T9>.isTag == false ? regT9.components[entity.id].data : d
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
@@ -1607,6 +1763,10 @@ t9 = AllComponentTypes<T9>.isTag == false ? regT9.components[entity.id].data : d
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -1685,6 +1845,10 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:struct,IStr
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -1730,9 +1894,17 @@ t10 = AllComponentTypes<T10>.isTag == false ? regT10.components[entity.id].data 
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
@@ -1867,6 +2039,10 @@ t10 = AllComponentTypes<T10>.isTag == false ? regT10.components[entity.id].data 
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -1949,6 +2125,10 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -1997,9 +2177,17 @@ t11 = AllComponentTypes<T11>.isTag == false ? regT11.components[entity.id].data 
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
@@ -2145,6 +2333,10 @@ t11 = AllComponentTypes<T11>.isTag == false ? regT11.components[entity.id].data 
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -2231,6 +2423,10 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:str
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -2282,9 +2478,17 @@ t12 = AllComponentTypes<T12>.isTag == false ? regT12.components[entity.id].data 
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
@@ -2441,6 +2645,10 @@ t12 = AllComponentTypes<T12>.isTag == false ? regT12.components[entity.id].data 
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -2531,6 +2739,10 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -2585,9 +2797,17 @@ t13 = AllComponentTypes<T13>.isTag == false ? regT13.components[entity.id].data 
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
@@ -2755,6 +2975,10 @@ t13 = AllComponentTypes<T13>.isTag == false ? regT13.components[entity.id].data 
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -2849,6 +3073,10 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  wher
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -2906,9 +3134,17 @@ t14 = AllComponentTypes<T14>.isTag == false ? regT14.components[entity.id].data 
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
@@ -3087,6 +3323,10 @@ t14 = AllComponentTypes<T14>.isTag == false ? regT14.components[entity.id].data 
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -3185,6 +3425,10 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -3245,9 +3489,17 @@ t15 = AllComponentTypes<T15>.isTag == false ? regT15.components[entity.id].data 
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
@@ -3437,6 +3689,10 @@ t15 = AllComponentTypes<T15>.isTag == false ? regT15.components[entity.id].data 
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -3539,6 +3795,10 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T1
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -3602,9 +3862,17 @@ t16 = AllComponentTypes<T16>.isTag == false ? regT16.components[entity.id].data 
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];
@@ -3805,6 +4073,10 @@ t16 = AllComponentTypes<T16>.isTag == false ? regT16.components[entity.id].data 
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -3911,6 +4183,10 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T1
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -3977,9 +4253,17 @@ t17 = AllComponentTypes<T17>.isTag == false ? regT17.components[entity.id].data 
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];var regT17 = (StructComponents<T17>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T17>()];
@@ -4191,6 +4475,10 @@ t17 = AllComponentTypes<T17>.isTag == false ? regT17.components[entity.id].data 
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
@@ -4301,6 +4589,10 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T1
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -4370,9 +4662,17 @@ t18 = AllComponentTypes<T18>.isTag == false ? regT18.components[entity.id].data 
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];var regT17 = (StructComponents<T17>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T17>()];var regT18 = (StructComponents<T18>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T18>()];
@@ -4595,6 +4895,10 @@ t18 = AllComponentTypes<T18>.isTag == false ? regT18.components[entity.id].data 
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;

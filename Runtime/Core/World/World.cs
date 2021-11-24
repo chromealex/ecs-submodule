@@ -3040,7 +3040,7 @@ namespace ME.ECS {
                             #endif
 
                             #if UNITY_EDITOR
-                            UnityEngine.Profiling.Profiler.BeginSample($"AdvanceTick");
+                            UnityEngine.Profiling.Profiler.BeginSample(advanceTickSystem.GetType().FullName);
                             #endif
 
                             advanceTickSystem.AdvanceTick(fixedDeltaTime);

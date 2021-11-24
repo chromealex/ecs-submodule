@@ -18,6 +18,10 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeArray<DataBufferStruct<#ITEMS_TYPE#>> arr;
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<#ITEMS_TYPE#>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Create");
+        #endif
         var world = filter.world;
         this.Length = filter.Count;
         #REGS_INIT#
@@ -30,9 +34,17 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
             };
             ++idx;
         }
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
 
     public void Push() {
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<#ITEMS_TYPE#>).FullName);
+        UnityEngine.Profiling.Profiler.BeginSample("Push");
+        #endif
         var world = Worlds.currentWorld;
         var changedCount = 0;
         #PUSH_REGS_INIT#
@@ -46,6 +58,10 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
         }
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
+        #if UNITY_EDITOR
+        UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
+        #endif
     }
     
     public void DestroyEntity(int index) => this.arr.GetRef(index).entityOps = 0x1;
