@@ -753,7 +753,7 @@ namespace ME.ECS {
         }
         
     }
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
@@ -767,6 +767,16 @@ namespace ME.ECS {
         private readonly byte onVersionChangedOnly;
         
         private readonly State state;
+
+        internal FilterEnumerator(byte zero) {
+
+            this.set = null;
+            this.index = -2;
+            this.state = null;
+            this.onVersionChangedOnly = 0;
+            this.max = -2;
+
+        }
 
         internal FilterEnumerator(FilterData set) {
 
@@ -796,6 +806,8 @@ namespace ME.ECS {
         #endif
         public void Dispose() {
 
+            if (this.index == -2) return;
+
             this.set.SetForEachMode(false);
             this.set.UseVersioned();
 
@@ -810,6 +822,8 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public bool MoveNext() {
+
+            if (this.index == -2) return false;
 
             if (this.set.data.hasShared == 1) {
 
@@ -1088,6 +1102,7 @@ namespace ME.ECS {
         #endif
         public FilterEnumerator GetEnumerator() {
 
+            if (this.Count == 0) return new FilterEnumerator(0);
             return new FilterEnumerator(this.world.GetFilter(this.id));
 
         }
