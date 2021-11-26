@@ -70,6 +70,7 @@ namespace ME.ECS.Pathfinding {
             temp.AddRange(sources);
             temp.AddRange(sources2);
             this.tempSources.Clear();
+            this.tempSources.AddRange(this.buildSources);
             this.tempSources.AddRange(temp);
             PoolListCopyable<NavMeshBuildSource>.Recycle(ref temp);
             var bounds = new UnityEngine.Bounds(this.graphCenter, this.size);
