@@ -195,6 +195,36 @@ namespace ME.ECSEditor {
 
                         }
 
+                        var regsDispose = EditorUtilities.Load<UnityEngine.TextAsset>("Editor/Templates/EditorResources/00-FilterExtensionsBufferRegsDispose.txt", isRequired: true).text;
+                        var regsDisposeOutput = string.Empty;
+                        for (int i = 0; i < j; ++i) {
+
+                            var text = regsDispose;
+                            text = text.Replace("#INDEX#", i.ToString());
+                            regsDisposeOutput += text;
+
+                        }
+
+                        var regsJobInit = EditorUtilities.Load<UnityEngine.TextAsset>("Editor/Templates/EditorResources/00-FilterExtensionsBufferRegsJobInit.txt", isRequired: true).text;
+                        var regsJobInitOutput = string.Empty;
+                        for (int i = 0; i < j; ++i) {
+
+                            var text = regsJobInit;
+                            text = text.Replace("#INDEX#", i.ToString());
+                            regsJobInitOutput += text;
+
+                        }
+
+                        var regsJobFill = EditorUtilities.Load<UnityEngine.TextAsset>("Editor/Templates/EditorResources/00-FilterExtensionsBufferRegsJobFill.txt", isRequired: true).text;
+                        var regsJobFillOutput = string.Empty;
+                        for (int i = 0; i < j; ++i) {
+
+                            var text = regsJobFill;
+                            text = text.Replace("#INDEX#", i.ToString());
+                            regsJobFillOutput += text;
+
+                        }
+
                         var res = EditorUtilities.Load<UnityEngine.TextAsset>("Editor/Templates/EditorResources/00-FilterExtensionsBufferItem.txt", isRequired: true).text;
                         res = res.Replace("#ITEMS_TYPE#", itemsType);
                         res = res.Replace("#ITEMS_WHERE#", itemsWhere);
@@ -207,6 +237,10 @@ namespace ME.ECSEditor {
                         res = res.Replace("#REGS_FILL#", regsInitFillOutput);
                         res = res.Replace("#PUSH_REGS_INIT#", pushRegsInitOutput);
                         res = res.Replace("#PUSH_OPS#", pushOpsOutput);
+                        
+                        res = res.Replace("#REGS_DISPOSE#", regsDisposeOutput);
+                        res = res.Replace("#JOB_INIT_ITEMS#", regsJobInitOutput);
+                        res = res.Replace("#JOB_FILL_ITEMS#", regsJobFillOutput);
                         
                         res = res.Replace("#INDEX#", j.ToString());
                         buffers += $"{res}\n";

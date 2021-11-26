@@ -1,3 +1,3 @@
-containsT#INDEX# = regT#INDEX#.components[entity.id].state,
+containsT#INDEX# = this.tempT#INDEX#[entity.id].state,
 opsT#INDEX# = 0,
-t#INDEX# = AllComponentTypes<T#INDEX#>.isTag == false ? regT#INDEX#.components[entity.id].data : default,
+t#INDEX# = this.tagT#INDEX# == 0 ? this.tempT#INDEX#[entity.id].data : default,
