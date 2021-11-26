@@ -21,6 +21,7 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         #JOB_FILL_ITEMS#
         public Unity.Collections.NativeArray<DataBufferStruct<#ITEMS_TYPE#>> arr;
 
@@ -37,22 +38,28 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<#ITEMS_TYPE#>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         #REGS_INIT#
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<#ITEMS_TYPE#>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             #JOB_INIT_ITEMS#
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         #REGS_DISPOSE#
         #if UNITY_EDITOR
@@ -62,6 +69,7 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<#ITEMS_TYPE#>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -93,7 +101,10 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     #ITEMS_METHODS#

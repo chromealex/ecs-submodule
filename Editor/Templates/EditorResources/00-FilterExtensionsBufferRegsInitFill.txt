@@ -1,3 +1,2 @@
-containsT#INDEX# = this.tempT#INDEX#[entity.id].state,
-opsT#INDEX# = 0,
-t#INDEX# = this.tagT#INDEX# == 0 ? this.tempT#INDEX#[entity.id].data : default,
+containsT#INDEX# = this.tempT#INDEX#[entity.id - this.offset].state,
+t#INDEX# = this.tagT#INDEX# == 0 ? this.tempT#INDEX#[entity.id - this.offset].data : default,

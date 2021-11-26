@@ -38,6 +38,7 @@ public struct FilterBag<T0>  where T0:struct,IStructComponentBase {
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -49,9 +50,8 @@ public byte tagT0;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
 
             };
             
@@ -60,27 +60,34 @@ t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 
@@ -91,6 +98,7 @@ tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -133,7 +141,10 @@ tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -168,6 +179,7 @@ public struct FilterBag<T0,T1>  where T0:struct,IStructComponentBase where T1:st
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -182,12 +194,10 @@ public byte tagT1;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
 
             };
             
@@ -196,24 +206,33 @@ t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -221,7 +240,6 @@ tagT1 = AllComponentTypes<T1>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -233,6 +251,7 @@ tempT1.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -286,7 +305,10 @@ tempT1.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -325,6 +347,7 @@ public struct FilterBag<T0,T1,T2>  where T0:struct,IStructComponentBase where T1
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -342,15 +365,12 @@ public byte tagT2;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
 
             };
             
@@ -359,27 +379,37 @@ t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -389,7 +419,6 @@ tagT2 = AllComponentTypes<T2>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -402,6 +431,7 @@ tempT2.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -466,7 +496,10 @@ tempT2.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -509,6 +542,7 @@ public struct FilterBag<T0,T1,T2,T3>  where T0:struct,IStructComponentBase where
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -529,18 +563,14 @@ public byte tagT3;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2,T3>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
-containsT3 = this.tempT3[entity.id].state,
-opsT3 = 0,
-t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+containsT3 = this.tempT3[entity.id - this.offset].state,
+t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
 
             };
             
@@ -549,30 +579,41 @@ t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
-var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(regT3.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT3.components.data, 0, ref tempT3, 0, regT3.components.data.Length);
+var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -584,7 +625,6 @@ tagT3 = AllComponentTypes<T3>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -598,6 +638,7 @@ tempT3.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -673,7 +714,10 @@ tempT3.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -720,6 +764,7 @@ public struct FilterBag<T0,T1,T2,T3,T4>  where T0:struct,IStructComponentBase wh
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -743,21 +788,16 @@ public byte tagT4;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2,T3,T4>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
-containsT3 = this.tempT3[entity.id].state,
-opsT3 = 0,
-t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
-containsT4 = this.tempT4[entity.id].state,
-opsT4 = 0,
-t4 = this.tagT4 == 0 ? this.tempT4[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+containsT3 = this.tempT3[entity.id - this.offset].state,
+t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+containsT4 = this.tempT4[entity.id - this.offset].state,
+t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
 
             };
             
@@ -766,33 +806,45 @@ t4 = this.tagT4 == 0 ? this.tempT4[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
-var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(regT3.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT3.components.data, 0, ref tempT3, 0, regT3.components.data.Length);var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
-var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(regT4.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT4.components.data, 0, ref tempT4, 0, regT4.components.data.Length);
+var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -806,7 +858,6 @@ tagT4 = AllComponentTypes<T4>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -821,6 +872,7 @@ tempT4.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -907,7 +959,10 @@ tempT4.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -958,6 +1013,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:struct,IStructComponentBase
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -984,24 +1040,18 @@ public byte tagT5;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2,T3,T4,T5>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
-containsT3 = this.tempT3[entity.id].state,
-opsT3 = 0,
-t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
-containsT4 = this.tempT4[entity.id].state,
-opsT4 = 0,
-t4 = this.tagT4 == 0 ? this.tempT4[entity.id].data : default,
-containsT5 = this.tempT5[entity.id].state,
-opsT5 = 0,
-t5 = this.tagT5 == 0 ? this.tempT5[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+containsT3 = this.tempT3[entity.id - this.offset].state,
+t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+containsT4 = this.tempT4[entity.id - this.offset].state,
+t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+containsT5 = this.tempT5[entity.id - this.offset].state,
+t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
 
             };
             
@@ -1010,36 +1060,49 @@ t5 = this.tagT5 == 0 ? this.tempT5[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
-var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(regT3.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT3.components.data, 0, ref tempT3, 0, regT3.components.data.Length);var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
-var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(regT4.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT4.components.data, 0, ref tempT4, 0, regT4.components.data.Length);var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
-var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(regT5.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT5.components.data, 0, ref tempT5, 0, regT5.components.data.Length);
+var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -1055,7 +1118,6 @@ tagT5 = AllComponentTypes<T5>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -1071,6 +1133,7 @@ tempT5.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -1168,7 +1231,10 @@ tempT5.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -1223,6 +1289,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:struct,IStructComponentB
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -1252,27 +1319,20 @@ public byte tagT6;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
-containsT3 = this.tempT3[entity.id].state,
-opsT3 = 0,
-t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
-containsT4 = this.tempT4[entity.id].state,
-opsT4 = 0,
-t4 = this.tagT4 == 0 ? this.tempT4[entity.id].data : default,
-containsT5 = this.tempT5[entity.id].state,
-opsT5 = 0,
-t5 = this.tagT5 == 0 ? this.tempT5[entity.id].data : default,
-containsT6 = this.tempT6[entity.id].state,
-opsT6 = 0,
-t6 = this.tagT6 == 0 ? this.tempT6[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+containsT3 = this.tempT3[entity.id - this.offset].state,
+t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+containsT4 = this.tempT4[entity.id - this.offset].state,
+t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+containsT5 = this.tempT5[entity.id - this.offset].state,
+t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+containsT6 = this.tempT6[entity.id - this.offset].state,
+t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
 
             };
             
@@ -1281,39 +1341,53 @@ t6 = this.tagT6 == 0 ? this.tempT6[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
-var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(regT3.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT3.components.data, 0, ref tempT3, 0, regT3.components.data.Length);var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
-var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(regT4.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT4.components.data, 0, ref tempT4, 0, regT4.components.data.Length);var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
-var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(regT5.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT5.components.data, 0, ref tempT5, 0, regT5.components.data.Length);var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
-var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(regT6.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT6.components.data, 0, ref tempT6, 0, regT6.components.data.Length);
+var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -1331,7 +1405,6 @@ tagT6 = AllComponentTypes<T6>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -1348,6 +1421,7 @@ tempT6.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -1456,7 +1530,10 @@ tempT6.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -1515,6 +1592,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:struct,IStructCompone
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -1547,30 +1625,22 @@ public byte tagT7;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
-containsT3 = this.tempT3[entity.id].state,
-opsT3 = 0,
-t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
-containsT4 = this.tempT4[entity.id].state,
-opsT4 = 0,
-t4 = this.tagT4 == 0 ? this.tempT4[entity.id].data : default,
-containsT5 = this.tempT5[entity.id].state,
-opsT5 = 0,
-t5 = this.tagT5 == 0 ? this.tempT5[entity.id].data : default,
-containsT6 = this.tempT6[entity.id].state,
-opsT6 = 0,
-t6 = this.tagT6 == 0 ? this.tempT6[entity.id].data : default,
-containsT7 = this.tempT7[entity.id].state,
-opsT7 = 0,
-t7 = this.tagT7 == 0 ? this.tempT7[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+containsT3 = this.tempT3[entity.id - this.offset].state,
+t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+containsT4 = this.tempT4[entity.id - this.offset].state,
+t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+containsT5 = this.tempT5[entity.id - this.offset].state,
+t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+containsT6 = this.tempT6[entity.id - this.offset].state,
+t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+containsT7 = this.tempT7[entity.id - this.offset].state,
+t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
 
             };
             
@@ -1579,42 +1649,57 @@ t7 = this.tagT7 == 0 ? this.tempT7[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
-var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(regT3.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT3.components.data, 0, ref tempT3, 0, regT3.components.data.Length);var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
-var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(regT4.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT4.components.data, 0, ref tempT4, 0, regT4.components.data.Length);var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
-var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(regT5.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT5.components.data, 0, ref tempT5, 0, regT5.components.data.Length);var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
-var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(regT6.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT6.components.data, 0, ref tempT6, 0, regT6.components.data.Length);var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
-var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(regT7.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT7.components.data, 0, ref tempT7, 0, regT7.components.data.Length);
+var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -1634,7 +1719,6 @@ tagT7 = AllComponentTypes<T7>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -1652,6 +1736,7 @@ tempT7.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -1771,7 +1856,10 @@ tempT7.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -1834,6 +1922,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:struct,IStructComp
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -1869,33 +1958,24 @@ public byte tagT8;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
-containsT3 = this.tempT3[entity.id].state,
-opsT3 = 0,
-t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
-containsT4 = this.tempT4[entity.id].state,
-opsT4 = 0,
-t4 = this.tagT4 == 0 ? this.tempT4[entity.id].data : default,
-containsT5 = this.tempT5[entity.id].state,
-opsT5 = 0,
-t5 = this.tagT5 == 0 ? this.tempT5[entity.id].data : default,
-containsT6 = this.tempT6[entity.id].state,
-opsT6 = 0,
-t6 = this.tagT6 == 0 ? this.tempT6[entity.id].data : default,
-containsT7 = this.tempT7[entity.id].state,
-opsT7 = 0,
-t7 = this.tagT7 == 0 ? this.tempT7[entity.id].data : default,
-containsT8 = this.tempT8[entity.id].state,
-opsT8 = 0,
-t8 = this.tagT8 == 0 ? this.tempT8[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+containsT3 = this.tempT3[entity.id - this.offset].state,
+t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+containsT4 = this.tempT4[entity.id - this.offset].state,
+t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+containsT5 = this.tempT5[entity.id - this.offset].state,
+t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+containsT6 = this.tempT6[entity.id - this.offset].state,
+t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+containsT7 = this.tempT7[entity.id - this.offset].state,
+t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+containsT8 = this.tempT8[entity.id - this.offset].state,
+t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
 
             };
             
@@ -1904,45 +1984,61 @@ t8 = this.tagT8 == 0 ? this.tempT8[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
-var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(regT3.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT3.components.data, 0, ref tempT3, 0, regT3.components.data.Length);var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
-var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(regT4.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT4.components.data, 0, ref tempT4, 0, regT4.components.data.Length);var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
-var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(regT5.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT5.components.data, 0, ref tempT5, 0, regT5.components.data.Length);var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
-var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(regT6.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT6.components.data, 0, ref tempT6, 0, regT6.components.data.Length);var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
-var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(regT7.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT7.components.data, 0, ref tempT7, 0, regT7.components.data.Length);var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
-var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(regT8.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT8.components.data, 0, ref tempT8, 0, regT8.components.data.Length);
+var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -1964,7 +2060,6 @@ tagT8 = AllComponentTypes<T8>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -1983,6 +2078,7 @@ tempT8.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -2113,7 +2209,10 @@ tempT8.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -2180,6 +2279,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:struct,IStructC
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -2218,36 +2318,26 @@ public byte tagT9;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
-containsT3 = this.tempT3[entity.id].state,
-opsT3 = 0,
-t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
-containsT4 = this.tempT4[entity.id].state,
-opsT4 = 0,
-t4 = this.tagT4 == 0 ? this.tempT4[entity.id].data : default,
-containsT5 = this.tempT5[entity.id].state,
-opsT5 = 0,
-t5 = this.tagT5 == 0 ? this.tempT5[entity.id].data : default,
-containsT6 = this.tempT6[entity.id].state,
-opsT6 = 0,
-t6 = this.tagT6 == 0 ? this.tempT6[entity.id].data : default,
-containsT7 = this.tempT7[entity.id].state,
-opsT7 = 0,
-t7 = this.tagT7 == 0 ? this.tempT7[entity.id].data : default,
-containsT8 = this.tempT8[entity.id].state,
-opsT8 = 0,
-t8 = this.tagT8 == 0 ? this.tempT8[entity.id].data : default,
-containsT9 = this.tempT9[entity.id].state,
-opsT9 = 0,
-t9 = this.tagT9 == 0 ? this.tempT9[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+containsT3 = this.tempT3[entity.id - this.offset].state,
+t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+containsT4 = this.tempT4[entity.id - this.offset].state,
+t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+containsT5 = this.tempT5[entity.id - this.offset].state,
+t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+containsT6 = this.tempT6[entity.id - this.offset].state,
+t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+containsT7 = this.tempT7[entity.id - this.offset].state,
+t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+containsT8 = this.tempT8[entity.id - this.offset].state,
+t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+containsT9 = this.tempT9[entity.id - this.offset].state,
+t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
 
             };
             
@@ -2256,48 +2346,65 @@ t9 = this.tagT9 == 0 ? this.tempT9[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
-var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(regT3.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT3.components.data, 0, ref tempT3, 0, regT3.components.data.Length);var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
-var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(regT4.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT4.components.data, 0, ref tempT4, 0, regT4.components.data.Length);var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
-var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(regT5.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT5.components.data, 0, ref tempT5, 0, regT5.components.data.Length);var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
-var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(regT6.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT6.components.data, 0, ref tempT6, 0, regT6.components.data.Length);var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
-var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(regT7.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT7.components.data, 0, ref tempT7, 0, regT7.components.data.Length);var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
-var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(regT8.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT8.components.data, 0, ref tempT8, 0, regT8.components.data.Length);var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
-var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(regT9.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT9.components.data, 0, ref tempT9, 0, regT9.components.data.Length);
+var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -2321,7 +2428,6 @@ tagT9 = AllComponentTypes<T9>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -2341,6 +2447,7 @@ tempT9.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -2482,7 +2589,10 @@ tempT9.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -2553,6 +2663,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:struct,IStr
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -2594,39 +2705,28 @@ public byte tagT10;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
-containsT3 = this.tempT3[entity.id].state,
-opsT3 = 0,
-t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
-containsT4 = this.tempT4[entity.id].state,
-opsT4 = 0,
-t4 = this.tagT4 == 0 ? this.tempT4[entity.id].data : default,
-containsT5 = this.tempT5[entity.id].state,
-opsT5 = 0,
-t5 = this.tagT5 == 0 ? this.tempT5[entity.id].data : default,
-containsT6 = this.tempT6[entity.id].state,
-opsT6 = 0,
-t6 = this.tagT6 == 0 ? this.tempT6[entity.id].data : default,
-containsT7 = this.tempT7[entity.id].state,
-opsT7 = 0,
-t7 = this.tagT7 == 0 ? this.tempT7[entity.id].data : default,
-containsT8 = this.tempT8[entity.id].state,
-opsT8 = 0,
-t8 = this.tagT8 == 0 ? this.tempT8[entity.id].data : default,
-containsT9 = this.tempT9[entity.id].state,
-opsT9 = 0,
-t9 = this.tagT9 == 0 ? this.tempT9[entity.id].data : default,
-containsT10 = this.tempT10[entity.id].state,
-opsT10 = 0,
-t10 = this.tagT10 == 0 ? this.tempT10[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+containsT3 = this.tempT3[entity.id - this.offset].state,
+t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+containsT4 = this.tempT4[entity.id - this.offset].state,
+t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+containsT5 = this.tempT5[entity.id - this.offset].state,
+t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+containsT6 = this.tempT6[entity.id - this.offset].state,
+t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+containsT7 = this.tempT7[entity.id - this.offset].state,
+t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+containsT8 = this.tempT8[entity.id - this.offset].state,
+t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+containsT9 = this.tempT9[entity.id - this.offset].state,
+t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+containsT10 = this.tempT10[entity.id - this.offset].state,
+t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
 
             };
             
@@ -2635,51 +2735,69 @@ t10 = this.tagT10 == 0 ? this.tempT10[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
-var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(regT3.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT3.components.data, 0, ref tempT3, 0, regT3.components.data.Length);var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
-var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(regT4.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT4.components.data, 0, ref tempT4, 0, regT4.components.data.Length);var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
-var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(regT5.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT5.components.data, 0, ref tempT5, 0, regT5.components.data.Length);var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
-var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(regT6.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT6.components.data, 0, ref tempT6, 0, regT6.components.data.Length);var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
-var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(regT7.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT7.components.data, 0, ref tempT7, 0, regT7.components.data.Length);var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
-var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(regT8.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT8.components.data, 0, ref tempT8, 0, regT8.components.data.Length);var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
-var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(regT9.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT9.components.data, 0, ref tempT9, 0, regT9.components.data.Length);var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
-var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(regT10.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT10.components.data, 0, ref tempT10, 0, regT10.components.data.Length);
+var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -2705,7 +2823,6 @@ tagT10 = AllComponentTypes<T10>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -2726,6 +2843,7 @@ tempT10.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -2878,7 +2996,10 @@ tempT10.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -2953,6 +3074,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -2997,42 +3119,30 @@ public byte tagT11;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
-containsT3 = this.tempT3[entity.id].state,
-opsT3 = 0,
-t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
-containsT4 = this.tempT4[entity.id].state,
-opsT4 = 0,
-t4 = this.tagT4 == 0 ? this.tempT4[entity.id].data : default,
-containsT5 = this.tempT5[entity.id].state,
-opsT5 = 0,
-t5 = this.tagT5 == 0 ? this.tempT5[entity.id].data : default,
-containsT6 = this.tempT6[entity.id].state,
-opsT6 = 0,
-t6 = this.tagT6 == 0 ? this.tempT6[entity.id].data : default,
-containsT7 = this.tempT7[entity.id].state,
-opsT7 = 0,
-t7 = this.tagT7 == 0 ? this.tempT7[entity.id].data : default,
-containsT8 = this.tempT8[entity.id].state,
-opsT8 = 0,
-t8 = this.tagT8 == 0 ? this.tempT8[entity.id].data : default,
-containsT9 = this.tempT9[entity.id].state,
-opsT9 = 0,
-t9 = this.tagT9 == 0 ? this.tempT9[entity.id].data : default,
-containsT10 = this.tempT10[entity.id].state,
-opsT10 = 0,
-t10 = this.tagT10 == 0 ? this.tempT10[entity.id].data : default,
-containsT11 = this.tempT11[entity.id].state,
-opsT11 = 0,
-t11 = this.tagT11 == 0 ? this.tempT11[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+containsT3 = this.tempT3[entity.id - this.offset].state,
+t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+containsT4 = this.tempT4[entity.id - this.offset].state,
+t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+containsT5 = this.tempT5[entity.id - this.offset].state,
+t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+containsT6 = this.tempT6[entity.id - this.offset].state,
+t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+containsT7 = this.tempT7[entity.id - this.offset].state,
+t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+containsT8 = this.tempT8[entity.id - this.offset].state,
+t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+containsT9 = this.tempT9[entity.id - this.offset].state,
+t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+containsT10 = this.tempT10[entity.id - this.offset].state,
+t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+containsT11 = this.tempT11[entity.id - this.offset].state,
+t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
 
             };
             
@@ -3041,54 +3151,73 @@ t11 = this.tagT11 == 0 ? this.tempT11[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
-var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(regT3.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT3.components.data, 0, ref tempT3, 0, regT3.components.data.Length);var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
-var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(regT4.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT4.components.data, 0, ref tempT4, 0, regT4.components.data.Length);var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
-var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(regT5.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT5.components.data, 0, ref tempT5, 0, regT5.components.data.Length);var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
-var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(regT6.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT6.components.data, 0, ref tempT6, 0, regT6.components.data.Length);var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
-var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(regT7.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT7.components.data, 0, ref tempT7, 0, regT7.components.data.Length);var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
-var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(regT8.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT8.components.data, 0, ref tempT8, 0, regT8.components.data.Length);var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
-var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(regT9.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT9.components.data, 0, ref tempT9, 0, regT9.components.data.Length);var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
-var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(regT10.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT10.components.data, 0, ref tempT10, 0, regT10.components.data.Length);var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
 regT11.Merge();
-var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(regT11.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT11.components.data, 0, ref tempT11, 0, regT11.components.data.Length);
+var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator);
+NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -3116,7 +3245,6 @@ tagT11 = AllComponentTypes<T11>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -3138,6 +3266,7 @@ tempT11.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -3301,7 +3430,10 @@ tempT11.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -3380,6 +3512,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:str
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -3427,45 +3560,32 @@ public byte tagT12;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
-containsT3 = this.tempT3[entity.id].state,
-opsT3 = 0,
-t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
-containsT4 = this.tempT4[entity.id].state,
-opsT4 = 0,
-t4 = this.tagT4 == 0 ? this.tempT4[entity.id].data : default,
-containsT5 = this.tempT5[entity.id].state,
-opsT5 = 0,
-t5 = this.tagT5 == 0 ? this.tempT5[entity.id].data : default,
-containsT6 = this.tempT6[entity.id].state,
-opsT6 = 0,
-t6 = this.tagT6 == 0 ? this.tempT6[entity.id].data : default,
-containsT7 = this.tempT7[entity.id].state,
-opsT7 = 0,
-t7 = this.tagT7 == 0 ? this.tempT7[entity.id].data : default,
-containsT8 = this.tempT8[entity.id].state,
-opsT8 = 0,
-t8 = this.tagT8 == 0 ? this.tempT8[entity.id].data : default,
-containsT9 = this.tempT9[entity.id].state,
-opsT9 = 0,
-t9 = this.tagT9 == 0 ? this.tempT9[entity.id].data : default,
-containsT10 = this.tempT10[entity.id].state,
-opsT10 = 0,
-t10 = this.tagT10 == 0 ? this.tempT10[entity.id].data : default,
-containsT11 = this.tempT11[entity.id].state,
-opsT11 = 0,
-t11 = this.tagT11 == 0 ? this.tempT11[entity.id].data : default,
-containsT12 = this.tempT12[entity.id].state,
-opsT12 = 0,
-t12 = this.tagT12 == 0 ? this.tempT12[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+containsT3 = this.tempT3[entity.id - this.offset].state,
+t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+containsT4 = this.tempT4[entity.id - this.offset].state,
+t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+containsT5 = this.tempT5[entity.id - this.offset].state,
+t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+containsT6 = this.tempT6[entity.id - this.offset].state,
+t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+containsT7 = this.tempT7[entity.id - this.offset].state,
+t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+containsT8 = this.tempT8[entity.id - this.offset].state,
+t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+containsT9 = this.tempT9[entity.id - this.offset].state,
+t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+containsT10 = this.tempT10[entity.id - this.offset].state,
+t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+containsT11 = this.tempT11[entity.id - this.offset].state,
+t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
+containsT12 = this.tempT12[entity.id - this.offset].state,
+t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
 
             };
             
@@ -3474,57 +3594,77 @@ t12 = this.tagT12 == 0 ? this.tempT12[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
-var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(regT3.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT3.components.data, 0, ref tempT3, 0, regT3.components.data.Length);var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
-var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(regT4.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT4.components.data, 0, ref tempT4, 0, regT4.components.data.Length);var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
-var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(regT5.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT5.components.data, 0, ref tempT5, 0, regT5.components.data.Length);var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
-var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(regT6.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT6.components.data, 0, ref tempT6, 0, regT6.components.data.Length);var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
-var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(regT7.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT7.components.data, 0, ref tempT7, 0, regT7.components.data.Length);var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
-var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(regT8.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT8.components.data, 0, ref tempT8, 0, regT8.components.data.Length);var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
-var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(regT9.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT9.components.data, 0, ref tempT9, 0, regT9.components.data.Length);var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
-var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(regT10.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT10.components.data, 0, ref tempT10, 0, regT10.components.data.Length);var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
 regT11.Merge();
-var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(regT11.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT11.components.data, 0, ref tempT11, 0, regT11.components.data.Length);var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
+var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator);
+NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size);
+var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
 regT12.Merge();
-var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(regT12.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT12.components.data, 0, ref tempT12, 0, regT12.components.data.Length);
+var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(size, allocator);
+NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -3554,7 +3694,6 @@ tagT12 = AllComponentTypes<T12>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -3577,6 +3716,7 @@ tempT12.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -3751,7 +3891,10 @@ tempT12.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -3834,6 +3977,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -3884,48 +4028,34 @@ public byte tagT13;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
-containsT3 = this.tempT3[entity.id].state,
-opsT3 = 0,
-t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
-containsT4 = this.tempT4[entity.id].state,
-opsT4 = 0,
-t4 = this.tagT4 == 0 ? this.tempT4[entity.id].data : default,
-containsT5 = this.tempT5[entity.id].state,
-opsT5 = 0,
-t5 = this.tagT5 == 0 ? this.tempT5[entity.id].data : default,
-containsT6 = this.tempT6[entity.id].state,
-opsT6 = 0,
-t6 = this.tagT6 == 0 ? this.tempT6[entity.id].data : default,
-containsT7 = this.tempT7[entity.id].state,
-opsT7 = 0,
-t7 = this.tagT7 == 0 ? this.tempT7[entity.id].data : default,
-containsT8 = this.tempT8[entity.id].state,
-opsT8 = 0,
-t8 = this.tagT8 == 0 ? this.tempT8[entity.id].data : default,
-containsT9 = this.tempT9[entity.id].state,
-opsT9 = 0,
-t9 = this.tagT9 == 0 ? this.tempT9[entity.id].data : default,
-containsT10 = this.tempT10[entity.id].state,
-opsT10 = 0,
-t10 = this.tagT10 == 0 ? this.tempT10[entity.id].data : default,
-containsT11 = this.tempT11[entity.id].state,
-opsT11 = 0,
-t11 = this.tagT11 == 0 ? this.tempT11[entity.id].data : default,
-containsT12 = this.tempT12[entity.id].state,
-opsT12 = 0,
-t12 = this.tagT12 == 0 ? this.tempT12[entity.id].data : default,
-containsT13 = this.tempT13[entity.id].state,
-opsT13 = 0,
-t13 = this.tagT13 == 0 ? this.tempT13[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+containsT3 = this.tempT3[entity.id - this.offset].state,
+t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+containsT4 = this.tempT4[entity.id - this.offset].state,
+t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+containsT5 = this.tempT5[entity.id - this.offset].state,
+t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+containsT6 = this.tempT6[entity.id - this.offset].state,
+t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+containsT7 = this.tempT7[entity.id - this.offset].state,
+t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+containsT8 = this.tempT8[entity.id - this.offset].state,
+t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+containsT9 = this.tempT9[entity.id - this.offset].state,
+t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+containsT10 = this.tempT10[entity.id - this.offset].state,
+t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+containsT11 = this.tempT11[entity.id - this.offset].state,
+t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
+containsT12 = this.tempT12[entity.id - this.offset].state,
+t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
+containsT13 = this.tempT13[entity.id - this.offset].state,
+t13 = this.tagT13 == 0 ? this.tempT13[entity.id - this.offset].data : default,
 
             };
             
@@ -3934,60 +4064,81 @@ t13 = this.tagT13 == 0 ? this.tempT13[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
-var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(regT3.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT3.components.data, 0, ref tempT3, 0, regT3.components.data.Length);var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
-var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(regT4.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT4.components.data, 0, ref tempT4, 0, regT4.components.data.Length);var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
-var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(regT5.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT5.components.data, 0, ref tempT5, 0, regT5.components.data.Length);var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
-var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(regT6.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT6.components.data, 0, ref tempT6, 0, regT6.components.data.Length);var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
-var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(regT7.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT7.components.data, 0, ref tempT7, 0, regT7.components.data.Length);var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
-var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(regT8.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT8.components.data, 0, ref tempT8, 0, regT8.components.data.Length);var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
-var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(regT9.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT9.components.data, 0, ref tempT9, 0, regT9.components.data.Length);var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
-var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(regT10.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT10.components.data, 0, ref tempT10, 0, regT10.components.data.Length);var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
 regT11.Merge();
-var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(regT11.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT11.components.data, 0, ref tempT11, 0, regT11.components.data.Length);var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
+var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator);
+NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size);
+var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
 regT12.Merge();
-var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(regT12.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT12.components.data, 0, ref tempT12, 0, regT12.components.data.Length);var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
+var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(size, allocator);
+NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size);
+var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
 regT13.Merge();
-var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(regT13.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT13.components.data, 0, ref tempT13, 0, regT13.components.data.Length);
+var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(size, allocator);
+NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -4019,7 +4170,6 @@ tagT13 = AllComponentTypes<T13>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -4043,6 +4193,7 @@ tempT13.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -4228,7 +4379,10 @@ tempT13.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -4315,6 +4469,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  wher
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -4368,51 +4523,36 @@ public byte tagT14;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
-containsT3 = this.tempT3[entity.id].state,
-opsT3 = 0,
-t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
-containsT4 = this.tempT4[entity.id].state,
-opsT4 = 0,
-t4 = this.tagT4 == 0 ? this.tempT4[entity.id].data : default,
-containsT5 = this.tempT5[entity.id].state,
-opsT5 = 0,
-t5 = this.tagT5 == 0 ? this.tempT5[entity.id].data : default,
-containsT6 = this.tempT6[entity.id].state,
-opsT6 = 0,
-t6 = this.tagT6 == 0 ? this.tempT6[entity.id].data : default,
-containsT7 = this.tempT7[entity.id].state,
-opsT7 = 0,
-t7 = this.tagT7 == 0 ? this.tempT7[entity.id].data : default,
-containsT8 = this.tempT8[entity.id].state,
-opsT8 = 0,
-t8 = this.tagT8 == 0 ? this.tempT8[entity.id].data : default,
-containsT9 = this.tempT9[entity.id].state,
-opsT9 = 0,
-t9 = this.tagT9 == 0 ? this.tempT9[entity.id].data : default,
-containsT10 = this.tempT10[entity.id].state,
-opsT10 = 0,
-t10 = this.tagT10 == 0 ? this.tempT10[entity.id].data : default,
-containsT11 = this.tempT11[entity.id].state,
-opsT11 = 0,
-t11 = this.tagT11 == 0 ? this.tempT11[entity.id].data : default,
-containsT12 = this.tempT12[entity.id].state,
-opsT12 = 0,
-t12 = this.tagT12 == 0 ? this.tempT12[entity.id].data : default,
-containsT13 = this.tempT13[entity.id].state,
-opsT13 = 0,
-t13 = this.tagT13 == 0 ? this.tempT13[entity.id].data : default,
-containsT14 = this.tempT14[entity.id].state,
-opsT14 = 0,
-t14 = this.tagT14 == 0 ? this.tempT14[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+containsT3 = this.tempT3[entity.id - this.offset].state,
+t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+containsT4 = this.tempT4[entity.id - this.offset].state,
+t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+containsT5 = this.tempT5[entity.id - this.offset].state,
+t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+containsT6 = this.tempT6[entity.id - this.offset].state,
+t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+containsT7 = this.tempT7[entity.id - this.offset].state,
+t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+containsT8 = this.tempT8[entity.id - this.offset].state,
+t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+containsT9 = this.tempT9[entity.id - this.offset].state,
+t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+containsT10 = this.tempT10[entity.id - this.offset].state,
+t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+containsT11 = this.tempT11[entity.id - this.offset].state,
+t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
+containsT12 = this.tempT12[entity.id - this.offset].state,
+t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
+containsT13 = this.tempT13[entity.id - this.offset].state,
+t13 = this.tagT13 == 0 ? this.tempT13[entity.id - this.offset].data : default,
+containsT14 = this.tempT14[entity.id - this.offset].state,
+t14 = this.tagT14 == 0 ? this.tempT14[entity.id - this.offset].data : default,
 
             };
             
@@ -4421,63 +4561,85 @@ t14 = this.tagT14 == 0 ? this.tempT14[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
-var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(regT3.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT3.components.data, 0, ref tempT3, 0, regT3.components.data.Length);var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
-var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(regT4.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT4.components.data, 0, ref tempT4, 0, regT4.components.data.Length);var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
-var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(regT5.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT5.components.data, 0, ref tempT5, 0, regT5.components.data.Length);var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
-var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(regT6.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT6.components.data, 0, ref tempT6, 0, regT6.components.data.Length);var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
-var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(regT7.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT7.components.data, 0, ref tempT7, 0, regT7.components.data.Length);var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
-var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(regT8.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT8.components.data, 0, ref tempT8, 0, regT8.components.data.Length);var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
-var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(regT9.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT9.components.data, 0, ref tempT9, 0, regT9.components.data.Length);var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
-var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(regT10.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT10.components.data, 0, ref tempT10, 0, regT10.components.data.Length);var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
 regT11.Merge();
-var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(regT11.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT11.components.data, 0, ref tempT11, 0, regT11.components.data.Length);var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
+var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator);
+NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size);
+var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
 regT12.Merge();
-var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(regT12.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT12.components.data, 0, ref tempT12, 0, regT12.components.data.Length);var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
+var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(size, allocator);
+NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size);
+var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
 regT13.Merge();
-var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(regT13.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT13.components.data, 0, ref tempT13, 0, regT13.components.data.Length);var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
+var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(size, allocator);
+NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size);
+var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
 regT14.Merge();
-var tempT14 = new Unity.Collections.NativeArray<Component<T14>>(regT14.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT14.components.data, 0, ref tempT14, 0, regT14.components.data.Length);
+var tempT14 = new Unity.Collections.NativeArray<Component<T14>>(size, allocator);
+NativeArrayUtils.Copy(regT14.components.data, min, ref tempT14, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -4511,7 +4673,6 @@ tagT14 = AllComponentTypes<T14>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -4536,6 +4697,7 @@ tempT14.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -4732,7 +4894,10 @@ tempT14.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -4823,6 +4988,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -4879,54 +5045,38 @@ public byte tagT15;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
-containsT3 = this.tempT3[entity.id].state,
-opsT3 = 0,
-t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
-containsT4 = this.tempT4[entity.id].state,
-opsT4 = 0,
-t4 = this.tagT4 == 0 ? this.tempT4[entity.id].data : default,
-containsT5 = this.tempT5[entity.id].state,
-opsT5 = 0,
-t5 = this.tagT5 == 0 ? this.tempT5[entity.id].data : default,
-containsT6 = this.tempT6[entity.id].state,
-opsT6 = 0,
-t6 = this.tagT6 == 0 ? this.tempT6[entity.id].data : default,
-containsT7 = this.tempT7[entity.id].state,
-opsT7 = 0,
-t7 = this.tagT7 == 0 ? this.tempT7[entity.id].data : default,
-containsT8 = this.tempT8[entity.id].state,
-opsT8 = 0,
-t8 = this.tagT8 == 0 ? this.tempT8[entity.id].data : default,
-containsT9 = this.tempT9[entity.id].state,
-opsT9 = 0,
-t9 = this.tagT9 == 0 ? this.tempT9[entity.id].data : default,
-containsT10 = this.tempT10[entity.id].state,
-opsT10 = 0,
-t10 = this.tagT10 == 0 ? this.tempT10[entity.id].data : default,
-containsT11 = this.tempT11[entity.id].state,
-opsT11 = 0,
-t11 = this.tagT11 == 0 ? this.tempT11[entity.id].data : default,
-containsT12 = this.tempT12[entity.id].state,
-opsT12 = 0,
-t12 = this.tagT12 == 0 ? this.tempT12[entity.id].data : default,
-containsT13 = this.tempT13[entity.id].state,
-opsT13 = 0,
-t13 = this.tagT13 == 0 ? this.tempT13[entity.id].data : default,
-containsT14 = this.tempT14[entity.id].state,
-opsT14 = 0,
-t14 = this.tagT14 == 0 ? this.tempT14[entity.id].data : default,
-containsT15 = this.tempT15[entity.id].state,
-opsT15 = 0,
-t15 = this.tagT15 == 0 ? this.tempT15[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+containsT3 = this.tempT3[entity.id - this.offset].state,
+t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+containsT4 = this.tempT4[entity.id - this.offset].state,
+t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+containsT5 = this.tempT5[entity.id - this.offset].state,
+t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+containsT6 = this.tempT6[entity.id - this.offset].state,
+t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+containsT7 = this.tempT7[entity.id - this.offset].state,
+t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+containsT8 = this.tempT8[entity.id - this.offset].state,
+t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+containsT9 = this.tempT9[entity.id - this.offset].state,
+t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+containsT10 = this.tempT10[entity.id - this.offset].state,
+t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+containsT11 = this.tempT11[entity.id - this.offset].state,
+t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
+containsT12 = this.tempT12[entity.id - this.offset].state,
+t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
+containsT13 = this.tempT13[entity.id - this.offset].state,
+t13 = this.tagT13 == 0 ? this.tempT13[entity.id - this.offset].data : default,
+containsT14 = this.tempT14[entity.id - this.offset].state,
+t14 = this.tagT14 == 0 ? this.tempT14[entity.id - this.offset].data : default,
+containsT15 = this.tempT15[entity.id - this.offset].state,
+t15 = this.tagT15 == 0 ? this.tempT15[entity.id - this.offset].data : default,
 
             };
             
@@ -4935,66 +5085,89 @@ t15 = this.tagT15 == 0 ? this.tempT15[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
-var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(regT3.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT3.components.data, 0, ref tempT3, 0, regT3.components.data.Length);var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
-var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(regT4.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT4.components.data, 0, ref tempT4, 0, regT4.components.data.Length);var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
-var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(regT5.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT5.components.data, 0, ref tempT5, 0, regT5.components.data.Length);var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
-var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(regT6.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT6.components.data, 0, ref tempT6, 0, regT6.components.data.Length);var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
-var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(regT7.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT7.components.data, 0, ref tempT7, 0, regT7.components.data.Length);var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
-var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(regT8.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT8.components.data, 0, ref tempT8, 0, regT8.components.data.Length);var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
-var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(regT9.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT9.components.data, 0, ref tempT9, 0, regT9.components.data.Length);var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
-var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(regT10.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT10.components.data, 0, ref tempT10, 0, regT10.components.data.Length);var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
 regT11.Merge();
-var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(regT11.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT11.components.data, 0, ref tempT11, 0, regT11.components.data.Length);var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
+var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator);
+NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size);
+var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
 regT12.Merge();
-var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(regT12.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT12.components.data, 0, ref tempT12, 0, regT12.components.data.Length);var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
+var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(size, allocator);
+NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size);
+var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
 regT13.Merge();
-var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(regT13.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT13.components.data, 0, ref tempT13, 0, regT13.components.data.Length);var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
+var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(size, allocator);
+NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size);
+var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
 regT14.Merge();
-var tempT14 = new Unity.Collections.NativeArray<Component<T14>>(regT14.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT14.components.data, 0, ref tempT14, 0, regT14.components.data.Length);var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
+var tempT14 = new Unity.Collections.NativeArray<Component<T14>>(size, allocator);
+NativeArrayUtils.Copy(regT14.components.data, min, ref tempT14, 0, size);
+var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
 regT15.Merge();
-var tempT15 = new Unity.Collections.NativeArray<Component<T15>>(regT15.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT15.components.data, 0, ref tempT15, 0, regT15.components.data.Length);
+var tempT15 = new Unity.Collections.NativeArray<Component<T15>>(size, allocator);
+NativeArrayUtils.Copy(regT15.components.data, min, ref tempT15, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -5030,7 +5203,6 @@ tagT15 = AllComponentTypes<T15>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -5056,6 +5228,7 @@ tempT15.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -5263,7 +5436,10 @@ tempT15.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -5358,6 +5534,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T1
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -5417,57 +5594,40 @@ public byte tagT16;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
-containsT3 = this.tempT3[entity.id].state,
-opsT3 = 0,
-t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
-containsT4 = this.tempT4[entity.id].state,
-opsT4 = 0,
-t4 = this.tagT4 == 0 ? this.tempT4[entity.id].data : default,
-containsT5 = this.tempT5[entity.id].state,
-opsT5 = 0,
-t5 = this.tagT5 == 0 ? this.tempT5[entity.id].data : default,
-containsT6 = this.tempT6[entity.id].state,
-opsT6 = 0,
-t6 = this.tagT6 == 0 ? this.tempT6[entity.id].data : default,
-containsT7 = this.tempT7[entity.id].state,
-opsT7 = 0,
-t7 = this.tagT7 == 0 ? this.tempT7[entity.id].data : default,
-containsT8 = this.tempT8[entity.id].state,
-opsT8 = 0,
-t8 = this.tagT8 == 0 ? this.tempT8[entity.id].data : default,
-containsT9 = this.tempT9[entity.id].state,
-opsT9 = 0,
-t9 = this.tagT9 == 0 ? this.tempT9[entity.id].data : default,
-containsT10 = this.tempT10[entity.id].state,
-opsT10 = 0,
-t10 = this.tagT10 == 0 ? this.tempT10[entity.id].data : default,
-containsT11 = this.tempT11[entity.id].state,
-opsT11 = 0,
-t11 = this.tagT11 == 0 ? this.tempT11[entity.id].data : default,
-containsT12 = this.tempT12[entity.id].state,
-opsT12 = 0,
-t12 = this.tagT12 == 0 ? this.tempT12[entity.id].data : default,
-containsT13 = this.tempT13[entity.id].state,
-opsT13 = 0,
-t13 = this.tagT13 == 0 ? this.tempT13[entity.id].data : default,
-containsT14 = this.tempT14[entity.id].state,
-opsT14 = 0,
-t14 = this.tagT14 == 0 ? this.tempT14[entity.id].data : default,
-containsT15 = this.tempT15[entity.id].state,
-opsT15 = 0,
-t15 = this.tagT15 == 0 ? this.tempT15[entity.id].data : default,
-containsT16 = this.tempT16[entity.id].state,
-opsT16 = 0,
-t16 = this.tagT16 == 0 ? this.tempT16[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+containsT3 = this.tempT3[entity.id - this.offset].state,
+t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+containsT4 = this.tempT4[entity.id - this.offset].state,
+t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+containsT5 = this.tempT5[entity.id - this.offset].state,
+t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+containsT6 = this.tempT6[entity.id - this.offset].state,
+t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+containsT7 = this.tempT7[entity.id - this.offset].state,
+t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+containsT8 = this.tempT8[entity.id - this.offset].state,
+t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+containsT9 = this.tempT9[entity.id - this.offset].state,
+t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+containsT10 = this.tempT10[entity.id - this.offset].state,
+t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+containsT11 = this.tempT11[entity.id - this.offset].state,
+t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
+containsT12 = this.tempT12[entity.id - this.offset].state,
+t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
+containsT13 = this.tempT13[entity.id - this.offset].state,
+t13 = this.tagT13 == 0 ? this.tempT13[entity.id - this.offset].data : default,
+containsT14 = this.tempT14[entity.id - this.offset].state,
+t14 = this.tagT14 == 0 ? this.tempT14[entity.id - this.offset].data : default,
+containsT15 = this.tempT15[entity.id - this.offset].state,
+t15 = this.tagT15 == 0 ? this.tempT15[entity.id - this.offset].data : default,
+containsT16 = this.tempT16[entity.id - this.offset].state,
+t16 = this.tagT16 == 0 ? this.tempT16[entity.id - this.offset].data : default,
 
             };
             
@@ -5476,69 +5636,93 @@ t16 = this.tagT16 == 0 ? this.tempT16[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
-var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(regT3.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT3.components.data, 0, ref tempT3, 0, regT3.components.data.Length);var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
-var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(regT4.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT4.components.data, 0, ref tempT4, 0, regT4.components.data.Length);var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
-var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(regT5.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT5.components.data, 0, ref tempT5, 0, regT5.components.data.Length);var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
-var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(regT6.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT6.components.data, 0, ref tempT6, 0, regT6.components.data.Length);var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
-var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(regT7.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT7.components.data, 0, ref tempT7, 0, regT7.components.data.Length);var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
-var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(regT8.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT8.components.data, 0, ref tempT8, 0, regT8.components.data.Length);var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
-var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(regT9.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT9.components.data, 0, ref tempT9, 0, regT9.components.data.Length);var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
-var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(regT10.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT10.components.data, 0, ref tempT10, 0, regT10.components.data.Length);var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
 regT11.Merge();
-var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(regT11.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT11.components.data, 0, ref tempT11, 0, regT11.components.data.Length);var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
+var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator);
+NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size);
+var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
 regT12.Merge();
-var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(regT12.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT12.components.data, 0, ref tempT12, 0, regT12.components.data.Length);var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
+var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(size, allocator);
+NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size);
+var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
 regT13.Merge();
-var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(regT13.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT13.components.data, 0, ref tempT13, 0, regT13.components.data.Length);var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
+var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(size, allocator);
+NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size);
+var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
 regT14.Merge();
-var tempT14 = new Unity.Collections.NativeArray<Component<T14>>(regT14.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT14.components.data, 0, ref tempT14, 0, regT14.components.data.Length);var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
+var tempT14 = new Unity.Collections.NativeArray<Component<T14>>(size, allocator);
+NativeArrayUtils.Copy(regT14.components.data, min, ref tempT14, 0, size);
+var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
 regT15.Merge();
-var tempT15 = new Unity.Collections.NativeArray<Component<T15>>(regT15.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT15.components.data, 0, ref tempT15, 0, regT15.components.data.Length);var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];
+var tempT15 = new Unity.Collections.NativeArray<Component<T15>>(size, allocator);
+NativeArrayUtils.Copy(regT15.components.data, min, ref tempT15, 0, size);
+var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];
 regT16.Merge();
-var tempT16 = new Unity.Collections.NativeArray<Component<T16>>(regT16.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT16.components.data, 0, ref tempT16, 0, regT16.components.data.Length);
+var tempT16 = new Unity.Collections.NativeArray<Component<T16>>(size, allocator);
+NativeArrayUtils.Copy(regT16.components.data, min, ref tempT16, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -5576,7 +5760,6 @@ tagT16 = AllComponentTypes<T16>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -5603,6 +5786,7 @@ tempT16.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -5821,7 +6005,10 @@ tempT16.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -5920,6 +6107,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T1
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -5982,60 +6170,42 @@ public byte tagT17;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
-containsT3 = this.tempT3[entity.id].state,
-opsT3 = 0,
-t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
-containsT4 = this.tempT4[entity.id].state,
-opsT4 = 0,
-t4 = this.tagT4 == 0 ? this.tempT4[entity.id].data : default,
-containsT5 = this.tempT5[entity.id].state,
-opsT5 = 0,
-t5 = this.tagT5 == 0 ? this.tempT5[entity.id].data : default,
-containsT6 = this.tempT6[entity.id].state,
-opsT6 = 0,
-t6 = this.tagT6 == 0 ? this.tempT6[entity.id].data : default,
-containsT7 = this.tempT7[entity.id].state,
-opsT7 = 0,
-t7 = this.tagT7 == 0 ? this.tempT7[entity.id].data : default,
-containsT8 = this.tempT8[entity.id].state,
-opsT8 = 0,
-t8 = this.tagT8 == 0 ? this.tempT8[entity.id].data : default,
-containsT9 = this.tempT9[entity.id].state,
-opsT9 = 0,
-t9 = this.tagT9 == 0 ? this.tempT9[entity.id].data : default,
-containsT10 = this.tempT10[entity.id].state,
-opsT10 = 0,
-t10 = this.tagT10 == 0 ? this.tempT10[entity.id].data : default,
-containsT11 = this.tempT11[entity.id].state,
-opsT11 = 0,
-t11 = this.tagT11 == 0 ? this.tempT11[entity.id].data : default,
-containsT12 = this.tempT12[entity.id].state,
-opsT12 = 0,
-t12 = this.tagT12 == 0 ? this.tempT12[entity.id].data : default,
-containsT13 = this.tempT13[entity.id].state,
-opsT13 = 0,
-t13 = this.tagT13 == 0 ? this.tempT13[entity.id].data : default,
-containsT14 = this.tempT14[entity.id].state,
-opsT14 = 0,
-t14 = this.tagT14 == 0 ? this.tempT14[entity.id].data : default,
-containsT15 = this.tempT15[entity.id].state,
-opsT15 = 0,
-t15 = this.tagT15 == 0 ? this.tempT15[entity.id].data : default,
-containsT16 = this.tempT16[entity.id].state,
-opsT16 = 0,
-t16 = this.tagT16 == 0 ? this.tempT16[entity.id].data : default,
-containsT17 = this.tempT17[entity.id].state,
-opsT17 = 0,
-t17 = this.tagT17 == 0 ? this.tempT17[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+containsT3 = this.tempT3[entity.id - this.offset].state,
+t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+containsT4 = this.tempT4[entity.id - this.offset].state,
+t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+containsT5 = this.tempT5[entity.id - this.offset].state,
+t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+containsT6 = this.tempT6[entity.id - this.offset].state,
+t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+containsT7 = this.tempT7[entity.id - this.offset].state,
+t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+containsT8 = this.tempT8[entity.id - this.offset].state,
+t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+containsT9 = this.tempT9[entity.id - this.offset].state,
+t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+containsT10 = this.tempT10[entity.id - this.offset].state,
+t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+containsT11 = this.tempT11[entity.id - this.offset].state,
+t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
+containsT12 = this.tempT12[entity.id - this.offset].state,
+t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
+containsT13 = this.tempT13[entity.id - this.offset].state,
+t13 = this.tagT13 == 0 ? this.tempT13[entity.id - this.offset].data : default,
+containsT14 = this.tempT14[entity.id - this.offset].state,
+t14 = this.tagT14 == 0 ? this.tempT14[entity.id - this.offset].data : default,
+containsT15 = this.tempT15[entity.id - this.offset].state,
+t15 = this.tagT15 == 0 ? this.tempT15[entity.id - this.offset].data : default,
+containsT16 = this.tempT16[entity.id - this.offset].state,
+t16 = this.tagT16 == 0 ? this.tempT16[entity.id - this.offset].data : default,
+containsT17 = this.tempT17[entity.id - this.offset].state,
+t17 = this.tagT17 == 0 ? this.tempT17[entity.id - this.offset].data : default,
 
             };
             
@@ -6044,72 +6214,97 @@ t17 = this.tagT17 == 0 ? this.tempT17[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
-var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(regT3.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT3.components.data, 0, ref tempT3, 0, regT3.components.data.Length);var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
-var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(regT4.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT4.components.data, 0, ref tempT4, 0, regT4.components.data.Length);var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
-var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(regT5.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT5.components.data, 0, ref tempT5, 0, regT5.components.data.Length);var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
-var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(regT6.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT6.components.data, 0, ref tempT6, 0, regT6.components.data.Length);var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
-var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(regT7.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT7.components.data, 0, ref tempT7, 0, regT7.components.data.Length);var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
-var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(regT8.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT8.components.data, 0, ref tempT8, 0, regT8.components.data.Length);var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
-var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(regT9.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT9.components.data, 0, ref tempT9, 0, regT9.components.data.Length);var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
-var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(regT10.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT10.components.data, 0, ref tempT10, 0, regT10.components.data.Length);var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
 regT11.Merge();
-var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(regT11.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT11.components.data, 0, ref tempT11, 0, regT11.components.data.Length);var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
+var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator);
+NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size);
+var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
 regT12.Merge();
-var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(regT12.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT12.components.data, 0, ref tempT12, 0, regT12.components.data.Length);var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
+var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(size, allocator);
+NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size);
+var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
 regT13.Merge();
-var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(regT13.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT13.components.data, 0, ref tempT13, 0, regT13.components.data.Length);var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
+var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(size, allocator);
+NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size);
+var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
 regT14.Merge();
-var tempT14 = new Unity.Collections.NativeArray<Component<T14>>(regT14.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT14.components.data, 0, ref tempT14, 0, regT14.components.data.Length);var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
+var tempT14 = new Unity.Collections.NativeArray<Component<T14>>(size, allocator);
+NativeArrayUtils.Copy(regT14.components.data, min, ref tempT14, 0, size);
+var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
 regT15.Merge();
-var tempT15 = new Unity.Collections.NativeArray<Component<T15>>(regT15.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT15.components.data, 0, ref tempT15, 0, regT15.components.data.Length);var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];
+var tempT15 = new Unity.Collections.NativeArray<Component<T15>>(size, allocator);
+NativeArrayUtils.Copy(regT15.components.data, min, ref tempT15, 0, size);
+var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];
 regT16.Merge();
-var tempT16 = new Unity.Collections.NativeArray<Component<T16>>(regT16.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT16.components.data, 0, ref tempT16, 0, regT16.components.data.Length);var regT17 = (StructComponents<T17>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T17>()];
+var tempT16 = new Unity.Collections.NativeArray<Component<T16>>(size, allocator);
+NativeArrayUtils.Copy(regT16.components.data, min, ref tempT16, 0, size);
+var regT17 = (StructComponents<T17>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T17>()];
 regT17.Merge();
-var tempT17 = new Unity.Collections.NativeArray<Component<T17>>(regT17.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT17.components.data, 0, ref tempT17, 0, regT17.components.data.Length);
+var tempT17 = new Unity.Collections.NativeArray<Component<T17>>(size, allocator);
+NativeArrayUtils.Copy(regT17.components.data, min, ref tempT17, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -6149,7 +6344,6 @@ tagT17 = AllComponentTypes<T17>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -6177,6 +6371,7 @@ tempT17.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -6406,7 +6601,10 @@ tempT17.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
@@ -6509,6 +6707,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T1
     private struct Job : Unity.Jobs.IJobParallelFor {
 
         public NativeBufferArray<Entity> buffer;
+        public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
 public byte tagT0;
@@ -6574,63 +6773,44 @@ public byte tagT18;
             var entity = this.buffer[index];
             this.arr[index] = new DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>() {
                 entity = entity,
-                containsT0 = this.tempT0[entity.id].state,
-opsT0 = 0,
-t0 = this.tagT0 == 0 ? this.tempT0[entity.id].data : default,
-containsT1 = this.tempT1[entity.id].state,
-opsT1 = 0,
-t1 = this.tagT1 == 0 ? this.tempT1[entity.id].data : default,
-containsT2 = this.tempT2[entity.id].state,
-opsT2 = 0,
-t2 = this.tagT2 == 0 ? this.tempT2[entity.id].data : default,
-containsT3 = this.tempT3[entity.id].state,
-opsT3 = 0,
-t3 = this.tagT3 == 0 ? this.tempT3[entity.id].data : default,
-containsT4 = this.tempT4[entity.id].state,
-opsT4 = 0,
-t4 = this.tagT4 == 0 ? this.tempT4[entity.id].data : default,
-containsT5 = this.tempT5[entity.id].state,
-opsT5 = 0,
-t5 = this.tagT5 == 0 ? this.tempT5[entity.id].data : default,
-containsT6 = this.tempT6[entity.id].state,
-opsT6 = 0,
-t6 = this.tagT6 == 0 ? this.tempT6[entity.id].data : default,
-containsT7 = this.tempT7[entity.id].state,
-opsT7 = 0,
-t7 = this.tagT7 == 0 ? this.tempT7[entity.id].data : default,
-containsT8 = this.tempT8[entity.id].state,
-opsT8 = 0,
-t8 = this.tagT8 == 0 ? this.tempT8[entity.id].data : default,
-containsT9 = this.tempT9[entity.id].state,
-opsT9 = 0,
-t9 = this.tagT9 == 0 ? this.tempT9[entity.id].data : default,
-containsT10 = this.tempT10[entity.id].state,
-opsT10 = 0,
-t10 = this.tagT10 == 0 ? this.tempT10[entity.id].data : default,
-containsT11 = this.tempT11[entity.id].state,
-opsT11 = 0,
-t11 = this.tagT11 == 0 ? this.tempT11[entity.id].data : default,
-containsT12 = this.tempT12[entity.id].state,
-opsT12 = 0,
-t12 = this.tagT12 == 0 ? this.tempT12[entity.id].data : default,
-containsT13 = this.tempT13[entity.id].state,
-opsT13 = 0,
-t13 = this.tagT13 == 0 ? this.tempT13[entity.id].data : default,
-containsT14 = this.tempT14[entity.id].state,
-opsT14 = 0,
-t14 = this.tagT14 == 0 ? this.tempT14[entity.id].data : default,
-containsT15 = this.tempT15[entity.id].state,
-opsT15 = 0,
-t15 = this.tagT15 == 0 ? this.tempT15[entity.id].data : default,
-containsT16 = this.tempT16[entity.id].state,
-opsT16 = 0,
-t16 = this.tagT16 == 0 ? this.tempT16[entity.id].data : default,
-containsT17 = this.tempT17[entity.id].state,
-opsT17 = 0,
-t17 = this.tagT17 == 0 ? this.tempT17[entity.id].data : default,
-containsT18 = this.tempT18[entity.id].state,
-opsT18 = 0,
-t18 = this.tagT18 == 0 ? this.tempT18[entity.id].data : default,
+                containsT0 = this.tempT0[entity.id - this.offset].state,
+t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+containsT1 = this.tempT1[entity.id - this.offset].state,
+t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+containsT2 = this.tempT2[entity.id - this.offset].state,
+t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+containsT3 = this.tempT3[entity.id - this.offset].state,
+t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+containsT4 = this.tempT4[entity.id - this.offset].state,
+t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+containsT5 = this.tempT5[entity.id - this.offset].state,
+t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+containsT6 = this.tempT6[entity.id - this.offset].state,
+t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+containsT7 = this.tempT7[entity.id - this.offset].state,
+t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+containsT8 = this.tempT8[entity.id - this.offset].state,
+t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+containsT9 = this.tempT9[entity.id - this.offset].state,
+t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+containsT10 = this.tempT10[entity.id - this.offset].state,
+t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+containsT11 = this.tempT11[entity.id - this.offset].state,
+t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
+containsT12 = this.tempT12[entity.id - this.offset].state,
+t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
+containsT13 = this.tempT13[entity.id - this.offset].state,
+t13 = this.tagT13 == 0 ? this.tempT13[entity.id - this.offset].data : default,
+containsT14 = this.tempT14[entity.id - this.offset].state,
+t14 = this.tagT14 == 0 ? this.tempT14[entity.id - this.offset].data : default,
+containsT15 = this.tempT15[entity.id - this.offset].state,
+t15 = this.tagT15 == 0 ? this.tempT15[entity.id - this.offset].data : default,
+containsT16 = this.tempT16[entity.id - this.offset].state,
+t16 = this.tagT16 == 0 ? this.tempT16[entity.id - this.offset].data : default,
+containsT17 = this.tempT17[entity.id - this.offset].state,
+t17 = this.tagT17 == 0 ? this.tempT17[entity.id - this.offset].data : default,
+containsT18 = this.tempT18[entity.id - this.offset].state,
+t18 = this.tagT18 == 0 ? this.tempT18[entity.id - this.offset].data : default,
 
             };
             
@@ -6639,75 +6819,101 @@ t18 = this.tagT18 == 0 ? this.tempT18[entity.id].data : default,
     }
     
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
+        this.Length = filter.Count;
+        if (this.Length == 0) {
+            this.arr = default;
+            return;
+        }
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        this.Length = filter.Count;
+        filter.GetBounds(out var min, out var max);
+        var size = max - min + 1;
+        if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
-var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(regT0.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT0.components.data, 0, ref tempT0, 0, regT0.components.data.Length);var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
+var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
-var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(regT1.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT1.components.data, 0, ref tempT1, 0, regT1.components.data.Length);var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
+var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
-var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(regT2.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT2.components.data, 0, ref tempT2, 0, regT2.components.data.Length);var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
+var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
-var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(regT3.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT3.components.data, 0, ref tempT3, 0, regT3.components.data.Length);var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
+var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
-var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(regT4.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT4.components.data, 0, ref tempT4, 0, regT4.components.data.Length);var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
+var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
-var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(regT5.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT5.components.data, 0, ref tempT5, 0, regT5.components.data.Length);var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
+var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
-var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(regT6.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT6.components.data, 0, ref tempT6, 0, regT6.components.data.Length);var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
+var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
-var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(regT7.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT7.components.data, 0, ref tempT7, 0, regT7.components.data.Length);var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
+var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
-var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(regT8.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT8.components.data, 0, ref tempT8, 0, regT8.components.data.Length);var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
+var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
-var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(regT9.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT9.components.data, 0, ref tempT9, 0, regT9.components.data.Length);var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
+var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
-var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(regT10.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT10.components.data, 0, ref tempT10, 0, regT10.components.data.Length);var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
+var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
 regT11.Merge();
-var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(regT11.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT11.components.data, 0, ref tempT11, 0, regT11.components.data.Length);var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
+var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator);
+NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size);
+var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
 regT12.Merge();
-var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(regT12.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT12.components.data, 0, ref tempT12, 0, regT12.components.data.Length);var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
+var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(size, allocator);
+NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size);
+var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
 regT13.Merge();
-var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(regT13.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT13.components.data, 0, ref tempT13, 0, regT13.components.data.Length);var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
+var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(size, allocator);
+NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size);
+var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
 regT14.Merge();
-var tempT14 = new Unity.Collections.NativeArray<Component<T14>>(regT14.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT14.components.data, 0, ref tempT14, 0, regT14.components.data.Length);var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
+var tempT14 = new Unity.Collections.NativeArray<Component<T14>>(size, allocator);
+NativeArrayUtils.Copy(regT14.components.data, min, ref tempT14, 0, size);
+var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
 regT15.Merge();
-var tempT15 = new Unity.Collections.NativeArray<Component<T15>>(regT15.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT15.components.data, 0, ref tempT15, 0, regT15.components.data.Length);var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];
+var tempT15 = new Unity.Collections.NativeArray<Component<T15>>(size, allocator);
+NativeArrayUtils.Copy(regT15.components.data, min, ref tempT15, 0, size);
+var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];
 regT16.Merge();
-var tempT16 = new Unity.Collections.NativeArray<Component<T16>>(regT16.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT16.components.data, 0, ref tempT16, 0, regT16.components.data.Length);var regT17 = (StructComponents<T17>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T17>()];
+var tempT16 = new Unity.Collections.NativeArray<Component<T16>>(size, allocator);
+NativeArrayUtils.Copy(regT16.components.data, min, ref tempT16, 0, size);
+var regT17 = (StructComponents<T17>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T17>()];
 regT17.Merge();
-var tempT17 = new Unity.Collections.NativeArray<Component<T17>>(regT17.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT17.components.data, 0, ref tempT17, 0, regT17.components.data.Length);var regT18 = (StructComponents<T18>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T18>()];
+var tempT17 = new Unity.Collections.NativeArray<Component<T17>>(size, allocator);
+NativeArrayUtils.Copy(regT17.components.data, min, ref tempT17, 0, size);
+var regT18 = (StructComponents<T18>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T18>()];
 regT18.Merge();
-var tempT18 = new Unity.Collections.NativeArray<Component<T18>>(regT18.components.data.Length, Unity.Collections.Allocator.Temp);
-NativeArrayUtils.Copy(regT18.components.data, 0, ref tempT18, 0, regT18.components.data.Length);
+var tempT18 = new Unity.Collections.NativeArray<Component<T18>>(size, allocator);
+NativeArrayUtils.Copy(regT18.components.data, min, ref tempT18, 0, size);
+
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(this.Length, allocator);
-        
         var filterArr = filter.ToArray();
         new Job() {
             buffer = filterArr,
+            offset = min,
             tempT0 = tempT0,
 tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 tempT1 = tempT1,
@@ -6749,7 +6955,6 @@ tagT18 = AllComponentTypes<T18>.isTag == false ? (byte)0 : (byte)1,
 
             arr = this.arr,
         }.Schedule(filterArr.Length, 64).Complete();
-        
         filterArr.Dispose();
         tempT0.Dispose();
 tempT1.Dispose();
@@ -6778,6 +6983,7 @@ tempT18.Dispose();
     }
 
     public void Push() {
+        if (this.Length == 0) return;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
@@ -7018,7 +7224,10 @@ tempT18.Dispose();
 
     public void Revert() => this.Dispose();
 
-    private void Dispose() => this.arr.Dispose();
+    private void Dispose() {
+        if (this.Length == 0) return;
+        this.arr.Dispose();
+    }
 
     #region API
     public void RemoveT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x4; data.containsT0 = 0; }
