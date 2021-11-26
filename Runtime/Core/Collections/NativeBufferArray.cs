@@ -40,7 +40,7 @@ namespace ME.ECS.Collections {
         [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
         internal NativeArray<T> arr;
         public readonly int Length;
-        public bool isCreated => this.arr.IsCreated;
+        public readonly bool isCreated => this.arr.IsCreated;
 
         public unsafe System.IntPtr GetUnsafePtr() {
             return (System.IntPtr)this.arr.GetUnsafePtr();
@@ -51,7 +51,7 @@ namespace ME.ECS.Collections {
         }
 
         [System.Diagnostics.ConditionalAttribute("ENABLE_UNITY_COLLECTIONS_CHECKS")]
-        private void CheckBounds(int index) {
+        private readonly void CheckBounds(int index) {
             if (this.isCreated == false || index >= this.Length) throw new System.IndexOutOfRangeException($"Index: {index} [0..{this.Length}], Tick: {Worlds.currentWorld.GetCurrentTick()}");
         }
 
@@ -65,7 +65,7 @@ namespace ME.ECS.Collections {
             }
         }
 
-        public ref readonly T Read(int index) {
+        public readonly ref readonly T Read(int index) {
             this.CheckBounds(index);
             return ref this.arr.GetRefRead(index);
         }
