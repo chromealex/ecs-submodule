@@ -64,6 +64,25 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        public bool UpdateGraph(Unity.Collections.NativeArray<NavMeshBuildSource> sources, Unity.Collections.NativeArray<NavMeshBuildSource> sources2) {
+
+            var temp = PoolListCopyable<NavMeshBuildSource>.Spawn(sources.Length + sources2.Length);
+            temp.AddRange(sources);
+            temp.AddRange(sources2);
+            this.tempSources.Clear();
+            this.tempSources.AddRange(temp);
+            PoolListCopyable<NavMeshBuildSource>.Recycle(ref temp);
+            var bounds = new UnityEngine.Bounds(this.graphCenter, this.size);
+            if (NavMeshBuilder.UpdateNavMeshData(this.navMeshData, this.buildSettings, this.tempSources, bounds) == false) {
+
+                return false;
+
+            }
+
+            return true;
+            
+        }
+
         public bool UpdateGraph(List<NavMeshBuildSource> sources) {
             
             this.tempSources.Clear();

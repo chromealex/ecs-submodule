@@ -139,6 +139,16 @@
 
         }
 
+        public void AddRange<U>(Unity.Collections.NativeArray<U> items) where U : struct {
+            var arrayLength = items.Length;
+            this.EnsureCapacity(this.Count + arrayLength + 1);
+            NativeArrayUtils.CopyCast<U, T>(in items, 0, this.innerArray.arr, this.Count, arrayLength);
+            this.Count += arrayLength;
+            /*for (var i = 0; i < arrayLength; i++) {
+                this.innerArray.arr[this.Count++] = items.arr[i];
+            }*/
+        }
+
         public void AddRange(BufferArray<T> items) {
             var arrayLength = items.Count;
             this.EnsureCapacity(this.Count + arrayLength + 1);

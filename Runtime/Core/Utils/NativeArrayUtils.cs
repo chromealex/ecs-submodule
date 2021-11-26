@@ -216,6 +216,17 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public unsafe static void CopyCast<T, U>(in Unity.Collections.NativeArray<T> src, int srcIndex, U[] dst, int dstIndex, int length) where T : struct {
+
+            System.Runtime.InteropServices.GCHandle gcHandle = System.Runtime.InteropServices.GCHandle.Alloc((object) dst, System.Runtime.InteropServices.GCHandleType.Pinned);
+            UnsafeUtility.MemCpy((void*) ((System.IntPtr) (void*) gcHandle.AddrOfPinnedObject() + dstIndex * UnsafeUtility.SizeOf<T>()), (void*) ((System.IntPtr) src.GetUnsafeReadOnlyPtr() + srcIndex * UnsafeUtility.SizeOf<T>()), (long) (length * UnsafeUtility.SizeOf<T>()));
+            gcHandle.Free();
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T>(in Unity.Collections.NativeArray<T> fromArr, int sourceIndex, ref Unity.Collections.NativeArray<T> arr, int destIndex, int length) where T : struct {
 
             switch (fromArr.IsCreated) {
