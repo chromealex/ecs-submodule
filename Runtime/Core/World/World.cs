@@ -2953,6 +2953,7 @@ namespace ME.ECS {
                                             var jobHandle = job.Schedule(arrEntities.Length, batch);
                                             jobHandle.Complete();
                                         }
+                                        arrEntities.Dispose();
                                         Pools.current = currentPools;
                                         
                                         filter.UseVersioned();
