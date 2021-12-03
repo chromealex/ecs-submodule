@@ -17,7 +17,7 @@ namespace ME.ECS.Collections {
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     [System.Serializable]
-    public readonly struct BufferArraySliced<T> : IBufferArraySliced {
+    public readonly struct BufferArraySliced<T> : IBufferArraySliced where T : struct {
 
         private const int BUCKET_SIZE = 4;
 

@@ -16,7 +16,7 @@ namespace ME.ECS.Collections {
         private const int BUCKET_SIZE = 4;
 
         public readonly NativeBufferArray<T> data;
-        public readonly BufferArray<BufferArray<T>> tails;
+        public readonly BufferArray<NativeBufferArray<T>> tails;
         public readonly int tailsLength;
         public readonly bool isCreated;
 
@@ -42,7 +42,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private NativeBufferArraySliced(NativeBufferArray<T> arr, BufferArray<BufferArray<T>> tails) {
+        private NativeBufferArraySliced(NativeBufferArray<T> arr, BufferArray<NativeBufferArray<T>> tails) {
 
             this.isCreated = true;
             this.data = arr;
@@ -73,7 +73,7 @@ namespace ME.ECS.Collections {
 
                         ref var tail = ref arr[i];
                         var len = tail.Length;
-                        if (index < len) return ref tail.arr[index];
+                        if (index < len) return ref tail.arr.GetRef(index);
                         index -= len;
 
                     }
@@ -140,7 +140,7 @@ namespace ME.ECS.Collections {
                 var size = this.Length;
                 ArrayUtils.Resize(idx, ref tails, resizeWithOffset);
                 var bucketSize = index + NativeBufferArraySliced<T>.BUCKET_SIZE - size;
-                tails.arr[idx] = PoolArray<T>.Spawn(bucketSize, realSize: false);
+                tails.arr[idx] = new NativeBufferArray<T>(bucketSize);//PoolArray<T>.Spawn(bucketSize, realSize: false);
                 result = true;
                 return new NativeBufferArraySliced<T>(this.data, tails);
 

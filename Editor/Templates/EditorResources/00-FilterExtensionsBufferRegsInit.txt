@@ -1,4 +1,4 @@
 var regT#INDEX# = (StructComponents<T#INDEX#>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T#INDEX#>()];
 regT#INDEX#.Merge();
 var tempT#INDEX# = new Unity.Collections.NativeArray<Component<T#INDEX#>>(size, allocator);
-NativeArrayUtils.Copy(regT#INDEX#.components.data, min, ref tempT#INDEX#, 0, size, allocator);
+NativeArrayUtils.CopyUnmanaged(regT#INDEX#.components.data.arr, min, ref tempT#INDEX#, 0, size);

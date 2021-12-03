@@ -123,7 +123,7 @@ namespace ME.ECS {
         #endif
         public override bool Validate(int capacity) {
 
-            var resized = ArrayUtils.Resize(capacity, ref this.components, true);
+            var resized = ArrayUtils.Resize(capacity, ref this.components, resizeWithOffset: true);
             base.Validate(capacity);
             return resized;
 
