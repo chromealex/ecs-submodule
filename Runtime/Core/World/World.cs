@@ -2516,7 +2516,7 @@ namespace ME.ECS {
 
             [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
             [Unity.Collections.ReadOnlyAttribute]
-            public NativeBufferArray<Entity> slice;
+            public Unity.Collections.NativeArray<Entity> slice;
             [Unity.Collections.NativeDisableParallelForRestrictionAttribute]
             [Unity.Collections.ReadOnlyAttribute]
             public Unity.Collections.NativeArray<byte> dataContains;
@@ -2527,7 +2527,7 @@ namespace ME.ECS {
 
             void Unity.Jobs.IJobParallelFor.Execute(int index) {
 
-                var entity = this.slice.Read(index);
+                var entity = this.slice[index];
                 if (entity.IsAlive() == false) return;
 
                 if (this.dataContains.GetRefRead(entity.id) == 1 && (this.dataVersions.IsCreated == false || this.dataVersions.GetRefRead(entity.id) == 1)) {

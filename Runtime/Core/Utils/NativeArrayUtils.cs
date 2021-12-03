@@ -180,17 +180,17 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void Copy<T>(in Unity.Collections.NativeArray<T> fromArr, ref Unity.Collections.NativeArray<T> arr, int length)
+        public static void Copy<T>(in Unity.Collections.NativeArray<T> fromArr, ref Unity.Collections.NativeArray<T> arr, int length, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent)
             where T : struct {
 
-            NativeArrayUtils.Copy<T>(in fromArr, 0, ref arr, 0, length);
+            NativeArrayUtils.Copy<T>(in fromArr, 0, ref arr, 0, length, allocator);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void Copy<T>(in BufferArray<T> fromArr, int sourceIndex, ref Unity.Collections.NativeArray<T> arr, int destIndex, int length) where T : struct {
+        public static void Copy<T>(in BufferArray<T> fromArr, int sourceIndex, ref Unity.Collections.NativeArray<T> arr, int destIndex, int length, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : struct {
 
             switch (fromArr.isCreated) {
                 case false when arr.IsCreated == false:
@@ -202,10 +202,10 @@ namespace ME.ECS {
                     return;
             }
 
-            if (arr.IsCreated == false || arr.Length < fromArr.Length) {
+            if (arr.IsCreated == false || arr.Length < (length - destIndex) || fromArr.Length < (length - destIndex)) {
 
                 if (arr.IsCreated == true) arr.Dispose();
-                arr = new Unity.Collections.NativeArray<T>(fromArr.Length, Unity.Collections.Allocator.Persistent);
+                arr = new Unity.Collections.NativeArray<T>(fromArr.Length, allocator);
                 
             }
 
@@ -227,7 +227,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void Copy<T>(in Unity.Collections.NativeArray<T> fromArr, int sourceIndex, ref Unity.Collections.NativeArray<T> arr, int destIndex, int length) where T : struct {
+        public static void Copy<T>(in Unity.Collections.NativeArray<T> fromArr, int sourceIndex, ref Unity.Collections.NativeArray<T> arr, int destIndex, int length, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : struct {
 
             switch (fromArr.IsCreated) {
                 case false when arr.IsCreated == false:
@@ -242,7 +242,7 @@ namespace ME.ECS {
             if (arr.IsCreated == false || arr.Length < fromArr.Length) {
 
                 if (arr.IsCreated == true) arr.Dispose();
-                arr = new Unity.Collections.NativeArray<T>(fromArr.Length, Unity.Collections.Allocator.Persistent);
+                arr = new Unity.Collections.NativeArray<T>(fromArr.Length, allocator);
                 
             }
 

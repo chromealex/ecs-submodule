@@ -37,7 +37,7 @@ public struct FilterBag<T0>  where T0:struct,IStructComponentBase {
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -76,10 +76,10 @@ t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -178,7 +178,7 @@ public struct FilterBag<T0,T1>  where T0:struct,IStructComponentBase where T1:st
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -222,14 +222,14 @@ t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -346,7 +346,7 @@ public struct FilterBag<T0,T1,T2>  where T0:struct,IStructComponentBase where T1
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -395,18 +395,18 @@ t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -541,7 +541,7 @@ public struct FilterBag<T0,T1,T2,T3>  where T0:struct,IStructComponentBase where
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -595,22 +595,22 @@ t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
 var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
-NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -763,7 +763,7 @@ public struct FilterBag<T0,T1,T2,T3,T4>  where T0:struct,IStructComponentBase wh
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -822,26 +822,26 @@ t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
 var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
-NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size, allocator);
 var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
 var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
-NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -1012,7 +1012,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:struct,IStructComponentBase
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -1076,30 +1076,30 @@ t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
 var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
-NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size, allocator);
 var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
 var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
-NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size, allocator);
 var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
 var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
-NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -1288,7 +1288,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:struct,IStructComponentB
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -1357,34 +1357,34 @@ t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
 var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
-NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size, allocator);
 var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
 var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
-NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size, allocator);
 var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
 var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
-NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size, allocator);
 var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
 var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
-NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -1591,7 +1591,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:struct,IStructCompone
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -1665,38 +1665,38 @@ t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
 var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
-NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size, allocator);
 var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
 var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
-NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size, allocator);
 var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
 var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
-NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size, allocator);
 var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
 var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
-NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size, allocator);
 var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
 var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
-NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -1921,7 +1921,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:struct,IStructComp
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -2000,42 +2000,42 @@ t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
 var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
-NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size, allocator);
 var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
 var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
-NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size, allocator);
 var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
 var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
-NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size, allocator);
 var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
 var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
-NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size, allocator);
 var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
 var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
-NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size, allocator);
 var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
 var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
-NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -2278,7 +2278,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:struct,IStructC
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -2362,46 +2362,46 @@ t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
 var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
-NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size, allocator);
 var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
 var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
-NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size, allocator);
 var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
 var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
-NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size, allocator);
 var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
 var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
-NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size, allocator);
 var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
 var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
-NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size, allocator);
 var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
 var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
-NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size, allocator);
 var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
 var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
-NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -2662,7 +2662,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:struct,IStr
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -2751,50 +2751,50 @@ t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
 var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
-NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size, allocator);
 var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
 var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
-NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size, allocator);
 var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
 var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
-NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size, allocator);
 var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
 var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
-NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size, allocator);
 var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
 var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
-NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size, allocator);
 var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
 var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
-NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size, allocator);
 var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
 var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
-NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size, allocator);
 var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
 var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
-NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -3073,7 +3073,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:struct,
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -3167,54 +3167,54 @@ t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
 var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
-NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size, allocator);
 var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
 var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
-NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size, allocator);
 var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
 var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
-NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size, allocator);
 var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
 var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
-NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size, allocator);
 var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
 var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
-NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size, allocator);
 var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
 var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
-NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size, allocator);
 var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
 var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
-NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size, allocator);
 var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
 var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
-NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size, allocator);
 var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
 regT11.Merge();
 var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator);
-NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size);
+NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -3511,7 +3511,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:str
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -3610,58 +3610,58 @@ t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
 var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
-NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size, allocator);
 var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
 var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
-NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size, allocator);
 var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
 var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
-NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size, allocator);
 var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
 var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
-NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size, allocator);
 var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
 var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
-NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size, allocator);
 var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
 var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
-NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size, allocator);
 var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
 var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
-NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size, allocator);
 var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
 var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
-NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size, allocator);
 var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
 regT11.Merge();
 var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator);
-NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size);
+NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size, allocator);
 var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
 regT12.Merge();
 var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(size, allocator);
-NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size);
+NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -3976,7 +3976,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -4080,62 +4080,62 @@ t13 = this.tagT13 == 0 ? this.tempT13[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
 var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
-NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size, allocator);
 var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
 var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
-NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size, allocator);
 var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
 var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
-NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size, allocator);
 var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
 var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
-NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size, allocator);
 var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
 var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
-NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size, allocator);
 var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
 var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
-NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size, allocator);
 var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
 var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
-NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size, allocator);
 var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
 var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
-NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size, allocator);
 var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
 regT11.Merge();
 var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator);
-NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size);
+NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size, allocator);
 var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
 regT12.Merge();
 var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(size, allocator);
-NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size);
+NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size, allocator);
 var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
 regT13.Merge();
 var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(size, allocator);
-NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size);
+NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -4468,7 +4468,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  wher
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -4577,66 +4577,66 @@ t14 = this.tagT14 == 0 ? this.tempT14[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
 var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
-NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size, allocator);
 var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
 var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
-NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size, allocator);
 var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
 var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
-NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size, allocator);
 var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
 var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
-NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size, allocator);
 var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
 var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
-NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size, allocator);
 var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
 var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
-NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size, allocator);
 var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
 var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
-NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size, allocator);
 var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
 var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
-NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size, allocator);
 var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
 regT11.Merge();
 var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator);
-NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size);
+NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size, allocator);
 var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
 regT12.Merge();
 var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(size, allocator);
-NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size);
+NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size, allocator);
 var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
 regT13.Merge();
 var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(size, allocator);
-NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size);
+NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size, allocator);
 var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
 regT14.Merge();
 var tempT14 = new Unity.Collections.NativeArray<Component<T14>>(size, allocator);
-NativeArrayUtils.Copy(regT14.components.data, min, ref tempT14, 0, size);
+NativeArrayUtils.Copy(regT14.components.data, min, ref tempT14, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -4987,7 +4987,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -5101,70 +5101,70 @@ t15 = this.tagT15 == 0 ? this.tempT15[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
 var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
-NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size, allocator);
 var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
 var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
-NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size, allocator);
 var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
 var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
-NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size, allocator);
 var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
 var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
-NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size, allocator);
 var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
 var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
-NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size, allocator);
 var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
 var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
-NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size, allocator);
 var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
 var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
-NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size, allocator);
 var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
 var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
-NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size, allocator);
 var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
 regT11.Merge();
 var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator);
-NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size);
+NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size, allocator);
 var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
 regT12.Merge();
 var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(size, allocator);
-NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size);
+NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size, allocator);
 var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
 regT13.Merge();
 var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(size, allocator);
-NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size);
+NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size, allocator);
 var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
 regT14.Merge();
 var tempT14 = new Unity.Collections.NativeArray<Component<T14>>(size, allocator);
-NativeArrayUtils.Copy(regT14.components.data, min, ref tempT14, 0, size);
+NativeArrayUtils.Copy(regT14.components.data, min, ref tempT14, 0, size, allocator);
 var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
 regT15.Merge();
 var tempT15 = new Unity.Collections.NativeArray<Component<T15>>(size, allocator);
-NativeArrayUtils.Copy(regT15.components.data, min, ref tempT15, 0, size);
+NativeArrayUtils.Copy(regT15.components.data, min, ref tempT15, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -5533,7 +5533,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T1
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -5652,74 +5652,74 @@ t16 = this.tagT16 == 0 ? this.tempT16[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
 var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
-NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size, allocator);
 var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
 var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
-NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size, allocator);
 var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
 var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
-NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size, allocator);
 var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
 var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
-NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size, allocator);
 var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
 var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
-NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size, allocator);
 var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
 var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
-NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size, allocator);
 var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
 var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
-NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size, allocator);
 var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
 var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
-NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size, allocator);
 var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
 regT11.Merge();
 var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator);
-NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size);
+NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size, allocator);
 var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
 regT12.Merge();
 var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(size, allocator);
-NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size);
+NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size, allocator);
 var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
 regT13.Merge();
 var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(size, allocator);
-NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size);
+NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size, allocator);
 var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
 regT14.Merge();
 var tempT14 = new Unity.Collections.NativeArray<Component<T14>>(size, allocator);
-NativeArrayUtils.Copy(regT14.components.data, min, ref tempT14, 0, size);
+NativeArrayUtils.Copy(regT14.components.data, min, ref tempT14, 0, size, allocator);
 var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
 regT15.Merge();
 var tempT15 = new Unity.Collections.NativeArray<Component<T15>>(size, allocator);
-NativeArrayUtils.Copy(regT15.components.data, min, ref tempT15, 0, size);
+NativeArrayUtils.Copy(regT15.components.data, min, ref tempT15, 0, size, allocator);
 var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];
 regT16.Merge();
 var tempT16 = new Unity.Collections.NativeArray<Component<T16>>(size, allocator);
-NativeArrayUtils.Copy(regT16.components.data, min, ref tempT16, 0, size);
+NativeArrayUtils.Copy(regT16.components.data, min, ref tempT16, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -6106,7 +6106,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T1
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -6230,78 +6230,78 @@ t17 = this.tagT17 == 0 ? this.tempT17[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
 var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
-NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size, allocator);
 var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
 var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
-NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size, allocator);
 var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
 var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
-NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size, allocator);
 var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
 var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
-NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size, allocator);
 var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
 var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
-NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size, allocator);
 var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
 var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
-NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size, allocator);
 var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
 var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
-NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size, allocator);
 var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
 var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
-NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size, allocator);
 var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
 regT11.Merge();
 var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator);
-NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size);
+NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size, allocator);
 var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
 regT12.Merge();
 var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(size, allocator);
-NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size);
+NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size, allocator);
 var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
 regT13.Merge();
 var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(size, allocator);
-NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size);
+NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size, allocator);
 var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
 regT14.Merge();
 var tempT14 = new Unity.Collections.NativeArray<Component<T14>>(size, allocator);
-NativeArrayUtils.Copy(regT14.components.data, min, ref tempT14, 0, size);
+NativeArrayUtils.Copy(regT14.components.data, min, ref tempT14, 0, size, allocator);
 var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
 regT15.Merge();
 var tempT15 = new Unity.Collections.NativeArray<Component<T15>>(size, allocator);
-NativeArrayUtils.Copy(regT15.components.data, min, ref tempT15, 0, size);
+NativeArrayUtils.Copy(regT15.components.data, min, ref tempT15, 0, size, allocator);
 var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];
 regT16.Merge();
 var tempT16 = new Unity.Collections.NativeArray<Component<T16>>(size, allocator);
-NativeArrayUtils.Copy(regT16.components.data, min, ref tempT16, 0, size);
+NativeArrayUtils.Copy(regT16.components.data, min, ref tempT16, 0, size, allocator);
 var regT17 = (StructComponents<T17>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T17>()];
 regT17.Merge();
 var tempT17 = new Unity.Collections.NativeArray<Component<T17>>(size, allocator);
-NativeArrayUtils.Copy(regT17.components.data, min, ref tempT17, 0, size);
+NativeArrayUtils.Copy(regT17.components.data, min, ref tempT17, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -6706,7 +6706,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T1
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -6835,82 +6835,82 @@ t18 = this.tagT18 == 0 ? this.tempT18[entity.id - this.offset].data : default,
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
 regT0.Merge();
 var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
-NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size);
+NativeArrayUtils.Copy(regT0.components.data, min, ref tempT0, 0, size, allocator);
 var regT1 = (StructComponents<T1>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T1>()];
 regT1.Merge();
 var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
-NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size);
+NativeArrayUtils.Copy(regT1.components.data, min, ref tempT1, 0, size, allocator);
 var regT2 = (StructComponents<T2>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T2>()];
 regT2.Merge();
 var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
-NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size);
+NativeArrayUtils.Copy(regT2.components.data, min, ref tempT2, 0, size, allocator);
 var regT3 = (StructComponents<T3>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T3>()];
 regT3.Merge();
 var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
-NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size);
+NativeArrayUtils.Copy(regT3.components.data, min, ref tempT3, 0, size, allocator);
 var regT4 = (StructComponents<T4>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T4>()];
 regT4.Merge();
 var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
-NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size);
+NativeArrayUtils.Copy(regT4.components.data, min, ref tempT4, 0, size, allocator);
 var regT5 = (StructComponents<T5>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T5>()];
 regT5.Merge();
 var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
-NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size);
+NativeArrayUtils.Copy(regT5.components.data, min, ref tempT5, 0, size, allocator);
 var regT6 = (StructComponents<T6>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T6>()];
 regT6.Merge();
 var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
-NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size);
+NativeArrayUtils.Copy(regT6.components.data, min, ref tempT6, 0, size, allocator);
 var regT7 = (StructComponents<T7>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T7>()];
 regT7.Merge();
 var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
-NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size);
+NativeArrayUtils.Copy(regT7.components.data, min, ref tempT7, 0, size, allocator);
 var regT8 = (StructComponents<T8>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T8>()];
 regT8.Merge();
 var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
-NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size);
+NativeArrayUtils.Copy(regT8.components.data, min, ref tempT8, 0, size, allocator);
 var regT9 = (StructComponents<T9>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T9>()];
 regT9.Merge();
 var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
-NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size);
+NativeArrayUtils.Copy(regT9.components.data, min, ref tempT9, 0, size, allocator);
 var regT10 = (StructComponents<T10>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T10>()];
 regT10.Merge();
 var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator);
-NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size);
+NativeArrayUtils.Copy(regT10.components.data, min, ref tempT10, 0, size, allocator);
 var regT11 = (StructComponents<T11>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T11>()];
 regT11.Merge();
 var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator);
-NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size);
+NativeArrayUtils.Copy(regT11.components.data, min, ref tempT11, 0, size, allocator);
 var regT12 = (StructComponents<T12>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T12>()];
 regT12.Merge();
 var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(size, allocator);
-NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size);
+NativeArrayUtils.Copy(regT12.components.data, min, ref tempT12, 0, size, allocator);
 var regT13 = (StructComponents<T13>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T13>()];
 regT13.Merge();
 var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(size, allocator);
-NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size);
+NativeArrayUtils.Copy(regT13.components.data, min, ref tempT13, 0, size, allocator);
 var regT14 = (StructComponents<T14>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T14>()];
 regT14.Merge();
 var tempT14 = new Unity.Collections.NativeArray<Component<T14>>(size, allocator);
-NativeArrayUtils.Copy(regT14.components.data, min, ref tempT14, 0, size);
+NativeArrayUtils.Copy(regT14.components.data, min, ref tempT14, 0, size, allocator);
 var regT15 = (StructComponents<T15>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T15>()];
 regT15.Merge();
 var tempT15 = new Unity.Collections.NativeArray<Component<T15>>(size, allocator);
-NativeArrayUtils.Copy(regT15.components.data, min, ref tempT15, 0, size);
+NativeArrayUtils.Copy(regT15.components.data, min, ref tempT15, 0, size, allocator);
 var regT16 = (StructComponents<T16>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T16>()];
 regT16.Merge();
 var tempT16 = new Unity.Collections.NativeArray<Component<T16>>(size, allocator);
-NativeArrayUtils.Copy(regT16.components.data, min, ref tempT16, 0, size);
+NativeArrayUtils.Copy(regT16.components.data, min, ref tempT16, 0, size, allocator);
 var regT17 = (StructComponents<T17>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T17>()];
 regT17.Merge();
 var tempT17 = new Unity.Collections.NativeArray<Component<T17>>(size, allocator);
-NativeArrayUtils.Copy(regT17.components.data, min, ref tempT17, 0, size);
+NativeArrayUtils.Copy(regT17.components.data, min, ref tempT17, 0, size, allocator);
 var regT18 = (StructComponents<T18>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T18>()];
 regT18.Merge();
 var tempT18 = new Unity.Collections.NativeArray<Component<T18>>(size, allocator);
-NativeArrayUtils.Copy(regT18.components.data, min, ref tempT18, 0, size);
+NativeArrayUtils.Copy(regT18.components.data, min, ref tempT18, 0, size, allocator);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,

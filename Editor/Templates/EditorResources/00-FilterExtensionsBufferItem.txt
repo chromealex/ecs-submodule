@@ -20,7 +20,7 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public NativeBufferArray<Entity> buffer;
+        public Unity.Collections.NativeArray<Entity> buffer;
         public int offset;
         #JOB_FILL_ITEMS#
         public Unity.Collections.NativeArray<DataBufferStruct<#ITEMS_TYPE#>> arr;
@@ -53,7 +53,7 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
         if (size < 0) size = 0;
         #REGS_INIT#
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<#ITEMS_TYPE#>>(this.Length, allocator);
-        var filterArr = filter.ToArray();
+        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,

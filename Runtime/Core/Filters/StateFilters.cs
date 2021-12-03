@@ -737,16 +737,16 @@ namespace ME.ECS {
 
         }
 
-        public NativeBufferArray<Entity> ToArray() {
+        public Unity.Collections.NativeArray<Entity> ToArray(Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
 
-            if (this.useSecondary == false) return this.primaryFilter.ToArray();
+            if (this.useSecondary == false) return this.primaryFilter.ToArray(allocator);
             
-            var arr = PoolArrayNative<Entity>.Spawn(this.primaryFilter.Count + this.secondaryFilter.Count);
-            var primaryArray = this.primaryFilter.ToArray();
-            NativeArrayUtils.Copy(primaryArray, 0, ref arr, 0, this.primaryFilter.Count);
+            var arr = new Unity.Collections.NativeArray<Entity>(this.primaryFilter.Count + this.secondaryFilter.Count, allocator);
+            var primaryArray = this.primaryFilter.ToArray(allocator);
+            NativeArrayUtils.Copy(primaryArray, 0, ref arr, 0, this.primaryFilter.Count, allocator);
             primaryArray.Dispose();
-            var secondaryArray = this.secondaryFilter.ToArray();
-            if (secondaryArray.Length > 0) NativeArrayUtils.Copy(secondaryArray, 0, ref arr, this.primaryFilter.Count, this.secondaryFilter.Count);
+            var secondaryArray = this.secondaryFilter.ToArray(allocator);
+            if (secondaryArray.Length > 0) NativeArrayUtils.Copy(secondaryArray, 0, ref arr, this.primaryFilter.Count, this.secondaryFilter.Count, allocator);
             secondaryArray.Dispose();
             return arr;
 
@@ -1128,9 +1128,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public NativeBufferArray<Entity> ToArray() {
+        public Unity.Collections.NativeArray<Entity> ToArray(Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
 
-            return this.world.GetFilter(this.id).ToArray();
+            return this.world.GetFilter(this.id).ToArray(allocator);
 
         }
 
@@ -1854,7 +1854,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public NativeBufferArray<Entity> ToArray() {
+        public Unity.Collections.NativeArray<Entity> ToArray(Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
 
             int customCount = 0;
             if (this.data.onVersionChangedOnly == 1) {
@@ -1875,7 +1875,7 @@ namespace ME.ECS {
 
             }
 
-            var data = PoolArrayNative<Entity>.Spawn(customCount);
+            var data = new Unity.Collections.NativeArray<Entity>(customCount, allocator);
             for (int i = this.data.min, k = 0; i <= this.data.max; ++i) {
 
                 if (this.data.dataContains[i] == 1) {
