@@ -641,6 +641,7 @@ namespace ME.ECS.DataConfigs {
             #if UNITY_EDITOR
             UnityEditor.EditorUtility.SetDirty(this);
             if (dirtyOnly == false) UnityEditor.AssetDatabase.ForceReserializeAssets(new [] { UnityEditor.AssetDatabase.GetAssetPath(this) }, UnityEditor.ForceReserializeAssetsOptions.ReserializeAssetsAndMetadata);
+            UnityEditor.AssetDatabase.SaveAssetIfDirty(this);
             #endif
             
         }
