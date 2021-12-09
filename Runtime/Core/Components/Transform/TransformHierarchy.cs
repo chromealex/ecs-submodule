@@ -6,6 +6,11 @@ namespace ME.ECS {
 
     using Transform;
 
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
     public static class ECSTransformHierarchy {
 
         #if INLINE_METHODS
@@ -50,6 +55,23 @@ namespace ME.ECS {
                 }
                 
             }
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static uint GetVersionInHierarchy(this in Entity entity) {
+
+            var v = entity.GetVersion();
+            var ent = entity;
+            while (ent.Has<Container>() == true) {
+
+                ent = ent.Read<Container>().entity;
+                v += ent.GetVersion();
+                
+            }
+            return v;
 
         }
 

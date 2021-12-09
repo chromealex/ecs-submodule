@@ -120,6 +120,10 @@ namespace ME.ECS {
         #endif
         public static QUATERNION GetRotation(this in Entity child) {
 
+            if (child.Has<Rotation>() == false) {
+                child.SetLocalRotation(QUATERNION.identity);
+            }
+            
             var worldRot = child.Read<Rotation>().ToQuaternion();
             ref readonly var container = ref child.Read<Container>();
             while (container.entity.IsEmpty() == false) {

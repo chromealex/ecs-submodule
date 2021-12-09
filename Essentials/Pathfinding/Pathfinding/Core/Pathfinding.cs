@@ -333,10 +333,10 @@ namespace ME.ECS.Pathfinding {
             
         }
 
-        public Path CalculatePath<TMod>(Vector3 from, Vector3 to, Constraint constraint, TMod pathModifier, int threadIndex = 0, bool cacheEnabled = false) where TMod : struct, IPathModifier {
+        public Path CalculatePath<TMod>(Vector3 from, Vector3 to, Constraint constraint, TMod pathModifier, int threadIndex = 0, bool cacheEnabled = false, bool burstEnabled = false) where TMod : struct, IPathModifier {
 
             var graph = this.GetNearest(from, constraint).graph;
-            return this.CalculatePath(from, to, constraint, graph, pathModifier, threadIndex, cacheEnabled: cacheEnabled);
+            return this.CalculatePath_INTERNAL(this.defaultProcessor, from, to, constraint, graph, pathModifier, threadIndex, cacheEnabled: cacheEnabled, burstEnabled: burstEnabled);
             
         }
 

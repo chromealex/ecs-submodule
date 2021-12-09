@@ -274,6 +274,7 @@ namespace ME.ECS.Pathfinding {
                 var straightPathFlags = new Unity.Collections.NativeArray<StraightPathFlags>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.Persistent);
                 var vertexSide = new Unity.Collections.NativeArray<float>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.Persistent);
                 var results = new Unity.Collections.NativeArray<UnityEngine.Experimental.AI.NavMeshLocation>(PathfindingNavMeshProcessor.MAX_PATH_SIZE, Unity.Collections.Allocator.Persistent);
+                var resultStatus = new Unity.Collections.NativeArray<int>(2, Unity.Collections.Allocator.TempJob);
                 var job = new FindStraightPathJob() {
                     query = query,
                     from = from,
@@ -283,11 +284,13 @@ namespace ME.ECS.Pathfinding {
                     results = results,
                     straightPathFlags = straightPathFlags,
                     vertexSide = vertexSide,
+                    resultStatus = resultStatus,
                 };
                 job.Schedule().Complete();
 
                 var pathStatus = (UnityEngine.Experimental.AI.PathQueryStatus)job.resultStatus[0];
                 var cornerCount = job.resultStatus[1];
+                resultStatus.Dispose();
                 
                 statLength = cornerCount;
                 

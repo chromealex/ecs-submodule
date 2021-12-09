@@ -463,6 +463,30 @@ namespace ME.ECS.Essentials {
         private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputGesturePitchMove marker) { this.gesturePitchMoveEvent.RPC(player, marker); }
         private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputGesturePitchUp marker) { this.gesturePitchUpEvent.RPC(player, marker); }
 
+        public bool GetWorldPointer(int pointerId, out UnityEngine.Vector3 result) {
+
+            result = default;
+            if (this.camera == null) return false;
+
+            var pos = ME.ECS.Essentials.Input.InputUtils.GetPointerPosition(pointerId);
+            var ray = this.camera.ScreenPointToRay(pos);
+            if (UnityEngine.Physics.Raycast(ray, out var hit, this.raycastDistance, this.raycastMask) == true) {
+
+                result = hit.point;
+                return true;
+
+            }
+
+            return false;
+
+        }
+        
+        public bool GetWorldPointer(out UnityEngine.Vector3 result) {
+
+            return this.GetWorldPointer(0, out result);
+            
+        }
+
     }
 
 }

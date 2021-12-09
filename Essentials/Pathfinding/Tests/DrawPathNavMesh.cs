@@ -24,7 +24,7 @@ public class DrawPathNavMesh : MonoBehaviour {
         var cons = ME.ECS.Pathfinding.Constraint.Empty;
         cons.graphMask = this.constraint.graphMask;
         var graph = this.pathfinding.GetNearest(this.transform.position, this.constraint).graph;
-        var path = this.pathfinding.CalculatePath<ME.ECS.Pathfinding.PathfindingNavMeshProcessor>(this.transform.position, this.to.position, this.constraint);
+        var path = this.pathfinding.CalculatePath<ME.ECS.Pathfinding.PathModifierEmpty, ME.ECS.Pathfinding.PathfindingNavMeshProcessor>(this.transform.position, this.to.position, this.constraint, graph, new ME.ECS.Pathfinding.PathModifierEmpty(), burstEnabled: this.useBurst);
         if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete ||
             path.result == ME.ECS.Pathfinding.PathCompleteState.CompletePartial) {
 

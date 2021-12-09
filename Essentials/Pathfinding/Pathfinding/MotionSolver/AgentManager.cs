@@ -2,31 +2,35 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AgentManager : MonoBehaviour {
+namespace ME.ECS.Pathfinding {
 
-    public Agent[] allAgents;
+    public class AgentManager : MonoBehaviour {
 
-    [ContextMenu("Collect")]
-    public void OnValidate() {
+        public Agent[] allAgents;
 
-        this.allAgents = AgentManager.FindObjectsOfType<Agent>();
+        [ContextMenu("Collect")]
+        public void OnValidate() {
 
-    }
+            this.allAgents = AgentManager.FindObjectsOfType<Agent>();
 
-    public void Update() {
-        
-        this.Simulate(Time.deltaTime);
-        
-    }
-
-    public void Simulate(float dt) {
-
-        for (int i = 0, count = this.allAgents.Length; i < count; ++i) {
-            
-            this.allAgents[i].Simulate(dt);
-            
         }
-        
+
+        public void Update() {
+
+            this.Simulate(Time.deltaTime);
+
+        }
+
+        public void Simulate(float dt) {
+
+            for (int i = 0, count = this.allAgents.Length; i < count; ++i) {
+
+                this.allAgents[i].Simulate(dt);
+
+            }
+
+        }
+
     }
 
 }

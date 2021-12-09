@@ -211,6 +211,7 @@ namespace ME.ECS.Views.Providers {
 
         public virtual void OnValidate() {
 
+            this.InitializeTransform();
             this.DoValidate();
 
         }

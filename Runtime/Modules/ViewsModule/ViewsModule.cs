@@ -1075,7 +1075,7 @@ namespace ME.ECS.Views {
                     if (currentViewInstance == null) continue;
                     if (currentViewInstance.entity.IsAliveWithBoundsCheck() == false) continue;
 
-                    var version = currentViewInstance.entity.GetVersion();
+                    var version = currentViewInstance.entity.GetVersionInHierarchy();
                     if (this.forceUpdateState == true || version != currentViewInstance.entityVersion) {
 
                         currentViewInstance.entityVersion = version;
