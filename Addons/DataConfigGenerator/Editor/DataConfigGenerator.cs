@@ -395,7 +395,7 @@ namespace ME.ECS.DataConfigGenerator {
             if (this.behaviour == null) this.behaviour = new DefaultGeneratorBehaviour();
             this.behaviour.generator = this;
 
-            var configFiles = System.IO.Directory.GetFiles(this.configsDirectory, "*.asset");
+            var configFiles = System.IO.Directory.GetFiles(this.configsDirectory, "*.asset", System.IO.SearchOption.AllDirectories);
             var visitedFiles = this.visitedFiles ?? new HashSet<string>();
             var visitedConfigs = this.visitedConfigs ?? new HashSet<ConfigInfo>();
             // Configs to update
@@ -404,7 +404,7 @@ namespace ME.ECS.DataConfigGenerator {
                 foreach (var file in configFiles) {
 
                     var fileFix = file.Replace("\\", "/");
-                    if (System.IO.Path.GetFileNameWithoutExtension(fileFix) == config.name) {
+                    if (config.name.EndsWith(System.IO.Path.GetFileNameWithoutExtension(fileFix)) == true) {
                         
                         // Update config
                         //UnityEngine.Debug.LogWarning($"DO: Update config {config.name}");
@@ -481,7 +481,7 @@ namespace ME.ECS.DataConfigGenerator {
 
             foreach (var config in DataConfigGenerator.projectConfigs) {
 
-                if (System.IO.Path.GetFileNameWithoutExtension(config) == name) {
+                if (name.EndsWith(System.IO.Path.GetFileNameWithoutExtension(config)) == true) {
 
                     return UnityEditor.AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfig>(config);
 
@@ -714,11 +714,25 @@ namespace ME.ECS.DataConfigGenerator {
 
                             var t = UnityEditor.AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfigTemplate>(templatePath);
                             var guid = UnityEditor.AssetDatabase.AssetPathToGUID(templatePath);
+                            
+                            t.UnUse(config);
                             if (config.templates == null) config.templates = new string[0];
-                            System.Array.Resize(ref config.templates, config.templates.Length + 1);
-                            config.templates[config.templates.Length - 1] = guid;
+                            var tFound = false;
+                            foreach (var temp in config.templates) {
+                                if (temp == guid) {
+                                    tFound = true;
+                                    break;
+                                }
+                            }
+
+                            if (tFound == false) {
+                                System.Array.Resize(ref config.templates, config.templates.Length + 1);
+                                config.templates[config.templates.Length - 1] = guid;
+                            }
+
                             config.AddTemplate(t);
                             found = true;
+                            
                             break;
                             
                         }
