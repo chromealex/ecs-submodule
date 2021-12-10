@@ -119,10 +119,6 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public static QUATERNION GetRotation(this in Entity child) {
-
-            if (child.Has<Rotation>() == false) {
-                child.SetLocalRotation(QUATERNION.identity);
-            }
             
             var worldRot = child.Read<Rotation>().ToQuaternion();
             ref readonly var container = ref child.Read<Container>();
