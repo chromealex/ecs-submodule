@@ -1,4 +1,4 @@
-﻿#if ENABLE_IL2CPP
+#if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
 
@@ -42,8 +42,14 @@ namespace ME.ECS {
         #endif
         public static void ReplaceView(this Entity entity, ViewId viewId) {
 
-            if (entity.Has<ViewComponent>() == true) Worlds.currentWorld.DestroyAllViews(in entity);
-            Worlds.currentWorld.InstantiateView(viewId, entity);
+            if (entity.Has<ViewComponent>() == true) {
+                ref var view = ref entity.Get<ViewComponent>();
+                if (view.viewInfo.prefabSourceId != viewId) {
+                    view.viewInfo = new ViewInfo(entity, viewId, Worlds.currentWorld.GetStateTick());
+                }
+            } else {
+                Worlds.currentWorld.InstantiateView(viewId, entity);
+            }
 
         }
 
