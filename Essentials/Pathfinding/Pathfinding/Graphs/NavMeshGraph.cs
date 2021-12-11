@@ -38,6 +38,12 @@ namespace ME.ECS.Pathfinding {
         
         }
 
+        public List<NavMeshBuildSource> GetBuildSources() {
+
+            return this.buildSources;
+
+        }
+
         public override void Recycle() {
             
             base.Recycle();
@@ -141,6 +147,7 @@ namespace ME.ECS.Pathfinding {
             this.buildSettings = buildSettings;
             
             this.navMeshDataInstance = UnityEngine.AI.NavMesh.AddNavMeshData(this.navMeshData, Vector3.zero, Quaternion.identity);
+            
             var t = NavMesh.CalculateTriangulation();
             var hash = 0;
             foreach (var vert in t.vertices) {
