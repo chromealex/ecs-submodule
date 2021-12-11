@@ -127,6 +127,10 @@ namespace ME.ECS {
                 return;
 
             }
+            
+            if (root.Has<Rotation>() == false) {
+                root.SetLocalRotation(UnityEngine.Quaternion.identity);
+            }
 
             if (ECSTransformHierarchy.FindInHierarchy(in child, in root) == true) return;
 
