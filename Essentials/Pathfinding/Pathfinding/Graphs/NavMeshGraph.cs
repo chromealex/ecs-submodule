@@ -22,25 +22,26 @@ namespace ME.ECS.Pathfinding {
         public int tileSize = 1;
         public float voxelSize = 0.17f;
 
-        public bool drawMesh;
+        private NavMeshBuildSettings buildSettings;
 
         private NavMeshData navMeshData;
         private NavMeshDataInstance navMeshDataInstance;
-        private NavMeshBuildSettings buildSettings;
-        private UnityEngine.Experimental.AI.NavMeshQuery query;
         
         private List<NavMeshBuildSource> buildSources = new List<NavMeshBuildSource>(5000);
         private List<NavMeshBuildSource> tempSources = new List<NavMeshBuildSource>(1000);
 
+        public bool drawMesh;
+        
         public void AddBuildSource(in NavMeshBuildSource buildSource) {
             
             this.buildSources.Add(buildSource);
         
         }
 
-        public List<NavMeshBuildSource> GetBuildSources() {
-
-            return this.buildSources;
+        public void AddBuildSource(in NavMeshBuildSource buildSource, Bounds boundsToUpdate) {
+            
+            this.buildSources.Add(buildSource);
+            this.UpdateGraph((List<NavMeshBuildSource>)null, boundsToUpdate);
 
         }
 
@@ -63,10 +64,16 @@ namespace ME.ECS.Pathfinding {
             if (this.navMeshDataInstance.valid == true) this.navMeshDataInstance.Remove();
 
         }
+        
+        public bool UpdateGraph(Unity.Collections.NativeArray<NavMeshBuildSource> sources) {
 
-        public void UpdateGraph() {
+            if (this.navMeshData == null) return false;
 
-            this.UpdateGraph(null);
+            var temp = PoolListCopyable<NavMeshBuildSource>.Spawn(sources.Length);
+            temp.AddRange(sources);
+            var result = this.UpdateGraph(temp);
+            PoolListCopyable<NavMeshBuildSource>.Recycle(ref temp);
+            return result;
 
         }
 
@@ -77,11 +84,31 @@ namespace ME.ECS.Pathfinding {
             var temp = PoolListCopyable<NavMeshBuildSource>.Spawn(sources.Length + sources2.Length);
             temp.AddRange(sources);
             temp.AddRange(sources2);
+            var result = this.UpdateGraph(temp);
+            PoolListCopyable<NavMeshBuildSource>.Recycle(ref temp);
+            return result;
+
+        }
+
+        public void UpdateGraph() {
+
+            this.UpdateGraph((List<NavMeshBuildSource>)null);
+
+        }
+
+        public bool UpdateGraph(List<NavMeshBuildSource> sources) {
+
+            return this.UpdateGraph(sources, new UnityEngine.Bounds(this.graphCenter, this.size));
+            
+        }
+
+        public bool UpdateGraph(List<NavMeshBuildSource> sources, Bounds bounds) {
+
+            if (this.navMeshData == null) return false;
+            
             this.tempSources.Clear();
             this.tempSources.AddRange(this.buildSources);
-            this.tempSources.AddRange(temp);
-            PoolListCopyable<NavMeshBuildSource>.Recycle(ref temp);
-            var bounds = new UnityEngine.Bounds(this.graphCenter, this.size);
+            if (sources != null) this.tempSources.AddRange(sources);
             if (NavMeshBuilder.UpdateNavMeshData(this.navMeshData, this.buildSettings, this.tempSources, bounds) == false) {
 
                 return false;
@@ -89,17 +116,22 @@ namespace ME.ECS.Pathfinding {
             }
 
             return true;
+
+        }
+
+        public bool UpdateGraph(ME.ECS.Collections.ListCopyable<NavMeshBuildSource> sources) {
+
+            return this.UpdateGraph(sources, new UnityEngine.Bounds(this.graphCenter, this.size));
             
         }
 
-        public bool UpdateGraph(List<NavMeshBuildSource> sources) {
+        public bool UpdateGraph(ME.ECS.Collections.ListCopyable<NavMeshBuildSource> sources, Bounds bounds) {
 
             if (this.navMeshData == null) return false;
             
             this.tempSources.Clear();
             this.tempSources.AddRange(this.buildSources);
             if (sources != null) this.tempSources.AddRange(sources);
-            var bounds = new UnityEngine.Bounds(this.graphCenter, this.size);
             if (NavMeshBuilder.UpdateNavMeshData(this.navMeshData, this.buildSettings, this.tempSources, bounds) == false) {
 
                 return false;
@@ -147,7 +179,6 @@ namespace ME.ECS.Pathfinding {
             this.buildSettings = buildSettings;
             
             this.navMeshDataInstance = UnityEngine.AI.NavMesh.AddNavMeshData(this.navMeshData, Vector3.zero, Quaternion.identity);
-            
             var t = NavMesh.CalculateTriangulation();
             var hash = 0;
             foreach (var vert in t.vertices) {
@@ -201,7 +232,31 @@ namespace ME.ECS.Pathfinding {
         }
 
         public override void OnCopyFrom(Graph other) {
-            throw new System.NotImplementedException();
+
+            var navMeshGraphOther = (NavMeshGraph)other;
+            ArrayUtils.Copy(navMeshGraphOther.buildSources, ref this.buildSources);
+            ArrayUtils.Copy(navMeshGraphOther.tempSources, ref this.tempSources);
+            this.navMeshData = NavMeshData.Instantiate(navMeshGraphOther.navMeshData);
+            this.navMeshDataInstance = UnityEngine.AI.NavMesh.AddNavMeshData(this.navMeshData, Vector3.zero, Quaternion.identity);
+
+            this.size = navMeshGraphOther.size;
+            this.scale = navMeshGraphOther.scale;
+        
+            this.buildFloor = navMeshGraphOther.buildFloor;
+            this.floorHeight = navMeshGraphOther.floorHeight;
+        
+            this.agentTypeId = navMeshGraphOther.agentTypeId;
+            this.agentClimb = navMeshGraphOther.agentClimb;
+            this.agentSlope = navMeshGraphOther.agentSlope;
+            this.agentRadius = navMeshGraphOther.agentRadius;
+            this.agentHeight = navMeshGraphOther.agentHeight;
+        
+            this.minRegionArea = navMeshGraphOther.minRegionArea;
+            this.tileSize = navMeshGraphOther.tileSize;
+            this.voxelSize = navMeshGraphOther.voxelSize;
+        
+            this.buildSettings = navMeshGraphOther.buildSettings;
+        
         }
 
         public override NodeInfo GetNearest(UnityEngine.Vector3 worldPosition, Constraint constraint) {

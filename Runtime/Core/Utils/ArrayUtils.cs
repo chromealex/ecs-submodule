@@ -239,6 +239,50 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void Copy<T>(System.Collections.Generic.List<T> fromArr, ref System.Collections.Generic.List<T> arr) where T : struct {
+
+            if (fromArr == null) {
+
+                if (arr != null) {
+
+                    PoolList<T>.Recycle(ref arr);
+
+                }
+
+                arr = null;
+                return;
+
+            }
+
+            if (arr == null || fromArr.Count != arr.Count) {
+
+                if (arr != null) PoolList<T>.Recycle(ref arr);
+                arr = PoolList<T>.Spawn(fromArr.Count);
+
+            }
+
+            var cnt = arr.Count;
+            for (int i = 0; i < fromArr.Count; ++i) {
+
+                var isDefault = i >= cnt;
+                var item = fromArr[i];
+                if (isDefault == true) {
+
+                    arr.Add(item);
+
+                } else {
+
+                    arr[i] = item;
+
+                }
+
+            }
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T>(HashSetCopyable<T> fromArr, ref HashSetCopyable<T> arr) where T : struct {
 
             if (fromArr == null) {
