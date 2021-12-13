@@ -210,7 +210,7 @@ namespace ME.ECS {
         public static void PushRemove_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg) where T : struct, IStructComponentBase {
             
             ref var bucket = ref reg.components[entity.id];
-            reg.RemoveData(ref bucket);
+            reg.RemoveData(in entity, ref bucket);
             ref var state = ref bucket.state;
             if (state > 0) {
 

@@ -37,6 +37,12 @@ namespace ME.ECS.Pathfinding.Features {
 
         }
 
+        public ME.ECS.Pathfinding.Pathfinding GetEntityInstance() {
+            
+            return this.pathfindingEntity.Read<ME.ECS.Pathfinding.Features.Pathfinding.Components.PathfindingInstance>().pathfinding;
+
+        }
+
         public Entity GetEntity() {
 
             return this.pathfindingEntity;

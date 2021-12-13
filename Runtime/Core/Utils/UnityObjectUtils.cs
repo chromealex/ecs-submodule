@@ -18,7 +18,11 @@ namespace ME.ECS {
             if (visited == null) visited = new System.Collections.Generic.HashSet<object>();
 
             var ptr = obj;
-            if (visited.Contains(ptr) == true) return 0;
+            try {
+                if (visited.Contains(ptr) == true) return 0;
+            } catch (System.Exception) {
+                return 0;
+            }
             visited.Add(ptr);
 
             var pointerSize = System.IntPtr.Size;

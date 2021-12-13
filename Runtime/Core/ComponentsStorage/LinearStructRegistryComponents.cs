@@ -65,11 +65,6 @@ namespace ME.ECS {
         #endif
         public abstract void Merge();
 
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public abstract bool UseLifetimeStep(World world, byte step, float deltaTime);
-
         public abstract void CopyFrom(StructRegistryBase other);
 
         public abstract void CopyFrom(in Entity from, in Entity to);
@@ -300,8 +295,6 @@ namespace ME.ECS {
 
         }
 
-        [ME.ECS.Serializer.SerializeField]
-        internal ListCopyable<LifetimeData> lifetimeData;
         // We don't need to serialize this field
         internal BufferArray<uint> versionsNoState;
         // Shared data
@@ -372,49 +365,9 @@ namespace ME.ECS {
         public override void OnRecycle() {
 
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) PoolArray<uint>.Recycle(ref this.versionsNoState);
-            if (this.lifetimeData != null) PoolListCopyable<LifetimeData>.Recycle(ref this.lifetimeData);
-            
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.OnRecycle();
             
         }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public override bool UseLifetimeStep(World world, byte step, float deltaTime) {
-
-            if (this.lifetimeData != null) {
-
-                for (int i = 0, cnt = this.lifetimeData.Count; i < cnt; ++i) {
-
-                    ref var data = ref this.lifetimeData[i];
-                    data.lifetime -= deltaTime;
-                    if (data.lifetime <= 0f) {
-
-                        if (this.UseLifetimeStep(data.entityId, world, step) == true) {
-
-                            this.lifetimeData.RemoveAt(i);
-                            --i;
-                            --cnt;
-
-                        }
-
-                    }
-
-                }
-
-                return this.lifetimeData.Count == 0;
-
-            }
-
-            return true;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        protected abstract bool UseLifetimeStep(int id, World world, byte step);
 
         public override bool Validate(int capacity) {
             
@@ -539,23 +492,8 @@ namespace ME.ECS {
 
             }
 
-            if (this.lifetimeData != null) {
-
-                for (int i = 0; i < this.lifetimeData.Count; ++i) {
-
-                    var data = this.lifetimeData[i];
-                    if (data.entityId == from.id) {
-
-                        data.entityId = to.id;
-                        this.lifetimeData.Add(data);
-                        break;
-
-                    }
-
-                }
-
-            }
-
+            // TODO: Copy current tasks for "from" entity
+            
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(in from, in to);
             if (this.CopyFromState(in from, in to) > 0) {
 
@@ -574,7 +512,6 @@ namespace ME.ECS {
         public override void CopyFrom(StructRegistryBase other) {
 
             var _other = (StructComponents<TComponent>)other;
-            ArrayUtils.Copy(_other.lifetimeData, ref this.lifetimeData);
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(_other.sharedGroups, new ElementCopy());
             
@@ -591,8 +528,10 @@ namespace ME.ECS {
 
         internal interface ITask {
 
+            ComponentLifetime GetStep();
             Entity GetEntity();
-            void Execute();
+            void NextStep();
+            bool Update(float deltaTime);
             void Recycle();
             ITask Clone();
             void CopyFrom(ITask other);
@@ -612,13 +551,37 @@ namespace ME.ECS {
 
             }
 
-            public void Execute() {
+            public ComponentLifetime GetStep() => this.lifetime;
+            
+            public void NextStep() {
 
                 if (this.entity.IsAlive() == true) {
+                    
+                    if (this.lifetime == ComponentLifetime.NotifyAllSystemsBelow) return;
 
-                    Worlds.currentWorld.SetData(this.entity, in this.data, this.lifetime, this.secondsLifetime);
+                    Worlds.currentWorld.SetData(this.entity, in this.data);
+                    
+                    if (this.lifetime == ComponentLifetime.NotifyAllSystems) {
+                        this.lifetime = ComponentLifetime.NotifyAllSystemsBelow;
+                    }
+                    
+                }
+
+            }
+
+            public bool Update(float deltaTime) {
+
+                if (this.entity.IsAlive() == false) return true;
+                
+                this.secondsLifetime -= deltaTime;
+                if (this.secondsLifetime <= 0f) {
+
+                    Worlds.currentWorld.RemoveData<TComponent>(this.entity);
+                    return true;
 
                 }
+
+                return false;
 
             }
 
@@ -660,8 +623,6 @@ namespace ME.ECS {
         }
 
         [ME.ECS.Serializer.SerializeField]
-        internal CCList<ITask> nextFrameTasks;
-        [ME.ECS.Serializer.SerializeField]
         internal CCList<ITask> nextTickTasks;
 
         [ME.ECS.Serializer.SerializeField]
@@ -669,10 +630,6 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         private bool isCreated;
 
-        [ME.ECS.Serializer.SerializeField]
-        internal HashSetCopyable<int> listLifetimeTick;
-        [ME.ECS.Serializer.SerializeField]
-        internal HashSetCopyable<int> listLifetimeFrame;
         [ME.ECS.Serializer.SerializeField]
         private ListCopyable<int> dirtyMap;
 
@@ -684,11 +641,8 @@ namespace ME.ECS {
 
         public void Initialize(bool freeze) {
 
-            this.nextFrameTasks = PoolCCList<ITask>.Spawn();
             this.nextTickTasks = PoolCCList<ITask>.Spawn();
             this.dirtyMap = PoolListCopyable<int>.Spawn(10);
-            this.listLifetimeTick = PoolHashSetCopyable<int>.Spawn();
-            this.listLifetimeFrame = PoolHashSetCopyable<int>.Spawn();
 
             ArrayUtils.Resize(100, ref this.list, false);
             this.isCreated = true;
@@ -804,40 +758,28 @@ namespace ME.ECS {
             }
             #endif
 
-            if (this.nextFrameTasks != null) {
+            if (this.nextTickTasks != null) {
 
-                for (int i = 0, cnt = this.nextFrameTasks.Count; i < cnt; ++i) {
+                var nullCnt = 0;
+                for (int i = 0, cnt = this.nextTickTasks.Count; i < cnt; ++i) {
 
-                    if (this.nextFrameTasks[i] == null) continue;
+                    if (this.nextTickTasks[i] == null) {
+                        ++nullCnt;
+                        continue;
+                    }
 
-                    if (this.nextFrameTasks[i].GetEntity() == entity) {
+                    if (this.nextTickTasks[i].GetEntity() == entity) {
 
-                        this.nextFrameTasks[i].Recycle();
-                        this.nextFrameTasks.RemoveAt(i);
-                        --i;
-                        --cnt;
+                        this.nextTickTasks[i].Recycle();
+                        this.nextTickTasks[i] = null;
+                        ++nullCnt;
 
                     }
 
                 }
 
-            }
-
-            if (this.nextTickTasks != null) {
-
-                for (int i = 0, cnt = this.nextTickTasks.Count; i < cnt; ++i) {
-
-                    if (this.nextTickTasks[i] == null) continue;
-
-                    if (this.nextTickTasks[i].GetEntity() == entity) {
-
-                        this.nextTickTasks[i].Recycle();
-                        this.nextTickTasks.RemoveAt(i);
-                        --i;
-                        --cnt;
-
-                    }
-
+                if (nullCnt == this.nextTickTasks.Count) {
+                    this.nextTickTasks.ClearNoCC();
                 }
 
             }
@@ -1116,26 +1058,6 @@ namespace ME.ECS {
         #endif
         public void OnRecycle() {
 
-            if (this.nextFrameTasks != null) {
-
-                for (int i = 0; i < this.nextFrameTasks.array.Length; ++i) {
-
-                    if (this.nextFrameTasks.array[i] == null) continue;
-
-                    for (int j = 0; j < this.nextFrameTasks.array[i].Length; ++j) {
-
-                        if (this.nextFrameTasks.array[i][j] == null) continue;
-
-                        this.nextFrameTasks.array[i][j].Recycle();
-
-                    }
-
-                }
-
-                PoolCCList<ITask>.Recycle(ref this.nextFrameTasks);
-
-            }
-
             if (this.nextTickTasks != null) {
 
                 for (int i = 0; i < this.nextTickTasks.array.Length; ++i) {
@@ -1174,8 +1096,6 @@ namespace ME.ECS {
             }
 
             if (this.dirtyMap != null) PoolListCopyable<int>.Recycle(ref this.dirtyMap);
-            if (this.listLifetimeTick != null) PoolHashSetCopyable<int>.Recycle(ref this.listLifetimeTick);
-            if (this.listLifetimeFrame != null) PoolHashSetCopyable<int>.Recycle(ref this.listLifetimeFrame);
 
             this.isCreated = default;
 
@@ -1268,32 +1188,10 @@ namespace ME.ECS {
             //this.OnRecycle();
 
             ArrayUtils.Copy(other.dirtyMap, ref this.dirtyMap);
-            ArrayUtils.Copy(other.listLifetimeTick, ref this.listLifetimeTick);
-            ArrayUtils.Copy(other.listLifetimeFrame, ref this.listLifetimeFrame);
 
             this.isCreated = other.isCreated;
 
             {
-
-                if (this.nextFrameTasks != null) {
-
-                    for (int i = 0; i < this.nextFrameTasks.array.Length; ++i) {
-
-                        if (this.nextFrameTasks.array[i] == null) continue;
-
-                        for (int j = 0; j < this.nextFrameTasks.array[i].Length; ++j) {
-
-                            if (this.nextFrameTasks.array[i][j] == null) continue;
-
-                            this.nextFrameTasks.array[i][j].Recycle();
-
-                        }
-
-                    }
-
-                    PoolCCList<ITask>.Recycle(ref this.nextFrameTasks);
-
-                }
 
                 if (this.nextTickTasks != null) {
 
@@ -1312,34 +1210,6 @@ namespace ME.ECS {
                     }
 
                     PoolCCList<ITask>.Recycle(ref this.nextTickTasks);
-
-                }
-
-                this.nextFrameTasks = PoolCCList<ITask>.Spawn();
-                this.nextFrameTasks.InitialCopyOf(other.nextFrameTasks);
-                for (int i = 0; i < other.nextFrameTasks.array.Length; ++i) {
-
-                    if (other.nextFrameTasks.array[i] == null) {
-
-                        this.nextFrameTasks.array[i] = null;
-                        continue;
-
-                    }
-
-                    for (int j = 0; j < other.nextFrameTasks.array[i].Length; ++j) {
-
-                        var item = other.nextFrameTasks.array[i][j];
-                        if (item == null) {
-
-                            this.nextFrameTasks.array[i][j] = null;
-                            continue;
-
-                        }
-
-                        var copy = item.Clone();
-                        this.nextFrameTasks.array[i][j] = copy;
-
-                    }
 
                 }
 
@@ -1486,52 +1356,6 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void PlayTasksForFrame() {
-
-            if (this.currentState.structComponents.nextFrameTasks.Count > 0) {
-
-                for (int i = 0; i < this.currentState.structComponents.nextFrameTasks.Count; ++i) {
-
-                    var task = this.currentState.structComponents.nextFrameTasks[i];
-                    if (task == null) continue;
-
-                    task.Execute();
-                    task.Recycle();
-
-                }
-
-                this.currentState.structComponents.nextFrameTasks.ClearNoCC();
-
-            }
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        private void PlayTasksForTick() {
-
-            if (this.currentState.structComponents.nextTickTasks.Count > 0) {
-
-                for (int i = 0; i < this.currentState.structComponents.nextTickTasks.Count; ++i) {
-
-                    var task = this.currentState.structComponents.nextTickTasks[i];
-                    if (task == null) continue;
-
-                    task.Execute();
-                    task.Recycle();
-
-                }
-
-                this.currentState.structComponents.nextTickTasks.ClearNoCC();
-
-            }
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         private void UseLifetimeStep(ComponentLifetime step, float deltaTime) {
 
             if (step == ComponentLifetime.NotifyAllSystemsBelow) {
@@ -1550,57 +1374,46 @@ namespace ME.ECS {
         #endif
         private void UseLifetimeStep(ComponentLifetime step, float deltaTime, ref StructComponentsContainer structComponentsContainer) {
 
-            var list = structComponentsContainer.listLifetimeTick;
-            if (step == ComponentLifetime.NotifyAllModules || step == ComponentLifetime.NotifyAllModulesBelow) {
-
-                list = structComponentsContainer.listLifetimeFrame;
-
-            }
-            
+            var list = structComponentsContainer.nextTickTasks;
             if (list.Count > 0) {
 
-                var bStep = (byte)step;
-                var cnt = list.Count;
-                var c = 0;
-                foreach (var idx in list) {
+                var cnt = 0;
+                for (int i = 0; i < list.Count; ++i) {
 
-                    ref var reg = ref structComponentsContainer.list.arr[idx];
-                    if (reg == null) continue;
+                    var task = list[i];
+                    if (task == null) {
+                        ++cnt;
+                        continue;
+                    }
+                    var taskStep = task.GetStep();
+                    if (taskStep != step) continue;
+                    
+                    if (step == ComponentLifetime.NotifyAllSystemsBelow) {
 
-                    if (reg.UseLifetimeStep(this, bStep, deltaTime) == true) {
-                        ++c;
+                        if (task.Update(deltaTime) == true) {
+                            
+                            // Remove task on complete
+                            list[i] = null;
+                            ++cnt;
+
+                        }
+
+                    } else if (step == ComponentLifetime.NotifyAllSystems) {
+                        
+                        task.NextStep();
+                        
                     }
 
                 }
 
-                if (c == cnt) list.Clear();
+                if (cnt == list.Count) {
+                    
+                    // All is null
+                    list.ClearNoCC();
+                    
+                }
 
             }
-            
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        private static void AddToLifetimeIndex<TComponent>(in Entity entity, ComponentLifetime lifetime, float secondsLifetime, ref StructComponentsContainer structComponents) where TComponent : struct, IStructComponentBase {
-            
-            var list = structComponents.listLifetimeTick;
-            if (lifetime == ComponentLifetime.NotifyAllModules || lifetime == ComponentLifetime.NotifyAllModulesBelow) {
-
-                list = structComponents.listLifetimeFrame;
-
-            }
-            
-            var idx = WorldUtilities.GetAllComponentTypeId<TComponent>();
-            if (list.Contains(idx) == false) list.Add(idx);
-            
-            ref var r = ref structComponents.list.arr[idx];
-            var reg = (StructComponents<TComponent>)r;
-            if (reg.lifetimeData == null) reg.lifetimeData = PoolListCopyable<LifetimeData>.Spawn(10);
-            reg.lifetimeData.Add(new LifetimeData() {
-                entityId = entity.id,
-                lifetime = secondsLifetime,
-            });
             
         }
 
@@ -2339,6 +2152,15 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public void SetData<TComponent>(in Entity entity, in TComponent data, ComponentLifetime lifetime, float secondsLifetime) where TComponent : struct, IStructComponent {
+
+            this.SetData(ref this.currentState.structComponents, in entity, in data, lifetime, secondsLifetime);
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        internal void SetData<TComponent>(ref StructComponentsContainer container, in Entity entity, in TComponent data, ComponentLifetime lifetime, float secondsLifetime, bool addTaskOnly = false) where TComponent : struct, IStructComponent {
             
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -2356,52 +2178,43 @@ namespace ME.ECS {
             }
             #endif
 
-            if (lifetime == ComponentLifetime.NotifyAllModules ||
-                lifetime == ComponentLifetime.NotifyAllSystems) {
+            if (lifetime == ComponentLifetime.Infinite) {
 
-                if (this.HasData<TComponent>(in entity) == true) return;
+                if (addTaskOnly == false) this.SetData(in entity, in data);
+                return;
+                
+            }
+            
+            if (addTaskOnly == false && this.HasData<TComponent>(in entity) == true) return;
 
-                var task = PoolClass<StructComponentsContainer.NextFrameTask<TComponent>>.Spawn();
-                task.entity = entity;
-                task.data = data;
-                task.secondsLifetime = secondsLifetime;
+            var task = PoolClass<StructComponentsContainer.NextFrameTask<TComponent>>.Spawn();
+            task.entity = entity;
+            task.data = data;
+            task.secondsLifetime = secondsLifetime;
+            task.lifetime = lifetime;
 
-                switch (lifetime) {
-                    case ComponentLifetime.NotifyAllModules:
-                        task.lifetime = ComponentLifetime.NotifyAllModulesBelow;
-
-                        this.currentState.structComponents.nextFrameTasks.Add(task);
-                        break;
-
-                    case ComponentLifetime.NotifyAllSystems: {
-                        task.lifetime = ComponentLifetime.NotifyAllSystemsBelow;
-
-                        if (this.currentState.structComponents.nextTickTasks.Contains(task) == false) {
-                        
-                            this.currentState.structComponents.nextTickTasks.Add(task);
-                        
-                        } else {
-                        
-                            task.Recycle();
-                        
-                        }
-
-                        break;
-                    }
-
+            switch (lifetime) {
+                case ComponentLifetime.NotifyAllSystems: {
+                    break;
                 }
 
-            } else {
-
-                ref var state = ref this.SetData(in entity, in data);
-
-                if (lifetime == ComponentLifetime.Infinite) return;
-                state = (byte)(lifetime + 1);
-
-                World.AddToLifetimeIndex<TComponent>(in entity, lifetime, secondsLifetime, ref this.currentState.structComponents);
+                case ComponentLifetime.NotifyAllSystemsBelow: {
+                    if (addTaskOnly == false) this.SetData(in entity, in data);
+                    break;
+                }
 
             }
+            
+            if (container.nextTickTasks.Contains(task) == false) {
 
+                container.nextTickTasks.Add(task);
+
+            } else {
+                        
+                task.Recycle();
+                        
+            }
+            
         }
 
         #if INLINE_METHODS
@@ -2473,7 +2286,7 @@ namespace ME.ECS {
             
             storage.versions.Increment(in entity);
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-            reg.RemoveData(ref bucket);
+            reg.RemoveData(in entity, ref bucket);
             
             if (ComponentTypes<TComponent>.typeId >= 0) {
 

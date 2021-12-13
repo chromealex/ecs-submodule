@@ -333,6 +333,32 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static Entity SetAs<TComponent>(this in Entity entity, DataConfigs.DataConfig source) where TComponent : struct, IStructComponent {
+
+            if (source.Has<TComponent>() == true) {
+
+                if (AllComponentTypes<TComponent>.isTag == true) {
+
+                    entity.Set<TComponent>();
+
+                } else {
+                    
+                    entity.Set(source.Read<TComponent>());
+
+                }
+
+            } else {
+                
+                entity.Remove<TComponent>();
+                
+            }
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Entity SetAs<TComponent>(this in Entity entity, in Entity source) where TComponent : struct, IStructComponent {
 
             if (source.Has<TComponent>() == true) {

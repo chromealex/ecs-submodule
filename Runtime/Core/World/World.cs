@@ -2598,16 +2598,6 @@ namespace ME.ECS {
 
         public System.Collections.IEnumerator SimulateAsync(Tick from, Tick to, float deltaTime, float maxTime) {
 
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.BeginSample($"PlayTasksForFrame");
-            #endif
-
-            this.PlayTasksForFrame();
-
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.EndSample();
-            #endif
-
             if (from > to) {
 
                 //UnityEngine.Debug.LogError( UnityEngine.Time.frameCount + " From: " + from + ", To: " + to);
@@ -2669,16 +2659,6 @@ namespace ME.ECS {
             this.currentStep &= ~WorldStep.PluginsLogicSimulate;
             ////////////////
 
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.BeginSample($"UseLifetimeStep NotifyAllModulesBelow");
-            #endif
-
-            this.UseLifetimeStep(ComponentLifetime.NotifyAllModulesBelow, deltaTime);
-
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.EndSample();
-            #endif
-
         }
 
         #if INLINE_METHODS
@@ -2693,6 +2673,17 @@ namespace ME.ECS {
             ////////////////
             this.currentStep |= WorldStep.PluginsLogicTick;
             ////////////////
+            
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.BeginSample($"UseLifetimeStep NotifyAllSystems");
+            #endif
+
+            this.UseLifetimeStep(ComponentLifetime.NotifyAllSystems, fixedDeltaTime);
+
+            #if UNITY_EDITOR
+            UnityEngine.Profiling.Profiler.EndSample();
+            #endif
+
             try {
 
                 #if CHECKPOINT_COLLECTOR
@@ -2795,16 +2786,6 @@ namespace ME.ECS {
 
                 #if CHECKPOINT_COLLECTOR
                 if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(this.systemGroups.arr, WorldStep.LogicTick);
-                #endif
-
-                #if UNITY_EDITOR
-                UnityEngine.Profiling.Profiler.BeginSample($"PlayTasksForTick");
-                #endif
-
-                this.PlayTasksForTick();
-
-                #if UNITY_EDITOR
-                UnityEngine.Profiling.Profiler.EndSample();
                 #endif
 
                 #if CHECKPOINT_COLLECTOR
@@ -3134,10 +3115,7 @@ namespace ME.ECS {
                 UnityEngine.Debug.LogException(ex);
 
             }
-            ////////////////
-            this.currentStep &= ~WorldStep.SystemsLogicTick;
-            ////////////////
-
+            
             #if UNITY_EDITOR
             UnityEngine.Profiling.Profiler.BeginSample($"UseLifetimeStep NotifyAllSystemsBelow");
             #endif
@@ -3147,6 +3125,10 @@ namespace ME.ECS {
             #if UNITY_EDITOR
             UnityEngine.Profiling.Profiler.EndSample();
             #endif
+
+            ////////////////
+            this.currentStep &= ~WorldStep.SystemsLogicTick;
+            ////////////////
 
             ////////////////
             this.currentStep |= WorldStep.PluginsLogicTick;
@@ -3201,16 +3183,6 @@ namespace ME.ECS {
         #endif
         public void Simulate(Tick from, Tick to, float deltaTime) {
             
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.BeginSample($"PlayTasksForFrame");
-            #endif
-
-            this.PlayTasksForFrame();
-
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.EndSample();
-            #endif
-
             if (from > to) {
 
                 //UnityEngine.Debug.LogError( UnityEngine.Time.frameCount + " From: " + from + ", To: " + to);
@@ -3258,19 +3230,10 @@ namespace ME.ECS {
                 UnityEngine.Debug.LogException(ex);
 
             }
+            
             ////////////////
             this.currentStep &= ~WorldStep.PluginsLogicSimulate;
             ////////////////
-
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.BeginSample($"UseLifetimeStep NotifyAllModulesBelow");
-            #endif
-
-            this.UseLifetimeStep(ComponentLifetime.NotifyAllModulesBelow, deltaTime);
-
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.EndSample();
-            #endif
 
         }
 

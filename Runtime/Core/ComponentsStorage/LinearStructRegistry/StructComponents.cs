@@ -88,39 +88,6 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        protected override bool UseLifetimeStep(int id, World world, byte step) {
-
-            ref var bucket = ref this.components[id];
-            ref var state = ref bucket.state;
-            if (state - 1 == step) {
-
-                var entity = world.GetEntityById(id);
-                if (entity.generation == 0) return true;
-                
-                state = 0;
-                bucket.data = default;
-                if (ComponentTypes<TComponent>.typeId >= 0) {
-
-                    world.currentState.storage.archetypes.Remove<TComponent>(in entity);
-                    world.UpdateFilterByStructComponent<TComponent>(in entity);
-
-                }
-
-                #if ENTITY_ACTIONS
-                world.RaiseEntityActionOnRemove<TComponent>(in entity);
-                #endif
-
-                return true;
-
-            }
-
-            return false;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public override bool Validate(int capacity) {
 
             var resized = ArrayUtils.Resize(capacity, ref this.components, resizeWithOffset: true);
@@ -206,7 +173,7 @@ namespace ME.ECS {
             ref var bucket = ref this.components[index];
             if (bucket.state > 0) {
 
-                this.RemoveData(ref bucket);
+                this.RemoveData(in entity, ref bucket);
                 bucket.state = 0;
 
                 if (ComponentTypes<TComponent>.isFilterVersioned == true) this.world.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
@@ -230,7 +197,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public virtual void RemoveData(ref Component<TComponent> bucket) {
+        public virtual void RemoveData(in Entity entity, ref Component<TComponent> bucket) {
 
             bucket.data = default;
 
@@ -250,29 +217,12 @@ namespace ME.ECS {
         #endif
         public override bool Remove(in Entity entity, bool clearAll = false) {
 
-            if (this.lifetimeData != null) {
-
-                for (int i = 0, cnt = this.lifetimeData.Count; i < cnt; ++i) {
-                    
-                    var item = this.lifetimeData[i];
-                    if (item.entityId == entity.id) {
-                        
-                        this.lifetimeData.RemoveAt(i);
-                        --i;
-                        --cnt;
-
-                    }
-                    
-                }
-
-            }
-
             var index = entity.id;
             if (index >= this.components.Length) return false;
             ref var bucket = ref this.components[index];
             if (bucket.state > 0) {
 
-                this.RemoveData(ref bucket);
+                this.RemoveData(in entity, ref bucket);
                 bucket.state = 0;
 
                 if (clearAll == false) {

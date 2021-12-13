@@ -161,11 +161,19 @@ namespace ME.ECSEditor.Tools {
                 public ME.ECS.ComponentLifetime lifetime;
                 public float secondsLifetime;
 
+                public ComponentLifetime GetStep() {
+                    throw new System.NotImplementedException();
+                }
+
                 public ME.ECS.Entity GetEntity() {
                     throw new System.NotImplementedException();
                 }
 
-                public void Execute() {
+                public void NextStep() {
+                    throw new System.NotImplementedException();
+                }
+
+                public bool Update(float dt) {
                     throw new System.NotImplementedException();
                 }
 

@@ -92,7 +92,7 @@ namespace ME.ECS {
             
             storage.versions.Increment(in entity);
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-            reg.RemoveData(ref bucket);
+            reg.RemoveData(in entity, ref bucket);
             
             if (ComponentTypes<TComponent>.typeId >= 0) {
 
@@ -255,8 +255,7 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
-            state = (byte)(ComponentLifetime.NotifyAllSystemsBelow + 1);
-            World.AddToLifetimeIndex<TComponent>(in entity, ComponentLifetime.NotifyAllSystemsBelow, 0f, ref this.structComponentsNoState);
+            this.SetData(ref this.structComponentsNoState, in entity, in data, ComponentLifetime.NotifyAllSystemsBelow, 0f, addTaskOnly: true);
             
             return ref state;
             
@@ -274,9 +273,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public override void RemoveData(ref Component<TComponent> bucket) {
+        public override void RemoveData(in Entity entity, ref Component<TComponent> bucket) {
 
-            bucket.data = default;
+            base.RemoveData(in entity, ref bucket);
 
         }
 
@@ -295,16 +294,6 @@ namespace ME.ECS {
         public override void Replace(ref Component<TComponent> bucket, in TComponent data) {
             
             bucket.data = data;
-            
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public override void CopyFrom(StructRegistryBase other) {
-
-            var _other = (StructComponents<TComponent>)other;
-            ArrayUtils.Copy(_other.lifetimeData, ref this.lifetimeData);
             
         }
 

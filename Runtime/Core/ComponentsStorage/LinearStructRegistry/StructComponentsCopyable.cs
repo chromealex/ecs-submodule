@@ -49,10 +49,10 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public override void RemoveData(ref Component<TComponent> bucket) {
+        public override void RemoveData(in Entity entity, ref Component<TComponent> bucket) {
 
             bucket.data.OnRecycle();
-            bucket.data = default;
+            base.RemoveData(in entity, ref bucket);
 
         }
 
@@ -120,7 +120,6 @@ namespace ME.ECS {
         public override void CopyFrom(StructRegistryBase other) {
 
             var _other = (StructComponents<TComponent>)other;
-            ArrayUtils.Copy(_other.lifetimeData, ref this.lifetimeData);
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
             ArrayUtils.CopyWithIndex(_other.components, ref this.components, new CopyItem());
 

@@ -1025,11 +1025,6 @@ namespace ME.ECS {
 
         }
 
-        [System.ObsoleteAttribute("Entity actions in filters are no longer available")]
-        public FilterBuilder SetOnEntityAdd<T>(T predicate) where T : class, IFilterAction => this;
-        [System.ObsoleteAttribute("Entity actions in filters are no longer available")]
-        public FilterBuilder SetOnEntityRemove<T>(T predicate) where T : class, IFilterAction => this;
-
     }
 
     public delegate void FilterInjectionDelegate(ref FilterBuilder builder);
@@ -2053,6 +2048,8 @@ namespace ME.ECS {
         #endif
         public void ApplyAllRequests() {
 
+            this.data.archetypes = this.world.currentState.storage.archetypes;
+            
             JobHandle jobHandle = default;
             JobHandle jobRemoveHandle = default;
             if (this.data.requestsCount > 0) {
@@ -2061,7 +2058,7 @@ namespace ME.ECS {
                     data = this.data,
                 };
                 jobHandle = job.Schedule(this.data.requestsCount, 64);
-                
+
             }
 
             if (this.data.requestsRemoveCount > 0) {

@@ -52,10 +52,10 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public override void RemoveData(ref Component<TComponent> bucket) {
+        public override void RemoveData(in Entity entity, ref Component<TComponent> bucket) {
 
             bucket.data.OnDispose();
-            bucket.data = default;
+            base.RemoveData(in entity, ref bucket);
 
         }
 

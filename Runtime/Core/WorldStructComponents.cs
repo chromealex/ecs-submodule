@@ -15,9 +15,6 @@ namespace ME.ECS {
         NotifyAllSystemsBelow = 1,
         NotifyAllSystems = 2,
 
-        NotifyAllModulesBelow = 3,
-        NotifyAllModules = 4,
-
     }
 
     public class ComponentOrderAttribute : System.Attribute {
@@ -40,7 +37,7 @@ namespace ME.ECS {
 
     public interface IComponentRuntime { }
     
-    public interface IComponentOneShot : IStructComponentBase, IComponentRuntime { }
+    public interface IComponentOneShot : IStructComponent, IComponentRuntime { }
 
     public interface IVersioned : IStructComponentBase { }
 

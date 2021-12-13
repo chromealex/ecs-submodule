@@ -38,10 +38,13 @@ namespace ME.ECS.Pathfinding {
         
         }
 
-        public void AddBuildSource(in NavMeshBuildSource buildSource, Bounds boundsToUpdate) {
-            
-            this.buildSources.Add(buildSource);
-            this.UpdateGraph((List<NavMeshBuildSource>)null, boundsToUpdate);
+        public void AddCurrentNavMeshData() {
+
+            if (this.navMeshData != null) {
+                
+                this.navMeshDataInstance = UnityEngine.AI.NavMesh.AddNavMeshData(this.navMeshData, Vector3.zero, Quaternion.identity);
+                
+            }
 
         }
 
@@ -109,6 +112,7 @@ namespace ME.ECS.Pathfinding {
             this.tempSources.Clear();
             this.tempSources.AddRange(this.buildSources);
             if (sources != null) this.tempSources.AddRange(sources);
+            Debug.Log("Update Graph: " + this.tempSources.Count + " with bounds " + bounds);
             if (NavMeshBuilder.UpdateNavMeshData(this.navMeshData, this.buildSettings, this.tempSources, bounds) == false) {
 
                 return false;
@@ -178,6 +182,8 @@ namespace ME.ECS.Pathfinding {
             this.navMeshData = data;
             this.buildSettings = buildSettings;
             
+            Debug.Log("EndBuild: " + this.navMeshData);
+            
             this.navMeshDataInstance = UnityEngine.AI.NavMesh.AddNavMeshData(this.navMeshData, Vector3.zero, Quaternion.identity);
             var t = NavMesh.CalculateTriangulation();
             var hash = 0;
@@ -228,7 +234,8 @@ namespace ME.ECS.Pathfinding {
             
             this.navMeshDataInstance.Remove();
             Object.DestroyImmediate(this.navMeshData);
-            
+            this.navMeshData = null;
+
         }
 
         public override void OnCopyFrom(Graph other) {
@@ -236,9 +243,19 @@ namespace ME.ECS.Pathfinding {
             var navMeshGraphOther = (NavMeshGraph)other;
             ArrayUtils.Copy(navMeshGraphOther.buildSources, ref this.buildSources);
             ArrayUtils.Copy(navMeshGraphOther.tempSources, ref this.tempSources);
-            this.navMeshData = NavMeshData.Instantiate(navMeshGraphOther.navMeshData);
-            this.navMeshDataInstance = UnityEngine.AI.NavMesh.AddNavMeshData(this.navMeshData, Vector3.zero, Quaternion.identity);
-
+            if (navMeshGraphOther.navMeshData != null) {
+                
+                this.navMeshData = NavMeshData.Instantiate(navMeshGraphOther.navMeshData);
+                if (this.navMeshDataInstance.valid == true) this.navMeshDataInstance.Remove();
+                
+            } else if (this.navMeshData != null) {
+                
+                Object.DestroyImmediate(this.navMeshData);
+                this.navMeshData = null;
+                this.navMeshDataInstance.Remove();
+                
+            }
+            
             this.size = navMeshGraphOther.size;
             this.scale = navMeshGraphOther.scale;
         
