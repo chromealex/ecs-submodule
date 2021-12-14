@@ -37,6 +37,51 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static Vector2 X(this Vector2 v, float value = 0f) {
+
+            return new Vector2(value, v.y);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Vector2 Y(this Vector2 v, float value = 0f) {
+
+            return new Vector2(v.x, value);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Vector3 X(this Vector3 v, float value = 0f) {
+
+            return new Vector3(value, v.y, v.z);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Vector3 Y(this Vector3 v, float value = 0f) {
+
+            return new Vector3(v.x, value, v.z);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Vector3 Z(this Vector3 v, float value = 0f) {
+
+            return new Vector3(v.x, v.y, value);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Vector3 XY(this Vector2 v, float z = 0f) {
 
             return new Vector3(v.x, v.y, z);
@@ -744,6 +789,20 @@ namespace ME.ECS {
         public static Vector3 CalculateBezier(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
         
             return (Mathf.Pow(1 - t, 3) * p0) + (3 * Mathf.Pow(1 - t, 2) * t * p1) + (3 * (1 - t) * t * t * p2) + (t * t * t * p3);
+            
+        }
+        
+        public static Vector3 CalculateBezierPoint(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, float t) {
+            
+            float tPower3 = t * t * t;
+            float tPower2 = t * t;
+            float oneMinusT = 1 - t;
+            float oneMinusTPower3 = oneMinusT * oneMinusT*oneMinusT;
+            float oneMinusTPower2 = oneMinusT * oneMinusT;
+            var p = Vector2.zero;
+            p.x = oneMinusTPower3 * p1.x + (3f * oneMinusTPower2 * t * p2.x) + (3f * oneMinusT * tPower2 * p3.x) + tPower3 * p4.x;
+            p.y = oneMinusTPower3 * p1.y + (3f * oneMinusTPower2 * t * p2.y) + (3f * oneMinusT * tPower2 * p3.y) + tPower3 * p4.y; 
+            return p;
             
         }
 
