@@ -114,6 +114,10 @@ namespace ME.ECS.DataConfigs {
             //this.Reset();
             this.Prewarm();
 
+            entity.Set(new SourceConfig() {
+                config = this,
+            });
+
             var world = Worlds.currentWorld;
             for (int i = 0; i < this.removeStructComponents.Length; ++i) {
 

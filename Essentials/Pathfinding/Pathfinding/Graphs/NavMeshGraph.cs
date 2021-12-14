@@ -112,7 +112,6 @@ namespace ME.ECS.Pathfinding {
             this.tempSources.Clear();
             this.tempSources.AddRange(this.buildSources);
             if (sources != null) this.tempSources.AddRange(sources);
-            Debug.Log("Update Graph: " + this.tempSources.Count + " with bounds " + bounds);
             if (NavMeshBuilder.UpdateNavMeshData(this.navMeshData, this.buildSettings, this.tempSources, bounds) == false) {
 
                 return false;
