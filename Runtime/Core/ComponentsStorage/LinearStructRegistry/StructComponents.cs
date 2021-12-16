@@ -148,7 +148,12 @@ namespace ME.ECS {
                 bucket.state = 1;
 
                 var componentIndex = ComponentTypes<TComponent>.typeId;
-                if (componentIndex >= 0) this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
+                if (componentIndex >= 0) {
+                    
+                    this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
+                    this.world.UpdateFilterByStructComponent(in entity, componentIndex);
+                    
+                }
 
                 return true;
 

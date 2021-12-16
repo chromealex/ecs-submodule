@@ -2304,7 +2304,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void SetData(in Entity entity, in IStructComponentBase data, int dataIndex, int componentIndex) {
+        public void SetData(in Entity entity, in IStructComponentBase data, int dataIndex) {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -2329,10 +2329,6 @@ namespace ME.ECS {
                 this.currentState.storage.versions.Increment(in entity);
                 reg.UpdateVersion(in entity);
                 reg.UpdateVersionNoState(in entity);
-                if (componentIndex < 0) return;
-
-                this.currentState.storage.archetypes.Set(in entity, componentIndex);
-                this.UpdateFilterByStructComponent(in entity, componentIndex);
 
             }
 

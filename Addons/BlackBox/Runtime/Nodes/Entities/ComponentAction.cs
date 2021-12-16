@@ -44,7 +44,7 @@ namespace ME.ECS.BlackBox {
             if (this.action == Action.Set) {
 
                 this.data.Apply(ref this.component.component);
-                Worlds.currentWorld.SetData(in entity, this.component.component, this.registryIndex, this.componentIndex);
+                Worlds.currentWorld.SetData(in entity, this.component.component, this.registryIndex);
 
             } else if (this.action == Action.Remove) {
                 

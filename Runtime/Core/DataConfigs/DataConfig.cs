@@ -118,8 +118,6 @@ namespace ME.ECS.DataConfigs {
                 config = this,
             });
 
-            var prevArchetype = Worlds.current.currentState.storage.archetypes.GetPrevious(in entity);
-            
             var world = Worlds.currentWorld;
             for (int i = 0; i < this.removeStructComponents.Length; ++i) {
 
@@ -166,7 +164,7 @@ namespace ME.ECS.DataConfigs {
 
                     if (overrideIfExist == true || world.HasDataBit(in entity, dataIndex) == false) {
 
-                        world.SetData(in entity, in this.structComponents[i], dataIndex, -1);
+                        world.SetData(in entity, in this.structComponents[i], dataIndex);
 
                     }
                 
@@ -174,8 +172,6 @@ namespace ME.ECS.DataConfigs {
 
             }
             
-            Worlds.current.currentState.storage.archetypes.SetPrevious(in entity, prevArchetype);
-
             // Update filters
             {
                 ComponentsInitializerWorld.Init(in entity);
