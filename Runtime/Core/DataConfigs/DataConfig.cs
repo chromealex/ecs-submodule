@@ -118,6 +118,8 @@ namespace ME.ECS.DataConfigs {
                 config = this,
             });
 
+            var prevArchetype = Worlds.current.currentState.storage.archetypes.GetPrevious(in entity);
+            
             var world = Worlds.currentWorld;
             for (int i = 0; i < this.removeStructComponents.Length; ++i) {
 
@@ -171,6 +173,8 @@ namespace ME.ECS.DataConfigs {
                 }
 
             }
+            
+            Worlds.current.currentState.storage.archetypes.SetPrevious(in entity, prevArchetype);
 
             // Update filters
             {

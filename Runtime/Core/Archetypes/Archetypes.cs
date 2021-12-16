@@ -91,6 +91,16 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public void SetPrevious(in Entity entity, Archetype archetype) {
+
+            var id = entity.id;
+            this.prevTypes[id] = archetype;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ref Archetype Get(in Entity entity) {
 
             var id = entity.id;
