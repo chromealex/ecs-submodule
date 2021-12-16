@@ -59,6 +59,88 @@ namespace ME.ECS.Tests {
 
         }
 
+        private class TestDataIndexFiltersSystem : ISystem, IAdvanceTick {
+
+            public World world { get; set; }
+
+            private Filter filter;
+            
+            public void OnConstruct() {
+                
+                this.filter = Filter.Create("Test")/*.With<TestData>()*/.Without<TestData2>().Push();
+                
+            }
+
+            public void OnDeconstruct() {
+                
+            }
+
+            public void AdvanceTick(in float deltaTime) {
+
+                UnityEngine.Debug.Log("Filter foreach:");
+                foreach (var entity in this.filter) {
+
+                    UnityEngine.Debug.Log("Entity: " + entity);
+
+                }
+
+            }
+
+        }
+
+        [NUnit.Framework.TestAttribute]
+        public void DataIndexToFilters() {
+            
+            World world = null;
+            WorldUtilities.CreateWorld<TestState>(ref world, 0.033f);
+            {
+                world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
+                world.SetSeed(1u);
+                {
+                    ref var str = ref world.GetStructComponents();
+                    CoreComponentsInitializer.InitTypeId();
+                    CoreComponentsInitializer.Init(ref str);
+                    WorldUtilities.InitComponentTypeId<TestData>();
+                    WorldUtilities.InitComponentTypeId<TestData2>();
+                    str.Validate<TestData>();
+                    str.Validate<TestData2>();
+
+                    var testEntity = new Entity("Test");
+                    var group = new SystemGroup(world, "TestGroup");
+                    group.AddSystem(new TestDataIndexFiltersSystem());
+
+                    var index = 0;
+                    if (ComponentTypesRegistry.allTypeId.TryGetValue(typeof(TestData), out index) == true) {
+
+                        
+                        
+                    }
+
+                    world.SetData(testEntity, new TestData(), index);
+                    
+                    index = 0;
+                    if (ComponentTypesRegistry.allTypeId.TryGetValue(typeof(TestData2), out index) == true) {
+
+                        
+                        
+                    }
+
+                    world.SetData(testEntity, new TestData2(), index);
+                    
+                }
+            }
+            world.SaveResetState<TestState>();
+            
+            world.SetFromToTicks(0, 10);
+
+            world.PreUpdate(1f);
+            world.Update(1f);
+            world.LateUpdate(1f);
+
+            WorldUtilities.ReleaseWorld<TestState>(ref world);
+            
+        }
+
         [NUnit.Framework.TestAttribute]
         public void MultipleFilters() {
 

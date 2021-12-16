@@ -240,6 +240,8 @@ namespace ME.ECS {
             reg.UpdateVersion(ref bucket);
             if (state == 0) {
 
+                state = 1;
+                
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     storage.archetypes.Set<TComponent>(in entity);
@@ -255,8 +257,20 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
-            this.SetData(ref this.structComponentsNoState, in entity, in data, ComponentLifetime.NotifyAllSystemsBelow, 0f, addTaskOnly: true);
-            
+            var task = PoolClass<StructComponentsContainer.OneShotTask<TComponent>>.Spawn();
+            task.entity = entity;
+            task.data = data;
+
+            if (this.structComponentsNoState.nextTickTasks.Contains(task) == false) {
+
+                this.structComponentsNoState.nextTickTasks.Add(task);
+
+            } else {
+
+                task.Recycle();
+
+            }
+
             return ref state;
             
         }

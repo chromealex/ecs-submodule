@@ -53,6 +53,18 @@ namespace ME.ECS {
         
     }
 
+    public class EmptyDataException : System.Exception {
+
+        private EmptyDataException(Entity entity) : base("[ME.ECS] You are trying to read null data.") {}
+
+        public static void Throw(Entity entity) {
+
+            throw new EmptyDataException(entity);
+
+        }
+
+    }
+
     public class EmptyEntityException : System.Exception {
 
         private EmptyEntityException() : base("[ME.ECS] You are trying to change empty entity.") {}

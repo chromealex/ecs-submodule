@@ -197,7 +197,7 @@ namespace ME.ECS.Tests {
 
             var entity = st.Alloc();
             NUnit.Framework.Assert.AreEqual(entity.id, 0);
-            NUnit.Framework.Assert.AreEqual(entity.generation, 2);
+            NUnit.Framework.Assert.AreEqual(entity.generation, 1);
 
             NUnit.Framework.Assert.AreEqual(st.AliveCount, 1);
             NUnit.Framework.Assert.AreEqual(st.DeadCount, 0);
@@ -216,7 +216,7 @@ namespace ME.ECS.Tests {
             {
                 var entity2 = st.Alloc();
                 NUnit.Framework.Assert.AreEqual(entity2.id, 0);
-                NUnit.Framework.Assert.AreEqual(entity2.generation, 4);
+                NUnit.Framework.Assert.AreEqual(entity2.generation, 2);
 
                 NUnit.Framework.Assert.AreEqual(st.AliveCount, 1);
                 NUnit.Framework.Assert.AreEqual(st.DeadCount, 0);
@@ -233,7 +233,7 @@ namespace ME.ECS.Tests {
             st.Initialize(20);
 
             var list = new System.Collections.Generic.List<Entity>();
-            var v = 2;
+            var v = 1;
             for (int j = 0; j < 10; ++j) {
 
                 list.Clear();
@@ -278,7 +278,7 @@ namespace ME.ECS.Tests {
                 }
 
                 st.ApplyDead();
-                v += 2;
+                v += 1;
 
             }
             

@@ -293,6 +293,17 @@ namespace ME.ECS {
 
             }
 
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            public void Remove(int entityId, uint groupId) {
+
+                ref var group = ref this.sharedGroups.Get(groupId);
+                group.Validate(entityId);
+                group.states.arr[entityId] = false;
+
+            }
+
         }
 
         // We don't need to serialize this field
@@ -538,6 +549,66 @@ namespace ME.ECS {
 
         }
 
+        internal class OneShotTask<TComponent> : ITask, System.IEquatable<OneShotTask<TComponent>> where TComponent : struct, IComponentOneShot {
+
+            public Entity entity;
+            public TComponent data;
+
+            public Entity GetEntity() {
+
+                return this.entity;
+
+            }
+
+            public ComponentLifetime GetStep() => ComponentLifetime.NotifyAllSystemsBelow;
+            
+            public void NextStep() {
+
+            }
+
+            public bool Update(float deltaTime) {
+
+                if (this.entity.IsAlive() == false) return true;
+                
+                Worlds.currentWorld.RemoveDataOneShot<TComponent>(this.entity);
+                
+                return true;
+
+            }
+
+            public void CopyFrom(ITask other) {
+
+                var _other = (OneShotTask<TComponent>)other;
+                this.entity = _other.entity;
+                this.data = _other.data;
+
+            }
+
+            public void Recycle() {
+
+                this.data = default;
+                this.entity = default;
+                PoolClass<OneShotTask<TComponent>>.Recycle(this);
+
+            }
+
+            public ITask Clone() {
+
+                var copy = PoolClass<OneShotTask<TComponent>>.Spawn();
+                copy.CopyFrom(this);
+                return copy;
+
+            }
+
+            public bool Equals(OneShotTask<TComponent> other) {
+
+                if (other == null) return false;
+                return this.entity == other.entity;
+
+            }
+
+        }
+
         internal class NextFrameTask<TComponent> : ITask, System.IEquatable<NextFrameTask<TComponent>> where TComponent : struct, IStructComponent {
 
             public Entity entity;
@@ -577,6 +648,7 @@ namespace ME.ECS {
                 if (this.secondsLifetime <= 0f) {
 
                     Worlds.currentWorld.RemoveData<TComponent>(this.entity);
+                    
                     return true;
 
                 }
@@ -1548,6 +1620,13 @@ namespace ME.ECS {
             
             // Inline all manually
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            #if WORLD_EXCEPTIONS
+            if (reg.sharedGroups.Has(entity.id, groupId) == false) {
+                
+                EmptyDataException.Throw(entity);
+                
+            }
+            #endif
             return ref reg.sharedGroups.Get(entity.id, groupId);
 
         }
@@ -2204,17 +2283,17 @@ namespace ME.ECS {
                 }
 
             }
-            
+
             if (container.nextTickTasks.Contains(task) == false) {
 
                 container.nextTickTasks.Add(task);
 
             } else {
-                        
+
                 task.Recycle();
-                        
+
             }
-            
+
         }
 
         #if INLINE_METHODS

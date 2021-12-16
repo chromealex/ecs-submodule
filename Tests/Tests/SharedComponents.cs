@@ -77,6 +77,8 @@ namespace ME.ECS.Tests {
             world.SetFromToTicks(0, 1);
             world.Update(1f);
 
+            WorldUtilities.ReleaseWorld<TestState>(ref world);
+
         }
         
         [NUnit.Framework.TestAttribute]
@@ -118,8 +120,8 @@ namespace ME.ECS.Tests {
                 entity2.RemoveShared<TestComponent>();
                 entity.RemoveShared<TestComponent>();
 
-                UnityEngine.Debug.Assert(entity.ReadShared<TestComponent>().data == 0);
-                UnityEngine.Debug.Assert(entity2.ReadShared<TestComponent>().data == 0);
+                UnityEngine.Debug.Assert(entity.HasShared<TestComponent>() == false);
+                UnityEngine.Debug.Assert(entity2.HasShared<TestComponent>() == false);
                 
             });
             
@@ -178,12 +180,12 @@ namespace ME.ECS.Tests {
                 var entity = world.AddEntity();
                 entity.SetShared(new TestComponent() {
                     data = 1,
-                });
+                }, groupId: 1);
                 
                 var entity2 = world.AddEntity();
                 
-                UnityEngine.Debug.Assert(entity.ReadShared<TestComponent>().data == 1);
-                UnityEngine.Debug.Assert(entity2.ReadShared<TestComponent>().data == 0);
+                UnityEngine.Debug.Assert(entity.ReadShared<TestComponent>(groupId: 1).data == 1);
+                UnityEngine.Debug.Assert(entity2.ReadShared<TestComponent>(groupId: 0).data == 0);
                 
             });
             
@@ -229,8 +231,8 @@ namespace ME.ECS.Tests {
                 entity2.RemoveShared<TestComponent>();
                 entity.RemoveShared<TestComponent>(1);
 
-                UnityEngine.Debug.Assert(entity.ReadShared<TestComponent>(1).data == 0);
-                UnityEngine.Debug.Assert(entity2.ReadShared<TestComponent>().data == 0);
+                UnityEngine.Debug.Assert(entity.HasShared<TestComponent>(1) == false);
+                UnityEngine.Debug.Assert(entity2.HasShared<TestComponent>() == false);
                 
             });
             
