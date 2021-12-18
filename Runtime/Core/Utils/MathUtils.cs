@@ -341,6 +341,18 @@ namespace ME.ECS {
     #endif
     public static class MathUtils {
 
+        public static Vector2 GetPointOnCircle(Vector2 point, Vector2 center, float radius) {
+            
+            var vX = point.x - center.x;
+            var vY = point.y - center.y;
+            var magV = Mathf.Sqrt(vX * vX + vY * vY);
+            var aX = center.x + vX / magV * radius;
+            var aY = center.y + vY / magV * radius;
+            
+            return new Vector2(aX, aY);
+            
+        }
+        
         public static uint GetHash(string str) {
             
             uint hash = 0;
