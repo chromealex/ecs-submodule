@@ -1,9 +1,39 @@
+using System.Linq;
+
 namespace ME.ECS.Pathfinding {
     
     using UnityEngine;
     using UnityEngine.AI;
     using System.Collections.Generic;
 
+    public struct Key<T1, T2> : System.IEquatable<Key<T1, T2>> {
+
+        public T1 k1;
+        public T2 k2;
+        
+        public Key(T1 item1, T2 item2) {
+            
+            this.k1 = item1;
+            this.k2 = item2;
+            
+        }
+
+        public bool Equals(Key<T1, T2> other) {
+            return EqualityComparer<T1>.Default.Equals(this.k1, other.k1) && EqualityComparer<T2>.Default.Equals(this.k2, other.k2);
+        }
+
+        public override bool Equals(object obj) {
+            return obj is Key<T1, T2> other && Equals(other);
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                return (EqualityComparer<T1>.Default.GetHashCode(this.k1) * 397) ^ EqualityComparer<T2>.Default.GetHashCode(this.k2);
+            }
+        }
+
+    }
+    
     public class NavMeshGraph : Graph {
 
         public UnityEngine.Vector3Int size = new Vector3Int(100, 1, 100);
@@ -27,7 +57,11 @@ namespace ME.ECS.Pathfinding {
         private NavMeshData navMeshData;
         private NavMeshDataInstance navMeshDataInstance;
         
+        [System.NonSerializedAttribute]
         private List<NavMeshBuildSource> buildSources = new List<NavMeshBuildSource>(5000);
+        [System.NonSerializedAttribute]
+        private ME.ECS.Collections.DictionaryCopyable<Key<Entity, int>, NavMeshBuildSource> buildSourcesEntities = new ME.ECS.Collections.DictionaryCopyable<Key<Entity, int>, NavMeshBuildSource>(5000);
+        [System.NonSerializedAttribute]
         private List<NavMeshBuildSource> tempSources = new List<NavMeshBuildSource>(1000);
 
         public bool drawMesh;
@@ -36,6 +70,18 @@ namespace ME.ECS.Pathfinding {
             
             this.buildSources.Add(buildSource);
         
+        }
+
+        public void AddBuildSource(in Key<Entity, int> entity, in NavMeshBuildSource buildSource) {
+
+            this.buildSourcesEntities.Add(entity, buildSource);
+        
+        }
+
+        public void RemoveBuildSource(in Key<Entity, int> entity) {
+
+            this.buildSourcesEntities.Remove(entity);
+
         }
 
         public void AddCurrentNavMeshData() {
@@ -111,6 +157,15 @@ namespace ME.ECS.Pathfinding {
             
             this.tempSources.Clear();
             this.tempSources.AddRange(this.buildSources);
+            if (this.buildSourcesEntities.Count > 0) {
+
+                foreach (var kv in this.buildSourcesEntities) {
+                    
+                    this.tempSources.Add(kv.Value);
+                    
+                }
+                
+            }
             if (sources != null) this.tempSources.AddRange(sources);
             if (NavMeshBuilder.UpdateNavMeshData(this.navMeshData, this.buildSettings, this.tempSources, bounds) == false) {
 
@@ -242,6 +297,7 @@ namespace ME.ECS.Pathfinding {
             var navMeshGraphOther = (NavMeshGraph)other;
             ArrayUtils.Copy(navMeshGraphOther.buildSources, ref this.buildSources);
             ArrayUtils.Copy(navMeshGraphOther.tempSources, ref this.tempSources);
+            ArrayUtils.Copy(navMeshGraphOther.buildSourcesEntities, ref this.buildSourcesEntities);
             if (navMeshGraphOther.navMeshData != null) {
                 
                 this.navMeshData = NavMeshData.Instantiate(navMeshGraphOther.navMeshData);

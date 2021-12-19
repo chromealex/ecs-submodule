@@ -6,6 +6,7 @@ namespace ME.ECS.Pathfinding {
 
         public Terrain terrain;
         public bool createMesh = true;
+        public int area = 0;
         
         public override void ApplyBeforeConnections(Graph graph) {
             
@@ -14,7 +15,7 @@ namespace ME.ECS.Pathfinding {
 
                 var mesh = MeshUtils.GetMeshFromTerrain(this.terrain);
                 navMeshGraph.AddBuildSource(new UnityEngine.AI.NavMeshBuildSource() {
-                    area = 0,
+                    area = (1 << (this.area - 1)),
                     shape = UnityEngine.AI.NavMeshBuildSourceShape.Mesh,
                     size = this.terrain.terrainData.size,
                     sourceObject = mesh,
@@ -24,7 +25,7 @@ namespace ME.ECS.Pathfinding {
             } else {
 
                 navMeshGraph.AddBuildSource(new UnityEngine.AI.NavMeshBuildSource() {
-                    area = 0,
+                    area = (1 << (this.area - 1)),
                     shape = UnityEngine.AI.NavMeshBuildSourceShape.Terrain,
                     size = this.terrain.terrainData.size,
                     sourceObject = this.terrain.terrainData,
