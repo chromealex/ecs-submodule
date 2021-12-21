@@ -12,7 +12,7 @@ namespace ME.ECS.Pathfinding {
             var navMeshGraph = (NavMeshGraph)graph;
             var mesh = this.component.sharedMesh;
             navMeshGraph.AddBuildSource(new UnityEngine.AI.NavMeshBuildSource() {
-                area = (1 << (this.area - 1)),
+                area = this.area,
                 shape = UnityEngine.AI.NavMeshBuildSourceShape.Mesh,
                 sourceObject = mesh,
                 transform = Matrix4x4.TRS(this.component.transform.position, this.component.transform.rotation, this.component.transform.localScale),
