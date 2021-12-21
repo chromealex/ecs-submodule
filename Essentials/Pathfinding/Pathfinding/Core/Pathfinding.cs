@@ -95,7 +95,7 @@ namespace ME.ECS.Pathfinding {
 
         public const int THREADS_COUNT = 8;
 
-        public IPathfindingProcessor defaultProcessor = new PathfindingNavMeshProcessor();
+        public static IPathfindingProcessor defaultProcessor = new PathfindingNavMeshProcessor();
         public List<Graph> graphs;
 
         public LogLevel logLevel;
@@ -157,7 +157,6 @@ namespace ME.ECS.Pathfinding {
         private void OnRecycle() {
 
             this.clonePathfinding = false;
-            this.defaultProcessor = new PathfindingNavMeshProcessor();
             this.logLevel = default;
 
             if (this.graphs != null) {
@@ -177,7 +176,6 @@ namespace ME.ECS.Pathfinding {
         public void CopyFrom(Pathfinding other) {
 
             this.clonePathfinding = other.clonePathfinding;
-            this.defaultProcessor = other.defaultProcessor;
             this.logLevel = other.logLevel;
 
             ArrayUtils.Copy(other.graphs, ref this.graphs, new CopyGraph());
@@ -336,13 +334,13 @@ namespace ME.ECS.Pathfinding {
         public Path CalculatePath<TMod>(Vector3 from, Vector3 to, Constraint constraint, TMod pathModifier, int threadIndex = 0, bool cacheEnabled = false, bool burstEnabled = false) where TMod : struct, IPathModifier {
 
             var graph = this.GetNearest(from, constraint).graph;
-            return this.CalculatePath_INTERNAL(this.defaultProcessor, from, to, constraint, graph, pathModifier, threadIndex, cacheEnabled: cacheEnabled, burstEnabled: burstEnabled);
+            return this.CalculatePath_INTERNAL(Pathfinding.defaultProcessor, from, to, constraint, graph, pathModifier, threadIndex, cacheEnabled: cacheEnabled, burstEnabled: burstEnabled);
             
         }
 
         public Path CalculatePath<TMod>(Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool cacheEnabled = false) where TMod : struct, IPathModifier {
 
-            return this.CalculatePath_INTERNAL(this.defaultProcessor, from, to, constraint, graph, pathModifier, threadIndex, cacheEnabled: cacheEnabled);
+            return this.CalculatePath_INTERNAL(Pathfinding.defaultProcessor, from, to, constraint, graph, pathModifier, threadIndex, cacheEnabled: cacheEnabled);
 
         }
 

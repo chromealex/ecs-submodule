@@ -88,6 +88,7 @@ namespace ME.ECS.Pathfinding {
 
             if (this.navMeshData != null) {
                 
+                if (this.navMeshDataInstance.valid == true) this.navMeshDataInstance.Remove();
                 this.navMeshDataInstance = UnityEngine.AI.NavMesh.AddNavMeshData(this.navMeshData, Vector3.zero, Quaternion.identity);
                 
             }
@@ -106,8 +107,8 @@ namespace ME.ECS.Pathfinding {
             
             base.OnCleanUp();
             
-            NavMesh.RemoveAllNavMeshData();
-            
+            //NavMesh.RemoveAllNavMeshData();
+            //NavMesh.RemoveNavMeshData(this.navMeshDataInstance);
             Object.DestroyImmediate(this.navMeshData);
             this.navMeshData = null;
             if (this.navMeshDataInstance.valid == true) this.navMeshDataInstance.Remove();
@@ -219,8 +220,6 @@ namespace ME.ECS.Pathfinding {
 
         private void EndBuild() {
             
-            if (this.navMeshDataInstance.valid == true) this.navMeshDataInstance.Remove();
-            
             var bounds = new UnityEngine.Bounds(this.graphCenter, this.size);
             var buildSettings = UnityEngine.AI.NavMesh.GetSettingsByID(this.agentTypeId);
             buildSettings.agentRadius = this.agentRadius;
@@ -238,7 +237,7 @@ namespace ME.ECS.Pathfinding {
             
             Debug.Log("EndBuild: " + this.navMeshData);
             
-            this.navMeshDataInstance = UnityEngine.AI.NavMesh.AddNavMeshData(this.navMeshData, Vector3.zero, Quaternion.identity);
+            this.AddCurrentNavMeshData();
             var t = NavMesh.CalculateTriangulation();
             var hash = 0;
             foreach (var vert in t.vertices) {
