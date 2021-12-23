@@ -794,6 +794,9 @@ namespace ME.ECS.Network {
 
             }*/
 
+            #if ENABLE_PROFILER
+            var ns = System.Diagnostics.Stopwatch.StartNew();
+            #endif
             this.OnRevertingBegin(sourceTick);
             // Applying old state.
             this.isReverting = true;
@@ -806,6 +809,9 @@ namespace ME.ECS.Network {
             }
             this.isReverting = false;
             this.OnRevertingEnd();
+            #if ENABLE_PROFILER
+            ECSProfiler.LogicRollback.Sample((long)(ns.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000000000L);
+            #endif
 
             if (this.asyncMode == true) {
                 

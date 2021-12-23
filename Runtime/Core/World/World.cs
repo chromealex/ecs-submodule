@@ -229,6 +229,7 @@ namespace ME.ECS {
             this.OnSpawnStructComponents();
             this.OnSpawnComponents();
             this.OnSpawnMarkers();
+            this.OnSpawnFilters();
 
             this.InitializeGlobalEvents();
 
@@ -268,6 +269,7 @@ namespace ME.ECS {
             PoolArray<bool>.Recycle(ref this.currentSystemContextFiltersUsed);
             this.currentSystemContextFiltersUsedAnyChanged = default;
 
+            this.OnRecycleFilters();
             this.OnRecycleMarkers();
             this.OnRecycleComponents();
             this.OnRecycleStructComponents();
@@ -2044,6 +2046,8 @@ namespace ME.ECS {
             if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("Simulate", WorldStep.None);
             #endif
 
+            ECSProfiler.SampleWorld(this);
+
             #if UNITY_EDITOR
             UnityEngine.Profiling.Profiler.BeginSample($"Simulate");
             #endif
@@ -2065,7 +2069,7 @@ namespace ME.ECS {
             #endif
 
         }
-
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -2279,6 +2283,11 @@ namespace ME.ECS {
         public void UpdateVisualPost(float deltaTime) {
 
             if (deltaTime < 0f) return;
+            
+            #if ENABLE_PROFILER
+            ECSProfiler.VisualViews.Value = 0;
+            var tickSw = System.Diagnostics.Stopwatch.StartNew();
+            #endif
 
             ////////////////
             this.currentStep |= WorldStep.ModulesVisualTick;
@@ -2401,6 +2410,11 @@ namespace ME.ECS {
             ////////////////
 
             this.ProcessGlobalEvents(GlobalEventType.Visual);
+
+            #if ENABLE_PROFILER
+            ECSProfiler.VisualViews.Value += (long)((tickSw.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000000000L);
+            ECSProfiler.VisualViews.Sample();
+            #endif
 
         }
 
@@ -2666,10 +2680,14 @@ namespace ME.ECS {
         #endif
         private void RunTick(Tick tick, float fixedDeltaTime) {
 
+            #if ENABLE_PROFILER
+            var tickSw = System.Diagnostics.Stopwatch.StartNew();
+            #endif
+
             #if UNITY_EDITOR
             UnityEngine.Profiling.Profiler.BeginSample("Tick");
             #endif
-
+            
             ////////////////
             this.currentStep |= WorldStep.PluginsLogicTick;
             ////////////////
@@ -3176,6 +3194,10 @@ namespace ME.ECS {
             UnityEngine.Profiling.Profiler.EndSample();
             #endif
             
+            #if ENABLE_PROFILER
+            ECSProfiler.LogicSystems.Value += (long)((tickSw.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000000000L);
+            #endif
+            
         }
         
         #if INLINE_METHODS
@@ -3193,14 +3215,22 @@ namespace ME.ECS {
             if (from < Tick.Zero) from = Tick.Zero;
 
             var state = this.GetState();
-
+            
+            #if ENABLE_PROFILER
+            ECSProfiler.LogicSystems.Value = 0;
+            #endif
+            
             this.cpf = to - from;
             var fixedDeltaTime = this.GetTickTime();
             for (state.tick = from; state.tick < to; ++state.tick) {
-
+                
                 this.RunTick(state.tick, fixedDeltaTime);
 
             }
+
+            #if ENABLE_PROFILER
+            ECSProfiler.LogicSystems.Sample();
+            #endif
 
             ////////////////
             this.currentStep |= WorldStep.PluginsLogicSimulate;

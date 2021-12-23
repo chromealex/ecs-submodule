@@ -552,7 +552,6 @@ namespace ME.ECS {
         internal class OneShotTask<TComponent> : ITask, System.IEquatable<OneShotTask<TComponent>> where TComponent : struct, IComponentOneShot {
 
             public Entity entity;
-            public TComponent data;
 
             public Entity GetEntity() {
 
@@ -580,13 +579,11 @@ namespace ME.ECS {
 
                 var _other = (OneShotTask<TComponent>)other;
                 this.entity = _other.entity;
-                this.data = _other.data;
 
             }
 
             public void Recycle() {
 
-                this.data = default;
                 this.entity = default;
                 PoolClass<OneShotTask<TComponent>>.Recycle(this);
 

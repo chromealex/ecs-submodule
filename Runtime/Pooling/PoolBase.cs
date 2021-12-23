@@ -414,7 +414,7 @@ namespace ME.ECS {
 
                 ++PoolInternalBaseNoStackPool.newAllocated;
                 ++this.poolNewAllocated;
-
+                
             } else {
 
                 ++PoolInternalBaseNoStackPool.used;

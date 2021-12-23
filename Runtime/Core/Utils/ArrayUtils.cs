@@ -37,6 +37,11 @@ namespace ME.ECS {
 
         }
         
+        [return: Unity.Burst.CompilerServices.AssumeRangeAttribute(0, int.MaxValue)]
+        public static int AssumePositive(int value) {
+            return value;
+        }
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif

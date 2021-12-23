@@ -22,6 +22,20 @@ namespace ME.ECS {
 
     public partial class World {
 
+        internal FiltersCache filtersCache;
+
+        internal void OnSpawnFilters() {
+            
+            this.filtersCache = new FiltersCache(this);
+            
+        }
+
+        internal void OnRecycleFilters() {
+
+            this.filtersCache.Dispose();
+
+        }
+
         [Unity.Burst.BurstCompileAttribute]
         private struct UpdateFiltersJob : IJob {
 
@@ -124,6 +138,7 @@ namespace ME.ECS {
         #endif
         public void UpdateFilterByStructComponent<T>(in Entity entity) where T : struct, IStructComponentBase {
 
+            /*
             this.CalculateJob(in entity,
                               this.currentState.filters.filtersTree.GetFiltersContainsFor<T>(),
                               this.currentState.filters.filtersTree.GetFiltersNotContainsFor<T>(),
@@ -146,6 +161,8 @@ namespace ME.ECS {
 
             containsResult.Dispose();
             notContainsResult.Dispose();
+            */
+            this.filtersCache.UpdateRequest<T>(in entity);
 
         }
 
@@ -154,6 +171,7 @@ namespace ME.ECS {
         #endif
         public void UpdateFilterByStructComponent(in Entity entity, int componentIndex) {
             
+            /*
             this.CalculateJob(in entity,
                               this.currentState.filters.filtersTree.GetFiltersContainsFor(componentIndex),
                               this.currentState.filters.filtersTree.GetFiltersNotContainsFor(componentIndex),
@@ -176,6 +194,8 @@ namespace ME.ECS {
 
             containsResult.Dispose();
             notContainsResult.Dispose();
+            */
+            this.filtersCache.UpdateRequest(in entity, componentIndex);
 
         }
 
@@ -808,6 +828,7 @@ namespace ME.ECS {
 
             if (this.index == -2) return;
 
+            this.set.world.filtersCache.Apply();
             this.set.SetForEachMode(false);
             this.set.UseVersioned();
 
@@ -1097,6 +1118,7 @@ namespace ME.ECS {
         #endif
         public FilterEnumerator GetEnumerator() {
 
+            this.world.filtersCache.Apply();
             if (this.Count == 0) return new FilterEnumerator(0);
             return new FilterEnumerator(this.world.GetFilter(this.id));
 
