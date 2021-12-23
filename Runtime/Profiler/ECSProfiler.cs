@@ -8,6 +8,8 @@ namespace ME.ECS {
     public static class ECSProfiler {
 
         private static readonly ProfilerCategory category = new ProfilerCategory("ME.ECS");
+        private static readonly ProfilerCategory categoryNetwork = new ProfilerCategory("ME.ECS: Network");
+        private static readonly ProfilerCategory categoryPools = new ProfilerCategory("ME.ECS: Pools");
 
         public static readonly ProfilerCounter<int> EntitiesCount = new ProfilerCounter<int>(ECSProfiler.category, "Entities Count", ProfilerMarkerDataUnit.Count);
         public static readonly ProfilerCounter<int> SystemsCount = new ProfilerCounter<int>(ECSProfiler.category, "Systems Count", ProfilerMarkerDataUnit.Count);
@@ -17,14 +19,14 @@ namespace ME.ECS {
         public static readonly ProfilerCounterValue<long> LogicSystems = new ProfilerCounterValue<long>(ECSProfiler.category, "Systems", ProfilerMarkerDataUnit.TimeNanoseconds, ProfilerCounterOptions.ResetToZeroOnFlush);
         public static readonly ProfilerCounterValue<long> VisualViews = new ProfilerCounterValue<long>(ECSProfiler.category, "Views", ProfilerMarkerDataUnit.TimeNanoseconds, ProfilerCounterOptions.ResetToZeroOnFlush);
 
-        public static readonly ProfilerCounter<int> NetworkEventsSentCount = new ProfilerCounter<int>(ECSProfiler.category, "Net: Events Sent", ProfilerMarkerDataUnit.Count);
-        public static readonly ProfilerCounter<int> NetworkEventsReceivedCount = new ProfilerCounter<int>(ECSProfiler.category, "Net: Events Received", ProfilerMarkerDataUnit.Count);
-        public static readonly ProfilerCounter<int> NetworkEventsSentBytes = new ProfilerCounter<int>(ECSProfiler.category, "Net: Bytes Sent", ProfilerMarkerDataUnit.Bytes);
-        public static readonly ProfilerCounter<int> NetworkEventsReceivedBytes = new ProfilerCounter<int>(ECSProfiler.category, "Net: Bytes Received", ProfilerMarkerDataUnit.Bytes);
+        public static readonly ProfilerCounter<int> NetworkEventsSentCount = new ProfilerCounter<int>(ECSProfiler.categoryNetwork, "Net: Events Sent", ProfilerMarkerDataUnit.Count);
+        public static readonly ProfilerCounter<int> NetworkEventsReceivedCount = new ProfilerCounter<int>(ECSProfiler.categoryNetwork, "Net: Events Received", ProfilerMarkerDataUnit.Count);
+        public static readonly ProfilerCounter<int> NetworkEventsSentBytes = new ProfilerCounter<int>(ECSProfiler.categoryNetwork, "Net: Bytes Sent", ProfilerMarkerDataUnit.Bytes);
+        public static readonly ProfilerCounter<int> NetworkEventsReceivedBytes = new ProfilerCounter<int>(ECSProfiler.categoryNetwork, "Net: Bytes Received", ProfilerMarkerDataUnit.Bytes);
         
-        public static readonly ProfilerCounterValue<int> PoolAllocation = new ProfilerCounterValue<int>(ECSProfiler.category, "Pool: Allocation", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.ResetToZeroOnFlush);
+        public static readonly ProfilerCounterValue<int> PoolAllocation = new ProfilerCounterValue<int>(ECSProfiler.categoryPools, "Pool: Allocation", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.ResetToZeroOnFlush);
         private static int poolAllocationPrev;
-        public static readonly ProfilerCounter<int> PoolUsed = new ProfilerCounter<int>(ECSProfiler.category, "Pool: Used", ProfilerMarkerDataUnit.Count);
+        public static readonly ProfilerCounter<int> PoolUsed = new ProfilerCounter<int>(ECSProfiler.categoryPools, "Pool: Used", ProfilerMarkerDataUnit.Count);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Conditional("ENABLE_PROFILER")]
