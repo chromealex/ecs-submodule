@@ -11,26 +11,17 @@ namespace ME.ECS.Debug {
 
         }
         
-        public int id {
-            get { return this.filter.id; }
-        }
-
-        public int Count {
-            get { return this.filter.Count; }
-        }
-
+        public int id => this.filter.id;
+        public int Count => this.filter.Count;
+        
         public Entity[] entities {
             
             get {
             
-                var list = new System.Collections.Generic.List<Entity>();
-                foreach (var entity in this.filter) {
-
-                    list.Add(entity);
-
-                }
-
-                return list.ToArray();
+                var arr = this.filter.ToArray();
+                var arrResult = arr.ToArray();
+                arr.Dispose();
+                return arrResult;
                 
             }
             
