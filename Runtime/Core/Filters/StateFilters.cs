@@ -138,7 +138,6 @@ namespace ME.ECS {
         #endif
         public void UpdateFilterByStructComponent<T>(in Entity entity) where T : struct, IStructComponentBase {
 
-            /*
             this.CalculateJob(in entity,
                               this.currentState.filters.filtersTree.GetFiltersContainsFor<T>(),
                               this.currentState.filters.filtersTree.GetFiltersNotContainsFor<T>(),
@@ -161,8 +160,8 @@ namespace ME.ECS {
 
             containsResult.Dispose();
             notContainsResult.Dispose();
-            */
-            this.filtersCache.UpdateRequest<T>(in entity);
+            
+            //this.filtersCache.UpdateRequest<T>(in entity);
 
         }
 
@@ -171,7 +170,6 @@ namespace ME.ECS {
         #endif
         public void UpdateFilterByStructComponent(in Entity entity, int componentIndex) {
             
-            /*
             this.CalculateJob(in entity,
                               this.currentState.filters.filtersTree.GetFiltersContainsFor(componentIndex),
                               this.currentState.filters.filtersTree.GetFiltersNotContainsFor(componentIndex),
@@ -194,8 +192,8 @@ namespace ME.ECS {
 
             containsResult.Dispose();
             notContainsResult.Dispose();
-            */
-            this.filtersCache.UpdateRequest(in entity, componentIndex);
+            
+            //this.filtersCache.UpdateRequest(in entity, componentIndex);
 
         }
 
