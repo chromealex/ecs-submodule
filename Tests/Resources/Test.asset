@@ -21,6 +21,10 @@ MonoBehaviour:
   references:
     version: 1
     00000000:
-      type: {class: EntitiesGroupTests/TestComponent, ns: ME.ECS.Tests, asm: ECS.Tests}
+      type: {class: DataConfigTestComponent, ns: ME.ECS.Tests, asm: ME.ECS.Tests.Res}
+      data:
+        a: 123
     00000001:
-      type: {class: EntitiesGroupTests/TestComponent, ns: ME.ECS.Tests, asm: ECS.Tests}
+      type: {class: DataConfigTestComponent, ns: ME.ECS.Tests, asm: ME.ECS.Tests.Res}
+      data:
+        a: 0
