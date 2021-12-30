@@ -30,7 +30,7 @@ namespace ME.ECS {
 
                 for (int i = 0; i < this.components.Length; ++i) {
 
-                    var p = (ME.ECS.Transform.Position)(object)this.components[i];
+                    var p = (ME.ECS.Transform.Position)(object)this.components[i].data;
                     hash ^= (int)(p.value.x * 100000f);
                     hash ^= (int)(p.value.y * 100000f);
                     hash ^= (int)(p.value.z * 100000f);
