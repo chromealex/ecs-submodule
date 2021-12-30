@@ -16,13 +16,13 @@ namespace ME.ECS {
         // [ME.ECS.Serializer.SerializeField]
         public FiltersStorage filters;
         [ME.ECS.Serializer.SerializeField]
-        internal Timers timers;
+        public Timers timers;
         [ME.ECS.Serializer.SerializeField]
-        internal StructComponentsContainer structComponents;
+        public StructComponentsContainer structComponents;
         [ME.ECS.Serializer.SerializeField]
-        internal Storage storage;
+        public Storage storage;
         [ME.ECS.Serializer.SerializeField]
-        internal GlobalEventStorage globalEvents;
+        public GlobalEventStorage globalEvents;
         
         /// <summary>
         /// Return most unique hash
