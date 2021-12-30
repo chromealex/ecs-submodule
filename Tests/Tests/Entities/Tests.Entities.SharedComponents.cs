@@ -185,7 +185,7 @@ namespace ME.ECS.Tests {
                 var entity2 = world.AddEntity();
                 
                 UnityEngine.Debug.Assert(entity.ReadShared<TestComponent>(groupId: 1).data == 1);
-                UnityEngine.Debug.Assert(entity2.ReadShared<TestComponent>(groupId: 0).data == 0);
+                UnityEngine.Debug.Assert(entity2.HasShared<TestComponent>(groupId: 1) == false);
                 
             });
             
@@ -296,7 +296,7 @@ namespace ME.ECS.Tests {
                 var entity2 = world.AddEntity();
                 
                 UnityEngine.Debug.Assert(entity.ReadShared<TestComponent>(1).data == 1);
-                UnityEngine.Debug.Assert(entity2.ReadShared<TestComponent>().data == 0);
+                UnityEngine.Debug.Assert(entity2.HasShared<TestComponent>(1) == false);
                 
             });
             

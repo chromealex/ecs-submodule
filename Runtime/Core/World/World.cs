@@ -178,7 +178,7 @@ namespace ME.ECS {
         private bool hasResetState;
         internal State currentState;
         internal StructComponentsContainer structComponentsNoState;
-        //private uint seed;
+        private uint seed;
         private int cpf; // CPF = Calculations per frame
         internal int entitiesCapacity;
         private bool isLoading;
@@ -193,6 +193,7 @@ namespace ME.ECS {
             
             this.isPaused = false;
             this.speed = 1f;
+            this.seed = default;
 
             this.worldThread = System.Threading.Thread.CurrentThread;
             
@@ -247,6 +248,7 @@ namespace ME.ECS {
             this.mainThread = null;
             this.isActive = false;
             this.speed = 0f;
+            this.seed = default;
 
             this.structComponentsNoState.OnRecycle();
 
@@ -763,10 +765,16 @@ namespace ME.ECS {
             }
             #endif
 
-            //this.seed = seed;
+            this.seed = seed;
             this.currentState?.randomState.SetSeed(seed);
             //this.resetState?.randomState.SetSeed(this.seed);
             
+        }
+
+        public uint GetSeed() {
+
+            return this.seed;
+
         }
 
         #if INLINE_METHODS

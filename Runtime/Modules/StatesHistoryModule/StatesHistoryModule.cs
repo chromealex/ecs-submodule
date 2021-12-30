@@ -495,16 +495,16 @@ namespace ME.ECS.StatesHistory {
                 
                 //this.Simulate(this.beginAddEventsTick, this.currentTick);
 
-                var module = this.world.GetModule<ME.ECS.Network.NetworkModule<TState>>();
+                //var module = this.world.GetModule<ME.ECS.Network.NetworkModule<TState>>();
                 var st = this.GetStateBeforeTick(this.oldestTick, out var syncTick);
                 if (st == null || syncTick == Tick.Invalid) st = this.world.GetResetState<TState>();
 
-                if (st.tick > module.syncedTick) {
+                /*if (st.tick > module.syncedTick) {
 
                     module.syncedTick = st.tick;
                     module.syncHash = this.GetStateHash(st);
 
-                }
+                }*/
 
             }
             
@@ -1010,8 +1010,19 @@ namespace ME.ECS.StatesHistory {
                 newState.CopyFrom(state);
                 newState.tick = tick;
                 this.states.Set(tick, newState);*/
+                
+                this.statesHistory.Store(tick, this.world.GetState<TState>(), out var overwritedState);
+                if (overwritedState != null) {
 
-                this.statesHistory.Store(tick, this.world.GetState<TState>());
+                    var module = this.world.GetModule<ME.ECS.Network.NetworkModule<TState>>();
+                    if (module != null && module.IsReverting() == false && overwritedState.tick > module.syncedTick) {
+    
+                        module.syncedTick = overwritedState.tick;
+                        module.syncHash = this.GetStateHash(overwritedState);
+    
+                    }
+
+                }
 
             }
             

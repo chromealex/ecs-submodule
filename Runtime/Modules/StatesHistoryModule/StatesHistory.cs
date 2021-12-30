@@ -123,8 +123,14 @@
 
         }
 
-		public long Store(Tick tick, TState state) {
+		public long Store(Tick tick, TState state, out TState overwritedState) {
 
+            overwritedState = null;
+            if (tick > this.currentEntryNode.Value.tick && this.currentEntryNode.Value.isEmpty == false) {
+                
+                overwritedState = this.currentEntryNode.Value.state;
+                
+            }
             var overwritedTick = this.currentEntryNode.Value.Store(tick, state);
             this.currentEntryNode = this.IterateForward(this.currentEntryNode);
             this.oldestTick = this.currentEntryNode.Value.tick;

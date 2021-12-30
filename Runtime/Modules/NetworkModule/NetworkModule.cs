@@ -459,6 +459,13 @@ namespace ME.ECS.Network {
                 
             }
 
+            if (this.replayMode == true && storeInHistory == false) {
+
+                UnityEngine.Debug.LogWarning("You are trying to play System RPC in replay mode which doesn't need to store in history. Skipped.");
+                return;
+
+            }
+
             if (this.world.HasStep(WorldStep.LogicTick) == true) {
 
                 InStateException.ThrowWorldStateCheck();

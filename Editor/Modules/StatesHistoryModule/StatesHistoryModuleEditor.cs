@@ -28,7 +28,16 @@ namespace ME.ECSEditor {
                 EditorPrefs.SetBool("ME.ECS.StatesHistoryModuleEditor.foldouts.statesHistoryFoldState", value);
             }
         }
-        
+
+        private bool eventsFoldState {
+            get {
+                return EditorPrefs.GetBool("ME.ECS.StatesHistoryModuleEditor.foldouts.eventsFoldState", false);
+            }
+            set {
+                EditorPrefs.SetBool("ME.ECS.StatesHistoryModuleEditor.foldouts.eventsFoldState", value);
+            }
+        }
+
         public IStatesHistoryModuleBase target { get; set; }
         public IStatesHistoryModuleBase[] targets { get; set; }
 
@@ -260,6 +269,55 @@ namespace ME.ECSEditor {
             this.statesHistoryFoldState = val;
             GUILayoutExt.Separator();
 
+            GUILayoutExt.Separator();
+            val = this.eventsFoldState;
+            GUILayoutExt.FoldOut(ref val, "Events Table", () => {
+
+                const float padding = 2f;
+                const float margin = 2f;
+                const float col1 = 60f;
+                const float col2 = 50f;
+                const float cellHeight = 22f;
+                var tableStyle = (GUIStyle)"Box";
+
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.TableCaption("Tick", EditorStyles.miniBoldLabel); }, tableStyle,
+                                     GUILayout.Width(col1),
+                                     GUILayout.Height(cellHeight));
+                    GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.TableCaption("Player", EditorStyles.miniBoldLabel); }, tableStyle,
+                                     GUILayout.Width(col2),
+                                     GUILayout.Height(cellHeight));
+                    GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.TableCaption("Rpc ID", EditorStyles.miniBoldLabel); }, tableStyle,
+                                     GUILayout.ExpandWidth(true),
+                                     GUILayout.Height(cellHeight));
+                }
+                GUILayout.EndHorizontal();
+
+                var events = this.target.GetEvents();
+                foreach (var item in events) {
+
+                    var tick = item.tick;
+                    GUILayout.BeginHorizontal();
+                    {
+                        GUILayoutExt.DataLabel(tick.ToString(), GUILayout.Width(col1));
+                    }
+                    GUILayout.EndHorizontal();
+                    
+                    var playerId = item.order;
+                    GUILayout.BeginHorizontal();
+                    {
+                        GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.DataLabel(tick.ToString()); }, tableStyle, GUILayout.Width(col1), GUILayout.Height(cellHeight));
+                        GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.DataLabel(playerId.ToString()); }, tableStyle, GUILayout.Width(col2), GUILayout.Height(cellHeight));
+                        GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.DataLabel(item.rpcId.ToString()); }, tableStyle, GUILayout.ExpandWidth(true), GUILayout.Height(cellHeight));
+                    }
+                    GUILayout.EndHorizontal();
+
+                }
+
+            });
+            this.eventsFoldState = val;
+            
             return false;
 
         }

@@ -45,7 +45,11 @@ namespace ME.ECS.Tests {
                 }
                 
                 NUnit.Framework.Assert.IsTrue(this.filter.Count == 2);
-                
+
+                foreach (var ent in this.filter) {
+                    ent.Destroy();
+                }
+
             }
 
         }

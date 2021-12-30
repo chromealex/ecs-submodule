@@ -78,7 +78,7 @@ namespace ME.ECS.Tests {
                                           this.testEntity.Read<TestData>().a);
                 }
 
-                {
+                /*{
                     var sw = System.Diagnostics.Stopwatch.StartNew();
                     sw.Start();
                     this.filter.ForEach((in Entity entity, in TestData2 data2, ref TestData data) => {
@@ -87,7 +87,7 @@ namespace ME.ECS.Tests {
                     sw.Stop();
                     UnityEngine.Debug.Log(sw.ElapsedMilliseconds + "ms. Entities: " + this.filter.Count + ": " + this.testEntity + " has data: " +
                                           this.testEntity.Read<TestData>().a);
-                }
+                }*/
                 
             }
 
