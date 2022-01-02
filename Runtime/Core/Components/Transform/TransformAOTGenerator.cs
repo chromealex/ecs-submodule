@@ -5,7 +5,7 @@ namespace ME.ECS {
     
         public static void IL2CPP() {
     
-            new ME.ECS.StructComponents<ME.ECS.Transform.Childs>();
+            new ME.ECS.StructComponents<ME.ECS.Transform.Nodes>();
             new ME.ECS.StructComponents<ME.ECS.Transform.Container>();
 
         }
