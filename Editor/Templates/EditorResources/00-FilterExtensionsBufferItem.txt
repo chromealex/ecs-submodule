@@ -44,7 +44,6 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<#ITEMS_TYPE#>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -64,14 +63,12 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
         #REGS_DISPOSE#
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<#ITEMS_TYPE#>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -88,7 +85,6 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }

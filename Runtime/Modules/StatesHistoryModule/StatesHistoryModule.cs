@@ -607,8 +607,10 @@ namespace ME.ECS.StatesHistory {
         public void AddEvent(HistoryEvent historyEvent) {
 
             if (this.HasEvent(historyEvent) == true) {
-                
-                UnityEngine.Debug.LogWarning("Duplicate event: " + historyEvent + ". Skip.");
+
+                using (NoStackTrace.All) {
+                    UnityEngine.Debug.LogWarning($"Duplicate event: {historyEvent}. Skip.");
+                }
                 return;
                 
             }
