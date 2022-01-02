@@ -66,7 +66,6 @@ t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -93,14 +92,12 @@ tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -128,7 +125,6 @@ tagT0 = AllComponentTypes<T0>.isTag == false ? (byte)0 : (byte)1,
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -212,7 +208,6 @@ t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -246,14 +241,12 @@ tempT1.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -292,7 +285,6 @@ tempT1.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -385,7 +377,6 @@ t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -426,14 +417,12 @@ tempT2.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -483,7 +472,6 @@ tempT2.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -585,7 +573,6 @@ t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -633,14 +620,12 @@ tempT3.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -701,7 +686,6 @@ tempT3.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -812,7 +796,6 @@ t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -867,14 +850,12 @@ tempT4.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -946,7 +927,6 @@ tempT4.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -1066,7 +1046,6 @@ t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -1128,14 +1107,12 @@ tempT5.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -1218,7 +1195,6 @@ tempT5.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -1347,7 +1323,6 @@ t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -1416,14 +1391,12 @@ tempT6.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -1517,7 +1490,6 @@ tempT6.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -1655,7 +1627,6 @@ t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -1731,14 +1702,12 @@ tempT7.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -1843,7 +1812,6 @@ tempT7.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -1990,7 +1958,6 @@ t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -2073,14 +2040,12 @@ tempT8.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -2196,7 +2161,6 @@ tempT8.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -2352,7 +2316,6 @@ t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -2442,14 +2405,12 @@ tempT9.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -2576,7 +2537,6 @@ tempT9.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -2741,7 +2701,6 @@ t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -2838,14 +2797,12 @@ tempT10.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -2983,7 +2940,6 @@ tempT10.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -3157,7 +3113,6 @@ t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -3261,14 +3216,12 @@ tempT11.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -3417,7 +3370,6 @@ tempT11.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -3600,7 +3552,6 @@ t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -3711,14 +3662,12 @@ tempT12.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -3878,7 +3827,6 @@ tempT12.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -4070,7 +4018,6 @@ t13 = this.tagT13 == 0 ? this.tempT13[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -4188,14 +4135,12 @@ tempT13.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -4366,7 +4311,6 @@ tempT13.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -4567,7 +4511,6 @@ t14 = this.tagT14 == 0 ? this.tempT14[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -4692,14 +4635,12 @@ tempT14.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -4881,7 +4822,6 @@ tempT14.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -5091,7 +5031,6 @@ t15 = this.tagT15 == 0 ? this.tempT15[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -5223,14 +5162,12 @@ tempT15.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -5423,7 +5360,6 @@ tempT15.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -5642,7 +5578,6 @@ t16 = this.tagT16 == 0 ? this.tempT16[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -5781,14 +5716,12 @@ tempT16.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -5992,7 +5925,6 @@ tempT16.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -6220,7 +6152,6 @@ t17 = this.tagT17 == 0 ? this.tempT17[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -6366,14 +6297,12 @@ tempT17.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -6588,7 +6517,6 @@ tempT17.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
@@ -6825,7 +6753,6 @@ t18 = this.tagT18 == 0 ? this.tempT18[entity.id - this.offset].data : default,
             return;
         }
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
@@ -6978,14 +6905,12 @@ tempT18.Dispose();
 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
-        UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
 
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.BeginSample(typeof(FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>).FullName);
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
@@ -7211,7 +7136,6 @@ tempT18.Dispose();
         //if (changedCount > 0) world.UpdateAllFilters();
         this.Dispose();
         #if UNITY_EDITOR
-        UnityEngine.Profiling.Profiler.EndSample();
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
