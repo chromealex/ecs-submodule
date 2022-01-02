@@ -8,7 +8,7 @@ namespace ME.ECS {
             new ME.ECS.StructComponents<ME.ECS.Transform.Position>();
             new ME.ECS.StructComponents<ME.ECS.Transform.Rotation>();
             new ME.ECS.StructComponents<ME.ECS.Transform.Scale>();
-            new ME.ECS.StructComponents<ME.ECS.Transform.Childs>();
+            new ME.ECS.StructComponents<ME.ECS.Transform.Nodes>();
             new ME.ECS.StructComponents<ME.ECS.Transform.Container>();
 
         }

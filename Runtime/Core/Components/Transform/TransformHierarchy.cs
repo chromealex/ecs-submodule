@@ -24,14 +24,14 @@ namespace ME.ECS {
                 
             }
             
-            if (entity.Has<Childs>() == true) {
+            if (entity.Has<Nodes>() == true) {
 
                 // TODO: Possible stack overflow while using Clear(true) because of OnEntityDestroy call
-                ref var childs = ref entity.Get<Childs>();
-                foreach (var child in childs.childs) {
+                ref var nodes = ref entity.Get<Nodes>();
+                foreach (var child in nodes.items) {
                     child.Remove<Container>();
                 }
-                childs.childs.Clear(destroyData: true);
+                nodes.items.Clear(destroyData: true);
 
             }
 
@@ -42,11 +42,11 @@ namespace ME.ECS {
         #endif
         public static void OnEntityVersionChanged(in Entity entity) {
 
-            if (entity.Has<Childs>() == true) {
+            if (entity.Has<Nodes>() == true) {
 
                 var world = Worlds.currentWorld;
-                ref readonly var childs = ref entity.Read<Childs>();
-                foreach (var item in childs.childs) {
+                ref readonly var nodes = ref entity.Read<Nodes>();
+                foreach (var item in nodes.items) {
 
                     world.IncrementEntityVersion(in item);
                     // TODO: Possible stack overflow while using OnEntityVersionChanged call
@@ -115,9 +115,9 @@ namespace ME.ECS {
             ref var container = ref child.Get<Container>();
             if (root == Entity.Empty) {
 
-                ref var childs = ref container.entity.Get<Childs>();
+                ref var nodes = ref container.entity.Get<Nodes>();
                 child.Remove<Container>();
-                childs.childs.Remove(child);
+                nodes.items.Remove(child);
                 return;
 
             }
@@ -141,8 +141,8 @@ namespace ME.ECS {
             }
 
             container.entity = root;
-            ref var rootChilds = ref root.Get<Childs>();
-            rootChilds.childs.Add(child);
+            ref var rootNodes = ref root.Get<Nodes>();
+            rootNodes.items.Add(child);
 
         }
 
@@ -169,14 +169,14 @@ namespace ME.ECS {
         #endif
         private static bool FindInHierarchy(in Entity child, in Entity root) {
 
-            var childChilds = child.Read<Childs>();
-            if (childChilds.childs.Contains(root) == true) {
+            var childNodes = child.Read<Nodes>();
+            if (childNodes.items.Contains(root) == true) {
 
                 return true;
 
             }
 
-            foreach (var cc in childChilds.childs) {
+            foreach (var cc in childNodes.items) {
 
                 if (ECSTransformHierarchy.FindInHierarchy(in cc, in root) == true) return true;
 
