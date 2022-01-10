@@ -700,6 +700,10 @@ namespace ME.ECS.Network {
                 if (this.syncTickSent != this.syncedTick) {
 
                     this.SystemRPC(this, NetworkModule<TState>.SYNC_RPC_ID, this.syncedTick, this.syncHash);
+                    this.runCurrentEvent = new ME.ECS.StatesHistory.HistoryEvent() {
+                        order = this.GetRPCOrder(),
+                    };
+                    this.Sync_RPC(this.syncedTick, this.syncHash);
                     this.syncTickSent = this.syncedTick;
 
                 }
