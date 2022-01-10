@@ -768,25 +768,24 @@ namespace ME.ECS.StatesHistory {
                 var dic = sync.Value;
                 if (dic.Count > 0) {
 
-                    var state = this.GetStateBeforeTick(tick, out _);
-                    if (state == null || state.tick != tick) continue;
-                    
-                    var localHash = this.GetStateHash(state);
+                    var hash = 0;
                     foreach (var kv in dic) {
                         
                         var remoteHash = kv.Value;
-                        if (localHash != remoteHash) {
-                        
+                        if (hash != 0 && hash != remoteHash) {
+                    
                             var orderId = kv.Key;
                             using (NoStackTrace.All) {
-                                
-                                UnityEngine.Debug.LogError($"[World #{this.world.id}] Remote Hash (Client Id: {orderId}): {tick}:{remoteHash}, Local Hash: {tick}:{localHash}");
+                            
+                                UnityEngine.Debug.LogError($"[World #{this.world.id}] Remote Hash (Client Id: {orderId}): {tick}:{remoteHash}, Local Hash: {tick}:{hash}");
                                 this.CleanUpHashTable(currentTick);
                                 return;
 
                             }
 
                         }
+
+                        hash = remoteHash;
                         
                     }
                     
