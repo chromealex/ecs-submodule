@@ -522,7 +522,7 @@ namespace ME.ECS {
 
         public override void CopyFrom(StructRegistryBase other) {
 
-            var _other = (StructComponents<TComponent>)other;
+            var _other = (StructComponentsBase<TComponent>)other;
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(_other.sharedGroups, new ElementCopy());
             
