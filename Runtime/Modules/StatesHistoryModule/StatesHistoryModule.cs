@@ -293,7 +293,6 @@ namespace ME.ECS.StatesHistory {
             this.oldestTick = Tick.Invalid;
             this.lastSavedStateTick = Tick.Invalid;
             this.pauseStoreStateSinceTick = Tick.Invalid;
-            this.remoteHashMessagePrinted = false;
             
             this.prewarmed = false;
             this.beginAddEventsCount = 0;
@@ -310,8 +309,6 @@ namespace ME.ECS.StatesHistory {
         }
 
         public virtual void OnDeconstruct() {
-
-            this.remoteHashMessagePrinted = false;
 
             this.eventRunner = default;
 
@@ -763,10 +760,7 @@ namespace ME.ECS.StatesHistory {
             
         }
         
-        private bool remoteHashMessagePrinted = false;
         private void CheckHash(Tick currentTick) {
-
-            if (this.remoteHashMessagePrinted == true) return;
 
             foreach (var sync in this.syncHashTable) {
 
@@ -787,7 +781,8 @@ namespace ME.ECS.StatesHistory {
                             using (NoStackTrace.All) {
                                 
                                 UnityEngine.Debug.LogError($"[World #{this.world.id}] Remote Hash (Client Id: {orderId}): {tick}:{remoteHash}, Local Hash: {tick}:{localHash}");
-                                this.remoteHashMessagePrinted = true;
+                                this.CleanUpHashTable(currentTick);
+                                return;
 
                             }
 
