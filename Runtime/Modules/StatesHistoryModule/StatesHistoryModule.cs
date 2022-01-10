@@ -1008,14 +1008,14 @@ namespace ME.ECS.StatesHistory {
                 newState.tick = tick;
                 this.states.Set(tick, newState);*/
                 
-                this.statesHistory.Store(tick, this.world.GetState<TState>(), out var overwritedState);
-                if (overwritedState != null) {
+                var overwritedStateTick = this.statesHistory.Store(tick, this.world.GetState<TState>(), out var overwritedStateHash);
+                if (overwritedStateHash > 0) {
 
                     var module = this.world.GetModule<ME.ECS.Network.NetworkModule<TState>>();
-                    if (module != null && module.IsReverting() == false && overwritedState.tick > module.syncedTick) {
+                    if (module != null && module.IsReverting() == false && overwritedStateTick > module.syncedTick) {
     
-                        module.syncedTick = overwritedState.tick;
-                        module.syncHash = this.GetStateHash(overwritedState);
+                        module.syncedTick = overwritedStateTick;
+                        module.syncHash = overwritedStateHash;
     
                     }
 
