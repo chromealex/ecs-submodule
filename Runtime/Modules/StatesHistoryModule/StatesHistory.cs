@@ -123,12 +123,12 @@
 
         }
 
-		public long Store(Tick tick, TState state, out TState overwritedState) {
+		public long Store(Tick tick, TState state, out int overwritedStateHash) {
 
-            overwritedState = null;
+            overwritedStateHash = 0;
             if (tick > this.currentEntryNode.Value.tick && this.currentEntryNode.Value.isEmpty == false) {
                 
-                overwritedState = this.currentEntryNode.Value.state;
+                overwritedStateHash = this.currentEntryNode.Value.state.GetHash();
                 
             }
             var overwritedTick = this.currentEntryNode.Value.Store(tick, state);

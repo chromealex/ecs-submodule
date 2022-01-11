@@ -293,7 +293,6 @@ namespace ME.ECS.StatesHistory {
             this.oldestTick = Tick.Invalid;
             this.lastSavedStateTick = Tick.Invalid;
             this.pauseStoreStateSinceTick = Tick.Invalid;
-            this.remoteHashMessagePrinted = false;
             
             this.prewarmed = false;
             this.beginAddEventsCount = 0;
@@ -310,8 +309,6 @@ namespace ME.ECS.StatesHistory {
         }
 
         public virtual void OnDeconstruct() {
-
-            this.remoteHashMessagePrinted = false;
 
             this.eventRunner = default;
 
@@ -763,10 +760,7 @@ namespace ME.ECS.StatesHistory {
             
         }
         
-        private bool remoteHashMessagePrinted = false;
         private void CheckHash(Tick currentTick) {
-
-            if (this.remoteHashMessagePrinted == true) return;
 
             foreach (var sync in this.syncHashTable) {
 
@@ -774,24 +768,24 @@ namespace ME.ECS.StatesHistory {
                 var dic = sync.Value;
                 if (dic.Count > 0) {
 
-                    var state = this.GetStateBeforeTick(tick, out _);
-                    if (state == null || state.tick != tick) continue;
-                    
-                    var localHash = this.GetStateHash(state);
+                    var hash = 0;
                     foreach (var kv in dic) {
                         
                         var remoteHash = kv.Value;
-                        if (localHash != remoteHash) {
-                        
+                        if (hash != 0 && hash != remoteHash) {
+                    
                             var orderId = kv.Key;
                             using (NoStackTrace.All) {
-                                
-                                UnityEngine.Debug.LogError($"[World #{this.world.id}] Remote Hash (Client Id: {orderId}): {tick}:{remoteHash}, Local Hash: {tick}:{localHash}");
-                                this.remoteHashMessagePrinted = true;
+                            
+                                UnityEngine.Debug.LogError($"[World #{this.world.id}] Remote Hash (Client Id: {orderId}): {tick}:{remoteHash}, Local Hash: {tick}:{hash}");
+                                this.CleanUpHashTable(currentTick);
+                                return;
 
                             }
 
                         }
+
+                        hash = remoteHash;
                         
                     }
                     
@@ -1013,14 +1007,14 @@ namespace ME.ECS.StatesHistory {
                 newState.tick = tick;
                 this.states.Set(tick, newState);*/
                 
-                this.statesHistory.Store(tick, this.world.GetState<TState>(), out var overwritedState);
-                if (overwritedState != null) {
+                var overwritedStateTick = this.statesHistory.Store(tick, this.world.GetState<TState>(), out var overwritedStateHash);
+                if (overwritedStateHash > 0) {
 
                     var module = this.world.GetModule<ME.ECS.Network.NetworkModule<TState>>();
-                    if (module != null && module.IsReverting() == false && overwritedState.tick > module.syncedTick) {
+                    if (module != null && module.IsReverting() == false && overwritedStateTick > module.syncedTick) {
     
-                        module.syncedTick = overwritedState.tick;
-                        module.syncHash = this.GetStateHash(overwritedState);
+                        module.syncedTick = overwritedStateTick;
+                        module.syncHash = overwritedStateHash;
     
                     }
 

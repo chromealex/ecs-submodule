@@ -112,21 +112,33 @@ namespace ME.ECSEditor {
                 foreach (var item in syncHashTable) {
 
                     var tick = item.Key;
-                    var state = this.target.GetStateBeforeTick(tick);
-                    int localHash = -1;
-                    if (state != null && state.tick == tick) {
-                        
-                        localHash = state.GetHash();
-                        
-                    }
-
+                    int localHash = 0;
+                    
                     GUILayout.BeginHorizontal();
                     {
                         GUILayoutExt.DataLabel(tick.ToString(), GUILayout.Width(col1));
                     }
                     GUILayout.EndHorizontal();
+                    var stateHashResult = 0;
                     foreach (var kv in item.Value) {
 
+                        var hash = kv.Value;
+                        if (localHash != 0 && localHash != hash) {
+
+                            stateHashResult = -1;
+                            break;
+
+                        } else if (localHash != 0) {
+
+                            stateHashResult = 1;
+
+                        }
+                        localHash = hash;
+
+                    }
+                    
+                    foreach (var kv in item.Value) {
+                        
                         var playerId = kv.Key;
                         GUILayout.BeginHorizontal();
                         {
@@ -138,7 +150,7 @@ namespace ME.ECSEditor {
                                 GUILayout.BeginHorizontal();
                                 GUILayout.FlexibleSpace();
                                 
-                                if (localHash == kv.Value) {
+                                if (stateHashResult == 1) {
 
                                     using (new GUILayoutExt.GUIColorUsing(Color.green)) {
 
@@ -146,7 +158,7 @@ namespace ME.ECSEditor {
 
                                     }
 
-                                } else if (localHash != -1) {
+                                } else if (stateHashResult == -1) {
                                     
                                     using (new GUILayoutExt.GUIColorUsing(Color.red)) {
 
