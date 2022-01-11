@@ -262,19 +262,6 @@ namespace ME.ECS {
 
                 }
 
-                var task = PoolClass<StructComponentsContainer.OneShotTask<TComponent>>.Spawn();
-                task.entity = entity;
-
-                if (this.structComponentsNoState.nextTickTasks.Contains(task) == false) {
-
-                    this.structComponentsNoState.nextTickTasks.Add(task);
-
-                } else {
-
-                    task.Recycle();
-
-                }
-
             }
             #if ENTITY_ACTIONS
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
@@ -282,6 +269,19 @@ namespace ME.ECS {
             storage.versions.Increment(in entity);
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
+
+            var task = PoolClass<StructComponentsContainer.OneShotTask<TComponent>>.Spawn();
+            task.entity = entity;
+
+            if (this.structComponentsNoState.nextTickTasks.Contains(task) == false) {
+
+                this.structComponentsNoState.nextTickTasks.Add(task);
+
+            } else {
+
+                task.Recycle();
+
+            }
 
             return ref state;
             
