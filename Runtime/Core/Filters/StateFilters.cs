@@ -2037,9 +2037,19 @@ namespace ME.ECS {
         }
 
         [Unity.Burst.BurstCompile(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
-        private struct ApplyRequestsJob : IJobParallelFor {
+        private struct ApplyRequestsJob : IJob {
 
             public FilterBurstData data;
+
+            public void Execute() {
+
+                for (int i = 0, count = this.data.requestsCount; i < count; ++i) {
+
+                    this.Execute(i);
+
+                }
+
+            }
 
             public void Execute(int index) {
 
@@ -2051,9 +2061,19 @@ namespace ME.ECS {
         }
 
         [Unity.Burst.BurstCompile(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
-        private struct ApplyRequestsJobToRemove : IJobParallelFor {
+        private struct ApplyRequestsJobToRemove : IJob {
 
             public FilterBurstData data;
+
+            public void Execute() {
+
+                for (int i = 0, count = this.data.requestsRemoveCount; i < count; ++i) {
+
+                    this.Execute(i);
+
+                }
+
+            }
 
             public void Execute(int index) {
                 
@@ -2071,27 +2091,33 @@ namespace ME.ECS {
 
             this.data.archetypes = this.world.currentState.storage.archetypes;
             
-            JobHandle jobHandle = default;
-            JobHandle jobRemoveHandle = default;
+            //JobHandle jobHandle = default;
+            //JobHandle jobRemoveHandle = default;
             if (this.data.requestsCount > 0) {
 
-                var job = new ApplyRequestsJob() {
+                new ApplyRequestsJob() {
+                    data = this.data,
+                }.Schedule().Complete();
+                /*var job = new ApplyRequestsJob() {
                     data = this.data,
                 };
-                jobHandle = job.Schedule(this.data.requestsCount, 64);
+                jobHandle = job.Schedule(this.data.requestsCount, 64);*/
 
             }
 
             if (this.data.requestsRemoveCount > 0) {
 
-                var jobRemove = new ApplyRequestsJobToRemove() {
+                new ApplyRequestsJobToRemove() {
+                    data = this.data,
+                }.Schedule().Complete();
+                /*var jobRemove = new ApplyRequestsJobToRemove() {
                     data = this.data,
                 };
-                jobRemoveHandle = jobRemove.Schedule(this.data.requestsRemoveCount, 64);
+                jobRemoveHandle = jobRemove.Schedule(this.data.requestsRemoveCount, 64);*/
                 
             }
 
-            if (this.data.requestsCount > 0 && this.data.requestsRemoveCount > 0) {
+            /*if (this.data.requestsCount > 0 && this.data.requestsRemoveCount > 0) {
 
                 JobHandle.CompleteAll(ref jobHandle, ref jobRemoveHandle);
 
@@ -2103,7 +2129,7 @@ namespace ME.ECS {
                 
                 jobRemoveHandle.Complete();
                 
-            }
+            }*/
             
             FilterDataStatic.UpdateMinMax(ref this.data);
 
