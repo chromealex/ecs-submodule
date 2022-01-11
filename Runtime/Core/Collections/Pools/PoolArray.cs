@@ -118,7 +118,7 @@ namespace ME.ECS {
             }
 
             T[] arr = buffer.arr;
-            if (arr != null) System.Array.Clear(arr, 0, arr.Length);
+            //if (arr != null) System.Array.Clear(arr, 0, arr.Length);
             PoolArray<T>.Release(ref arr);
             buffer = new BufferArray<T>(null, 0);
 
@@ -135,7 +135,7 @@ namespace ME.ECS {
             }
 
             T[] arr = buffer.arr;
-            if (arr != null) System.Array.Clear(arr, 0, arr.Length);
+            //if (arr != null) System.Array.Clear(arr, 0, arr.Length);
             PoolArray<T>.Release(ref arr);
 
         }

@@ -26,6 +26,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static unsafe void Clear<T>(Unity.Collections.NativeHashSet<T> arr) where T : unmanaged, System.IEquatable<T> {
+
+            arr.Clear();
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static unsafe void Clear<T>(Unity.Collections.NativeArray<T> arr, int index, int length) where T : struct {
 
             Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemClear((void*)((System.IntPtr)arr.GetUnsafePtr() + (int)((ulong)UnsafeUtility.SizeOf<T>() * (ulong)index)), (long)((ulong)UnsafeUtility.SizeOf<T>() * (ulong)length));
@@ -73,6 +82,28 @@ namespace ME.ECS {
                 copy.Copy(i, fromArr[i], ref arr.GetRef(i));
 
             }
+
+        }
+
+        public static bool Resize<T>(int index, ref Unity.Collections.NativeHashSet<T> arr, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent, bool resizeWithOffset = false) where T : unmanaged, System.IEquatable<T> {
+            
+            int offset = 1;
+            if (resizeWithOffset == true) {
+
+                offset *= 2;
+
+            }
+
+            var capacity = index * offset + 1;
+            if (arr.IsCreated == false) arr = new Unity.Collections.NativeHashSet<T>(capacity, allocator);
+            if (capacity > arr.Capacity) {
+                
+                arr.Capacity = capacity;
+                return true;
+
+            }
+
+            return false;
 
         }
 
@@ -174,6 +205,37 @@ namespace ME.ECS {
             }
 
             Unity.Collections.NativeArray<T>.Copy(fromArr, arr);
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Copy<T>(in Unity.Collections.NativeHashSet<T> fromArr, ref Unity.Collections.NativeHashSet<T> arr) where T : unmanaged, System.IEquatable<T> {
+
+            switch (fromArr.IsCreated) {
+                case false when arr.IsCreated == false:
+                    return;
+
+                case false when arr.IsCreated == true:
+                    arr.Dispose();
+                    arr = default;
+                    return;
+            }
+            
+            if (arr.IsCreated == false || arr.Count() != fromArr.Count()) {
+
+                if (arr.IsCreated == true) arr.Dispose();
+                arr = new Unity.Collections.NativeHashSet<T>(fromArr.Count(), Unity.Collections.Allocator.Persistent);
+                
+            }
+            
+            arr.Clear();
+            foreach (var item in fromArr) {
+
+                arr.Add(item);
+
+            }
             
         }
 

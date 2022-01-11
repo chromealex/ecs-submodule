@@ -9,6 +9,9 @@ namespace ME.ECS.Essentials {
     namespace Input.Systems {}
     namespace Input.Markers {}
 
+    public delegate InputPointerData MarkerModifier(InputPointerData data);
+    public delegate bool GetWorldPointerCallback(int pointerId, UnityEngine.Camera camera, out UnityEngine.Vector3 result);
+    
     public interface IEventMarker : IMarker {}
 
     public interface IGestureMarker : IMarker {
@@ -61,7 +64,7 @@ namespace ME.ECS.Essentials {
         private readonly object tag;
         private readonly InputEventType inputEventType;
         private System.Func<Entity> getEntity;
-        
+
         public InputAction(InputFeature feature, InputEventType inputEventType, ME.ECS.Network.INetworkModuleBase networkModule, System.Action<Entity, TMarker> rpc) {
 
             this.networkModule = networkModule;
@@ -239,11 +242,13 @@ namespace ME.ECS.Essentials {
         private InputGesture<ME.ECS.Essentials.Input.Input.Markers.InputGesturePitchUp, InputGesturePitchUp> gesturePitchUpEvent;
         private InputGesture<ME.ECS.Essentials.Input.Input.Markers.InputGesturePitchDown, InputGesturePitchDown> gesturePitchDownEvent;
         private InputGesture<ME.ECS.Essentials.Input.Input.Markers.InputGesturePitchMove, InputGesturePitchMove> gesturePitchMoveEvent;
+        
+        private GetWorldPointerCallback getWorldPointerCallback;
 
         internal UnityEngine.Camera camera;
         private Filter inputMaskFilter;
 
-        private System.Collections.Generic.Dictionary<InputEventType, System.Action<InputPointerData>> actions = new System.Collections.Generic.Dictionary<InputEventType, System.Action<InputPointerData>>();
+        private System.Collections.Generic.Dictionary<InputEventType, MarkerModifier> actions = new System.Collections.Generic.Dictionary<InputEventType, MarkerModifier>();
 
         protected override void OnConstruct() {
             
@@ -281,7 +286,9 @@ namespace ME.ECS.Essentials {
             this.gesturePitchDownEvent = default;
             this.gesturePitchMoveEvent = default;
             this.gesturePitchUpEvent = default;
-            
+
+            this.getWorldPointerCallback = default;
+
             this.actions.Clear();
             this.camera = null;
 
@@ -361,17 +368,19 @@ namespace ME.ECS.Essentials {
             
         }
 
-        public void RaiseMarkerCallback(InputPointerData data) {
+        public InputPointerData RaiseMarkerCallback(InputPointerData data) {
 
             if (this.actions.TryGetValue(data.eventType, out var list) == true) {
 
-                list.Invoke(data);
+                data = list.Invoke(data);
                 
             }
-            
+
+            return data;
+
         }
 
-        public void AddMarkerCallback(InputEventType eventType, System.Action<InputPointerData> onMarkerCreate) {
+        public void AddMarkerCallback(InputEventType eventType, MarkerModifier onMarkerCreate) {
 
             if (this.actions.TryGetValue(eventType, out var list) == true) {
 
@@ -386,7 +395,7 @@ namespace ME.ECS.Essentials {
             
         }
 
-        public void RemoveMarkerCallback(InputEventType eventType, System.Action<InputPointerData> onMarkerCreate) {
+        public void RemoveMarkerCallback(InputEventType eventType, MarkerModifier onMarkerCreate) {
 
             if (this.actions.TryGetValue(eventType, out var list) == true) {
 
@@ -397,7 +406,7 @@ namespace ME.ECS.Essentials {
             
         }
 
-        public void SetMarkerCallback(InputEventType eventType, System.Action<InputPointerData> onMarkerCreate) {
+        public void SetMarkerCallback(InputEventType eventType, MarkerModifier onMarkerCreate) {
 
             if (this.actions.ContainsKey(eventType) == true) {
 
@@ -463,10 +472,22 @@ namespace ME.ECS.Essentials {
         private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputGesturePitchMove marker) { this.gesturePitchMoveEvent.RPC(player, marker); }
         private void RPC(Entity player, ME.ECS.Essentials.Input.Input.Markers.InputGesturePitchUp marker) { this.gesturePitchUpEvent.RPC(player, marker); }
 
+        public void SetGetWorldPointerCallback(GetWorldPointerCallback callback) {
+
+            this.getWorldPointerCallback = callback;
+
+        }
+        
         public bool GetWorldPointer(int pointerId, out UnityEngine.Vector3 result) {
 
             result = default;
             if (this.camera == null) return false;
+
+            if (this.getWorldPointerCallback != null) {
+
+                return this.getWorldPointerCallback.Invoke(pointerId, this.camera, out result);
+
+            }
 
             var pos = ME.ECS.Essentials.Input.InputUtils.GetPointerPosition(pointerId);
             var ray = this.camera.ScreenPointToRay(pos);
@@ -486,7 +507,7 @@ namespace ME.ECS.Essentials {
             return this.GetWorldPointer(0, out result);
             
         }
-
+        
     }
 
 }

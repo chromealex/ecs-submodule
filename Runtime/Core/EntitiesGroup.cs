@@ -106,7 +106,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Set<T>(T component) where T : struct, IStructComponentBase {
+        public void Set<T>(T component, bool updateFilters = true) where T : struct, IStructComponentBase {
 
             var typeId = WorldUtilities.GetAllComponentTypeId<T>();
             var world = Worlds.current;
@@ -114,7 +114,7 @@ namespace ME.ECS {
             var reg = (StructComponentsBase<T>)container.list[typeId];
             reg.Merge();
             reg.Set(in this, component);
-            this.UpdateFilters();
+            if (updateFilters == true) this.UpdateFilters();
 
         }
 
@@ -126,7 +126,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Remove<T>() where T : struct, IStructComponentBase {
+        public void Remove<T>(bool updateFilters = true) where T : struct, IStructComponentBase {
 
             var typeId = WorldUtilities.GetAllComponentTypeId<T>();
             var world = Worlds.current;
@@ -134,7 +134,7 @@ namespace ME.ECS {
             var reg = (StructComponentsBase<T>)container.list[typeId];
             reg.Merge();
             reg.Remove(in this);
-            this.UpdateFilters();
+            if (updateFilters == true) this.UpdateFilters();
 
         }
 

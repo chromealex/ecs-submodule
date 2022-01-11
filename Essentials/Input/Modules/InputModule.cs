@@ -51,11 +51,10 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                     dt <= this.feature.doubleClickThreshold &&
                     ((this.pressWorldPosClick - worldPos).sqrMagnitude <= this.feature.doubleClickMaxDistance * this.feature.doubleClickMaxDistance)) {
 
-                    var data = new InputPointerData(0, this.pressWorldPosClick, InputEventType.PointerDoubleClick);
+                    var data = this.feature.RaiseMarkerCallback(new InputPointerData(0, this.pressWorldPosClick, InputEventType.PointerDoubleClick));
                     this.world.AddMarker(new Markers.InputPointerDoubleClick() {
                         data = data,
                     });
-                    this.feature.RaiseMarkerCallback(data);
 
                     this.sendClickWaiter = false;
                     this.clicksCount = 0;
@@ -139,11 +138,10 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
 
                         if (this.feature.GetWorldPointer(out var worldPos) == true) {
 
-                            var data = new InputPointerData(pointerId, worldPos, InputEventType.PointerDown);
+                            var data = this.feature.RaiseMarkerCallback(new InputPointerData(pointerId, worldPos, InputEventType.PointerDown));
                             this.world.AddMarker(new Markers.InputPointerDown() {
                                 data = data,
                             });
-                            this.feature.RaiseMarkerCallback(data);
                             this.pressWorldPos = worldPos;
                             this.lastDragPos = this.pressWorldPos;
                             this.isPressed = true;
@@ -161,11 +159,10 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                         if (this.dragBegin == false && (worldPos - this.pressWorldPos).sqrMagnitude >= this.feature.dragBeginThreshold * this.feature.dragBeginThreshold) {
 
                             this.dragBegin = true;
-                            var data = new InputPointerData(pointerId, this.pressWorldPos, InputEventType.PointerDragBegin);
+                            var data = this.feature.RaiseMarkerCallback(new InputPointerData(pointerId, this.pressWorldPos, InputEventType.PointerDragBegin));
                             this.world.AddMarker(new Markers.InputPointerDragBegin() {
                                 data = data,
                             });
-                            this.feature.RaiseMarkerCallback(data);
 
                         }
 
@@ -179,11 +176,10 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
 
                         if ((this.lastDragPos - worldPos).sqrMagnitude > this.feature.dragMoveThreshold * this.feature.dragMoveThreshold) {
 
-                            var data = new InputPointerData(pointerId, worldPos, InputEventType.PointerDragMove) { pressWorldPosition = this.pressWorldPos };
+                            var data = this.feature.RaiseMarkerCallback(new InputPointerData(pointerId, worldPos, InputEventType.PointerDragMove) { pressWorldPosition = this.pressWorldPos });
                             this.world.AddMarker(new Markers.InputPointerDragMove() {
                                 data = data,
                             });
-                            this.feature.RaiseMarkerCallback(data);
 
                             this.lastDragPos = worldPos;
 
@@ -205,19 +201,17 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
 
                         if (hasWorldPos == true) {
 
-                            var data = new InputPointerData(pointerId, worldPos, InputEventType.PointerDragEnd) { pressWorldPosition = this.pressWorldPos };
+                            var data = this.feature.RaiseMarkerCallback(new InputPointerData(pointerId, worldPos, InputEventType.PointerDragEnd) { pressWorldPosition = this.pressWorldPos });
                             this.world.AddMarker(new Markers.InputPointerDragEnd() {
                                 data = data,
                             });
-                            this.feature.RaiseMarkerCallback(data);
 
                         } else {
 
-                            var data = new InputPointerData(pointerId, this.lastDragPos, InputEventType.PointerDragEnd) { pressWorldPosition = this.pressWorldPos };
+                            var data = this.feature.RaiseMarkerCallback(new InputPointerData(pointerId, this.lastDragPos, InputEventType.PointerDragEnd) { pressWorldPosition = this.pressWorldPos });
                             this.world.AddMarker(new Markers.InputPointerDragEnd() {
                                 data = data,
                             });
-                            this.feature.RaiseMarkerCallback(data);
                             worldPos = this.lastDragPos;
 
                         }
@@ -240,30 +234,27 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                                 ((this.pressWorldPosClick - worldPos).sqrMagnitude <= this.feature.doubleClickMaxDistance * this.feature.doubleClickMaxDistance)) {
 
                                 {
-                                    var data = new InputPointerData(pointerId, worldPos, InputEventType.PointerClick);
+                                    var data = this.feature.RaiseMarkerCallback(new InputPointerData(pointerId, worldPos, InputEventType.PointerClick));
                                     this.world.AddMarker(new Markers.InputPointerClick() {
                                         data = data,
                                     });
-                                    this.feature.RaiseMarkerCallback(data);
                                 }
 
                                 {
-                                    var data = new InputPointerData(pointerId, worldPos, InputEventType.PointerDoubleClick);
+                                    var data = this.feature.RaiseMarkerCallback(new InputPointerData(pointerId, worldPos, InputEventType.PointerDoubleClick));
                                     this.world.AddMarker(new Markers.InputPointerDoubleClick() {
                                         data = data,
                                     });
-                                    this.feature.RaiseMarkerCallback(data);
                                 }
 
                                 this.clicksCount = 0;
 
                             } else {
 
-                                var data = new InputPointerData(pointerId, this.pressWorldPos, InputEventType.PointerClick);
+                                var data = this.feature.RaiseMarkerCallback(new InputPointerData(pointerId, this.pressWorldPos, InputEventType.PointerClick));
                                 this.world.AddMarker(new Markers.InputPointerClick() {
                                     data = data,
                                 });
-                                this.feature.RaiseMarkerCallback(data);
                                 this.pressWorldPosClick = this.pressWorldPos;
 
                                 this.clicksCount = 0;

@@ -58,28 +58,31 @@ namespace ME.ECS.Pathfinding {
         private NavMeshDataInstance navMeshDataInstance;
         
         [System.NonSerializedAttribute]
-        private List<NavMeshBuildSource> buildSources = new List<NavMeshBuildSource>(5000);
+        private List<NavMeshBuildSource> buildSources;
         [System.NonSerializedAttribute]
-        private ME.ECS.Collections.DictionaryCopyable<Key<Entity, int>, NavMeshBuildSource> buildSourcesEntities = new ME.ECS.Collections.DictionaryCopyable<Key<Entity, int>, NavMeshBuildSource>(5000);
+        private ME.ECS.Collections.DictionaryCopyable<Key<Entity, int>, NavMeshBuildSource> buildSourcesEntities;
         [System.NonSerializedAttribute]
-        private List<NavMeshBuildSource> tempSources = new List<NavMeshBuildSource>(1000);
+        private List<NavMeshBuildSource> tempSources;
 
         public bool drawMesh;
         
         public void AddBuildSource(in NavMeshBuildSource buildSource) {
             
+            if (this.buildSources == null) this.buildSources = new List<NavMeshBuildSource>(5000);
             this.buildSources.Add(buildSource);
         
         }
 
         public void AddBuildSource(in Key<Entity, int> entity, in NavMeshBuildSource buildSource) {
 
+            if (this.buildSourcesEntities == null) this.buildSourcesEntities = new ME.ECS.Collections.DictionaryCopyable<Key<Entity, int>, NavMeshBuildSource>(5000);
             this.buildSourcesEntities.Add(entity, buildSource);
         
         }
 
         public void RemoveBuildSource(in Key<Entity, int> entity) {
 
+            if (this.buildSourcesEntities == null) return;
             this.buildSourcesEntities.Remove(entity);
 
         }
@@ -156,9 +159,10 @@ namespace ME.ECS.Pathfinding {
 
             if (this.navMeshData == null) return false;
             
+            if (this.tempSources == null) this.tempSources = new List<NavMeshBuildSource>(this.buildSources != null ? this.buildSources.Count : 4);
             this.tempSources.Clear();
-            this.tempSources.AddRange(this.buildSources);
-            if (this.buildSourcesEntities.Count > 0) {
+            if (this.buildSources != null) this.tempSources.AddRange(this.buildSources);
+            if (this.buildSourcesEntities != null && this.buildSourcesEntities.Count > 0) {
 
                 foreach (var kv in this.buildSourcesEntities) {
                     
@@ -203,7 +207,7 @@ namespace ME.ECS.Pathfinding {
 
         private void BeginBuild() {
             
-            this.buildSources.Clear();
+            if (this.buildSources != null) this.buildSources.Clear();
 
             if (this.buildFloor == true) {
 
@@ -219,6 +223,8 @@ namespace ME.ECS.Pathfinding {
         }
 
         private void EndBuild() {
+            
+            if (this.buildSources == null) return;
             
             var bounds = new UnityEngine.Bounds(this.graphCenter, this.size);
             var buildSettings = UnityEngine.AI.NavMesh.GetSettingsByID(this.agentTypeId);
