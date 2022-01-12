@@ -192,8 +192,9 @@ namespace ME.ECS.Pathfinding {
 
             if (this.navMeshData == null) return false;
             
+            if (this.tempSources == null) this.tempSources = new List<NavMeshBuildSource>(this.buildSources != null ? this.buildSources.Count : 4);
             this.tempSources.Clear();
-            this.tempSources.AddRange(this.buildSources);
+            if (this.buildSources != null) this.tempSources.AddRange(this.buildSources);
             if (sources != null) this.tempSources.AddRange(sources);
             if (NavMeshBuilder.UpdateNavMeshData(this.navMeshData, this.buildSettings, this.tempSources, bounds) == false) {
 
