@@ -10,12 +10,12 @@ namespace ME.ECS.Pathfinding.Editor {
 
         public override void OnGUI(Rect position, UnityEditor.SerializedProperty property, GUIContent label) {
 
-            var areaIndex = -1;
+            var areaIndex = property.intValue;
             var areaNames = GameObjectUtility.GetNavMeshAreaNames();
-            for (var i = 0; i < areaNames.Length; i++) {
+            /*for (var i = 0; i < areaNames.Length; i++) {
                 var areaValue = GameObjectUtility.GetNavMeshAreaFromName(areaNames[i]);
                 if (areaValue == property.intValue) areaIndex = i;
-            }
+            }*/
 
             ArrayUtility.Add(ref areaNames, "");
             ArrayUtility.Add(ref areaNames, "Open Area Settings...");
@@ -27,11 +27,36 @@ namespace ME.ECS.Pathfinding.Editor {
 
             if (EditorGUI.EndChangeCheck()) {
                 if (areaIndex >= 0 && areaIndex < areaNames.Length - 2)
-                    property.intValue = GameObjectUtility.GetNavMeshAreaFromName(areaNames[areaIndex]);
+                    property.intValue = areaIndex;//GameObjectUtility.GetNavMeshAreaFromName(areaNames[areaIndex]);
                 else if (areaIndex == areaNames.Length - 1) UnityEditor.AI.NavMeshEditorHelpers.OpenAreaSettings();
             }
 
             EditorGUI.EndProperty();
+        }
+
+        public static int GUILayout(string caption, int areaIndex) {
+            
+            //var areaIndex = -1;
+            var areaNames = GameObjectUtility.GetNavMeshAreaNames();
+            /*for (var i = 0; i < areaNames.Length; i++) {
+                var areaValue = GameObjectUtility.GetNavMeshAreaFromName(areaNames[i]);
+                if (areaValue == targetFloorArea) areaIndex = i;
+            }*/
+
+            ArrayUtility.Add(ref areaNames, "");
+            ArrayUtility.Add(ref areaNames, "Open Area Settings...");
+
+            EditorGUI.BeginChangeCheck();
+            areaIndex = EditorGUILayout.Popup(caption, areaIndex, areaNames);
+
+            if (EditorGUI.EndChangeCheck()) {
+                //if (areaIndex >= 0 && areaIndex < areaNames.Length - 2)
+//                    targetFloorArea = GameObjectUtility.GetNavMeshAreaFromName(areaNames[areaIndex]);
+                if (areaIndex == areaNames.Length - 1) UnityEditor.AI.NavMeshEditorHelpers.OpenAreaSettings();
+            }
+
+            return areaIndex;
+
         }
 
     }

@@ -40,6 +40,8 @@ namespace ME.ECS.Pathfinding {
         public Vector3 scale = Vector3.one;
         
         public bool buildFloor;
+        [NavMeshArea]
+        public int floorArea;
         public float floorHeight = 0.1f;
 
         public int agentTypeId = 0;
@@ -213,7 +215,7 @@ namespace ME.ECS.Pathfinding {
             if (this.buildFloor == true) {
 
                 this.AddBuildSource(new UnityEngine.AI.NavMeshBuildSource() {
-                    area = 0,
+                    area = this.floorArea,
                     shape = UnityEngine.AI.NavMeshBuildSourceShape.Box,
                     size = new Vector3(this.size.x, 0f, this.size.z),
                     transform = Matrix4x4.TRS(new Vector3(this.graphCenter.x, this.floorHeight, this.graphCenter.z), Quaternion.identity, Vector3.one),

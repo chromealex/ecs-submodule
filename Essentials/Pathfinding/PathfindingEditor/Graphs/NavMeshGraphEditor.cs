@@ -42,6 +42,7 @@ namespace ME.ECS.Pathfinding.Editor {
                                                       this.target.size = EditorGUILayout.Vector3IntField("Size", this.target.size);
                                                       this.target.scale = EditorGUILayout.Vector3Field("Scale", this.target.scale);
                                                       this.target.buildFloor = EditorGUILayout.Toggle("Build Floor", this.target.buildFloor);
+                                                      this.target.floorArea = NavMeshAreaPropertyDrawer.GUILayout("Floor Area", this.target.floorArea);
                                                       this.target.floorHeight = EditorGUILayout.FloatField("Floor Height", this.target.floorHeight);
 
                                                   });
