@@ -17,7 +17,7 @@ namespace ME.ECS.Collections {
         public void Clone(ListCopyable<T> from, ref ListCopyable<T> to) {
 
             to = PoolListCopyable<T>.Spawn(from.Capacity);
-            ArrayUtils.Copy(in from, 0, ref to.innerArray, 0, from.Count);
+            to.CopyFrom(from);
 
         }
 
