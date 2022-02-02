@@ -8,19 +8,12 @@ namespace ME.ECSEditor {
 
     public static class WorldHelper {
 
+        #if !FILTERS_STORAGE_ARCHETYPES
         public static FiltersStorage GetFilters(World world) {
 
             //var field = world.GetType().GetField("filtersStorage", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             //return (FiltersStorage)field.GetValue(world);
             return world.currentState.filters;
-
-        }
-
-        public static IStructComponentsContainer GetStructComponentsStorage(World world) {
-
-            var field = world.currentState.structComponents;//.GetType().GetField("componentsStructCache", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            //var dic = (IStructComponentsContainer)field.GetValue(world);
-            return field;
 
         }
         
@@ -32,7 +25,28 @@ namespace ME.ECSEditor {
             return world.currentState.storage;
 
         }
+        #else
+        public static ME.ECS.FiltersArchetype.FiltersArchetypeStorage GetFilters(World world) {
 
+            return world.currentState.filters;
+
+        }
+        
+        public static ME.ECS.FiltersArchetype.FiltersArchetypeStorage GetEntitiesStorage(World world) {
+
+            return world.currentState.storage;
+
+        }
+        #endif
+
+        public static IStructComponentsContainer GetStructComponentsStorage(World world) {
+
+            var field = world.currentState.structComponents;//.GetType().GetField("componentsStructCache", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            //var dic = (IStructComponentsContainer)field.GetValue(world);
+            return field;
+
+        }
+        
         public static ME.ECS.Collections.BufferArray<SystemGroup> GetSystems(World world) {
 
             return world.systemGroups;

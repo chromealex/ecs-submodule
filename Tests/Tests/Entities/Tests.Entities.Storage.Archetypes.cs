@@ -2,15 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-#if !FILTERS_STORAGE_ARCHETYPES
+#if FILTERS_STORAGE_ARCHETYPES
 namespace ME.ECS.Tests {
 
-    public class Tests_Entities_Storage {
+    public class Tests_Entities_Archetypes {
 
         [NUnit.Framework.TestAttribute]
         public void Add() {
 
-            var st = new Storage();
+            var st = new ME.ECS.FiltersArchetype.FiltersArchetypeStorage();
             st.Initialize(100);
 
             var entity = st.Alloc();
@@ -25,7 +25,7 @@ namespace ME.ECS.Tests {
         [NUnit.Framework.TestAttribute]
         public void Remove() {
 
-            var st = new Storage();
+            var st = new ME.ECS.FiltersArchetype.FiltersArchetypeStorage();
             st.Initialize(100);
 
             var entity = st.Alloc();
@@ -54,7 +54,7 @@ namespace ME.ECS.Tests {
         [NUnit.Framework.TestAttribute]
         public void AddRemoveMulti() {
 
-            var st = new Storage();
+            var st = new ME.ECS.FiltersArchetype.FiltersArchetypeStorage();
             st.Initialize(20);
 
             var list = new System.Collections.Generic.List<Entity>();

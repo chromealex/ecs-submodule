@@ -13,14 +13,22 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         public RandomState randomState;
 
-        // [ME.ECS.Serializer.SerializeField]
+        #if !FILTERS_STORAGE_ARCHETYPES
         public FiltersStorage filters;
+        [ME.ECS.Serializer.SerializeField]
+        public Storage storage;
+        #endif
+        
+        #if FILTERS_STORAGE_ARCHETYPES
+        [ME.ECS.Serializer.SerializeField]
+        public ME.ECS.FiltersArchetype.FiltersArchetypeStorage filters;
+        public ref ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage => ref this.filters;
+        #endif
+        
         [ME.ECS.Serializer.SerializeField]
         public Timers timers;
         [ME.ECS.Serializer.SerializeField]
         public StructComponentsContainer structComponents;
-        [ME.ECS.Serializer.SerializeField]
-        public Storage storage;
         [ME.ECS.Serializer.SerializeField]
         public GlobalEventStorage globalEvents;
         
@@ -30,7 +38,7 @@ namespace ME.ECS {
         /// <returns></returns>
         public virtual int GetHash() {
 
-            return this.tick ^ this.structComponents.GetHash() ^ this.randomState.GetHashCode() ^ this.storage.GetHashCode();//^ this.structComponents.GetCustomHash();
+            return this.tick ^ this.structComponents.GetHash() ^ this.randomState.GetHashCode() ^ this.storage.GetHashCode();
 
         }
 
@@ -38,7 +46,9 @@ namespace ME.ECS {
             
             world.Register(ref this.filters, freeze, restore);
             world.Register(ref this.structComponents, freeze, restore);
+            #if !FILTERS_STORAGE_ARCHETYPES
             world.Register(ref this.storage, freeze, restore);
+            #endif
             this.globalEvents.Initialize();
             this.timers.Initialize();
 
@@ -51,7 +61,9 @@ namespace ME.ECS {
 
             this.filters.CopyFrom(other.filters);
             this.structComponents.CopyFrom(other.structComponents);
+            #if !FILTERS_STORAGE_ARCHETYPES
             this.storage.CopyFrom(other.storage);
+            #endif
             this.globalEvents.CopyFrom(in other.globalEvents);
             this.timers.CopyFrom(in other.timers);
 
@@ -67,7 +79,9 @@ namespace ME.ECS {
             this.globalEvents = default;
             WorldUtilities.Release(ref this.filters);
             WorldUtilities.Release(ref this.structComponents);
+            #if !FILTERS_STORAGE_ARCHETYPES
             WorldUtilities.Release(ref this.storage);
+            #endif
 
         }
 

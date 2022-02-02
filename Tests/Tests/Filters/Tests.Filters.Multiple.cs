@@ -1,6 +1,7 @@
 ﻿
 namespace ME.ECS.Tests {
 
+    #if !FILTERS_STORAGE_ARCHETYPES
     public class Tests_Filters_Multiple {
 
         public struct TestData : IStructComponent {
@@ -154,4 +155,6 @@ namespace ME.ECS.Tests {
         }
 
     }
+    #endif
+
 }

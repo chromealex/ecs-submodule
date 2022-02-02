@@ -181,6 +181,13 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugOnly),
+            new InitializerBase.DefineInfo("FILTERS_STORAGE_ARCHETYPES", "Archetypes storage.", () => {
+                #if FILTERS_STORAGE_ARCHETYPES
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
         };
         
         private bool settingsFoldOut {

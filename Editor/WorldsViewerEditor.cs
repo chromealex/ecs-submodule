@@ -343,12 +343,32 @@ namespace ME.ECSEditor {
                 }
                 
             }
-
+            
+            #if !FILTERS_STORAGE_ARCHETYPES
             public FiltersStorage GetFilters() {
 
                 return WorldHelper.GetFilters(this.world);
 
             }
+
+            public Storage GetEntitiesStorage() {
+
+                return WorldHelper.GetEntitiesStorage(this.world);
+
+            }
+            #else
+            public ME.ECS.FiltersArchetype.FiltersArchetypeStorage GetFilters() {
+
+                return WorldHelper.GetFilters(this.world);
+
+            }
+            
+            public ME.ECS.FiltersArchetype.FiltersArchetypeStorage GetEntitiesStorage() {
+
+                return WorldHelper.GetEntitiesStorage(this.world);
+
+            }
+            #endif
 
             public IStructComponentsContainer GetStructComponentsStorage() {
 
@@ -356,12 +376,6 @@ namespace ME.ECSEditor {
 
             }
             
-            public Storage GetEntitiesStorage() {
-
-                return WorldHelper.GetEntitiesStorage(this.world);
-
-            }
-
             public ME.ECS.Collections.BufferArray<SystemGroup> GetSystems() {
 
                 return WorldHelper.GetSystems(this.world);
@@ -1134,6 +1148,7 @@ namespace ME.ECSEditor {
                             var filtersCnt = 0;
                             var containsFilters = PoolListCopyable<FilterData>.Spawn(1);
                             var filters = world.GetFilters();
+                            #if !FILTERS_STORAGE_ARCHETYPES
                             for (int i = 0; i < filters.filters.Length; ++i) {
 
                                 var filter = filters.filters.arr[i];
@@ -1147,7 +1162,22 @@ namespace ME.ECSEditor {
                                 }
 
                             }
-                            
+                            #else
+                            for (int i = 0; i < filters.filters.Count; ++i) {
+
+                                var filter = filters.filters[i];
+                                if (filter.isAlive == false) continue;
+                                
+                                if (filter.Contains(entityData) == true) {
+
+                                    containsFilters.Add(filter);
+                                    ++filtersCnt;
+
+                                }
+
+                            }
+                            #endif                            
+
                             var foldoutFilters = world.IsFoldOutFilters("Filters", entityData.id);
                             GUILayoutExt.FoldOut(ref foldoutFilters, "Filters (" + filtersCnt.ToString() + ")", () => {
 
@@ -1271,7 +1301,7 @@ namespace ME.ECSEditor {
 
                                 GUILayoutExt.Box(2f, 4f, () => {
 
-                                    {
+                                    /*{
                                         var inUseCount = filters.GetAllFiltersArchetypeCount();
                                         var max = Archetype.MAX_BIT_INDEX + 1;
                                         var percent = Mathf.FloorToInt(inUseCount / (float)max * 100);
@@ -1292,7 +1322,7 @@ namespace ME.ECSEditor {
                                         }
 
                                         GUILayoutExt.ProgressBar(inUseCount, max, new Color(0f, 0f, 0f, 0.5f), fillColor);
-                                    }
+                                    }*/
                                     
                                     if (world.debugSettings.collectStatistic == true) {
 
@@ -1625,6 +1655,7 @@ namespace ME.ECSEditor {
 
                                 });
 
+                                #if !FILTERS_STORAGE_ARCHETYPES
                                 var filtersCount = 0;
                                 var filtersArr = filters.GetData();
                                 for (int f = 0; f < filtersArr.Length; ++f) {
@@ -1648,6 +1679,7 @@ namespace ME.ECSEditor {
                                     });
                                     
                                 });
+                                #endif
 
                             });
 
@@ -1679,6 +1711,7 @@ namespace ME.ECSEditor {
 
         }
 
+        #if !FILTERS_STORAGE_ARCHETYPES
         public static void DrawFilter(FiltersStorage filters, FilterData filter) {
             
             var cellHeight = 25f;
@@ -1727,6 +1760,53 @@ namespace ME.ECSEditor {
             GUILayout.EndHorizontal();
 
         }
+        #else
+        public static void DrawFilter(ME.ECS.FiltersArchetype.FiltersArchetypeStorage filters, FilterData filter) {
+            
+            var cellHeight = 25f;
+            var padding = 2f;
+            var margin = 1f;
+            var tableStyle = (GUIStyle)"Box";
+            var dataStyle = new GUIStyle(EditorStyles.label);
+            dataStyle.richText = true;
+            GUILayout.BeginHorizontal();
+            {
+                GUILayoutExt.Box(
+                    padding,
+                    margin,
+                    () => {
+
+                        var names = filter.GetAllNames();
+                        for (int i = 0; i < names.Length; ++i) {
+
+                            GUILayout.BeginHorizontal();
+                            {
+                                /*if (GUILayout.Button("Open", EditorStyles.toolbarButton, GUILayout.Width(38f)) == true) {
+
+                                    var file = filter.GetEditorStackTraceFilename(i);
+                                    var line = filter.GetEditorStackTraceLineNumber(i);
+                                    AssetDatabase.OpenAsset(AssetDatabase.LoadAssetAtPath<MonoScript>(file), line);
+
+                                }*/
+                                GUILayoutExt.DataLabel(string.Format("<b>{0}</b>", names[i]), GUILayout.ExpandWidth(false));
+                            }
+                            GUILayout.EndHorizontal();
+                            
+                        }
+
+                        var style = new GUIStyle(EditorStyles.miniLabel);
+                        style.wordWrap = true;
+                        GUILayout.Label(filter.ToEditorTypesString(), style);
+                        GUILayout.Label("Objects count: " + filter.Count.ToString(), dataStyle);
+                        
+                    },
+                    tableStyle,
+                    GUILayout.ExpandWidth(true), GUILayout.Height(cellHeight));
+            }
+            GUILayout.EndHorizontal();
+
+        }
+        #endif
 
         private bool ToggleMethod(WorldEditor worldEditor, object instance, string methodName, ref bool state) {
 

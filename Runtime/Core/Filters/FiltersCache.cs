@@ -4,6 +4,7 @@ namespace ME.ECS {
 
     using Collections;
     
+    #if !FILTERS_STORAGE_ARCHETYPES
     public struct FiltersCache {
 
         private World world;
@@ -117,5 +118,6 @@ namespace ME.ECS {
         }
         
     }
+    #endif
 
 }

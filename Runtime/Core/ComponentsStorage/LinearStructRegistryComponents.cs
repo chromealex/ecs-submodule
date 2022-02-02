@@ -1533,6 +1533,15 @@ namespace ME.ECS {
             return this.HasData<TComponent>(in this.sharedEntity);
 
         }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool HasSharedDataBit(int bit) {
+
+            return this.HasDataBit(in this.sharedEntity, bit);
+
+        }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -1708,6 +1717,7 @@ namespace ME.ECS {
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.currentState.storage.archetypes.Set<TComponent>(in entity);
+                    this.AddFilterByStructComponent<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
@@ -1789,6 +1799,7 @@ namespace ME.ECS {
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.currentState.storage.archetypes.Remove<TComponent>(in entity);
+                    this.RemoveFilterByStructComponent<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
@@ -1845,6 +1856,7 @@ namespace ME.ECS {
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.currentState.storage.archetypes.Set<TComponent>(in entity);
+                    this.AddFilterByStructComponent<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
@@ -1891,6 +1903,7 @@ namespace ME.ECS {
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.currentState.storage.archetypes.Set<TComponent>(in entity);
+                    this.AddFilterByStructComponent<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
@@ -2075,6 +2088,7 @@ namespace ME.ECS {
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     storage.archetypes.Set<TComponent>(in entity);
+                    this.AddFilterByStructComponent<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
@@ -2132,6 +2146,7 @@ namespace ME.ECS {
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     storage.archetypes.Set<TComponent>(in entity);
+                    this.AddFilterByStructComponent<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
@@ -2189,6 +2204,7 @@ namespace ME.ECS {
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     storage.archetypes.Set<TComponent>(in entity);
+                    this.AddFilterByStructComponent<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
@@ -2367,6 +2383,7 @@ namespace ME.ECS {
             if (ComponentTypes<TComponent>.typeId >= 0) {
 
                 storage.archetypes.Remove<TComponent>(in entity);
+                this.RemoveFilterByStructComponent<TComponent>(in entity);
                 this.UpdateFilterByStructComponent<TComponent>(in entity);
 
             }

@@ -352,6 +352,7 @@ namespace ME.ECS {
                     if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
+            this.world.currentState.storage.Set(in group, componentIndex);
 
         }
 
@@ -378,6 +379,7 @@ namespace ME.ECS {
                     if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
+            this.world.currentState.storage.Set(in group, componentIndex);
 
         }
 
@@ -402,6 +404,8 @@ namespace ME.ECS {
                     }
                 }
 
+                this.world.currentState.storage.Remove(in group, componentIndex);
+
             }
             
         }
@@ -409,30 +413,6 @@ namespace ME.ECS {
     }
 
     public partial class World {
-
-        public void UpdateFilters(in EntitiesGroup group) {
-
-            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
-            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
-            if (dic.arr != null) {
-
-                for (int i = 0; i < dic.Length; ++i) {
-
-                    if (dic.arr[i] == false) continue;
-                    var filterId = i + 1;
-                    var filter = this.GetFilter(filterId);
-                    for (int j = group.fromId, k = 0; j <= group.toId; ++j, ++k) {
-                    
-                        if (filter.IsForEntity(j) == false) continue;
-                        filter.OnUpdate(in group.slice.GetRefRead(k));
-                        
-                    }
-
-                }
-
-            }
-
-        }
 
         /// <summary>
         /// Create EntitiesGroup.

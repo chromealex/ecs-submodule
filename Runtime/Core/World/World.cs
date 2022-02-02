@@ -154,12 +154,14 @@ namespace ME.ECS {
         private const int ENTITIES_CACHE_CAPACITY = 100;
         private const int WORLDS_CAPACITY = 4;
         private const int FILTERS_CACHE_CAPACITY = 10;
-
+        
+        #if !FILTERS_STORAGE_ARCHETYPES
         private static class FiltersDirectCache {
 
             internal static BufferArray<BufferArray<bool>> dic = new BufferArray<BufferArray<bool>>(null, 0); //new bool[World.WORLDS_CAPACITY][];
 
         }
+        #endif
 
         private static int registryWorldId = 0;
 
@@ -275,8 +277,10 @@ namespace ME.ECS {
             this.OnRecycleMarkers();
             this.OnRecycleComponents();
             this.OnRecycleStructComponents();
-
+        
+            #if !FILTERS_STORAGE_ARCHETYPES
             if (FiltersDirectCache.dic.arr != null) PoolArray<bool>.Recycle(ref FiltersDirectCache.dic.arr[this.id]);
+            #endif
 
             PoolDictionary<System.Type, IFeatureBase>.Recycle(ref this.features);
 
@@ -399,12 +403,16 @@ namespace ME.ECS {
             var data = networkModule.GetSerializer().DeserializeWorld(worldData);
 
             // Make a ref of current filters to the new state
+            #if !FILTERS_STORAGE_ARCHETYPES
             this.GetState().filters.Clear();
             data.state.filters = this.GetState().filters;
             this.GetState().filters = null;
+            #endif
 
             this.SetState<TState>(data.state);
+            #if !FILTERS_STORAGE_ARCHETYPES
             data.state.filters.OnDeserialize(this.GetEntitiesCount());
+            #endif
             statesHistory.AddEvents(data.events.events);
 
             statesHistory.BeginAddEvents();
@@ -652,7 +660,9 @@ namespace ME.ECS {
 
             }
 
+            #if !FILTERS_STORAGE_ARCHETYPES
             ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            #endif
 
         }
 
@@ -1025,50 +1035,6 @@ namespace ME.ECS {
 
         }
 
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public FilterData GetFilter(int id) {
-
-            return this.currentState.filters.filters.arr[id - 1];
-
-        }
-
-        public FilterData GetFilterEquals(FilterBuilder builder) {
-
-            return this.currentState.filters.GetFilterEquals(builder);
-
-        }
-
-        public bool HasFilter(FilterData filterRef) {
-
-            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
-            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
-            if (dic.arr != null) {
-
-                return dic.arr[filterRef.id - 1] == true;
-
-            }
-
-            return false;
-
-        }
-
-        public bool HasFilter(int id) {
-
-            var idx = id - 1;
-            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
-            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
-            if (dic.arr != null && idx >= 0 && idx < dic.Length) {
-
-                return dic.arr[idx] == true;
-
-            }
-
-            return false;
-
-        }
-
         #region GlobalEvents
         private struct GlobalEventFrameItem {
 
@@ -1275,130 +1241,6 @@ namespace ME.ECS {
         #endif
         #endregion
 
-        public void Register(FilterData filterRef) {
-
-            this.currentState.filters.Register(filterRef);
-
-            ArrayUtils.Resize(filterRef.id, ref this.currentSystemContextFiltersUsed);
-
-            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
-            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
-            ArrayUtils.Resize(filterRef.id - 1, ref dic);
-            dic.arr[filterRef.id - 1] = true;
-            this.currentState.filters.filtersTree.Add(filterRef);
-
-            if (this.entitiesCapacity > 0) filterRef.SetEntityCapacity(this.entitiesCapacity);
-
-            var list = PoolListCopyable<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
-            if (this.ForEachEntity(list) == true) {
-
-                var maxId = this.currentState.storage.GetMaxId();
-                ComponentsInitializerWorld.Init(new Entity(maxId, 1));
-                
-                for (int i = 0; i < list.Count; ++i) {
-
-                    ref var item = ref list[i];
-                    this.UpdateFiltersOnFilterCreate(item);
-
-                }
-
-            }
-
-            PoolListCopyable<Entity>.Recycle(ref list);
-
-        }
-
-        public void Register(ref FiltersStorage filtersRef, bool freeze, bool restore) {
-
-            const int capacity = 10;
-            if (filtersRef == null) {
-
-                filtersRef = PoolClass<FiltersStorage>.Spawn();
-                filtersRef.Initialize(capacity);
-
-            }
-            filtersRef.SetFreeze(freeze);
-            
-            if (freeze == false) {
-
-                //this.filtersStorage = filtersRef;
-
-                //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
-                ref var dic = ref FiltersDirectCache.dic.arr[this.id];
-                if (dic.arr != null) {
-
-                    System.Array.Clear(dic.arr, 0, dic.Length);
-                    for (int i = 0; i < filtersRef.filters.Length; ++i) {
-
-                        var filterRef = filtersRef.filters.arr[i];
-                        if (filterRef != null) {
-
-                            ArrayUtils.Resize(filterRef.id - 1, ref dic);
-                            dic.arr[filterRef.id - 1] = true;
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-        }
-
-        public void Register(ref Storage storageRef, bool freeze, bool restore) {
-
-            this.RegisterPluginsModuleForEntity();
-
-            if (storageRef.isCreated == false) {
-
-                storageRef = new Storage();
-                storageRef.Initialize(World.ENTITIES_CACHE_CAPACITY);
-                storageRef.SetFreeze(freeze);
-
-            }
-
-            if (freeze == false) {
-
-                if (this.sharedEntity.id == 0 && this.sharedEntityInitialized == false) {
-
-                    // Create shared entity which should store shared components
-                    this.sharedEntityInitialized = true;
-                    this.sharedEntity = this.AddEntity();
-
-                }
-
-            }
-
-            if (restore == true) {
-
-                this.BeginRestoreEntities();
-
-                // Update entities cache
-                var list = PoolListCopyable<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
-                if (this.ForEachEntity(list) == true) {
-
-                    for (int i = 0; i < list.Count; ++i) {
-
-                        ref var item = ref list[i];
-                        // This call resets FilterData.dataVersions[item.id] to true which might create state desynchronization
-                        // in case entity hadn't been updated on the previous tick. FilterData seems to have its state already
-                        // stored within the main state, so it's possible that this call is not needed at all.
-                        //this.UpdateFiltersOnFilterCreate(item);
-                        this.CreateEntityPlugins(item);
-
-                    }
-
-                }
-
-                PoolListCopyable<Entity>.Recycle(ref list);
-
-                this.EndRestoreEntities();
-
-            }
-
-        }
-
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -1496,97 +1338,6 @@ namespace ME.ECS {
 
         }
 
-        public void UpdateAllFilters() {
-
-            var filters = this.currentState.filters.GetData();
-            for (int i = 0; i < filters.Length; ++i) {
-
-                if (filters.arr[i] == null) continue;
-                filters.arr[i].Update();
-
-            }
-
-        }
-
-        public void SetEntityCapacityInFilters(int capacity) {
-
-            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
-            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
-            if (dic.arr != null) {
-
-                for (int i = 0; i < dic.Length; ++i) {
-
-                    if (dic.arr[i] == false) continue;
-                    var filterId = i + 1;
-                    var filter = this.GetFilter(filterId);
-                    filter.SetEntityCapacity(capacity);
-
-                }
-
-            }
-
-        }
-
-        public void CreateEntityInFilters(Entity entity) {
-
-            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
-            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
-            if (dic.arr != null) {
-
-                for (int i = 0; i < dic.Length; ++i) {
-
-                    if (dic.arr[i] == false) continue;
-                    var filterId = i + 1;
-                    var filter = this.GetFilter(filterId);
-                    filter.OnEntityCreate(entity);
-
-                }
-
-            }
-
-        }
-
-        public void UpdateFiltersOnFilterCreate(Entity entity) {
-
-            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
-            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
-            if (dic.arr != null) {
-
-                for (int i = 0; i < dic.Length; ++i) {
-
-                    if (dic.arr[i] == false) continue;
-                    var filterId = i + 1;
-                    var filter = this.GetFilter(filterId);
-                    filter.OnEntityCreate(in entity);
-                    if (filter.IsForEntity(entity.id) == false) continue;
-                    filter.OnUpdate(in entity);
-
-                }
-
-            }
-
-        }
-
-        public void UpdateFilters(in Entity entity) {
-
-            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
-            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
-            if (dic.arr != null) {
-
-                for (int i = 0; i < dic.Length; ++i) {
-
-                    if (dic.arr[i] == false) continue;
-                    var filterId = i + 1;
-                    var filter = this.GetFilter(filterId);
-                    if (filter.IsForEntity(entity.id) == false) continue;
-                    filter.OnUpdate(in entity);
-
-                }
-
-            }
-
-        }
-
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -1636,8 +1387,7 @@ namespace ME.ECS {
 
         public ref readonly Entity GetEntityById(int id) {
 
-            ref var entitiesList = ref this.currentState.storage;
-            ref var ent = ref entitiesList[id];
+            ref var ent = ref this.currentState.storage.GetEntityById(id);
             if (this.IsAlive(ent.id, ent.generation) == false) return ref Entity.Empty;
 
             return ref ent;
@@ -1698,7 +1448,6 @@ namespace ME.ECS {
             this.currentState.storage.versions.Validate(in entity);
             this.CreateEntityPlugins(entity);
             this.CreateEntityInFilters(entity);
-            //this.UpdateFilters(entity);
 
         }
 
@@ -2945,6 +2694,7 @@ namespace ME.ECS {
                                     #pragma warning restore
                                     if (this.settings.useJobsForSystems == true && jobs == true) {
 
+                                        #if !FILTERS_STORAGE_ARCHETYPES
                                         var arrEntities = system.filter.ToArray();
                                         
                                         var filter = this.GetFilter(system.filter.id);
@@ -2964,41 +2714,15 @@ namespace ME.ECS {
                                         Pools.current = currentPools;
                                         
                                         filter.UseVersioned();
-                                        
-                                        /*
-                                        var arrEntities = this.currentState.storage.cache.arr;
-                                        system.filter.ToArray().GetBounds(out var min, out var max);
-                                        if (min > max) {
+                                        #else
+                                        // TODO: Make a job
+                                        foreach (var entity in system.filter) {
 
-                                            min = 0;
-                                            max = -1;
+                                            system.AdvanceTick(in entity, fixedDeltaTime);
 
                                         }
-
-                                        if (min < 0) min = 0;
-                                        ++max;
-                                        if (max >= arrEntities.Length) max = arrEntities.Length - 1;
-
-                                        if (min < max) {
-
-                                            var filter = this.GetFilter(system.filter.id);
-                                            var arrContains = filter.data.dataContains;
-                                            var arrVersions = (filter.data.onVersionChangedOnly == 1 ? filter.data.dataVersions : default);
-
-                                            var length = max - min;
-                                            var job = new ForeachFilterJob() {
-                                                deltaTime = fixedDeltaTime,
-                                                slice = new Unity.Collections.NativeSlice<Entity>(arrEntities, min, max - min),
-                                                dataContains = arrContains,
-                                                dataVersions = arrVersions,
-                                            };
-                                            var jobHandle = job.Schedule(length, batch);
-                                            jobHandle.Complete();
-
-                                            filter.UseVersioned();
-
-                                        }*/
-
+                                        #endif
+                                        
                                     } else {
 
                                         foreach (var entity in system.filter) {
