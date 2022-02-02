@@ -22,6 +22,236 @@ namespace ME.ECS {
 
     public partial class World {
 
+        #if !FILTERS_STORAGE_ARCHETYPES
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public FilterData GetFilter(int id) {
+
+            return this.currentState.filters.filters.arr[id - 1];
+
+        }
+
+        public FilterData GetFilterEquals(FilterBuilder builder) {
+
+            return this.currentState.filters.GetFilterEquals(builder);
+
+        }
+
+        public bool HasFilter(FilterData filterRef) {
+
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
+            if (dic.arr != null) {
+
+                return dic.arr[filterRef.id - 1] == true;
+
+            }
+
+            return false;
+
+        }
+
+        public bool HasFilter(int id) {
+
+            var idx = id - 1;
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
+            if (dic.arr != null && idx >= 0 && idx < dic.Length) {
+
+                return dic.arr[idx] == true;
+
+            }
+
+            return false;
+
+        }
+
+        public void Register(FilterData filterRef) {
+
+            this.currentState.filters.Register(filterRef);
+
+            ArrayUtils.Resize(filterRef.id, ref this.currentSystemContextFiltersUsed);
+
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
+            ArrayUtils.Resize(filterRef.id - 1, ref dic);
+            dic.arr[filterRef.id - 1] = true;
+            this.currentState.filters.filtersTree.Add(filterRef);
+
+            if (this.entitiesCapacity > 0) filterRef.SetEntityCapacity(this.entitiesCapacity);
+
+            var list = PoolListCopyable<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
+            if (this.ForEachEntity(list) == true) {
+
+                var maxId = this.currentState.storage.GetMaxId();
+                ComponentsInitializerWorld.Init(new Entity(maxId, 1));
+                
+                for (int i = 0; i < list.Count; ++i) {
+
+                    ref var item = ref list[i];
+                    this.UpdateFiltersOnFilterCreate(item);
+
+                }
+
+            }
+
+            PoolListCopyable<Entity>.Recycle(ref list);
+
+        }
+
+        public void Register(ref FiltersStorage filtersRef, bool freeze, bool restore) {
+
+            const int capacity = 10;
+            if (filtersRef == null) {
+
+                filtersRef = PoolClass<FiltersStorage>.Spawn();
+                filtersRef.Initialize(capacity);
+
+            }
+            filtersRef.SetFreeze(freeze);
+            
+            if (freeze == false) {
+
+                //this.filtersStorage = filtersRef;
+
+                //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+                ref var dic = ref FiltersDirectCache.dic.arr[this.id];
+                if (dic.arr != null) {
+
+                    System.Array.Clear(dic.arr, 0, dic.Length);
+                    for (int i = 0; i < filtersRef.filters.Length; ++i) {
+
+                        var filterRef = filtersRef.filters.arr[i];
+                        if (filterRef != null) {
+
+                            ArrayUtils.Resize(filterRef.id - 1, ref dic);
+                            dic.arr[filterRef.id - 1] = true;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        public void UpdateAllFilters() {
+
+            var filters = this.currentState.filters.GetData();
+            for (int i = 0; i < filters.Length; ++i) {
+
+                if (filters.arr[i] == null) continue;
+                filters.arr[i].Update();
+
+            }
+
+        }
+
+        public void SetEntityCapacityInFilters(int capacity) {
+
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
+            if (dic.arr != null) {
+
+                for (int i = 0; i < dic.Length; ++i) {
+
+                    if (dic.arr[i] == false) continue;
+                    var filterId = i + 1;
+                    var filter = this.GetFilter(filterId);
+                    filter.SetEntityCapacity(capacity);
+
+                }
+
+            }
+
+        }
+
+        public void CreateEntityInFilters(Entity entity) {
+
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
+            if (dic.arr != null) {
+
+                for (int i = 0; i < dic.Length; ++i) {
+
+                    if (dic.arr[i] == false) continue;
+                    var filterId = i + 1;
+                    var filter = this.GetFilter(filterId);
+                    filter.OnEntityCreate(entity);
+
+                }
+
+            }
+
+        }
+
+        public void UpdateFiltersOnFilterCreate(Entity entity) {
+
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
+            if (dic.arr != null) {
+
+                for (int i = 0; i < dic.Length; ++i) {
+
+                    if (dic.arr[i] == false) continue;
+                    var filterId = i + 1;
+                    var filter = this.GetFilter(filterId);
+                    filter.OnEntityCreate(in entity);
+                    if (filter.IsForEntity(entity.id) == false) continue;
+                    filter.OnUpdate(in entity);
+
+                }
+
+            }
+
+        }
+
+        public void UpdateFilters(in EntitiesGroup group) {
+
+            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
+            if (dic.arr != null) {
+
+                for (int i = 0; i < dic.Length; ++i) {
+
+                    if (dic.arr[i] == false) continue;
+                    var filterId = i + 1;
+                    var filter = this.GetFilter(filterId);
+                    for (int j = group.fromId, k = 0; j <= group.toId; ++j, ++k) {
+                    
+                        if (filter.IsForEntity(j) == false) continue;
+                        filter.OnUpdate(in group.slice.GetRefRead(k));
+                        
+                    }
+
+                }
+
+            }
+
+        }
+
+        public void UpdateFilters(in Entity entity) {
+
+            //ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
+            ref var dic = ref FiltersDirectCache.dic.arr[this.id];
+            if (dic.arr != null) {
+
+                for (int i = 0; i < dic.Length; ++i) {
+
+                    if (dic.arr[i] == false) continue;
+                    var filterId = i + 1;
+                    var filter = this.GetFilter(filterId);
+                    if (filter.IsForEntity(entity.id) == false) continue;
+                    filter.OnUpdate(in entity);
+
+                }
+
+            }
+
+        }
+
         internal FiltersCache filtersCache;
 
         internal void OnSpawnFilters() {
@@ -132,6 +362,10 @@ namespace ME.ECS {
             notContainsResult.Dispose();
 
         }
+        
+        public void AddFilterByStructComponent(in Entity entity, int componentIndex) {}
+        public void AddFilterByStructComponent<T>(in Entity entity) where T : struct, IStructComponentBase {}
+        public void RemoveFilterByStructComponent<T>(in Entity entity) where T : struct, IStructComponentBase {}
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -287,9 +521,15 @@ namespace ME.ECS {
             PoolHashSet<int>.Recycle(ref visited);
             
         }
+        #else
+        /*
+         * Archetypes storage type
+         */
+        #endif
 
     }
 
+    #if !FILTERS_STORAGE_ARCHETYPES
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -2402,5 +2642,6 @@ namespace ME.ECS {
         }
 
     }
+    #endif
 
 }

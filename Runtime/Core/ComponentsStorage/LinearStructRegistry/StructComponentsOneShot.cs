@@ -97,6 +97,7 @@ namespace ME.ECS {
             if (ComponentTypes<TComponent>.typeId >= 0) {
 
                 storage.archetypes.Remove<TComponent>(in entity);
+                this.RemoveFilterByStructComponent<TComponent>(in entity);
                 this.UpdateFilterByStructComponent<TComponent>(in entity);
 
             }
@@ -188,6 +189,7 @@ namespace ME.ECS {
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     storage.archetypes.Set<TComponent>(in entity);
+                    this.AddFilterByStructComponent<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
@@ -258,6 +260,7 @@ namespace ME.ECS {
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     storage.archetypes.Set<TComponent>(in entity);
+                    this.AddFilterByStructComponent<TComponent>(in entity);
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }

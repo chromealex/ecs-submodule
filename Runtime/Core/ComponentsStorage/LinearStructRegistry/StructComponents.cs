@@ -151,6 +151,7 @@ namespace ME.ECS {
                 if (componentIndex >= 0) {
                     
                     this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
+                    this.world.AddFilterByStructComponent(in entity, componentIndex);
                     this.world.UpdateFilterByStructComponent(in entity, componentIndex);
                     
                 }

@@ -668,10 +668,6 @@ namespace ME.ECS.Collections {
 
         private void Insert(TKey key, TValue value, bool add) {
 
-            if (key == null) {
-                throw new ArgumentNullException();
-            }
-
             if (this._buckets == null) {
                 this.Initialize(0);
             }

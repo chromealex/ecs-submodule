@@ -11,9 +11,7 @@ namespace ME.ECS {
         int AliveCount { get; }
         int DeadCount { get; }
 
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         bool IsAlive(int id, ushort generation);
 
         bool ForEach(ListCopyable<Entity> results);
@@ -22,6 +20,70 @@ namespace ME.ECS {
         bool Dealloc(in Entity entity);
 
         void ApplyDead();
+
+    }
+
+}
+
+#if !FILTERS_STORAGE_ARCHETYPES
+namespace ME.ECS {
+
+    using ME.ECS.Collections;
+
+    public partial class World {
+        
+        public void Register(ref Storage storageRef, bool freeze, bool restore) {
+
+            this.RegisterPluginsModuleForEntity();
+
+            if (storageRef.isCreated == false) {
+
+                storageRef = new Storage();
+                storageRef.Initialize(World.ENTITIES_CACHE_CAPACITY);
+                storageRef.SetFreeze(freeze);
+
+            }
+
+            if (freeze == false) {
+
+                if (this.sharedEntity.id == 0 && this.sharedEntityInitialized == false) {
+
+                    // Create shared entity which should store shared components
+                    this.sharedEntityInitialized = true;
+                    this.sharedEntity = this.AddEntity();
+
+                }
+
+            }
+
+            if (restore == true) {
+
+                this.BeginRestoreEntities();
+
+                // Update entities cache
+                var list = PoolListCopyable<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
+                if (this.ForEachEntity(list) == true) {
+
+                    for (int i = 0; i < list.Count; ++i) {
+
+                        ref var item = ref list[i];
+                        // This call resets FilterData.dataVersions[item.id] to true which might create state desynchronization
+                        // in case entity hadn't been updated on the previous tick. FilterData seems to have its state already
+                        // stored within the main state, so it's possible that this call is not needed at all.
+                        //this.UpdateFiltersOnFilterCreate(item);
+                        this.CreateEntityPlugins(item);
+
+                    }
+
+                }
+
+                PoolListCopyable<Entity>.Recycle(ref list);
+
+                this.EndRestoreEntities();
+
+            }
+
+        }
 
     }
 
@@ -167,7 +229,23 @@ namespace ME.ECS {
             return this.dead.Count == 0;
 
         }
-        
+
+        public ref Entity GetEntityById(int id) {
+
+            return ref this.cache[id];
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void Set(in EntitiesGroup group, int componentId) {
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void Remove(in EntitiesGroup group, int componentId) {
+
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -187,7 +265,7 @@ namespace ME.ECS {
             }
             this.alive.AddRange(list);
             PoolArray<int>.Recycle(ref list);
-            this.versions.Reset(this.entityId);
+            this.versions.Reset(id);
 
             this.entityId += count;
 
@@ -302,3 +380,4 @@ namespace ME.ECS {
     }
 
 }
+#endif

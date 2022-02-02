@@ -79,6 +79,7 @@ namespace ME.ECSEditor.Tools {
                         new TestInfo(TestMethod.Recycle),
                     },
                 });
+                #if !FILTERS_STORAGE_ARCHETYPES
                 collectedComponents.Add(new TestItem() {
                     type = typeof(ME.ECS.Storage),
                     tests = new [] {
@@ -99,6 +100,15 @@ namespace ME.ECSEditor.Tools {
                         new TestInfo(TestMethod.Recycle),
                     },
                 });
+                #else
+                collectedComponents.Add(new TestItem() {
+                    type = typeof(ME.ECS.FiltersArchetype.FiltersArchetypeStorage),
+                    tests = new [] {
+                        new TestInfo(TestMethod.CopyFrom),
+                        new TestInfo(TestMethod.Recycle),
+                    },
+                });
+                #endif
                 collectedComponents.Add(new TestItem() {
                     type = this.FindType(typeof(ME.ECS.World)),
                     tests = new [] {

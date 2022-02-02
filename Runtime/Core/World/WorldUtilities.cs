@@ -67,16 +67,7 @@ namespace ME.ECS {
 
         }
 
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static void Release(ref Storage storage) {
-
-            //PoolClass<Storage>.Recycle(ref storage);
-            storage.Recycle();
-
-        }
-
+        #if !FILTERS_STORAGE_ARCHETYPES
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -87,6 +78,25 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Release(ref Storage storage) {
+
+            storage.Recycle();
+
+        }
+        #else
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Release(ref ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage) {
+
+            storage.Recycle();
+
+        }
+        #endif
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
