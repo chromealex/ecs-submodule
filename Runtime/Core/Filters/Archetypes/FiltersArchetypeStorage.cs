@@ -1,11 +1,11 @@
+#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using ME.ECS.Collections;
-
-#if ENABLE_IL2CPP
-#define INLINE_METHODS
-#endif
 
 #if FILTERS_STORAGE_ARCHETYPES
 namespace ME.ECS {
