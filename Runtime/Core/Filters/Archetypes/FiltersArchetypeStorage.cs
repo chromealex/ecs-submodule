@@ -90,6 +90,7 @@ namespace ME.ECS {
         public void RemoveFromAllFilters(in Entity entity) {
             
             // On destroy entity
+            this.currentState.filters.Remove(in entity);
             
         }
 
@@ -661,6 +662,7 @@ namespace ME.ECS.FiltersArchetype {
 
             public struct Edge {
 
+                public bool isCreated;
                 public int add;
                 public int remove;
 
@@ -724,7 +726,14 @@ namespace ME.ECS.FiltersArchetype {
             }
 
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            public Archetype Set(FiltersArchetypeStorage storage, Entity entity, int componentId) {
+            public void Remove(ref FiltersArchetypeStorage storage, Entity entity) {
+
+                this.entitiesList.Remove(entity.id);
+
+            }
+
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            public Archetype Set(ref FiltersArchetypeStorage storage, Entity entity, int componentId) {
 
                 if (this.Has(componentId) == true) return this;
                 
@@ -733,25 +742,30 @@ namespace ME.ECS.FiltersArchetype {
 
                 // Find the edge to move
                 ref var edge = ref this.edges.GetValue(componentId);
+                if (edge.isCreated == false) edge = new Edge() {
+                    isCreated = true,
+                    add = -1,
+                    remove = -1,
+                };
                 
                 {
                     
-                    if (edge.add == 0) {
-                        edge.add = CreateAdd(storage, this.index, this.componentIds, this.components, componentId);
+                    if (edge.add == -1) {
+                        edge.add = CreateAdd(ref storage, this.index, this.componentIds, this.components, componentId);
                     }
 
-                    var arch = storage.allArchetypes[edge.add - 1];
+                    var arch = storage.allArchetypes[edge.add];
                     arch.entitiesList.Add(entity.id);
                     
                 }
 
                 // Return the new archetype we are moved to
-                return storage.allArchetypes[edge.add - 1];
+                return storage.allArchetypes[edge.add];
 
             }
 
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            public Archetype Remove(FiltersArchetypeStorage storage, Entity entity, int componentId) {
+            public Archetype Remove(ref FiltersArchetypeStorage storage, Entity entity, int componentId) {
 
                 if (this.Has(componentId) == false) return this;
 
@@ -760,24 +774,30 @@ namespace ME.ECS.FiltersArchetype {
                 
                 // Find the edge to move
                 ref var edge = ref this.edges.GetValue(componentId);
+                if (edge.isCreated == false) edge = new Edge() {
+                    isCreated = true,
+                    add = -1,
+                    remove = -1,
+                };
+                
                 {
                     
-                    if (edge.remove == 0) {
-                        edge.remove = CreateRemove(storage, this.index, this.componentIds, this.components, componentId);
+                    if (edge.remove == -1) {
+                        edge.remove = CreateRemove(ref storage, this.index, this.componentIds, this.components, componentId);
                     }
                     
-                    var arch = storage.allArchetypes[edge.remove - 1];
+                    var arch = storage.allArchetypes[edge.remove];
                     arch.entitiesList.Add(entity.id);
 
                 }
                 
                 // Return the new archetype we are moved to
-                return storage.allArchetypes[edge.remove - 1];
+                return storage.allArchetypes[edge.remove];
 
             }
 
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            internal static int CreateAdd(FiltersArchetypeStorage storage, int node, List<int> componentIds, DictionaryUInt<Info> components, int componentId) {
+            internal static int CreateAdd(ref FiltersArchetypeStorage storage, int node, List<int> componentIds, DictionaryUInt<Info> components, int componentId) {
 
                 if (storage.TryGetArchetypeAdd(componentIds, componentId, out var ar) == true) return ar;
 
@@ -789,16 +809,19 @@ namespace ME.ECS.FiltersArchetype {
                     components = new DictionaryUInt<Info>(components),
                     //componentStorage = new ComponentStorage[componentIds.Count + 1],
                 };
-                var idx = storage.allArchetypes.Count + 1;
+                storage.isArchetypesDirty = true;
+                var idx = storage.allArchetypes.Count;
                 arch.index = idx;
                 storage.allArchetypes.Add(arch);
                 arch.components.Add(componentId, new Info() {
                     index = arch.componentIds.Count,
                 });
                 arch.componentIds.Add(componentId);
-                if (node > 0) {
+                if (node >= 0) {
                     arch.edges.Add(componentId, new Edge() {
+                        isCreated = true,
                         remove = node,
+                        add = -1,
                     });
                 }
 
@@ -807,7 +830,7 @@ namespace ME.ECS.FiltersArchetype {
             }
 
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            internal static int CreateRemove(FiltersArchetypeStorage storage, int node, List<int> componentIds, DictionaryUInt<Info> components, int componentId) {
+            internal static int CreateRemove(ref FiltersArchetypeStorage storage, int node, List<int> componentIds, DictionaryUInt<Info> components, int componentId) {
 
                 if (storage.TryGetArchetypeRemove(componentIds, componentId, out var ar) == true) return ar;
                 
@@ -819,7 +842,8 @@ namespace ME.ECS.FiltersArchetype {
                     components = new DictionaryUInt<Info>(),
                     //componentStorage = new ComponentStorage[componentIds.Count - 1],
                 };
-                var idx = storage.allArchetypes.Count + 1;
+                storage.isArchetypesDirty = true;
+                var idx = storage.allArchetypes.Count;
                 arch.index = idx;
                 storage.allArchetypes.Add(arch);
                 var info = components[componentId];
@@ -831,9 +855,11 @@ namespace ME.ECS.FiltersArchetype {
                     });
                 }
                 
-                if (node > 0) {
+                if (node >= 0) {
                     arch.edges.Add(componentId, new Edge() {
+                        isCreated = true,
                         add = node,
+                        remove = -1,
                     });
                 }
 
@@ -925,6 +951,7 @@ namespace ME.ECS.FiltersArchetype {
         internal bool isCreated;
 
         private List<Request> requests;
+        private bool isArchetypesDirty;
         
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public void Initialize(int capacity) {
@@ -938,6 +965,7 @@ namespace ME.ECS.FiltersArchetype {
             this.nextEntityId = -1;
             this.isCreated = true;
             this.forEachMode = 0;
+            this.isArchetypesDirty = false;
 
             this.requests = PoolList<Request>.Spawn(10);
 
@@ -946,7 +974,7 @@ namespace ME.ECS.FiltersArchetype {
                 entitiesList = new HashSetCopyable<int>(),
                 componentIds = new List<int>(),
                 components = new DictionaryUInt<Archetype.Info>(),
-                index = 1,
+                index = 0,
             };
             this.root = arch.index;
             this.index = new DictionaryULong<int>();
@@ -972,6 +1000,7 @@ namespace ME.ECS.FiltersArchetype {
             this.aliveCount = other.aliveCount;
             this.nextEntityId = other.nextEntityId;
             this.versions.CopyFrom(other.versions);
+            this.isArchetypesDirty = other.isArchetypesDirty;
 
             this.root = other.root;
             ArrayUtils.Copy(other.filters, ref this.filters, new FilterData.CopyData());
@@ -992,6 +1021,7 @@ namespace ME.ECS.FiltersArchetype {
             this.index = null;
             this.allArchetypes = null;
             this.filters = null;
+            this.isArchetypesDirty = default;
             
             PoolList<Request>.Recycle(ref this.requests);
             
@@ -1124,7 +1154,7 @@ namespace ME.ECS.FiltersArchetype {
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         private void OnAlloc(int entityId) {
 
-            var arch = this.allArchetypes[this.root - 1];
+            var arch = this.allArchetypes[this.root];
             arch.entitiesList.Add(entityId);
             this.index.Add((ulong)entityId << 32, this.root);
             
@@ -1135,10 +1165,9 @@ namespace ME.ECS.FiltersArchetype {
 
             // Remove from archetype
             var key = ((ulong)entityId) << 32;
-            var archIdx = this.index[key];
-            var arch = this.allArchetypes[archIdx - 1];
+            var archIdx = this.index.GetValueAndRemove(key);
+            var arch = this.allArchetypes[archIdx];
             arch.entitiesList.Remove(entityId);
-            this.index.Remove((ulong)entityId << 32);
 
         }
         #endregion
@@ -1158,13 +1187,15 @@ namespace ME.ECS.FiltersArchetype {
             for (var i = 0; i < this.allArchetypes.Count; ++i) {
                 
                 var ar = this.allArchetypes[i];
-                if (ar.Has(componentId) == true &&
+                if (ar.componentIds.Count == componentIds.Count &&
+                    ar.Has(componentId) == true &&
                     ar.HasAll(componentIds) == true) {
 
-                    arch = i + 1;
+                    arch = i;
                     return true;
 
                 }
+                
             }
 
             return false;
@@ -1179,13 +1210,15 @@ namespace ME.ECS.FiltersArchetype {
             for (var i = 0; i < this.allArchetypes.Count; ++i) {
                 
                 var ar = this.allArchetypes[i];
-                if (ar.Has(componentId) == false &&
+                if (ar.componentIds.Count == componentIds.Count - 1 &&
+                    ar.Has(componentId) == false &&
                     ar.HasAllExcept(componentIds, componentId) == true) {
 
-                    arch = i + 1;
+                    arch = i;
                     return true;
 
                 }
+                
             }
 
             return false;
@@ -1197,7 +1230,7 @@ namespace ME.ECS.FiltersArchetype {
 
             var key = ((ulong)entity.id) << 32;
             var archIdx = this.index[key];
-            var arch = this.allArchetypes[archIdx - 1];
+            var arch = this.allArchetypes[archIdx];
             return arch.Has(ComponentTypes<T>.typeId);
 
         }
@@ -1237,8 +1270,8 @@ namespace ME.ECS.FiltersArchetype {
             
             var key = ((ulong)entity.id) << 32;
             ref var archIdx = ref this.index.GetValue(key);
-            var arch = this.allArchetypes[archIdx - 1];
-            archIdx = arch.Set(this, entity, componentId).index;
+            var arch = this.allArchetypes[archIdx];
+            archIdx = arch.Set(ref this, entity, componentId).index;
             
         }
 
@@ -1255,8 +1288,13 @@ namespace ME.ECS.FiltersArchetype {
 
             var key = ((ulong)entity.id) << 32;
             ref var archIdx = ref this.index.GetValue(key);
-            var arch = this.allArchetypes[archIdx - 1];
-            archIdx = arch.Set(this, entity, ComponentTypes<T>.typeId).index;
+            var arch = this.allArchetypes[archIdx];
+            archIdx = arch.Set(ref this, entity, ComponentTypes<T>.typeId).index;
+            
+        }
+
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        public void Remove(in Entity entity) {
             
         }
 
@@ -1273,8 +1311,8 @@ namespace ME.ECS.FiltersArchetype {
 
             var key = ((ulong)entity.id) << 32;
             ref var archIdx = ref this.index.GetValue(key);
-            var arch = this.allArchetypes[archIdx - 1];
-            archIdx = arch.Remove(this, entity, componentId).index;
+            var arch = this.allArchetypes[archIdx];
+            archIdx = arch.Remove(ref this, entity, componentId).index;
             
         }
 
@@ -1291,8 +1329,8 @@ namespace ME.ECS.FiltersArchetype {
 
             var key = ((ulong)entity.id) << 32;
             ref var archIdx = ref this.index.GetValue(key);
-            var arch = this.allArchetypes[archIdx - 1];
-            archIdx = arch.Remove(this, entity, ComponentTypes<T>.typeId).index;
+            var arch = this.allArchetypes[archIdx];
+            archIdx = arch.Remove(ref this, entity, ComponentTypes<T>.typeId).index;
             
         }
 
@@ -1400,21 +1438,27 @@ namespace ME.ECS.FiltersArchetype {
 
             this.ApplyDead();
             this.ApplyAllRequests();
-            
-            foreach (var item in this.filters) {
 
-                item.archetypes.Clear();
+            if (this.isArchetypesDirty == true) {
+                
+                this.isArchetypesDirty = false;
+                foreach (var item in this.filters) {
 
-                for (var i = 0; i < this.allArchetypes.Count; ++i) {
-                    
-                    var arch = this.allArchetypes[i];
-                    if (arch.HasAll(item.data.contains) == true &&
-                        arch.HasNotAll(item.data.notContains) == true &&
-                        this.CheckStaticShared(item.data.containsShared, item.data.notContainsShared) == true) {
+                    item.archetypes.Clear();
 
-                        item.archetypes.Add(i);
+                    for (var i = 0; i < this.allArchetypes.Count; ++i) {
+                        
+                        var arch = this.allArchetypes[i];
+                        if (arch.HasAll(item.data.contains) == true &&
+                            arch.HasNotAll(item.data.notContains) == true &&
+                            this.CheckStaticShared(item.data.containsShared, item.data.notContainsShared) == true) {
+
+                            item.archetypes.Add(i);
+
+                        }
 
                     }
+
                 }
 
             }
