@@ -595,7 +595,7 @@ namespace ME.ECS {
         public FilterBuilder WithLambda<T, TComponent>() where T : struct, ILambda<TComponent> where TComponent : struct, IStructComponent {
 
             System.Action<Entity> setAction = (e) => {
-                if (new T().Execute(in e, in e.Read<TComponent>())) {
+                if (new T().Execute(in e.Read<TComponent>())) {
                     Worlds.current.currentState.filters.Set<T>(e);
                 } else {
                     Worlds.current.currentState.filters.Remove<T>(e);

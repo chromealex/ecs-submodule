@@ -12,7 +12,7 @@ namespace ME.ECS.Tests {
 
         public struct TestComponentLambda : ILambda<TestComponent> {
 
-            public bool Execute(in Entity entity, in TestComponent data) {
+            public bool Execute(in TestComponent data) {
 
                 return data.value > 0;
 
@@ -22,7 +22,7 @@ namespace ME.ECS.Tests {
         
         public struct TestComponentLambda2 : ILambda<TestComponent> {
 
-            public bool Execute(in Entity entity, in TestComponent data) {
+            public bool Execute(in TestComponent data) {
 
                 return data.value > 1;
 
