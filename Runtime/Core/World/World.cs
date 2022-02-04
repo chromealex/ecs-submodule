@@ -705,6 +705,12 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        /// <summary>
+        /// Returns random number in range [from..to)
+        /// </summary>
+        /// <param name="from">Inclusive</param>
+        /// <param name="to">Exclusive</param>
+        /// <returns></returns>
         public int GetRandomRange(int from, int to) {
             
             #if WORLD_STATE_CHECK
@@ -723,6 +729,12 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        /// <summary>
+        /// Returns random number in range [from..to]
+        /// </summary>
+        /// <param name="from">Inclusive</param>
+        /// <param name="to">Inclusive</param>
+        /// <returns></returns>
         public float GetRandomRange(float from, float to) {
         
             #if WORLD_STATE_CHECK
@@ -741,6 +753,10 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        /// <summary>
+        /// Returns random number 0..1
+        /// </summary>
+        /// <returns></returns>
         public float GetRandomValue() {
             
             #if WORLD_STATE_CHECK
