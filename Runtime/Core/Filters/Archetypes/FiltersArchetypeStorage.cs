@@ -448,16 +448,6 @@ namespace ME.ECS {
             
         }
 
-        public void UseVersioned() {
-
-            if (this.data.isVersionChangedOnly == true) {
-
-                // Use last result
-
-            }
-
-        }
-
         public bool Contains(in Entity entity) {
 
             foreach (var archId in this.archetypes) {
@@ -475,10 +465,36 @@ namespace ME.ECS {
 
     internal struct FilterInternalData {
 
-        internal string name;
+        public struct Pair2 {
 
-        internal bool isVersionChangedOnly;
+            public int t1;
+            public int t2;
+
+        }
+
+        public struct Pair3 {
+
+            public int t1;
+            public int t2;
+            public int t3;
+
+        }
+
+        public struct Pair4 {
+
+            public int t1;
+            public int t2;
+            public int t3;
+            public int t4;
+
+        }
+
+        internal string name;
         
+        internal List<Pair2> anyPair2;
+        internal List<Pair3> anyPair3;
+        internal List<Pair4> anyPair4;
+
         internal List<int> contains;
         internal List<int> notContains;
         
@@ -488,8 +504,10 @@ namespace ME.ECS {
         public void CopyFrom(FilterInternalData other) {
 
             this.name = other.name;
-            this.isVersionChangedOnly = other.isVersionChangedOnly;
             
+            ArrayUtils.Copy(other.anyPair2, ref this.anyPair2);
+            ArrayUtils.Copy(other.anyPair3, ref this.anyPair3);
+            ArrayUtils.Copy(other.anyPair4, ref this.anyPair4);
             ArrayUtils.Copy(other.contains, ref this.contains);
             ArrayUtils.Copy(other.notContains, ref this.notContains);
             ArrayUtils.Copy(other.containsShared, ref this.containsShared);
@@ -500,8 +518,10 @@ namespace ME.ECS {
         public void Recycle() {
 
             this.name = default;
-            this.isVersionChangedOnly = default;
             
+            PoolList<Pair2>.Recycle(ref this.anyPair2);
+            PoolList<Pair3>.Recycle(ref this.anyPair3);
+            PoolList<Pair4>.Recycle(ref this.anyPair4);
             PoolList<int>.Recycle(ref this.contains);
             PoolList<int>.Recycle(ref this.notContains);
             PoolList<int>.Recycle(ref this.containsShared);
@@ -513,6 +533,9 @@ namespace ME.ECS {
             
             return new FilterInternalData() {
                 name = string.Empty,
+                anyPair2 = new List<Pair2>(),
+                anyPair3 = new List<Pair3>(),
+                anyPair4 = new List<Pair4>(),
                 contains = new List<int>(),
                 notContains = new List<int>(),
                 containsShared = new List<int>(),
@@ -561,11 +584,50 @@ namespace ME.ECS {
 
         }
 
-        public FilterBuilder OnVersionChangedOnly() {
+        public FilterBuilder Any<T1, T2>() where T1 : struct where T2 : struct {
 
-            this.data.isVersionChangedOnly = true;
+            WorldUtilities.SetComponentTypeId<T1>();
+            WorldUtilities.SetComponentTypeId<T2>();
+            this.data.anyPair2.Add(new FilterInternalData.Pair2() {
+                t1 = ComponentTypes<T1>.typeId,
+                t2 = ComponentTypes<T2>.typeId,
+            });
             return this;
 
+        }
+
+        public FilterBuilder Any<T1, T2, T3>() where T1 : struct where T2 : struct where T3 : struct {
+
+            WorldUtilities.SetComponentTypeId<T1>();
+            WorldUtilities.SetComponentTypeId<T2>();
+            WorldUtilities.SetComponentTypeId<T3>();
+            this.data.anyPair3.Add(new FilterInternalData.Pair3() {
+                t1 = ComponentTypes<T1>.typeId,
+                t2 = ComponentTypes<T2>.typeId,
+                t3 = ComponentTypes<T3>.typeId,
+            });
+            return this;
+
+        }
+
+        public FilterBuilder Any<T1, T2, T3, T4>() where T1 : struct where T2 : struct where T3 : struct where T4 : struct {
+
+            WorldUtilities.SetComponentTypeId<T1>();
+            WorldUtilities.SetComponentTypeId<T2>();
+            WorldUtilities.SetComponentTypeId<T3>();
+            WorldUtilities.SetComponentTypeId<T4>();
+            this.data.anyPair4.Add(new FilterInternalData.Pair4() {
+                t1 = ComponentTypes<T1>.typeId,
+                t2 = ComponentTypes<T2>.typeId,
+                t3 = ComponentTypes<T3>.typeId,
+                t4 = ComponentTypes<T4>.typeId,
+            });
+            return this;
+
+        }
+
+        public FilterBuilder OnVersionChangedOnly() {
+            throw new System.NotImplementedException("OnVersionChangedOnly can't be used with FILTERS_STORAGE_ARCHETYPES.");
         }
 
         public Filter Push() {
@@ -681,6 +743,54 @@ namespace ME.ECS.FiltersArchetype {
             public DictionaryUInt<Edge> edges; // Contains edges to move from this archetype to another
             
             //private bool isCreated;
+
+            internal bool HasAnyPair(List<FilterInternalData.Pair2> list) {
+
+                foreach (var pair in list) {
+
+                    if (this.Has(pair.t1) == false &&
+                        this.Has(pair.t2) == false) {
+                        return false;
+                    }
+
+                }
+                
+                return true;
+
+            }
+
+            internal bool HasAnyPair(List<FilterInternalData.Pair3> list) {
+
+                foreach (var pair in list) {
+
+                    if (this.Has(pair.t1) == false &&
+                        this.Has(pair.t2) == false &&
+                        this.Has(pair.t3) == false) {
+                        return false;
+                    }
+
+                }
+                
+                return true;
+
+            }
+
+            internal bool HasAnyPair(List<FilterInternalData.Pair4> list) {
+
+                foreach (var pair in list) {
+
+                    if (this.Has(pair.t1) == false &&
+                        this.Has(pair.t2) == false &&
+                        this.Has(pair.t3) == false &&
+                        this.Has(pair.t4) == false) {
+                        return false;
+                    }
+
+                }
+                
+                return true;
+
+            }
 
             public bool Has(int componentId) {
 
@@ -1451,6 +1561,9 @@ namespace ME.ECS.FiltersArchetype {
                         var arch = this.allArchetypes[i];
                         if (arch.HasAll(item.data.contains) == true &&
                             arch.HasNotAll(item.data.notContains) == true &&
+                            arch.HasAnyPair(item.data.anyPair2) == true &&
+                            arch.HasAnyPair(item.data.anyPair3) == true &&
+                            arch.HasAnyPair(item.data.anyPair4) == true &&
                             this.CheckStaticShared(item.data.containsShared, item.data.notContainsShared) == true) {
 
                             item.archetypes.Add(i);
@@ -1496,7 +1609,9 @@ namespace ME.ECS.FiltersArchetype {
 
                 var filter = this.filters[i];
                 if (this.IsEquals(filter.data.contains, filterBuilder.data.contains) == true &&
-                    this.IsEquals(filter.data.notContains, filterBuilder.data.notContains) == true) {
+                    this.IsEquals(filter.data.notContains, filterBuilder.data.notContains) == true &&
+                    this.IsEquals(filter.data.notContainsShared, filterBuilder.data.notContainsShared) == true &&
+                    this.IsEquals(filter.data.containsShared, filterBuilder.data.containsShared) == true) {
 
                     filterData = filter;
                     return true;
@@ -1516,11 +1631,7 @@ namespace ME.ECS.FiltersArchetype {
 
             for (int i = 0; i < list1.Count; ++i) {
 
-                for (int j = 0; j < list2.Count; ++j) {
-
-                    if (list1[i] != list2[j]) return false;
-
-                }
+                if (list2.Contains(list1[i]) == false) return false;
                 
             }
             
