@@ -579,7 +579,7 @@ namespace ME.ECS {
 
     public interface ILambda<T> where T : struct {
 
-        bool Execute(in Entity entity, in T data);
+        bool Execute(in T data);
 
     }
 
