@@ -6,12 +6,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using ME.ECS.Collections;
+using Unity.IL2CPP.CompilerServices;
+using Il2Cpp = Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute;
 
 #if FILTERS_STORAGE_ARCHETYPES
 namespace ME.ECS {
     
     using FiltersArchetype;
 
+    [Il2Cpp(Option.NullChecks, false)]
+    [Il2Cpp(Option.ArrayBoundsChecks, false)]
+    [Il2Cpp(Option.DivideByZeroChecks, false)]
     public partial class World {
 
         internal void OnSpawnFilters() {
@@ -124,6 +129,18 @@ namespace ME.ECS {
             
         }
 
+        public void ValidateFilterByStructComponent(in Entity entity, int componentId, bool makeRequest = false) {
+            
+            this.currentState.filters.Validate(in entity, componentId, makeRequest);
+            
+        }
+
+        public void ValidateFilterByStructComponent<T>(in Entity entity, bool makeRequest = false) where T : struct, IStructComponentBase {
+            
+            this.currentState.filters.Validate<T>(in entity, makeRequest);
+            
+        }
+
         public void AddFilterByStructComponent<T>(in Entity entity) where T : struct, IStructComponentBase {
             
             this.currentState.filters.Set<T>(in entity);
@@ -165,6 +182,9 @@ namespace ME.ECS {
         
     }
 
+    [Il2Cpp(Option.NullChecks, false)]
+    [Il2Cpp(Option.ArrayBoundsChecks, false)]
+    [Il2Cpp(Option.DivideByZeroChecks, false)]
     public struct Filter {
         
         public static Filter Empty = new Filter();
@@ -362,6 +382,9 @@ namespace ME.ECS {
 
     }
 
+    [Il2Cpp(Option.NullChecks, false)]
+    [Il2Cpp(Option.ArrayBoundsChecks, false)]
+    [Il2Cpp(Option.DivideByZeroChecks, false)]
     public struct FilterData {
 
         public struct CopyData : IArrayElementCopy<FilterData> {
@@ -463,6 +486,9 @@ namespace ME.ECS {
 
     }
 
+    [Il2Cpp(Option.NullChecks, false)]
+    [Il2Cpp(Option.ArrayBoundsChecks, false)]
+    [Il2Cpp(Option.DivideByZeroChecks, false)]
     internal struct FilterInternalData {
 
         public struct Pair2 {
@@ -501,6 +527,8 @@ namespace ME.ECS {
         internal List<int> containsShared;
         internal List<int> notContainsShared;
 
+        internal List<int> lambdas;
+
         public void CopyFrom(FilterInternalData other) {
 
             this.name = other.name;
@@ -512,6 +540,7 @@ namespace ME.ECS {
             ArrayUtils.Copy(other.notContains, ref this.notContains);
             ArrayUtils.Copy(other.containsShared, ref this.containsShared);
             ArrayUtils.Copy(other.notContainsShared, ref this.notContainsShared);
+            ArrayUtils.Copy(other.lambdas, ref this.lambdas);
 
         }
 
@@ -526,6 +555,7 @@ namespace ME.ECS {
             PoolList<int>.Recycle(ref this.notContains);
             PoolList<int>.Recycle(ref this.containsShared);
             PoolList<int>.Recycle(ref this.notContainsShared);
+            PoolList<int>.Recycle(ref this.lambdas);
             
         }
 
@@ -540,18 +570,76 @@ namespace ME.ECS {
                 notContains = new List<int>(),
                 containsShared = new List<int>(),
                 notContainsShared = new List<int>(),
+                lambdas = new List<int>(),
             };
             
         }
 
     }
-    
+
+    public interface ILambda<T> where T : struct {
+
+        bool Execute(in Entity entity, in T data);
+
+    }
+
+    [Il2Cpp(Option.NullChecks, false)]
+    [Il2Cpp(Option.ArrayBoundsChecks, false)]
+    [Il2Cpp(Option.DivideByZeroChecks, false)]
     public struct FilterBuilder {
 
         internal ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage => Worlds.current.currentState.filters;
 
         internal FilterInternalData data;
-        
+
+        public FilterBuilder WithLambda<T, TComponent>() where T : struct, ILambda<TComponent> where TComponent : struct, IStructComponent {
+
+            System.Action<Entity> setAction = (e) => {
+                if (new T().Execute(in e, in e.Read<TComponent>())) {
+                    Worlds.current.currentState.filters.Set<T>(e);
+                } else {
+                    Worlds.current.currentState.filters.Remove<T>(e);
+                }
+            };
+            System.Action<Entity> removeAction = (e) => {
+                Worlds.current.currentState.filters.Remove<T>(e);
+            };
+            
+            WorldUtilities.SetComponentTypeId<T>();
+            WorldUtilities.SetComponentTypeId<TComponent>();
+
+            var key = ComponentTypes<TComponent>.typeId;
+            {
+                if (ComponentTypesLambda.itemsSet.TryGetValue(key, out var actions) == true) {
+
+                    actions += setAction;
+                    ComponentTypesLambda.itemsSet[key] = actions;
+
+                } else {
+
+                    ComponentTypesLambda.itemsSet.Add(key, setAction);
+
+                }
+            }
+
+            {
+                if (ComponentTypesLambda.itemsRemove.TryGetValue(key, out var actions) == true) {
+
+                    actions += removeAction;
+                    ComponentTypesLambda.itemsRemove[key] = actions;
+
+                } else {
+
+                    ComponentTypesLambda.itemsRemove.Add(key, removeAction);
+
+                }
+            }
+
+            this.data.lambdas.Add(ComponentTypes<T>.typeId);
+            return this.With<TComponent>();
+
+        }
+
         public FilterBuilder WithoutShared<T>() where T : struct {
             
             WorldUtilities.SetComponentTypeId<T>();
@@ -672,10 +760,19 @@ namespace ME.ECS {
 
 namespace ME.ECS.FiltersArchetype {
 
+    [Il2Cpp(Option.NullChecks, false)]
+    [Il2Cpp(Option.ArrayBoundsChecks, false)]
+    [Il2Cpp(Option.DivideByZeroChecks, false)]
     public struct FiltersArchetypeStorage : IStorage {
 
+        [Il2Cpp(Option.NullChecks, false)]
+        [Il2Cpp(Option.ArrayBoundsChecks, false)]
+        [Il2Cpp(Option.DivideByZeroChecks, false)]
         public struct Archetype {
 
+            [Il2Cpp(Option.NullChecks, false)]
+            [Il2Cpp(Option.ArrayBoundsChecks, false)]
+            [Il2Cpp(Option.DivideByZeroChecks, false)]
             public struct CopyData : IArrayElementCopy<Archetype> {
                 
                 public void Copy(Archetype @from, ref Archetype to) {
@@ -744,7 +841,8 @@ namespace ME.ECS.FiltersArchetype {
             
             //private bool isCreated;
 
-            internal bool HasAnyPair(List<FilterInternalData.Pair2> list) {
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            internal readonly bool HasAnyPair(List<FilterInternalData.Pair2> list) {
 
                 foreach (var pair in list) {
 
@@ -759,7 +857,8 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
-            internal bool HasAnyPair(List<FilterInternalData.Pair3> list) {
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            internal readonly bool HasAnyPair(List<FilterInternalData.Pair3> list) {
 
                 foreach (var pair in list) {
 
@@ -775,7 +874,8 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
-            internal bool HasAnyPair(List<FilterInternalData.Pair4> list) {
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            internal readonly bool HasAnyPair(List<FilterInternalData.Pair4> list) {
 
                 foreach (var pair in list) {
 
@@ -792,13 +892,15 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
-            public bool Has(int componentId) {
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            public readonly bool Has(int componentId) {
 
                 return this.components.ContainsKey(componentId);
 
             }
 
-            public bool HasAll(List<int> componentIds) {
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            public readonly bool HasAll(List<int> componentIds) {
 
                 foreach (var item in componentIds) {
 
@@ -810,7 +912,8 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
-            public bool HasNotAll(List<int> componentIds) {
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            public readonly bool HasNotAll(List<int> componentIds) {
 
                 foreach (var item in componentIds) {
 
@@ -822,7 +925,8 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
-            public bool HasAllExcept(List<int> componentIds, int componentId) {
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            public readonly bool HasAllExcept(List<int> componentIds, int componentId) {
 
                 foreach (var item in componentIds) {
 
@@ -1368,7 +1472,36 @@ namespace ME.ECS.FiltersArchetype {
         }
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        public void Validate<T>(in Entity entity, bool makeRequest) where T : struct {
+            
+            this.Validate(in entity, ComponentTypes<T>.typeId, makeRequest);
+            
+        }
+
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        public void Validate(in Entity entity, int componentId, bool makeRequest) {
+
+            if (makeRequest == true) {
+                
+                // Add request and apply set on next UpdateFilters call
+                this.AddValidateRequest(in entity, componentId);
+                
+            } else {
+
+                if (ComponentTypesLambda.itemsSet.TryGetValue(componentId, out var lambda) == true) {
+                    lambda.Invoke(entity);
+                }
+
+            }
+
+        }
+
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public void Set(in Entity entity, int componentId) {
+
+            if (ComponentTypesLambda.itemsSet.TryGetValue(componentId, out var lambda) == true) {
+                lambda.Invoke(entity);
+            }
 
             if (this.forEachMode > 0) {
                 
@@ -1388,19 +1521,8 @@ namespace ME.ECS.FiltersArchetype {
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public void Set<T>(in Entity entity) where T : struct {
 
-            if (this.forEachMode > 0) {
-                
-                // Add request
-                this.AddSetRequest(in entity, ComponentTypes<T>.typeId);
-                return;
+            this.Set(in entity, ComponentTypes<T>.typeId);
 
-            }
-
-            var key = ((ulong)entity.id) << 32;
-            ref var archIdx = ref this.index.GetValue(key);
-            var arch = this.allArchetypes[archIdx];
-            archIdx = arch.Set(ref this, entity, ComponentTypes<T>.typeId).index;
-            
         }
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -1410,6 +1532,10 @@ namespace ME.ECS.FiltersArchetype {
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public void Remove(in Entity entity, int componentId) {
+            
+            if (ComponentTypesLambda.itemsRemove.TryGetValue(componentId, out var lambda) == true) {
+                lambda.Invoke(entity);
+            }
             
             if (this.forEachMode > 0) {
                 
@@ -1429,19 +1555,8 @@ namespace ME.ECS.FiltersArchetype {
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public void Remove<T>(in Entity entity) where T : struct {
             
-            if (this.forEachMode > 0) {
-                
-                // Add request
-                this.AddRemoveRequest(in entity, ComponentTypes<T>.typeId);
-                return;
+            this.Remove(in entity, ComponentTypes<T>.typeId);
 
-            }
-
-            var key = ((ulong)entity.id) << 32;
-            ref var archIdx = ref this.index.GetValue(key);
-            var arch = this.allArchetypes[archIdx];
-            archIdx = arch.Remove(ref this, entity, ComponentTypes<T>.typeId).index;
-            
         }
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -1459,10 +1574,25 @@ namespace ME.ECS.FiltersArchetype {
                     
                     this.Remove(in req.entity, req.componentId);
                     
+                } else if (req.op == 3) {
+                    
+                    this.Validate(in req.entity, req.componentId, false);
+                    
                 }
                 
             }
             this.requests.Clear();
+
+        }
+        
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        private void AddValidateRequest(in Entity entity, int componentId) {
+
+            this.requests.Add(new Request() {
+                entity = entity,
+                componentId = componentId,
+                op = 3,
+            });
 
         }
 
@@ -1564,7 +1694,8 @@ namespace ME.ECS.FiltersArchetype {
                             arch.HasAnyPair(item.data.anyPair2) == true &&
                             arch.HasAnyPair(item.data.anyPair3) == true &&
                             arch.HasAnyPair(item.data.anyPair4) == true &&
-                            this.CheckStaticShared(item.data.containsShared, item.data.notContainsShared) == true) {
+                            this.CheckStaticShared(item.data.containsShared, item.data.notContainsShared) == true &&
+                            this.CheckLambdas(in arch, item.data.lambdas) == true) {
 
                             item.archetypes.Add(i);
 
@@ -1576,6 +1707,13 @@ namespace ME.ECS.FiltersArchetype {
 
             }
             
+        }
+
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        private bool CheckLambdas(in Archetype arch, List<int> lambdas) {
+
+            return arch.HasAll(lambdas);
+
         }
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -1611,7 +1749,8 @@ namespace ME.ECS.FiltersArchetype {
                 if (this.IsEquals(filter.data.contains, filterBuilder.data.contains) == true &&
                     this.IsEquals(filter.data.notContains, filterBuilder.data.notContains) == true &&
                     this.IsEquals(filter.data.notContainsShared, filterBuilder.data.notContainsShared) == true &&
-                    this.IsEquals(filter.data.containsShared, filterBuilder.data.containsShared) == true) {
+                    this.IsEquals(filter.data.containsShared, filterBuilder.data.containsShared) == true &&
+                    this.IsEquals(filter.data.lambdas, filterBuilder.data.lambdas) == true) {
 
                     filterData = filter;
                     return true;

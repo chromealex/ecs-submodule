@@ -143,11 +143,11 @@ namespace ME.ECS {
             ref var bucket = ref this.components[index];
             bucket.data = (TComponent)data;
 
+            var componentIndex = ComponentTypes<TComponent>.typeId;
             if (bucket.state == 0) {
 
                 bucket.state = 1;
 
-                var componentIndex = ComponentTypes<TComponent>.typeId;
                 if (componentIndex >= 0) {
                     
                     this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
@@ -158,6 +158,12 @@ namespace ME.ECS {
 
                 return true;
 
+            }
+            
+            if (componentIndex >= 0) {
+                
+                this.world.ValidateFilterByStructComponent(in entity, componentIndex);
+                    
             }
 
             return false;

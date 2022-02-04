@@ -363,6 +363,8 @@ namespace ME.ECS {
 
         }
         
+        public void ValidateFilterByStructComponent(in Entity entity, int componentIndex, bool makeRequest = false) {}
+        public void ValidateFilterByStructComponent<T>(in Entity entity, bool makeRequest = false) where T : struct, IStructComponentBase {}
         public void AddFilterByStructComponent(in Entity entity, int componentIndex) {}
         public void AddFilterByStructComponent<T>(in Entity entity) where T : struct, IStructComponentBase {}
         public void RemoveFilterByStructComponent<T>(in Entity entity) where T : struct, IStructComponentBase {}

@@ -1728,6 +1728,12 @@ namespace ME.ECS {
 
             }
 
+            if (ComponentTypes<TComponent>.typeId >= 0) {
+
+                this.ValidateFilterByStructComponent<TComponent>(in entity, true);
+                
+            }
+            
             if (incrementVersion == true) {
                 
                 // Increment versions for all entities stored this group
@@ -1862,6 +1868,13 @@ namespace ME.ECS {
                 }
 
             }
+            
+            if (ComponentTypes<TComponent>.typeId >= 0) {
+
+                this.ValidateFilterByStructComponent<TComponent>(in entity);
+                
+            }
+            
             #if ENTITY_ACTIONS
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
             #endif
@@ -1909,6 +1922,13 @@ namespace ME.ECS {
                 }
 
             }
+            
+            if (ComponentTypes<TComponent>.typeId >= 0) {
+
+                this.ValidateFilterByStructComponent<TComponent>(in entity);
+                
+            }
+            
             #if ENTITY_ACTIONS
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
             #endif
@@ -2099,6 +2119,12 @@ namespace ME.ECS {
 
             }
 
+            if (ComponentTypes<TComponent>.typeId >= 0) {
+
+                this.ValidateFilterByStructComponent<TComponent>(in entity, true);
+                
+            }
+            
             if (incrementVersion == true) {
 
                 reg.UpdateVersion(ref bucket);
@@ -2152,6 +2178,13 @@ namespace ME.ECS {
                 }
 
             }
+            
+            if (ComponentTypes<TComponent>.typeId >= 0) {
+
+                this.ValidateFilterByStructComponent<TComponent>(in entity);
+                
+            }
+            
             #if ENTITY_ACTIONS
             this.RaiseEntityActionOnAdd<TComponent>(in entity);
             #endif
@@ -2209,6 +2242,12 @@ namespace ME.ECS {
 
                 }
 
+            }
+            
+            if (ComponentTypes<TComponent>.typeId >= 0) {
+
+                this.ValidateFilterByStructComponent<TComponent>(in entity);
+                
             }
             #if ENTITY_ACTIONS
             this.RaiseEntityActionOnAdd<TComponent>(in entity);

@@ -26,6 +26,13 @@ namespace ME.ECS {
 
     }
 
+    public struct ComponentTypesLambda {
+
+        public static System.Collections.Generic.Dictionary<int, System.Action<Entity>> itemsSet = new System.Collections.Generic.Dictionary<int, System.Action<Entity>>();
+        public static System.Collections.Generic.Dictionary<int, System.Action<Entity>> itemsRemove = new System.Collections.Generic.Dictionary<int, System.Action<Entity>>();
+
+    }
+
     public struct ComponentTypes<TComponent> {
 
         public static int typeId = -1;

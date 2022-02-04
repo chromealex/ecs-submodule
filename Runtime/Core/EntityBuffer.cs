@@ -251,6 +251,12 @@ namespace ME.ECS {
 
             }
 
+            if (ComponentTypes<T>.typeId >= 0) {
+
+                world.ValidateFilterByStructComponent<T>(in entity);
+                
+            }
+            
             world.currentState.storage.versions.Increment(in entity);
             reg.UpdateVersion(in entity);
             if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
