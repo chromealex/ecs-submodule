@@ -354,7 +354,7 @@ namespace ME.ECS.Network {
 
         }
 
-        public virtual bool CouldBeAdded() {
+        public virtual bool CanBeAdded() {
 
             return this.world.GetTickTime() > 0f && this.world.GetModule<StatesHistory.IStatesHistoryModule<TState>>() != null;
 

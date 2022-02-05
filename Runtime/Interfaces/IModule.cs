@@ -19,7 +19,7 @@ namespace ME.ECS {
 
     public interface IModuleValidation {
 
-        bool CouldBeAdded();
+        bool CanBeAdded();
 
     }
 

@@ -12,7 +12,7 @@ namespace ME.ECS {
 
     public interface IFeatureValidation {
 
-        bool CouldBeAdded();
+        bool CanBeAdded();
 
     }
 

@@ -18,12 +18,22 @@ namespace ME.ECSEditor {
 
         private const float ONE_LINE_HEIGHT = 22f;
         
-        private UnityEditorInternal.ReorderableList list;
-        private UnityEditorInternal.ReorderableList listCategories;
-        private System.Collections.Generic.Dictionary<object, bool> systemFoldouts = new System.Collections.Generic.Dictionary<object, bool>();
-        private System.Collections.Generic.Dictionary<object, bool> moduleFoldouts = new System.Collections.Generic.Dictionary<object, bool>();
-        private System.Collections.Generic.Dictionary<object, bool> featureFoldouts = new System.Collections.Generic.Dictionary<object, bool>();
+        private static UnityEditorInternal.ReorderableList list;
+        private static UnityEditorInternal.ReorderableList listCategories;
+        private static System.Collections.Generic.Dictionary<object, bool> systemFoldouts = new System.Collections.Generic.Dictionary<object, bool>();
+        private static System.Collections.Generic.Dictionary<object, bool> moduleFoldouts = new System.Collections.Generic.Dictionary<object, bool>();
+        private static System.Collections.Generic.Dictionary<object, bool> featureFoldouts = new System.Collections.Generic.Dictionary<object, bool>();
+        private static System.Collections.Generic.Dictionary<object, UnityEditorInternal.ReorderableList> subFeatureLists = new System.Collections.Generic.Dictionary<object, UnityEditorInternal.ReorderableList>();
+        private static System.Collections.Generic.Dictionary<object, Editor> editorForTarget = new System.Collections.Generic.Dictionary<object, Editor>();
         private static bool isCompilingManual;
+        
+        private static GUIStyle styleFoldout {
+            get {
+                var s = new GUIStyle(EditorStyles.foldoutHeader);
+                s.fixedHeight = 26f;
+                return s;
+            }
+        }
 
         private static readonly InitializerBase.DefineInfo[] defines = new[] {
             new InitializerBase.DefineInfo("GAMEOBJECT_VIEWS_MODULE_SUPPORT", "Turn on/off GameObject View Provider.", () => {
@@ -292,6 +302,25 @@ namespace ME.ECSEditor {
 
         }
 
+        private Editor GetEditorForTarget(Object target) {
+
+            return Editor.CreateEditor(target);
+            
+            /*
+            if (InitializerEditor.editorForTarget.TryGetValue(target, out var res) == true) {
+
+                return res;
+
+            } else {
+
+                var editor = Editor.CreateEditor(target);
+                InitializerEditor.editorForTarget.Add(target, editor);
+                return editor;
+
+            }*/
+            
+        }
+
         private InitializerBase.DefineInfo GetDefineInfo(string define) {
 
             foreach (var defineInfo in InitializerEditor.defines) {
@@ -336,15 +365,15 @@ namespace ME.ECSEditor {
 
             }*/
 
-            if (this.listCategories == null) {
+            if (InitializerEditor.listCategories == null) {
                 
-                this.listCategories = new UnityEditorInternal.ReorderableList(target.featuresListCategories.items, typeof(FeaturesListCategory), true, true, true, true);
-                this.listCategories.drawElementCallback = this.OnDrawListCategoryItem;
-                this.listCategories.drawHeaderCallback = this.OnDrawHeader;
-                this.listCategories.onChangedCallback = this.OnChanged;
-                this.listCategories.elementHeightCallback = this.GetElementHeightCategory;
-                this.listCategories.onReorderCallbackWithDetails = this.OnReorderItems;
-                this.listCategories.onRemoveCallback = this.OnRemoveItem;
+                InitializerEditor.listCategories = new UnityEditorInternal.ReorderableList(target.featuresListCategories.items, typeof(FeaturesListCategory), true, true, true, true);
+                InitializerEditor.listCategories.drawElementCallback = this.OnDrawListCategoryItem;
+                InitializerEditor.listCategories.drawHeaderCallback = this.OnDrawHeader;
+                InitializerEditor.listCategories.onChangedCallback = this.OnChanged;
+                InitializerEditor.listCategories.elementHeightCallback = this.GetElementHeightCategory;
+                InitializerEditor.listCategories.onReorderCallbackWithDetails = this.OnReorderItems;
+                InitializerEditor.listCategories.onRemoveCallback = this.OnRemoveItem;
 
             }
 
@@ -352,261 +381,170 @@ namespace ME.ECSEditor {
 
                 var isDirty = false;
                 
-                this.definesFoldOut = GUILayoutExt.BeginFoldoutHeaderGroup(this.definesFoldOut, new GUIContent("Defines"), EditorStyles.foldoutHeader);
+                this.definesFoldOut = GUILayoutExt.BeginFoldoutHeaderGroup(this.definesFoldOut, new GUIContent("Defines"), InitializerEditor.styleFoldout);
                 if (this.definesFoldOut == true) {
 
-                    GUILayout.Space(10f);
-                    
-                    EditorGUI.BeginDisabledGroup(EditorApplication.isCompiling == true || EditorApplication.isPlaying == true || EditorApplication.isPaused == true/* || InitializerEditor.isCompilingManual == true*/);
+                    GUILayoutExt.Padding(2f, 2f, () => {
 
-                    var configurations = target.configurations.Select(x => x.name).ToArray();
-                    var selectedIndex = System.Array.IndexOf(configurations, target.selectedConfiguration);
-                    
-                    var conf = target.configurations[selectedIndex];
-                    GUILayoutExt.Box(2f, 2f, () => {
-                        
-                        var newIndex = EditorGUILayout.Popup("Configuration", selectedIndex, configurations);
-                        if (newIndex != selectedIndex) {
+                        EditorGUI.BeginDisabledGroup(
+                            EditorApplication.isCompiling == true || EditorApplication.isPlaying == true ||
+                            EditorApplication.isPaused == true /* || InitializerEditor.isCompilingManual == true*/);
 
-                            target.selectedConfiguration = target.configurations[newIndex].name;
-                            EditorUtility.SetDirty(this.target);
-                            this.BuildConfiguration(target.configurations[newIndex]);
+                        var configurations = target.configurations.Select(x => x.name).ToArray();
+                        var selectedIndex = System.Array.IndexOf(configurations, target.selectedConfiguration);
 
-                        }
-                        
-                        GUILayoutExt.SmallLabel("Select configuration to build with. Be sure Release configuration is selected when you build final product.");
+                        var conf = target.configurations[selectedIndex];
+                        GUILayoutExt.Box(2f, 2f, () => {
 
-                        if (conf.isDirty == true) {
+                            var newIndex = EditorGUILayout.Popup("Configuration", selectedIndex, configurations);
+                            if (newIndex != selectedIndex) {
 
-                            GUILayout.BeginHorizontal();
-                            {
-                                EditorGUILayout.HelpBox("You have unsaved changes", MessageType.Warning);
-                                if (GUILayout.Button("Apply") == true) {
+                                target.selectedConfiguration = target.configurations[newIndex].name;
+                                EditorUtility.SetDirty(this.target);
+                                this.BuildConfiguration(target.configurations[newIndex]);
 
-                                    conf.isDirty = false;
-                                    target.configurations[selectedIndex] = conf;
-                                    EditorUtility.SetDirty(this.target);
-                                    this.BuildConfiguration(conf);
+                            }
+
+                            GUILayoutExt.SmallLabel("Select configuration to build with. Be sure Release configuration is selected when you build final product.");
+
+                            if (conf.isDirty == true) {
+
+                                GUILayout.BeginHorizontal();
+                                {
+                                    EditorGUILayout.HelpBox("You have unsaved changes", MessageType.Warning);
+                                    if (GUILayout.Button("Apply") == true) {
+
+                                        conf.isDirty = false;
+                                        target.configurations[selectedIndex] = conf;
+                                        EditorUtility.SetDirty(this.target);
+                                        this.BuildConfiguration(conf);
+
+                                    }
+                                }
+                                GUILayout.EndHorizontal();
+
+                            }
+
+                        });
+
+                        EditorGUILayout.Space();
+
+                        EditorGUI.BeginChangeCheck();
+                        for (var i = 0; i < conf.defines.Count; ++i) {
+
+                            var define = conf.defines[i];
+                            var defineInfo = this.GetDefineInfo(define.name);
+                            if (defineInfo.showInList == false) continue;
+
+                            if (conf.configurationType == InitializerBase.ConfigurationType.ReleaseOnly) {
+
+                                if (defineInfo.configurationType == InitializerBase.ConfigurationType.DebugOnly) continue;
+
+                            }
+
+                            if (conf.configurationType == InitializerBase.ConfigurationType.DebugOnly) {
+
+                                if (defineInfo.configurationType == InitializerBase.ConfigurationType.ReleaseOnly) continue;
+
+                            }
+
+                            var value = define.enabled;
+                            if (GUILayoutExt.ToggleLeft(
+                                    ref value,
+                                    ref isDirty,
+                                    defineInfo.define,
+                                    defineInfo.description, () => {
+
+                                        if (defineInfo.configurationType == InitializerBase.ConfigurationType.DebugOnly) {
+
+                                            using (new GUILayoutExt.GUIColorUsing(new Color(0.9f, 0.7f, 1f, 0.8f))) {
+                                                GUILayout.Label("It is Debug-only define.", EditorStyles.miniLabel);
+                                            }
+
+                                        }
+
+                                        if (defineInfo.configurationType == InitializerBase.ConfigurationType.ReleaseOnly) {
+
+                                            using (new GUILayoutExt.GUIColorUsing(new Color(0.9f, 0.7f, 1f, 0.8f))) {
+                                                GUILayout.Label("It is Release-only define.", EditorStyles.miniLabel);
+                                            }
+
+                                        }
+
+                                    }) == true) {
+
+                                if (value == true) {
+
+                                    conf.SetEnabled(define.name);
+                                    GUI.changed = true;
+
+                                } else {
+
+                                    conf.SetDisabled(define.name);
+                                    GUI.changed = true;
 
                                 }
-                            }
-                            GUILayout.EndHorizontal();
-
-                        }
-
-                    });
-                    
-                    EditorGUILayout.Space();
-
-                    EditorGUI.BeginChangeCheck();
-                    for (var i = 0; i < conf.defines.Count; ++i) {
-                        
-                        var define = conf.defines[i];
-                        var defineInfo = this.GetDefineInfo(define.name);
-                        if (defineInfo.showInList == false) continue;
-
-                        if (conf.configurationType == InitializerBase.ConfigurationType.ReleaseOnly) {
-
-                            if (defineInfo.configurationType == InitializerBase.ConfigurationType.DebugOnly) continue;
-
-                        }
-
-                        if (conf.configurationType == InitializerBase.ConfigurationType.DebugOnly) {
-
-                            if (defineInfo.configurationType == InitializerBase.ConfigurationType.ReleaseOnly) continue;
-
-                        }
-
-                        var value = define.enabled;
-                        if (GUILayoutExt.ToggleLeft(
-                                ref value,
-                                ref isDirty,
-                                defineInfo.define,
-                                defineInfo.description, () => {
-
-                                    if (defineInfo.configurationType == InitializerBase.ConfigurationType.DebugOnly) {
-
-                                        using (new GUILayoutExt.GUIColorUsing(new Color(0.9f, 0.7f, 1f, 0.8f))) {
-                                            GUILayout.Label("It is Debug-only define.", EditorStyles.miniLabel);
-                                        }
-
-                                    }
-
-                                    if (defineInfo.configurationType == InitializerBase.ConfigurationType.ReleaseOnly) {
-
-                                        using (new GUILayoutExt.GUIColorUsing(new Color(0.9f, 0.7f, 1f, 0.8f))) {
-                                            GUILayout.Label("It is Release-only define.", EditorStyles.miniLabel);
-                                        }
-
-                                    }
-
-                                }) == true) {
-
-                            if (value == true) {
-
-                                conf.SetEnabled(define.name);
-                                GUI.changed = true;
-
-                            } else {
-
-                                conf.SetDisabled(define.name);
-                                GUI.changed = true;
 
                             }
+                        }
+
+                        if (EditorGUI.EndChangeCheck() == true) {
+
+                            conf.isDirty = true;
+                            target.configurations[selectedIndex] = conf;
+                            EditorUtility.SetDirty(this.target);
 
                         }
-                    }
 
-                    if (EditorGUI.EndChangeCheck() == true) {
+                        EditorGUI.EndDisabledGroup();
 
-                        conf.isDirty = true;
-                        target.configurations[selectedIndex] = conf;
-                        EditorUtility.SetDirty(this.target);
-
-                    }
-
-                    EditorGUI.EndDisabledGroup();
+                    }, EditorStyles.helpBox);
                     
                 }
+                GUILayoutExt.Separator(new Color(0f, 0f, 0f, 0.5f), offset: new RectOffset(16, 16, 0, 0));
 
-                this.settingsFoldOut = GUILayoutExt.BeginFoldoutHeaderGroup(this.settingsFoldOut, new GUIContent("Settings"), EditorStyles.foldoutHeader);
+                this.settingsFoldOut = GUILayoutExt.BeginFoldoutHeaderGroup(this.settingsFoldOut, new GUIContent("Settings"), InitializerEditor.styleFoldout);
                 if (this.settingsFoldOut == true) {
 
-                    GUILayout.Space(10f);
+                    GUILayoutExt.Padding(2f, 2f, () => {
 
-                    GUILayoutExt.ToggleLeft(
-                        ref target.worldSettings.turnOffViews,
-                        ref isDirty,
-                        "Turn off views module",
-                        "If you want to run ME.ECS on server, you don't need to use Views at all. Turn off views module to avoid updating view instances overhead.");
-
-                    GUILayoutExt.ToggleLeft(
-                        ref target.worldSettings.useJobsForSystems,
-                        ref isDirty,
-                        "Use jobs for Systems",
-                        "Each system with filter has `jobs` flag which determine AdvanceTick behavior. If checked, jobs will be enabled and AdvanceTick will run asynchronously.");
-
-                    GUILayoutExt.ToggleLeft(
-                        ref target.worldSettings.createInstanceForFeatures,
-                        ref isDirty,
-                        "Create instance copy for Features",
-                        "When you add feature into the world, do you need to create copy of feature data at runtime? Turn off this checkbox if you do not want to change features data.");
-
-                    GUILayoutExt.IntFieldLeft(
-                        ref target.worldSettings.maxTicksSimulationCount,
-                        ref isDirty,
-                        "Max ticks per simulation frame",
-                        "If simulation ticks count will be over this value, exception will be throw. Zero value = ignore this parameter.");
-
-                    GUILayoutExt.ToggleLeft(
-                        ref target.worldSettings.useJobsForViews,
-                        ref isDirty,
-                        "Use jobs for Views",
-                        "Some view providers have jobs implementation. Turn it on to enable them update views inside jobs. Please note that some providers could lose some method calls.");
-
-                    if (this.viewsJobsEditors != null) {
-
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Space(10f);
-                        {
-                            GUILayout.BeginVertical();
-                            foreach (var editor in this.viewsJobsEditors) {
-
-                                GUILayoutExt.Separator();
-                                editor.Value.target = this.target as InitializerBase;
-                                if (editor.Value.OnDrawGUI() == true) {
-
-                                    isDirty = true;
-
-                                }
-
-                            }
-                            GUILayout.EndVertical();
-                        }
-                        GUILayout.EndHorizontal();
-                        
-                    }
-
-                }
-                
-                this.settingsDebugFoldOut = GUILayoutExt.BeginFoldoutHeaderGroup(this.settingsDebugFoldOut, new GUIContent("Debug Settings"), EditorStyles.foldoutHeader);
-                if (this.settingsDebugFoldOut == true) {
-                    
-                    GUILayout.Space(10f);
-
-                    GUILayoutExt.ToggleLeft(
-                        ref target.worldDebugSettings.createGameObjectsRepresentation,
-                        ref isDirty,
-                        "Create GameObject representation",
-                        "Editor-only feature. If checked, all entities will be represented by GameObject with debug information.");
-
-                    {
-                    
                         GUILayoutExt.ToggleLeft(
-                            ref target.worldDebugSettings.collectStatistic,
+                            ref target.worldSettings.turnOffViews,
                             ref isDirty,
-                            "Collect Statistics",
-                            "Editor-only feature. If checked, ME.ECS will collect statistics data like entity usage.");
+                            "Turn off views module",
+                            "If you want to run ME.ECS on server, you don't need to use Views at all. Turn off views module to avoid updating view instances overhead.");
 
-                        if (target.worldDebugSettings.collectStatistic == true) {
+                        GUILayoutExt.ToggleLeft(
+                            ref target.worldSettings.useJobsForSystems,
+                            ref isDirty,
+                            "Use jobs for Systems",
+                            "Each system with filter has `jobs` flag which determine AdvanceTick behavior. If checked, jobs will be enabled and AdvanceTick will run asynchronously.");
+
+                        GUILayoutExt.ToggleLeft(
+                            ref target.worldSettings.createInstanceForFeatures,
+                            ref isDirty,
+                            "Create instance copy for Features",
+                            "When you add feature into the world, do you need to create copy of feature data at runtime? Turn off this checkbox if you do not want to change features data.");
+
+                        GUILayoutExt.IntFieldLeft(
+                            ref target.worldSettings.maxTicksSimulationCount,
+                            ref isDirty,
+                            "Max ticks per simulation frame",
+                            "If simulation ticks count will be over this value, exception will be throw. Zero value = ignore this parameter.");
+
+                        GUILayoutExt.ToggleLeft(
+                            ref target.worldSettings.useJobsForViews,
+                            ref isDirty,
+                            "Use jobs for Views",
+                            "Some view providers have jobs implementation. Turn it on to enable them update views inside jobs. Please note that some providers could lose some method calls.");
+
+                        if (this.viewsJobsEditors != null) {
 
                             GUILayout.BeginHorizontal();
                             GUILayout.Space(10f);
                             {
                                 GUILayout.BeginVertical();
-                                var statObj = (ME.ECS.Debug.StatisticsObject)EditorGUILayout.ObjectField("Statistic Object",
-                                                                                                        target.worldDebugSettings.statisticsObject,
-                                                                                                        typeof(ME.ECS.Debug.StatisticsObject),
-                                                                                                        allowSceneObjects: false);
-                                if (target.worldDebugSettings.statisticsObject != statObj) {
-                                    
-                                    target.worldDebugSettings.statisticsObject = statObj;
-                                    isDirty = true;
-
-                                }
-                                if (statObj == null) {
-
-                                    EditorGUILayout.HelpBox("Object is None, create custom statistic object or create default one.", MessageType.Warning);
-                                    if (GUILayout.Button("Create Default") == true) {
-
-                                        statObj = ME.ECS.Debug.StatisticsObject.CreateInstance<ME.ECS.Debug.StatisticsObject>();
-                                        var path = AssetDatabase.GetAssetPath(this.target);
-                                        var dir = System.IO.Path.GetDirectoryName(path);
-                                        path = dir + "/" + this.target.name + "_StatisticObject.asset";
-                                        AssetDatabase.CreateAsset(statObj, path);
-                                        AssetDatabase.ImportAsset(path);
-
-                                        var so = AssetDatabase.LoadAssetAtPath<ME.ECS.Debug.StatisticsObject>(path);
-                                        target.worldDebugSettings.statisticsObject = so;
-                                        isDirty = true;
-
-                                    }
-
-                                }
-                                GUILayout.Space(10f);
-                                GUILayout.EndVertical();
-                            }
-                            GUILayout.EndHorizontal();
-
-                        }
-
-                    }
-
-                    {
-                        
-                        GUILayoutExt.ToggleLeft(
-                            ref target.worldDebugSettings.showViewsOnScene,
-                            ref isDirty,
-                            "Show Views in Hierarchy",
-                            "Editor-only feature. If checked, views module always show views on scene.");
-
-                        if (this.viewsDebugEditors != null) {
-
-                            GUILayout.BeginHorizontal();
-                            GUILayout.Space(10f);
-                            {
-                                GUILayout.BeginVertical();
-                                foreach (var editor in this.viewsDebugEditors) {
+                                foreach (var editor in this.viewsJobsEditors) {
 
                                     GUILayoutExt.Separator();
                                     editor.Value.target = this.target as InitializerBase;
@@ -617,19 +555,123 @@ namespace ME.ECSEditor {
                                     }
 
                                 }
+
                                 GUILayout.EndVertical();
                             }
                             GUILayout.EndHorizontal();
 
                         }
 
-                    }
+                    }, EditorStyles.helpBox);
 
                 }
+                GUILayoutExt.Separator(new Color(0f, 0f, 0f, 0.5f), offset: new RectOffset(16, 16, 0, 0));
+                
+                this.settingsDebugFoldOut = GUILayoutExt.BeginFoldoutHeaderGroup(this.settingsDebugFoldOut, new GUIContent("Debug Settings"), InitializerEditor.styleFoldout);
+                if (this.settingsDebugFoldOut == true) {
+                    
+                    GUILayoutExt.Padding(2f, 2f, () => {
+                        
+                        GUILayoutExt.ToggleLeft(
+                            ref target.worldDebugSettings.createGameObjectsRepresentation,
+                            ref isDirty,
+                            "Create GameObject representation",
+                            "Editor-only feature. If checked, all entities will be represented by GameObject with debug information.");
 
+                        {
+                        
+                            GUILayoutExt.ToggleLeft(
+                                ref target.worldDebugSettings.collectStatistic,
+                                ref isDirty,
+                                "Collect Statistics",
+                                "Editor-only feature. If checked, ME.ECS will collect statistics data like entity usage.");
+
+                            if (target.worldDebugSettings.collectStatistic == true) {
+
+                                GUILayout.BeginHorizontal();
+                                GUILayout.Space(10f);
+                                {
+                                    GUILayout.BeginVertical();
+                                    var statObj = (ME.ECS.Debug.StatisticsObject)EditorGUILayout.ObjectField("Statistic Object",
+                                                                                                            target.worldDebugSettings.statisticsObject,
+                                                                                                            typeof(ME.ECS.Debug.StatisticsObject),
+                                                                                                            allowSceneObjects: false);
+                                    if (target.worldDebugSettings.statisticsObject != statObj) {
+                                        
+                                        target.worldDebugSettings.statisticsObject = statObj;
+                                        isDirty = true;
+
+                                    }
+                                    if (statObj == null) {
+
+                                        EditorGUILayout.HelpBox("Object is None, create custom statistic object or create default one.", MessageType.Warning);
+                                        if (GUILayout.Button("Create Default") == true) {
+
+                                            statObj = ME.ECS.Debug.StatisticsObject.CreateInstance<ME.ECS.Debug.StatisticsObject>();
+                                            var path = AssetDatabase.GetAssetPath(this.target);
+                                            var dir = System.IO.Path.GetDirectoryName(path);
+                                            path = dir + "/" + this.target.name + "_StatisticObject.asset";
+                                            AssetDatabase.CreateAsset(statObj, path);
+                                            AssetDatabase.ImportAsset(path);
+
+                                            var so = AssetDatabase.LoadAssetAtPath<ME.ECS.Debug.StatisticsObject>(path);
+                                            target.worldDebugSettings.statisticsObject = so;
+                                            isDirty = true;
+
+                                        }
+
+                                    }
+                                    GUILayout.Space(10f);
+                                    GUILayout.EndVertical();
+                                }
+                                GUILayout.EndHorizontal();
+
+                            }
+
+                        }
+
+                        {
+                            
+                            GUILayoutExt.ToggleLeft(
+                                ref target.worldDebugSettings.showViewsOnScene,
+                                ref isDirty,
+                                "Show Views in Hierarchy",
+                                "Editor-only feature. If checked, views module always show views on scene.");
+
+                            if (this.viewsDebugEditors != null) {
+
+                                GUILayout.BeginHorizontal();
+                                GUILayout.Space(10f);
+                                {
+                                    GUILayout.BeginVertical();
+                                    foreach (var editor in this.viewsDebugEditors) {
+
+                                        GUILayoutExt.Separator();
+                                        editor.Value.target = this.target as InitializerBase;
+                                        if (editor.Value.OnDrawGUI() == true) {
+
+                                            isDirty = true;
+
+                                        }
+
+                                    }
+                                    GUILayout.EndVertical();
+                                }
+                                GUILayout.EndHorizontal();
+
+                            }
+
+                        }
+
+                    }, EditorStyles.helpBox);
+                    
+                }
+                GUILayoutExt.Separator(new Color(0f, 0f, 0f, 0.5f), offset: new RectOffset(16, 16, 0, 0));
+                GUILayout.Space(10f);
+                
                 {
 
-                    var editor = Editor.CreateEditor(target);
+                    var editor = this.GetEditorForTarget(target);
                     var field = editor.serializedObject.GetIterator();
                     editor.serializedObject.Update();
                     var baseClassEnd = false;
@@ -648,6 +690,7 @@ namespace ME.ECSEditor {
                         }
                         
                     }
+                    field.Reset();
 
                     editor.serializedObject.ApplyModifiedProperties();
 
@@ -667,24 +710,24 @@ namespace ME.ECSEditor {
             EditorGUI.BeginDisabledGroup(EditorApplication.isPlaying == true || EditorApplication.isPaused == true);
             //this.drawWidth = GUILayoutUtility.GetLastRect().width;
             //this.list.DoLayoutList();
-            this.listCategories.DoLayoutList();
+            InitializerEditor.listCategories.DoLayoutList();
             EditorGUI.EndDisabledGroup();
 
         }
 
         private void OnRemoveItem(UnityEditorInternal.ReorderableList reorderableList) {
 
-            var idx = this.listCategories.index;
-            this.lists.RemoveAt(idx);
-            this.listCategories.list.RemoveAt(idx);
+            var idx = InitializerEditor.listCategories.index;
+            InitializerEditor.lists.RemoveAt(idx);
+            InitializerEditor.listCategories.list.RemoveAt(idx);
 
         }
 
         private void OnReorderItems(UnityEditorInternal.ReorderableList reorderableList, int oldindex, int newindex) {
 
-            var list = this.lists[oldindex];
-            this.lists[oldindex] = this.lists[newindex];
-            this.lists[newindex] = list;
+            var list = InitializerEditor.lists[oldindex];
+            InitializerEditor.lists[oldindex] = InitializerEditor.lists[newindex];
+            InitializerEditor.lists[newindex] = list;
 
         }
 
@@ -741,7 +784,7 @@ namespace ME.ECSEditor {
 
         private bool IsSystemFoldout(object instance) {
 
-            if (this.systemFoldouts.TryGetValue(instance, out var res) == true) {
+            if (InitializerEditor.systemFoldouts.TryGetValue(instance, out var res) == true) {
 
                 return res;
 
@@ -753,7 +796,7 @@ namespace ME.ECSEditor {
 
         private bool IsModuleFoldout(object instance) {
 
-            if (this.moduleFoldouts.TryGetValue(instance, out var res) == true) {
+            if (InitializerEditor.moduleFoldouts.TryGetValue(instance, out var res) == true) {
 
                 return res;
 
@@ -765,7 +808,7 @@ namespace ME.ECSEditor {
 
         private bool IsSubFeatureFoldout(object instance) {
 
-            if (this.featureFoldouts.TryGetValue(instance, out var res) == true) {
+            if (InitializerEditor.featureFoldouts.TryGetValue(instance, out var res) == true) {
 
                 return res;
 
@@ -775,15 +818,42 @@ namespace ME.ECSEditor {
 
         }
 
+        private UnityEditorInternal.ReorderableList GetSubFeatureList(FeaturesList.FeatureData featureData) {
+
+            if (InitializerEditor.subFeatureLists.TryGetValue(featureData.feature, out var list) == false) {
+
+                list = new UnityEditorInternal.ReorderableList(featureData.innerFeatures, typeof(FeaturesList.FeatureData), true, true, true, true);
+                list.drawHeaderCallback = (r) => { GUI.Label(r, "Sub Features"); };
+                list.drawElementCallback = this.OnDrawSubListItem;
+                //list.drawHeaderCallback = this.OnDrawHeaderSubItem;
+                list.onChangedCallback = this.OnChanged;
+                list.elementHeightCallback = this.GetSubElementHeight;//(index) => this.GetSubElementHeight((FeaturesList.FeatureData)featureData.innerFeatures[index]);
+                
+                /*
+                list.drawHeaderCallback = (r) => { GUI.Label(r, "Sub Features"); };
+                list.drawElementCallback = (r, index, isActive, isFocused) => {
+                    this.DrawFeature(ref r, (FeaturesList.FeatureData)featureData.innerFeatures[index], isActive, isFocused);
+                };
+                list.elementHeightCallback = (index) => {
+                    return this.GetElementHeight((FeaturesList.FeatureData)featureData.innerFeatures[index]);
+                };*/
+                InitializerEditor.subFeatureLists.Add(featureData.feature, list);
+
+            }
+
+            return list;
+
+        }
+
         private void SetSystemFoldout(object instance, bool state) {
 
-            if (this.systemFoldouts.TryGetValue(instance, out var res) == true) {
+            if (InitializerEditor.systemFoldouts.TryGetValue(instance, out var res) == true) {
 
-                this.systemFoldouts[instance] = state;
+                InitializerEditor.systemFoldouts[instance] = state;
 
             } else {
 
-                this.systemFoldouts.Add(instance, state);
+                InitializerEditor.systemFoldouts.Add(instance, state);
                 
             }
 
@@ -791,13 +861,13 @@ namespace ME.ECSEditor {
 
         private void SetModuleFoldout(object instance, bool state) {
 
-            if (this.moduleFoldouts.TryGetValue(instance, out var res) == true) {
+            if (InitializerEditor.moduleFoldouts.TryGetValue(instance, out var res) == true) {
 
-                this.moduleFoldouts[instance] = state;
+                InitializerEditor.moduleFoldouts[instance] = state;
 
             } else {
 
-                this.moduleFoldouts.Add(instance, state);
+                InitializerEditor.moduleFoldouts.Add(instance, state);
                 
             }
 
@@ -805,13 +875,13 @@ namespace ME.ECSEditor {
 
         private void SetSubFeatureFoldout(object instance, bool state) {
 
-            if (this.featureFoldouts.TryGetValue(instance, out var res) == true) {
+            if (InitializerEditor.featureFoldouts.TryGetValue(instance, out var res) == true) {
 
-                this.featureFoldouts[instance] = state;
+                InitializerEditor.featureFoldouts[instance] = state;
 
             } else {
 
-                this.featureFoldouts.Add(instance, state);
+                InitializerEditor.featureFoldouts.Add(instance, state);
                 
             }
 
@@ -913,8 +983,8 @@ namespace ME.ECSEditor {
 
         private float GetElementHeightCategory(int index) {
             
-            while (index >= this.lists.Count) this.lists.Add(null);
-            var list = this.lists[index];
+            while (index >= InitializerEditor.lists.Count) InitializerEditor.lists.Add(null);
+            var list = InitializerEditor.lists[index];
             this.FillList(index, ref list);
 
             /*if (index == this.lists.Count - 1) {
@@ -927,16 +997,17 @@ namespace ME.ECSEditor {
 
         }
 
-        private System.Collections.Generic.List<UnityEditorInternal.ReorderableList> lists = new System.Collections.Generic.List<UnityEditorInternal.ReorderableList>();
-        private int currentListIndex;
+        private static System.Collections.Generic.List<UnityEditorInternal.ReorderableList> lists = new System.Collections.Generic.List<UnityEditorInternal.ReorderableList>();
+        private static int currentListIndex;
+        private static int currentSubListIndex;
         private void FillList(int index, ref UnityEditorInternal.ReorderableList list) {
             
-            this.currentListIndex = index;
+            InitializerEditor.currentListIndex = index;
 
-            list = this.lists[index];
+            list = InitializerEditor.lists[index];
             if (list == null) {
                 
-                var featureData = (FeaturesListCategory)this.listCategories.list[index];
+                var featureData = (FeaturesListCategory)InitializerEditor.listCategories.list[index];
                 list = new UnityEditorInternal.ReorderableList(featureData.features.features, typeof(FeaturesList.FeatureData), true, true, true, true);
                 list.drawElementCallback = this.OnDrawListItem;
                 list.drawHeaderCallback = this.OnDrawHeaderSubItem;
@@ -945,21 +1016,21 @@ namespace ME.ECSEditor {
 
             }
 
-            this.lists[index] = list;
+            InitializerEditor.lists[index] = list;
             
         }
         
         private void OnDrawListCategoryItem(Rect rect, int index, bool isActive, bool isFocused) {
             
-            this.currentListIndex = index;
+            InitializerEditor.currentListIndex = index;
 
             //rect.height = InitializerEditor.ONE_LINE_HEIGHT;
             
             var rectCheckBox = new Rect(rect);
             rectCheckBox.width = 20f;
 
-            while (index >= this.lists.Count) this.lists.Add(null);
-            var list = this.lists[index];
+            while (index >= InitializerEditor.lists.Count) InitializerEditor.lists.Add(null);
+            var list = InitializerEditor.lists[index];
             this.FillList(index, ref list);
 
             var isDirty = false;
@@ -982,7 +1053,7 @@ namespace ME.ECSEditor {
 
         private void OnDrawHeaderSubItem(Rect rect) {
             
-            var featureData = (FeaturesListCategory)this.listCategories.list[this.currentListIndex];
+            var featureData = (FeaturesListCategory)InitializerEditor.listCategories.list[InitializerEditor.currentListIndex];
             var newCaption = EditorGUI.TextField(rect, featureData.folderCaption, EditorStyles.boldLabel);
             if (string.IsNullOrEmpty(newCaption) == true) newCaption = "Group Name";
             if (newCaption != featureData.folderCaption) {
@@ -996,12 +1067,20 @@ namespace ME.ECSEditor {
 
         private float GetElementHeight(int index) {
 
-            var featureData = (FeaturesList.FeatureData)this.lists[this.currentListIndex].list[index];
-            return this.GetElementHeight(featureData);
+            var featureData = (FeaturesList.FeatureData)InitializerEditor.lists[InitializerEditor.currentListIndex].list[index];
+            InitializerEditor.currentSubListIndex = index;
+            return this.GetElementHeight(featureData, drawSubFeatures: true);
 
         }
-        
-        private float GetElementHeight(FeaturesList.FeatureData featureData) {
+
+        private float GetSubElementHeight(int index) {
+
+            var featureData = (FeaturesList.FeatureData)(((FeaturesList.FeatureData)InitializerEditor.lists[InitializerEditor.currentListIndex].list[InitializerEditor.currentSubListIndex])).innerFeatures[index];
+            return this.GetElementHeight(featureData, drawSubFeatures: false);
+
+        }
+
+        private float GetElementHeight(FeaturesList.FeatureData featureData, bool drawSubFeatures) {
 
             var height = InitializerEditor.ONE_LINE_HEIGHT;
 
@@ -1049,20 +1128,22 @@ namespace ME.ECSEditor {
 
                 }
                 
-                { // Inner features
+                if (drawSubFeatures == true) { // Inner features
 
                     height += InitializerEditor.ONE_LINE_HEIGHT;
                     var isOpen = this.IsSubFeatureFoldout(featureData.feature);
                     if (isOpen == true) {
 
-                        var systems = featureData.innerFeatures;
-                        if (systems != null) {
+                        var features = featureData.innerFeatures;
+                        if (features != null) {
 
-                            foreach (var system in systems) {
+                            var list = this.GetSubFeatureList(featureData);
+                            height += list.GetHeight();
+                            /*foreach (var system in features) {
 
                                 height += this.GetElementHeight((FeaturesList.FeatureData)system);
 
-                            }
+                            }*/
 
                         }
 
@@ -1078,12 +1159,20 @@ namespace ME.ECSEditor {
 
         private void OnDrawListItem(Rect rect, int index, bool isActive, bool isFocused) {
 
-            var featureData = (FeaturesList.FeatureData)this.lists[this.currentListIndex].list[index];
-            this.DrawFeature(ref rect, featureData, isActive, isFocused);
+            var featureData = (FeaturesList.FeatureData)InitializerEditor.lists[InitializerEditor.currentListIndex].list[index];
+            InitializerEditor.currentSubListIndex = index;
+            this.DrawFeature(ref rect, featureData, isActive, isFocused, drawSubFeatures: true);
 
         }
-        
-        private void DrawFeature(ref Rect rect, FeaturesList.FeatureData featureData, bool isActive, bool isFocused) {
+
+        private void OnDrawSubListItem(Rect rect, int index, bool isActive, bool isFocused) {
+
+            var featureData = (FeaturesList.FeatureData)((FeaturesList.FeatureData)InitializerEditor.lists[InitializerEditor.currentListIndex].list[InitializerEditor.currentSubListIndex]).innerFeatures[index];
+            this.DrawFeature(ref rect, featureData, isActive, isFocused, drawSubFeatures: false);
+
+        }
+
+        private void DrawFeature(ref Rect rect, FeaturesList.FeatureData featureData, bool isActive, bool isFocused, bool drawSubFeatures) {
             
             if (Event.current.type == EventType.Repaint) this.drawWidth = rect.width;
             rect.height = InitializerEditor.ONE_LINE_HEIGHT;
@@ -1114,9 +1203,9 @@ namespace ME.ECSEditor {
                     featureData.feature = obj;
 
                     var count = 0;
-                    for (int i = 0; i < this.lists[this.currentListIndex].count; ++i) {
+                    for (int i = 0; i < InitializerEditor.lists[InitializerEditor.currentListIndex].count; ++i) {
                         
-                        var data = (FeaturesList.FeatureData)this.lists[this.currentListIndex].list[i];
+                        var data = (FeaturesList.FeatureData)InitializerEditor.lists[InitializerEditor.currentListIndex].list[i];
                         if (data.feature != null && featureData.feature != null && featureData.feature == data.feature) {
 
                             ++count;
@@ -1215,25 +1304,36 @@ namespace ME.ECSEditor {
 
                 }
 
-                { // Inner features
+                if (drawSubFeatures == true) { // Inner features
 
-                    count = (featureData.innerFeatures != null ? featureData.innerFeatures.Length : 0);
+                    count = (featureData.innerFeatures != null ? featureData.innerFeatures.Count : 0);
                     rect.y += InitializerEditor.ONE_LINE_HEIGHT;
                     var isOpen = GUILayoutExt.BeginFoldoutHeaderGroup(rect, this.IsSubFeatureFoldout(featureData.feature), new GUIContent(string.Format("Sub Features ({0})", count)));
                     this.SetSubFeatureFoldout(featureData.feature, isOpen);
                     if (isOpen == true) {
 
-                        var systems = featureData.innerFeatures;
-                        if (systems != null) {
+                        var features = featureData.innerFeatures;
+                        if (features == null) {
+                            
+                            featureData.innerFeatures = new System.Collections.Generic.List<FeaturesList.FeatureData>();
+                            features = featureData.innerFeatures;
+                            //featureData.innerFeatures[0] = new FeaturesList.FeatureData();
 
-                            foreach (var system in systems) {
+                        }
+                        if (features != null) {
+
+                            rect.y += InitializerEditor.ONE_LINE_HEIGHT;
+                            var list = this.GetSubFeatureList(featureData);
+                            var listRect = new Rect(rect);
+                            list.DoList(listRect);
+                            /*foreach (var feature in features) {
 
                                 var prevRect = rect;
                                 rect.y += InitializerEditor.ONE_LINE_HEIGHT;
-                                this.DrawFeature(ref rect, (FeaturesList.FeatureData)system, isActive, isFocused);
+                                this.DrawFeature(ref rect, (FeaturesList.FeatureData)feature, isActive, isFocused);
                                 rect.x = prevRect.x;
 
-                            }
+                            }*/
 
                         }
 

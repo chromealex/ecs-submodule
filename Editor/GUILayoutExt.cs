@@ -1912,13 +1912,14 @@ namespace ME.ECSEditor {
             
         }
 
-        public static void Separator(Color color, float lineHeight = 0.5f) {
+        public static void Separator(Color color, float lineHeight = 0.5f, RectOffset offset = default) {
 
             Rect rect = EditorGUILayout.GetControlRect(false, lineHeight);
             rect.height = lineHeight;
             //rect.width += 4f;
             //rect.x -= 2f;
             rect.y -= lineHeight * 0.5f;
+            if (offset != null) rect = offset.Add(rect);
             EditorGUI.DrawRect(rect, color);
 
         }

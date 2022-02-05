@@ -55,7 +55,7 @@ namespace ME.ECS {
 
             FeatureBase GetSource();
             bool IsEnabled();
-            IFeatureData[] GetSubFeatures();
+            System.Collections.Generic.List<FeatureData> GetSubFeatures();
 
         }
 
@@ -71,11 +71,11 @@ namespace ME.ECS {
             public FeatureBase feature;
             public FeatureBase featureInstance { get; set; }
             [UnityEngine.SerializeReference]
-            public IFeatureData[] innerFeatures;
+            public System.Collections.Generic.List<FeatureData> innerFeatures;
 
             public bool IsEnabled() => this.enabled;
             public FeatureBase GetSource() => this.feature;
-            public IFeatureData[] GetSubFeatures() => this.innerFeatures;
+            public System.Collections.Generic.List<FeatureData> GetSubFeatures() => this.innerFeatures;
 
         }
 
@@ -87,11 +87,11 @@ namespace ME.ECS {
             
         }
 
-        private void InitializePre(World world, System.Collections.IList features) {
+        private void InitializePre(World world, System.Collections.Generic.List<FeatureData> features) {
 
             for (int i = 0; i < features.Count; ++i) {
 
-                var item = (FeatureData)features[i];
+                var item = features[i];
                 if (item.IsEnabled() == true) {
 
                     var instance = (world.settings.createInstanceForFeatures == true ? UnityEngine.Object.Instantiate(item.GetSource()) : item.GetSource());
@@ -117,11 +117,11 @@ namespace ME.ECS {
             
         }
         
-        public void InitializePost(World world, System.Collections.IList features) {
+        public void InitializePost(World world, System.Collections.Generic.List<FeatureData> features) {
 
             for (int i = 0; i < features.Count; ++i) {
                 
-                var item = (FeatureData)features[i];
+                var item = features[i];
                 if (item.IsEnabled() == true) {
                     
                     item.featureInstance.DoConstruct();
@@ -144,11 +144,11 @@ namespace ME.ECS {
             
         }
 
-        internal void DeInitialize(World world, System.Collections.IList features) {
+        internal void DeInitialize(World world, System.Collections.Generic.List<FeatureData> features) {
             
             for (int i = 0; i < features.Count; ++i) {
                 
-                var item = (FeatureData)features[i];
+                var item = features[i];
                 if (item.IsEnabled() == true) {
                     
                     world.RemoveFeature(item.featureInstance);

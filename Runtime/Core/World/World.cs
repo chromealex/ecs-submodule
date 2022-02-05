@@ -1595,7 +1595,7 @@ namespace ME.ECS {
             instance.world = this;
             if (instance is IModuleValidation instanceValidate) {
 
-                if (instanceValidate.CouldBeAdded() == false) {
+                if (instanceValidate.CanBeAdded() == false) {
 
                     instance.world = null;
                     PoolModules.Recycle(ref instance);
@@ -1683,7 +1683,7 @@ namespace ME.ECS {
             instance.world = this;
             if (instance is IFeatureValidation instanceValidate) {
 
-                if (instanceValidate.CouldBeAdded() == false) {
+                if (instanceValidate.CanBeAdded() == false) {
 
                     instance.world = null;
                     return false;

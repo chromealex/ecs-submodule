@@ -855,7 +855,7 @@ namespace ME.ECS.StatesHistory {
 
         }
 
-        public virtual bool CouldBeAdded() {
+        public virtual bool CanBeAdded() {
 
             return this.world.GetTickTime() > 0f;
 

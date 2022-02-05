@@ -359,7 +359,7 @@
             instance.world = this.world;
             if (instance is ISystemValidation instanceValidate) {
 
-                if (instanceValidate.CouldBeAdded() == false) {
+                if (instanceValidate.CanBeAdded() == false) {
                     
                     instance.world = null;
                     return false;

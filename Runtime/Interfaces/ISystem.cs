@@ -100,18 +100,11 @@ namespace ME.ECS {
 
     }
 
-    /*
-    public interface IAdvanceTickBurst {
-
-        World.SystemFilterAdvanceTick GetAdvanceTickForBurst();
-
-    }*/
-    
     public interface ISystem : ISystemBase { }
 
     public interface ISystemValidation : IContext {
 
-        bool CouldBeAdded();
+        bool CanBeAdded();
 
     }
 
