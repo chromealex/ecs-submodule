@@ -88,7 +88,7 @@ namespace ME.ECS {
 
         public static WorldDebugSettings Default => new WorldDebugSettings() {
             createGameObjectsRepresentation = false,
-            collectStatistic = true,
+            collectStatistic = false,
             showViewsOnScene = false,
             viewsSettings = new WorldDebugViewsSettings(),
         };

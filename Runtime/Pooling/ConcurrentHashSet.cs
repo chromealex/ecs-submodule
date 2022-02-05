@@ -319,7 +319,9 @@ namespace ME.ECS {
                     current = current.Next;
                 }
 
+                #pragma warning disable
                 actualValue = default;
+                #pragma warning restore
                 return false;
             }
 

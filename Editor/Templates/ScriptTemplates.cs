@@ -313,7 +313,7 @@ MonoBehaviour:
             definesGen["PROJECTNAME"] = projectName + ".gen";
             ScriptTemplates.Create(path, projectName + ".asmdef", "00-asmdef", defines, allowRename: false);
             //var refGuid = AssetDatabase.AssetPathToGUID(path + "/" + projectName + ".asmdef");
-            definesGen.Add("REFERENCES", projectName);
+            definesGen.Add("REFERENCES", @",""" + projectName + @"""");
             ScriptTemplates.Create(path + "/Generator", projectName + ".gen.asmdef", "00-asmdef", definesGen, allowRename: false);
             ScriptTemplates.Create(path + "/Generator", projectName + "Initializer.cs", "00-InitializerTemplate", defines, allowRename: false, onCreated: (asset) => {
                 
