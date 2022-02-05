@@ -94,7 +94,7 @@
 }
 
 .unity-property-field IMGUIContainer {
-    margin-left: 10px;
+    margin-left: 1px;
 }
 
 .shared-component {

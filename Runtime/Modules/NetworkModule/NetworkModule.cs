@@ -85,6 +85,17 @@ namespace ME.ECS.Network {
 
         bool UnRegisterRPC(RPCId rpcId);
 
+        RPCId RegisterRPC(System.Action action, bool runLocalOnly = false);
+        RPCId RegisterRPC<T0>(System.Action<T0> action, bool runLocalOnly = false);
+        RPCId RegisterRPC<T0, T1>(System.Action<T0, T1> action, bool runLocalOnly = false);
+        RPCId RegisterRPC<T0, T1, T2>(System.Action<T0, T1, T2> action, bool runLocalOnly = false);
+        RPCId RegisterRPC<T0, T1, T2, T3>(System.Action<T0, T1, T2, T3> action, bool runLocalOnly = false);
+        RPCId RegisterRPC<T0, T1, T2, T3, T4>(System.Action<T0, T1, T2, T3, T4> action, bool runLocalOnly = false);
+        RPCId RegisterRPC<T0, T1, T2, T3, T4, T5>(System.Action<T0, T1, T2, T3, T4, T5> action, bool runLocalOnly = false);
+        RPCId RegisterRPC<T0, T1, T2, T3, T4, T5, T6>(System.Action<T0, T1, T2, T3, T4, T5, T6> action, bool runLocalOnly = false);
+        RPCId RegisterRPC<T0, T1, T2, T3, T4, T5, T6, T7>(System.Action<T0, T1, T2, T3, T4, T5, T6, T7> action, bool runLocalOnly = false);
+        RPCId RegisterRPC<T0, T1, T2, T3, T4, T5, T6, T7, T8>(System.Action<T0, T1, T2, T3, T4, T5, T6, T7, T8> action, bool runLocalOnly = false);
+        RPCId RegisterRPC<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(System.Action<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> action, bool runLocalOnly = false);
         RPCId RegisterRPC(System.Reflection.MethodInfo methodInfo, bool runLocalOnly = false);
         bool RegisterRPC(RPCId rpcId, System.Reflection.MethodInfo methodInfo, bool runLocalOnly = false);
 
@@ -109,6 +120,11 @@ namespace ME.ECS.Network {
         void RPC<T1, T2, T3>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3);
         void RPC<T1, T2, T3, T4>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4);
         void RPC<T1, T2, T3, T4, T5>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5);
+        void RPC<T1, T2, T3, T4, T5, T6>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6);
+        void RPC<T1, T2, T3, T4, T5, T6, T7>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7);
+        void RPC<T1, T2, T3, T4, T5, T6, T7, T8>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8);
+        void RPC<T1, T2, T3, T4, T5, T6, T7, T8, T9>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9);
+        void RPC<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10);
 
     }
 
@@ -854,6 +870,72 @@ namespace ME.ECS.Network {
 
         }
 
+        public RPCId RegisterRPC(System.Action action, bool runLocalOnly = false) {
+
+            return this.RegisterRPC(action.Method, runLocalOnly);
+
+        }
+
+        public RPCId RegisterRPC<T0>(System.Action<T0> action, bool runLocalOnly = false) {
+            
+            return this.RegisterRPC(action.Method, runLocalOnly);
+            
+        }
+
+        public RPCId RegisterRPC<T0, T1>(System.Action<T0, T1> action, bool runLocalOnly = false) {
+            
+            return this.RegisterRPC(action.Method, runLocalOnly);
+            
+        }
+
+        public RPCId RegisterRPC<T0, T1, T2>(System.Action<T0, T1, T2> action, bool runLocalOnly = false) {
+            
+            return this.RegisterRPC(action.Method, runLocalOnly);
+            
+        }
+
+        public RPCId RegisterRPC<T0, T1, T2, T3>(System.Action<T0, T1, T2, T3> action, bool runLocalOnly = false) {
+            
+            return this.RegisterRPC(action.Method, runLocalOnly);
+            
+        }
+
+        public RPCId RegisterRPC<T0, T1, T2, T3, T4>(System.Action<T0, T1, T2, T3, T4> action, bool runLocalOnly = false) {
+            
+            return this.RegisterRPC(action.Method, runLocalOnly);
+            
+        }
+
+        public RPCId RegisterRPC<T0, T1, T2, T3, T4, T5>(System.Action<T0, T1, T2, T3, T4, T5> action, bool runLocalOnly = false) {
+            
+            return this.RegisterRPC(action.Method, runLocalOnly);
+            
+        }
+
+        public RPCId RegisterRPC<T0, T1, T2, T3, T4, T5, T6>(System.Action<T0, T1, T2, T3, T4, T5, T6> action, bool runLocalOnly = false) {
+            
+            return this.RegisterRPC(action.Method, runLocalOnly);
+            
+        }
+
+        public RPCId RegisterRPC<T0, T1, T2, T3, T4, T5, T6, T7>(System.Action<T0, T1, T2, T3, T4, T5, T6, T7> action, bool runLocalOnly = false) {
+            
+            return this.RegisterRPC(action.Method, runLocalOnly);
+            
+        }
+
+        public RPCId RegisterRPC<T0, T1, T2, T3, T4, T5, T6, T7, T8>(System.Action<T0, T1, T2, T3, T4, T5, T6, T7, T8> action, bool runLocalOnly = false) {
+            
+            return this.RegisterRPC(action.Method, runLocalOnly);
+            
+        }
+
+        public RPCId RegisterRPC<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(System.Action<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> action, bool runLocalOnly = false) {
+            
+            return this.RegisterRPC(action.Method, runLocalOnly);
+            
+        }
+
         public RPCId RegisterRPC(System.Reflection.MethodInfo methodInfo, bool runLocalOnly = false) {
 
             if (this.registry.ContainsValue(methodInfo) == true) {
@@ -910,7 +992,7 @@ namespace ME.ECS.Network {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void RPC<T1>(object instance, RPCId rpcId, T1 p1) /*where T1 : struct*/ {
+        public void RPC<T1>(object instance, RPCId rpcId, T1 p1) {
 
             var arr = new object[1];
             arr[0] = p1;
@@ -921,7 +1003,7 @@ namespace ME.ECS.Network {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void RPC<T1, T2>(object instance, RPCId rpcId, T1 p1, T2 p2) /*where T1 : struct where T2 : struct*/ {
+        public void RPC<T1, T2>(object instance, RPCId rpcId, T1 p1, T2 p2) {
 
             var arr = new object[2];
             arr[0] = p1;
@@ -933,7 +1015,7 @@ namespace ME.ECS.Network {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void RPC<T1, T2, T3>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3) /*where T1 : struct where T2 : struct where T3 : struct*/ {
+        public void RPC<T1, T2, T3>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3) {
 
             var arr = new object[3];
             arr[0] = p1;
@@ -946,7 +1028,7 @@ namespace ME.ECS.Network {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void RPC<T1, T2, T3, T4>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4) /*where T1 : struct where T2 : struct where T3 : struct where T4 : struct*/ {
+        public void RPC<T1, T2, T3, T4>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4) {
 
             var arr = new object[4];
             arr[0] = p1;
@@ -960,9 +1042,7 @@ namespace ME.ECS.Network {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void
-            RPC<T1, T2, T3, T4, T5>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4,
-                                    T5 p5) /*where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct*/ {
+        public void RPC<T1, T2, T3, T4, T5>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5) {
 
             var arr = new object[5];
             arr[0] = p1;
@@ -970,6 +1050,96 @@ namespace ME.ECS.Network {
             arr[2] = p3;
             arr[3] = p4;
             arr[4] = p5;
+            this.CallRPC(instance, rpcId, true, arr);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void RPC<T1, T2, T3, T4, T5, T6>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6) {
+
+            var arr = new object[6];
+            arr[0] = p1;
+            arr[1] = p2;
+            arr[2] = p3;
+            arr[3] = p4;
+            arr[4] = p5;
+            arr[5] = p6;
+            this.CallRPC(instance, rpcId, true, arr);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void RPC<T1, T2, T3, T4, T5, T6, T7>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7) {
+
+            var arr = new object[7];
+            arr[0] = p1;
+            arr[1] = p2;
+            arr[2] = p3;
+            arr[3] = p4;
+            arr[4] = p5;
+            arr[5] = p6;
+            arr[6] = p7;
+            this.CallRPC(instance, rpcId, true, arr);
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void RPC<T1, T2, T3, T4, T5, T6, T7, T8>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8) {
+
+            var arr = new object[8];
+            arr[0] = p1;
+            arr[1] = p2;
+            arr[2] = p3;
+            arr[3] = p4;
+            arr[4] = p5;
+            arr[5] = p6;
+            arr[6] = p7;
+            arr[7] = p8;
+            this.CallRPC(instance, rpcId, true, arr);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void RPC<T1, T2, T3, T4, T5, T6, T7, T8, T9>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9) {
+
+            var arr = new object[9];
+            arr[0] = p1;
+            arr[1] = p2;
+            arr[2] = p3;
+            arr[3] = p4;
+            arr[4] = p5;
+            arr[5] = p6;
+            arr[6] = p7;
+            arr[7] = p8;
+            arr[8] = p9;
+            this.CallRPC(instance, rpcId, true, arr);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void RPC<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(object instance, RPCId rpcId, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10) {
+
+            var arr = new object[10];
+            arr[0] = p1;
+            arr[1] = p2;
+            arr[2] = p3;
+            arr[3] = p4;
+            arr[4] = p5;
+            arr[5] = p6;
+            arr[6] = p7;
+            arr[7] = p8;
+            arr[8] = p9;
+            arr[9] = p10;
             this.CallRPC(instance, rpcId, true, arr);
 
         }
