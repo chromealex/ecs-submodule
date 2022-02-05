@@ -2,7 +2,7 @@
     "name": "ME.ECS.Tests.Res",
     "rootNamespace": "",
     "references": [
-        "GUID:8979e5b9ed38b420d8191f6eb2c94074"
+        "ME.ECS"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

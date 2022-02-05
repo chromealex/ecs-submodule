@@ -375,6 +375,7 @@ namespace ME.ECSEditor {
                 for (var i = 0; i < listEntities.Count; ++i) {
                     
                     var type = listEntities[i];
+                    if (type.IsGenericType == true) continue;
                     
                     var entityType = type.FullName.Replace("+", ".");
                     var hasFields = type.GetFields(System.Reflection.BindingFlags.Default | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 0;

@@ -1,9 +1,16 @@
 {
-    "name": "MEECSSerializer",
+    "name": "ME.ECS.Editor",
+    "rootNamespace": "",
     "references": [
-        "GUID:948ed582966c54c1988774d66ffc3446"
+        "ME.ECS",
+        "ME.Pools",
+        "Unity.Collections",
+        "ME.ECS.Mono.Reflection",
+        "ME.ECS.FPMath"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

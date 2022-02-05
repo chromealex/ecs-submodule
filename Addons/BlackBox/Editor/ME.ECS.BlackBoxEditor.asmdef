@@ -1,9 +1,10 @@
 {
     "name": "ME.ECS.BlackBoxEditor",
+    "rootNamespace": "",
     "references": [
-        "GUID:2ece66b544d324812a43e54b6d31cffd",
-        "GUID:e20aed4bbf7c24e7488dff6682901267",
-        "GUID:8979e5b9ed38b420d8191f6eb2c94074"
+        "ME.ECS.Editor",
+        "ME.ECS.BlackBox",
+        "ME.ECS"
     ],
     "includePlatforms": [
         "Editor"

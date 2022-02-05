@@ -1,18 +1,24 @@
 {
-    "name": "ME.ECS.Essentials.Destroy",
+    "name": "ME.ECS",
     "rootNamespace": "",
     "references": [
-        "ME.ECS",
-        "ME.ECS.IL2CPP",
+        "Unity.Burst",
+        "Unity.Mathematics",
+        "ME.ECS.Serializer",
         "ME.Pools",
+        "ME.ECS.IL2CPP",
+        "ME.Debug.WeakRef",
+        "ME.ECS.FPMath",
         "Unity.Collections",
-        "Unity.Burst"
+        "Unity.Profiling.Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": false,
-    "precompiledReferences": [],
+    "precompiledReferences": [
+        ""
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],

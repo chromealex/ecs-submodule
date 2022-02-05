@@ -1,12 +1,11 @@
 {
-    "name": "ECSEditorAssembly",
+    "name": "ME.ECS.Editor.Tools",
     "rootNamespace": "",
     "references": [
-        "GUID:8979e5b9ed38b420d8191f6eb2c94074",
-        "GUID:948ed582966c54c1988774d66ffc3446",
-        "GUID:e0cd26848372d4e5c891c569017e11f1",
-        "GUID:479b398dfb3014d91b576bd475437a83",
-        "GUID:36c45963a9fd34aa4a3447102d38d86e"
+        "ME.ECS.Serializer",
+        "ME.ECS.Editor",
+        "ME.ECS",
+        "ME.Pools"
     ],
     "includePlatforms": [
         "Editor"

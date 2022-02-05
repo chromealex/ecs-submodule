@@ -4,8 +4,8 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "ECSAssembly",
-        "MEECSSerializer",
+        "ME.ECS",
+        "ME.ECS.Serializer",
         "ME.Pools",
         "ME.ECS.Tests",
         "ME.ECS.Tests.Res"

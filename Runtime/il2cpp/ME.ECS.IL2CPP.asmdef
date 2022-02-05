@@ -1,3 +1,14 @@
-﻿{
-	"name": "ME.ECS.IL2CPP"
+{
+    "name": "ME.ECS.IL2CPP",
+    "rootNamespace": "",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

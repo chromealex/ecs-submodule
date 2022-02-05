@@ -2,11 +2,11 @@
     "name": "ME.ECS.Tests",
     "rootNamespace": "",
     "references": [
-        "GUID:0acc523941302664db1f4e527237feb3",
-        "GUID:27619889b8ba8c24980f49ee34dbb44a",
-        "GUID:8979e5b9ed38b420d8191f6eb2c94074",
-        "GUID:2665a8d13d1b3f18800f46e256720795",
-        "GUID:84bca423f85244b29925596462497d34"
+        "UnityEditor.TestRunner",
+        "UnityEngine.TestRunner",
+        "ME.ECS",
+        "Unity.Burst",
+        "ME.ECS.Tests.Res"
     ],
     "includePlatforms": [
         "Editor"

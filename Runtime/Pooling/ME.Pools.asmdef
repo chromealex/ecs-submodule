@@ -2,9 +2,8 @@
     "name": "ME.Pools",
     "rootNamespace": "",
     "references": [
-        "GUID:1e50cf49f12c346f5ab77c5d33b0db51",
-        "GUID:4a488f777cb1e4ad0a18abe773e05b9d",
-        "GUID:02b2354e43eb43cbbc8b00805c0acbdc"
+        "ME.ECS.IL2CPP",
+        "ME.Debug.WeakRef"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
