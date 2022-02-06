@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd"
+>
+    <engine:VisualElement class="content" fixed-pane-initial-dimension="280">
+        <engine:ScrollView class="main-scroll-view">
+            <engine:VisualElement class="main-header">
+                <engine:Label text="Quick Start Guide"/>
+            </engine:VisualElement>
+            <engine:VisualElement class="block complete">
+                <engine:VisualElement class="separator"/>
+                <engine:VisualElement>
+                    <engine:VisualElement class="header">
+                        <engine:Label text="Basics"/>
+                    </engine:VisualElement>
+                    <engine:VisualElement class="content">
+                        <engine:VisualElement>
+                            <engine:Label text="ME.ECS - it is framework with deterministic logic and rollbacks."/>
+                            <engine:Label text="ME.ECS has a few base entities: Features, Systems, Modules, Components, Markers, Views"/>
+                            <engine:Label text="Features - containers for other entities."/>
+                            <engine:Label text="Systems - use for logic only."/>
+                            <engine:Label text="Modules - use for input logic or any other custom behaviour depends on frame time. Modules can't change the game state directly."/>
+                            <engine:Label text="Components - data storage."/>
+                            <engine:Label text="Markers - use to change game state through the following flow: input marker -> RPC -> change logic. Markers can be used in UI or input code."/>
+                            <engine:Label text="Views - use to draw objects on the scene like mesh renderers/prefabs/etc."/>
+                            <engine:Label text="In ME.ECS there are two update methods: AdvanceTick and Update. AdvanceTick can read/write game state unlike Update which allow you to read game state only. Views are running their updates in Update, so they can't change game state too."/>
+                            <engine:Label text="Note that AdvanceTick can be run zero or multiple times in one frame, so if you want to notify view from the logic - you need to add component data onto your entity and remove it when the effect is gone."/>
+                        </engine:VisualElement>
+                    </engine:VisualElement>
+                </engine:VisualElement>
+                <engine:Button text="Mark Step as Complete"/>
+            </engine:VisualElement>
+            <engine:VisualElement class="block active">
+                <engine:VisualElement class="separator"/>
+                <engine:VisualElement>
+                    <engine:VisualElement class="header">
+                        <engine:Label text="Initialize Project"/>
+                    </engine:VisualElement>
+                    <engine:VisualElement class="content">
+                        <engine:VisualElement>
+                            <engine:Label text="1. Create an empty directory and name it as your project namespace (e.g. TestProject)."/>
+                            <engine:Label text="2. Right click on this directory and choose ME.ECS/Initialize Project."/>
+                            <engine:Label text="3. Wait while project will be generated."/>
+                            <engine:Label text="4. Read and apply `Send and Receive RPC Calls` page in documentation."/>
+                        </engine:VisualElement>
+                    </engine:VisualElement>
+                </engine:VisualElement>
+                <engine:Button text="Mark Step as Complete"/>
+            </engine:VisualElement>
+            <engine:VisualElement class="block inactive">
+                <engine:VisualElement class="separator"/>
+                <engine:VisualElement>
+                    <engine:VisualElement class="header">
+                        <engine:Label text="Create First Feature"/>
+                    </engine:VisualElement>
+                    <engine:VisualElement class="content">
+                        <engine:VisualElement>
+                            <engine:Label text="1. Click on Features directory and choose ME.ECS/Create Feature (Complex)."/>
+                            <engine:Label text="2. Enter the name Test."/>
+                            <engine:Label text="3. Press Enter."/>
+                            <engine:Label text="4. Wait while feature will be generated."/>
+                        </engine:VisualElement>
+                    </engine:VisualElement>
+                </engine:VisualElement>
+                <engine:Button text="Mark Step as Complete"/>
+            </engine:VisualElement>
+            <engine:VisualElement class="block inactive">
+                <engine:VisualElement class="separator"/>
+                <engine:VisualElement>
+                    <engine:VisualElement class="header">
+                        <engine:Label text="Create First View"/>
+                    </engine:VisualElement>
+                    <engine:VisualElement class="content">
+                        <engine:VisualElement>
+                            <engine:Label text="1. Select View directory in feature Test."/>
+                            <engine:Label text="2. Choose ME.ECS/Views/MonoBehaviour View."/>
+                            <engine:Label text="3. Enter the name TestView."/>
+                            <engine:Label text="4. Press Enter."/>
+                            <engine:Label text="5. Wait while view will be generated."/>
+                        </engine:VisualElement>
+                    </engine:VisualElement>
+                </engine:VisualElement>
+                <engine:Button text="Mark Step as Complete"/>
+            </engine:VisualElement>
+            <engine:VisualElement class="block inactive">
+                <engine:VisualElement class="separator"/>
+                <engine:VisualElement>
+                    <engine:VisualElement class="header">
+                        <engine:Label text="Use Data Configs"/>
+                    </engine:VisualElement>
+                    <engine:VisualElement class="content">
+                        <engine:VisualElement>
+                            <engine:Label text="DataConfig - allows you to store and edit components, then apply them onto entity in logic tick."/>
+                            <engine:Label text="1. Create any directory and select it."/>
+                            <engine:Label text="2. Choose ME.ECS/Data Config."/>
+                            <engine:Label text="3. Enter the name TestData."/>
+                            <engine:Label text="4. Press Enter."/>
+                            <engine:Label text="5. Use config.Apply(in entity) in code to apply all components onto your entity."/>
+                        </engine:VisualElement>
+                    </engine:VisualElement>
+                </engine:VisualElement>
+                <engine:Button text="Mark Step as Complete"/>
+            </engine:VisualElement>
+            <engine:VisualElement class="block inactive">
+                <engine:VisualElement class="separator"/>
+                <engine:VisualElement>
+                    <engine:VisualElement class="header">
+                        <engine:Label text="Send Input Commands and Receive RPC"/>
+                    </engine:VisualElement>
+                    <engine:VisualElement class="content">
+                        <engine:VisualElement>
+                            <engine:Label text="We need to receive input commands and transfer them to the logic tick, so we need to do some steps."/>
+                            <engine:Label text="1. Create new System which will transfer your input to logic tick."/>
+                            <engine:Label text="2. Create new methods for each input marker you want to transfer. In system constructor get NetworkModule and call NetworkModule::RegisterObject method for your system and call NetworkModule::RegisterRPC method for each your receive method."/>
+                            <engine:Label text="3. Use IUpdate interface in your system and implement Update method where you need to GetMarker from world and call NetworkModule::RPC method."/>
+                            <engine:Label text="4. Now you can change your receive methods. In these methods you can read/write game state."/>
+                        </engine:VisualElement>
+                    </engine:VisualElement>
+                </engine:VisualElement>
+                <engine:Button text="Mark Step as Complete"/>
+            </engine:VisualElement>
+            <engine:Button class="main-footer" text="Start Again"/>
+        </engine:ScrollView>
+    </engine:VisualElement>
+</engine:UXML>

@@ -1,0 +1,181 @@
+.main-scroll-view.dark {
+    background-color: #333;
+}
+
+.main-scroll-view.dark Button {
+    color: #eee;
+}
+
+.main-scroll-view.dark .block {
+    color: #ddd;
+}
+
+.main-scroll-view.dark .main-header {
+    color: #ccc;
+}
+.main-scroll-view.dark .block {
+    border-color: rgba(245, 245, 245, 0.1);
+    background-color: rgba(245, 245, 245, 0.05);
+}
+
+.main-scroll-view.dark .block .header {
+    background-color: rgba(245, 245, 245, 0.1);
+}
+
+.main-scroll-view.dark .separator {
+    background-color: rgba(245, 245, 245, 0.1);
+}
+
+.main-scroll-view.dark .block.inactive Button {
+    border-color: #5c705a;
+    background-color: #354334;
+    color: #858585;
+}
+
+.main-scroll-view.dark .block.complete .header {
+    background-color: rgba(105, 165, 91, 0.3) !important;
+}
+
+
+
+.main-scroll-view.light {
+    background-color: #eee;
+}
+
+.main-scroll-view.light Button {
+    color: #222;
+}
+
+.main-scroll-view.light .block {
+    color: #111;
+}
+
+.main-scroll-view.light .main-header {
+    color: #222;
+    background-color: whitesmoke;
+}
+.main-scroll-view.light .block {
+    border-color: #ddd;
+    background-color: whitesmoke;
+}
+
+.main-scroll-view.light .block .header {
+    background-color: #ddd;
+}
+
+.main-scroll-view.light .block.complete .header {
+    background-color: rgba(105, 165, 91, 0.3) !important;
+}
+
+.main-scroll-view.light .separator {
+    background-color: #dfdfdf;
+}
+
+.main-scroll-view.light .block.inactive Button {
+    border-color: #5c705a;
+    background-color: #757e75;
+    color: #d2d2d2;
+}
+
+
+.main-scroll-view .block .content Label {
+    padding-bottom: 10px;
+}
+
+.separator {
+    width: 1px;
+    height: 40px;
+    align-self: center;
+    margin-top: -61px;
+    margin-bottom: 20px;
+}
+
+.main-scroll-view {
+    width: auto;
+}
+
+.main-scroll-view .block {
+    margin: 20px;
+    border-radius: 10px;
+    border-width: 1px;
+    padding: 20px;
+}
+
+.main-scroll-view .main-header {
+    font-size: 24px;
+    align-self: center;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    border-color: #69a55b;
+    border-width: 1px;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.main-scroll-view .block .header {
+    font-size: 24px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+}
+
+.main-scroll-view .block .content {
+    font-size: 14px;
+    flex-direction: row;
+}
+
+.main-scroll-view .block .content Label {
+    white-space: normal;
+}
+
+.main-scroll-view .block.complete Button {
+    display: none;
+}
+
+.main-scroll-view Button {
+    height: 30px;
+    -unity-font-style: bold;
+    border-radius: 5px;
+    background-color: #69a55b;
+    border-color: #97cd92;
+    margin-top: 20px;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+.main-scroll-view .block.active Button:hover {
+    background-color: #7db377;
+    color: #444;
+}
+
+.main-scroll-view .block.active Button:active {
+    background-color: #588352;
+    color: #a2a2a2;
+}
+
+.main-scroll-view .block.complete {
+    border-color: #69a55b !important;
+}
+
+.main-scroll-view .block.complete .separator {
+    background-color: rgba(105, 165, 91, 0.1) !important;
+}
+
+.main-footer {
+    margin-bottom: 30px !important;
+    width: 300px;
+    align-self: center;
+}
+
+.main-footer:hover {
+    background-color: #7db377;
+    color: #444;
+}
+
+.main-footer:active {
+    background-color: #588352;
+    color: #a2a2a2;
+}

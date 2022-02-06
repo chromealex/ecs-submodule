@@ -1,0 +1,170 @@
+.main-scroll-view.dark {
+    background-color: #333;
+}
+
+.main-scroll-view.dark Button {
+    color: #eee;
+}
+
+.main-scroll-view.dark .block {
+    color: #ddd;
+}
+
+.main-scroll-view.dark .main-header {
+    color: #ccc;
+}
+.main-scroll-view.dark .block {
+    border-color: rgba(245, 245, 245, 0.1);
+    background-color: rgba(245, 245, 245, 0.05);
+}
+
+.main-scroll-view.dark .block .header {
+    background-color: rgba(245, 245, 245, 0.1);
+}
+
+.main-scroll-view.dark .separator {
+    background-color: rgba(245, 245, 245, 0.1);
+}
+
+.main-scroll-view.dark .block.inactive Button {
+    border-color: #5c705a;
+    background-color: #354334;
+    color: #858585;
+}
+
+.main-scroll-view.dark .block.complete .header {
+    background-color: rgba(105, 165, 91, 0.3) !important;
+}
+
+
+
+.main-scroll-view.light {
+    background-color: #eee;
+}
+
+.main-scroll-view.light Button {
+    color: #222;
+}
+
+.main-scroll-view.light .block {
+    color: #111;
+}
+
+.main-scroll-view.light .main-header {
+    color: #222;
+    background-color: whitesmoke;
+}
+.main-scroll-view.light .block {
+    border-color: #ddd;
+    background-color: whitesmoke;
+}
+
+.main-scroll-view.light .block .header {
+    background-color: #ddd;
+}
+
+.main-scroll-view.light .block.complete .header {
+    background-color: rgba(105, 165, 91, 0.3) !important;
+}
+
+.main-scroll-view.light .separator {
+    background-color: #dfdfdf;
+}
+
+.main-scroll-view.light .block.inactive Button {
+    border-color: #5c705a;
+    background-color: #757e75;
+    color: #d2d2d2;
+}
+
+
+.main-scroll-view .block .content Label {
+    padding-bottom: 10px;
+}
+
+.main-scroll-view {
+    width: auto;
+    flex-grow: 1;
+    height: 100%;
+}
+
+TemplateContainer {
+    flex-grow: 1;
+}
+
+TemplateContainer .content {
+    flex-grow: 1;
+}
+
+.main-scroll-view .main-header {
+    font-size: 24px;
+    align-self: center;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    border-color: #69a55b;
+    border-width: 1px;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.main-scroll-view Foldout {
+    min-height: 30px;
+    border-radius: 10px;
+    -unity-font-style: bold;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #97cd92;
+    margin: 10px 50px;
+    padding: 5px;
+    font-size: 14px;
+}
+
+.main-scroll-view Foldout Label {
+    white-space: normal;
+    margin-right: 20px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+.main-scroll-view Foldout .unity-toggle__checkmark {
+    margin-top: 4px !important;
+    height: 16px;
+}
+
+.main-scroll-view Foldout .answer {
+    -unity-font-style: normal;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.main-scroll-view Foldout:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.main-scroll-view Foldout:active {
+    background-color: #588352;
+    color: #a2a2a2;
+}
+
+.main-scroll-view .loader {
+    align-self: center;
+    align-content: center;
+    flex-direction: row;
+}
+
+.visible {
+    visibility: visible;
+}
+
+.invisible {
+    visibility: hidden;
+}
+
+.main-scroll-view .loader VisualElement {
+    align-self: center;
+    background-color: #69a55b;
+    margin: 1px;
+    width: 10px;
+    height: 10px;
+}

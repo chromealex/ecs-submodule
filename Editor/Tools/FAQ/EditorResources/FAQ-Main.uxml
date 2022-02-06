@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd"
+>
+    <engine:VisualElement class="content" fixed-pane-initial-dimension="280">
+        <engine:ScrollView class="main-scroll-view">
+            <engine:VisualElement class="main-header">
+                <engine:Label text="F.A.Q."/>
+            </engine:VisualElement>
+            <engine:VisualElement class="loader invisible">
+                <engine:VisualElement class="item1"></engine:VisualElement>
+                <engine:VisualElement class="item2"></engine:VisualElement>
+                <engine:VisualElement class="item3"></engine:VisualElement>
+            </engine:VisualElement>
+            <engine:VisualElement name="content">
+                
+            </engine:VisualElement>
+        </engine:ScrollView>
+    </engine:VisualElement>
+</engine:UXML>
