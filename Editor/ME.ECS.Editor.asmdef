@@ -5,7 +5,6 @@
         "ME.ECS",
         "ME.Pools",
         "Unity.Collections",
-        "ME.ECS.Mono.Reflection",
         "ME.ECS.FPMath"
     ],
     "includePlatforms": [
