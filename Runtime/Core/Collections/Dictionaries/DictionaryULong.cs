@@ -47,6 +47,35 @@ namespace ME.ECS.Collections {
             
         }
         
+        private struct EntryCopy<T> : IArrayElementCopy<Entry> where T : IArrayElementCopy<TValue> {
+
+            public T copy;
+
+            public void Copy(Entry @from, ref Entry to) {
+                
+                this.copy.Copy(from.value, ref to.value);
+                
+            }
+
+            public void Recycle(Entry item) {
+                
+                this.copy.Recycle(item.value);
+                
+            }
+
+        }
+
+        public void CopyFrom<TCopy>(DictionaryULong<TValue> other, TCopy copy) where TCopy : IArrayElementCopy<TValue> {
+
+            ArrayUtils.Copy(other.buckets, ref this.buckets);
+            ArrayUtils.Copy(other.entries, ref this.entries, new EntryCopy<TCopy>() { copy = copy });
+            this.count = other.count;
+            this.version = other.version;
+            this.freeList = other.freeList;
+            this.freeCount = other.freeCount;
+            
+        }
+
         public DictionaryULong(): this(0, null) {}
  
         public DictionaryULong(int capacity): this(capacity, null) {}

@@ -12,7 +12,7 @@ namespace ME.ECS.Collections {
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
     [System.Runtime.InteropServices.ComVisible(false)]
-    public class DictionaryUInt<TValue> : IDictionary {
+    public class DictionaryInt<TValue> : IDictionary {
     
         private struct Entry {
             public int hashCode;    // Lower 31 bits of hash code, -1 if unused
@@ -37,7 +37,7 @@ namespace ME.ECS.Collections {
         private const String KeyValuePairsName = "KeyValuePairs";
         private const String ComparerName = "Comparer";
  
-        public void CopyFrom(DictionaryUInt<TValue> other) {
+        public void CopyFrom(DictionaryInt<TValue> other) {
 
             ArrayUtils.Copy(other.buckets, ref this.buckets);
             ArrayUtils.Copy(other.entries, ref this.entries);
@@ -48,13 +48,42 @@ namespace ME.ECS.Collections {
             
         }
 
-        public DictionaryUInt(): this(0, null) {}
+        private struct EntryCopy<T> : IArrayElementCopy<Entry> where T : IArrayElementCopy<TValue> {
+
+            public T copy;
+
+            public void Copy(Entry @from, ref Entry to) {
+                
+                this.copy.Copy(from.value, ref to.value);
+                
+            }
+
+            public void Recycle(Entry item) {
+                
+                this.copy.Recycle(item.value);
+                
+            }
+
+        }
+
+        public void CopyFrom<TCopy>(DictionaryInt<TValue> other, TCopy copy) where TCopy : IArrayElementCopy<TValue> {
+
+            ArrayUtils.Copy(other.buckets, ref this.buckets);
+            ArrayUtils.Copy(other.entries, ref this.entries, new EntryCopy<TCopy>() { copy = copy });
+            this.count = other.count;
+            this.version = other.version;
+            this.freeList = other.freeList;
+            this.freeCount = other.freeCount;
+            
+        }
+
+        public DictionaryInt(): this(0, null) {}
  
-        public DictionaryUInt(int capacity): this(capacity, null) {}
+        public DictionaryInt(int capacity): this(capacity, null) {}
  
-        public DictionaryUInt(IEqualityComparer<TKey> comparer): this(0, comparer) {}
+        public DictionaryInt(IEqualityComparer<TKey> comparer): this(0, comparer) {}
  
-        public DictionaryUInt(int capacity, IEqualityComparer<TKey> comparer) {
+        public DictionaryInt(int capacity, IEqualityComparer<TKey> comparer) {
             if (capacity < 0) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity);
             if (capacity > 0) this.Initialize(capacity);
             
@@ -66,16 +95,16 @@ namespace ME.ECS.Collections {
 #endif // FEATURE_CORECLR
         }
  
-        protected DictionaryUInt(SerializationInfo info, StreamingContext context) {
+        protected DictionaryInt(SerializationInfo info, StreamingContext context) {
             //We can't do anything with the keys and values until the entire graph has been deserialized
             //and we have a resonable estimate that GetHashCode is not going to fail.  For the time being,
             //we'll just cache this.  The graph is not valid until OnDeserialization has been called.
             //HashHelpers.SerializationInfoTable.Add(this, info);
         }
         
-        public DictionaryUInt(DictionaryUInt<TValue> dictionary): this(dictionary, null) {}
+        public DictionaryInt(DictionaryInt<TValue> dictionary): this(dictionary, null) {}
  
-        public DictionaryUInt(DictionaryUInt<TValue> dictionary, IEqualityComparer<TKey> comparer):
+        public DictionaryInt(DictionaryInt<TValue> dictionary, IEqualityComparer<TKey> comparer):
             this(dictionary != null? dictionary.Count: 0, comparer) {
  
             foreach (KeyValuePair<TKey,TValue> pair in dictionary) {
@@ -456,7 +485,7 @@ namespace ME.ECS.Collections {
     
         object IDictionary.this[object key] {
             get { 
-                if( DictionaryUInt<TValue>.IsCompatibleKey(key)) {                
+                if( DictionaryInt<TValue>.IsCompatibleKey(key)) {                
                     int i = this.FindEntry((TKey)key);
                     if (i >= 0) { 
                         return this.entries[i].value;                
@@ -516,7 +545,7 @@ namespace ME.ECS.Collections {
         }
     
         bool IDictionary.Contains(object key) {    
-            if(DictionaryUInt<TValue>.IsCompatibleKey(key)) {
+            if(DictionaryInt<TValue>.IsCompatibleKey(key)) {
                 return this.ContainsKey((TKey)key);
             }
        
@@ -528,7 +557,7 @@ namespace ME.ECS.Collections {
         }
     
         void IDictionary.Remove(object key) {            
-            if(DictionaryUInt<TValue>.IsCompatibleKey(key)) {
+            if(DictionaryInt<TValue>.IsCompatibleKey(key)) {
                 this.Remove((TKey)key);
             }
         }
@@ -537,7 +566,7 @@ namespace ME.ECS.Collections {
         public struct Enumerator: IEnumerator<KeyValuePair<TKey,TValue>>,
             IDictionaryEnumerator
         {
-            private DictionaryUInt<TValue> dictionary;
+            private DictionaryInt<TValue> dictionary;
             private int version;
             private int index;
             private KeyValuePair<TKey,TValue> current;
@@ -546,7 +575,7 @@ namespace ME.ECS.Collections {
             internal const int DictEntry = 1;
             internal const int KeyValuePair = 2;
  
-            internal Enumerator(DictionaryUInt<TValue> dictionary, int getEnumeratorRetType) {
+            internal Enumerator(DictionaryInt<TValue> dictionary, int getEnumeratorRetType) {
                 this.dictionary = dictionary;
                 this.version = dictionary.version;
                 this.index = 0;
@@ -589,7 +618,7 @@ namespace ME.ECS.Collections {
                         ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumOpCantHappen);                        
                     }      
  
-                    if (this.getEnumeratorRetType == DictionaryUInt<TValue>.Enumerator.DictEntry) {
+                    if (this.getEnumeratorRetType == DictionaryInt<TValue>.Enumerator.DictEntry) {
                         return new System.Collections.DictionaryEntry(this.current.Key, this.current.Value);
                     } else {
                         return new KeyValuePair<TKey, TValue>(this.current.Key, this.current.Value);
@@ -641,9 +670,9 @@ namespace ME.ECS.Collections {
         [Serializable]
         public sealed class KeyCollection: ICollection<TKey>, ICollection, IReadOnlyCollection<TKey>
         {
-            private DictionaryUInt<TValue> dictionary;
+            private DictionaryInt<TValue> dictionary;
  
-            public KeyCollection(DictionaryUInt<TValue> dictionary) {
+            public KeyCollection(DictionaryInt<TValue> dictionary) {
                 if (dictionary == null) {
                     ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dictionary);
                 }
@@ -762,12 +791,12 @@ namespace ME.ECS.Collections {
             [Serializable]
             public struct Enumerator : IEnumerator<TKey>, System.Collections.IEnumerator
             {
-                private DictionaryUInt<TValue> dictionary;
+                private DictionaryInt<TValue> dictionary;
                 private int index;
                 private int version;
                 private TKey currentKey;
             
-                internal Enumerator(DictionaryUInt<TValue> dictionary) {
+                internal Enumerator(DictionaryInt<TValue> dictionary) {
                     this.dictionary = dictionary;
                     this.version = dictionary.version;
                     this.index = 0;
@@ -828,9 +857,9 @@ namespace ME.ECS.Collections {
         [Serializable]
         public sealed class ValueCollection: ICollection<TValue>, ICollection, IReadOnlyCollection<TValue>
         {
-            private DictionaryUInt<TValue> dictionary;
+            private DictionaryInt<TValue> dictionary;
  
-            public ValueCollection(DictionaryUInt<TValue> dictionary) {
+            public ValueCollection(DictionaryInt<TValue> dictionary) {
                 if (dictionary == null) {
                     ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dictionary);
                 }
@@ -948,12 +977,12 @@ namespace ME.ECS.Collections {
             [Serializable]
             public struct Enumerator : IEnumerator<TValue>, System.Collections.IEnumerator
             {
-                private DictionaryUInt<TValue> dictionary;
+                private DictionaryInt<TValue> dictionary;
                 private int index;
                 private int version;
                 private TValue currentValue;
             
-                internal Enumerator(DictionaryUInt<TValue> dictionary) {
+                internal Enumerator(DictionaryInt<TValue> dictionary) {
                     this.dictionary = dictionary;
                     this.version = dictionary.version;
                     this.index = 0;

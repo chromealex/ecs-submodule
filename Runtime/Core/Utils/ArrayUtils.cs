@@ -370,6 +370,114 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void Copy<T>(DictionaryInt<T> fromDic, ref DictionaryInt<T> dic) {
+            
+            ArrayUtils.Copy(fromDic, ref dic, new DefaultCopy<T>());
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Copy<T, TCopy>(DictionaryInt<T> fromDic, ref DictionaryInt<T> dic, TCopy copy) where TCopy : IArrayElementCopy<T> {
+            
+            if (fromDic == null) {
+            
+                if (dic != null) {
+                
+                    foreach (var kv in dic) {
+                        
+                        copy.Recycle(kv.Value);
+                        
+                    }
+
+                    PoolDictionaryInt<T>.Recycle(ref dic);
+                    
+                }
+
+                dic = null;
+                return;
+                
+            }
+
+            if (dic == null || fromDic.Count != dic.Count) {
+            
+                if (dic != null) {
+                
+                    foreach (var kv in dic) {
+                    
+                        copy.Recycle(kv.Value);
+                        
+                    }
+
+                    PoolDictionaryInt<T>.Recycle(ref dic);
+                }
+
+                dic = PoolDictionaryInt<T>.Spawn(fromDic.Count);
+                
+            }
+
+            dic.CopyFrom(fromDic, copy);
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Copy<T>(DictionaryULong<T> fromDic, ref DictionaryULong<T> dic) {
+            
+            ArrayUtils.Copy(fromDic, ref dic, new DefaultCopy<T>());
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Copy<T, TCopy>(DictionaryULong<T> fromDic, ref DictionaryULong<T> dic, TCopy copy) where TCopy : IArrayElementCopy<T> {
+            
+            if (fromDic == null) {
+            
+                if (dic != null) {
+                
+                    foreach (var kv in dic) {
+                        
+                        copy.Recycle(kv.Value);
+                        
+                    }
+
+                    PoolDictionaryULong<T>.Recycle(ref dic);
+                    
+                }
+
+                dic = null;
+                return;
+                
+            }
+
+            if (dic == null || fromDic.Count != dic.Count) {
+            
+                if (dic != null) {
+                
+                    foreach (var kv in dic) {
+                    
+                        copy.Recycle(kv.Value);
+                        
+                    }
+
+                    PoolDictionaryULong<T>.Recycle(ref dic);
+                }
+
+                dic = PoolDictionaryULong<T>.Spawn(fromDic.Count);
+                
+            }
+
+            dic.CopyFrom(fromDic, copy);
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T>(ListCopyable<T> fromArr, ref ListCopyable<T> arr) where T : struct {
 
             if (fromArr == null) {
