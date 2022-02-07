@@ -155,7 +155,7 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            
+            #if !FILTERS_STORAGE_ARCHETYPES
             new InitializerBase.DefineInfo("ARCHETYPE_SIZE_128", "Set archetype max bits size to 128 (Components in filters).", () => {
                 #if ARCHETYPE_SIZE_128
                 return true;
@@ -177,6 +177,7 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            #endif
             new InitializerBase.DefineInfo("VIEWS_REGISTER_VIEW_SOURCE_CHECK_STATE", "Forbid RegisterViewSource after world initialization.", () => {
                 #if VIEWS_REGISTER_VIEW_SOURCE_CHECK_STATE
                 return true;

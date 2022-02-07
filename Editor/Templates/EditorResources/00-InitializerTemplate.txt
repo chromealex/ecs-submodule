@@ -23,6 +23,7 @@ namespace #NAMESPACE# {
         private World world;
         public float tickTime = 0.033f;
         public uint inputTicks = 3;
+        public int entitiesCapacity = 200;
 
         public void OnDrawGizmos() {
 
@@ -48,15 +49,14 @@ namespace #NAMESPACE# {
                     this.world.GetModule<StatesHistoryModule>().SetTicksForInput(this.inputTicks);
                     this.world.AddModule<NetworkModule>();
                     
-                    // Add your custom modules here
-                    
                     // Create new state
                     this.world.SetState<TState>(WorldUtilities.CreateState<TState>());
+                    
                     this.world.SetSeed(1u);
+                    this.world.SetEntitiesCapacity(this.entitiesCapacity);
+                    
                     ComponentsInitializer.DoInit();
                     this.Initialize(this.world);
-
-                    // Add your custom systems here
                     
                 }
                 
