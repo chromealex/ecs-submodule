@@ -60,13 +60,18 @@ namespace #NAMESPACE# {
                     
                 }
                 
+            }
+
+            if (this.world != null && this.world.IsLoading() == false && this.world.IsLoaded() == false) {
+                
+                this.world.SetWorldThread(System.Threading.Thread.CurrentThread);
                 this.world.Load(() => {
                 
                     // Save initialization state
                     this.world.SaveResetState<TState>();
 
                 });
-
+                
             }
 
             if (this.world != null && this.world.IsLoaded() == true) {
@@ -74,6 +79,7 @@ namespace #NAMESPACE# {
                 var dt = Time.deltaTime;
                 this.world.PreUpdate(dt);
                 this.world.Update(dt);
+                this.world.LateUpdate(dt);
 
             }
 
