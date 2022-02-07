@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using ME.ECS;
+using UnityEditor;
 
 namespace ME.ECSEditor {
 
@@ -16,6 +18,61 @@ namespace ME.ECSEditor {
             "Assets/ECS-submodule/",
             "Assets/ecs-submodule/",
         };
+        
+        
+        public static void SelectEntity(Entity entity) {
+            
+            var found = false;
+            var entities = Worlds.currentWorld.GetDebugEntities();
+            foreach (var ent in entities) {
+
+                if (ent.Key == entity) {
+
+                    Selection.activeObject = ent.Value.gameObject;
+                    found = true;
+                    break;
+
+                }
+				            
+            }
+
+            if (found == false) {
+
+                var objects = GameObject.FindObjectsOfType<ME.ECS.Debug.EntityDebugComponent>();
+                foreach (var obj in objects) {
+
+                    if (obj.entity == entity) {
+
+                        Selection.activeObject = obj.gameObject;
+                        found = true;
+                        break;
+
+                    }
+                    
+                }
+
+            }
+            
+            if (found == false) {
+
+                if (entity.IsAlive() == false) {
+                    
+                    EditorWindow.focusedWindow.ShowNotification(new GUIContent(entity.ToString() + " already in pool"));
+
+                } else {
+
+                    var debug = new GameObject("Debug-" + entity.ToString(), typeof(ME.ECS.Debug.EntityDebugComponent));
+                    var info = debug.GetComponent<ME.ECS.Debug.EntityDebugComponent>();
+                    info.entity = entity;
+                    info.world = Worlds.currentWorld;
+                    info.hasName = false;
+                    Selection.activeObject = debug;
+
+                }
+                            
+            }
+
+        }
         
         public static int GetPropertyChildCount(UnityEditor.SerializedProperty property) {
         

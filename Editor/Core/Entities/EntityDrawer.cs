@@ -70,7 +70,7 @@ namespace ME.ECSEditor {
             EditorGUI.BeginDisabledGroup(entity.IsAliveWithBoundsCheck() == false);
             if (GUI.Button(buttonRect, "Select") == true) {
 
-                WorldsViewerEditor.SelectEntity(entity);
+                EditorUtilities.SelectEntity(entity);
 
             }
             EditorGUI.EndDisabledGroup();

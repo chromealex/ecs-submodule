@@ -235,7 +235,7 @@ namespace ME.ECSEditor {
 			    UnityEngine.GUILayout.FlexibleSpace();
 			    if (UnityEngine.GUILayout.Button("Select Entity", UnityEngine.GUILayout.Width(150f)) == true) {
 
-				    WorldsViewerEditor.SelectEntity(currentEntity);
+                    EditorUtilities.SelectEntity(currentEntity);
 
 			    }
 			    UnityEngine.GUILayout.FlexibleSpace();
@@ -282,7 +282,7 @@ namespace ME.ECSEditor {
 	                
                 };
                 
-                var worldEditor = new WorldsViewerEditor.WorldEditor();
+                var worldEditor = new WorldEditor();
                 worldEditor.world = Worlds.currentWorld;
                 
                 var allEntities = PoolListCopyable<Entity>.Spawn(worldEditor.world.GetState().storage.AliveCount);
@@ -1060,7 +1060,7 @@ namespace ME.ECSEditor {
 	        
         }
 
-        public static bool DrawFieldsSingle(string search, object cacheKey, WorldsViewerEditor.WorldEditor world, IStructComponentBase[] instances, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyBegin, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyEnd, System.Action<int, IStructComponentBase> onPropertyChanged = null) {
+        public static bool DrawFieldsSingle(string search, object cacheKey, WorldEditor world, IStructComponentBase[] instances, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyBegin, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyEnd, System.Action<int, IStructComponentBase> onPropertyChanged = null) {
 
 	        SerializedObject[] objs = null;
 	        var key = GUILayoutExt.GetFieldSingleCacheKey(cacheKey, instances);
@@ -1236,7 +1236,7 @@ namespace ME.ECSEditor {
 	        
         }
 
-        public static bool DrawFields(WorldsViewerEditor.WorldEditor world, object[] instances, string customName = null) {
+        public static bool DrawFields(WorldEditor world, object[] instances, string customName = null) {
 
 	        var temp = new GameObject("Temp");
 	        foreach (var instance in instances) {
@@ -1343,13 +1343,13 @@ namespace ME.ECSEditor {
 
         }
 
-        public static bool DrawFields(WorldsViewerEditor.WorldEditor world, object instance, string customName = null) {
+        public static bool DrawFields(WorldEditor world, object instance, string customName = null) {
 
 	        return GUILayoutExt.DrawFields(world, ref instance, customName);
 
         }
 
-        public static bool DrawFields(WorldsViewerEditor.WorldEditor world, ref object instance, string customName = null) {
+        public static bool DrawFields(WorldEditor world, ref object instance, string customName = null) {
 
             //var padding = 2f;
             //var margin = 1f;
@@ -1497,7 +1497,7 @@ namespace ME.ECSEditor {
         }
         
         private static System.Collections.Generic.Dictionary<System.Type, ICustomFieldEditor> customFieldEditors = null;
-        public static bool PropertyField(WorldsViewerEditor.WorldEditor world, string caption, object instance, int instanceArrIndex, System.Reflection.FieldInfo fieldInfo, System.Type type, ref object value, bool typeCheckOnly, bool hasMultipleDifferentValues) {
+        public static bool PropertyField(WorldEditor world, string caption, object instance, int instanceArrIndex, System.Reflection.FieldInfo fieldInfo, System.Type type, ref object value, bool typeCheckOnly, bool hasMultipleDifferentValues) {
 
             if (typeCheckOnly == false && value == null && type.IsValueType == false && type.IsArray == false && type.HasBaseType(typeof(UnityEngine.Object)) == false && type.HasBaseType(typeof(string)) == false) {
 
@@ -1649,7 +1649,7 @@ namespace ME.ECSEditor {
 		            EditorGUI.BeginDisabledGroup(entity == Entity.Empty);
 		            if (GUILayout.Button("Select", GUILayout.Width(buttonWidth)) == true) {
 
-			            WorldsViewerEditor.SelectEntity(entity);
+			            EditorUtilities.SelectEntity(entity);
 
 		            }
 		            EditorGUI.EndDisabledGroup();

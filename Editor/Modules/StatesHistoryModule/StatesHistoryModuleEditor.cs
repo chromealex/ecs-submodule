@@ -61,7 +61,7 @@ namespace ME.ECSEditor {
 
             GUILayoutExt.Box(2f, 2f, () => {
 
-                UnityEngine.GUILayout.Label("<b>Memory Usage:</b> " + ME.ECS.MathUtils.BytesCountToString(WorldsViewerEditor.WorldEditor.current.stateSize * (this.target.GetCacheSize() / this.target.GetTicksPerState())), style);
+                UnityEngine.GUILayout.Label("<b>Memory Usage:</b> " + ME.ECS.MathUtils.BytesCountToString(WorldEditor.current.stateSize * (this.target.GetCacheSize() / this.target.GetTicksPerState())), style);
                 UnityEngine.GUILayout.Label("<b>Events:</b> " + dataCount.ToString(), style);
                 UnityEngine.GUILayout.Label("<b>Events Added:</b> " + this.target.GetEventsAddedCount().ToString(), style);
                 UnityEngine.GUILayout.Label("<b>Events Played:</b> " + this.target.GetEventsPlayedCount().ToString(), style);
