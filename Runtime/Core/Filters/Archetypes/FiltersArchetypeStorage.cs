@@ -192,29 +192,33 @@ namespace ME.ECS {
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
             public bool MoveNext() {
+                
+                while (true) {
 
-                if (this.archIndex >= this.filterData.archetypes.Count) {
-                    return false;
-                }
-
-                ++this.index;
-                var arch = this.filterData.storage.allArchetypes[this.filterData.archetypes[this.archIndex]];
-                if (this.index >= arch.entitiesArr.Count) {
-
-                    ++this.archIndex;
-                    if (this.archIndex < this.filterData.archetypes.Count) {
-                        this.arr = this.filterData.storage.allArchetypes[this.filterData.archetypes[this.archIndex]].entitiesArr;
+                    if (this.archIndex >= this.filterData.archetypes.Count) {
+                        return false;
                     }
 
-                    this.index = -1;
-                    return this.MoveNext();
+                    ++this.index;
+                    var arch = this.filterData.storage.allArchetypes[this.filterData.archetypes[this.archIndex]];
+                    if (this.index >= arch.entitiesArr.Count) {
+
+                        ++this.archIndex;
+                        if (this.archIndex < this.filterData.archetypes.Count) {
+                            this.arr = this.filterData.storage.allArchetypes[this.filterData.archetypes[this.archIndex]].entitiesArr;
+                        }
+
+                        this.index = -1;
+                        continue;
+
+                    }
+
+                    this.current = this.filterData.storage.GetEntityById(this.arr[this.index]);
+
+                    return true;
 
                 }
-
-                this.current = this.filterData.storage.GetEntityById(this.arr[this.index]);
-
-                return true;
-
+                
             }
 
             #if INLINE_METHODS
