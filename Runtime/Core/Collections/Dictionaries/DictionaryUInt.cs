@@ -126,12 +126,11 @@ namespace ME.ECS.Collections {
         }
 
         public TValue GetValueAndRemove(TKey key) {
-
-            int i = this.FindEntry(key);
-            var val = this.entries[i].value;
-            this.Remove(key);
             
+            var val = this.GetValue(key);
+            this.Remove(key);
             return val;
+
         }
 
         public void Add(TKey key, TValue value) {

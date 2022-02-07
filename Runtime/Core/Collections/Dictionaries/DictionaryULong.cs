@@ -127,17 +127,10 @@ namespace ME.ECS.Collections {
 
         public TValue GetValueAndRemove(TKey key) {
 
-            int i = this.FindEntry(key);
-            var val = this.entries[i].value;
-            this.entries[i].hashCode = -1;
-            this.entries[i].next = this.freeList;
-            this.entries[i].key = default(TKey);
-            this.entries[i].value = default(TValue);
-            this.freeList = i;
-            this.freeCount++;
-            this.version++;
-            
+            var val = this.GetValue(key);
+            this.Remove(key);
             return val;
+            
         }
 
         public void Add(TKey key, TValue value) {
@@ -220,41 +213,37 @@ namespace ME.ECS.Collections {
  
         private void Insert(TKey key, TValue value, bool add) {
         
-            if (this.buckets == null) this.Initialize(0);
-            int hashCode = key.GetHashCode() & 0x7FFFFFFF;
-            int targetBucket = hashCode % this.buckets.Length;
- 
-#if FEATURE_RANDOMIZED_STRING_HASHING
-            int collisionCount = 0;
-#endif
- 
-            for (int i = this.buckets[targetBucket]; i >= 0; i = this.entries[i].next) {
-                if (this.entries[i].hashCode == hashCode && this.entries[i].key == key) {
-                    if (add) { 
-                        ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_AddingDuplicate);
+            if (this.buckets == null) {
+                this.Initialize(0);
+            }
+
+            var hashCode = key.GetHashCode() & 0x7FFFFFFF;
+            var targetBucket = hashCode % this.buckets.Length;
+
+            for (var i = this.buckets[targetBucket]; i >= 0; i = this.entries[i].next) {
+                if (this.entries[i].hashCode == hashCode && this.entries[i].key.Equals(key) == true) {
+                    if (add) {
+                        throw new ArgumentException();
                     }
 
                     this.entries[i].value = value;
                     this.version++;
                     return;
-                } 
- 
-#if FEATURE_RANDOMIZED_STRING_HASHING
-                collisionCount++;
-#endif
+                }
+
             }
+
             int index;
             if (this.freeCount > 0) {
                 index = this.freeList;
                 this.freeList = this.entries[index].next;
                 this.freeCount--;
-            }
-            else {
-                if (this.count == this.entries.Length)
-                {
+            } else {
+                if (this.count == this.entries.Length) {
                     this.Resize();
                     targetBucket = hashCode % this.buckets.Length;
                 }
+
                 index = this.count;
                 this.count++;
             }
@@ -265,30 +254,7 @@ namespace ME.ECS.Collections {
             this.entries[index].value = value;
             this.buckets[targetBucket] = index;
             this.version++;
- 
-#if FEATURE_RANDOMIZED_STRING_HASHING
- 
-#if FEATURE_CORECLR
-            // In case we hit the collision threshold we'll need to switch to the comparer which is using randomized string hashing
-            // in this case will be EqualityComparer<string>.Default.
-            // Note, randomized string hashing is turned on by default on coreclr so EqualityComparer<string>.Default will 
-            // be using randomized string hashing
- 
-            if (collisionCount > HashHelpers.HashCollisionThreshold && comparer == NonRandomizedStringEqualityComparer.Default) 
-            {
-                comparer = (IEqualityComparer<TKey>) EqualityComparer<string>.Default;
-                Resize(entries.Length, true);
-            }
-#else
-            if(collisionCount > HashHelpers.HashCollisionThreshold && HashHelpers.IsWellKnownEqualityComparer(comparer)) 
-            {
-                comparer = (IEqualityComparer<TKey>) HashHelpers.GetRandomizedEqualityComparer(comparer);
-                Resize(entries.Length, true);
-            }
-#endif // FEATURE_CORECLR
- 
-#endif
- 
+
         }
  
         private void Resize() {
