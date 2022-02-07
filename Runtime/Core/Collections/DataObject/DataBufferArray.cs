@@ -177,7 +177,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public DataBufferArray(int length = 0) {
+        public DataBufferArray(int length) {
 
             this.dataObject = new DataObject<BufferArray<T>, DataBufferArrayProvider<T>>(PoolArray<T>.Spawn(length));
             this.Length = length;

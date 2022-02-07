@@ -55,7 +55,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public DataList(int capacity = 0) {
+        public DataList(int capacity) {
 
             this.dataObject = new DataObject<ListCopyable<T>, DataListProvider<T>>(PoolListCopyable<T>.Spawn(capacity));
 
