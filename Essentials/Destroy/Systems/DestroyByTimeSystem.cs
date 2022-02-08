@@ -57,7 +57,7 @@ namespace ME.ECS.Essentials.Destroy.Systems {
             new Job() {
                 bag = bag,
                 deltaTime = deltaTime,
-            }.Schedule(bag.Length, 64).Complete();
+            }.Schedule(bag.Length, 8).Complete();
             bag.Push();
 
         }

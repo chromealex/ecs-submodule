@@ -14,6 +14,12 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         private long maxVersion;
 
+        public override bool IsNeedToDispose() {
+
+            return false;
+
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif

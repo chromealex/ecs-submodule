@@ -770,6 +770,13 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        public ref Archetype GetArchetypeByEntity(in Entity entity) {
+            
+            var key = (ulong)entity.id << 32;
+            return ref this.allArchetypes[this.index.GetValue(key)];
+
+        }
+
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
@@ -1079,7 +1086,7 @@ namespace ME.ECS.FiltersArchetype {
 
                     for (var i = 0; i < this.allArchetypes.Count; ++i) {
 
-                        var arch = this.allArchetypes[i];
+                        ref var arch = ref this.allArchetypes[i];
                         if (arch.HasAll(item.data.contains) == true &&
                             arch.HasNotAll(item.data.notContains) == true &&
                             arch.HasAnyPair(item.data.anyPair2) == true &&

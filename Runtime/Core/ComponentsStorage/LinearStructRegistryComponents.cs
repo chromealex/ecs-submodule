@@ -45,6 +45,8 @@ namespace ME.ECS {
             }
         }
 
+        public abstract bool IsNeedToDispose();
+
         public abstract int GetTypeBit();
         public abstract int GetAllTypeBit();
         public abstract bool IsTag();
@@ -853,6 +855,25 @@ namespace ME.ECS {
 
             }
 
+            #if FILTERS_STORAGE_ARCHETYPES
+            //ref var archetype = ref Worlds.current.currentState.filters.GetArchetypeByEntity(in entity);
+            /*for (int i = 0; i < archetype.componentIds.Count; ++i) {
+                
+                var cid = archetype.componentIds[i];
+                this.list[cid].Remove(in entity, clearAll: true);
+
+            }*/
+            for (int i = 0, length = this.list.Length; i < length; ++i) {
+
+                var item = this.list.arr[i];
+                if (item != null && item.IsNeedToDispose() == true) {
+
+                    item.Remove(in entity, clearAll: true);
+
+                }
+
+            }
+            #else
             for (int i = 0, length = this.list.Length; i < length; ++i) {
 
                 var item = this.list.arr[i];
@@ -863,7 +884,8 @@ namespace ME.ECS {
                 }
 
             }
-            
+            #endif
+
         }
 
         #if ECS_COMPILE_IL2CPP_OPTIONS

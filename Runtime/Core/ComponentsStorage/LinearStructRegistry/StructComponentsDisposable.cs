@@ -7,6 +7,12 @@ namespace ME.ECS {
     #endif
     public sealed class StructComponentsDisposable<TComponent> : StructComponents<TComponent> where TComponent : struct, IStructComponentBase, IComponentDisposable {
 
+        public override bool IsNeedToDispose() {
+
+            return true;
+
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif

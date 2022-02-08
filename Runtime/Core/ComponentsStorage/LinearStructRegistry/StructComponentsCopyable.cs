@@ -46,6 +46,12 @@ namespace ME.ECS {
 
         }
 
+        public override bool IsNeedToDispose() {
+
+            return true;
+
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
