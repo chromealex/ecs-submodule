@@ -40,6 +40,7 @@ namespace ME.ECS.Collections {
             public bool isCreated;
 
             public ref T this[int index] {
+                [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
                 get {
                     if (this.isCreated == false || index >= this.usedLength) throw new System.IndexOutOfRangeException($"Index: {index} [0..{this.usedLength}], Tick: {Worlds.currentWorld.GetCurrentTick()}");
                     return ref this.data[index];

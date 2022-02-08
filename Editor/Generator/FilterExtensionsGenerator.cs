@@ -11,7 +11,7 @@ namespace ME.ECSEditor {
 
             const int count = 20;
             
-            var asms = UnityEditor.AssetDatabase.FindAssets("t:asmdef ECSAssembly");
+            var asms = UnityEditor.AssetDatabase.FindAssets("t:asmdef ME.ECS");
             foreach (var asm in asms) {
 
                 var asset = UnityEditor.AssetDatabase.GUIDToAssetPath(asm);

@@ -154,6 +154,18 @@ namespace ME.ECS.Collections {
             
         }
 
+        public ref TValue GetValue(TKey key, out bool exist) {
+            int i = this.FindEntry(key);
+            if (i >= 0) {
+                exist = true;
+                return ref this.entries[i].value;
+            }
+
+            exist = false;
+            return ref this.Insert(key, default, false);
+            
+        }
+
         public TValue GetValueAndRemove(TKey key) {
             
             var val = this.GetValue(key);

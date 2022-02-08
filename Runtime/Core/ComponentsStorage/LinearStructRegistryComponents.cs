@@ -847,7 +847,7 @@ namespace ME.ECS {
 
                 }
 
-                if (nullCnt == this.nextTickTasks.Count) {
+                if (nullCnt > 0 && nullCnt == this.nextTickTasks.Count) {
                     this.nextTickTasks.ClearNoCC();
                 }
 
@@ -856,14 +856,9 @@ namespace ME.ECS {
             for (int i = 0, length = this.list.Length; i < length; ++i) {
 
                 var item = this.list.arr[i];
-                if (item != null && item.Has(in entity) == true) {
+                if (item != null) {
 
-                    //var sw = new System.Diagnostics.Stopwatch();
-                    //sw.Start();
-                    //item.Validate(in entity);
                     item.Remove(in entity, clearAll: true);
-                    //sw.Stop();
-                    //if (sw.ElapsedMilliseconds > 10) UnityEngine.Debug.Log("REMOVE " + sw.ElapsedMilliseconds + " :: " + item.GetType());
 
                 }
 

@@ -27,9 +27,7 @@ namespace ME.ECS.Collections {
         public readonly bool isCreated;
 
         public int Length {
-            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
             get => this.data.Length + this.tailsLength;
         }
 
@@ -64,9 +62,7 @@ namespace ME.ECS.Collections {
         }
 
         public ref T this[int index] {
-            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
             get {
                 var data = this.data;
                 if (index >= data.Length) {

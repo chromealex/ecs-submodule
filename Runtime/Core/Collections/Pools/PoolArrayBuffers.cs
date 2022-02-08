@@ -297,8 +297,14 @@ namespace ME.ECS.Buffers {
             internal T[] Rent() {
                 var buffers = this._buffers;
                 var objArray = (T[])null;
-                var lockTaken = false;
                 var flag = false;
+                if (this._index < buffers.Length) {
+                    objArray = buffers[this._index];
+                    buffers[this._index++] = (T[])null;
+                    flag = objArray == null;
+                }
+                /*
+                var lockTaken = false;
                 try {
                     this._lock.Enter(ref lockTaken);
                     if (this._index < buffers.Length) {
@@ -310,7 +316,7 @@ namespace ME.ECS.Buffers {
                     if (lockTaken) {
                         this._lock.Exit(false);
                     }
-                }
+                }*/
 
                 if (flag) {
                     objArray = new T[this._bufferLength];
@@ -329,6 +335,13 @@ namespace ME.ECS.Buffers {
                     return;
                 }
 
+                if (this._index == 0) {
+                    return;
+                }
+
+                this._buffers[--this._index] = array;
+                
+                /*
                 var lockTaken = false;
                 try {
                     this._lock.Enter(ref lockTaken);
@@ -342,6 +355,7 @@ namespace ME.ECS.Buffers {
                         this._lock.Exit(false);
                     }
                 }
+                */
             }
 
         }

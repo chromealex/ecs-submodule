@@ -69,7 +69,7 @@ t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -78,7 +78,6 @@ var tempT0 = new Unity.Collections.NativeArray<Component<T0>>(size, allocator);
 NativeArrayUtils.CopyUnmanaged(regT0.components.data.arr, min, ref tempT0, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -211,7 +210,7 @@ t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -224,7 +223,6 @@ var tempT1 = new Unity.Collections.NativeArray<Component<T1>>(size, allocator);
 NativeArrayUtils.CopyUnmanaged(regT1.components.data.arr, min, ref tempT1, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -380,7 +378,7 @@ t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -397,7 +395,6 @@ var tempT2 = new Unity.Collections.NativeArray<Component<T2>>(size, allocator);
 NativeArrayUtils.CopyUnmanaged(regT2.components.data.arr, min, ref tempT2, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -576,7 +573,7 @@ t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -597,7 +594,6 @@ var tempT3 = new Unity.Collections.NativeArray<Component<T3>>(size, allocator);
 NativeArrayUtils.CopyUnmanaged(regT3.components.data.arr, min, ref tempT3, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -799,7 +795,7 @@ t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -824,7 +820,6 @@ var tempT4 = new Unity.Collections.NativeArray<Component<T4>>(size, allocator);
 NativeArrayUtils.CopyUnmanaged(regT4.components.data.arr, min, ref tempT4, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -1049,7 +1044,7 @@ t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -1078,7 +1073,6 @@ var tempT5 = new Unity.Collections.NativeArray<Component<T5>>(size, allocator);
 NativeArrayUtils.CopyUnmanaged(regT5.components.data.arr, min, ref tempT5, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -1326,7 +1320,7 @@ t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -1359,7 +1353,6 @@ var tempT6 = new Unity.Collections.NativeArray<Component<T6>>(size, allocator);
 NativeArrayUtils.CopyUnmanaged(regT6.components.data.arr, min, ref tempT6, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -1630,7 +1623,7 @@ t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -1667,7 +1660,6 @@ var tempT7 = new Unity.Collections.NativeArray<Component<T7>>(size, allocator);
 NativeArrayUtils.CopyUnmanaged(regT7.components.data.arr, min, ref tempT7, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -1961,7 +1953,7 @@ t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -2002,7 +1994,6 @@ var tempT8 = new Unity.Collections.NativeArray<Component<T8>>(size, allocator);
 NativeArrayUtils.CopyUnmanaged(regT8.components.data.arr, min, ref tempT8, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -2319,7 +2310,7 @@ t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -2364,7 +2355,6 @@ var tempT9 = new Unity.Collections.NativeArray<Component<T9>>(size, allocator);
 NativeArrayUtils.CopyUnmanaged(regT9.components.data.arr, min, ref tempT9, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -2704,7 +2694,7 @@ t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -2753,7 +2743,6 @@ var tempT10 = new Unity.Collections.NativeArray<Component<T10>>(size, allocator)
 NativeArrayUtils.CopyUnmanaged(regT10.components.data.arr, min, ref tempT10, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -3116,7 +3105,7 @@ t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -3169,7 +3158,6 @@ var tempT11 = new Unity.Collections.NativeArray<Component<T11>>(size, allocator)
 NativeArrayUtils.CopyUnmanaged(regT11.components.data.arr, min, ref tempT11, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -3555,7 +3543,7 @@ t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -3612,7 +3600,6 @@ var tempT12 = new Unity.Collections.NativeArray<Component<T12>>(size, allocator)
 NativeArrayUtils.CopyUnmanaged(regT12.components.data.arr, min, ref tempT12, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -4021,7 +4008,7 @@ t13 = this.tagT13 == 0 ? this.tempT13[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -4082,7 +4069,6 @@ var tempT13 = new Unity.Collections.NativeArray<Component<T13>>(size, allocator)
 NativeArrayUtils.CopyUnmanaged(regT13.components.data.arr, min, ref tempT13, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -4514,7 +4500,7 @@ t14 = this.tagT14 == 0 ? this.tempT14[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -4579,7 +4565,6 @@ var tempT14 = new Unity.Collections.NativeArray<Component<T14>>(size, allocator)
 NativeArrayUtils.CopyUnmanaged(regT14.components.data.arr, min, ref tempT14, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -5034,7 +5019,7 @@ t15 = this.tagT15 == 0 ? this.tempT15[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -5103,7 +5088,6 @@ var tempT15 = new Unity.Collections.NativeArray<Component<T15>>(size, allocator)
 NativeArrayUtils.CopyUnmanaged(regT15.components.data.arr, min, ref tempT15, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -5581,7 +5565,7 @@ t16 = this.tagT16 == 0 ? this.tempT16[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -5654,7 +5638,6 @@ var tempT16 = new Unity.Collections.NativeArray<Component<T16>>(size, allocator)
 NativeArrayUtils.CopyUnmanaged(regT16.components.data.arr, min, ref tempT16, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -6155,7 +6138,7 @@ t17 = this.tagT17 == 0 ? this.tempT17[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -6232,7 +6215,6 @@ var tempT17 = new Unity.Collections.NativeArray<Component<T17>>(size, allocator)
 NativeArrayUtils.CopyUnmanaged(regT17.components.data.arr, min, ref tempT17, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
@@ -6756,7 +6738,7 @@ t18 = this.tagT18 == 0 ? this.tempT18[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -6837,7 +6819,6 @@ var tempT18 = new Unity.Collections.NativeArray<Component<T18>>(size, allocator)
 NativeArrayUtils.CopyUnmanaged(regT18.components.data.arr, min, ref tempT18, 0, size);
 
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,

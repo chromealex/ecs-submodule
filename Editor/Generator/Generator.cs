@@ -324,7 +324,7 @@ namespace ME.ECSEditor {
 
                 foreach (var assembly in assemblies) {
 
-                    if (allAsms.Contains(assembly.GetName().Name) == true && assembly.GetName().Name != "ECSAssembly") {
+                    if (allAsms.Contains(assembly.GetName().Name) == true && assembly.GetName().Name != "ME.ECS") {
 
                         var allTypes = assembly.GetTypes();
                         foreach (var type in allTypes) {

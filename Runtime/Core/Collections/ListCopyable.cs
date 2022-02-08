@@ -316,12 +316,60 @@
             return base.ToString() + ": " + output + this.innerArray.arr[this.Count - 1];
         }
 
-        public System.Collections.Generic.IEnumerator<T> GetEnumerator() {
+        public struct Enumerator : System.IDisposable, System.Collections.IEnumerator
+        {
+            private ListCopyable<T> _list;
+            private int _index;
+            private T _current;
+
+            internal Enumerator(ListCopyable<T> list)
+            {
+                this._list = list;
+                this._index = 0;
+                this._current = default (T);
+            }
+
+            public void Dispose()
+            {
+            }
+
+            public bool MoveNext()
+            {
+                ListCopyable<T> list = this._list;
+                if ((uint) this._index >= (uint) list.Count)
+                    return false;
+                this._current = list.innerArray[this._index];
+                ++this._index;
+                return true;
+            }
+
+            public T Current => this._current;
+
+            object System.Collections.IEnumerator.Current
+            {
+                get
+                {
+                    return (object) this.Current;
+                }
+            }
+
+            void System.Collections.IEnumerator.Reset()
+            {
+                this._index = 0;
+                this._current = default (T);
+            }
+        }
+        
+        public Enumerator GetEnumerator() {
+            return new Enumerator(this);
+        }
+        
+        System.Collections.Generic.IEnumerator<T> System.Collections.Generic.IEnumerable<T>.GetEnumerator() {
             for (var i = 0; i < this.Count; i++) {
                 yield return this.innerArray.arr[i];
             }
         }
-
+        
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
             for (var i = 0; i < this.Count; i++) {
                 yield return this.innerArray.arr[i];

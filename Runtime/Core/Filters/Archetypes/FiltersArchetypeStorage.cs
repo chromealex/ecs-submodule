@@ -27,12 +27,18 @@ namespace ME.ECS.FiltersArchetype {
             [Il2Cpp(Option.DivideByZeroChecks, false)]
             public struct CopyData : IArrayElementCopy<Archetype> {
 
+                #if INLINE_METHODS
+                [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+                #endif
                 public void Copy(Archetype @from, ref Archetype to) {
 
                     to.CopyFrom(in from);
 
                 }
 
+                #if INLINE_METHODS
+                [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+                #endif
                 public void Recycle(Archetype item) {
 
                     item.Recycle();
@@ -41,32 +47,32 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             private void CopyFrom(in Archetype other) {
 
                 this.index = other.index;
                 ArrayUtils.Copy(other.componentIds, ref this.componentIds);
                 ArrayUtils.Copy(other.entitiesArr, ref this.entitiesArr);
                 
-                ArrayUtils.Copy(other.edges, ref this.edges);
+                ArrayUtils.Copy(other.edgesToAdd, ref this.edgesToAdd);
+                ArrayUtils.Copy(other.edgesToRemove, ref this.edgesToRemove);
                 ArrayUtils.Copy(other.components, ref this.components);
 
             }
 
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Recycle() {
 
                 this.index = default;
                 PoolDictionaryInt<Info>.Recycle(ref this.components);
                 PoolList<int>.Recycle(ref this.componentIds);
                 PoolListCopyable<int>.Recycle(ref this.entitiesArr);
-                PoolDictionaryInt<Edge>.Recycle(ref this.edges);
-
-            }
-
-            public struct Edge {
-
-                public bool isCreated;
-                public int add;
-                public int remove;
+                PoolDictionaryInt<int>.Recycle(ref this.edgesToAdd);
+                PoolDictionaryInt<int>.Recycle(ref this.edgesToRemove);
 
             }
 
@@ -80,7 +86,8 @@ namespace ME.ECS.FiltersArchetype {
             public DictionaryInt<Info> components; // Contains componentId => Info index
             public List<int> componentIds; // Contains raw list of component ids
             public ListCopyable<int> entitiesArr; // Contains raw list of entities
-            public DictionaryInt<Edge> edges; // Contains edges to move from this archetype to another
+            public DictionaryInt<int> edgesToAdd; // Contains edges to move from this archetype to another
+            public DictionaryInt<int> edgesToRemove; // Contains edges to move from this archetype to another
 
             //private bool isCreated;
 
@@ -218,28 +225,18 @@ namespace ME.ECS.FiltersArchetype {
                 storage.RemoveEntityFromArch(ref this, entity.id);
 
                 // Find the edge to move
-                ref var edge = ref this.edges.GetValue(componentId);
-                if (edge.isCreated == false) {
-                    edge = new Edge() {
-                        isCreated = true,
-                        add = -1,
-                        remove = -1,
-                    };
+                ref var edge = ref this.edgesToAdd.GetValue(componentId, out var exist);
+                if (exist == false) {
+                    edge = Archetype.CreateAdd(ref storage, this.index, this.componentIds, this.components, componentId);
                 }
-
+                
                 {
-
-                    if (edge.add == -1) {
-                        edge.add = Archetype.CreateAdd(ref storage, this.index, this.componentIds, this.components, componentId);
-                    }
-
-                    ref var arch = ref storage.allArchetypes[edge.add];
+                    ref var arch = ref storage.allArchetypes[edge];
                     storage.AddEntityToArch(ref arch, entity.id);
-
                 }
 
                 // Return the new archetype we are moved to
-                return storage.allArchetypes[edge.add];
+                return storage.allArchetypes[edge];
 
             }
 
@@ -256,28 +253,18 @@ namespace ME.ECS.FiltersArchetype {
                 storage.RemoveEntityFromArch(ref this, entity.id);
 
                 // Find the edge to move
-                ref var edge = ref this.edges.GetValue(componentId);
-                if (edge.isCreated == false) {
-                    edge = new Edge() {
-                        isCreated = true,
-                        add = -1,
-                        remove = -1,
-                    };
+                ref var edge = ref this.edgesToRemove.GetValue(componentId, out var exist);
+                if (exist == false) {
+                    edge = Archetype.CreateRemove(ref storage, this.index, this.componentIds, this.components, componentId);
                 }
 
                 {
-
-                    if (edge.remove == -1) {
-                        edge.remove = Archetype.CreateRemove(ref storage, this.index, this.componentIds, this.components, componentId);
-                    }
-
-                    ref var arch = ref storage.allArchetypes[edge.remove];
+                    ref var arch = ref storage.allArchetypes[edge];
                     storage.AddEntityToArch(ref arch, entity.id);
-
                 }
 
                 // Return the new archetype we are moved to
-                return storage.allArchetypes[edge.remove];
+                return storage.allArchetypes[edge];
 
             }
 
@@ -292,7 +279,8 @@ namespace ME.ECS.FiltersArchetype {
 
                 var arch = new Archetype() {
                     //isCreated = true,
-                    edges = PoolDictionaryInt<Edge>.Spawn(16),
+                    edgesToAdd = PoolDictionaryInt<int>.Spawn(16),
+                    edgesToRemove = PoolDictionaryInt<int>.Spawn(16),
                     entitiesArr = PoolListCopyable<int>.Spawn(16),
                     componentIds = PoolList<int>.Spawn(componentIds.Count),
                     components = PoolDictionaryInt<Info>.Spawn(components.Count),
@@ -312,11 +300,7 @@ namespace ME.ECS.FiltersArchetype {
                 });
                 arch.componentIds.Add(componentId);
                 if (node >= 0) {
-                    arch.edges.Add(componentId, new Edge() {
-                        isCreated = true,
-                        remove = node,
-                        add = -1,
-                    });
+                    arch.edgesToRemove.Add(componentId, node);
                 }
 
                 return idx;
@@ -334,7 +318,8 @@ namespace ME.ECS.FiltersArchetype {
 
                 var arch = new Archetype() {
                     //isCreated = true,
-                    edges = PoolDictionaryInt<Edge>.Spawn(16),
+                    edgesToAdd = PoolDictionaryInt<int>.Spawn(16),
+                    edgesToRemove = PoolDictionaryInt<int>.Spawn(16),
                     entitiesArr = PoolListCopyable<int>.Spawn(16),
                     componentIds = PoolList<int>.Spawn(componentIds.Count),
                     components = PoolDictionaryInt<Info>.Spawn(16),
@@ -355,11 +340,7 @@ namespace ME.ECS.FiltersArchetype {
                 }
 
                 if (node >= 0) {
-                    arch.edges.Add(componentId, new Edge() {
-                        isCreated = true,
-                        add = node,
-                        remove = -1,
-                    });
+                    arch.edgesToAdd.Add(componentId, node);
                 }
 
                 return idx;
@@ -414,24 +395,60 @@ namespace ME.ECS.FiltersArchetype {
 
         public struct NullArchetypes {
 
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Set<T>(in Entity entity) { }
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Remove<T>(in Entity entity) { }
 
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Set(in Entity entity, int componentId) { }
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Remove(in Entity entity, int componentId) { }
 
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Set(in EntitiesGroup group, int componentId) { }
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Remove(in EntitiesGroup group, int componentId) { }
 
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Set(int entityId, int componentId) { }
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Remove(int entityId, int componentId) { }
 
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Clear(in Entity entity) { }
 
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Validate(int capacity) { }
 
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Validate(in Entity entity) { }
 
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             public void CopyFrom(in Entity @from, in Entity to) { }
 
         }
@@ -503,7 +520,8 @@ namespace ME.ECS.FiltersArchetype {
             this.requests = PoolList<Request>.Spawn(10);
 
             var arch = new Archetype() {
-                edges = PoolDictionaryInt<Archetype.Edge>.Spawn(16),
+                edgesToAdd = PoolDictionaryInt<int>.Spawn(16),
+                edgesToRemove = PoolDictionaryInt<int>.Spawn(16),
                 entitiesArr = PoolListCopyable<int>.Spawn(16),
                 componentIds = PoolList<int>.Spawn(10),
                 components = PoolDictionaryInt<Archetype.Info>.Spawn(16),

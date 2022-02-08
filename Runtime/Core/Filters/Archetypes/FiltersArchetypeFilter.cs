@@ -24,9 +24,10 @@ namespace ME.ECS {
             public FilterData filterData;
             public int index;
             public int archIndex;
-            //public HashSetCopyable<int>.Enumerator localEnumerator;
             public ListCopyable<int> arr;
             private Entity current;
+            public ListCopyable<FiltersArchetype.FiltersArchetypeStorage.Archetype> allArchetypes;
+            public List<int> archetypes;
 
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -35,17 +36,17 @@ namespace ME.ECS {
                 
                 while (true) {
 
-                    if (this.archIndex >= this.filterData.archetypes.Count) {
+                    if (this.archIndex >= this.archetypes.Count) {
                         return false;
                     }
 
                     ++this.index;
-                    var arch = this.filterData.storage.allArchetypes[this.filterData.archetypes[this.archIndex]];
+                    ref var arch = ref this.allArchetypes[this.archetypes[this.archIndex]];
                     if (this.index >= arch.entitiesArr.Count) {
 
                         ++this.archIndex;
-                        if (this.archIndex < this.filterData.archetypes.Count) {
-                            this.arr = this.filterData.storage.allArchetypes[this.filterData.archetypes[this.archIndex]].entitiesArr;
+                        if (this.archIndex < this.archetypes.Count) {
+                            this.arr = this.allArchetypes[this.archetypes[this.archIndex]].entitiesArr;
                         }
 
                         this.index = -1;
@@ -105,7 +106,13 @@ namespace ME.ECS {
         public int id;
 
         public World world => Worlds.current;
-        public int Count => Worlds.current.currentState.filters.Count(this);
+
+        public int Count {
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
+            get => Worlds.current.currentState.filters.Count(this);
+        }
 
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -151,9 +158,10 @@ namespace ME.ECS {
             return new Enumerator() {
                 index = -1,
                 archIndex = 0,
-                //localEnumerator = filterData.archetypes.Count > 0 ? filterData.storage.allArchetypes[filterData.archetypes[0]].entitiesList.GetEnumerator() : default,
                 filterData = filterData,
                 arr = filterData.archetypes.Count > 0 ? filterData.storage.allArchetypes[filterData.archetypes[0]].entitiesArr : default,
+                archetypes = filterData.archetypes,
+                allArchetypes = filterData.storage.allArchetypes,
             };
 
         }
@@ -186,8 +194,11 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
         public Unity.Collections.NativeArray<Entity> ToArray(Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
-
+            
             var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
             var result = new Unity.Collections.NativeArray<Entity>(filterData.storage.Count(filterData), allocator);
             var k = 0;
@@ -197,6 +208,39 @@ namespace ME.ECS {
                 for (int i = 0, count = arch.entitiesArr.Count; i < count; ++i) {
                     
                     result[k++] = filterData.storage.GetEntityById(arch.entitiesArr[i]);
+                    
+                }
+                
+            }
+
+            return result;
+
+        }
+        
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Unity.Collections.NativeArray<Entity> ToArray(Unity.Collections.Allocator allocator, out int min, out int max) {
+
+            min = int.MaxValue;
+            max = int.MinValue;
+            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            var result = new Unity.Collections.NativeArray<Entity>(filterData.storage.Count(filterData), allocator);
+            var k = 0;
+            foreach (var archId in filterData.archetypes) {
+
+                var arch = filterData.storage.allArchetypes[archId];
+                for (int i = 0, count = arch.entitiesArr.Count; i < count; ++i) {
+                    
+                    var e = arch.entitiesArr[i];
+                    if (e < min) {
+                        min = e;
+                    }
+
+                    if (e > max) {
+                        max = e;
+                    }
+                    result[k++] = filterData.storage.GetEntityById(e);
                     
                 }
                 
@@ -252,14 +296,23 @@ namespace ME.ECS {
     [Il2Cpp(Option.DivideByZeroChecks, false)]
     public struct FilterData {
 
+        [Il2Cpp(Option.NullChecks, false)]
+        [Il2Cpp(Option.ArrayBoundsChecks, false)]
+        [Il2Cpp(Option.DivideByZeroChecks, false)]
         public struct CopyData : IArrayElementCopy<FilterData> {
 
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Copy(FilterData @from, ref FilterData to) {
 
                 to.CopyFrom(from);
 
             }
 
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             public void Recycle(FilterData item) {
 
                 item.Recycle();
@@ -268,13 +321,21 @@ namespace ME.ECS {
 
         }
 
-        public ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage => Worlds.current.currentState.filters;
+        public ref ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage {
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
+            get => ref Worlds.current.currentState.filters;
+        }
 
         public int id;
         internal FilterInternalData data;
         internal List<int> archetypes;
         public bool isAlive;
 
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
         public void CopyFrom(FilterData other) {
 
             this.id = other.id;
@@ -284,6 +345,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
         public void Recycle() {
 
             this.id = 0;
@@ -293,7 +357,12 @@ namespace ME.ECS {
 
         }
 
-        public int Count => this.storage.Count(this);
+        public int Count {
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
+            get => this.storage.Count(this);
+        }
 
         internal string ToEditorTypesString() {
 
@@ -334,12 +403,18 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
         public void ApplyAllRequests() {
 
             // Apply all requests after enumeration has ended
 
         }
 
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool Contains(in Entity entity) {
 
             foreach (var archId in this.archetypes) {

@@ -47,12 +47,11 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        filter.GetBounds(out var min, out var max);
+        var filterArr = filter.ToArray(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         #REGS_INIT#
         this.arr = new Unity.Collections.NativeArray<DataBufferStruct<#ITEMS_TYPE#>>(this.Length, allocator);
-        var filterArr = filter.ToArray(allocator);
         new Job() {
             buffer = filterArr,
             offset = min,
