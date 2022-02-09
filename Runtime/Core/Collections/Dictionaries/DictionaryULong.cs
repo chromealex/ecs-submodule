@@ -54,7 +54,10 @@ namespace ME.ECS.Collections {
             public void Copy(Entry @from, ref Entry to) {
                 
                 this.copy.Copy(from.value, ref to.value);
-                
+                to.key = from.key;
+                to.next = from.next;
+                to.hashCode = from.hashCode;
+
             }
 
             public void Recycle(Entry item) {
