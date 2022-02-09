@@ -855,14 +855,7 @@ namespace ME.ECS {
 
             }
 
-            #if FILTERS_STORAGE_ARCHETYPES
-            //ref var archetype = ref Worlds.current.currentState.filters.GetArchetypeByEntity(in entity);
-            /*for (int i = 0; i < archetype.componentIds.Count; ++i) {
-                
-                var cid = archetype.componentIds[i];
-                this.list[cid].Remove(in entity, clearAll: true);
-
-            }*/
+            /*#if FILTERS_STORAGE_ARCHETYPES
             for (int i = 0, length = this.list.Length; i < length; ++i) {
 
                 var item = this.list.arr[i];
@@ -873,7 +866,7 @@ namespace ME.ECS {
                 }
 
             }
-            #else
+            #else*/
             for (int i = 0, length = this.list.Length; i < length; ++i) {
 
                 var item = this.list.arr[i];
@@ -884,7 +877,7 @@ namespace ME.ECS {
                 }
 
             }
-            #endif
+            //#endif
 
         }
 
