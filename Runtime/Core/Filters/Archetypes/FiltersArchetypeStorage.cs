@@ -97,13 +97,12 @@ namespace ME.ECS.FiltersArchetype {
             #endif
             internal readonly bool HasAnyPair(List<FilterInternalData.Pair2> list) {
 
-                foreach (var pair in list) {
-
+                for (int i = 0, cnt = list.Count; i < cnt; ++i) {
+                    var pair = list[i];
                     if (this.Has(pair.t1) == false &&
                         this.Has(pair.t2) == false) {
                         return false;
                     }
-
                 }
 
                 return true;
@@ -115,14 +114,13 @@ namespace ME.ECS.FiltersArchetype {
             #endif
             internal readonly bool HasAnyPair(List<FilterInternalData.Pair3> list) {
 
-                foreach (var pair in list) {
-
+                for (int i = 0, cnt = list.Count; i < cnt; ++i) {
+                    var pair = list[i];
                     if (this.Has(pair.t1) == false &&
                         this.Has(pair.t2) == false &&
                         this.Has(pair.t3) == false) {
                         return false;
                     }
-
                 }
 
                 return true;
@@ -134,24 +132,21 @@ namespace ME.ECS.FiltersArchetype {
             #endif
             internal readonly bool HasAnyPair(List<FilterInternalData.Pair4> list) {
 
-                foreach (var pair in list) {
-
+                for (int i = 0, cnt = list.Count; i < cnt; ++i) {
+                    var pair = list[i];
                     if (this.Has(pair.t1) == false &&
                         this.Has(pair.t2) == false &&
                         this.Has(pair.t3) == false &&
                         this.Has(pair.t4) == false) {
                         return false;
                     }
-
                 }
 
                 return true;
 
             }
 
-            #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
             public readonly bool Has(int componentId) {
 
                 return this.components.ContainsKey(componentId);
@@ -163,12 +158,11 @@ namespace ME.ECS.FiltersArchetype {
             #endif
             public readonly bool HasAll(List<int> componentIds) {
 
-                foreach (var item in componentIds) {
-
+                for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
+                    var item = componentIds[i];
                     if (this.components.ContainsKey(item) == false) {
                         return false;
                     }
-
                 }
 
                 return true;
@@ -180,8 +174,9 @@ namespace ME.ECS.FiltersArchetype {
             #endif
             public readonly bool HasNotAll(List<int> componentIds) {
 
-                foreach (var item in componentIds) {
-
+                for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
+                    
+                    var item = componentIds[i];
                     if (this.components.ContainsKey(item) == true) {
                         return false;
                     }
@@ -197,8 +192,9 @@ namespace ME.ECS.FiltersArchetype {
             #endif
             public readonly bool HasAllExcept(List<int> componentIds, int componentId) {
 
-                foreach (var item in componentIds) {
-
+                for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
+                    
+                    var item = componentIds[i];
                     if (item == componentId) {
                         continue;
                     }
@@ -295,6 +291,7 @@ namespace ME.ECS.FiltersArchetype {
                 storage.isArchetypesDirty = true;
                 var idx = storage.allArchetypes.Count;
                 arch.index = idx;
+                storage.dirtyArchetypes.Add(idx);
                 storage.allArchetypes.Add(arch);
                 arch.components.Add(componentId, new Info() {
                     index = arch.componentIds.Count,
@@ -330,6 +327,7 @@ namespace ME.ECS.FiltersArchetype {
                 storage.isArchetypesDirty = true;
                 var idx = storage.allArchetypes.Count;
                 arch.index = idx;
+                storage.dirtyArchetypes.Add(idx);
                 storage.allArchetypes.Add(arch);
                 var info = components[componentId];
                 arch.componentIds.RemoveAt(info.index);
@@ -487,6 +485,8 @@ namespace ME.ECS.FiltersArchetype {
         internal EntityVersions versions;
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<int> entitiesArrIndex;
+        [ME.ECS.Serializer.SerializeField]
+        internal HashSetCopyable<int> dirtyArchetypes;
 
         internal NullArchetypes archetypes; // Used for backward compability
 
@@ -556,6 +556,7 @@ namespace ME.ECS.FiltersArchetype {
             this.index = PoolDictionaryULong<int>.Spawn(16);
             this.allArchetypes = PoolListCopyable<Archetype>.Spawn(capacity);
             this.filters = PoolList<FilterData>.Spawn(capacity);
+            this.dirtyArchetypes = PoolHashSetCopyable<int>.Spawn();
             this.allArchetypes.Add(arch);
 
         }
@@ -584,6 +585,7 @@ namespace ME.ECS.FiltersArchetype {
             this.versions.CopyFrom(other.versions);
             this.isArchetypesDirty = other.isArchetypesDirty;
 
+            ArrayUtils.Copy(other.dirtyArchetypes, ref this.dirtyArchetypes);
             this.root = other.root;
             ArrayUtils.Copy(other.filters, ref this.filters, new FilterData.CopyData());
             ArrayUtils.Copy(other.index, ref this.index);
@@ -615,9 +617,8 @@ namespace ME.ECS.FiltersArchetype {
             PoolListCopyable<Archetype>.Recycle(ref this.allArchetypes);
             PoolList<FilterData>.Recycle(ref this.filters);
             this.isArchetypesDirty = default;
-
+            PoolHashSetCopyable<int>.Recycle(ref this.dirtyArchetypes);
             PoolArray<int>.Recycle(ref this.entitiesArrIndex);
-
             PoolList<Request>.Recycle(ref this.requests);
 
             PoolArrayNative<Entity>.Recycle(ref this.cache);
@@ -1081,8 +1082,9 @@ namespace ME.ECS.FiltersArchetype {
             }
 
             var count = 0;
-            foreach (var archId in filter.archetypes) {
+            for (int i = 0, cnt = filter.archetypes.Count; i < cnt; ++i) {
 
+                var archId = filter.archetypesList[i];
                 var arch = this.allArchetypes[archId];
                 count += arch.entitiesArr.Count;
 
@@ -1107,46 +1109,46 @@ namespace ME.ECS.FiltersArchetype {
             if (this.isArchetypesDirty == true) {
 
                 this.isArchetypesDirty = false;
-                foreach (var item in this.filters) {
-
-                    item.archetypes.Clear();
-
-                    for (var i = 0; i < this.allArchetypes.Count; ++i) {
-
-                        ref var arch = ref this.allArchetypes[i];
+                for (int idx = 0, cnt = this.filters.Count; idx < cnt; ++idx) {
+                    
+                    var item = this.filters[idx];
+                    foreach (var archId in this.dirtyArchetypes) {
+                    
+                        if (item.archetypes.Contains(archId) == true) continue;
+                        
+                        ref var arch = ref this.allArchetypes[archId];
                         if (arch.HasAll(item.data.contains) == true &&
                             arch.HasNotAll(item.data.notContains) == true &&
                             arch.HasAnyPair(item.data.anyPair2) == true &&
                             arch.HasAnyPair(item.data.anyPair3) == true &&
                             arch.HasAnyPair(item.data.anyPair4) == true &&
-                            this.CheckStaticShared(item.data.containsShared, item.data.notContainsShared) == true &&
-                            this.CheckLambdas(in arch, item.data.lambdas) == true) {
+                            FiltersArchetypeStorage.CheckStaticShared(item.data.containsShared, item.data.notContainsShared) == true &&
+                            FiltersArchetypeStorage.CheckLambdas(in arch, item.data.lambdas) == true) {
 
-                            item.archetypes.Add(i);
+                            item.archetypes.Add(archId);
+                            item.archetypesList.Add(archId);
 
                         }
 
                     }
-
+                    
                 }
+
+                this.dirtyArchetypes.Clear();
 
             }
 
         }
 
-        #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
-        private bool CheckLambdas(in Archetype arch, List<int> lambdas) {
+        private static bool CheckLambdas(in Archetype arch, List<int> lambdas) {
 
             return arch.HasAll(lambdas);
 
         }
 
-        #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
-        private bool CheckStaticShared(List<int> containsShared, List<int> notContainsShared) {
+        private static bool CheckStaticShared(List<int> containsShared, List<int> notContainsShared) {
 
             if (containsShared.Count == 0 && notContainsShared.Count == 0) {
                 return true;

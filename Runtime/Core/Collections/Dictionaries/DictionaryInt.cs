@@ -297,6 +297,7 @@ namespace ME.ECS.Collections {
             return new Enumerator(this, Enumerator.KeyValuePair);
         }
  
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private int FindEntry(TKey key) {
             if (this.buckets != null) {
                 int hashCode = key.GetHashCode() & 0x7FFFFFFF;

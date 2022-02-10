@@ -1,3 +1,4 @@
+//#define FILTERS_STORAGE_ARCHETYPES
 #if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
@@ -159,8 +160,8 @@ namespace ME.ECS {
                 index = -1,
                 archIndex = 0,
                 filterData = filterData,
-                arr = filterData.archetypes.Count > 0 ? filterData.storage.allArchetypes[filterData.archetypes[0]].entitiesArr : default,
-                archetypes = filterData.archetypes,
+                arr = filterData.archetypes.Count > 0 ? filterData.storage.allArchetypes[filterData.archetypesList[0]].entitiesArr : default,
+                archetypes = filterData.archetypesList,
                 allArchetypes = filterData.storage.allArchetypes,
             };
 
@@ -322,15 +323,14 @@ namespace ME.ECS {
         }
 
         public ref ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage {
-            #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
             get => ref Worlds.current.currentState.filters;
         }
 
         public int id;
         internal FilterInternalData data;
-        internal List<int> archetypes;
+        internal HashSetCopyable<int> archetypes;
+        internal List<int> archetypesList;
         public bool isAlive;
 
         #if INLINE_METHODS
@@ -341,6 +341,7 @@ namespace ME.ECS {
             this.id = other.id;
             this.data.CopyFrom(other.data);
             ArrayUtils.Copy(other.archetypes, ref this.archetypes);
+            ArrayUtils.Copy(other.archetypesList, ref this.archetypesList);
             this.isAlive = other.isAlive;
 
         }
@@ -353,7 +354,8 @@ namespace ME.ECS {
             this.id = 0;
             this.isAlive = false;
             this.data.Recycle();
-            PoolList<int>.Recycle(ref this.archetypes);
+            PoolHashSetCopyable<int>.Recycle(ref this.archetypes);
+            PoolList<int>.Recycle(ref this.archetypesList);
 
         }
 
@@ -690,7 +692,8 @@ namespace ME.ECS {
                 id = nextId,
                 isAlive = true,
                 data = this.data,
-                archetypes = new List<int>(),
+                archetypes = PoolHashSetCopyable<int>.Spawn(),
+                archetypesList = PoolList<int>.Spawn(64),
             };
             this.storage.filters.Add(filterData);
             filter = new Filter() {
