@@ -38,12 +38,23 @@ namespace ME.ECS.Collections {
 
         public void CopyFrom(DictionaryULong<TValue> other) {
 
+            this.Clear();
+            foreach (var item in other) {
+
+                this.Add(item.Key, item.Value);
+
+            }
+
+            this.version = other.version;
+
+            /*
             ArrayUtils.Copy(other.buckets, ref this.buckets);
             ArrayUtils.Copy(other.entries, ref this.entries);
             this.count = other.count;
             this.version = other.version;
             this.freeList = other.freeList;
             this.freeCount = other.freeCount;
+            */
             
         }
         
@@ -70,15 +81,26 @@ namespace ME.ECS.Collections {
 
         public void CopyFrom<TCopy>(DictionaryULong<TValue> other, TCopy copy) where TCopy : IArrayElementCopy<TValue> {
 
+            this.Clear(copy);
+            foreach (var item in other) {
+
+                this.Insert(item.Key, item.Value, true, copy);
+
+            }
+
+            this.version = other.version;
+
+            /*
             ArrayUtils.Copy(other.buckets, ref this.buckets);
             ArrayUtils.Copy(other.entries, ref this.entries, new EntryCopy<TCopy>() { copy = copy });
             this.count = other.count;
             this.version = other.version;
             this.freeList = other.freeList;
             this.freeCount = other.freeCount;
+            */
             
         }
-
+        
         public DictionaryULong(): this(0, null) {}
  
         public DictionaryULong(int capacity): this(capacity, null) {}
@@ -168,7 +190,17 @@ namespace ME.ECS.Collections {
         public void Add(TKey key, TValue value) {
             this.Insert(key, value, true);
         }
- 
+        
+        public void Clear<TElementCopy>(TElementCopy copy) where TElementCopy : IArrayElementCopy<TValue> {
+
+            foreach (var item in this) {
+                copy.Recycle(item.Value);
+            }
+
+            this.Clear();
+
+        }
+        
         public void Clear() {
             if (this.count > 0) {
                 for (int i = 0; i < this.buckets.Length; i++) this.buckets[i] = -1;
@@ -243,6 +275,55 @@ namespace ME.ECS.Collections {
             this.freeList = -1;
         }
  
+        private void Insert<TElementCopy>(TKey key, TValue value, bool add, TElementCopy copy) where TElementCopy : IArrayElementCopy<TValue> {
+
+            if (this.buckets == null) {
+                this.Initialize(0);
+            }
+
+            var hashCode = key.GetHashCode() & 0x7FFFFFFF;
+            var targetBucket = hashCode % this.buckets.Length;
+
+            for (var i = this.buckets[targetBucket]; i >= 0; i = this.entries[i].next) {
+                if (this.entries[i].hashCode == hashCode && this.entries[i].key == key) {
+                    if (add) {
+                        throw new ArgumentException();
+                    }
+
+                    copy.Copy(value, ref this.entries[i].value);
+                    this.version++;
+                    return;
+                }
+
+                #if FEATURE_RANDOMIZED_STRING_HASHING
+                collisionCount++;
+                #endif
+            }
+
+            int index;
+            if (this.freeCount > 0) {
+                index = this.freeList;
+                this.freeList = this.entries[index].next;
+                this.freeCount--;
+            } else {
+                if (this.count == this.entries.Length) {
+                    this.Resize();
+                    targetBucket = hashCode % this.buckets.Length;
+                }
+
+                index = this.count;
+                this.count++;
+            }
+
+            this.entries[index].hashCode = hashCode;
+            this.entries[index].next = this.buckets[targetBucket];
+            this.entries[index].key = key;
+			copy.Copy(value, ref this.entries[index].value);
+            this.buckets[targetBucket] = index;
+            this.version++;
+
+        }
+
         private void Insert(TKey key, TValue value, bool add) {
         
             if (this.buckets == null) {

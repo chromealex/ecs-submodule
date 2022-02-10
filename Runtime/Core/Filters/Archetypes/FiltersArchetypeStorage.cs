@@ -572,12 +572,16 @@ namespace ME.ECS.FiltersArchetype {
         #endif
         public void Recycle() {
 
-            for (int i = 0; i < this.allArchetypes.Count; ++i) {
-                
-                this.allArchetypes[i].Recycle();
-                
+            if (this.allArchetypes != null) {
+
+                for (int i = 0; i < this.allArchetypes.Count; ++i) {
+
+                    this.allArchetypes[i].Recycle();
+
+                }
+
             }
-            
+
             this.versions.Recycle();
             this.versions = default;
             
