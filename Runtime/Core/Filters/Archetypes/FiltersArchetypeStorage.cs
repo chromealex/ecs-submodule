@@ -1094,6 +1094,16 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        public void MarkAllArchetypesAsDirty() {
+
+            for (int archId = 0, cnt2 = this.allArchetypes.Count; archId < cnt2; ++archId) {
+                
+                this.dirtyArchetypes.Add(archId);
+                
+            }
+
+        }
+
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif

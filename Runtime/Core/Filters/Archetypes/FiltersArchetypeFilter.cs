@@ -695,6 +695,7 @@ namespace ME.ECS {
                 archetypes = PoolHashSetCopyable<int>.Spawn(),
                 archetypesList = PoolList<int>.Spawn(64),
             };
+            this.storage.MarkAllArchetypesAsDirty();
             this.storage.filters.Add(filterData);
             filter = new Filter() {
                 id = nextId,
