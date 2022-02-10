@@ -274,6 +274,7 @@
         }
 
         public ref T this[int index] {
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             get {
                 return ref this.innerArray.arr[index];
             }

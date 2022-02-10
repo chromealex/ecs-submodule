@@ -617,9 +617,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
         public ref Entity GetEntityById(int id) {
 
             return ref this.cache[id];
