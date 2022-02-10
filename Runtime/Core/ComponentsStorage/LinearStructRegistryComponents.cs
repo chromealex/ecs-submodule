@@ -2177,59 +2177,10 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref byte SetData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
+        public void SetData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
 
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            // Inline all manually
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            ref var storage = ref this.currentState.storage;
-            ref var bucket = ref reg.components[entity.id];
-            ref var state = ref bucket.state;
-            reg.UpdateVersion(ref bucket);
-            if (state == 0) {
-
-                reg.Replace(ref bucket, default);
-                state = 1;
-                if (ComponentTypes<TComponent>.typeId >= 0) {
-
-                    storage.archetypes.Set<TComponent>(in entity);
-                    this.AddFilterByStructComponent<TComponent>(in entity);
-                    this.UpdateFilterByStructComponent<TComponent>(in entity);
-
-                }
-
-            }
+            this.SetData(in entity, new TComponent());
             
-            if (ComponentTypes<TComponent>.typeId >= 0) {
-
-                this.ValidateFilterByStructComponent<TComponent>(in entity);
-                
-            }
-            
-            #if ENTITY_ACTIONS
-            this.RaiseEntityActionOnAdd<TComponent>(in entity);
-            #endif
-            storage.versions.Increment(in entity);
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
-            if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-
-            return ref state;
-
         }
 
         /// <summary>
@@ -2242,7 +2193,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref byte SetData<TComponent>(in Entity entity, in TComponent data) where TComponent : struct, IStructComponent {
+        public void SetData<TComponent>(in Entity entity, in TComponent data) where TComponent : struct, IStructComponent {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -2292,8 +2243,6 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
-            return ref state;
-
         }
 
         #if INLINE_METHODS
@@ -2302,7 +2251,7 @@ namespace ME.ECS {
         public void SetData<TComponent>(in Entity entity, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
 
             TComponent data = default;
-            this.SetData<TComponent>(in entity, in data, lifetime);
+            this.SetData(in entity, in data, lifetime);
 
         }
 
@@ -2311,7 +2260,7 @@ namespace ME.ECS {
         #endif
         public void SetData<TComponent>(in Entity entity, in TComponent data, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
 
-            this.SetData<TComponent>(in entity, in data, lifetime, 0f);
+            this.SetData(in entity, in data, lifetime, 0f);
 
         }
         
