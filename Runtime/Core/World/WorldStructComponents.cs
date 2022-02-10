@@ -17,6 +17,13 @@ namespace ME.ECS {
 
     }
 
+    public enum StorageType : byte {
+
+        Default = 0,
+        NoState = 1,
+
+    }
+
     public class ComponentOrderAttribute : System.Attribute {
 
         public int order;

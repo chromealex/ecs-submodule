@@ -82,6 +82,25 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void Recycle<T, TCopy>(ref HashSetCopyable<T> list, TCopy copy) where TCopy : IArrayElementCopy<T> {
+
+            if (list != null) {
+
+                foreach (var item in list) {
+
+                    copy.Recycle(item);
+
+                }
+
+                PoolHashSetCopyable<T>.Recycle(ref list);
+
+            }
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Recycle<T, TCopy>(ref System.Collections.Generic.List<T> item, TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             if (item != null) {
@@ -310,6 +329,35 @@ namespace ME.ECS {
             }
 
             arr.CopyFrom(fromArr);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Copy<T, TCopy>(HashSetCopyable<T> fromArr, ref HashSetCopyable<T> arr, TCopy copy) where T : struct where TCopy : IArrayElementCopy<T> {
+
+            if (fromArr == null) {
+
+                if (arr != null) {
+
+                    arr.Clear(copy);
+                    PoolHashSetCopyable<T>.Recycle(ref arr);
+
+                }
+
+                arr = null;
+                return;
+
+            }
+
+            if (arr == null) {
+
+                arr = PoolHashSetCopyable<T>.Spawn();
+
+            }
+
+            arr.CopyFrom(fromArr, copy);
 
         }
 

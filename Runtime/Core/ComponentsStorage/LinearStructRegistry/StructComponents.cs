@@ -135,6 +135,47 @@ namespace ME.ECS {
 
         }
 
+        public override bool SetObject(in Entity entity, UnsafeData buffer) {
+            
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            var index = entity.id;
+            ref var bucket = ref this.components[index];
+            bucket.data = buffer.Read<TComponent>();
+
+            var componentIndex = ComponentTypes<TComponent>.typeId;
+            if (bucket.state == 0) {
+
+                bucket.state = 1;
+
+                if (componentIndex >= 0) {
+                    
+                    this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
+                    this.world.AddFilterByStructComponent(in entity, componentIndex);
+                    this.world.UpdateFilterByStructComponent(in entity, componentIndex);
+                    
+                }
+
+                return true;
+
+            }
+            
+            if (componentIndex >= 0) {
+                
+                this.world.ValidateFilterByStructComponent(in entity, componentIndex);
+                    
+            }
+
+            return false;
+
+        }
+
         public override bool SetObject(in Entity entity, IStructComponentBase data) {
 
             #if WORLD_EXCEPTIONS
@@ -200,6 +241,7 @@ namespace ME.ECS {
                 if (componentIndex >= 0) {
                     
                     this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
+                    this.world.RemoveFilterByStructComponent<TComponent>(in entity);
                     this.world.UpdateFilterByStructComponent<TComponent>(in entity);
                     
                 }

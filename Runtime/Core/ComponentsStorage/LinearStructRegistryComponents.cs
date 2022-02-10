@@ -1,4 +1,6 @@
-﻿#if ENABLE_IL2CPP
+﻿using Unity.Collections.LowLevel.Unsafe;
+
+#if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
 
@@ -57,6 +59,7 @@ namespace ME.ECS {
         public abstract bool HasType(System.Type type);
         public abstract IStructComponentBase GetObject(Entity entity);
         public abstract bool SetObject(in Entity entity, IStructComponentBase data);
+        public abstract bool SetObject(in Entity entity, UnsafeData buffer);
         public abstract System.Collections.Generic.ICollection<uint> GetSharedGroups(Entity entity);
         public abstract IStructComponentBase GetSharedObject(Entity entity, uint groupId);
         public abstract bool SetSharedObject(in Entity entity, IStructComponentBase data, uint groupId);
@@ -539,88 +542,15 @@ namespace ME.ECS {
     #endif
     public struct StructComponentsContainer : IStructComponentsContainer {
 
-        internal interface ITask {
-
-            ComponentLifetime GetStep();
-            Entity GetEntity();
-            void NextStep();
-            bool Update(float deltaTime);
-            void Recycle();
-            ITask Clone();
-            void CopyFrom(ITask other);
-
-        }
-
-        internal class OneShotTask<TComponent> : ITask, System.IEquatable<OneShotTask<TComponent>> where TComponent : struct, IComponentOneShot {
+        internal struct NextTickTask : System.IEquatable<NextTickTask> {
 
             public Entity entity;
-
-            public Entity GetEntity() {
-
-                return this.entity;
-
-            }
-
-            public ComponentLifetime GetStep() => ComponentLifetime.NotifyAllSystemsBelow;
-            
-            public void NextStep() {
-
-            }
-
-            public bool Update(float deltaTime) {
-
-                if (this.entity.IsAlive() == false) return true;
-                
-                Worlds.currentWorld.RemoveDataOneShot<TComponent>(this.entity);
-                
-                return true;
-
-            }
-
-            public void CopyFrom(ITask other) {
-
-                var _other = (OneShotTask<TComponent>)other;
-                this.entity = _other.entity;
-
-            }
-
-            public void Recycle() {
-
-                this.entity = default;
-                PoolClass<OneShotTask<TComponent>>.Recycle(this);
-
-            }
-
-            public ITask Clone() {
-
-                var copy = PoolClass<OneShotTask<TComponent>>.Spawn();
-                copy.CopyFrom(this);
-                return copy;
-
-            }
-
-            public bool Equals(OneShotTask<TComponent> other) {
-
-                if (other == null) return false;
-                return this.entity == other.entity;
-
-            }
-
-        }
-
-        internal class NextFrameTask<TComponent> : ITask, System.IEquatable<NextFrameTask<TComponent>> where TComponent : struct, IStructComponent {
-
-            public Entity entity;
-            public TComponent data;
+            public UnsafeData data;
+            public int dataIndex;
             public ComponentLifetime lifetime;
+            public StorageType storageType;
             public float secondsLifetime;
-
-            public Entity GetEntity() {
-
-                return this.entity;
-
-            }
-
+            
             public ComponentLifetime GetStep() => this.lifetime;
             
             public void NextStep() {
@@ -629,7 +559,7 @@ namespace ME.ECS {
                     
                     if (this.lifetime == ComponentLifetime.NotifyAllSystemsBelow) return;
 
-                    Worlds.currentWorld.SetData(this.entity, in this.data);
+                    Worlds.currentWorld.SetData(this.entity, this.data, this.dataIndex);
                     
                     if (this.lifetime == ComponentLifetime.NotifyAllSystems) {
                         this.lifetime = ComponentLifetime.NotifyAllSystemsBelow;
@@ -646,7 +576,7 @@ namespace ME.ECS {
                 this.secondsLifetime -= deltaTime;
                 if (this.secondsLifetime <= 0f) {
 
-                    Worlds.currentWorld.RemoveData<TComponent>(this.entity);
+                    Worlds.currentWorld.RemoveData(this.entity, this.dataIndex, this.storageType);
                     
                     return true;
 
@@ -656,45 +586,60 @@ namespace ME.ECS {
 
             }
 
-            public void CopyFrom(ITask other) {
+            public bool IsValid() {
 
-                var _other = (NextFrameTask<TComponent>)other;
-                this.entity = _other.entity;
-                this.data = _other.data;
-                this.lifetime = _other.lifetime;
-                this.secondsLifetime = _other.secondsLifetime;
+                return this.entity.IsEmpty() == false;
 
             }
+            
+            public void CopyFrom(in NextTickTask other) {
 
+                this.entity = other.entity;
+                this.storageType = other.storageType;
+                this.dataIndex = other.dataIndex;
+                this.data.CopyFrom(in other.data);
+                this.lifetime = other.lifetime;
+                this.secondsLifetime = other.secondsLifetime;
+
+            }
+            
             public void Recycle() {
 
-                this.data = default;
+                this.dataIndex = default;
+                this.storageType = default;
                 this.entity = default;
                 this.lifetime = default;
                 this.secondsLifetime = default;
-                PoolClass<NextFrameTask<TComponent>>.Recycle(this);
+                this.data.Dispose();
 
             }
+            
+            public NextTickTask Clone() {
 
-            public ITask Clone() {
-
-                var copy = PoolClass<NextFrameTask<TComponent>>.Spawn();
+                var copy = new NextTickTask();
                 copy.CopyFrom(this);
                 return copy;
 
             }
 
-            public bool Equals(NextFrameTask<TComponent> other) {
+            public bool Equals(NextTickTask other) {
+                return this.entity.Equals(other.entity) && this.dataIndex == other.dataIndex && this.lifetime == other.lifetime && this.storageType == other.storageType;
+            }
 
-                if (other == null) return false;
-                return this.entity == other.entity && this.lifetime == other.lifetime;
+            public override bool Equals(object obj) {
+                return obj is NextTickTask other && this.Equals(other);
+            }
 
+            public override int GetHashCode() {
+                unchecked {
+                    return (this.entity.GetHashCode() * 397) ^ this.dataIndex ^ (int)this.lifetime ^ (int)this.storageType;
+                }
             }
 
         }
 
         [ME.ECS.Serializer.SerializeField]
-        internal CCList<ITask> nextTickTasks;
+        internal HashSetCopyable<NextTickTask> nextTickTasks;
 
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<StructRegistryBase> list;
@@ -712,7 +657,7 @@ namespace ME.ECS {
 
         public void Initialize(bool freeze) {
 
-            this.nextTickTasks = PoolCCList<ITask>.Spawn();
+            this.nextTickTasks = PoolHashSetCopyable<NextTickTask>.Spawn();
             this.dirtyMap = PoolListCopyable<int>.Spawn(10);
 
             ArrayUtils.Resize(100, ref this.list, false);
@@ -832,25 +777,29 @@ namespace ME.ECS {
             if (this.nextTickTasks != null) {
 
                 var nullCnt = 0;
-                for (int i = 0, cnt = this.nextTickTasks.Count; i < cnt; ++i) {
+                foreach (ref var task in this.nextTickTasks) {
 
-                    if (this.nextTickTasks[i] == null) {
+                    if (task.IsValid() == false) {
+                        
                         ++nullCnt;
                         continue;
+                        
                     }
+                    
+                    if (task.entity == entity) {
 
-                    if (this.nextTickTasks[i].GetEntity() == entity) {
-
-                        this.nextTickTasks[i].Recycle();
-                        this.nextTickTasks[i] = null;
+                        task.Recycle();
+                        task = default;
                         ++nullCnt;
 
                     }
-
+                    
                 }
 
                 if (nullCnt > 0 && nullCnt == this.nextTickTasks.Count) {
-                    this.nextTickTasks.ClearNoCC();
+                    
+                    this.nextTickTasks.Clear();
+                    
                 }
 
             }
@@ -1137,26 +1086,8 @@ namespace ME.ECS {
         #endif
         public void OnRecycle() {
 
-            if (this.nextTickTasks != null) {
-
-                for (int i = 0; i < this.nextTickTasks.array.Length; ++i) {
-
-                    if (this.nextTickTasks.array[i] == null) continue;
-
-                    for (int j = 0; j < this.nextTickTasks.array[i].Length; ++j) {
-
-                        if (this.nextTickTasks.array[i][j] == null) continue;
-
-                        this.nextTickTasks.array[i][j].Recycle();
-
-                    }
-
-                }
-
-                PoolCCList<ITask>.Recycle(ref this.nextTickTasks);
-
-            }
-
+            ArrayUtils.Recycle(ref this.nextTickTasks, new CopyTask());
+            
             if (this.list.arr != null) {
 
                 for (int i = 0; i < this.list.Length; ++i) {
@@ -1194,30 +1125,15 @@ namespace ME.ECS {
 
         }
 
-        private struct CopyTask : IArrayElementCopy<ITask> {
+        private struct CopyTask : IArrayElementCopy<NextTickTask> {
 
-            public void Copy(ITask @from, ref ITask to) {
+            public void Copy(NextTickTask @from, ref NextTickTask to) {
 
-                if (from == null && to == null) return;
-
-                if (from == null && to != null) {
-
-                    to.Recycle();
-                    to = null;
-
-                } else if (to == null) {
-
-                    to = from.Clone();
-
-                } else {
-
-                    to.CopyFrom(from);
-
-                }
+                to.CopyFrom(from);
 
             }
 
-            public void Recycle(ITask item) {
+            public void Recycle(NextTickTask item) {
 
                 item.Recycle();
 
@@ -1272,54 +1188,8 @@ namespace ME.ECS {
 
             {
 
-                if (this.nextTickTasks != null) {
-
-                    for (int i = 0; i < this.nextTickTasks.array.Length; ++i) {
-
-                        if (this.nextTickTasks.array[i] == null) continue;
-
-                        for (int j = 0; j < this.nextTickTasks.array[i].Length; ++j) {
-
-                            if (this.nextTickTasks.array[i][j] == null) continue;
-
-                            this.nextTickTasks.array[i][j].Recycle();
-
-                        }
-
-                    }
-
-                    PoolCCList<ITask>.Recycle(ref this.nextTickTasks);
-
-                }
-
-                this.nextTickTasks = PoolCCList<ITask>.Spawn();
-                this.nextTickTasks.InitialCopyOf(other.nextTickTasks);
-                for (int i = 0; i < other.nextTickTasks.array.Length; ++i) {
-
-                    if (other.nextTickTasks.array[i] == null) {
-
-                        this.nextTickTasks.array[i] = null;
-                        continue;
-
-                    }
-
-                    for (int j = 0; j < other.nextTickTasks.array[i].Length; ++j) {
-
-                        var item = other.nextTickTasks.array[i][j];
-                        if (item == null) {
-
-                            this.nextTickTasks.array[i][j] = null;
-                            continue;
-
-                        }
-
-                        var copy = item.Clone();
-                        this.nextTickTasks.array[i][j] = copy;
-
-                    }
-
-                }
-
+                ArrayUtils.Copy(other.nextTickTasks, ref this.nextTickTasks, new CopyTask());
+                
             }
 
             //ArrayUtils.Copy(other.nextFrameTasks, ref this.nextFrameTasks, new CopyTask());
@@ -1457,13 +1327,8 @@ namespace ME.ECS {
             if (list.Count > 0) {
 
                 var cnt = 0;
-                for (int i = 0; i < list.Count; ++i) {
-
-                    var task = list[i];
-                    if (task == null) {
-                        ++cnt;
-                        continue;
-                    }
+                foreach (ref var task in list) {
+                    
                     var taskStep = task.GetStep();
                     if (taskStep != step) continue;
                     
@@ -1472,7 +1337,8 @@ namespace ME.ECS {
                         if (task.Update(deltaTime) == true) {
                             
                             // Remove task on complete
-                            list[i] = null;
+                            task.Recycle();
+                            task = default;
                             ++cnt;
 
                         }
@@ -1482,13 +1348,13 @@ namespace ME.ECS {
                         task.NextStep();
                         
                     }
-
+                    
                 }
-
+                
                 if (cnt == list.Count) {
                     
                     // All is null
-                    list.ClearNoCC();
+                    list.Clear();
                     
                 }
 
@@ -2303,11 +2169,13 @@ namespace ME.ECS {
             
             if (addTaskOnly == false && this.HasData<TComponent>(in entity) == true) return;
 
-            var task = PoolClass<StructComponentsContainer.NextFrameTask<TComponent>>.Spawn();
-            task.entity = entity;
-            task.data = data;
-            task.secondsLifetime = secondsLifetime;
-            task.lifetime = lifetime;
+            var task = new StructComponentsContainer.NextTickTask {
+                entity = entity,
+                data = new UnsafeData().Set(data),
+                dataIndex = AllComponentTypes<TComponent>.typeId,
+                secondsLifetime = secondsLifetime,
+                lifetime = lifetime,
+            };
 
             switch (lifetime) {
                 case ComponentLifetime.NotifyAllSystems: {
@@ -2321,11 +2189,7 @@ namespace ME.ECS {
 
             }
 
-            if (container.nextTickTasks.Contains(task) == false) {
-
-                container.nextTickTasks.Add(task);
-
-            } else {
+            if (container.nextTickTasks.Add(task) == false) {
 
                 task.Recycle();
 
@@ -2454,7 +2318,40 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void RemoveData(in Entity entity, int dataIndex) {
+        internal void SetData(in Entity entity, UnsafeData buffer, int dataIndex) {
+
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            // Inline all manually
+            ref var reg = ref this.currentState.structComponents.list.arr[dataIndex];
+            if (reg.SetObject(entity, buffer) == true) {
+
+                this.currentState.storage.versions.Increment(in entity);
+                reg.UpdateVersion(in entity);
+                reg.UpdateVersionNoState(in entity);
+
+            }
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void RemoveData(in Entity entity, int dataIndex, StorageType storageType = StorageType.Default) {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -2472,10 +2369,23 @@ namespace ME.ECS {
             }
             #endif
 
-            var reg = this.currentState.structComponents.list.arr[dataIndex];
-            if (reg.RemoveObject(entity) == true) {
+            if (storageType == StorageType.Default) {
 
-                this.currentState.storage.versions.Increment(in entity);
+                var reg = this.currentState.structComponents.list.arr[dataIndex];
+                if (reg.RemoveObject(entity) == true) {
+
+                    this.currentState.storage.versions.Increment(in entity);
+
+                }
+
+            } else if (storageType == StorageType.NoState) {
+                
+                var reg = this.structComponentsNoState.list.arr[dataIndex];
+                if (reg.RemoveObject(entity) == true) {
+
+                    this.currentState.storage.versions.Increment(in entity);
+
+                }
 
             }
 

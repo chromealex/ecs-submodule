@@ -562,6 +562,44 @@ namespace ME.ECS {
         }
         #endif
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static unsafe void Copy(System.IntPtr from, ref System.IntPtr to, int sizeOf, int alignOf) {
+            
+            switch (from != System.IntPtr.Zero) {
+                case false when to == System.IntPtr.Zero:
+                    return;
+
+                case false when to != System.IntPtr.Zero:
+                    NativeArrayUtils.Dispose(ref to);
+                    return;
+            }
+
+            if (to == System.IntPtr.Zero) {
+
+                to = (System.IntPtr)UnsafeUtility.Malloc(sizeOf, alignOf, Unity.Collections.Allocator.Persistent);
+                
+            }
+
+            UnsafeUtility.MemCpy((void*)to, (void*)from, sizeOf);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static unsafe void Dispose(ref System.IntPtr data) {
+
+            if (data == System.IntPtr.Zero) {
+                return;
+            }
+            
+            UnsafeUtility.Free((void*)data, Unity.Collections.Allocator.Persistent);
+            data = default;
+
+        }
+
     }
 
 }

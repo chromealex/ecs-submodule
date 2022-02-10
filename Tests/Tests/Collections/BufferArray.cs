@@ -26,6 +26,13 @@ namespace ME.ECS.Tests {
 
         }
 
+        [Unity.Burst.BurstCompileAttribute]
+        public static void BurstMethod(ref Unity.Collections.NativeArray<TestData> arr, int index) {
+            
+            arr[index] = new TestData();
+            
+        }
+
         [NUnit.Framework.TestAttribute]
         public void CompareBurstWithManagedAccess() {
 
@@ -34,17 +41,26 @@ namespace ME.ECS.Tests {
 
             {
                 var sw = System.Diagnostics.Stopwatch.StartNew();
-                new BurstAccess() { arr = arr, index = 50 }.Schedule().Complete();
-                UnityEngine.Debug.Log("Burst ticks: " + sw.ElapsedTicks);
+                managedArr[50] = new TestData();
+                UnityEngine.Debug.Log("Managed ticks: " + sw.ElapsedTicks);
                 sw.Restart();
             }
 
             {
                 var sw = System.Diagnostics.Stopwatch.StartNew();
-                managedArr[50] = new TestData();
-                UnityEngine.Debug.Log("Managed ticks: " + sw.ElapsedTicks);
+                new BurstAccess() { arr = arr, index = 50 }.Schedule().Complete();
+                UnityEngine.Debug.Log("Burst job ticks: " + sw.ElapsedTicks);
                 sw.Restart();
             }
+
+            {
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                BurstMethod(ref arr, 50);
+                UnityEngine.Debug.Log("Burst ticks: " + sw.ElapsedTicks);
+                sw.Restart();
+            }
+
+            arr.Dispose();
 
         }
 

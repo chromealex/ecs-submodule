@@ -213,14 +213,15 @@ namespace ME.ECS {
                 if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
                 if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
-                var task = PoolClass<StructComponentsContainer.OneShotTask<TComponent>>.Spawn();
-                task.entity = entity;
+                var task = new StructComponentsContainer.NextTickTask {
+                    lifetime = ComponentLifetime.NotifyAllSystemsBelow,
+                    storageType = StorageType.NoState,
+                    secondsLifetime = 0f,
+                    entity = entity,
+                    dataIndex = AllComponentTypes<TComponent>.typeId,
+                };
 
-                if (this.structComponentsNoState.nextTickTasks.Contains(task) == false) {
-
-                    this.structComponentsNoState.nextTickTasks.Add(task);
-
-                } else {
+                if (this.structComponentsNoState.nextTickTasks.Add(task) == false) {
 
                     task.Recycle();
 
@@ -286,14 +287,15 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
-            var task = PoolClass<StructComponentsContainer.OneShotTask<TComponent>>.Spawn();
-            task.entity = entity;
+            var task = new StructComponentsContainer.NextTickTask {
+                lifetime = ComponentLifetime.NotifyAllSystemsBelow,
+                storageType = StorageType.NoState,
+                secondsLifetime = 0f,
+                entity = entity,
+                dataIndex = AllComponentTypes<TComponent>.typeId,
+            };
 
-            if (this.structComponentsNoState.nextTickTasks.Contains(task) == false) {
-
-                this.structComponentsNoState.nextTickTasks.Add(task);
-
-            } else {
+            if (this.structComponentsNoState.nextTickTasks.Add(task) == false) {
 
                 task.Recycle();
 

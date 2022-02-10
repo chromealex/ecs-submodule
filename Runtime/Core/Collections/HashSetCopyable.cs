@@ -259,34 +259,42 @@ namespace ME.ECS.Collections {
             
         }*/
 
+        private struct SlotCopy<TValue> : IArrayElementCopy<Slot> where TValue : IArrayElementCopy<T> {
+
+            public TValue copy;
+
+            public void Copy(Slot @from, ref Slot to) {
+                
+                this.copy.Copy(from.value, ref to.value);
+                to.next = from.next;
+                to.hashCode = from.hashCode;
+
+            }
+
+            public void Recycle(Slot item) {
+                
+                this.copy.Recycle(item.value);
+                
+            }
+
+        }
+
+        public void CopyFrom<TCopy>(HashSetCopyable<T> other, TCopy copy) where TCopy : IArrayElementCopy<T> {
+
+            ArrayUtils.Copy(other.m_buckets, ref this.m_buckets);
+            ArrayUtils.Copy(other.m_slots, ref this.m_slots, new SlotCopy<TCopy>() { copy = copy });
+            this.m_count = other.m_count;
+            this.m_lastIndex = other.m_lastIndex;
+            this.m_freeList = other.m_freeList;
+            this.m_comparer = other.m_comparer;
+            this.m_version = other.m_version;
+
+        }
+
         public void CopyFrom(HashSetCopyable<T> other) {
 
-            if (this.m_buckets.arr != null) {
-                PoolArray<int>.Recycle(ref this.m_buckets);
-            }
-
-            if (other.m_buckets.arr != null) {
-
-                this.m_buckets = PoolArray<int>.Spawn(other.m_buckets.Length);
-                for (var i = 0; i < this.m_buckets.Length; ++i) {
-                    this.m_buckets.arr[i] = other.m_buckets.arr[i];
-                }
-
-            }
-
-            if (this.m_slots.arr != null) {
-                PoolArray<Slot>.Recycle(ref this.m_slots);
-            }
-
-            if (other.m_slots.arr != null) {
-
-                this.m_slots = PoolArray<Slot>.Spawn(other.m_slots.Length);
-                for (var i = 0; i < this.m_slots.Length; ++i) {
-                    this.m_slots.arr[i] = other.m_slots.arr[i];
-                }
-
-            }
-
+            ArrayUtils.Copy(other.m_buckets, ref this.m_buckets);
+            ArrayUtils.Copy(other.m_slots, ref this.m_slots);
             this.m_count = other.m_count;
             this.m_lastIndex = other.m_lastIndex;
             this.m_freeList = other.m_freeList;
@@ -304,6 +312,18 @@ namespace ME.ECS.Collections {
         /// <param name="item">item to add</param>
         void ICollection<T>.Add(T item) {
             this.AddIfNotPresent(item);
+        }
+
+        public void Clear<TCopy>(TCopy copy) where TCopy : IArrayElementCopy<T> {
+            
+            foreach (var item in this) {
+
+                copy.Recycle(item);
+
+            }
+
+            this.Clear();
+
         }
 
         /// <summary>
@@ -1082,18 +1102,18 @@ namespace ME.ECS.Collections {
 
         private T emptySlotData;
 
-        public struct Enumerator : IEnumerator<T>, System.Collections.IEnumerator {
+        public struct Enumerator {// : IEnumerator<T>, System.Collections.IEnumerator {
 
             private HashSetCopyable<T> set;
             private int index;
             private int version;
-            private T current;
+            //private T current;
 
             internal Enumerator(HashSetCopyable<T> set) {
                 this.set = set;
                 this.index = 0;
                 this.version = set.m_version;
-                this.current = default(T);
+                //this.current = default(T);
             }
 
             public void Dispose() { }
@@ -1105,7 +1125,7 @@ namespace ME.ECS.Collections {
 
                 while (this.index < this.set.m_lastIndex) {
                     if (this.set.m_slots.arr[this.index].hashCode >= 0) {
-                        this.current = this.set.m_slots.arr[this.index].value;
+                        //this.current = this.set.m_slots.arr[this.index].value;
                         this.index++;
                         return true;
                     }
@@ -1114,16 +1134,17 @@ namespace ME.ECS.Collections {
                 }
 
                 this.index = this.set.m_lastIndex + 1;
-                this.current = default(T);
+                //this.current = default(T);
                 return false;
             }
 
-            public T Current {
+            public ref T Current {
                 get {
-                    return this.current;
+                    return ref this.set.m_slots.arr[this.index - 1].value;
                 }
             }
 
+            /*
             Object System.Collections.IEnumerator.Current {
                 get {
                     throw new AllocationException();
@@ -1137,7 +1158,7 @@ namespace ME.ECS.Collections {
 
                 this.index = 0;
                 this.current = default(T);
-            }
+            }*/
 
         }
 
