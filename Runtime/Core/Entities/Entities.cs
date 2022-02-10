@@ -309,6 +309,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static bool TryRead<TComponent>(this in Entity entity, out TComponent component) where TComponent : struct, IStructComponent {
+
+            return Worlds.currentWorld.TryReadData<TComponent>(in entity, out component);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static bool Has<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
 
             return Worlds.currentWorld.HasData<TComponent>(in entity);
@@ -342,7 +351,7 @@ namespace ME.ECS {
         #endif
         public static Entity SetAs<TComponent>(this in Entity entity, DataConfigs.DataConfig source) where TComponent : struct, IStructComponent {
 
-            if (source.Has<TComponent>() == true) {
+            if (source.TryRead(out TComponent c) == true) {
 
                 if (AllComponentTypes<TComponent>.isTag == true) {
 
@@ -368,23 +377,16 @@ namespace ME.ECS {
         #endif
         public static Entity SetAs<TComponent>(this in Entity entity, in Entity source) where TComponent : struct, IStructComponent {
 
-            if (source.Has<TComponent>() == true) {
+            if (source.TryRead(out TComponent c) == true) {
 
-                if (AllComponentTypes<TComponent>.isTag == true) {
-
-                    entity.Set<TComponent>();
-
-                } else {
-                    
-                    entity.Set(source.Read<TComponent>());
-
-                }
+                entity.Set(c);
 
             } else {
                 
                 entity.Remove<TComponent>();
                 
             }
+            
             return entity;
 
         }

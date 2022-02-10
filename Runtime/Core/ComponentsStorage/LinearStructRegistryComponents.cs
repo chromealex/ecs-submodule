@@ -2023,6 +2023,32 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public bool TryReadData<TComponent>(in Entity entity, out TComponent component) where TComponent : struct, IStructComponent {
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            
+            if (AllComponentTypes<TComponent>.isTag == true) {
+
+                TagComponentException.Throw(entity);
+
+            }
+            #endif
+
+            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            var c = reg.components[entity.id];
+            component = c.data;
+            return c.state > 0;
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool HasData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
 
             #if WORLD_EXCEPTIONS

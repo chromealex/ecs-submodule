@@ -234,6 +234,39 @@ namespace ME.ECS.DataConfigs {
 	        this.isPrewarmed = true;
 
         }
+
+        public bool TryRead<T>(out T component) where T : struct, IStructComponentBase {
+            
+            this.Prewarm();
+            component = default;
+            var type = typeof(T);
+            var index = this.GetComponentDataIndexByType(type);
+            if (this.typeIndexToArrayIndex.TryGetValue(index, out var idx) == true) {
+
+                var c = this.structComponents[idx];
+                if (c != null) {
+                    component = (T)c;
+                    return true;
+                }
+                return false;
+
+            }
+
+            for (int i = 0; i < this.structComponents.Length; ++i) {
+
+                var c = this.structComponents[idx];
+                if (c != null && c.GetType() == type) {
+
+                    component = (T)c;
+                    return true;
+
+                }
+		        
+            }
+	        
+            return false;
+            
+        }
         
         public bool Has<T>() where T : struct, IStructComponentBase {
 	        
