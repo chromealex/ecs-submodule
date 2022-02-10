@@ -352,6 +352,17 @@ namespace ME.ECS.FiltersArchetype {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
+        public override int GetHashCode() {
+            
+            if (this.dead == null) return 0;
+            
+            return this.versions.GetHashCode() ^ this.aliveCount ^ this.nextEntityId ^ this.dead.Count ^ this.allArchetypes.Count;
+
+        }
+
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
         private void RemoveEntityFromArch(ref Archetype arch, int entityId) {
 
             var idx = this.GetEntityArrIndex(entityId);
