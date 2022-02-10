@@ -377,16 +377,32 @@ namespace ME.ECS {
         #endif
         public static Entity SetAs<TComponent>(this in Entity entity, in Entity source) where TComponent : struct, IStructComponent {
 
-            if (source.TryRead(out TComponent c) == true) {
+            if (AllComponentTypes<TComponent>.isTag == false) {
 
-                entity.Set(c);
+                if (source.TryRead(out TComponent c) == true) {
+
+                    entity.Set(c);
+
+                } else {
+
+                    entity.Remove<TComponent>();
+
+                }
 
             } else {
                 
-                entity.Remove<TComponent>();
-                
+                if (source.Has<TComponent>() == true) {
+
+                    entity.Set<TComponent>();
+
+                } else {
+
+                    entity.Remove<TComponent>();
+
+                }
+
             }
-            
+
             return entity;
 
         }
