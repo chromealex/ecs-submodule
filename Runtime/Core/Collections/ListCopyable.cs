@@ -13,7 +13,7 @@
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     [System.Serializable]
-    public sealed class ListCopyable<T> : IPoolableSpawn, IPoolableRecycle, IListCopyableBase, System.Collections.Generic.IEnumerable<T> {
+    public sealed class ListCopyable<T> : IPoolableSpawn, IPoolableRecycle, IListCopyableBase, System.Collections.Generic.ICollection<T> {
 
         private const int DefaultCapacity = 8;
         private static bool isValueType;
@@ -22,6 +22,8 @@
         public BufferArray<T> innerArray;
         [ME.ECS.Serializer.SerializeField]
         public int Count { get; private set; } //Also the index of the next element to be added
+
+        public bool IsReadOnly => false;
         [ME.ECS.Serializer.SerializeField]
         public int Capacity = ListCopyable<T>.DefaultCapacity;
 
@@ -182,6 +184,16 @@
             for (var i = 0; i < count; i++) {
                 this.innerArray.arr[this.Count++] = items[i + startIndex];
             }
+        }
+
+        public void CopyTo(T[] array, int arrayIndex) {
+            
+            if (array != null && array.Rank != 1)
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
+            {
+                System.Array.Copy(this.innerArray.arr, 0, array, arrayIndex, this.Count);
+            }
+            
         }
 
         public bool Remove(T item) {
