@@ -54,7 +54,7 @@ namespace ME.ECS.Collections {
 
             }
 
-            public bool Equals(EditorArr obj) {
+            public readonly bool Equals(EditorArr obj) {
 
                 return this.data == obj.data;
 
@@ -91,7 +91,7 @@ namespace ME.ECS.Collections {
                 return !(v1 == obj);
 
             }
-
+            
         }
 
         public readonly EditorArr arr;
@@ -299,7 +299,7 @@ namespace ME.ECS.Collections {
         #endif
         public static bool operator ==(BufferArray<T> e1, BufferArray<T> e2) {
 
-            return e1.arr == e2.arr;
+            return e1.arr.Equals(e2.arr);
 
         }
 

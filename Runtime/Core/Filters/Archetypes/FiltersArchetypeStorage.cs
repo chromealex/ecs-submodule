@@ -1,3 +1,4 @@
+//#define FILTERS_STORAGE_ARCHETYPES
 #if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
@@ -509,6 +510,19 @@ namespace ME.ECS.FiltersArchetype {
 
         private List<Request> requests;
         private bool isArchetypesDirty;
+
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void SetCapacity(int capacity) {
+
+            ArrayUtils.Resize(capacity - 1, ref this.entitiesArrIndex);
+            NativeArrayUtils.Resize(capacity - 1, ref this.cache);
+            this.dead.EnsureCapacity(capacity);
+            this.alive.EnsureCapacity(capacity);
+            this.deadPrepared.EnsureCapacity(capacity);
+
+        }
 
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]

@@ -79,12 +79,14 @@ namespace ME.ECS {
         public void SetEntityCapacityInFilters(int capacity) {
 
             // On change capacity
+            this.currentState.filters.SetCapacity(capacity);
 
         }
 
         public void CreateEntityInFilters(in Entity entity) {
 
             // On create new entity
+            this.currentState.filters.SetCapacity(entity.id + 1);
 
         }
 
