@@ -66,18 +66,22 @@ namespace ME.ECSEditor {
             
         }
 
-        protected static void OnAfterAssemblyReload(bool delete) {
+        protected static void OnAfterAssemblyReload(bool delete, bool forced = false) {
 
-            if (Generator.IsPrevTimeValid() == false) {
-                return;
-            }
+            if (forced == false) {
 
-            if (Generator.IsAutoGenerateEnabled() == false) {
-                return;
-            }
+                if (Generator.IsPrevTimeValid() == false) {
+                    return;
+                }
 
-            if (EditorApplication.isCompiling == true) {
-                return;
+                if (Generator.IsAutoGenerateEnabled() == false) {
+                    return;
+                }
+
+                if (EditorApplication.isCompiling == true) {
+                    return;
+                }
+
             }
 
             var asms = UnityEditor.AssetDatabase.FindAssets("t:asmdef");
@@ -100,7 +104,12 @@ namespace ME.ECSEditor {
 
                 } else {
 
-                    Generator.CompileDirectory(asmNamePath);
+                    var fullDir = System.IO.Path.GetDirectoryName(asmNamePath + System.IO.Path.DirectorySeparatorChar + Generator.FILE_NAME);
+                    if (System.IO.Directory.Exists(fullDir) == true) {
+                        
+                        Generator.CompileDirectory(asmNamePath);
+                        
+                    }
 
                 }
 

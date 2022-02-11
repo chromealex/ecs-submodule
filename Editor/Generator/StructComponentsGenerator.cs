@@ -3,6 +3,7 @@ using UnityEditor;
 
 namespace ME.ECSEditor {
 
+    [InitializeOnLoad]
     public class StructComponentsGenerator : Generator {
 
         private const string FILE_NAME = "gen/compiler.gen.structcomponents.cs";
@@ -23,6 +24,7 @@ namespace ME.ECSEditor {
         static StructComponentsGenerator() {
 
             AssemblyReloadEvents.afterAssemblyReload += StructComponentsGenerator.OnAfterAssemblyReload;
+            UnityEditor.Compilation.CompilationPipeline.assemblyCompilationFinished += StructComponentsGenerator.AssemblyCompilationFinishedEventHandler;
             
             if (StructComponentsGenerator.IsFirstLaunch() == true) {
 
@@ -31,6 +33,19 @@ namespace ME.ECSEditor {
 
             }
 
+        }
+
+        private static void AssemblyCompilationFinishedEventHandler(string output, UnityEditor.Compilation.CompilerMessage[] messages) {
+
+            var filename = System.IO.Path.GetFileName(StructComponentsGenerator.FILE_NAME);
+            foreach (var message in messages) {
+                
+                if (message.type != UnityEditor.Compilation.CompilerMessageType.Error || message.file.Contains(filename) == false) continue;
+                Generator.OnAfterAssemblyReload(true, true);
+                return;
+                
+            }
+            
         }
 
         public static void Init() {
