@@ -480,7 +480,7 @@ namespace ME.ECS.FiltersArchetype {
         [ME.ECS.Serializer.SerializeField]
         internal ListCopyable<Archetype> allArchetypes;
         [ME.ECS.Serializer.SerializeField]
-        internal List<FilterData> filters;
+        internal ListCopyable<FilterData> filters;
         [ME.ECS.Serializer.SerializeField]
         internal EntityVersions versions;
         [ME.ECS.Serializer.SerializeField]
@@ -555,7 +555,7 @@ namespace ME.ECS.FiltersArchetype {
             this.root = arch.index;
             this.index = PoolDictionaryULong<int>.Spawn(16);
             this.allArchetypes = PoolListCopyable<Archetype>.Spawn(capacity);
-            this.filters = PoolList<FilterData>.Spawn(capacity);
+            this.filters = PoolListCopyable<FilterData>.Spawn(capacity);
             this.dirtyArchetypes = PoolHashSetCopyable<int>.Spawn();
             this.allArchetypes.Add(arch);
 
@@ -615,7 +615,7 @@ namespace ME.ECS.FiltersArchetype {
             this.root = default;
             PoolDictionaryULong<int>.Recycle(ref this.index);
             PoolListCopyable<Archetype>.Recycle(ref this.allArchetypes);
-            PoolList<FilterData>.Recycle(ref this.filters);
+            PoolListCopyable<FilterData>.Recycle(ref this.filters);
             this.isArchetypesDirty = default;
             PoolHashSetCopyable<int>.Recycle(ref this.dirtyArchetypes);
             PoolArray<int>.Recycle(ref this.entitiesArrIndex);
@@ -792,9 +792,9 @@ namespace ME.ECS.FiltersArchetype {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        public FilterData GetFilter(int id) {
+        public ref FilterData GetFilter(int id) {
 
-            return this.filters[id - 1];
+            return ref this.filters[id - 1];
 
         }
 
