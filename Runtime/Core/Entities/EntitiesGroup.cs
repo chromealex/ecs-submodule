@@ -31,7 +31,7 @@ namespace ME.ECS {
         #endif
         public void Dispose() {
 
-            this.slice.Dispose();
+            if (this.slice.IsCreated == true) this.slice.Dispose();
 
         }
 
@@ -451,7 +451,7 @@ namespace ME.ECS {
             var maxEntity = group.slice[group.slice.Length - 1];
             ComponentsInitializerWorld.Init(in maxEntity);
             this.currentState.storage.versions.Validate(in maxEntity);
-            this.CreateEntityPlugins(maxEntity);
+            this.CreateEntityPlugins(maxEntity, true);
             this.CreateEntityInFilters(maxEntity);
 
         }

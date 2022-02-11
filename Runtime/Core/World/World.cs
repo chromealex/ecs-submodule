@@ -151,7 +151,7 @@ namespace ME.ECS {
         private const int FEATURES_CAPACITY = 100;
         private const int SYSTEMS_CAPACITY = 100;
         private const int MODULES_CAPACITY = 100;
-        private const int ENTITIES_CACHE_CAPACITY = 100;
+        private const int ENTITIES_CACHE_CAPACITY = 500;
         private const int WORLDS_CAPACITY = 4;
         private const int FILTERS_CACHE_CAPACITY = 10;
         
@@ -433,7 +433,7 @@ namespace ME.ECS {
 
                     ref var entity = ref list[i];
                     ComponentsInitializerWorld.Init(in entity);
-                    this.CreateEntityPlugins(entity);
+                    this.CreateEntityPlugins(entity, false);
                     //this.UpdateFiltersOnFilterCreate(entity);
 
                 }
@@ -1412,14 +1412,35 @@ namespace ME.ECS {
 
         public void SetEntitiesCapacity(int capacity) {
 
+            var curCap = this.entitiesCapacity;
+            
             this.entitiesCapacity = capacity;
             this.SetEntityCapacityPlugins(capacity);
             this.SetEntityCapacityInFilters(capacity);
+
+            Entity maxEntity = default;
+            for (int i = 0; i < capacity - curCap; ++i) {
+
+                var e = this.AddEntity_INTERNAL(validate: false);
+                this.RemoveEntity(in e, false);
+                if (e.id > maxEntity.id) maxEntity = e;
+
+            }
+
+            if (maxEntity.id > 0) {
+                this.UpdateEntityOnCreate(maxEntity, isNew: true);
+            }
 
         }
 
         public ref Entity AddEntity(string name = null) {
 
+            return ref this.AddEntity_INTERNAL(name);
+
+        }
+        
+        private ref Entity AddEntity_INTERNAL(string name = null, bool validate = true) {
+            
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
 
@@ -1436,10 +1457,10 @@ namespace ME.ECS {
             }
             #endif
 
-            var isNew = this.currentState.storage.WillNew();
+            var isNew = (validate == true && this.currentState.storage.WillNew());
             ref var entity = ref this.currentState.storage.Alloc();
-            this.UpdateEntityOnCreate(in entity, isNew);
-
+            if (validate == true) this.UpdateEntityOnCreate(in entity, isNew);
+            
             if (name != null) {
 
                 entity.Set(new ME.ECS.Name.Name() {
@@ -1460,10 +1481,21 @@ namespace ME.ECS {
 
         public void UpdateEntityOnCreate(in Entity entity, bool isNew) {
 
+            #if FILTERS_STORAGE_ARCHETYPES
+            if (isNew == true) {
+                ComponentsInitializerWorld.Init(in entity);
+                this.currentState.storage.versions.Validate(in entity);
+                this.CreateEntityPlugins(entity, true);
+                this.CreateEntityInFilters(entity);
+            } else {
+                this.CreateEntityPlugins(entity, false);
+            }
+            #else
             if (isNew == true) ComponentsInitializerWorld.Init(in entity);
             this.currentState.storage.versions.Validate(in entity);
-            this.CreateEntityPlugins(entity);
+            this.CreateEntityPlugins(entity, isNew);
             this.CreateEntityInFilters(entity);
+            #endif
 
         }
 
@@ -3202,29 +3234,29 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void CreateEntityPlugins(in Entity entity) {
+        public void CreateEntityPlugins(in Entity entity, bool isNew) {
 
-            this.CreateEntityPlugin1(entity);
-            this.CreateEntityPlugin2(entity);
-            this.CreateEntityPlugin3(entity);
-            this.CreateEntityPlugin4(entity);
-            this.CreateEntityPlugin5(entity);
-            this.CreateEntityPlugin6(entity);
-            this.CreateEntityPlugin7(entity);
-            this.CreateEntityPlugin8(entity);
-            this.CreateEntityPlugin9(entity);
+            this.CreateEntityPlugin1(entity, isNew);
+            this.CreateEntityPlugin2(entity, isNew);
+            this.CreateEntityPlugin3(entity, isNew);
+            this.CreateEntityPlugin4(entity, isNew);
+            this.CreateEntityPlugin5(entity, isNew);
+            this.CreateEntityPlugin6(entity, isNew);
+            this.CreateEntityPlugin7(entity, isNew);
+            this.CreateEntityPlugin8(entity, isNew);
+            this.CreateEntityPlugin9(entity, isNew);
 
         }
 
-        partial void CreateEntityPlugin1(Entity entity);
-        partial void CreateEntityPlugin2(Entity entity);
-        partial void CreateEntityPlugin3(Entity entity);
-        partial void CreateEntityPlugin4(Entity entity);
-        partial void CreateEntityPlugin5(Entity entity);
-        partial void CreateEntityPlugin6(Entity entity);
-        partial void CreateEntityPlugin7(Entity entity);
-        partial void CreateEntityPlugin8(Entity entity);
-        partial void CreateEntityPlugin9(Entity entity);
+        partial void CreateEntityPlugin1(Entity entity, bool isNew);
+        partial void CreateEntityPlugin2(Entity entity, bool isNew);
+        partial void CreateEntityPlugin3(Entity entity, bool isNew);
+        partial void CreateEntityPlugin4(Entity entity, bool isNew);
+        partial void CreateEntityPlugin5(Entity entity, bool isNew);
+        partial void CreateEntityPlugin6(Entity entity, bool isNew);
+        partial void CreateEntityPlugin7(Entity entity, bool isNew);
+        partial void CreateEntityPlugin8(Entity entity, bool isNew);
+        partial void CreateEntityPlugin9(Entity entity, bool isNew);
 
         partial void DestroyEntityPlugin1(Entity entity);
         partial void DestroyEntityPlugin2(Entity entity);

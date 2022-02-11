@@ -402,6 +402,7 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.Validate(in entity);
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(entity.id, ref this.versionsNoState, true);
 
+            #if !FILTERS_STORAGE_ARCHETYPES
             this.world.currentState.storage.archetypes.Validate(in entity);
 
             if (ComponentTypes<TComponent>.typeId >= 0 && this.Has(in entity) == true) {
@@ -409,6 +410,7 @@ namespace ME.ECS {
                 this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
 
             }
+            #endif
 
             return false;
 
@@ -802,29 +804,16 @@ namespace ME.ECS {
 
             }
 
-            /*#if FILTERS_STORAGE_ARCHETYPES
             for (int i = 0, length = this.list.Length; i < length; ++i) {
 
                 var item = this.list.arr[i];
-                if (item != null && item.IsNeedToDispose() == true) {
+                if (item != null && item.Has(in entity) == true) {
 
                     item.Remove(in entity, clearAll: true);
 
                 }
 
             }
-            #else*/
-            for (int i = 0, length = this.list.Length; i < length; ++i) {
-
-                var item = this.list.arr[i];
-                if (item != null) {
-
-                    item.Remove(in entity, clearAll: true);
-
-                }
-
-            }
-            //#endif
 
         }
 
@@ -1230,9 +1219,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        partial void CreateEntityPlugin1(Entity entity) {
+        partial void CreateEntityPlugin1(Entity entity, bool isNew) {
 
-            this.currentState.structComponents.OnEntityCreate(in entity);
+            if (isNew == true) this.currentState.structComponents.OnEntityCreate(in entity);
 
         }
 

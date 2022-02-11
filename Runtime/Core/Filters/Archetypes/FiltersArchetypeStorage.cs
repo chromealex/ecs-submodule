@@ -1,4 +1,4 @@
-//#define FILTERS_STORAGE_ARCHETYPES
+#define FILTERS_STORAGE_ARCHETYPES
 #if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
@@ -521,7 +521,7 @@ namespace ME.ECS.FiltersArchetype {
             this.dead.EnsureCapacity(capacity);
             this.alive.EnsureCapacity(capacity);
             this.deadPrepared.EnsureCapacity(capacity);
-
+            
         }
 
         #if INLINE_METHODS

@@ -86,9 +86,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        partial void CreateEntityPlugin5(Entity entity) {
+        partial void CreateEntityPlugin5(Entity entity, bool isNew) {
 
-            if (this.debugSettings.collectStatistic == true) {
+            if (this.debugSettings.collectStatistic == true && isNew == true) {
 
                 if (this.debugSettings.statisticsObject != null) this.debugSettings.statisticsObject.OnEntityCreate(this.currentStatKey, entity);
                 

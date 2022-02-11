@@ -31,9 +31,7 @@ namespace ME.ECS.Collections {
             get => this.data.Length + this.tailsLength;
         }
 
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public BufferArraySliced(BufferArray<T> arr) {
 
             this.isCreated = true;
@@ -43,9 +41,7 @@ namespace ME.ECS.Collections {
 
         }
 
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         private BufferArraySliced(BufferArray<T> arr, BufferArray<BufferArray<T>> tails) {
 
             this.isCreated = true;
@@ -142,9 +138,7 @@ namespace ME.ECS.Collections {
 
         }*/
 
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public BufferArraySliced<T> CopyFrom<TCopy>(in BufferArraySliced<T> other, in TCopy copy) where TCopy : IArrayElementCopyWithIndex<T> {
 
             var data = this.data;
@@ -155,9 +149,7 @@ namespace ME.ECS.Collections {
 
         }
 
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public BufferArraySliced<T> CopyFrom(in BufferArraySliced<T> other) {
 
             var data = this.data;
@@ -168,9 +160,7 @@ namespace ME.ECS.Collections {
 
         }
 
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public BufferArraySliced<T> Resize(int index, bool resizeWithOffset, out bool result) {
 
             if (index >= this.Length) {
@@ -210,9 +200,7 @@ namespace ME.ECS.Collections {
 
         }
 
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public BufferArraySliced<T> Merge() {
 
             if (this.tails.isCreated == false || this.tails.Length == 0) {
@@ -239,9 +227,7 @@ namespace ME.ECS.Collections {
 
         }
 
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public BufferArraySliced<T> Dispose() {
 
             this.data.Dispose();

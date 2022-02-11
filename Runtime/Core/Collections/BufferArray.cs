@@ -47,6 +47,7 @@ namespace ME.ECS.Collections {
                 }
             }
 
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public override int GetHashCode() {
 
                 if (this.data == null) return 0;
@@ -54,12 +55,14 @@ namespace ME.ECS.Collections {
 
             }
 
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public readonly bool Equals(EditorArr obj) {
 
                 return this.data == obj.data;
 
             }
 
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public override bool Equals(object obj) {
 
                 if (obj is EditorArr ent) {
@@ -72,12 +75,14 @@ namespace ME.ECS.Collections {
 
             }
 
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public static implicit operator T[](EditorArr item) {
 
                 return item.data;
 
             }
 
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public static bool operator ==(EditorArr v1, object obj) {
 
                 if (obj is EditorArr arr && arr.data == v1.data) return true;
@@ -86,6 +91,7 @@ namespace ME.ECS.Collections {
 
             }
 
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public static bool operator !=(EditorArr v1, object obj) {
 
                 return !(v1 == obj);
@@ -102,9 +108,7 @@ namespace ME.ECS.Collections {
         public readonly bool isCreated;
 
         public ref T this[int index] {
-            #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
             get {
                 if (this.isCreated == false || index >= this.Length) throw new System.IndexOutOfRangeException($"Index: {index} [0..{this.Length}], Tick: {Worlds.currentWorld.GetCurrentTick()}");
                 return ref this.arr[index];

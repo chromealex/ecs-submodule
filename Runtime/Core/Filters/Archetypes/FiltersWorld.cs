@@ -62,7 +62,7 @@ namespace ME.ECS {
                         // in case entity hadn't been updated on the previous tick. FilterData seems to have its state already
                         // stored within the main state, so it's possible that this call is not needed at all.
                         //this.UpdateFiltersOnFilterCreate(item);
-                        this.CreateEntityPlugins(item);
+                        this.CreateEntityPlugins(item, false);
 
                     }
 

@@ -51,7 +51,7 @@ namespace ME.ECS {
             #endif
             this.globalEvents.Initialize();
             this.timers.Initialize();
-
+            
         }
 
         public virtual void CopyFrom(State other) {
