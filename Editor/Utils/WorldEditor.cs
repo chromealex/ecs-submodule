@@ -28,6 +28,12 @@ namespace ME.ECSEditor {
         private Dictionary<object, List<int>> foldoutStorageStructComponents = new Dictionary<object, List<int>>();
         private Dictionary<object, List<int>> foldoutStorageViews = new Dictionary<object, List<int>>();
 
+        public bool IsAlive() {
+
+            return this.world != null && this.world.currentState != null;
+
+        }
+        
         public void UpdateStateSize() {
 
             if (EditorApplication.timeSinceStartup > this.stateSizeLastUpdateTime + 15d) {

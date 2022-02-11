@@ -839,6 +839,8 @@ namespace ME.ECSEditor {
 
                     foreach (var worldEditor in this.worlds) {
 
+                        if (worldEditor.IsAlive() == false) continue;
+                        
                         var systems = worldEditor.GetSystems();
                         var modules = worldEditor.GetModules();
                         var storage = worldEditor.GetEntitiesStorage();
