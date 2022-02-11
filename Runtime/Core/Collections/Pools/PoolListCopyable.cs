@@ -56,9 +56,9 @@
 	#endif
 	public static class PoolHashSetCopyable<TValue> {
 
-		public static HashSetCopyable<TValue> Spawn() {
+		public static HashSetCopyable<TValue> Spawn(int capacity = 4) {
 
-			return Pools.current.PoolSpawn<HashSetCopyable<TValue>>((x) => ((HashSetCopyable<TValue>)x).Clear());
+			return Pools.current.PoolSpawn(capacity, c => new HashSetCopyable<TValue>(capacity), (x) => ((HashSetCopyable<TValue>)x).Clear());
 			
 		}
 

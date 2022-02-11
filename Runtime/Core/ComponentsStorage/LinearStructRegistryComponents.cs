@@ -9,10 +9,10 @@ namespace ME.ECS {
     public interface IStructRegistryBase {
 
         IStructComponentBase GetObject(Entity entity);
-        bool SetObject(in Entity entity, IStructComponentBase data);
+        bool SetObject(in Entity entity, IStructComponentBase data, StorageType storageType);
         IStructComponentBase GetSharedObject(Entity entity, uint groupId);
         bool SetSharedObject(in Entity entity, IStructComponentBase data, uint groupId);
-        bool RemoveObject(in Entity entity);
+        bool RemoveObject(in Entity entity, StorageType storageType);
         bool HasType(System.Type type);
 
     }
@@ -22,13 +22,6 @@ namespace ME.ECS {
         public TComponent data;
         public byte state;
         public long version;
-
-    }
-
-    public struct LifetimeData {
-
-        public int entityId;
-        public float lifetime;
 
     }
 
@@ -56,12 +49,12 @@ namespace ME.ECS {
         
         public abstract bool HasType(System.Type type);
         public abstract IStructComponentBase GetObject(Entity entity);
-        public abstract bool SetObject(in Entity entity, IStructComponentBase data);
-        public abstract bool SetObject(in Entity entity, UnsafeData buffer);
+        public abstract bool SetObject(in Entity entity, IStructComponentBase data, StorageType storageType);
+        public abstract bool SetObject(in Entity entity, UnsafeData buffer, StorageType storageType);
         public abstract System.Collections.Generic.ICollection<uint> GetSharedGroups(Entity entity);
         public abstract IStructComponentBase GetSharedObject(Entity entity, uint groupId);
         public abstract bool SetSharedObject(in Entity entity, IStructComponentBase data, uint groupId);
-        public abstract bool RemoveObject(in Entity entity);
+        public abstract bool RemoveObject(in Entity entity, StorageType storageType);
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -508,7 +501,19 @@ namespace ME.ECS {
 
             }
 
-            // TODO: Copy current tasks for "from" entity
+            var taskList = PoolListCopyable<StructComponentsContainer.NextTickTask>.Spawn(2);
+            foreach (var task in this.world.currentState.structComponents.nextTickTasks) {
+                if (task.entity == from) {
+                    var item = task;
+                    item.entity = to;
+                    taskList.Add(item);
+                }
+            }
+
+            foreach (var task in taskList) {
+                this.world.currentState.structComponents.nextTickTasks.Add(task);
+            }
+            PoolListCopyable<StructComponentsContainer.NextTickTask>.Recycle(ref taskList);
             
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(in from, in to);
             if (this.CopyFromState(in from, in to) > 0) {
@@ -559,7 +564,7 @@ namespace ME.ECS {
                     
                     if (this.lifetime == ComponentLifetime.NotifyAllSystemsBelow) return;
 
-                    Worlds.currentWorld.SetData(this.entity, this.data, this.dataIndex);
+                    Worlds.currentWorld.SetData(this.entity, this.data, this.dataIndex, this.storageType);
                     
                     if (this.lifetime == ComponentLifetime.NotifyAllSystems) {
                         this.lifetime = ComponentLifetime.NotifyAllSystemsBelow;
@@ -644,6 +649,8 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<StructRegistryBase> list;
         [ME.ECS.Serializer.SerializeField]
+        internal EntitiesIndexer entitiesIndexer;
+        [ME.ECS.Serializer.SerializeField]
         private bool isCreated;
 
         [ME.ECS.Serializer.SerializeField]
@@ -659,6 +666,9 @@ namespace ME.ECS {
 
             this.nextTickTasks = PoolHashSetCopyable<NextTickTask>.Spawn();
             this.dirtyMap = PoolListCopyable<int>.Spawn(10);
+            
+            this.entitiesIndexer = new EntitiesIndexer();
+            this.entitiesIndexer.Initialize(100);
 
             ArrayUtils.Resize(100, ref this.list, false);
             this.isCreated = true;
@@ -716,6 +726,8 @@ namespace ME.ECS {
         #endif
         public void SetEntityCapacity(int capacity) {
 
+            this.entitiesIndexer.Validate(capacity);
+            
             // Update all known structs
             for (int i = 0, length = this.list.Length; i < length; ++i) {
 
@@ -741,6 +753,8 @@ namespace ME.ECS {
         #endif
         public void OnEntityCreate(in Entity entity) {
 
+            this.entitiesIndexer.Validate(entity.id);
+            
             // Update all known structs
             for (int i = 0, length = this.list.Length; i < length; ++i) {
 
@@ -804,15 +818,20 @@ namespace ME.ECS {
 
             }
 
-            for (int i = 0, length = this.list.Length; i < length; ++i) {
+            var list = this.entitiesIndexer.Get(entity.id);
+            if (list != null) {
+                
+                foreach (var index in list) {
 
-                var item = this.list.arr[i];
-                if (item != null && item.Has(in entity) == true) {
+                    var item = this.list.arr[index];
+                    if (item != null) {
 
-                    item.Remove(in entity, clearAll: true);
+                        item.Remove(in entity, clearAll: true);
+
+                    }
 
                 }
-
+                
             }
 
         }
@@ -1042,11 +1061,13 @@ namespace ME.ECS {
         #endif
         public bool HasBit(in Entity entity, int bit) {
 
-            if (bit < 0 || bit >= this.list.Length) return false;
-            var reg = this.list.arr[bit];
-            if (reg == null) return false;
-            return reg.Has(in entity);
+            var list = this.entitiesIndexer.Get(entity.id);
+            if (list != null) {
+                return list.Contains(bit);
+            }
 
+            return false;
+            
         }
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -1073,6 +1094,7 @@ namespace ME.ECS {
         #endif
         public void OnRecycle() {
 
+            this.entitiesIndexer.Recycle();
             ArrayUtils.Recycle(ref this.nextTickTasks, new CopyTask());
             
             if (this.list.arr != null) {
@@ -1169,6 +1191,8 @@ namespace ME.ECS {
 
             //this.OnRecycle();
 
+            this.entitiesIndexer.CopyFrom(in other.entitiesIndexer);
+
             ArrayUtils.Copy(other.dirtyMap, ref this.dirtyMap);
 
             this.isCreated = other.isCreated;
@@ -1212,6 +1236,7 @@ namespace ME.ECS {
 
         partial void SetEntityCapacityPlugin1(int capacity) {
 
+            this.structComponentsNoState.SetEntityCapacity(capacity);
             this.currentState.structComponents.SetEntityCapacity(capacity);
 
         }
@@ -1221,7 +1246,12 @@ namespace ME.ECS {
         #endif
         partial void CreateEntityPlugin1(Entity entity, bool isNew) {
 
-            if (isNew == true) this.currentState.structComponents.OnEntityCreate(in entity);
+            if (isNew == true) {
+                
+                this.structComponentsNoState.SetEntityCapacity(entity.id);
+                this.currentState.structComponents.OnEntityCreate(in entity);
+                
+            }
 
         }
 
@@ -1992,6 +2022,8 @@ namespace ME.ECS {
                 }
                 #endif
 
+                this.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
+                
                 incrementVersion = true;
                 bucket.state = 1;
                 if (ComponentTypes<TComponent>.typeId >= 0) {
@@ -2074,6 +2106,7 @@ namespace ME.ECS {
             if (state == 0) {
 
                 state = 1;
+                this.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     storage.archetypes.Set<TComponent>(in entity);
@@ -2187,46 +2220,6 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void RemoveData(in Entity entity) {
-
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-                
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            var changed = false;
-            for (int i = 0; i < this.currentState.structComponents.list.Length; ++i) {
-
-                var reg = this.currentState.structComponents.list.arr[i];
-                if (reg == null || reg.Remove(in entity, false) == false) continue;
-
-                var bit = reg.GetTypeBit();
-                if (bit >= 0) this.currentState.storage.archetypes.Remove(in entity, bit);
-                changed = true;
-
-            }
-
-            if (changed == false) return;
-
-            this.currentState.storage.versions.Increment(in entity);
-            this.RemoveComponentFromFilter(in entity);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public void RemoveData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
 
             #if WORLD_STATE_CHECK
@@ -2250,6 +2243,8 @@ namespace ME.ECS {
             ref var bucket = ref reg.components[entity.id];
             if (bucket.state == 0) return;
             bucket.state = 0;
+            
+            this.currentState.structComponents.entitiesIndexer.Remove(entity.id, AllComponentTypes<TComponent>.typeId);
             
             storage.versions.Increment(in entity);
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
@@ -2292,7 +2287,7 @@ namespace ME.ECS {
 
             // Inline all manually
             ref var reg = ref this.currentState.structComponents.list.arr[dataIndex];
-            if (reg.SetObject(entity, data) == true) {
+            if (reg.SetObject(entity, data, StorageType.Default) == true) {
 
                 this.currentState.storage.versions.Increment(in entity);
                 reg.UpdateVersion(in entity);
@@ -2305,7 +2300,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal void SetData(in Entity entity, UnsafeData buffer, int dataIndex) {
+        internal void SetData(in Entity entity, UnsafeData buffer, int dataIndex, StorageType storageType) {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -2325,7 +2320,7 @@ namespace ME.ECS {
 
             // Inline all manually
             ref var reg = ref this.currentState.structComponents.list.arr[dataIndex];
-            if (reg.SetObject(entity, buffer) == true) {
+            if (reg.SetObject(entity, buffer, storageType) == true) {
 
                 this.currentState.storage.versions.Increment(in entity);
                 reg.UpdateVersion(in entity);
@@ -2359,7 +2354,7 @@ namespace ME.ECS {
             if (storageType == StorageType.Default) {
 
                 var reg = this.currentState.structComponents.list.arr[dataIndex];
-                if (reg.RemoveObject(entity) == true) {
+                if (reg.RemoveObject(entity, storageType) == true) {
 
                     this.currentState.storage.versions.Increment(in entity);
 
@@ -2368,7 +2363,7 @@ namespace ME.ECS {
             } else if (storageType == StorageType.NoState) {
                 
                 var reg = this.structComponentsNoState.list.arr[dataIndex];
-                if (reg.RemoveObject(entity) == true) {
+                if (reg.RemoveObject(entity, storageType) == true) {
 
                     this.currentState.storage.versions.Increment(in entity);
 

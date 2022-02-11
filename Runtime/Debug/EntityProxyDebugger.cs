@@ -31,7 +31,7 @@ namespace ME.ECS.Debug {
             var world = this.world;
             var components = world.GetStructComponents();
             var registries = components.GetAllRegistries();
-            registries.arr[index].SetObject(this.entity, data);
+            registries.arr[index].SetObject(this.entity, data, StorageType.Default);
             
         }
 

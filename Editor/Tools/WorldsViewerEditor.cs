@@ -613,7 +613,7 @@ namespace ME.ECSEditor {
 
                                                           }, (index, component) => {
                                                                   
-                                                              sortedRegistries[index].SetObject(entityData, component);
+                                                              sortedRegistries[index].SetObject(entityData, component, StorageType.Default);
                                                                   
                                                           });
 

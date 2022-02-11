@@ -135,7 +135,7 @@ namespace ME.ECS {
 
         }
 
-        public override bool SetObject(in Entity entity, UnsafeData buffer) {
+        public override bool SetObject(in Entity entity, UnsafeData buffer, StorageType storageType) {
             
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -153,6 +153,16 @@ namespace ME.ECS {
             if (bucket.state == 0) {
 
                 bucket.state = 1;
+
+                if (storageType == StorageType.Default) {
+
+                    this.world.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
+
+                } else if (storageType == StorageType.NoState) {
+                    
+                    this.world.structComponentsNoState.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
+
+                }
 
                 if (componentIndex >= 0) {
                     
@@ -176,7 +186,7 @@ namespace ME.ECS {
 
         }
 
-        public override bool SetObject(in Entity entity, IStructComponentBase data) {
+        public override bool SetObject(in Entity entity, IStructComponentBase data, StorageType storageType) {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -194,6 +204,16 @@ namespace ME.ECS {
             if (bucket.state == 0) {
 
                 bucket.state = 1;
+                
+                if (storageType == StorageType.Default) {
+
+                    this.world.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
+
+                } else if (storageType == StorageType.NoState) {
+                    
+                    this.world.structComponentsNoState.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
+
+                }
 
                 if (componentIndex >= 0) {
                     
@@ -226,7 +246,7 @@ namespace ME.ECS {
             
         }
 
-        public override bool RemoveObject(in Entity entity) {
+        public override bool RemoveObject(in Entity entity, StorageType storageType) {
 
             var index = entity.id;
             ref var bucket = ref this.components[index];
@@ -234,6 +254,16 @@ namespace ME.ECS {
 
                 this.RemoveData(in entity, ref bucket);
                 bucket.state = 0;
+
+                if (storageType == StorageType.Default) {
+
+                    this.world.currentState.structComponents.entitiesIndexer.Remove(entity.id, AllComponentTypes<TComponent>.typeId);
+
+                } else if (storageType == StorageType.NoState) {
+                    
+                    this.world.structComponentsNoState.entitiesIndexer.Remove(entity.id, AllComponentTypes<TComponent>.typeId);
+
+                }
 
                 if (ComponentTypes<TComponent>.isFilterVersioned == true) this.world.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
                 

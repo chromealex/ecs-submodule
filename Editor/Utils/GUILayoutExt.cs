@@ -627,13 +627,13 @@ namespace ME.ECSEditor {
 					    if (isUsed == true) {
 
 						    usedComponents.Remove(addType);
-						    registry.RemoveObject(entity);
+						    registry.RemoveObject(entity, StorageType.Default);
 						    Worlds.currentWorld.RemoveComponentFromFilter(entity);
 
 					    } else {
 				                
 						    usedComponents.Add(addType);
-						    registry.SetObject(entity, (IStructComponentBase)System.Activator.CreateInstance(addType));
+						    registry.SetObject(entity, (IStructComponentBase)System.Activator.CreateInstance(addType), StorageType.Default);
 						    Worlds.currentWorld.AddComponentToFilter(entity);
 
 					    }
