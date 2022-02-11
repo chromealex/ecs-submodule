@@ -1,6 +1,4 @@
-﻿using Unity.Collections.LowLevel.Unsafe;
-
-#if ENABLE_IL2CPP
+﻿#if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
 
