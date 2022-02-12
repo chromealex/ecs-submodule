@@ -118,12 +118,12 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal BufferArray(T[] arr, int length) : this(arr, length, -1) { }
+        public BufferArray(T[] arr, int length) : this(arr, length, -1) { }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal BufferArray(T[] arr, int length, int realLength) {
+        public BufferArray(T[] arr, int length, int realLength) {
 
             this.Length = length;
             this.isCreated = (length > 0 && arr != null);

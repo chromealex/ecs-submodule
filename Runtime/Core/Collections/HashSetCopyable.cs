@@ -465,6 +465,16 @@ namespace ME.ECS.Collections {
             return this.AddIfNotPresent(item);
         }
 
+        public ref T GetValue(in T item) {
+            if (this.m_buckets.arr != null) {
+                var i = this.InternalIndexOf(item);
+                if (i >= 0) {
+                    return ref this.m_slots.arr[i].value;
+                }
+            }
+            throw new System.Data.NoNullAllowedException();
+        }
+
         /// <summary>
         /// Searches the set for a given value and returns the equal value it finds, if any.
         /// </summary>

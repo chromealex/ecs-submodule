@@ -2191,7 +2191,6 @@ namespace ME.ECS {
 
             var task = new StructComponentsContainer.NextTickTask {
                 entity = entity,
-                data = new UnsafeData().Set(data),
                 dataIndex = AllComponentTypes<TComponent>.typeId,
                 secondsLifetime = secondsLifetime,
                 lifetime = lifetime,
@@ -2212,6 +2211,11 @@ namespace ME.ECS {
             if (container.nextTickTasks.Add(task) == false) {
 
                 task.Recycle();
+
+            } else {
+
+                ref var val = ref container.nextTickTasks.GetValue(task);
+                val.data = new UnsafeData().Set(data);
 
             }
 

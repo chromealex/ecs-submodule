@@ -18,9 +18,7 @@ namespace ME.ECS.Collections {
 
         }
 
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public static ref T GetRef<T>(this Unity.Collections.NativeSlice<T> array, int index) where T : struct {
             CheckArray(index, array.Length);
             unsafe {
@@ -33,9 +31,7 @@ namespace ME.ECS.Collections {
             }
         }
 
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public static ref T GetRefRead<T>(this Unity.Collections.NativeSlice<T> array, int index) where T : struct {
             CheckArray(index, array.Length);
             unsafe {
@@ -48,9 +44,7 @@ namespace ME.ECS.Collections {
             }
         }
 
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public static ref T GetRef<T>(this Unity.Collections.NativeArray<T> array, int index) where T : struct {
             CheckArray(index, array.Length);
             unsafe {
@@ -63,9 +57,7 @@ namespace ME.ECS.Collections {
             }
         }
 
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public static ref readonly T GetRefRead<T>(this Unity.Collections.NativeArray<T> array, int index) where T : struct {
             CheckArray(index, array.Length);
             unsafe {

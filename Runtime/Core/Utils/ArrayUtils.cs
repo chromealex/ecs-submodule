@@ -120,6 +120,25 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void Recycle<T, TCopy>(ref DictionaryInt<T> list, TCopy copy) where TCopy : IArrayElementCopy<T> {
+
+            if (list != null) {
+
+                foreach (var item in list) {
+                    
+                    copy.Recycle(item.Value);
+                    
+                }
+                
+                PoolDictionaryInt<T>.Recycle(ref list);
+
+            }
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Recycle<T, TCopy>(ref T[] item, TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             if (item != null) {
