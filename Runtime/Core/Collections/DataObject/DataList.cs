@@ -40,6 +40,7 @@ namespace ME.ECS.Collections {
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     [GeneratorIgnoreManagedType]
+    [System.Serializable]
     public struct DataList<T> : IDataObject<ListCopyable<T>> {
 
         public int Count => this.Read().Count;
@@ -50,7 +51,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public bool IsCreated() => this.dataObject.IsCreated();
+        public readonly bool IsCreated() => this.dataObject.IsCreated();
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -73,7 +74,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref readonly ListCopyable<T> Read() {
+        public readonly ref readonly ListCopyable<T> Read() {
 
             return ref this.dataObject.Read();
 

@@ -8,7 +8,7 @@
 
     public struct Nodes : IComponent {
 
-        public ME.ECS.Collections.IntrusiveList items;
+        public ME.ECS.Collections.DataList<Entity> items;
 
     }
 

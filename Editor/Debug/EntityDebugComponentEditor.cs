@@ -142,7 +142,15 @@ namespace ME.ECSEditor {
             var components = this.debug.GetSharedComponentsList();
             if (components.Length != this.temp.sharedComponents.Length) {
 
-                this.RebuildSharedComponents(this.sharedComponentsContainer.contentContainer);
+                //this.RebuildSharedComponents(this.sharedComponentsContainer.contentContainer);
+                
+                if (Selection.activeObject == this.target) {
+
+                    Selection.activeObject = null;
+                    Selection.activeObject = this.target;
+
+                }
+
                 return;
 
             }
@@ -151,7 +159,15 @@ namespace ME.ECSEditor {
 
                 if (components[i].dataIndex != this.temp.sharedComponents[i].dataIndex) {
 
-                    this.RebuildSharedComponents(this.sharedComponentsContainer.contentContainer);
+                    //this.RebuildSharedComponents(this.sharedComponentsContainer.contentContainer);
+                    
+                    if (Selection.activeObject == this.target) {
+
+                        Selection.activeObject = null;
+                        Selection.activeObject = this.target;
+
+                    }
+
                     return;
                     
                 }
@@ -167,8 +183,16 @@ namespace ME.ECSEditor {
             var components = this.debug.GetComponentsList();
             if (components.Length != this.temp.components.Length) {
 
-                this.RebuildComponents(this.componentsContainer.contentContainer);
-                this.temp.components = components;
+                if (Selection.activeObject == this.target) {
+
+                    Selection.activeObject = null;
+                    Selection.activeObject = this.target;
+
+                }
+
+                //this.RebuildComponents(this.componentsContainer.contentContainer);
+                //this.rootElement = this.CreateInspectorGUI();
+                //this.temp.components = components;
                 return;
 
             }
@@ -177,8 +201,16 @@ namespace ME.ECSEditor {
 
                 if (components[i].dataIndex != this.temp.components[i].dataIndex) {
 
-                    this.RebuildComponents(this.componentsContainer.contentContainer);
-                    this.temp.components = components;
+                    if (Selection.activeObject == this.target) {
+
+                        Selection.activeObject = null;
+                        Selection.activeObject = this.target;
+
+                    }
+
+                    //this.RebuildComponents(this.componentsContainer.contentContainer);
+                    //this.rootElement = this.CreateInspectorGUI();
+                    //this.temp.components = components;
                     return;
                     
                 }

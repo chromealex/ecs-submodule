@@ -26,12 +26,20 @@ namespace ME.ECS {
             
             if (entity.Has<Nodes>() == true) {
 
-                // TODO: Possible stack overflow while using Clear(true) because of OnEntityDestroy call
                 ref var nodes = ref entity.Get<Nodes>();
-                foreach (var child in nodes.items) {
-                    child.Remove<Container>();
+                if (nodes.items.IsCreated() == true) {
+                    var list = nodes.items.Read();
+                    for (int i = 0, cnt = list.Count; i < cnt; ++i) {
+
+                        var child = list[i];
+                        child.Remove<Container>();
+                        // TODO: Possible stack overflow while using Destroy because of OnEntityDestroy call
+                        child.Destroy();
+
+                    }
+
+                    list.Clear();
                 }
-                nodes.items.Clear(destroyData: true);
 
             }
 
@@ -46,14 +54,18 @@ namespace ME.ECS {
 
                 var world = Worlds.currentWorld;
                 ref readonly var nodes = ref entity.Read<Nodes>();
-                foreach (var item in nodes.items) {
+                if (nodes.items.IsCreated() == true) {
+                    var list = nodes.items.Read();
+                    for (int i = 0, cnt = list.Count; i < cnt; ++i) {
 
-                    world.IncrementEntityVersion(in item);
-                    // TODO: Possible stack overflow while using OnEntityVersionChanged call
-                    world.OnEntityVersionChanged(in item);
+                        var item = list[i];
+                        world.IncrementEntityVersion(in item);
+                        // TODO: Possible stack overflow while using OnEntityVersionChanged call
+                        world.OnEntityVersionChanged(in item);
 
+                    }
                 }
-                
+
             }
 
         }
@@ -105,9 +117,7 @@ namespace ME.ECS {
 
         }
 
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         private static void SetParent_INTERNAL(in Entity child, in Entity root) {
 
             if (child == root) return;
@@ -117,7 +127,7 @@ namespace ME.ECS {
 
                 ref var nodes = ref container.entity.Get<Nodes>();
                 child.Remove<Container>();
-                nodes.items.Remove(child);
+                if (nodes.items.IsCreated() == true) nodes.items.Get().Remove(child);
                 return;
 
             }
@@ -142,7 +152,13 @@ namespace ME.ECS {
 
             container.entity = root;
             ref var rootNodes = ref root.Get<Nodes>();
-            rootNodes.items.Add(child);
+            if (rootNodes.items.IsCreated() == false) {
+                var list = PoolListCopyable<Entity>.Spawn(4);
+                list.Add(child);
+                rootNodes.items = new ME.ECS.Collections.DataList<Entity>(list);
+            } else {
+                rootNodes.items.Get().Add(child);
+            }
 
         }
 
@@ -151,7 +167,7 @@ namespace ME.ECS {
         #endif
         public static Entity GetRoot(this in Entity child) {
 
-            var root = child;
+            Entity root;
             var container = child;
             do {
 
@@ -170,13 +186,17 @@ namespace ME.ECS {
         private static bool FindInHierarchy(in Entity child, in Entity root) {
 
             var childNodes = child.Read<Nodes>();
-            if (childNodes.items.Contains(root) == true) {
+            if (childNodes.items.IsCreated() == false) return false;
+            var list = childNodes.items.Read();
+            if (list.Contains(root) == true) {
 
                 return true;
 
             }
 
-            foreach (var cc in childNodes.items) {
+            for (int i = 0, cnt = list.Count; i < cnt; ++i) {
+
+                var cc = list[i];
 
                 if (ECSTransformHierarchy.FindInHierarchy(in cc, in root) == true) return true;
 

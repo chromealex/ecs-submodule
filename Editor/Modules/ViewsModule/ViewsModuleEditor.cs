@@ -1,5 +1,6 @@
 #if VIEWS_MODULE_SUPPORT
 using ME.ECS.Views;
+using UnityEngine;
 
 namespace ME.ECSEditor {
 
@@ -58,6 +59,53 @@ namespace ME.ECSEditor {
             UnityEngine.GUILayout.Label("<b>Alive Views:</b> " + renderersCount.ToString(), style);
 
             return false;
+
+        }
+
+    }
+
+    [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.Views.ViewComponent))]
+    public class ViewComponentPropertyDrawer : UnityEditor.PropertyDrawer {
+
+        public override void OnGUI(Rect position, UnityEditor.SerializedProperty property, GUIContent label) {
+
+            var viewInfoProp = property.FindPropertyRelative("viewInfo");
+            var viewInfo = viewInfoProp.GetSerializedValue<ME.ECS.Views.ViewInfo>();
+            if (ME.ECS.Worlds.current != null) {
+
+                var viewsModule = ME.ECS.Worlds.current.GetModule<ME.ECS.Views.ViewsModule>();
+                var viewSource = viewsModule.GetViewSource(viewInfo.prefabSourceId);
+                var viewsModuleInt = (IViewModuleBase)viewsModule;
+                var arr = viewsModuleInt.GetData();
+                var hasInstance = false;
+                if (viewInfo.entity.id < arr.Length) {
+                    var item = arr[viewInfo.entity.id];
+                    if (item.mainView != null) {
+                        var view = item.mainView as ME.ECS.Views.Providers.MonoBehaviourViewBase;
+                        if (view != null) {
+                            
+                            UnityEditor.EditorGUI.BeginDisabledGroup(true);
+                            UnityEditor.EditorGUI.ObjectField(position, new GUIContent("View"), (Object)viewSource, typeof(Object), allowSceneObjects: false);
+                            UnityEditor.EditorGUI.EndDisabledGroup();
+                            hasInstance = true;
+
+                        }
+                    }
+                }
+
+                if (hasInstance == false) {
+
+                    UnityEditor.EditorGUI.BeginDisabledGroup(true);
+                    UnityEditor.EditorGUI.ObjectField(position, new GUIContent("View Source"), (Object)viewSource, typeof(Object), allowSceneObjects: false);
+                    UnityEditor.EditorGUI.EndDisabledGroup();
+
+                }
+
+            } else {
+
+                GUI.Label(position, "View Source Id: " + viewInfo.prefabSourceId);
+
+            }
 
         }
 

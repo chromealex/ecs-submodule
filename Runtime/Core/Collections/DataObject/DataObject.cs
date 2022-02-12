@@ -117,7 +117,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public bool IsCreated() => this.isCreated;
+        public readonly bool IsCreated() => this.isCreated;
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -141,11 +141,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public
-            #if CSHARP_8_OR_NEWER
-            readonly
-            #endif
-            ref readonly T Read() {
+        public readonly ref readonly T Read() {
 
             if (this.isCreated == false) {
                 throw new System.Exception($"Try to read collection that has been already disposed. Tick: {Worlds.currentWorld.GetCurrentTick()}");
