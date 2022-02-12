@@ -30,7 +30,7 @@ namespace ME.ECS.Collections
 	public static class QuadTreeJobs
 	{
         
-        [BurstCompile]
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
         public struct QueryJob<T> : IJob where T : unmanaged
         {
             [ReadOnly]
@@ -52,7 +52,7 @@ namespace ME.ECS.Collections
 		/// <summary>
 		/// Bulk insert many items into the tree
 		/// </summary>
-		[BurstCompile]
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
 		public struct AddBulkJob<T> : IJob where T : unmanaged
 		{
 			[ReadOnly]
@@ -69,7 +69,7 @@ namespace ME.ECS.Collections
 		/// <summary>
 		/// Example on how to do a range query, it's better to write your own and do many queries in a batch
 		/// </summary>
-		[BurstCompile]
+        [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
 		public struct RangeQueryJob<T> : IJob where T : unmanaged
 		{
 			[ReadOnly]
