@@ -46,7 +46,7 @@ namespace ME.ECS.Collections {
             return (System.IntPtr)this.arr.GetUnsafePtr();
         }
 
-        public unsafe System.IntPtr GetUnsafeReadOnlyPtr() {
+        public readonly unsafe System.IntPtr GetUnsafeReadOnlyPtr() {
             return (System.IntPtr)this.arr.GetUnsafeReadOnlyPtr();
         }
 
