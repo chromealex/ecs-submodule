@@ -1993,6 +1993,14 @@ namespace ME.ECS {
         #endif
         public ref TComponent GetData<TComponent>(in Entity entity, bool createIfNotExists = true) where TComponent : struct, IStructComponent {
 
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+            
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
                 
@@ -2008,23 +2016,13 @@ namespace ME.ECS {
             #endif
 
             // Inline all manually
-            var incrementVersion = (this.HasResetState() == false || this.HasStep(WorldStep.LogicTick) == true);
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             ref var storage = ref this.currentState.storage;
             ref var bucket = ref reg.components[entity.id];
             if (createIfNotExists == true && bucket.state == 0) {
 
-                #if WORLD_EXCEPTIONS
-                if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                    OutOfStateException.ThrowWorldStateCheck();
-
-                }
-                #endif
-
                 this.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
                 
-                incrementVersion = true;
                 bucket.state = 1;
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
@@ -2046,7 +2044,7 @@ namespace ME.ECS {
                 
             }
             
-            if (incrementVersion == true) {
+            {
 
                 reg.UpdateVersion(ref bucket);
                 storage.versions.Increment(in entity);

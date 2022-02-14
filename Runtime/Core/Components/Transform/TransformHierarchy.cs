@@ -32,6 +32,7 @@ namespace ME.ECS {
                     for (int i = 0, cnt = list.Count; i < cnt; ++i) {
 
                         var child = list[i];
+                        if (child.IsAlive() == false) continue;
                         child.Remove<Container>();
                         // TODO: Possible stack overflow while using Destroy because of OnEntityDestroy call
                         child.Destroy();

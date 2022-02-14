@@ -13,9 +13,9 @@ namespace ME.ECS {
 
         }
 
-        public void Validate(int entityId) {
+        public void Validate(int capacity) {
 
-            ArrayUtils.Resize(entityId, ref this.data);
+            ArrayUtils.Resize(capacity + 1, ref this.data);
 
         }
 
