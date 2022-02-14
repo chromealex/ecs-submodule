@@ -1431,6 +1431,8 @@ namespace ME.ECS {
                 this.UpdateEntityOnCreate(maxEntity, isNew: true);
             }
 
+            this.currentState.storage.ApplyDead();
+
         }
 
         public ref Entity AddEntity(string name = null) {

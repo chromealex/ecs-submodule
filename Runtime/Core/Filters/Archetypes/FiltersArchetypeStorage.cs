@@ -944,6 +944,7 @@ namespace ME.ECS.FiltersArchetype {
             ref var archIdx = ref this.index.GetValue(key);
             ref var arch = ref this.allArchetypes[archIdx];
             archIdx = arch.Set(ref this, entity, componentId).index;
+            this.index[key] = archIdx;
 
         }
 
@@ -982,6 +983,7 @@ namespace ME.ECS.FiltersArchetype {
             ref var archIdx = ref this.index.GetValue(key);
             ref var arch = ref this.allArchetypes[archIdx];
             archIdx = arch.Remove(ref this, entity, componentId).index;
+            this.index[key] = archIdx;
 
         }
 
