@@ -3,72 +3,67 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace ME.ECS.Collections
-{
-	/// <summary>
-	/// Editor drawing of the NativeQuadTree
-	/// </summary>
-	public unsafe partial struct NativeQuadTree<T> where T : unmanaged
-	{
-		public static void Draw(NativeQuadTree<T> tree, NativeList<QuadElement<T>> results, AABB2D range,
-			Color[][] texture)
-		{
-			var widthMult = texture.Length / tree.bounds.Extents.x * 2 / 2 / 2;
-			var heightMult = texture[0].Length / tree.bounds.Extents.y * 2 / 2 / 2;
+namespace ME.ECS.Collections {
 
-			var widthAdd = tree.bounds.Center.x + tree.bounds.Extents.x;
-			var heightAdd = tree.bounds.Center.y + tree.bounds.Extents.y;
+    /// <summary>
+    /// Editor drawing of the NativeQuadTree
+    /// </summary>
+    public unsafe partial struct NativeQuadTree<T> where T : unmanaged {
 
-			for (int i = 0; i < tree.nodes->Capacity; i++)
-			{
-				var node = UnsafeUtility.ReadArrayElement<QuadNode>(tree.nodes->Ptr, i);
+        public static void Draw(NativeQuadTree<T> tree, NativeList<QuadElement<T>> results, AABB2D range,
+                                Color[][] texture) {
+            var widthMult = texture.Length / tree.bounds.Extents.x * 2 / 2 / 2;
+            var heightMult = texture[0].Length / tree.bounds.Extents.y * 2 / 2 / 2;
 
-				if(node.count > 0)
-				{
-					for (int k = 0; k < node.count; k++)
-					{
-						var element =
-							UnsafeUtility.ReadArrayElement<QuadElement<T>>(tree.elements->Ptr, node.firstChildIndex + k);
+            var widthAdd = tree.bounds.Center.x + tree.bounds.Extents.x;
+            var heightAdd = tree.bounds.Center.y + tree.bounds.Extents.y;
 
-						texture[(int) ((element.pos.x + widthAdd) * widthMult)]
-							[(int) ((element.pos.y + heightAdd) * heightMult)] = Color.red;
-					}
-				}
-			}
+            for (var i = 0; i < tree.nodes.Length; i++) {
 
-			foreach (var element in results)
-			{
-				texture[(int) ((element.pos.x + widthAdd) * widthMult)]
-					[(int) ((element.pos.y + heightAdd) * heightMult)] = Color.green;
-			}
+                var node = tree.nodes[i]; //UnsafeUtility.ReadArrayElement<QuadNode>(tree.nodes->Ptr, i);
 
-			DrawBounds(texture, range, tree);
-		}
+                if (node.count > 0) {
+                    for (var k = 0; k < node.count; k++) {
+                        //var element = UnsafeUtility.ReadArrayElement<QuadElement<T>>(tree.elements->Ptr, node.firstChildIndex + k);
+                        var element = tree.elements[node.firstChildIndex + k];
 
-		static void DrawBounds(Color[][] texture, AABB2D bounds, NativeQuadTree<T> tree)
-		{
-			var widthMult = texture.Length / tree.bounds.Extents.x * 2 / 2 / 2;
-			var heightMult = texture[0].Length / tree.bounds.Extents.y * 2 / 2 / 2;
+                        texture[(int)((element.pos.x + widthAdd) * widthMult)]
+                            [(int)((element.pos.y + heightAdd) * heightMult)] = Color.red;
+                    }
+                }
+            }
 
-			var widthAdd = tree.bounds.Center.x + tree.bounds.Extents.x;
-			var heightAdd = tree.bounds.Center.y + tree.bounds.Extents.y;
+            foreach (var element in results) {
+                texture[(int)((element.pos.x + widthAdd) * widthMult)]
+                    [(int)((element.pos.y + heightAdd) * heightMult)] = Color.green;
+            }
 
-			var top = new float2(bounds.Center.x, bounds.Center.y - bounds.Extents.y);
-			var left = new float2(bounds.Center.x - bounds.Extents.x, bounds.Center.y);
+            NativeQuadTree<T>.DrawBounds(texture, range, tree);
+        }
 
-			for (int leftToRight = 0; leftToRight < bounds.Extents.x * 2; leftToRight++)
-			{
-				var poxX = left.x + leftToRight;
-				texture[(int) ((poxX + widthAdd) * widthMult)][(int) ((bounds.Center.y + heightAdd + bounds.Extents.y) * heightMult)] = Color.blue;
-				texture[(int) ((poxX + widthAdd) * widthMult)][(int) ((bounds.Center.y + heightAdd - bounds.Extents.y) * heightMult)] = Color.blue;
-			}
+        private static void DrawBounds(Color[][] texture, AABB2D bounds, NativeQuadTree<T> tree) {
+            var widthMult = texture.Length / tree.bounds.Extents.x * 2 / 2 / 2;
+            var heightMult = texture[0].Length / tree.bounds.Extents.y * 2 / 2 / 2;
 
-			for (int topToBottom = 0; topToBottom < bounds.Extents.y * 2; topToBottom++)
-			{
-				var posY = top.y + topToBottom;
-				texture[(int) ((bounds.Center.x + widthAdd + bounds.Extents.x) * widthMult)][(int) ((posY + heightAdd) * heightMult)] = Color.blue;
-				texture[(int) ((bounds.Center.x + widthAdd - bounds.Extents.x) * widthMult)][(int) ((posY + heightAdd) * heightMult)] = Color.blue;
-			}
-		}
-	}
+            var widthAdd = tree.bounds.Center.x + tree.bounds.Extents.x;
+            var heightAdd = tree.bounds.Center.y + tree.bounds.Extents.y;
+
+            var top = new float2(bounds.Center.x, bounds.Center.y - bounds.Extents.y);
+            var left = new float2(bounds.Center.x - bounds.Extents.x, bounds.Center.y);
+
+            for (var leftToRight = 0; leftToRight < bounds.Extents.x * 2; leftToRight++) {
+                var poxX = left.x + leftToRight;
+                texture[(int)((poxX + widthAdd) * widthMult)][(int)((bounds.Center.y + heightAdd + bounds.Extents.y) * heightMult)] = Color.blue;
+                texture[(int)((poxX + widthAdd) * widthMult)][(int)((bounds.Center.y + heightAdd - bounds.Extents.y) * heightMult)] = Color.blue;
+            }
+
+            for (var topToBottom = 0; topToBottom < bounds.Extents.y * 2; topToBottom++) {
+                var posY = top.y + topToBottom;
+                texture[(int)((bounds.Center.x + widthAdd + bounds.Extents.x) * widthMult)][(int)((posY + heightAdd) * heightMult)] = Color.blue;
+                texture[(int)((bounds.Center.x + widthAdd - bounds.Extents.x) * widthMult)][(int)((posY + heightAdd) * heightMult)] = Color.blue;
+            }
+        }
+
+    }
+
 }
