@@ -343,7 +343,7 @@ namespace ME.ECS {
             var cnt = this.deadPrepared.Count;
             if (cnt > 0) {
 
-                for (int i = 0; i < cnt; ++i) {
+                for (int i = cnt - 1; i >= 0; --i) {
 
                     var id = this.deadPrepared[i];
                     --this.aliveCount;

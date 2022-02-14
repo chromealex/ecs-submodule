@@ -169,64 +169,64 @@ namespace ME.ECS.Pathfinding.Features {
 
         public ME.ECS.Pathfinding.Path CalculatePath(UnityEngine.Vector3 from, UnityEngine.Vector3 to, Constraint constraint, bool cacheEnabled = false) {
             
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return default;
-            return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.CalculatePath(from, to, constraint, new ME.ECS.Pathfinding.PathCornersModifier(), cacheEnabled: cacheEnabled);
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Read<PathfindingInstance>().pathfinding == null) return default;
+            return this.pathfindingEntity.Read<PathfindingInstance>().pathfinding.CalculatePath(from, to, constraint, new ME.ECS.Pathfinding.PathCornersModifier(), cacheEnabled: cacheEnabled);
             
         }
         
         public void UpdateGraphs(GraphUpdateObject graphUpdateObject) {
             
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return;
-            this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.UpdateGraphs(graphUpdateObject);
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Read<PathfindingInstance>().pathfinding == null) return;
+            this.pathfindingEntity.Read<PathfindingInstance>().pathfinding.UpdateGraphs(graphUpdateObject);
             
         }
 
         public void GetNodesInBounds(ListCopyable<Node> output, UnityEngine.Bounds bounds) {
          
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return;
-            this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.GetNodesInBounds(output, bounds, Constraint.Empty);
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Read<PathfindingInstance>().pathfinding == null) return;
+            this.pathfindingEntity.Read<PathfindingInstance>().pathfinding.GetNodesInBounds(output, bounds, Constraint.Empty);
             
         }
 
         public void GetNodesInBounds(ListCopyable<Node> output, UnityEngine.Bounds bounds, Constraint constraint) {
          
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return;
-            this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.GetNodesInBounds(output, bounds, constraint);
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Read<PathfindingInstance>().pathfinding == null) return;
+            this.pathfindingEntity.Read<PathfindingInstance>().pathfinding.GetNodesInBounds(output, bounds, constraint);
             
         }
 
         public T GetGraphByIndex<T>(int index) where T : Graph {
 
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return default;
-            return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.graphs[index] as T;
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Read<PathfindingInstance>().pathfinding == null) return default;
+            return this.pathfindingEntity.Read<PathfindingInstance>().pathfinding.graphs[index] as T;
 
         }
         
         public UnityEngine.Vector3 ClampPosition(UnityEngine.Vector3 worldPosition) {
 
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return default;
-            return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.ClampPosition(worldPosition, Constraint.Default);
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Read<PathfindingInstance>().pathfinding == null) return default;
+            return this.pathfindingEntity.Read<PathfindingInstance>().pathfinding.ClampPosition(worldPosition, Constraint.Default);
 
         }
 
         public UnityEngine.Vector3 ClampPosition(UnityEngine.Vector3 worldPosition, Constraint constraint) {
             
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return default;
-            return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.ClampPosition(worldPosition, constraint);
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Read<PathfindingInstance>().pathfinding == null) return default;
+            return this.pathfindingEntity.Read<PathfindingInstance>().pathfinding.ClampPosition(worldPosition, constraint);
             
         }
 
         public NodeInfo GetNearest(UnityEngine.Vector3 worldPosition) {
 
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return default;
-            return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.GetNearest(worldPosition, Constraint.Default);
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Read<PathfindingInstance>().pathfinding == null) return default;
+            return this.pathfindingEntity.Read<PathfindingInstance>().pathfinding.GetNearest(worldPosition, Constraint.Default);
 
         }
 
         public NodeInfo GetNearest(UnityEngine.Vector3 worldPosition, Constraint constraint) {
             
-            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Get<PathfindingInstance>().pathfinding == null) return default;
-            return this.pathfindingEntity.Get<PathfindingInstance>().pathfinding.GetNearest(worldPosition, constraint);
+            if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Read<PathfindingInstance>().pathfinding == null) return default;
+            return this.pathfindingEntity.Read<PathfindingInstance>().pathfinding.GetNearest(worldPosition, constraint);
             
         }
 
