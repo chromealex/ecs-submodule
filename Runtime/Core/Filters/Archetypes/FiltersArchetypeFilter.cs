@@ -328,10 +328,15 @@ namespace ME.ECS {
             get => ref Worlds.current.currentState.filters;
         }
 
+        [ME.ECS.Serializer.SerializeField]
         public int id;
+        [ME.ECS.Serializer.SerializeField]
         internal FilterInternalData data;
+        [ME.ECS.Serializer.SerializeField]
         internal HashSetCopyable<int> archetypes;
+        [ME.ECS.Serializer.SerializeField]
         internal List<int> archetypesList;
+        [ME.ECS.Serializer.SerializeField]
         public bool isAlive;
 
         #if INLINE_METHODS
@@ -464,18 +469,27 @@ namespace ME.ECS {
 
         }
 
+        [ME.ECS.Serializer.SerializeField]
         internal string name;
 
+        [ME.ECS.Serializer.SerializeField]
         internal List<Pair2> anyPair2;
+        [ME.ECS.Serializer.SerializeField]
         internal List<Pair3> anyPair3;
+        [ME.ECS.Serializer.SerializeField]
         internal List<Pair4> anyPair4;
 
+        [ME.ECS.Serializer.SerializeField]
         internal List<int> contains;
+        [ME.ECS.Serializer.SerializeField]
         internal List<int> notContains;
 
+        [ME.ECS.Serializer.SerializeField]
         internal List<int> containsShared;
+        [ME.ECS.Serializer.SerializeField]
         internal List<int> notContainsShared;
 
+        [ME.ECS.Serializer.SerializeField]
         internal List<int> lambdas;
 
         public void CopyFrom(FilterInternalData other) {
@@ -539,6 +553,7 @@ namespace ME.ECS {
 
         internal ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage => Worlds.current.currentState.filters;
 
+        [ME.ECS.Serializer.SerializeField]
         internal FilterInternalData data;
 
         public FilterBuilder WithLambda<T, TComponent>() where T : struct, ILambda<TComponent> where TComponent : struct, IStructComponent {

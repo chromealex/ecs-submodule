@@ -507,7 +507,9 @@ namespace ME.ECS.FiltersArchetype {
         [ME.ECS.Serializer.SerializeField]
         internal bool isCreated;
 
+        [ME.ECS.Serializer.SerializeField]
         private List<Request> requests;
+        [ME.ECS.Serializer.SerializeField]
         private bool isArchetypesDirty;
 
         #if INLINE_METHODS

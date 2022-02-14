@@ -4,6 +4,7 @@ namespace ME.ECS {
 
     public struct EntitiesIndexer {
 
+        [ME.ECS.Serializer.SerializeField]
         private BufferArray<HashSetCopyable<int>> data;
 
         public void Initialize(int capacity) {

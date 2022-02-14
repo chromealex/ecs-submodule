@@ -21,11 +21,17 @@ namespace ME.ECS.Collections {
             public TValue value;         // Value of entry
         }
  
+        [ME.ECS.Serializer.SerializeField]
         private int[] buckets;
+        [ME.ECS.Serializer.SerializeField]
         private Entry[] entries;
+        [ME.ECS.Serializer.SerializeField]
         private int count;
+        [ME.ECS.Serializer.SerializeField]
         private int version;
+        [ME.ECS.Serializer.SerializeField]
         private int freeList;
+        [ME.ECS.Serializer.SerializeField]
         private int freeCount;
         private KeyCollection keys;
         private ValueCollection values;
