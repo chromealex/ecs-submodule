@@ -226,7 +226,6 @@ namespace ME.ECS {
         #endif
         public bool WillNew() {
 
-            UnityEngine.Debug.Log("WillNew");
             return this.dead.Count == 0;
 
         }
