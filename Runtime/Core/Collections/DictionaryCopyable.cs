@@ -16,7 +16,7 @@ namespace ME.ECS.Collections {
     }
 
     [DebuggerDisplay("Count = {Count}")]
-    [Serializable]
+    //[Serializable]
     public class DictionaryCopyable<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>, ISerializable {
 
         private struct Entry {
