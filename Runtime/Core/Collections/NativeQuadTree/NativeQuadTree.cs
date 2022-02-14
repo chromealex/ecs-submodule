@@ -125,11 +125,12 @@ namespace ME.ECS.Collections {
             // Index total child element count per node (total, so parent's counts include those of child nodes)
             for (var i = 0; i < mortonCodes.Length; i++) {
                 var atIndex = 0;
+                var val = mortonCodes[i];
                 for (var depth = 0; depth <= this.maxDepth; depth++) {
                     // Increment the node on this depth that this element is contained in
                     //(*(int*)((IntPtr)this.lookup->Ptr + atIndex * sizeof(int)))++;
                     ++this.lookup.GetRef(atIndex);
-                    atIndex = this.IncrementIndex(depth, mortonCodes, i, atIndex);
+                    atIndex = this.IncrementIndex(depth, val, atIndex);
                 }
             }
 
@@ -139,7 +140,7 @@ namespace ME.ECS.Collections {
             // Add elements to leaf nodes
             for (var i = 0; i < incomingElementsLength; i++) {
                 var atIndex = 0;
-
+                var val = mortonCodes[i];
                 for (var depth = 0; depth <= this.maxDepth; depth++) {
                     var node = this.nodes[atIndex]; //UnsafeUtility.ReadArrayElement<QuadNode>(this.nodes->Ptr, atIndex);
                     if (node.isLeaf) {
@@ -153,17 +154,17 @@ namespace ME.ECS.Collections {
                     }
 
                     // No leaf found, we keep going deeper until we find one
-                    atIndex = this.IncrementIndex(depth, mortonCodes, i, atIndex);
+                    atIndex = this.IncrementIndex(depth, val, atIndex);
                 }
             }
 
             mortonCodes.Dispose();
         }
 
-        private int IncrementIndex(int depth, NativeArray<int> mortonCodes, int i, int atIndex) {
+        private int IncrementIndex(int depth, int val, int atIndex) {
             var atDepth = math.max(0, this.maxDepth - depth);
             // Shift to the right and only get the first two bits
-            var shiftedMortonCode = (mortonCodes[i] >> ((atDepth - 1) * 2)) & 0b11;
+            var shiftedMortonCode = (val >> ((atDepth - 1) * 2)) & 0b11;
             // so the index becomes that... (0,1,2,3)
             atIndex += LookupTables.DepthSizeLookup[atDepth] * shiftedMortonCode;
             atIndex++; // offset for self

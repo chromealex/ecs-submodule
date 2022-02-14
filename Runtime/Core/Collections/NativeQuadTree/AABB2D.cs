@@ -13,7 +13,7 @@ namespace ME.ECS.Collections {
         public float2 Min => this.Center - this.Extents;
         public float2 Max => this.Center + this.Extents;
 
-        public AABB2D(float2 center, float2 extents) {
+        public AABB2D(UnityEngine.Vector2 center, float2 extents) {
             this.Center = center;
             this.Extents = extents;
         }
