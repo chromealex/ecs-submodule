@@ -27,6 +27,9 @@ namespace ME.ECS.Collections {
 
         public static void GetResults(in UnityEngine.Vector2 position, float radius, Unity.Collections.NativeList<QuadElement<Entity>> results) {
 
+            if (NativeQuadTreeUtils.tempTree.isCreated == false) {
+                throw new System.Exception("Temp tree collection has been disposed");
+            }
             new QuadTreeJobs.QueryJob<Entity>() {
                 quadTree = NativeQuadTreeUtils.tempTree,
                 bounds = new AABB2D(position, new Unity.Mathematics.float2(radius, radius)),

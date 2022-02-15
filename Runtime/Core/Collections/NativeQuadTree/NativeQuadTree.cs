@@ -51,6 +51,7 @@ namespace ME.ECS.Collections {
 
         private int elementsCount;
 
+        public bool isCreated;
         private int maxDepth;
         private short maxLeafElements;
 
@@ -69,6 +70,7 @@ namespace ME.ECS.Collections {
             this.maxDepth = maxDepth;
             this.maxLeafElements = maxLeafElements;
             this.elementsCount = 0;
+            this.isCreated = true;
 
             if (maxDepth > 8) {
                 // Currently no support for higher depths, the morton code lookup tables would have to support it
@@ -220,6 +222,7 @@ namespace ME.ECS.Collections {
             this.lookup = default;
             this.nodes.Dispose();
             this.nodes = default;
+            this.isCreated = false;
             //UnsafeList.Destroy(this.elements);
             //this.elements = null;
             //UnsafeList.Destroy(this.lookup);
