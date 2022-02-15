@@ -76,8 +76,6 @@ namespace ME.ECS.Collections {
         public struct QueryJob<T> : IJob where T : unmanaged {
 
             public NativeQuadTree<T> quadTree;
-
-            [ReadOnly]
             public AABB2D bounds;
             public NativeList<QuadElement<T>> results;
 
@@ -93,8 +91,6 @@ namespace ME.ECS.Collections {
             public NativeQuadTree<T> quadTree;
             public NativeArray<QuadElement<T>> elements;
             public int elementsCount;
-
-            [ReadOnly]
             public AABB2D bounds;
             public NativeList<QuadElement<T>> results;
 
