@@ -18,7 +18,7 @@ namespace ME.ECS.Collections {
                 quadTree = NativeQuadTreeUtils.tempTree,
                 elements = items,
                 elementsCount = itemsCount,
-            }.Schedule();
+            }.Schedule().Complete();
 
         }
 
