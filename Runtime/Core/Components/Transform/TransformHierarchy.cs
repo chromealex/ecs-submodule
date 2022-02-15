@@ -27,8 +27,8 @@ namespace ME.ECS {
             if (entity.Has<Nodes>() == true) {
 
                 ref var nodes = ref entity.Get<Nodes>();
-                if (nodes.items.IsCreated() == true) {
-                    var list = nodes.items.Read();
+                if (nodes.items != null) {
+                    var list = nodes.items;
                     for (int i = 0, cnt = list.Count; i < cnt; ++i) {
 
                         var child = list[i];
@@ -55,8 +55,8 @@ namespace ME.ECS {
 
                 var world = Worlds.currentWorld;
                 ref readonly var nodes = ref entity.Read<Nodes>();
-                if (nodes.items.IsCreated() == true) {
-                    var list = nodes.items.Read();
+                if (nodes.items != null) {
+                    var list = nodes.items;
                     for (int i = 0, cnt = list.Count; i < cnt; ++i) {
 
                         var item = list[i];
@@ -128,7 +128,7 @@ namespace ME.ECS {
 
                 ref var nodes = ref container.entity.Get<Nodes>();
                 child.Remove<Container>();
-                if (nodes.items.IsCreated() == true) nodes.items.Get().Remove(child);
+                if (nodes.items != null) nodes.items.Remove(child);
                 return;
 
             }
@@ -153,12 +153,12 @@ namespace ME.ECS {
 
             container.entity = root;
             ref var rootNodes = ref root.Get<Nodes>();
-            if (rootNodes.items.IsCreated() == false) {
+            if (rootNodes.items == null) {
                 var list = PoolListCopyable<Entity>.Spawn(4);
                 list.Add(child);
-                rootNodes.items = new ME.ECS.Collections.DataList<Entity>(list);
+                rootNodes.items = list;
             } else {
-                rootNodes.items.Get().Add(child);
+                rootNodes.items.Add(child);
             }
 
         }
