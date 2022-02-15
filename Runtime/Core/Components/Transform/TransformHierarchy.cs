@@ -187,8 +187,8 @@ namespace ME.ECS {
         private static bool FindInHierarchy(in Entity child, in Entity root) {
 
             var childNodes = child.Read<Nodes>();
-            if (childNodes.items.IsCreated() == false) return false;
-            var list = childNodes.items.Read();
+            if (childNodes.items == null) return false;
+            var list = childNodes.items;
             if (list.Contains(root) == true) {
 
                 return true;
