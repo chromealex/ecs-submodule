@@ -28,7 +28,7 @@
 
             if (entity.Has<ME.ECS.Camera.Camera>() == false) return Vector3.zero;
             
-            var camera = entity.Get<ME.ECS.Camera.Camera>();
+            var camera = entity.Read<ME.ECS.Camera.Camera>();
             Matrix4x4 projectionMatrix;
             if (camera.perspective == true) {
                 
@@ -65,7 +65,7 @@
 
             if (entity.Has<ME.ECS.Camera.Camera>() == false) return Vector3.zero;
             
-            var camera = entity.Get<ME.ECS.Camera.Camera>();
+            var camera = entity.Read<ME.ECS.Camera.Camera>();
             Matrix4x4 projectionMatrix;
             if (camera.perspective == true) {
                 
@@ -102,7 +102,7 @@
 
             if (entity.Has<ME.ECS.Camera.Camera>() == false) return Vector3.zero;
             
-            var camera = entity.Get<ME.ECS.Camera.Camera>();
+            var camera = entity.Read<ME.ECS.Camera.Camera>();
             Matrix4x4 projectionMatrix;
             if (camera.perspective == true) {
                 
@@ -135,7 +135,7 @@
 
             if (entity.Has<ME.ECS.Camera.Camera>() == false) return Vector3.zero;
             
-            var camera = entity.Get<ME.ECS.Camera.Camera>();
+            var camera = entity.Read<ME.ECS.Camera.Camera>();
             Matrix4x4 projectionMatrix;
             if (camera.perspective == true) {
                 
@@ -169,7 +169,7 @@
 
             if (entity.Has<ME.ECS.Camera.Camera>() == false) return Vector3.zero;
 
-            var camera = entity.Get<ME.ECS.Camera.Camera>();
+            var camera = entity.Read<ME.ECS.Camera.Camera>();
             Matrix4x4 projectionMatrix;
             if (camera.perspective == true) {
                 

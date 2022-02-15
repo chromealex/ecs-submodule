@@ -86,6 +86,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public BufferArray<Component<T>> Read<T>() where T : struct, IStructComponentBase {
+
+            return this.Get<T>();
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public BufferArray<Component<T>> Get<T>() where T : struct, IStructComponentBase {
             
             var typeId = WorldUtilities.GetAllComponentTypeId<T>();
@@ -164,7 +173,7 @@ namespace ME.ECS {
 
                 }
 
-                var components = group.Get<ViewComponent>();
+                var components = group.Read<ViewComponent>();
                 for (int i = group.fromId, k = 0; i <= group.toId; ++i, ++k) {
                     
                     var entity = group.slice[k];

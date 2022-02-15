@@ -283,7 +283,7 @@ namespace ME.ECS.Collections {
 
                     if (node.IsAlive() == true) {
 
-                        var next = node.Get<IntrusiveSortedListGenericNode<T>>().next;
+                        var next = node.Read<IntrusiveSortedListGenericNode<T>>().next;
                         this.RemoveNode(in node);
                         node = next;
                         ++count;
@@ -372,7 +372,7 @@ namespace ME.ECS.Collections {
             var count = 0;
             do {
 
-                var nextLink = root.Get<IntrusiveSortedListGenericNode<T>>();
+                var nextLink = root.Read<IntrusiveSortedListGenericNode<T>>();
                 if (entityData.Equals(nextLink.data) == true) {
 
                     this.RemoveNode(root);
@@ -510,7 +510,7 @@ namespace ME.ECS.Collections {
             var node = this.root;
             do {
 
-                var nodeLink = node.Get<IntrusiveSortedListGenericNode<T>>();
+                var nodeLink = node.Read<IntrusiveSortedListGenericNode<T>>();
                 var comparer = entityData.CompareTo(nodeLink.data);
                 if ((this.descending == false && comparer > 0) || (this.descending == true && comparer < 0)) {
 
@@ -539,7 +539,7 @@ namespace ME.ECS.Collections {
             do {
 
                 var nodeEntity = node;
-                var nodeLink = node.Get<IntrusiveSortedListGenericNode<T>>();
+                var nodeLink = node.Read<IntrusiveSortedListGenericNode<T>>();
                 var nodeData = nodeLink.data;
                 node = nodeLink.next;
                 if (entityData.Equals(nodeData) == true) {
@@ -564,7 +564,7 @@ namespace ME.ECS.Collections {
             do {
 
                 var nodeEntity = node;
-                var nodeLink = node.Get<IntrusiveSortedListGenericNode<T>>();
+                var nodeLink = node.Read<IntrusiveSortedListGenericNode<T>>();
                 node = nodeLink.next;
                 if (idx == index) {
 
@@ -586,7 +586,7 @@ namespace ME.ECS.Collections {
         #endif
         private void RemoveNode(in Entity node) {
 
-            var link = node.Get<IntrusiveSortedListGenericNode<T>>();
+            var link = node.Read<IntrusiveSortedListGenericNode<T>>();
             if (link.prev.IsAlive() == true) {
                 ref var prev = ref link.prev.Get<IntrusiveSortedListGenericNode<T>>();
                 prev.next = link.next;

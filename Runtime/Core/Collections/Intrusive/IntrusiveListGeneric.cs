@@ -261,7 +261,7 @@ namespace ME.ECS.Collections {
 
                     if (node.IsAlive() == true) {
 
-                        var next = node.Get<IntrusiveListGenericNode<T>>().next;
+                        var next = node.Read<IntrusiveListGenericNode<T>>().next;
                         this.RemoveNode(in node);
                         node = next;
                         ++count;
@@ -431,7 +431,7 @@ namespace ME.ECS.Collections {
             var count = 0;
             do {
 
-                var nextLink = root.Get<IntrusiveListGenericNode<T>>();
+                var nextLink = root.Read<IntrusiveListGenericNode<T>>();
                 if (entityData.Equals(nextLink.data) == true) {
 
                     this.RemoveNode(root);
@@ -552,7 +552,7 @@ namespace ME.ECS.Collections {
             do {
 
                 var nodeEntity = node;
-                var nodeLink = node.Get<IntrusiveListGenericNode<T>>();
+                var nodeLink = node.Read<IntrusiveListGenericNode<T>>();
                 var nodeData = nodeLink.data;
                 node = nodeLink.next;
                 if (entityData.Equals(nodeData) == true) {
@@ -577,7 +577,7 @@ namespace ME.ECS.Collections {
             do {
 
                 var nodeEntity = node;
-                var nodeLink = node.Get<IntrusiveListGenericNode<T>>();
+                var nodeLink = node.Read<IntrusiveListGenericNode<T>>();
                 node = nodeLink.next;
                 if (idx == index) {
 
@@ -600,7 +600,7 @@ namespace ME.ECS.Collections {
         private void RemoveNode(in Entity node) {
 
             var nodeToDestroy = node;
-            var link = node.Get<IntrusiveListGenericNode<T>>();
+            var link = node.Read<IntrusiveListGenericNode<T>>();
             if (link.prev.IsAlive() == true) {
                 ref var prev = ref link.prev.Get<IntrusiveListGenericNode<T>>();
                 prev.next = link.next;

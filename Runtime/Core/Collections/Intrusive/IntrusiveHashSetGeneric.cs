@@ -73,7 +73,7 @@ namespace ME.ECS.Collections {
                     var bucket = this.hashSet.buckets[this.bucketIndex];
                     if (bucket.IsAlive() == true) {
 
-                        var node = bucket.Get<IntrusiveHashSetBucketGeneric<T>>();
+                        var node = bucket.Read<IntrusiveHashSetBucketGeneric<T>>();
                         this.listEnumerator = node.list.GetEnumerator();
 
                     }
