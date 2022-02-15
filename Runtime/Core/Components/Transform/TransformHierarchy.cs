@@ -184,6 +184,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static Entity GetParent(this in Entity child) {
+
+            return child.Read<Container>().entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private static bool FindInHierarchy(in Entity child, in Entity root) {
 
             var childNodes = child.Read<Nodes>();
