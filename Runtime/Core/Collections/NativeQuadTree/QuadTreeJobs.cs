@@ -63,7 +63,6 @@ namespace ME.ECS.Collections {
         public struct ClearJob<T> : IJob where T : unmanaged {
 
             public NativeQuadTree<T> quadTree;
-            [ReadOnly]
             public NativeArray<QuadElement<T>> elements;
             public int elementsCount;
 
@@ -92,7 +91,6 @@ namespace ME.ECS.Collections {
         public struct QueryJobWithClear<T> : IJob where T : unmanaged {
 
             public NativeQuadTree<T> quadTree;
-            [ReadOnly]
             public NativeArray<QuadElement<T>> elements;
             public int elementsCount;
 
