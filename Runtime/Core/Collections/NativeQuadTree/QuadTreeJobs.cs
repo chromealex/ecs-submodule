@@ -7,6 +7,7 @@ namespace ME.ECS.Collections {
     public static class NativeQuadTreeUtils {
 
         private static NativeQuadTree<Entity> tempTree;
+        private static JobHandle jobHandle;
         
         public static void PrepareTick(in AABB2D mapSize, NativeArray<QuadElement<Entity>> items, int itemsCount) {
             
@@ -14,11 +15,11 @@ namespace ME.ECS.Collections {
                 throw new System.Exception("Temp tree collection must been disposed");
             }
             NativeQuadTreeUtils.tempTree = new NativeQuadTree<Entity>(mapSize, Unity.Collections.Allocator.Temp);
-            new QuadTreeJobs.ClearJob<Entity>() {
+            NativeQuadTreeUtils.jobHandle = new QuadTreeJobs.ClearJob<Entity>() {
                 quadTree = NativeQuadTreeUtils.tempTree,
                 elements = items,
                 elementsCount = itemsCount,
-            }.Schedule().Complete();
+            }.Schedule();
 
         }
 
@@ -37,7 +38,8 @@ namespace ME.ECS.Collections {
                 quadTree = NativeQuadTreeUtils.tempTree,
                 bounds = new AABB2D(position, new Unity.Mathematics.float2(radius, radius)),
                 results = results,
-            }.Schedule().Complete();
+            }.Schedule(NativeQuadTreeUtils.jobHandle).Complete();
+            NativeQuadTreeUtils.jobHandle = default;
 
         }
 
