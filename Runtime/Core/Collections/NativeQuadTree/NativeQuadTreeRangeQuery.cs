@@ -59,7 +59,14 @@ namespace ME.ECS.Collections {
                         var node = this.tree.nodes[at]; //UnsafeUtility.ReadArrayElement<QuadNode>(tree.nodes->Ptr, at);
                         if (contained == true) {
 
-                            var source = (void*)((IntPtr)this.tree.elements.GetUnsafePtr() + node.firstChildIndex * UnsafeUtility.SizeOf<QuadElement<T>>());
+                            results.Resize(math.max(results.Length * 2, this.count + node.count), NativeArrayOptions.ClearMemory);
+                            for (var k = 0; k < node.count; k++) {
+
+                                var element = this.tree.elements[node.firstChildIndex + k];
+                                results[this.count++] = element;
+                                
+                            }
+                            /*var source = (void*)((IntPtr)this.tree.elements.GetUnsafePtr() + node.firstChildIndex * UnsafeUtility.SizeOf<QuadElement<T>>());
                             if (node.firstChildIndex < 0 || node.firstChildIndex >= this.tree.elements.Length) {
                                 throw new IndexOutOfRangeException($"{node.firstChildIndex} [0..{this.tree.elements.Length}]");
                             }
@@ -70,7 +77,7 @@ namespace ME.ECS.Collections {
                             
                             //NativeArrayUtils.Copy(this.tree.elements, node.firstChildIndex, ref results, this.count, node.count);
 
-                            this.count += node.count;
+                            this.count += node.count;*/
                             
                         } else {
 
