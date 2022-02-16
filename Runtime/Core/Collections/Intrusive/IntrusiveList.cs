@@ -59,8 +59,8 @@ namespace ME.ECS.Collections {
             private Entity head;
             private int id;
             
-            Entity System.Collections.Generic.IEnumerator<Entity>.Current => Worlds.currentWorld.GetData<IntrusiveListNode>(Worlds.currentWorld.GetEntityById(this.id)).data;
-            public ref Entity Current => ref Worlds.currentWorld.GetData<IntrusiveListNode>(Worlds.currentWorld.GetEntityById(this.id)).data;
+            Entity System.Collections.Generic.IEnumerator<Entity>.Current => Worlds.currentWorld.ReadData<IntrusiveListNode>(Worlds.currentWorld.GetEntityById(this.id)).data;
+            public ref readonly Entity Current => ref Worlds.currentWorld.ReadData<IntrusiveListNode>(Worlds.currentWorld.GetEntityById(this.id)).data;
 
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -82,7 +82,7 @@ namespace ME.ECS.Collections {
 
                 this.id = this.head.id;
 
-                this.head = this.head.Get<IntrusiveListNode>().next;
+                this.head = this.head.Read<IntrusiveListNode>().next;
                 return true;
 
             }
@@ -180,7 +180,7 @@ namespace ME.ECS.Collections {
             while (this.root.IsAlive() == true) {
 
                 var node = this.root;
-                this.root = this.root.Get<IntrusiveListNode>().next;
+                this.root = this.root.Read<IntrusiveListNode>().next;
                 if (destroyData == true) IntrusiveList.DestroyData(in node);
                 node.Destroy();
 
@@ -207,7 +207,7 @@ namespace ME.ECS.Collections {
                 var node = this.FindNode(from);
                 if (node.IsAlive() == true) {
 
-                    yield return node.Get<IntrusiveListNode>().data;
+                    yield return node.Read<IntrusiveListNode>().data;
 
                 } else {
 
@@ -522,7 +522,7 @@ namespace ME.ECS.Collections {
 
             if (this.root.IsAlive() == false) return Entity.Empty;
 
-            return this.root.Get<IntrusiveListNode>().data;
+            return this.root.Read<IntrusiveListNode>().data;
 
         }
 
@@ -534,7 +534,7 @@ namespace ME.ECS.Collections {
 
             if (this.head.IsAlive() == false) return Entity.Empty;
 
-            return this.head.Get<IntrusiveListNode>().data;
+            return this.head.Read<IntrusiveListNode>().data;
 
         }
 

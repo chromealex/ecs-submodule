@@ -44,7 +44,7 @@ namespace ME.ECS.Collections {
             private IntrusiveList.Enumerator listEnumerator;
             
             Entity System.Collections.Generic.IEnumerator<Entity>.Current => this.listEnumerator.Current;
-            public ref Entity Current => ref this.listEnumerator.Current;
+            public ref readonly Entity Current => ref this.listEnumerator.Current;
 
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
