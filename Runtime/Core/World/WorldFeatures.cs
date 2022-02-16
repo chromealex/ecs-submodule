@@ -146,20 +146,20 @@ namespace ME.ECS {
 
         internal void DeInitialize(World world, System.Collections.Generic.List<FeatureData> features) {
             
-            for (int i = 0; i < features.Count; ++i) {
+            for (int i = features.Count - 1; i >= 0; --i) {
                 
                 var item = features[i];
                 if (item.IsEnabled() == true) {
                     
-                    world.RemoveFeature(item.featureInstance);
-                    if (world.settings.createInstanceForFeatures == true) UnityEngine.Object.DestroyImmediate(item.featureInstance);
-                    item.featureInstance = null;
-
                     if (item.GetSubFeatures() != null) {
 
                         this.DeInitialize(world, item.GetSubFeatures());
 
                     }
+
+                    world.RemoveFeature(item.featureInstance);
+                    if (world.settings.createInstanceForFeatures == true) UnityEngine.Object.DestroyImmediate(item.featureInstance);
+                    item.featureInstance = null;
 
                 }
                 
