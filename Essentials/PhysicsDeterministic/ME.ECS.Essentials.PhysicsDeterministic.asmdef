@@ -5,7 +5,8 @@
         "ME.ECS",
         "ME.ECS.IL2CPP",
         "ME.ECS.Pathfinding",
-        "Unity.Collections"
+        "Unity.Collections",
+        "ME.ECS.FPMath"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

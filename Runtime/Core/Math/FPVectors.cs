@@ -53,7 +53,7 @@ namespace ME.ECS {
 
         public static FPVector2 Rotate(FPVector2 v, pfloat degrees) {
 
-            pfloat radians = degrees * FPMath.Deg2Rad;
+            pfloat radians = degrees * UnityEngine.Mathf.Deg2Rad;
             pfloat sin = FPMath.Sin(radians);
             pfloat cos = FPMath.Cos(radians);
 
@@ -177,6 +177,20 @@ namespace ME.ECS {
             return new UnityEngine.Vector2((float)v.x, (float)v.y);
 
         }
+
+        #if UNITY_MATHEMATICS
+        public static implicit operator FPVector2(Unity.Mathematics.float2 v) {
+
+            return new FPVector2(v.x, v.y);
+
+        }
+
+        public static implicit operator Unity.Mathematics.float2(FPVector2 v) {
+
+            return new Unity.Mathematics.float2((float)v.x, (float)v.y);
+
+        }
+        #endif
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -446,6 +460,20 @@ namespace ME.ECS {
 
         }
 
+        #if UNITY_MATHEMATICS
+        public static implicit operator FPVector3(Unity.Mathematics.float3 v) {
+
+            return new FPVector3(v.x, v.y, v.z);
+
+        }
+
+        public static implicit operator Unity.Mathematics.float3(FPVector3 v) {
+
+            return new Unity.Mathematics.float3((float)v.x, (float)v.y, (float)v.z);
+
+        }
+        #endif
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -521,6 +549,286 @@ namespace ME.ECS {
             v1.x /= v2;
             v1.y /= v2;
             v1.z /= v2;
+            return v1;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FPVector3 operator *(FPVector3 v1, in pfloat v2) {
+
+            v1.x *= v2;
+            v1.y *= v2;
+            v1.z *= v2;
+            return v1;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FPVector3 operator *(in pfloat v2, FPVector3 v1) {
+
+            v1.x *= v2;
+            v1.y *= v2;
+            v1.z *= v2;
+            return v1;
+
+        }
+
+    }
+
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
+    [System.Serializable]
+    #if MESSAGE_PACK_SUPPORT
+    [MessagePack.MessagePackObjectAttribute()]
+    #endif
+    public struct FPVector4 : System.IEquatable<FPVector4> {
+
+        public static readonly FPVector4 zero = new FPVector4(0, 0, 0, 0);
+        public static readonly FPVector4 one = new FPVector4(1, 1, 1, 1);
+
+        #if MESSAGE_PACK_SUPPORT
+        [MessagePack.Key(0)]
+        #endif
+        public pfloat x;
+        #if MESSAGE_PACK_SUPPORT
+        [MessagePack.Key(1)]
+        #endif
+        public pfloat y;
+        #if MESSAGE_PACK_SUPPORT
+        [MessagePack.Key(2)]
+        #endif
+        public pfloat z;
+        #if MESSAGE_PACK_SUPPORT
+        [MessagePack.Key(3)]
+        #endif
+        public pfloat w;
+
+        public bool Equals(FPVector4 other) {
+
+            return (this == other);
+
+        }
+
+        public override int GetHashCode() {
+
+            return this.x.GetHashCode() ^ this.y.GetHashCode() ^ this.z.GetHashCode() ^ this.w.GetHashCode();
+
+        }
+
+        public override bool Equals(object obj) {
+
+            if (obj is FPVector4 ent) {
+
+                return this.Equals(ent);
+
+            }
+            
+            return false;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FPVector4 Lerp(FPVector4 a, FPVector4 b, pfloat t) {
+
+            t = FPMath.Clamp01(t);
+            return new FPVector4(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static pfloat Dot(FPVector3 v1, FPVector3 v2) {
+
+            return v1.x * v2.x + v1.y + v2.y + v1.z + v2.z;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public FPVector4(pfloat x, pfloat y, pfloat z, pfloat w) {
+
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.w = w;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FPVector4 Normalize(FPVector4 v) {
+
+            v.Normalize();
+            return v;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Normalize() {
+
+            var num = this.magnitude;
+            if ((double)num > 9.999999747378752E-06)
+                this = this / num;
+            else
+                this = FPVector4.zero;
+        }
+
+        #if MESSAGE_PACK_SUPPORT
+        [MessagePack.IgnoreMemberAttribute]
+        #endif
+        public pfloat sqrMagnitude {
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            get {
+                return (pfloat)((double)this.x * (double)this.x + (double)this.y * (double)this.y + (double)this.z * (double)this.z + (double)this.w * (double)this.w);
+            }
+        }
+
+        #if MESSAGE_PACK_SUPPORT
+        [MessagePack.IgnoreMemberAttribute]
+        #endif
+        public pfloat magnitude {
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            get {
+                return FPMath.Sqrt(this.sqrMagnitude);
+            }
+        }
+
+        #if MESSAGE_PACK_SUPPORT
+        [MessagePack.IgnoreMemberAttribute]
+        #endif
+        public FPVector4 normalized {
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            get {
+                return FPVector4.Normalize(this);
+            }
+        }
+
+        public static implicit operator FPVector4(UnityEngine.Vector4 v) {
+
+            return new FPVector4(v.x, v.y, v.z, v.w);
+
+        }
+
+        public static implicit operator UnityEngine.Vector4(FPVector4 v) {
+
+            return new UnityEngine.Vector4(v.x, v.y, v.z, v.w);
+
+        }
+
+        #if UNITY_MATHEMATICS
+        public static implicit operator FPVector4(Unity.Mathematics.float4 v) {
+
+            return new FPVector4(v.x, v.y, v.z, v.w);
+
+        }
+
+        public static implicit operator Unity.Mathematics.float4(FPVector4 v) {
+
+            return new Unity.Mathematics.float4((float)v.x, (float)v.y, (float)v.z, (float)v.w);
+
+        }
+        #endif
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static bool operator ==(FPVector4 v1, in FPVector4 v2) {
+
+            if (v1.x == v2.x && v1.y == v2.y && v1.z == v2.z && v1.w == v2.w) return true;
+            return false;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static bool operator !=(FPVector4 v1, in FPVector4 v2) {
+
+            return !(v1 == v2);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FPVector4 operator +(FPVector4 v1, in FPVector4 v2) {
+
+            v1.x += v2.x;
+            v1.y += v2.y;
+            v1.z += v2.z;
+            v1.w += v2.w;
+            return v1;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FPVector4 operator -(FPVector4 v1, in FPVector4 v2) {
+
+            v1.x -= v2.x;
+            v1.y -= v2.y;
+            v1.z -= v2.z;
+            v1.w -= v2.w;
+            return v1;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FPVector4 operator *(FPVector4 v1, in FPVector4 v2) {
+
+            v1.x *= v2.x;
+            v1.y *= v2.y;
+            v1.z *= v2.z;
+            v1.w *= v2.w;
+            return v1;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FPVector4 operator /(FPVector4 v1, in FPVector4 v2) {
+
+            v1.x /= v2.x;
+            v1.y /= v2.y;
+            v1.z /= v2.z;
+            v1.w /= v2.w;
+            return v1;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FPVector4 operator /(FPVector4 v1, in pfloat v2) {
+
+            v1.x /= v2;
+            v1.y /= v2;
+            v1.z /= v2;
+            v1.w /= v2;
             return v1;
 
         }

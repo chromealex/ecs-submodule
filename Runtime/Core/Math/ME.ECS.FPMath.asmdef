@@ -2,7 +2,8 @@
     "name": "ME.ECS.FPMath",
     "rootNamespace": "",
     "references": [
-        "ME.ECS.IL2CPP"
+        "ME.ECS.IL2CPP",
+        "Unity.Mathematics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

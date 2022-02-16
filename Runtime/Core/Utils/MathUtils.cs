@@ -1,10 +1,23 @@
 #if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
+#if FIXED_POINT_MATH
+using Mathf = ME.ECS.FPMath;
+using PFLOAT = ME.ECS.pfloat;
+using FLOAT2 = ME.ECS.FPVector2;
+using FLOAT3 = ME.ECS.FPVector3;
+using FLOAT4 = ME.ECS.FPVector4;
+using QUATERNION = ME.ECS.FPQuaternion;
+#else
+using Mathf = UnityEngine.Mathf;
+using PFLOAT = System.Single;
+using FLOAT2 = UnityEngine.Vector2;
+using FLOAT3 = UnityEngine.Vector3;
+using FLOAT4 = UnityEngine.Vector4;
+using QUATERNION = UnityEngine.Quaternion;
+#endif
 
 namespace ME.ECS {
-
-    using UnityEngine;
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
@@ -13,13 +26,13 @@ namespace ME.ECS {
     #endif
     public static class VectorExt {
 
-        public static string ToFullString(this Vector2 vec) {
+        public static string ToFullString(this FLOAT2 vec) {
 
             return $"{vec.x};{vec.y}";
 
         }
 
-        public static string ToFullString(this Vector3 vec) {
+        public static string ToFullString(this FLOAT3 vec) {
 
             return $"{vec.x};{vec.y};{vec.z}";
 
@@ -28,133 +41,133 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Vector2 Abs(Vector2 v) {
+        public static FLOAT2 Abs(FLOAT2 v) {
 
-            return new Vector2(Mathf.Abs(v.x), Mathf.Abs(v.y));
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static Vector2 X(this Vector2 v, float value = 0f) {
-
-            return new Vector2(value, v.y);
+            return new FLOAT2(Mathf.Abs(v.x), Mathf.Abs(v.y));
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Vector2 Y(this Vector2 v, float value = 0f) {
+        public static UnityEngine.Vector2 X(this UnityEngine.Vector2 v, float value = 0f) {
 
-            return new Vector2(v.x, value);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static Vector3 X(this Vector3 v, float value = 0f) {
-
-            return new Vector3(value, v.y, v.z);
+            return new UnityEngine.Vector2(value, v.y);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Vector3 Y(this Vector3 v, float value = 0f) {
+        public static UnityEngine.Vector2 Y(this UnityEngine.Vector2 v, float value = 0f) {
 
-            return new Vector3(v.x, value, v.z);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static Vector3 Z(this Vector3 v, float value = 0f) {
-
-            return new Vector3(v.x, v.y, value);
+            return new UnityEngine.Vector2(v.x, value);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Vector3 XY(this Vector2 v, float z = 0f) {
+        public static UnityEngine.Vector3 X(this UnityEngine.Vector3 v, float value = 0f) {
 
-            return new Vector3(v.x, v.y, z);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static Vector3 XZ(this Vector2 v, float y = 0f) {
-
-            return new Vector3(v.x, y, v.y);
+            return new UnityEngine.Vector3(value, v.y, v.z);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Vector2 XY(this Vector3 v) {
+        public static UnityEngine.Vector3 Y(this UnityEngine.Vector3 v, float value = 0f) {
 
-            return new Vector2(v.x, v.y);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static Vector2 XZ(this Vector3 v) {
-
-            return new Vector2(v.x, v.z);
+            return new UnityEngine.Vector3(v.x, value, v.z);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Vector3Int XY(this Vector2Int v, int z = 0) {
+        public static UnityEngine.Vector3 Z(this UnityEngine.Vector3 v, float value = 0f) {
 
-            return new Vector3Int(v.x, v.y, z);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static Vector3Int XZ(this Vector2Int v, int y = 0) {
-
-            return new Vector3Int(v.x, y, v.y);
+            return new UnityEngine.Vector3(v.x, v.y, value);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Vector2Int XY(this Vector3Int v) {
+        public static UnityEngine.Vector3 XY(this UnityEngine.Vector2 v, float z = 0f) {
 
-            return new Vector2Int(v.x, v.y);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static Vector2Int XZ(this Vector3Int v) {
-
-            return new Vector2Int(v.x, v.z);
+            return new UnityEngine.Vector3(v.x, v.y, z);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Vector2 Rotate(this Vector2 v, float degrees) {
+        public static UnityEngine.Vector3 XZ(this UnityEngine.Vector2 v, float y = 0f) {
+
+            return new UnityEngine.Vector3(v.x, y, v.y);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static UnityEngine.Vector2 XY(this UnityEngine.Vector3 v) {
+
+            return new UnityEngine.Vector2(v.x, v.y);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static UnityEngine.Vector2 XZ(this UnityEngine.Vector3 v) {
+
+            return new UnityEngine.Vector2(v.x, v.z);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static UnityEngine.Vector3Int XY(this UnityEngine.Vector2Int v, int z = 0) {
+
+            return new UnityEngine.Vector3Int(v.x, v.y, z);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static UnityEngine.Vector3Int XZ(this UnityEngine.Vector2Int v, int y = 0) {
+
+            return new UnityEngine.Vector3Int(v.x, y, v.y);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static UnityEngine.Vector2Int XY(this UnityEngine.Vector3Int v) {
+
+            return new UnityEngine.Vector2Int(v.x, v.y);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static UnityEngine.Vector2Int XZ(this UnityEngine.Vector3Int v) {
+
+            return new UnityEngine.Vector2Int(v.x, v.z);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static UnityEngine.Vector2 Rotate(this UnityEngine.Vector2 v, float degrees) {
 
             float radians = degrees * Mathf.Deg2Rad;
             float sin = Mathf.Sin(radians);
@@ -163,19 +176,19 @@ namespace ME.ECS {
             float tx = v.x;
             float ty = v.y;
 
-            return new Vector2(cos * tx - sin * ty, sin * tx + cos * ty);
+            return new UnityEngine.Vector2(cos * tx - sin * ty, sin * tx + cos * ty);
 
         }
 
-        public static Vector3Int Rotate(this Vector3Int vec, int sector) {
+        public static UnityEngine.Vector3Int Rotate(this UnityEngine.Vector3Int vec, int sector) {
 
-            var v = (Vector2)vec.XZ();
+            var v = (UnityEngine.Vector2)vec.XZ();
             v = v.Rotate(sector * 90f);
-            return new Vector3Int((int)v.x, vec.y, (int)v.y);
+            return new UnityEngine.Vector3Int((int)v.x, vec.y, (int)v.y);
             
         }
 
-        private static Vector3Int Rotate90(this Vector3Int vec) {
+        private static UnityEngine.Vector3Int Rotate90(this UnityEngine.Vector3Int vec) {
             
             var p = vec;
             vec.x = p.z;
@@ -184,7 +197,7 @@ namespace ME.ECS {
 
         }
 
-        public static Vector3Int RotateBySector(this Vector3Int vecUp, Vector3 dir) {
+        public static UnityEngine.Vector3Int RotateBySector(this UnityEngine.Vector3Int vecUp, FLOAT3 dir) {
 
             var p = vecUp;
             var x = Mathf.Abs(dir.x);
@@ -230,7 +243,7 @@ namespace ME.ECS {
 
             public class CirclesComparer : System.Collections.Generic.IComparer<Circle> {
 
-                public Vector2 center;
+                public FLOAT2 center;
                 
                 public int Compare(Circle x, Circle y) {
                     var d1 = this.DistanceToCenterSq(x);
@@ -251,10 +264,10 @@ namespace ME.ECS {
             }
             
             public Entity data;
-            public Vector2 mCenter;
+            public FLOAT2 mCenter;
             public float mRadius;
  
-            public Circle(Entity data, Vector2 iCenter, float radius) {
+            public Circle(Entity data, FLOAT2 iCenter, float radius) {
                 this.data = data;
                 this.mCenter = iCenter;
                 this.mRadius = radius;
@@ -263,10 +276,10 @@ namespace ME.ECS {
         }
         
         public ME.ECS.Collections.ListCopyable<Circle> circles;
-        public Vector2 mPackingCenter;
+        public FLOAT2 mPackingCenter;
         public float mMinSeparation;
 
-        public CirclePacker(Vector2 mPackingCenter, float mMinSeparation) {
+        public CirclePacker(FLOAT2 mPackingCenter, float mMinSeparation) {
             
             this.circles = PoolListCopyable<Circle>.Spawn(10);
             this.mPackingCenter = mPackingCenter;
@@ -280,7 +293,7 @@ namespace ME.ECS {
             
         }
 
-        public void Add(Entity data, Vector2 center, float radius) {
+        public void Add(Entity data, FLOAT2 center, float radius) {
             
             this.circles.Add(new Circle(data, center, radius));
             
@@ -303,7 +316,7 @@ namespace ME.ECS {
                             continue;
                         }
 
-                        Vector2 AB = this.circles[j].mCenter - this.circles[i].mCenter;
+                        FLOAT2 AB = this.circles[j].mCenter - this.circles[i].mCenter;
                         float r = this.circles[i].mRadius + this.circles[j].mRadius;
 
                         // Length squared = (dx * dx) + (dy * dy);
@@ -341,7 +354,7 @@ namespace ME.ECS {
     #endif
     public static class MathUtils {
 
-        public static Vector2 GetPointOnCircle(Vector2 point, Vector2 center, float radius) {
+        public static FLOAT2 GetPointOnCircle(FLOAT2 point, FLOAT2 center, float radius) {
             
             var vX = point.x - center.x;
             var vY = point.y - center.y;
@@ -349,7 +362,7 @@ namespace ME.ECS {
             var aX = center.x + vX / magV * radius;
             var aY = center.y + vY / magV * radius;
             
-            return new Vector2(aX, aY);
+            return new FLOAT2(aX, aY);
             
         }
         
@@ -372,13 +385,13 @@ namespace ME.ECS {
 
         }
 
-        public static string ToStringDec(this Vector2 value) {
+        public static string ToStringDec(this FLOAT2 value) {
 
             return value.x.ToStringDec() + "; " + value.y.ToStringDec();
 
         }
 
-        public static string ToStringDec(this Vector3 value) {
+        public static string ToStringDec(this FLOAT3 value) {
 
             return value.x.ToStringDec() + "; " + value.y.ToStringDec() + "; " + value.z.ToStringDec();
 
@@ -394,14 +407,14 @@ namespace ME.ECS {
 
         }
 
-        public static Vector3 GetSpiralPointByIndex(Vector3 center, int index, float radius = 1f) {
+        public static FLOAT3 GetSpiralPointByIndex(FLOAT3 center, int index, float radius = 1f) {
 
-            var offset = MathUtils.GetSpiralPointByIndex(Vector2Int.zero, index);
-            return center + new Vector3(offset.x * radius, 0f, offset.y * radius);
+            var offset = MathUtils.GetSpiralPointByIndex(UnityEngine.Vector2Int.zero, index);
+            return center + new FLOAT3(offset.x * radius, 0f, offset.y * radius);
 
         }
 
-        public static Vector2Int GetSpiralPointByIndex(Vector2Int center, int index) {
+        public static UnityEngine.Vector2Int GetSpiralPointByIndex(UnityEngine.Vector2Int center, int index) {
 
             if (index == 0) return center;
 
@@ -410,7 +423,7 @@ namespace ME.ECS {
             // a the position on the current square
             // n = p + a
 
-            var pos = Vector2Int.zero;
+            var pos = UnityEngine.Vector2Int.zero;
             var n = index;
             var r = Mathf.FloorToInt((Mathf.Sqrt(n + 1) - 1) / 2) + 1;
 
@@ -640,21 +653,21 @@ namespace ME.ECS {
 
         }
 
-        public static int GetOrientation(Vector2 dir) {
+        public static int GetOrientation(FLOAT2 dir) {
 
             MathUtils.GetOrientation(out var d, dir);
             return d;
 
         }
 
-        public static int GetOrientation(Vector2 from, Vector2 to) {
+        public static int GetOrientation(FLOAT2 from, FLOAT2 to) {
 
             MathUtils.GetOrientation(out var d, to - from);
             return d;
 
         }
 
-        public static void GetOrientation(out int orientation, Vector2 dir, int steps = 8) {
+        public static void GetOrientation(out int orientation, FLOAT2 dir, int steps = 8) {
 
             float step = 360f / steps;
             float stepHalf = step * 0.5f;
@@ -706,7 +719,7 @@ namespace ME.ECS {
 
         }
 
-        public static bool IsPositionInRange(Vector3 from, Vector3 target, float minRange, float maxRange) {
+        public static bool IsPositionInRange(FLOAT3 from, FLOAT3 target, float minRange, float maxRange) {
 
             var dir = target - from;
             var distanceSqr = dir.sqrMagnitude;
@@ -721,7 +734,7 @@ namespace ME.ECS {
 
         }
 
-        public static Vector3 GetNearestPositionToTarget(Vector3 from, Vector3 target, float minRange, float maxRange) {
+        public static FLOAT3 GetNearestPositionToTarget(FLOAT3 from, FLOAT3 target, float minRange, float maxRange) {
 
             var dir = target - from;
             var distanceSqr = dir.sqrMagnitude;
@@ -739,19 +752,19 @@ namespace ME.ECS {
 
             }
 
-            var ray = new Ray(target, from - target);
+            var ray = new UnityEngine.Ray(target, from - target);
             return ray.GetPoint(tRange);
 
         }
 
-        public static bool IsTargetInCone(in Vector2 position, in Vector2 direction, in Vector2 target, float coneAngle) {
+        public static bool IsTargetInCone(in FLOAT2 position, in FLOAT2 direction, in FLOAT2 target, float coneAngle) {
 
             if (coneAngle <= 0f) return true;
 
             coneAngle *= Mathf.Deg2Rad;
             
             var dir = (target - position).normalized;
-            var dot = Mathf.Clamp(Vector2.Dot(dir, direction.normalized), -1f, 1f);
+            var dot = Mathf.Clamp(FLOAT2.Dot(dir, direction.normalized), -1f, 1f);
             var angle = Mathf.Acos(dot);
             
             return angle < coneAngle * 0.5f;
@@ -798,23 +811,23 @@ namespace ME.ECS {
             
         }
         
-        public static Vector3 CalculateBezier(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
+        public static FLOAT3 CalculateBezier(FLOAT3 p0, FLOAT3 p1, FLOAT3 p2, FLOAT3 p3, PFLOAT t) {
         
             return (Mathf.Pow(1 - t, 3) * p0) + (3 * Mathf.Pow(1 - t, 2) * t * p1) + (3 * (1 - t) * t * t * p2) + (t * t * t * p3);
             
         }
         
-        public static Vector3 CalculateBezierPoint(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, float t) {
+        public static FLOAT3 CalculateBezierPoint(FLOAT3 p1, FLOAT3 p2, FLOAT3 p3, FLOAT3 p4, PFLOAT t) {
             
             float tPower3 = t * t * t;
             float tPower2 = t * t;
             float oneMinusT = 1 - t;
             float oneMinusTPower3 = oneMinusT * oneMinusT*oneMinusT;
             float oneMinusTPower2 = oneMinusT * oneMinusT;
-            var p = Vector2.zero;
+            var p = FLOAT2.zero;
             p.x = oneMinusTPower3 * p1.x + (3f * oneMinusTPower2 * t * p2.x) + (3f * oneMinusT * tPower2 * p3.x) + tPower3 * p4.x;
             p.y = oneMinusTPower3 * p1.y + (3f * oneMinusTPower2 * t * p2.y) + (3f * oneMinusT * tPower2 * p3.y) + tPower3 * p4.y; 
-            return p;
+            return p.XY();
             
         }
 

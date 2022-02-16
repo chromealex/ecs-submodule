@@ -6,7 +6,8 @@
         "UnityEngine.TestRunner",
         "ME.ECS",
         "Unity.Burst",
-        "ME.ECS.Tests.Res"
+        "ME.ECS.Tests.Res",
+        "ME.ECS.FPMath"
     ],
     "includePlatforms": [
         "Editor"

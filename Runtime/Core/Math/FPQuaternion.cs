@@ -87,7 +87,7 @@ namespace ME.ECS {
                 if (FPMath.Abs(sinp) >= 1)
                     angles.y = pfloat.Pi / 2 * FPMath.Sign(sinp); // use 90 degrees if out of range
                 else
-                    angles.y = FPMath.ASin(sinp);
+                    angles.y = FPMath.Asin(sinp);
 
                 // yaw (z-axis rotation)
                 var siny_cosp = 2 * (q.w * q.z + q.x * q.y);
@@ -145,7 +145,7 @@ namespace ME.ECS {
                 num3 = 1f - num;
                 num2 = flag ? -num : num;
             } else {
-                pfloat num5 = FPMath.ACos(num4);
+                pfloat num5 = FPMath.Acos(num4);
                 pfloat num6 = (1.0f / FPMath.Sin(num5));
                 num3 = (FPMath.Sin(((1f - num) * num5))) * num6;
                 num2 = flag ? ((-FPMath.Sin((num * num5))) * num6) : ((FPMath.Sin((num * num5))) * num6);

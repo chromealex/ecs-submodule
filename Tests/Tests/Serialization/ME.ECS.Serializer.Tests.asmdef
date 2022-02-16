@@ -8,7 +8,8 @@
         "ME.ECS.Serializer",
         "ME.Pools",
         "ME.ECS.Tests",
-        "ME.ECS.Tests.Res"
+        "ME.ECS.Tests.Res",
+        "ME.ECS.FPMath"
     ],
     "includePlatforms": [
         "Editor"

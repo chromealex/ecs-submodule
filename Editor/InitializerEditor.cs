@@ -199,6 +199,13 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("FIXED_POINT_MATH", "Fixed-Point Math.", () => {
+                #if FIXED_POINT_MATH
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
         };
         
         private bool settingsFoldOut {
