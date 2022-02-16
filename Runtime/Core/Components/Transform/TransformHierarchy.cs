@@ -189,6 +189,17 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static bool TryGetParent(this in Entity child, out Entity parent) {
+
+            var r = child.TryRead<Container>(out var c);
+            parent = c.entity;
+            return r;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static bool HasParent(this in Entity child) {
 
             return child.Has<Container>();
