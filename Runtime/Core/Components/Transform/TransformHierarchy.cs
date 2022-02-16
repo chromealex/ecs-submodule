@@ -26,21 +26,12 @@ namespace ME.ECS {
             
             if (entity.Has<Nodes>() == true) {
 
+                // TODO: Possible stack overflow while using Clear(true) because of OnEntityDestroy call
                 ref var nodes = ref entity.Get<Nodes>();
-                if (nodes.items != null) {
-                    var list = nodes.items;
-                    for (int i = 0, cnt = list.Count; i < cnt; ++i) {
-
-                        var child = list[i];
-                        if (child.IsAlive() == false) continue;
-                        child.Remove<Container>();
-                        // TODO: Possible stack overflow while using Destroy because of OnEntityDestroy call
-                        child.Destroy();
-
-                    }
-
-                    list.Clear();
+                foreach (var child in nodes.items) {
+                    child.Remove<Container>();
                 }
+                nodes.items.Clear(destroyData: true);
 
             }
 
@@ -55,18 +46,14 @@ namespace ME.ECS {
 
                 var world = Worlds.currentWorld;
                 ref readonly var nodes = ref entity.Read<Nodes>();
-                if (nodes.items != null) {
-                    var list = nodes.items;
-                    for (int i = 0, cnt = list.Count; i < cnt; ++i) {
+                foreach (var item in nodes.items) {
 
-                        var item = list[i];
-                        world.IncrementEntityVersion(in item);
-                        // TODO: Possible stack overflow while using OnEntityVersionChanged call
-                        world.OnEntityVersionChanged(in item);
+                    world.IncrementEntityVersion(in item);
+                    // TODO: Possible stack overflow while using OnEntityVersionChanged call
+                    world.OnEntityVersionChanged(in item);
 
-                    }
                 }
-
+                
             }
 
         }
@@ -118,7 +105,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private static void SetParent_INTERNAL(in Entity child, in Entity root) {
 
             if (child == root) return;
@@ -128,7 +117,7 @@ namespace ME.ECS {
 
                 ref var nodes = ref container.entity.Get<Nodes>();
                 child.Remove<Container>();
-                if (nodes.items != null) nodes.items.Remove(child);
+                nodes.items.Remove(child);
                 return;
 
             }
@@ -153,13 +142,7 @@ namespace ME.ECS {
 
             container.entity = root;
             ref var rootNodes = ref root.Get<Nodes>();
-            if (rootNodes.items == null) {
-                var list = PoolListCopyable<Entity>.Spawn(4);
-                list.Add(child);
-                rootNodes.items = list;
-            } else {
-                rootNodes.items.Add(child);
-            }
+            rootNodes.items.Add(child);
 
         }
 
@@ -184,35 +167,40 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity GetParent(this in Entity child) {
-
-            return child.Read<Container>().entity;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         private static bool FindInHierarchy(in Entity child, in Entity root) {
 
             var childNodes = child.Read<Nodes>();
-            if (childNodes.items == null) return false;
-            var list = childNodes.items;
-            if (list.Contains(root) == true) {
+            if (childNodes.items.Contains(root) == true) {
 
                 return true;
 
             }
 
-            for (int i = 0, cnt = list.Count; i < cnt; ++i) {
-
-                var cc = list[i];
+            foreach (var cc in childNodes.items) {
 
                 if (ECSTransformHierarchy.FindInHierarchy(in cc, in root) == true) return true;
 
             }
 
             return false;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static bool HasParent(this in Entity child) {
+
+            return child.Has<Container>();
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity GetParent(this in Entity child) {
+
+            return child.Read<Container>().entity;
 
         }
 

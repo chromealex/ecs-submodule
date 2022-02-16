@@ -556,7 +556,7 @@ namespace ME.ECS {
         public bool IsAlive() {
 
             // Inline manually
-            return Worlds.currentWorld.currentState.storage.cache.arr[this.id].generation == this.generation;
+            return this.generation > 0 && Worlds.currentWorld.currentState.storage.cache.arr[this.id].generation == this.generation;
 
         }
 
