@@ -215,6 +215,24 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static bool TryReadParent(this in Entity child, out Entity parent) {
+
+            return child.TryGetParent(out parent);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity ReadParent(this in Entity child) {
+
+            return child.GetParent();
+
+        }
+
     }
 
 }
