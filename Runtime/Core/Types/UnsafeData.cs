@@ -48,12 +48,15 @@ namespace ME.ECS {
         }
         
         public ItemBase data;
+        public int typeId;
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public UnsafeData Set<T>(T data) where T : struct {
 
+            this.typeId = AllComponentTypes<T>.typeId;
+            
             if (this.data != null) {
 
                 this.data.Recycle();
@@ -82,6 +85,12 @@ namespace ME.ECS {
         #endif
         public void CopyFrom(in UnsafeData other) {
 
+            if (this.typeId != other.typeId) {
+                
+                this.Dispose();
+                
+            }
+            
             if (other.data == null && this.data == null) {
                 return;
             } else if (other.data != null && this.data == null) {
@@ -115,12 +124,15 @@ namespace ME.ECS {
         public System.IntPtr data;
         public int sizeOf;
         public int alignOf;
+        public int typeId;
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public UnsafeData Set<T>(T data) where T : struct {
 
+            this.typeId = AllComponentTypes<T>.typeId;
+            
             if (this.data != System.IntPtr.Zero) {
                 
                 NativeArrayUtils.Dispose(ref this.data);
@@ -150,6 +162,12 @@ namespace ME.ECS {
         #endif
         public void CopyFrom(in UnsafeData other) {
 
+            if (this.typeId != other.typeId) {
+                
+                this.Dispose();
+                
+            }
+            
             this.sizeOf = other.sizeOf;
             this.alignOf = other.alignOf;
             NativeArrayUtils.Copy(other.data, ref this.data, this.sizeOf, this.alignOf);
