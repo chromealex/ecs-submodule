@@ -2,7 +2,7 @@ using Unity.Collections.LowLevel.Unsafe;
 
 namespace ME.ECS {
 
-    public struct UnsafeData {
+    /*public struct UnsafeData {
 
         public abstract class ItemBase {
 
@@ -118,9 +118,8 @@ namespace ME.ECS {
 
         }
 
-    }
+    }*/
 
-    /*
     public unsafe struct UnsafeData {
 
         public System.IntPtr data;
@@ -193,6 +192,6 @@ namespace ME.ECS {
             
         }
 
-    }*/
+    }
 
 }
