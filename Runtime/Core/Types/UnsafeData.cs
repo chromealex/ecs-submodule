@@ -102,6 +102,7 @@ namespace ME.ECS {
                 return;
             }
 
+            this.typeId = other.typeId;
             this.data.CopyFrom(other.data);
 
         }
@@ -111,6 +112,7 @@ namespace ME.ECS {
         #endif
         public void Dispose() {
             
+            this.typeId = default;
             if (this.data != null) this.data.Recycle();
             this.data = null;
 
@@ -168,6 +170,7 @@ namespace ME.ECS {
                 
             }
             
+            this.typeId = other.typeId;
             this.sizeOf = other.sizeOf;
             this.alignOf = other.alignOf;
             NativeArrayUtils.Copy(other.data, ref this.data, this.sizeOf, this.alignOf);
@@ -181,6 +184,7 @@ namespace ME.ECS {
             
             if (this.data != System.IntPtr.Zero) {
 
+                this.typeId = default;
                 this.sizeOf = default;
                 this.alignOf = default;
                 NativeArrayUtils.Dispose(ref this.data);
@@ -189,7 +193,6 @@ namespace ME.ECS {
             
         }
 
-    }
-    */
+    }*/
 
 }
