@@ -344,12 +344,14 @@ namespace ME.ECS {
         /// Useful for matching servers
         /// </summary>
         /// <returns></returns>
-        private float ieeeFloat = 0.1f; 
-        public float GetIEEEFloat() {
-
-            var m = 4f;
-            m += this.ieeeFloat; // use this number to avoid compiler inline constants
-            return -16.3f / m;
+        public string GetIEEEFloat() {
+            
+            var p = new UnityEngine.Vector3(-0.9150986f, 0f, 0.4032301f);
+            var t = new UnityEngine.Vector3(0.5726798f, 0f, 0.8197792f);
+            var rotationSpeed = 50f;
+            var deltaTime = 0.04f;
+            var res = UnityEngine.Vector3.RotateTowards(p, t, deltaTime * rotationSpeed, 0f);
+            return res.x.ToStringDec() + res.y.ToStringDec() + res.z.ToStringDec();
             
         }
 
