@@ -32,6 +32,7 @@ namespace ME.ECS {
 
             public override void CopyFrom(ItemBase other) {
 
+                if ((other is Item<T>) == false) UnityEngine.Debug.LogError("Cast is not valid: " + typeof(T) + ", " + other.GetType().FullName + ", " + other);
                 var _other = (Item<T>)other;
                 this.data = _other.data;
                 
