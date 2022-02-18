@@ -9,10 +9,17 @@ namespace ME.ECS.Collections {
     using System.Security.Permissions;
     using TKey = System.UInt64;
  
+    public interface IDictionaryULong : ICollection, IEnumerable {
+
+        int Count { get; }
+        void Add(object key, object value);
+
+    }
+
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
     [System.Runtime.InteropServices.ComVisible(false)]
-    public class DictionaryULong<TValue> : IDictionary {
+    public class DictionaryULong<TValue> : IDictionaryULong {
     
         private struct Entry {
             public int hashCode;    // Lower 31 bits of hash code, -1 if unused
@@ -191,6 +198,10 @@ namespace ME.ECS.Collections {
             this.Remove(key);
             return val;
             
+        }
+
+        public void Add(object key, object value) {
+            this.Add((TKey)key, (TValue)value);
         }
 
         public void Add(TKey key, TValue value) {
@@ -525,6 +536,7 @@ namespace ME.ECS.Collections {
             }
         }
  
+        /*
         bool IDictionary.IsFixedSize {
             get { return false; }
         }
@@ -573,13 +585,6 @@ namespace ME.ECS.Collections {
             }
         }
  
-        private static bool IsCompatibleKey(object key) {
-            if( key == null) {
-                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);                          
-                }
-            return (key is TKey); 
-        }
-    
         void IDictionary.Add(object key, object value) {            
             if (key == null)
             {
@@ -619,7 +624,14 @@ namespace ME.ECS.Collections {
                 this.Remove((TKey)key);
             }
         }
- 
+*/
+        private static bool IsCompatibleKey(object key) {
+            if( key == null) {
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);                          
+                }
+            return (key is TKey); 
+        }
+    
         [Serializable]
         public struct Enumerator: IEnumerator<KeyValuePair<TKey,TValue>>,
             IDictionaryEnumerator

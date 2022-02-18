@@ -493,6 +493,7 @@ namespace ME.ECS.FiltersArchetype {
         public int AliveCount => this.aliveCount;
         public int DeadCount => this.dead.Count;
 
+        [ME.ECS.Serializer.SerializeField]
         internal NativeBufferArray<Entity> cache;
         [ME.ECS.Serializer.SerializeField]
         internal ListCopyable<int> dead;

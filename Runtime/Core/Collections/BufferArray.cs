@@ -118,11 +118,6 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArray(T[] arr, int length) : this(arr, length, -1) { }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public BufferArray(T[] arr, int length, int realLength) {
 
             this.Length = length;
@@ -138,6 +133,11 @@ namespace ME.ECS.Collections {
             #endif
 
         }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public BufferArray(T[] arr, int length) : this(arr, length, -1) { }
 
         public int Count {
             #if INLINE_METHODS

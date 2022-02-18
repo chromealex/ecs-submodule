@@ -3,6 +3,104 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace ME.ECS.Serializer {
+    
+    public struct GenericULongDictionarySerializer : ITypeSerializer, ITypeSerializerInherit {
+
+        public byte GetTypeValue() => (byte)TypeValue.GenericDictionary;
+
+        public System.Type GetTypeSerialized() => typeof(ME.ECS.Collections.IDictionaryULong);
+
+        public void Pack(Packer packer, object obj) {
+
+            var dict = (ME.ECS.Collections.IDictionaryULong)obj;
+            var type = dict.GetType();
+            Int32Serializer.PackDirect(packer, dict.Count);
+
+            Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(type.GenericTypeArguments[0]));
+            Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(type.GenericTypeArguments[1]));
+            Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(type.GetGenericTypeDefinition()));
+
+            foreach (DictionaryEntry entry in dict) {
+                
+                packer.PackInternal(entry.Key);
+                packer.PackInternal(entry.Value);
+                
+            }
+
+        }
+
+        public object Unpack(Packer packer) {
+
+            var length = Int32Serializer.UnpackDirect(packer);
+            var typeIdKey = Int32Serializer.UnpackDirect(packer);
+            var typeIdValue = Int32Serializer.UnpackDirect(packer);
+            var typeKey = packer.GetMetaType(typeIdKey);
+            var typeValue = packer.GetMetaType(typeIdValue);
+
+            var type = packer.GetMetaType(Int32Serializer.UnpackDirect(packer));
+            var t = type.MakeGenericType(typeKey, typeValue);
+
+            var dict = (ME.ECS.Collections.IDictionaryULong)System.Activator.CreateInstance(t);
+
+            for (int i = 0; i < length; ++i) {
+                
+                dict.Add(packer.UnpackInternal(), packer.UnpackInternal());
+                
+            }
+
+            return dict;
+        }
+
+    }
+
+    public struct GenericIntDictionarySerializer : ITypeSerializer, ITypeSerializerInherit {
+
+        public byte GetTypeValue() => (byte)TypeValue.GenericDictionary;
+
+        public System.Type GetTypeSerialized() => typeof(ME.ECS.Collections.IDictionaryInt);
+
+        public void Pack(Packer packer, object obj) {
+
+            var dict = (ME.ECS.Collections.IDictionaryInt)obj;
+            var type = dict.GetType();
+            Int32Serializer.PackDirect(packer, dict.Count);
+
+            Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(type.GenericTypeArguments[0]));
+            Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(type.GenericTypeArguments[1]));
+            Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(type.GetGenericTypeDefinition()));
+
+            foreach (DictionaryEntry entry in dict) {
+                
+                packer.PackInternal(entry.Key);
+                packer.PackInternal(entry.Value);
+                
+            }
+
+        }
+
+        public object Unpack(Packer packer) {
+
+            var length = Int32Serializer.UnpackDirect(packer);
+            var typeIdKey = Int32Serializer.UnpackDirect(packer);
+            var typeIdValue = Int32Serializer.UnpackDirect(packer);
+            var typeKey = packer.GetMetaType(typeIdKey);
+            var typeValue = packer.GetMetaType(typeIdValue);
+
+            var type = packer.GetMetaType(Int32Serializer.UnpackDirect(packer));
+            var t = type.MakeGenericType(typeKey, typeValue);
+
+            var dict = (ME.ECS.Collections.IDictionaryInt)System.Activator.CreateInstance(t);
+
+            for (int i = 0; i < length; ++i) {
+                
+                dict.Add(packer.UnpackInternal(), packer.UnpackInternal());
+                
+            }
+
+            return dict;
+        }
+
+    }
 
     public struct ViewSerializer : ITypeSerializer , ITypeSerializerInherit {
 
@@ -122,7 +220,9 @@ namespace ME.ECS.Serializer {
             ser.Add(new TickSerializer());
             ser.Add(new HistoryEventSerializer());
             ser.Add(new BufferArraySerializer());
-			ser.Add(new DisposeSentinelSerializer());
+            ser.Add(new DisposeSentinelSerializer());
+            ser.Add(new GenericIntDictionarySerializer());
+            ser.Add(new GenericULongDictionarySerializer());
             return ser;
 
         }

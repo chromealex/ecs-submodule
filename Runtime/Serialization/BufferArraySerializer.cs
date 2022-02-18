@@ -86,7 +86,7 @@ namespace ME.ECS.Serializer {
             var arrayType = packer.GetMetaType(arrayTypeId);
             var constructedType = arrayType.MakeGenericType(packer.GetMetaType(typeId));
             var instance = (ME.ECS.Collections.IBufferArray)System.Activator.CreateInstance(constructedType,
-                                                                                            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
+                                                                                            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic,
                                                                                             null, new object[] {
                                                                                                 p1, p2, -1,
                                                                                             }, System.Globalization.CultureInfo.InvariantCulture);

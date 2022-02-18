@@ -116,6 +116,43 @@ namespace ME.ECS.Tests {
 
         }
 
+        [NUnit.Framework.TestAttribute]
+        public void NativeBufferArraySerialization() {
+            var test = new TestDataNativeBufferArray {
+                viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23),
+                buffer = new ME.ECS.Collections.NativeBufferArray<MyStruct>(new[] {
+                    new MyStruct { bar = 1, foo = 2 },
+                    new MyStruct { bar = 2, foo = 3 },
+                    new MyStruct { bar = 4, foo = 5 },
+                    new MyStruct { bar = 6, foo = 7 },
+                    new MyStruct { bar = 8, foo = 9 }
+                }, 5)
+            };
+
+            byte[] bytes;
+            {
+                var ser = new Serializers();
+                ser.Add(new BufferArraySerializer());
+
+                bytes = Serializer.Pack(test, ser);
+                ser.Dispose();
+            }
+            
+            {
+                var ser = new Serializers();
+                ser.Add(new BufferArraySerializer());
+
+                var testRes = Serializer.Unpack<TestDataNativeBufferArray>(bytes, ser);
+                ser.Dispose();
+                for (int i = 0; i < test.buffer.Length; ++i) {
+
+                    NUnit.Framework.Assert.AreEqual(test.buffer.arr[i], testRes.buffer.arr[i]);
+
+                }
+            }
+
+        }
+
 		void DictionarySerializationTest1()
 		{
 			var test = new TestDataDictionary
@@ -334,6 +371,13 @@ namespace ME.ECS.Tests {
 
         }
 
+        public struct TestDataNativeBufferArray {
+
+            public ME.ECS.Views.ViewInfo viewInfo;
+            public ME.ECS.Collections.NativeBufferArray<MyStruct> buffer;
+
+        }
+
         public struct TestDataBufferArray {
 
             public ME.ECS.Views.ViewInfo viewInfo;
@@ -481,11 +525,15 @@ namespace ME.ECS.Tests {
             public class FakeSerializer : ME.ECS.Network.ISerializer {
                 
                 public byte[] SerializeWorld(World.WorldState data) {
-                    return ME.ECS.Serializer.Serializer.Pack(data);
+                    var ser = new Serializers();
+                    ser.Add(new BufferArraySerializer());
+                    return ME.ECS.Serializer.Serializer.Pack(data, ser);
                 }
 
                 public World.WorldState DeserializeWorld(byte[] bytes) {
-                    return ME.ECS.Serializer.Serializer.Unpack<World.WorldState>(bytes);
+                    var ser = new Serializers();
+                    ser.Add(new BufferArraySerializer());
+                    return ME.ECS.Serializer.Serializer.Unpack<World.WorldState>(bytes, ser);
                 }
 
                 public ME.ECS.StatesHistory.HistoryStorage DeserializeStorage(byte[] bytes) {
