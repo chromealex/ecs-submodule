@@ -155,6 +155,7 @@ namespace ME.ECS {
         public Enumerator GetEnumerator() {
 
             ref var filters = ref Worlds.current.currentState.filters;
+            filters.UpdateFilters();
             ++filters.forEachMode;
             var filterData = filters.GetFilter(this.id);
             return new Enumerator() {
