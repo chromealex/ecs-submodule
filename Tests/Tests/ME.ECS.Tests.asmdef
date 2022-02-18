@@ -5,6 +5,7 @@
         "UnityEditor.TestRunner",
         "UnityEngine.TestRunner",
         "ME.ECS",
+        "ME.Pools",
         "Unity.Burst",
         "ME.ECS.Tests.Res",
         "ME.ECS.FPMath"

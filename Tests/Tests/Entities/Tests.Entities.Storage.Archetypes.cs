@@ -10,6 +10,7 @@ namespace ME.ECS.Tests {
         [NUnit.Framework.TestAttribute]
         public void Add() {
 
+            ME.ECS.Pools.current = new ME.ECS.PoolImplementation(isNull: false);
             var st = new ME.ECS.FiltersArchetype.FiltersArchetypeStorage();
             st.Initialize(100);
 
@@ -25,6 +26,7 @@ namespace ME.ECS.Tests {
         [NUnit.Framework.TestAttribute]
         public void Remove() {
 
+            ME.ECS.Pools.current = new ME.ECS.PoolImplementation(isNull: false);
             var st = new ME.ECS.FiltersArchetype.FiltersArchetypeStorage();
             st.Initialize(100);
 
@@ -54,6 +56,7 @@ namespace ME.ECS.Tests {
         [NUnit.Framework.TestAttribute]
         public void AddRemoveMulti() {
 
+            ME.ECS.Pools.current = new ME.ECS.PoolImplementation(isNull: false);
             var st = new ME.ECS.FiltersArchetype.FiltersArchetypeStorage();
             st.Initialize(20);
 

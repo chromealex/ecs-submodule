@@ -13,6 +13,7 @@ namespace ME.ECS.Tests {
         [NUnit.Framework.RepeatAttribute(20)]
         public void Initialize() {
 
+            ME.ECS.Pools.current = new ME.ECS.PoolImplementation(isNull: false);
             var reg = new UnmanagedComponentsStorage();
             reg.Initialize();
             try {
@@ -31,6 +32,7 @@ namespace ME.ECS.Tests {
         [NUnit.Framework.RepeatAttribute(20)]
         public void Set() {
 
+            ME.ECS.Pools.current = new ME.ECS.PoolImplementation(isNull: false);
             var reg = new UnmanagedComponentsStorage();
             reg.Initialize();
             try {
@@ -55,6 +57,7 @@ namespace ME.ECS.Tests {
         [NUnit.Framework.RepeatAttribute(20)]
         public void Read() {
 
+            ME.ECS.Pools.current = new ME.ECS.PoolImplementation(isNull: false);
             var reg = new UnmanagedComponentsStorage();
             reg.Initialize();
             try {
@@ -78,6 +81,7 @@ namespace ME.ECS.Tests {
         [NUnit.Framework.RepeatAttribute(20)]
         public void Get() {
 
+            ME.ECS.Pools.current = new ME.ECS.PoolImplementation(isNull: false);
             var reg = new UnmanagedComponentsStorage();
             reg.Initialize();
             try {
@@ -105,6 +109,7 @@ namespace ME.ECS.Tests {
         [NUnit.Framework.RepeatAttribute(20)]
         public void Has() {
 
+            ME.ECS.Pools.current = new ME.ECS.PoolImplementation(isNull: false);
             var reg = new UnmanagedComponentsStorage();
             reg.Initialize();
             try {

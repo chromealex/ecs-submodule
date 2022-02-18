@@ -28,6 +28,7 @@ namespace ME.ECS.Tests {
             int from = 0,
             int to = 2) {
         
+            ME.ECS.Pools.current = new ME.ECS.PoolImplementation(isNull: false);
             World world = null;
             WorldUtilities.CreateWorld<EmptyState>(ref world, 0.033f);
             {
