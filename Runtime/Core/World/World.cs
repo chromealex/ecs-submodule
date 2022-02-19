@@ -355,7 +355,7 @@ namespace ME.ECS {
         /// Calculates constant operation
         /// Useful for matching servers
         /// </summary>
-        /// <returns></returns>
+        /// <returns>string to match players</returns>
         public string GetIEEEFloat() {
             
             var p = new UnityEngine.Vector3(-0.9150986f, 0f, 0.4032301f);
@@ -363,10 +363,15 @@ namespace ME.ECS {
             var rotationSpeed = 50f;
             var deltaTime = 0.04f;
             var res = UnityEngine.Vector3.RotateTowards(p, t, deltaTime * rotationSpeed, 0f);
-            return res.x.ToStringDec() + res.y.ToStringDec() + res.z.ToStringDec() + " :: " + res.x + " :: " + res.y + " :: " + res.z;
+            return res.x.ToStringDec() + res.y.ToStringDec() + res.z.ToStringDec();// + " :: " + res.x + " :: " + res.y + " :: " + res.z;
             
         }
         
+        /// <summary>
+        /// Calculates constant operation with fp
+        /// Useful for matching servers
+        /// </summary>
+        /// <returns>string to match players</returns>
         public string GetIEEEFloatFixed() {
             
             var p = new fp3(-0.9150986f, 0f, 0.4032301f);
@@ -374,7 +379,7 @@ namespace ME.ECS {
             var rotationSpeed = (fp)50f;
             var deltaTime = (fp)0.04f;
             var res = (fp3)VecMath.RotateTowards(p, t, deltaTime * rotationSpeed, (fp)0f);
-            return res.x.ToStringDec() + res.y.ToStringDec() + res.z.ToStringDec() + " :: " + res.x + " :: " + res.y + " :: " + res.z;
+            return res.x.ToStringDec() + res.y.ToStringDec() + res.z.ToStringDec();// + " :: " + res.x + " :: " + res.y + " :: " + res.z;
             
         }
 
