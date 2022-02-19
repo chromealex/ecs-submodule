@@ -1486,12 +1486,12 @@ namespace ME.ECSEditor {
 	        if (type == typeof(Color32)) return true;
 	        if (type == typeof(Vector2)) return true;
 	        if (type == typeof(Vector3)) return true;
-	        if (type == typeof(FPVector2)) return true;
-	        if (type == typeof(FPVector3)) return true;
 	        if (type == typeof(Vector4)) return true;
 	        if (type == typeof(Quaternion)) return true;
-	        if (type == typeof(FPQuaternion)) return true;
-	        if (type == typeof(pfloat)) return true;
+            if (type == typeof(fp)) return true;
+            if (type == typeof(fp3)) return true;
+	        if (type == typeof(fp4)) return true;
+	        if (type == typeof(fp2)) return true;
 	        return false;
 
         }
@@ -1711,21 +1711,29 @@ namespace ME.ECSEditor {
 
 	            }
 
-            }  else if (type == typeof(FPVector2)) {
+            }  else if (type == typeof(fp2)) {
 
 	            if (typeCheckOnly == false) {
 
-		            value = (FPVector2)EditorGUILayout.Vector2Field(caption, (FPVector2)value);
+		            value = (fp2)EditorGUILayout.Vector2Field(caption, (fp2)value);
 
 	            }
 
-            } else if (type == typeof(FPVector3)) {
+            } else if (type == typeof(fp3)) {
 
-	            if (typeCheckOnly == false) {
+                if (typeCheckOnly == false) {
 
-		            value = (FPVector3)EditorGUILayout.Vector3Field(caption, (FPVector3)value);
+                    value = (fp3)EditorGUILayout.Vector3Field(caption, (fp3)value);
 
-	            }
+                }
+
+            } else if (type == typeof(fp4)) {
+
+                if (typeCheckOnly == false) {
+
+                    value = (fp4)EditorGUILayout.Vector4Field(caption, (fp4)value);
+
+                }
 
             } else if (type == typeof(Vector4)) {
 
@@ -1743,19 +1751,19 @@ namespace ME.ECSEditor {
 
 	            }
 
-            } else if (type == typeof(FPQuaternion)) {
+            } else if (type == typeof(fpquaternion)) {
 
 	            if (typeCheckOnly == false) {
 
-		            value = (FPQuaternion)Quaternion.Euler(EditorGUILayout.Vector3Field(caption, ((FPQuaternion)value).eulerAngles));
+		            value = (fpquaternion)Quaternion.Euler(EditorGUILayout.Vector3Field(caption, ((fpquaternion)value).eulerAngles));
 
 	            }
 
-            } else if (type == typeof(pfloat)) {
+            } else if (type == typeof(fp)) {
 
 	            if (typeCheckOnly == false) {
 
-		            value = (pfloat)EditorGUILayout.FloatField(caption, (float)(pfloat)value);
+		            value = (fp)EditorGUILayout.FloatField(caption, (float)(fp)value);
 
 	            }
 

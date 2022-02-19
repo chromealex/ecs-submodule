@@ -1,856 +1,1483 @@
-﻿
+using System.Runtime.CompilerServices;
+using Unity.Mathematics;
+
 namespace ME.ECS {
-    
-    public static partial class FPMath {
-        
+
+    public static partial class fpmath {
+
+        public static readonly fp E = 2.7182818284590451d;
+        public static readonly fp PI = new fp(fpmath.RAW_PI);
+        public static readonly fp PI_TIMES_2 = new fp(fpmath.RAW_PI_TIMES_2);
+        public static readonly fp PI_OVER_2 = new fp(fpmath.RAW_PI_OVER_2);
+        public static readonly fp PI_INV = 0.3183098861837906715377675267d;
+        public static readonly fp PI_OVER_2_INV = 0.6366197723675813430755350535d;
+        public static readonly fp SQRT2 = 1.4142135623730952d;
+        public static readonly fp LN10 = 2.3025850929940459d;
+        public static readonly fp LN2 = 0.69314718055994529d;
+        public static readonly fp LOG10E = 0.43429448190325182d;
+        public static readonly fp LOG2E = 1.4426950408889634d;
+
+        private const long RAW_PI_TIMES_2 = 0x6487ED511;
+        private const long RAW_PI = 0x3243F6A88;
+        private const long RAW_PI_OVER_2 = 0x1921FB544;
+
+        private const string NOT_SUPPORTED_YET = "Not supported yet.";
+
+        /// <summary>Returns the bit pattern of a fp as a uint.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint asuint(fp x) {
+            return (uint)math.asint((uint)x);
+        }
+
+        /// <summary>Returns the bit pattern of a fp2 as a uint2.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint2 asuint(fp2 x) {
+            return math.uint2(fpmath.asuint(x.x), fpmath.asuint(x.y));
+        }
+
+        /// <summary>Returns the bit pattern of a fp3 as a uint3.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint3 asuint(fp3 x) {
+            return math.uint3(fpmath.asuint(x.x), fpmath.asuint(x.y), fpmath.asuint(x.z));
+        }
+
+        /// <summary>Returns the bit pattern of a fp4 as a uint4.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint4 asuint(fp4 x) {
+            return math.uint4(fpmath.asuint(x.x), fpmath.asuint(x.y), fpmath.asuint(x.z), fpmath.asuint(x.w));
+        }
+
+
+        /// <summary>Returns the absolute value of a fp value.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp abs(fp x) {
+            return fp.Abs(x);
+        }
+
+        /// <summary>Returns the componentwise absolute value of a fp2 vector.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 abs(fp2 x) {
+            return new fp2(fp.Abs(x.x), fp.Abs(x.y));
+        }
+
+        /// <summary>Returns the componentwise absolute value of a fp3 vector.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 abs(fp3 x) {
+            return new fp3(fp.Abs(x.x), fp.Abs(x.y), fp.Abs(x.z));
+        }
+
+        /// <summary>Returns the componentwise absolute value of a fp4 vector.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 abs(fp4 x) {
+            return new fp4(fp.Abs(x.x), fp.Abs(x.y), fp.Abs(x.z), fp.Abs(x.w));
+        }
+
+
+        /// <summary>Returns the sine of a fp value.</summary>
+        public static fp sin(fp x) {
+            return fp.Sin(x);
+        }
+
+        /// <summary>Returns the arc sine of a fp value.</summary>
+        public static fp asin(fp x) {
+            return fp.Asin(x);
+        }
+
+        /// <summary>Returns the arc cos of a fp value.</summary>
+        public static fp acos(fp x) {
+            return fp.Acos(x);
+        }
+
+        /// <summary>Returns the componentwise sine of a fp2 vector.</summary>
+        public static fp2 sin(fp2 x) {
+            return new fp2(fpmath.sin(x.x), fpmath.sin(x.y));
+        }
+
+        /// <summary>Returns the componentwise sine of a fp3 vector.</summary>
+        public static fp3 sin(fp3 x) {
+            return new fp3(fpmath.sin(x.x), fpmath.sin(x.y), fpmath.sin(x.z));
+        }
+
+        /// <summary>Returns the componentwise sine of a fp4 vector.</summary>
+        public static fp4 sin(fp4 x) {
+            return new fp4(fpmath.sin(x.x), fpmath.sin(x.y), fpmath.sin(x.z), fpmath.sin(x.w));
+        }
+
+
+        /// <summary>Returns the cosine of a fp value.</summary>
+        public static fp cos(fp x) {
+            return fp.Cos(x);
+        }
+
+        /// <summary>Returns the componentwise cosine of a fp2 vector.</summary>
+        public static fp2 cos(fp2 x) {
+            return new fp2(fpmath.cos(x.x), fpmath.cos(x.y));
+        }
+
+        /// <summary>Returns the componentwise cosine of a fp3 vector.</summary>
+        public static fp3 cos(fp3 x) {
+            return new fp3(fpmath.cos(x.x), fpmath.cos(x.y), fpmath.cos(x.z));
+        }
+
+        /// <summary>Returns the componentwise cosine of a fp4 vector.</summary>
+        public static fp4 cos(fp4 x) {
+            return new fp4(fpmath.cos(x.x), fpmath.cos(x.y), fpmath.cos(x.z), fpmath.cos(x.w));
+        }
+
+
+        /// <summary>Returns the tangent of a fp value.</summary>
+        public static fp tan(fp x) {
+            return fp.Tan(x);
+        }
+
+        /// <summary>Returns the componentwise tangent of a fp2 vector.</summary>
+        public static fp2 tan(fp2 x) {
+            return new fp2(fpmath.tan(x.x), fpmath.tan(x.y));
+        }
+
+        /// <summary>Returns the componentwise tangent of a fp3 vector.</summary>
+        public static fp3 tan(fp3 x) {
+            return new fp3(fpmath.tan(x.x), fpmath.tan(x.y), fpmath.tan(x.z));
+        }
+
+        /// <summary>Returns the componentwise tangent of a fp4 vector.</summary>
+        public static fp4 tan(fp4 x) {
+            return new fp4(fpmath.tan(x.x), fpmath.tan(x.y), fpmath.tan(x.z), fpmath.tan(x.w));
+        }
+
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the hyperbolic tangent of a fp value.</summary>
+        public static fp tanh(fp x) {
+            throw new System.NotImplementedException("fp doesn't support tanh");
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise hyperbolic tangent of a fp2 vector.</summary>
+        public static fp2 tanh(fp2 x) {
+            return new fp2(fpmath.tanh(x.x), fpmath.tanh(x.y));
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise hyperbolic tangent of a fp3 vector.</summary>
+        public static fp3 tanh(fp3 x) {
+            return new fp3(fpmath.tanh(x.x), fpmath.tanh(x.y), fpmath.tanh(x.z));
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise hyperbolic tangent of a fp4 vector.</summary>
+        public static fp4 tanh(fp4 x) {
+            return new fp4(fpmath.tanh(x.x), fpmath.tanh(x.y), fpmath.tanh(x.z), fpmath.tanh(x.w));
+        }
+
+
+        /// <summary>Returns the dot product of two fp values. Equivalent to multiplication.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp dot(fp x, fp y) {
+            return x * y;
+        }
+
+        /// <summary>Returns the dot product of two fp2 vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp dot(fp2 x, fp2 y) {
+            return x.x * y.x + x.y * y.y;
+        }
+
+        /// <summary>Returns the dot product of two fp3 vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp dot(fp3 x, fp3 y) {
+            return x.x * y.x + x.y * y.y + x.z * y.z;
+        }
+
+        /// <summary>Returns the dot product of two fp4 vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp dot(fp4 x, fp4 y) {
+            return x.x * y.x + x.y * y.y + x.z * y.z + x.w * y.w;
+        }
+
+        /// <summary>Returns the dot product of two fp4 vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp dot(fpquaternion x, fpquaternion y) {
+            return x.x * y.x + x.y * y.y + x.z * y.z + x.w * y.w;
+        }
+
+
+        /// <summary>Returns the result of clamping the fp value x into the interval [0, 1].</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp saturate(fp x) {
+            return fpmath.clamp(x, fp.zero, fp.one);
+        }
+
+        /// <summary>Returns the result of a componentwise clamping of the fp2 vector x into the interval [0, 1].</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 saturate(fp2 x) {
+            return fpmath.clamp(x, new fp2(fp.zero), new fp2(fp.one));
+        }
+
+        /// <summary>Returns the result of a componentwise clamping of the fp3 vector x into the interval [0, 1].</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 saturate(fp3 x) {
+            return fpmath.clamp(x, new fp3(fp.zero), new fp3(fp.one));
+        }
+
+        /// <summary>Returns the result of a componentwise clamping of the fp4 vector x into the interval [0, 1].</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 saturate(fp4 x) {
+            return fpmath.clamp(x, new fp4(fp.zero), new fp4(fp.one));
+        }
+
+
+        /// <summary>Returns the result of clamping the value x into the interval [a, b], where x, a and b are fp values.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp clamp(fp x, fp a, fp b) {
+            return fpmath.max(a, fpmath.min(b, x));
+        }
+
+        /// <summary>Returns the result of a componentwise clamping of the value x into the interval [a, b], where x, a and b are fp2 vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 clamp(fp2 x, fp2 a, fp2 b) {
+            return fpmath.max(a, fpmath.min(b, x));
+        }
+
+        /// <summary>Returns the result of a componentwise clamping of the value x into the interval [a, b], where x, a and b are fp3 vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 clamp(fp3 x, fp3 a, fp3 b) {
+            return fpmath.max(a, fpmath.min(b, x));
+        }
+
+        /// <summary>Returns the result of a componentwise clamping of the value x into the interval [a, b], where x, a and b are fp4 vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 clamp(fp4 x, fp4 a, fp4 b) {
+            return fpmath.max(a, fpmath.min(b, x));
+        }
+
+
+        /// <summary>Returns the result of a multiply-add operation (a * b + c) on 3 fp values.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp mad(fp a, fp b, fp c) {
+            return a * b + c;
+        }
+
+        /// <summary>Returns the result of a componentwise multiply-add operation (a * b + c) on 3 fp2 vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 mad(fp2 a, fp2 b, fp2 c) {
+            return a * b + c;
+        }
+
+        /// <summary>Returns the result of a componentwise multiply-add operation (a * b + c) on 3 fp3 vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 mad(fp3 a, fp3 b, fp3 c) {
+            return a * b + c;
+        }
+
+        /// <summary>Returns the result of a componentwise multiply-add operation (a * b + c) on 3 fp4 vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 mad(fp4 a, fp4 b, fp4 c) {
+            return a * b + c;
+        }
+
+
+        /// <summary>Returns the result of a non-clamping linear remapping of a value x from [a, b] to [c, d].</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp remap(fp a, fp b, fp c, fp d, fp x) {
+            return fpmath.lerp(c, d, fpmath.unlerp(a, b, x));
+        }
+
+        /// <summary>Returns the componentwise result of a non-clamping linear remapping of a value x from [a, b] to [c, d].</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 remap(fp2 a, fp2 b, fp2 c, fp2 d, fp2 x) {
+            return fpmath.lerp(c, d, fpmath.unlerp(a, b, x));
+        }
+
+        /// <summary>Returns the componentwise result of a non-clamping linear remapping of a value x from [a, b] to [c, d].</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 remap(fp3 a, fp3 b, fp3 c, fp3 d, fp3 x) {
+            return fpmath.lerp(c, d, fpmath.unlerp(a, b, x));
+        }
+
+        /// <summary>Returns the componentwise result of a non-clamping linear remapping of a value x from [a, b] to [c, d].</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 remap(fp4 a, fp4 b, fp4 c, fp4 d, fp4 x) {
+            return fpmath.lerp(c, d, fpmath.unlerp(a, b, x));
+        }
+
+
+        /// <summary>Returns the result of normalizing a fping point value x to a range [a, b]. The opposite of lerp. Equivalent to (x - a) / (b - a).</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp unlerp(fp a, fp b, fp x) {
+            return (x - a) / (b - a);
+        }
+
+        /// <summary>Returns the componentwise result of normalizing a fping point value x to a range [a, b]. The opposite of lerp. Equivalent to (x - a) / (b - a).</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 unlerp(fp2 a, fp2 b, fp2 x) {
+            return (x - a) / (b - a);
+        }
+
+        /// <summary>Returns the componentwise result of normalizing a fping point value x to a range [a, b]. The opposite of lerp. Equivalent to (x - a) / (b - a).</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 unlerp(fp3 a, fp3 b, fp3 x) {
+            return (x - a) / (b - a);
+        }
+
+        /// <summary>Returns the componentwise result of normalizing a fping point value x to a range [a, b]. The opposite of lerp. Equivalent to (x - a) / (b - a).</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 unlerp(fp4 a, fp4 b, fp4 x) {
+            return (x - a) / (b - a);
+        }
+
+
+        /// <summary>Returns the result of linearly interpolating from x to y using the interpolation parameter s.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp lerp(fp x, fp y, fp s) {
+            return x + s * (y - x);
+        }
+
+        /// <summary>Returns the result of a componentwise linear interpolating from x to y using the interpolation parameter s.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 lerp(fp2 x, fp2 y, fp s) {
+            return x + s * (y - x);
+        }
+
+        /// <summary>Returns the result of a componentwise linear interpolating from x to y using the interpolation parameter s.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 lerp(fp3 x, fp3 y, fp s) {
+            return x + s * (y - x);
+        }
+
+        /// <summary>Returns the result of a componentwise linear interpolating from x to y using the interpolation parameter s.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 lerp(fp4 x, fp4 y, fp s) {
+            return x + s * (y - x);
+        }
+
+
+        /// <summary>Returns the result of a componentwise linear interpolating from x to y using the corresponding components of the interpolation parameter s.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 lerp(fp2 x, fp2 y, fp2 s) {
+            return x + s * (y - x);
+        }
+
+        /// <summary>Returns the result of a componentwise linear interpolating from x to y using the corresponding components of the interpolation parameter s.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 lerp(fp3 x, fp3 y, fp3 s) {
+            return x + s * (y - x);
+        }
+
+        /// <summary>Returns the result of a componentwise linear interpolating from x to y using the corresponding components of the interpolation parameter s.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 lerp(fp4 x, fp4 y, fp4 s) {
+            return x + s * (y - x);
+        }
+
+
+        /// <summary>Returns the maximum of two fp values.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp max(fp x, fp y) {
+            return x > y ? x : y;
+        }
+
+        /// <summary>Returns the componentwise maximum of two fp2 vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 max(fp2 x, fp2 y) {
+            return new fp2(fpmath.max(x.x, y.x), fpmath.max(x.y, y.y));
+        }
+
+        /// <summary>Returns the componentwise maximum of two fp3 vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 max(fp3 x, fp3 y) {
+            return new fp3(fpmath.max(x.x, y.x), fpmath.max(x.y, y.y), fpmath.max(x.z, y.z));
+        }
+
+        /// <summary>Returns the componentwise maximum of two fp4 vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 max(fp4 x, fp4 y) {
+            return new fp4(fpmath.max(x.x, y.x), fpmath.max(x.y, y.y), fpmath.max(x.z, y.z), fpmath.max(x.w, y.w));
+        }
+
+
+        /// <summary>Returns the minimum of two fp values.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp min(fp x, fp y) {
+            return x < y ? x : y;
+        }
+
+        /// <summary>Returns the componentwise minimum of two fp2 vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 min(fp2 x, fp2 y) {
+            return new fp2(fpmath.min(x.x, y.x), fpmath.min(x.y, y.y));
+        }
+
+        /// <summary>Returns the componentwise minimum of two fp3 vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 min(fp3 x, fp3 y) {
+            return new fp3(fpmath.min(x.x, y.x), fpmath.min(x.y, y.y), fpmath.min(x.z, y.z));
+        }
+
+        /// <summary>Returns the componentwise minimum of two fp4 vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 min(fp4 x, fp4 y) {
+            return new fp4(fpmath.min(x.x, y.x), fpmath.min(x.y, y.y), fpmath.min(x.z, y.z), fpmath.min(x.w, y.w));
+        }
+
+
+        /// <summary>Returns true if the input fp is a NaN (not a number) fping point value, false otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool isnan(fp x) {
+            return false;
+        }
+
+        /// <summary>Returns a bool2 indicating for each component of a fp2 whether it is a NaN (not a number) fping point value.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool2 isnan(fp2 x) {
+            return false;
+        }
+
+        /// <summary>Returns a bool3 indicating for each component of a fp3 whether it is a NaN (not a number) fping point value.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool3 isnan(fp3 x) {
+            return false;
+        }
+
+        /// <summary>Returns a bool4 indicating for each component of a fp4 whether it is a NaN (not a number) fping point value.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool4 isnan(fp4 x) {
+            return false;
+        }
+
+
+        /// <summary>Returns true if the input fp is an infinite fping point value, false otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool isinf(fp x) {
+            return false;
+        }
+
+        /// <summary>Returns a bool2 indicating for each component of a fp2 whether it is an infinite fping point value.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool2 isinf(fp2 x) {
+            return false;
+        }
+
+        /// <summary>Returns a bool3 indicating for each component of a fp3 whether it is an infinite fping point value.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool3 isinf(fp3 x) {
+            return false;
+        }
+
+        /// <summary>Returns a bool4 indicating for each component of a fp4 whether it is an infinite fping point value.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool4 isinf(fp4 x) {
+            return false;
+        }
+
+
+        /// <summary>Returns true if the input fp is a finite fping point value, false otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool isfinite(fp x) {
+            return true;
+        }
+
+        /// <summary>Returns a bool2 indicating for each component of a fp2 whether it is a finite fping point value.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool2 isfinite(fp2 x) {
+            return true;
+        }
+
+        /// <summary>Returns a bool3 indicating for each component of a fp3 whether it is a finite fping point value.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool3 isfinite(fp3 x) {
+            return true;
+        }
+
+        /// <summary>Returns a bool4 indicating for each component of a fp4 whether it is a finite fping point value.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool4 isfinite(fp4 x) {
+            return true;
+        }
+
+
+        /// <summary>Returns the arctangent of a fp value.</summary>
+        public static fp atan(fp x) {
+            return fp.Atan(x);
+        }
+
+        /// <summary>Returns the componentwise arctangent of a fp2 vector.</summary>
+        public static fp2 atan(fp2 x) {
+            return new fp2(fpmath.atan(x.x), fpmath.atan(x.y));
+        }
+
+        /// <summary>Returns the componentwise arctangent of a fp3 vector.</summary>
+        public static fp3 atan(fp3 x) {
+            return new fp3(fpmath.atan(x.x), fpmath.atan(x.y), fpmath.atan(x.z));
+        }
+
+        /// <summary>Returns the componentwise arctangent of a fp4 vector.</summary>
+        public static fp4 atan(fp4 x) {
+            return new fp4(fpmath.atan(x.x), fpmath.atan(x.y), fpmath.atan(x.z), fpmath.atan(x.w));
+        }
+
+
+        /// <summary>Returns the 2-argument arctangent of a pair of fp values.</summary>
+        public static fp atan2(fp y, fp x) {
+            return fp.Atan2(y, x);
+        }
+
+        /// <summary>Returns the componentwise 2-argument arctangent of a pair of fps2 vectors.</summary>
+        public static fp2 atan2(fp2 y, fp2 x) {
+            return new fp2(fpmath.atan2(y.x, x.x), fpmath.atan2(y.y, x.y));
+        }
+
+        /// <summary>Returns the componentwise 2-argument arctangent of a pair of fps3 vectors.</summary>
+        public static fp3 atan2(fp3 y, fp3 x) {
+            return new fp3(fpmath.atan2(y.x, x.x), fpmath.atan2(y.y, x.y), fpmath.atan2(y.z, x.z));
+        }
+
+        /// <summary>Returns the componentwise 2-argument arctangent of a pair of fps4 vectors.</summary>
+        public static fp4 atan2(fp4 y, fp4 x) {
+            return new fp4(fpmath.atan2(y.x, x.x), fpmath.atan2(y.y, x.y), fpmath.atan2(y.z, x.z), fpmath.atan2(y.w, x.w));
+        }
+
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the hyperbolic cosine of a fp value.</summary>
+        public static fp cosh(fp x) {
+            throw new System.NotImplementedException("fp doesn't support cosh");
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise hyperbolic cosine of a fp2 vector.</summary>
+        public static fp2 cosh(fp2 x) {
+            return new fp2(fpmath.cosh(x.x), fpmath.cosh(x.y));
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise hyperbolic cosine of a fp3 vector.</summary>
+        public static fp3 cosh(fp3 x) {
+            return new fp3(fpmath.cosh(x.x), fpmath.cosh(x.y), fpmath.cosh(x.z));
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise hyperbolic cosine of a fp4 vector.</summary>
+        public static fp4 cosh(fp4 x) {
+            return new fp4(fpmath.cosh(x.x), fpmath.cosh(x.y), fpmath.cosh(x.z), fpmath.cosh(x.w));
+        }
+
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the hyperbolic sine of a fp value.</summary>
+        public static fp sinh(fp x) {
+            throw new System.NotImplementedException("fp doesn't support sinh");
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise hyperbolic sine of a fp2 vector.</summary>
+        public static fp2 sinh(fp2 x) {
+            return new fp2(fpmath.sinh(x.x), fpmath.sinh(x.y));
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise hyperbolic sine of a fp3 vector.</summary>
+        public static fp3 sinh(fp3 x) {
+            return new fp3(fpmath.sinh(x.x), fpmath.sinh(x.y), fpmath.sinh(x.z));
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise hyperbolic sine of a fp4 vector.</summary>
+        public static fp4 sinh(fp4 x) {
+            return new fp4(fpmath.sinh(x.x), fpmath.sinh(x.y), fpmath.sinh(x.z), fpmath.sinh(x.w));
+        }
+
+
+        /// <summary>Returns the result of rounding a fp value up to the nearest integral value less or equal to the original value.</summary>
+        public static fp floor(fp x) {
+            return fp.Floor(x);
+        }
+
+        /// <summary>Returns the result of rounding each component of a fp2 vector value down to the nearest value less or equal to the original value.</summary>
+        public static fp2 floor(fp2 x) {
+            return new fp2(fpmath.floor(x.x), fpmath.floor(x.y));
+        }
+
+        /// <summary>Returns the result of rounding each component of a fp3 vector value down to the nearest value less or equal to the original value.</summary>
+        public static fp3 floor(fp3 x) {
+            return new fp3(fpmath.floor(x.x), fpmath.floor(x.y), fpmath.floor(x.z));
+        }
+
+        /// <summary>Returns the result of rounding each component of a fp4 vector value down to the nearest value less or equal to the original value.</summary>
+        public static fp4 floor(fp4 x) {
+            return new fp4(fpmath.floor(x.x), fpmath.floor(x.y), fpmath.floor(x.z), fpmath.floor(x.w));
+        }
+
+
+        /// <summary>Returns the result of rounding a fp value up to the nearest integral value greater or equal to the original value.</summary>
+        public static fp ceil(fp x) {
+            return fp.Ceiling(x);
+        }
+
+        /// <summary>Returns the result of rounding each component of a fp2 vector value up to the nearest value greater or equal to the original value.</summary>
+        public static fp2 ceil(fp2 x) {
+            return new fp2(fpmath.ceil(x.x), fpmath.ceil(x.y));
+        }
+
+        /// <summary>Returns the result of rounding each component of a fp3 vector value up to the nearest value greater or equal to the original value.</summary>
+        public static fp3 ceil(fp3 x) {
+            return new fp3(fpmath.ceil(x.x), fpmath.ceil(x.y), fpmath.ceil(x.z));
+        }
+
+        /// <summary>Returns the result of rounding each component of a fp4 vector value up to the nearest value greater or equal to the original value.</summary>
+        public static fp4 ceil(fp4 x) {
+            return new fp4(fpmath.ceil(x.x), fpmath.ceil(x.y), fpmath.ceil(x.z), fpmath.ceil(x.w));
+        }
+
+
+        /// <summary>Returns the result of rounding a fp value to the nearest integral value.</summary>
+        public static fp round(fp x) {
+            return fp.Round(x);
+        }
+
+        /// <summary>Returns the result of rounding each component of a fp2 vector value to the nearest integral value.</summary>
+        public static fp2 round(fp2 x) {
+            return new fp2(fpmath.round(x.x), fpmath.round(x.y));
+        }
+
+        /// <summary>Returns the result of rounding each component of a fp3 vector value to the nearest integral value.</summary>
+        public static fp3 round(fp3 x) {
+            return new fp3(fpmath.round(x.x), fpmath.round(x.y), fpmath.round(x.z));
+        }
+
+        /// <summary>Returns the result of rounding each component of a fp4 vector value to the nearest integral value.</summary>
+        public static fp4 round(fp4 x) {
+            return new fp4(fpmath.round(x.x), fpmath.round(x.y), fpmath.round(x.z), fpmath.round(x.w));
+        }
+
+
+        /// <summary>Returns the result of truncating a fp value to an integral fp value.</summary>
+        public static fp trunc(fp x) {
+            return fp.Truncate(x);
+        }
+
+        /// <summary>Returns the result of a componentwise truncation of a fp2 value to an integral fp2 value.</summary>
+        public static fp2 trunc(fp2 x) {
+            return new fp2(fpmath.trunc(x.x), fpmath.trunc(x.y));
+        }
+
+        /// <summary>Returns the result of a componentwise truncation of a fp3 value to an integral fp3 value.</summary>
+        public static fp3 trunc(fp3 x) {
+            return new fp3(fpmath.trunc(x.x), fpmath.trunc(x.y), fpmath.trunc(x.z));
+        }
+
+        /// <summary>Returns the result of a componentwise truncation of a fp4 value to an integral fp4 value.</summary>
+        public static fp4 trunc(fp4 x) {
+            return new fp4(fpmath.trunc(x.x), fpmath.trunc(x.y), fpmath.trunc(x.z), fpmath.trunc(x.w));
+        }
+
+
+        /// <summary>Returns the fractional part of a fp value.</summary>
+        public static fp frac(fp x) {
+            return x - fpmath.floor(x);
+        }
+
+        /// <summary>Returns the componentwise fractional parts of a fp2 vector.</summary>
+        public static fp2 frac(fp2 x) {
+            return x - fpmath.floor(x);
+        }
+
+        /// <summary>Returns the componentwise fractional parts of a fp3 vector.</summary>
+        public static fp3 frac(fp3 x) {
+            return x - fpmath.floor(x);
+        }
+
+        /// <summary>Returns the componentwise fractional parts of a fp4 vector.</summary>
+        public static fp4 frac(fp4 x) {
+            return x - fpmath.floor(x);
+        }
+
+
+        /// <summary>Returns the reciprocal a fp value.</summary>
+        public static fp rcp(fp x) {
+            return fp.one / x;
+        }
+
+        /// <summary>Returns the componentwise reciprocal a fp2 vector.</summary>
+        public static fp2 rcp(fp2 x) {
+            return fp.one / x;
+        }
+
+        /// <summary>Returns the componentwise reciprocal a fp3 vector.</summary>
+        public static fp3 rcp(fp3 x) {
+            return fp.one / x;
+        }
+
+        /// <summary>Returns the componentwise reciprocal a fp4 vector.</summary>
+        public static fp4 rcp(fp4 x) {
+            return fp.one / x;
+        }
+
+
+        /// <summary>Returns the sign of a fp value. -1.0f if it is less than zero, 0.0f if it is zero and 1.0f if it greater than zero.</summary>
+        public static fp sign(fp x) {
+            return fp.Sign(x);
+        }
+
+        /// <summary>Returns the componentwise sign of a fp2 value. 1.0f for positive components, 0.0f for zero components and -1.0f for negative components.</summary>
+        public static fp2 sign(fp2 x) {
+            return new fp2(fpmath.sign(x.x), fpmath.sign(x.y));
+        }
+
+        /// <summary>Returns the componentwise sign of a fp3 value. 1.0f for positive components, 0.0f for zero components and -1.0f for negative components.</summary>
+        public static fp3 sign(fp3 x) {
+            return new fp3(fpmath.sign(x.x), fpmath.sign(x.y), fpmath.sign(x.z));
+        }
+
+        /// <summary>Returns the componentwise sign of a fp4 value. 1.0f for positive components, 0.0f for zero components and -1.0f for negative components.</summary>
+        public static fp4 sign(fp4 x) {
+            return new fp4(fpmath.sign(x.x), fpmath.sign(x.y), fpmath.sign(x.z), fpmath.sign(x.w));
+        }
+
+
+        /// <summary>Returns x raised to the power y.</summary>
+        public static fp pow(fp x, fp y) {
+            return fp.Pow(x, y);
+        }
+
+        /// <summary>Returns the componentwise result of raising x to the power y.</summary>
+        public static fp2 pow(fp2 x, fp2 y) {
+            return new fp2(fpmath.pow(x.x, y.x), fpmath.pow(x.y, y.y));
+        }
+
+        /// <summary>Returns the componentwise result of raising x to the power y.</summary>
+        public static fp3 pow(fp3 x, fp3 y) {
+            return new fp3(fpmath.pow(x.x, y.x), fpmath.pow(x.y, y.y), fpmath.pow(x.z, y.z));
+        }
+
+        /// <summary>Returns the componentwise result of raising x to the power y.</summary>
+        public static fp4 pow(fp4 x, fp4 y) {
+            return new fp4(fpmath.pow(x.x, y.x), fpmath.pow(x.y, y.y), fpmath.pow(x.z, y.z), fpmath.pow(x.w, y.w));
+        }
+
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the base-e exponential of x.</summary>
+        public static fp exp(fp x) {
+            throw new System.NotImplementedException("fp doesn't support exp");
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise base-e exponential of x.</summary>
+        public static fp2 exp(fp2 x) {
+            return new fp2(fpmath.exp(x.x), fpmath.exp(x.y));
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise base-e exponential of x.</summary>
+        public static fp3 exp(fp3 x) {
+            return new fp3(fpmath.exp(x.x), fpmath.exp(x.y), fpmath.exp(x.z));
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise base-e exponential of x.</summary>
+        public static fp4 exp(fp4 x) {
+            return new fp4(fpmath.exp(x.x), fpmath.exp(x.y), fpmath.exp(x.z), fpmath.exp(x.w));
+        }
+
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the base-2 exponential of x.</summary>
+        public static fp exp2(fp x) {
+            return fpmath.exp(x * 0.69314718d);
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise base-2 exponential of x.</summary>
+        public static fp2 exp2(fp2 x) {
+            return new fp2(fpmath.exp2(x.x), fpmath.exp2(x.y));
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise base-2 exponential of x.</summary>
+        public static fp3 exp2(fp3 x) {
+            return new fp3(fpmath.exp2(x.x), fpmath.exp2(x.y), fpmath.exp2(x.z));
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise base-2 exponential of x.</summary>
+        public static fp4 exp2(fp4 x) {
+            return new fp4(fpmath.exp2(x.x), fpmath.exp2(x.y), fpmath.exp2(x.z), fpmath.exp2(x.w));
+        }
+
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the base-10 exponential of x.</summary>
+        public static fp exp10(fp x) {
+            return fpmath.exp(x * 2.30258509d);
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise base-10 exponential of x.</summary>
+        public static fp2 exp10(fp2 x) {
+            return new fp2(fpmath.exp10(x.x), fpmath.exp10(x.y));
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise base-10 exponential of x.</summary>
+        public static fp3 exp10(fp3 x) {
+            return new fp3(fpmath.exp10(x.x), fpmath.exp10(x.y), fpmath.exp10(x.z));
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise base-10 exponential of x.</summary>
+        public static fp4 exp10(fp4 x) {
+            return new fp4(fpmath.exp10(x.x), fpmath.exp10(x.y), fpmath.exp10(x.z), fpmath.exp10(x.w));
+        }
+
+
+        /// <summary>Returns the natural logarithm of a fp value.</summary>
+        public static fp log(fp x) {
+            return fp.Ln(x);
+        }
+
+        /// <summary>Returns the componentwise natural logarithm of a fp2 vector.</summary>
+        public static fp2 log(fp2 x) {
+            return new fp2(fpmath.log(x.x), fpmath.log(x.y));
+        }
+
+        /// <summary>Returns the componentwise natural logarithm of a fp3 vector.</summary>
+        public static fp3 log(fp3 x) {
+            return new fp3(fpmath.log(x.x), fpmath.log(x.y), fpmath.log(x.z));
+        }
+
+        /// <summary>Returns the componentwise natural logarithm of a fp4 vector.</summary>
+        public static fp4 log(fp4 x) {
+            return new fp4(fpmath.log(x.x), fpmath.log(x.y), fpmath.log(x.z), fpmath.log(x.w));
+        }
+
+
+        /// <summary>Returns the base-2 logarithm of a fp value.</summary>
+        public static fp log2(fp x) {
+            return fp.Log2(x);
+        }
+
+        /// <summary>Returns the componentwise base-2 logarithm of a fp2 vector.</summary>
+        public static fp2 log2(fp2 x) {
+            return new fp2(fpmath.log2(x.x), fpmath.log2(x.y));
+        }
+
+        /// <summary>Returns the componentwise base-2 logarithm of a fp3 vector.</summary>
+        public static fp3 log2(fp3 x) {
+            return new fp3(fpmath.log2(x.x), fpmath.log2(x.y), fpmath.log2(x.z));
+        }
+
+        /// <summary>Returns the componentwise base-2 logarithm of a fp4 vector.</summary>
+        public static fp4 log2(fp4 x) {
+            return new fp4(fpmath.log2(x.x), fpmath.log2(x.y), fpmath.log2(x.z), fpmath.log2(x.w));
+        }
+
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the base-10 logarithm of a fp value.</summary>
+        public static fp log10(fp x) {
+            throw new System.NotImplementedException("fp doesn't support log10");
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise base-10 logarithm of a fp2 vector.</summary>
+        public static fp2 log10(fp2 x) {
+            return new fp2(fpmath.log10(x.x), fpmath.log10(x.y));
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise base-10 logarithm of a fp3 vector.</summary>
+        public static fp3 log10(fp3 x) {
+            return new fp3(fpmath.log10(x.x), fpmath.log10(x.y), fpmath.log10(x.z));
+        }
+
+        [System.Obsolete(fpmath.NOT_SUPPORTED_YET, true)]
+        /// <summary>Returns the componentwise base-10 logarithm of a fp4 vector.</summary>
+        public static fp4 log10(fp4 x) {
+            return new fp4(fpmath.log10(x.x), fpmath.log10(x.y), fpmath.log10(x.z), fpmath.log10(x.w));
+        }
+
+
+        /// <summary>Returns the fping point remainder of x/y.</summary>
+        public static fp fmod(fp x, fp y) {
+            return x % y;
+        }
+
+        /// <summary>Returns the componentwise fping point remainder of x/y.</summary>
+        public static fp2 fmod(fp2 x, fp2 y) {
+            return new fp2(x.x % y.x, x.y % y.y);
+        }
+
+        /// <summary>Returns the componentwise fping point remainder of x/y.</summary>
+        public static fp3 fmod(fp3 x, fp3 y) {
+            return new fp3(x.x % y.x, x.y % y.y, x.z % y.z);
+        }
+
+        /// <summary>Returns the componentwise fping point remainder of x/y.</summary>
+        public static fp4 fmod(fp4 x, fp4 y) {
+            return new fp4(x.x % y.x, x.y % y.y, x.z % y.z, x.w % y.w);
+        }
+
+
+        /// <summary>Splits a fp value into an integral part i and a fractional part that gets returned. Both parts take the sign of the input.</summary>
+        public static fp modf(fp x, out fp i) {
+            i = fpmath.trunc(x);
+            return x - i;
+        }
+
         /// <summary>
-        ///   <para>Degrees-to-radians conversion constant (Read Only).</para>
-        /// </summary>
-        public const float Deg2Rad = 0.017453292f;
-        /// <summary>
-        ///   <para>Radians-to-degrees conversion constant (Read Only).</para>
-        /// </summary>
-        public const float Rad2Deg = 57.29578f;
-
-        public static int FloorToInt(pfloat v) {
-            return UnityEngine.Mathf.FloorToInt(v);
-        }
-        
-        /// <summary>
-        /// Subtracts y from x witout performing overflow checking. Should be inlined by the CLR.
-        /// </summary>
-        public static pfloat FastSub(pfloat x, pfloat y) {
-            return new pfloat(x.v - y.v);
-        }
-
-        internal static long AddOverflowHelper(long x, long y, ref bool overflow) {
-            var sum = x + y;
-            // x + y overflows if sign(x) ^ sign(y) != sign(sum)
-            overflow |= ((x ^ y ^ sum) & pfloat.MIN_VALUE) != 0;
-            return sum;
+        // Performs a componentwise split of a fp2 vector into an integral part i and a fractional part that gets returned.
+        // Both parts take the sign of the corresponding input component.
+        // </summary>
+        public static fp2 modf(fp2 x, out fp2 i) {
+            i = fpmath.trunc(x);
+            return x - i;
         }
 
         /// <summary>
-        /// Performs multiplication without checking for overflow.
-        /// Useful for performance-critical code where the values are guaranteed not to cause overflow
-        /// </summary>
-        public static pfloat FastMul(pfloat x, pfloat y) {
-
-            var xl = x.v;
-            var yl = y.v;
-
-            var xlo = (ulong)(xl & 0x00000000FFFFFFFF);
-            var xhi = xl >> pfloat.FRACTIONAL_PLACES;
-            var ylo = (ulong)(yl & 0x00000000FFFFFFFF);
-            var yhi = yl >> pfloat.FRACTIONAL_PLACES;
-
-            var lolo = xlo * ylo;
-            var lohi = (long)xlo * yhi;
-            var hilo = xhi * (long)ylo;
-            var hihi = xhi * yhi;
-
-            var loResult = lolo >> pfloat.FRACTIONAL_PLACES;
-            var midResult1 = lohi;
-            var midResult2 = hilo;
-            var hiResult = hihi << pfloat.FRACTIONAL_PLACES;
-
-            var sum = (long)loResult + midResult1 + midResult2 + hiResult;
-            return new pfloat(sum);
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        internal static int CountLeadingZeroes(ulong x) {
-            var result = 0;
-            while ((x & 0xF000000000000000) == 0) {
-                result += 4;
-                x <<= 4;
-            }
-
-            while ((x & 0x8000000000000000) == 0) {
-                result += 1;
-                x <<= 1;
-            }
-
-            return result;
+        // Performs a componentwise split of a fp3 vector into an integral part i and a fractional part that gets returned.
+        // Both parts take the sign of the corresponding input component.
+        // </summary>
+        public static fp3 modf(fp3 x, out fp3 i) {
+            i = fpmath.trunc(x);
+            return x - i;
         }
 
         /// <summary>
-        /// Returns 2 raised to the specified power.
-        /// Provides at least 6 decimals of accuracy.
-        /// </summary>
-        internal static pfloat Pow2(pfloat x) {
-            if (x.v == 0) {
-                return pfloat.One;
-            }
+        // Performs a componentwise split of a fp4 vector into an integral part i and a fractional part that gets returned.
+        // Both parts take the sign of the corresponding input component.
+        // </summary>
+        public static fp4 modf(fp4 x, out fp4 i) {
+            i = fpmath.trunc(x);
+            return x - i;
+        }
 
-            // Avoid negative arguments by exploiting that exp(-x) = 1/exp(x).
-            var neg = x.v < 0;
-            if (neg) {
-                x = -x;
-            }
 
-            if (x == pfloat.One) {
-                return neg ? pfloat.One / (pfloat)2 : (pfloat)2;
-            }
+        /// <summary>Returns the square root of a fp value.</summary>
+        public static fp sqrt(fp x) {
+            return fp.Sqrt(x);
+        }
 
-            if (x >= pfloat.Log2Max) {
-                return neg ? pfloat.One / pfloat.MaxValue : pfloat.MaxValue;
-            }
+        /// <summary>Returns the componentwise square root of a fp2 vector.</summary>
+        public static fp2 sqrt(fp2 x) {
+            return new fp2(fpmath.sqrt(x.x), fpmath.sqrt(x.y));
+        }
 
-            if (x <= pfloat.Log2Min) {
-                return neg ? pfloat.MaxValue : pfloat.Zero;
-            }
+        /// <summary>Returns the componentwise square root of a fp3 vector.</summary>
+        public static fp3 sqrt(fp3 x) {
+            return new fp3(fpmath.sqrt(x.x), fpmath.sqrt(x.y), fpmath.sqrt(x.z));
+        }
 
-            var integerPart = (int)FPMath.Floor(x);
-            // Take fractional part of exponent
-            x = new pfloat(x.v & 0x00000000FFFFFFFF);
+        /// <summary>Returns the componentwise square root of a fp4 vector.</summary>
+        public static fp4 sqrt(fp4 x) {
+            return new fp4(fpmath.sqrt(x.x), fpmath.sqrt(x.y), fpmath.sqrt(x.z), fpmath.sqrt(x.w));
+        }
 
-            var result = pfloat.One;
-            var term = pfloat.One;
-            var i = 1;
-            while (term.v != 0) {
-                term = FPMath.FastMul(FPMath.FastMul(x, term), pfloat.Ln2) / (pfloat)i;
-                result += term;
-                i++;
-            }
 
-            result = pfloat.FromRaw(result.v << integerPart);
-            if (neg) {
-                result = pfloat.One / result;
-            }
+        /// <summary>Returns the reciprocal square root of a fp value.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp rsqrt(fp x) {
+            return fp.one / fpmath.sqrt(x);
+        }
 
-            return result;
+        /// <summary>Returns the componentwise reciprocal square root of a fp2 vector.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 rsqrt(fp2 x) {
+            return fp.one / fpmath.sqrt(x);
+        }
+
+        /// <summary>Returns the componentwise reciprocal square root of a fp3 vector.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 rsqrt(fp3 x) {
+            return fp.one / fpmath.sqrt(x);
+        }
+
+        /// <summary>Returns the componentwise reciprocal square root of a fp4 vector</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 rsqrt(fp4 x) {
+            return fp.one / fpmath.sqrt(x);
+        }
+
+
+        /// <summary>Returns a normalized version of the fp2 vector x by scaling it by 1 / length(x).</summary>
+        public static fp2 normalize(fp2 x) {
+            return fpmath.rsqrt(fpmath.dot(x, x)) * x;
+        }
+
+        /// <summary>Returns a normalized version of the fp3 vector x by scaling it by 1 / length(x).</summary>
+        public static fp3 normalize(fp3 x) {
+            return fpmath.rsqrt(fpmath.dot(x, x)) * x;
+        }
+
+        /// <summary>Returns a normalized version of the fp4 vector x by scaling it by 1 / length(x).</summary>
+        public static fp4 normalize(fp4 x) {
+            return fpmath.rsqrt(fpmath.dot(x, x)) * x;
         }
 
         /// <summary>
-        /// Returns the base-2 logarithm of a specified number.
-        /// Provides at least 9 decimals of accuracy.
+        /// Returns a safe normalized version of the fp2 vector x by scaling it by 1 / length(x).
+        /// Returns the given default value when 1 / length(x) does not produce a finite number.
         /// </summary>
-        /// <exception cref="System.ArgumentOutOfRangeException">
-        /// The argument was non-positive
-        /// </exception>
-        internal static pfloat Log2(pfloat x) {
-            if (x.v <= 0) {
-                throw new System.ArgumentOutOfRangeException("Non-positive value passed to Ln", "x");
-            }
-
-            // This implementation is based on Clay. S. Turner's fast binary logarithm
-            // algorithm (C. S. Turner,  "A Fast Binary Logarithm Algorithm", IEEE Signal
-            //     Processing Mag., pp. 124,140, Sep. 2010.)
-
-            long b = 1U << (pfloat.FRACTIONAL_PLACES - 1);
-            long y = 0;
-
-            var rawX = x.v;
-            while (rawX < pfloat.ONE) {
-                rawX <<= 1;
-                y -= pfloat.ONE;
-            }
-
-            while (rawX >= pfloat.ONE << 1) {
-                rawX >>= 1;
-                y += pfloat.ONE;
-            }
-
-            var z = new pfloat(rawX);
-
-            for (var i = 0; i < pfloat.FRACTIONAL_PLACES; i++) {
-                z = FPMath.FastMul(z, z);
-                if (z.v >= pfloat.ONE << 1) {
-                    z = new pfloat(z.v >> 1);
-                    y += b;
-                }
-
-                b >>= 1;
-            }
-
-            return new pfloat(y);
+        public static fp2 normalizesafe(fp2 x, fp2 defaultvalue = new fp2()) {
+            var len = fpmath.dot(x, x);
+            if (len > 0.00000001d) return x * fpmath.rsqrt(len);
+            return defaultvalue;
         }
 
         /// <summary>
-        /// Returns the natural logarithm of a specified number.
-        /// Provides at least 7 decimals of accuracy.
+        /// Returns a safe normalized version of the fp3 vector x by scaling it by 1 / length(x).
+        /// Returns the given default value when 1 / length(x) does not produce a finite number.
         /// </summary>
-        /// <exception cref="System.ArgumentOutOfRangeException">
-        /// The argument was non-positive
-        /// </exception>
-        public static pfloat Ln(pfloat x) {
-            return FPMath.FastMul(FPMath.Log2(x), pfloat.Ln2);
+        public static fp3 normalizesafe(fp3 x, fp3 defaultvalue = new fp3()) {
+            var len = fpmath.dot(x, x);
+            if (len > 0.00000001d) return x * fpmath.rsqrt(len);
+            return defaultvalue;
         }
 
         /// <summary>
-        /// Returns a specified number raised to the specified power.
-        /// Provides about 5 digits of accuracy for the result.
+        /// Returns a safe normalized version of the fp4 vector x by scaling it by 1 / length(x).
+        /// Returns the given default value when 1 / length(x) does not produce a finite number.
         /// </summary>
-        /// <exception cref="System.DivideByZeroException">
-        /// The base was zero, with a negative exponent
-        /// </exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">
-        /// The base was negative, with a non-zero exponent
-        /// </exception>
-        public static pfloat Pow(pfloat b, pfloat exp) {
-            if (b == pfloat.One) {
-                return pfloat.One;
-            }
-
-            if (exp.v == 0) {
-                return pfloat.One;
-            }
-
-            if (b.v == 0) {
-                if (exp.v < 0) {
-                    throw new System.DivideByZeroException();
-                }
-
-                return pfloat.Zero;
-            }
-
-            var log2 = FPMath.Log2(b);
-            return FPMath.Pow2(exp * log2);
-        }
-
-        [System.Diagnostics.ConditionalAttribute("ENABLE_UNITY_COLLECTIONS_CHECKS")]
-        private static void ThrowNegativeValueException() {
-            throw new System.ArgumentOutOfRangeException("Negative value passed to Sqrt", "x");
-        }
-
-        /// <summary>
-        /// Returns the square root of a specified number.
-        /// </summary>
-        /// <exception cref="System.ArgumentOutOfRangeException">
-        /// The argument was negative.
-        /// </exception>
-        public static pfloat Sqrt(pfloat x) {
-            var xl = x.v;
-            if (xl < 0) {
-                // We cannot represent infinities like Single and Double, and Sqrt is
-                // mathematically undefined for x < 0. So we just throw an exception.
-                ThrowNegativeValueException();
-                return default;
-            }
-
-            var num = (ulong)xl;
-            var result = 0UL;
-
-            // second-to-top bit
-            var bit = 1UL << (pfloat.NUM_BITS - 2);
-
-            while (bit > num) {
-                bit >>= 2;
-            }
-
-            // The main part is executed twice, in order to avoid
-            // using 128 bit values in computations.
-            for (var i = 0; i < 2; ++i) {
-                // First we get the top 48 bits of the answer.
-                while (bit != 0) {
-                    if (num >= result + bit) {
-                        num -= result + bit;
-                        result = (result >> 1) + bit;
-                    } else {
-                        result = result >> 1;
-                    }
-
-                    bit >>= 2;
-                }
-
-                if (i == 0) {
-                    // Then process it again to get the lowest 16 bits.
-                    if (num > (1UL << (pfloat.NUM_BITS / 2)) - 1) {
-                        // The remainder 'num' is too large to be shifted left
-                        // by 32, so we have to add 1 to result manually and
-                        // adjust 'num' accordingly.
-                        // num = a - (result + 0.5)^2
-                        //       = num + result^2 - (result + 0.5)^2
-                        //       = num - result - 0.5
-                        num -= result;
-                        num = (num << (pfloat.NUM_BITS / 2)) - 0x80000000UL;
-                        result = (result << (pfloat.NUM_BITS / 2)) + 0x80000000UL;
-                    } else {
-                        num <<= pfloat.NUM_BITS / 2;
-                        result <<= pfloat.NUM_BITS / 2;
-                    }
-
-                    bit = 1UL << (pfloat.NUM_BITS / 2 - 2);
-                }
-            }
-
-            // Finally, if next bit would have been 1, round the result upwards.
-            if (num > result) {
-                ++result;
-            }
-
-            return new pfloat((long)result);
-        }
-
-        /// <summary>
-        /// Returns the Sine of x.
-        /// The relative error is less than 1E-10 for x in [-2PI, 2PI], and less than 1E-7 in the worst case.
-        /// </summary>
-        public static pfloat Sin(pfloat x) {
-            var clampedL = FPMath.ClampSinValue(x.v, out var flipHorizontal, out var flipVertical);
-            var clamped = new pfloat(clampedL);
-
-            // Find the two closest values in the LUT and perform linear interpolation
-            // This is what kills the performance of this function on x86 - x64 is fine though
-            var rawIndex = FPMath.FastMul(clamped, pfloat.LutInterval);
-            var roundedIndex = FPMath.Round(rawIndex);
-            var indexError = FPMath.FastSub(rawIndex, roundedIndex);
-
-            var nearestValue = new pfloat(FPMathTables.SinLut[flipHorizontal ? FPMathTables.SinLut.Length - 1 - (int)roundedIndex : (int)roundedIndex]);
-            var secondNearestValue =
-                new pfloat(FPMathTables.SinLut[
-                               flipHorizontal ? FPMathTables.SinLut.Length - 1 - (int)roundedIndex - FPMath.Sign(indexError) : (int)roundedIndex + FPMath.Sign(indexError)]);
-
-            var delta = FPMath.FastMul(indexError, FPMath.FastAbs(FPMath.FastSub(nearestValue, secondNearestValue))).v;
-            var interpolatedValue = nearestValue.v + (flipHorizontal ? -delta : delta);
-            var finalValue = flipVertical ? -interpolatedValue : interpolatedValue;
-            return new pfloat(finalValue);
-        }
-
-        public static pfloat Asin(pfloat value) {
-
-            return UnityEngine.Mathf.Asin(value);
-
-        }
-        
-        /// <summary>
-        /// Returns a rough approximation of the Sine of x.
-        /// This is at least 3 times faster than Sin() on x86 and slightly faster than Math.Sin(),
-        /// however its accuracy is limited to 4-5 decimals, for small enough values of x.
-        /// </summary>
-        public static pfloat FastSin(pfloat x) {
-            var clampedL = FPMath.ClampSinValue(x.v, out var flipHorizontal, out var flipVertical);
-
-            // Here we use the fact that the SinLut table has a number of entries
-            // equal to (PI_OVER_2 >> 15) to use the angle to index directly into it
-            var rawIndex = (uint)(clampedL >> 15);
-            if (rawIndex >= pfloat.LUT_SIZE) {
-                rawIndex = pfloat.LUT_SIZE - 1;
-            }
-
-            var nearestValue = FPMathTables.SinLut[flipHorizontal ? FPMathTables.SinLut.Length - 1 - (int)rawIndex : (int)rawIndex];
-            return new pfloat(flipVertical ? -nearestValue : nearestValue);
+        public static fp4 normalizesafe(fp4 x, fp4 defaultvalue = new fp4()) {
+            var len = fpmath.dot(x, x);
+            if (len > 0.00000001d) return x * fpmath.rsqrt(len);
+            return defaultvalue;
         }
 
 
-        private static long ClampSinValue(long angle, out bool flipHorizontal, out bool flipVertical) {
-            var largePI = 7244019458077122842;
-            // Obtained from ((Fix64)1686629713.065252369824872831112M).m_rawValue
-            // This is (2^29)*PI, where 29 is the largest N such that (2^N)*PI < MaxValue.
-            // The idea is that this number contains way more precision than PI_TIMES_2,
-            // and (((x % (2^29*PI)) % (2^28*PI)) % ... (2^1*PI) = x % (2 * PI)
-            // In practice this gives us an error of about 1,25e-9 in the worst case scenario (Sin(MaxValue))
-            // Whereas simply doing x % PI_TIMES_2 is the 2e-3 range.
-
-            var clamped2Pi = angle;
-            for (var i = 0; i < 29; ++i) {
-                clamped2Pi %= largePI >> i;
-            }
-
-            if (angle < 0) {
-                clamped2Pi += pfloat.PI_TIMES_2;
-            }
-
-            // The LUT contains values for 0 - PiOver2; every other value must be obtained by
-            // vertical or horizontal mirroring
-            flipVertical = clamped2Pi >= pfloat.PI;
-            // obtain (angle % PI) from (angle % 2PI) - much faster than doing another modulo
-            var clampedPi = clamped2Pi;
-            while (clampedPi >= pfloat.PI) {
-                clampedPi -= pfloat.PI;
-            }
-
-            flipHorizontal = clampedPi >= pfloat.PI_OVER_2;
-            // obtain (angle % PI_OVER_2) from (angle % PI) - much faster than doing another modulo
-            var clampedPiOver2 = clampedPi;
-            if (clampedPiOver2 >= pfloat.PI_OVER_2) {
-                clampedPiOver2 -= pfloat.PI_OVER_2;
-            }
-
-            return clampedPiOver2;
+        /// <summary>Returns the length of a fp value. Equivalent to the absolute value.</summary>
+        public static fp length(fpquaternion x) {
+            return fpmath.sqrt(fpmath.dot(x, x));
         }
 
-        /// <summary>
-        /// Returns the cosine of x.
-        /// The relative error is less than 1E-10 for x in [-2PI, 2PI], and less than 1E-7 in the worst case.
-        /// </summary>
-        public static pfloat Cos(pfloat x) {
-            var xl = x.v;
-            var rawAngle = xl + (xl > 0 ? -pfloat.PI - pfloat.PI_OVER_2 : pfloat.PI_OVER_2);
-            return FPMath.Sin(new pfloat(rawAngle));
+        /// <summary>Returns the length of a fp value. Equivalent to the absolute value.</summary>
+        public static fp length(fp x) {
+            return fpmath.abs(x);
         }
 
-        /// <summary>
-        /// Returns a rough approximation of the cosine of x.
-        /// See FastSin for more details.
-        /// </summary>
-        public static pfloat FastCos(pfloat x) {
-            var xl = x.v;
-            var rawAngle = xl + (xl > 0 ? -pfloat.PI - pfloat.PI_OVER_2 : pfloat.PI_OVER_2);
-            return FPMath.FastSin(new pfloat(rawAngle));
+        /// <summary>Returns the length of a fp2 vector.</summary>
+        public static fp length(fp2 x) {
+            return fpmath.sqrt(fpmath.dot(x, x));
         }
 
-        /// <summary>
-        /// Returns the tangent of x.
-        /// </summary>
-        /// <remarks>
-        /// This function is not well-tested. It may be wildly inaccurate.
-        /// </remarks>
-        public static pfloat Tan(pfloat x) {
-            var clampedPi = x.v % pfloat.PI;
-            var flip = false;
-            if (clampedPi < 0) {
-                clampedPi = -clampedPi;
-                flip = true;
-            }
-
-            if (clampedPi > pfloat.PI_OVER_2) {
-                flip = !flip;
-                clampedPi = pfloat.PI_OVER_2 - (clampedPi - pfloat.PI_OVER_2);
-            }
-
-            var clamped = new pfloat(clampedPi);
-
-            // Find the two closest values in the LUT and perform linear interpolation
-            var rawIndex = FPMath.FastMul(clamped, pfloat.LutInterval);
-            var roundedIndex = FPMath.Round(rawIndex);
-            var indexError = FPMath.FastSub(rawIndex, roundedIndex);
-
-            var nearestValue = new pfloat(FPMathTables.TanLut[(int)roundedIndex]);
-            var secondNearestValue = new pfloat(FPMathTables.TanLut[(int)roundedIndex + FPMath.Sign(indexError)]);
-
-            var delta = FPMath.FastMul(indexError, FPMath.FastAbs(FPMath.FastSub(nearestValue, secondNearestValue))).v;
-            var interpolatedValue = nearestValue.v + delta;
-            var finalValue = flip ? -interpolatedValue : interpolatedValue;
-            return new pfloat(finalValue);
+        /// <summary>Returns the length of a fp3 vector.</summary>
+        public static fp length(fp3 x) {
+            return fpmath.sqrt(fpmath.dot(x, x));
         }
 
-        /// <summary>
-        /// Returns the arccos of of the specified number, calculated using Atan and Sqrt
-        /// This function has at least 7 decimals of accuracy.
-        /// </summary>
-        public static pfloat Acos(pfloat x) {
-            
-            if (x > pfloat.One) x -= (int)x;
-            if (x < -pfloat.One) x -= (int)x;
-            
-            if (x < -pfloat.One || x > pfloat.One) {
-                throw new System.ArgumentOutOfRangeException(nameof(x));
-            }
-
-            if (x.v == 0) {
-                return pfloat.PiOver2;
-            }
-
-            var result = FPMath.Atan(FPMath.Sqrt(pfloat.One - x * x) / x);
-            return x.v < 0 ? result + pfloat.Pi : result;
+        /// <summary>Returns the length of a fp4 vector.</summary>
+        public static fp length(fp4 x) {
+            return fpmath.sqrt(fpmath.dot(x, x));
         }
 
-        /// <summary>
-        /// Returns the arctan of of the specified number, calculated using Euler series
-        /// This function has at least 7 decimals of accuracy.
-        /// </summary>
-        public static pfloat Atan(pfloat z) {
-            if (z.v == 0) {
-                return pfloat.Zero;
-            }
 
-            // Force positive values for argument
-            // Atan(-z) = -Atan(z).
-            var neg = z.v < 0;
-            if (neg) {
-                z = -z;
-            }
-
-            pfloat result;
-            var two = (pfloat)2;
-            var three = (pfloat)3;
-
-            var invert = z > pfloat.One;
-            if (invert) {
-                z = pfloat.One / z;
-            }
-
-            result = pfloat.One;
-            var term = pfloat.One;
-
-            var zSq = z * z;
-            var zSq2 = zSq * two;
-            var zSqPlusOne = zSq + pfloat.One;
-            var zSq12 = zSqPlusOne * two;
-            var dividend = zSq2;
-            var divisor = zSqPlusOne * three;
-
-            for (var i = 2; i < 30; ++i) {
-                term *= dividend / divisor;
-                result += term;
-
-                dividend += zSq2;
-                divisor += zSq12;
-
-                if (term.v == 0) {
-                    break;
-                }
-            }
-
-            result = result * z / zSqPlusOne;
-
-            if (invert) {
-                result = pfloat.PiOver2 - result;
-            }
-
-            if (neg) {
-                result = -result;
-            }
-
-            return result;
+        /// <summary>Returns the squared length of a fp value. Equivalent to squaring the value.</summary>
+        public static fp lengthsq(fp x) {
+            return x * x;
         }
 
-        public static pfloat Atan2(pfloat y, pfloat x) {
-            var yl = y.v;
-            var xl = x.v;
-            if (xl == 0) {
-                if (yl > 0) {
-                    return pfloat.PiOver2;
-                }
-
-                if (yl == 0) {
-                    return pfloat.Zero;
-                }
-
-                return -pfloat.PiOver2;
-            }
-
-            pfloat atan;
-            var z = y / x;
-
-            // Deal with overflow
-            if (pfloat.One + (pfloat)0.28M * z * z == pfloat.MaxValue) {
-                return y < pfloat.Zero ? -pfloat.PiOver2 : pfloat.PiOver2;
-            }
-
-            if (FPMath.Abs(z) < pfloat.One) {
-                atan = z / (pfloat.One + (pfloat)0.28M * z * z);
-                if (xl < 0) {
-                    if (yl < 0) {
-                        return atan - pfloat.Pi;
-                    }
-
-                    return atan + pfloat.Pi;
-                }
-            } else {
-                atan = pfloat.PiOver2 - z / (z * z + (pfloat)0.28M);
-                if (yl < 0) {
-                    return atan - pfloat.Pi;
-                }
-            }
-
-            return atan;
+        /// <summary>Returns the squared length of a fp2 vector.</summary>
+        public static fp lengthsq(fp2 x) {
+            return fpmath.dot(x, x);
         }
 
-        /// <summary>
-        /// Returns a number indicating the sign of a Fix64 number.
-        /// Returns 1 if the value is positive, 0 if is 0, and -1 if it is negative.
-        /// </summary>
-        public static int Sign(pfloat value) {
-            return
-                value.v < 0 ? -1 :
-                value.v > 0 ? 1 :
-                0;
+        /// <summary>Returns the squared length of a fp3 vector.</summary>
+        public static fp lengthsq(fp3 x) {
+            return fpmath.dot(x, x);
+        }
+
+        /// <summary>Returns the squared length of a fp4 vector.</summary>
+        public static fp lengthsq(fp4 x) {
+            return fpmath.dot(x, x);
+        }
+
+
+        /// <summary>Returns the distance between two fp values.</summary>
+        public static fp distance(fp x, fp y) {
+            return fpmath.abs(y - x);
+        }
+
+        /// <summary>Returns the distance between two fp2 vectors.</summary>
+        public static fp distance(fp2 x, fp2 y) {
+            return fpmath.length(y - x);
+        }
+
+        /// <summary>Returns the distance between two fp3 vectors.</summary>
+        public static fp distance(fp3 x, fp3 y) {
+            return fpmath.length(y - x);
+        }
+
+        /// <summary>Returns the distance between two fp4 vectors.</summary>
+        public static fp distance(fp4 x, fp4 y) {
+            return fpmath.length(y - x);
+        }
+
+
+        /// <summary>Returns the distance between two fp values.</summary>
+        public static fp distancesq(fp x, fp y) {
+            return (y - x) * (y - x);
+        }
+
+        /// <summary>Returns the distance between two fp2 vectors.</summary>
+        public static fp distancesq(fp2 x, fp2 y) {
+            return fpmath.lengthsq(y - x);
+        }
+
+        /// <summary>Returns the distance between two fp3 vectors.</summary>
+        public static fp distancesq(fp3 x, fp3 y) {
+            return fpmath.lengthsq(y - x);
+        }
+
+        /// <summary>Returns the distance between two fp4 vectors.</summary>
+        public static fp distancesq(fp4 x, fp4 y) {
+            return fpmath.lengthsq(y - x);
+        }
+
+
+        /// <summary>Returns the cross product of two fp3 vectors.</summary>
+        public static fp3 cross(fp3 x, fp3 y) {
+            return (x * y.yzx - x.yzx * y).yzx;
+        }
+
+
+        /// <summary>Returns a smooth Hermite interpolation between 0.0f and 1.0f when x is in [a, b].</summary>
+        public static fp smoothstep(fp a, fp b, fp x) {
+            var t = fpmath.saturate((x - a) / (b - a));
+            return t * t * ((fp)3 - (fp)2 * t);
+        }
+
+        /// <summary>Returns a componentwise smooth Hermite interpolation between 0.0f and 1.0f when x is in [a, b].</summary>
+        public static fp2 smoothstep(fp2 a, fp2 b, fp2 x) {
+            var t = fpmath.saturate((x - a) / (b - a));
+            return t * t * ((fp)3 - (fp)2 * t);
+        }
+
+        /// <summary>Returns a componentwise smooth Hermite interpolation between 0.0f and 1.0f when x is in [a, b].</summary>
+        public static fp3 smoothstep(fp3 a, fp3 b, fp3 x) {
+            var t = fpmath.saturate((x - a) / (b - a));
+            return t * t * ((fp)3 - (fp)2 * t);
+        }
+
+        /// <summary>Returns a componentwise smooth Hermite interpolation between 0.0f and 1.0f when x is in [a, b].</summary>
+        public static fp4 smoothstep(fp4 a, fp4 b, fp4 x) {
+            var t = fpmath.saturate((x - a) / (b - a));
+            return t * t * ((fp)3 - (fp)2 * t);
+        }
+
+
+        /// <summary>Returns true if any component of the input fp2 vector is non-zero, false otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool any(fp2 x) {
+            return x.x != fp.zero || x.y != fp.zero;
+        }
+
+        /// <summary>Returns true if any component of the input fp3 vector is non-zero, false otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool any(fp3 x) {
+            return x.x != fp.zero || x.y != fp.zero || x.z != fp.zero;
+        }
+
+        /// <summary>Returns true if any component of the input fp4 vector is non-zero, false otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool any(fp4 x) {
+            return x.x != fp.zero || x.y != fp.zero || x.z != fp.zero || x.w != fp.zero;
+        }
+
+
+        /// <summary>Returns true if all components of the input fp2 vector are non-zero, false otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool all(fp2 x) {
+            return x.x != fp.zero && x.y != fp.zero;
+        }
+
+        /// <summary>Returns true if all components of the input fp3 vector are non-zero, false otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool all(fp3 x) {
+            return x.x != fp.zero && x.y != fp.zero && x.z != fp.zero;
+        }
+
+        /// <summary>Returns true if all components of the input fp4 vector are non-zero, false otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool all(fp4 x) {
+            return x.x != fp.zero && x.y != fp.zero && x.z != fp.zero && x.w != fp.zero;
+        }
+
+
+        /// <summary>Returns b if c is true, a otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp select(fp a, fp b, bool c) {
+            return c ? b : a;
+        }
+
+        /// <summary>Returns b if c is true, a otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 select(fp2 a, fp2 b, bool c) {
+            return c ? b : a;
+        }
+
+        /// <summary>Returns b if c is true, a otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 select(fp3 a, fp3 b, bool c) {
+            return c ? b : a;
+        }
+
+        /// <summary>Returns b if c is true, a otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 select(fp4 a, fp4 b, bool c) {
+            return c ? b : a;
         }
 
 
         /// <summary>
-        /// Returns the absolute value of a Fix64 number.
-        /// Note: Abs(Fix64.MinValue) == Fix64.MaxValue.
+        /// Returns a componentwise selection between two fp2 vectors a and b based on a bool2 selection mask c.
+        /// Per component, the component from b is selected when c is true, otherwise the component from a is selected.
         /// </summary>
-        public static pfloat Abs(pfloat value) {
-            if (value.v == pfloat.MIN_VALUE) {
-                return pfloat.MaxValue;
-            }
-
-            // branchless implementation, see http://www.strchr.com/optimized_abs_function
-            var mask = value.v >> 63;
-            return new pfloat((value.v + mask) ^ mask);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 select(fp2 a, fp2 b, bool2 c) {
+            return new fp2(c.x ? b.x : a.x, c.y ? b.y : a.y);
         }
 
         /// <summary>
-        /// Returns the absolute value of a Fix64 number.
-        /// FastAbs(Fix64.MinValue) is undefined.
+        /// Returns a componentwise selection between two fp3 vectors a and b based on a bool3 selection mask c.
+        /// Per component, the component from b is selected when c is true, otherwise the component from a is selected.
         /// </summary>
-        public static pfloat FastAbs(pfloat value) {
-            // branchless implementation, see http://www.strchr.com/optimized_abs_function
-            var mask = value.v >> 63;
-            return new pfloat((value.v + mask) ^ mask);
-        }
-
-
-        /// <summary>
-        /// Returns the largest integer less than or equal to the specified number.
-        /// </summary>
-        public static pfloat Floor(pfloat value) {
-            // Just zero out the fractional part
-            return new pfloat((long)((ulong)value.v & 0xFFFFFFFF00000000));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 select(fp3 a, fp3 b, bool3 c) {
+            return new fp3(c.x ? b.x : a.x, c.y ? b.y : a.y, c.z ? b.z : a.z);
         }
 
         /// <summary>
-        /// Returns the smallest integral value that is greater than or equal to the specified number.
+        /// Returns a componentwise selection between two fp4 vectors a and b based on a bool4 selection mask c.
+        /// Per component, the component from b is selected when c is true, otherwise the component from a is selected.
         /// </summary>
-        public static pfloat Ceiling(pfloat value) {
-            var hasFractionalPart = (value.v & 0x00000000FFFFFFFF) != 0;
-            return hasFractionalPart ? FPMath.Floor(value) + pfloat.One : value;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 select(fp4 a, fp4 b, bool4 c) {
+            return new fp4(c.x ? b.x : a.x, c.y ? b.y : a.y, c.z ? b.z : a.z, c.w ? b.w : a.w);
         }
 
-        /// <summary>
-        /// Rounds a value to the nearest integral value.
-        /// If the value is halfway between an even and an uneven value, returns the even value.
-        /// </summary>
-        public static pfloat Round(pfloat value) {
-            var fractionalPart = value.v & 0x00000000FFFFFFFF;
-            var integralPart = FPMath.Floor(value);
-            if (fractionalPart < 0x80000000) {
-                return integralPart;
-            }
 
-            if (fractionalPart > 0x80000000) {
-                return integralPart + pfloat.One;
-            }
-
-            // if number is halfway between two values, round to the nearest even number
-            // this is the method used by System.Math.Round().
-            return (integralPart.v & pfloat.ONE) == 0
-                       ? integralPart
-                       : integralPart + pfloat.One;
+        /// <summary>Computes a step function. Returns 1.0f when x >= y, 0.0f otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp step(fp y, fp x) {
+            return fpmath.@select(fp.zero, fp.one, x >= y);
         }
 
-        public static pfloat Clamp01(in pfloat v) {
-
-            return FPMath.Clamp(v, 0f, 1f);
-
+        /// <summary>Returns the result of a componentwise step function where each component is 1.0f when x >= y and 0.0f otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 step(fp2 y, fp2 x) {
+            return fpmath.@select(fpmath.fp2(fp.zero), fpmath.fp2(fp.one), x >= y);
         }
 
-        public static pfloat Clamp(pfloat v, pfloat min, pfloat max) {
-
-            if (v < min) v = min;
-            if (v > max) v = max;
-            return v;
-
-        }
-        
-        public static pfloat Angle(FPVector2 from, FPVector2 to) {
-        
-            var num = FPMath.Sqrt(from.sqrMagnitude * to.sqrMagnitude);
-            return (float)num < 1.0000000036274937E-15 ? pfloat.Zero : FPMath.Acos(FPMath.Clamp(FPVector2.Dot(from, to) / num, -pfloat.One, pfloat.One)) * (pfloat)57.29578f;
-            
+        /// <summary>Returns the result of a componentwise step function where each component is fp.one when x >= y and fp.zero otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 step(fp3 y, fp3 x) {
+            return fpmath.@select(fpmath.fp3(fp.zero), fpmath.fp3(fp.one), x >= y);
         }
 
-        public static float SignedAngle(FPVector2 from, FPVector2 to) => FPMath.Angle(from, to) * FPMath.Sign(from.x * to.y - from.y * to.x);
-
-        public static pfloat Repeat(pfloat t, pfloat length) {
-
-            return FPMath.Clamp(t - FPMath.Floor(t / length) * length, pfloat.Zero, length);
-
+        /// <summary>Returns the result of a componentwise step function where each component is fp.one when x >= y and fp.zero otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 step(fp4 y, fp4 x) {
+            return fpmath.@select(fpmath.fp4(fp.zero), fpmath.fp4(fp.one), x >= y);
         }
 
-    }
-    
-    public static class FPExtensions {
 
-        public const float Deg2Rad = 0.017453292f;
-        public const float Rad2Deg = 57.29578f;
-        
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static FPVector2 Abs(FPVector2 v) {
-
-            return new FPVector2(FPMath.Abs(v.x), FPMath.Abs(v.y));
-
+        /// <summary>Given an incident vector i and a normal vector n, returns the reflection vector r = i - 2.0f * dot(i, n) * n.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 reflect(fp2 i, fp2 n) {
+            return i - 2 * n * fpmath.dot(i, n);
         }
 
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static FPVector3 XY(this FPVector2 v, float z = 0f) {
-
-            return new FPVector3(v.x, v.y, z);
-
+        /// <summary>Given an incident vector i and a normal vector n, returns the reflection vector r = i - 2.0f * dot(i, n) * n.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 reflect(fp3 i, fp3 n) {
+            return i - 2 * n * fpmath.dot(i, n);
         }
 
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static FPVector3 XZ(this FPVector2 v, float y = 0f) {
-
-            return new FPVector3(v.x, y, v.y);
-
+        /// <summary>Given an incident vector i and a normal vector n, returns the reflection vector r = i - 2.0f * dot(i, n) * n.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 reflect(fp4 i, fp4 n) {
+            return i - 2 * n * fpmath.dot(i, n);
         }
 
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static FPVector2 XY(this FPVector3 v) {
 
-            return new FPVector2(v.x, v.y);
-
+        /// <summary>Returns the refraction vector given the incident vector i, the normal vector n and the refraction index eta.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 refract(fp2 i, fp2 n, fp eta) {
+            var ni = fpmath.dot(n, i);
+            var k = fp.one - eta * eta * (fp.one - ni * ni);
+            return fpmath.@select(fp.zero, eta * i - (eta * ni + fpmath.sqrt(k)) * n, k >= 0f);
         }
 
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static FPVector2 XZ(this FPVector3 v) {
-
-            return new FPVector2(v.x, v.z);
-
+        /// <summary>Returns the refraction vector given the incident vector i, the normal vector n and the refraction index eta.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 refract(fp3 i, fp3 n, fp eta) {
+            var ni = fpmath.dot(n, i);
+            var k = fp.one - eta * eta * (fp.one - ni * ni);
+            return fpmath.@select(fp.zero, eta * i - (eta * ni + fpmath.sqrt(k)) * n, k >= 0f);
         }
 
-        public static string ToStringDec(this pfloat value) {
-
-            return value.ToString();
-
+        /// <summary>Returns the refraction vector given the incident vector i, the normal vector n and the refraction index eta.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 refract(fp4 i, fp4 n, fp eta) {
+            var ni = fpmath.dot(n, i);
+            var k = fp.one - eta * eta * (fp.one - ni * ni);
+            return fpmath.@select(fp.zero, eta * i - (eta * ni + fpmath.sqrt(k)) * n, k >= 0f);
         }
 
-        public static string ToStringDec(this FPVector2 value) {
 
-            return value.x.ToStringDec() + "; " + value.y.ToStringDec();
-
+        /// <summary>Conditionally flips a vector n to face in the direction of i. Returns n if dot(i, ng) < 0, -n otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 faceforward(fp2 n, fp2 i, fp2 ng) {
+            return fpmath.@select(n, -n, fpmath.dot(ng, i) >= fp.zero);
         }
 
-        public static string ToStringDec(this FPVector3 value) {
-
-            return value.x.ToStringDec() + "; " + value.y.ToStringDec() + "; " + value.z.ToStringDec();
-
+        /// <summary>Conditionally flips a vector n to face in the direction of i. Returns n if dot(i, ng) < 0, -n otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 faceforward(fp3 n, fp3 i, fp3 ng) {
+            return fpmath.@select(n, -n, fpmath.dot(ng, i) >= fp.zero);
         }
 
-        /*public static pfloat Angle(FPVector2 from, FPVector2 to) {
-        
-            var num = FPMath.Sqrt(from.sqrMagnitude * to.sqrMagnitude);
-            return (float)num < 1.0000000036274937E-15 ? pfloat.Zero : FPMath.Acos(FPMath.Clamp(FPVector2.Dot(from, to) / num, -pfloat.One, pfloat.One)) * (pfloat)57.29578f;
-            
+        /// <summary>Conditionally flips a vector n to face in the direction of i. Returns n if dot(i, ng) < 0, -n otherwise.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 faceforward(fp4 n, fp4 i, fp4 ng) {
+            return fpmath.@select(n, -n, fpmath.dot(ng, i) >= fp.zero);
         }
 
-        public static float SignedAngle(FPVector2 from, FPVector2 to) => FPMath.Angle(from, to) * FPMath.Sign(from.x * to.y - from.y * to.x);
-        
-        public static pfloat Repeat(pfloat t, pfloat length) {
 
-            return FPMath.Clamp(t - FPMath.Floor(t / length) * length, pfloat.Zero, length);
-
-        }
-        
-        public static pfloat Min(pfloat v1, pfloat v2) {
-
-            return v1 < v2 ? v1 : v2;
-
+        /// <summary>Returns the sine and cosine of the input fp value x through the out parameters s and c.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void sincos(fp x, out fp s, out fp c) {
+            s = fpmath.sin(x);
+            c = fpmath.cos(x);
         }
 
-        public static pfloat Max(pfloat v1, pfloat v2) {
-
-            return v1 > v2 ? v1 : v2;
-
+        /// <summary>Returns the componentwise sine and cosine of the input fp2 vector x through the out parameters s and c.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void sincos(fp2 x, out fp2 s, out fp2 c) {
+            s = fpmath.sin(x);
+            c = fpmath.cos(x);
         }
 
-        public static pfloat Abs(pfloat value) {
-
-            return pfloat.Abs(value);
-
-        }
-        
-        public static pfloat Atan2(pfloat y, pfloat x) {
-            
-            return pfloat.Atan2(y, x);
-            
-        }
-        
-        public static pfloat Floor(pfloat value) {
-
-            return pfloat.Floor(value);
-
-        }
-        
-        public static pfloat Round(pfloat value) {
-
-            return pfloat.Round(value);
-
+        /// <summary>Returns the componentwise sine and cosine of the input fp3 vector x through the out parameters s and c.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void sincos(fp3 x, out fp3 s, out fp3 c) {
+            s = fpmath.sin(x);
+            c = fpmath.cos(x);
         }
 
-        public static pfloat Pow(pfloat value, pfloat exp) {
-
-            return pfloat.Pow(value, exp);
-
+        /// <summary>Returns the componentwise sine and cosine of the input fp4 vector x through the out parameters s and c.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void sincos(fp4 x, out fp4 s, out fp4 c) {
+            s = fpmath.sin(x);
+            c = fpmath.cos(x);
         }
 
-        public static int Sign(pfloat value) {
 
-            return pfloat.Sign(value);
-
-        }
-        
-        public static pfloat Atan(pfloat z) {
-
-            return pfloat.Atan(z);
-
-        }
-        
-        public static pfloat Asin(pfloat value) {
-
-            return UnityEngine.Mathf.Asin(value);
-
+        /// <summary>Returns the result of converting a fp value from degrees to radians.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp radians(fp x) {
+            return x * 0.0174532925d;
         }
 
-        public static pfloat Acos(pfloat value) {
-
-            return pfloat.Acos(value);
-            
+        /// <summary>Returns the result of a componentwise conversion of a fp2 vector from degrees to radians.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 radians(fp2 x) {
+            return x * 0.0174532925d;
         }
 
-        public static pfloat Cos(pfloat value) {
-
-            return pfloat.Cos(value);
-
+        /// <summary>Returns the result of a componentwise conversion of a fp3 vector from degrees to radians.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 radians(fp3 x) {
+            return x * 0.0174532925d;
         }
 
-        public static pfloat Sin(pfloat value) {
-            
-            return pfloat.Sin(value);
-
-        }
-        
-        public static pfloat Lerp(pfloat a, pfloat b, pfloat t) {
-         
-            return a + (b - a) * FPMath.Clamp01(t);
-
+        /// <summary>Returns the result of a componentwise conversion of a fp4 vector from degrees to radians.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 radians(fp4 x) {
+            return x * 0.0174532925d;
         }
 
-        public static pfloat Clamp01(pfloat value) {
 
-            return FPMath.Clamp(value, 0f, 1f);
-
+        /// <summary>Returns the result of converting a double value from radians to degrees.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp degrees(fp x) {
+            return x * 57.295779513d;
         }
 
-        public static pfloat Clamp(pfloat value, pfloat min, pfloat max) {
-            
-            if (value < min)
-                value = min;
-            else if (value > max)
-                value = max;
-            return value;
-            
-        }
-        
-        public static pfloat Sqrt(pfloat v) {
-
-            return pfloat.Sqrt(v);
-
+        /// <summary>Returns the result of a componentwise conversion of a double2 vector from radians to degrees.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp2 degrees(fp2 x) {
+            return x * 57.295779513d;
         }
 
-        public static int FloorToInt(pfloat v) {
+        /// <summary>Returns the result of a componentwise conversion of a double3 vector from radians to degrees.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp3 degrees(fp3 x) {
+            return x * 57.295779513d;
+        }
 
-            return UnityEngine.Mathf.FloorToInt(v);
+        /// <summary>Returns the result of a componentwise conversion of a double4 vector from radians to degrees.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp4 degrees(fp4 x) {
+            return x * 57.295779513d;
+        }
 
-        }*/
+
+        /// <summary>Returns the minimum component of a fp2 vector.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp cmin(fp2 x) {
+            return fpmath.min(x.x, x.y);
+        }
+
+        /// <summary>Returns the minimum component of a fp3 vector.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp cmin(fp3 x) {
+            return fpmath.min(fpmath.min(x.x, x.y), x.z);
+        }
+
+        /// <summary>Returns the maximum component of a fp3 vector.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp cmin(fp4 x) {
+            return fpmath.min(fpmath.min(x.x, x.y), fpmath.min(x.z, x.w));
+        }
+
+
+        /// <summary>Returns the maximum component of a fp2 vector.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp cmax(fp2 x) {
+            return fpmath.max(x.x, x.y);
+        }
+
+        /// <summary>Returns the maximum component of a fp3 vector.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp cmax(fp3 x) {
+            return fpmath.max(fpmath.max(x.x, x.y), x.z);
+        }
+
+        /// <summary>Returns the maximum component of a fp4 vector.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp cmax(fp4 x) {
+            return fpmath.max(fpmath.max(x.x, x.y), fpmath.max(x.z, x.w));
+        }
+
+
+        /// <summary>Returns the horizontal sum of components of a fp2 vector.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp csum(fp2 x) {
+            return x.x + x.y;
+        }
+
+        /// <summary>Returns the horizontal sum of components of a fp3 vector.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp csum(fp3 x) {
+            return x.x + x.y + x.z;
+        }
+
+        /// <summary>Returns the horizontal sum of components of a fp4 vector.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp csum(fp4 x) {
+            return x.x + x.y + (x.z + x.w);
+        }
 
     }
 

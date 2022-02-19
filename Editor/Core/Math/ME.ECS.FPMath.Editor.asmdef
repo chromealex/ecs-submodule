@@ -1,0 +1,19 @@
+{
+    "name": "ME.ECS.FPMath.Editor",
+    "rootNamespace": "",
+    "references": [
+        "ME.ECS.FPMath",
+        "ME.ECS.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -11,7 +11,6 @@ namespace ME.ECS.Collections {
  
     public interface IDictionaryULong : ICollection, IEnumerable {
 
-        int Count { get; }
         void Add(object key, object value);
 
     }

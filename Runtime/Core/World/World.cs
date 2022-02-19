@@ -11,6 +11,18 @@
 using System.Collections.Generic;
 using Unity.Jobs;
 
+#if FIXED_POINT_MATH
+using FLOAT2 = ME.ECS.fp2;
+using FLOAT3 = ME.ECS.fp3;
+using FLOAT4 = ME.ECS.fp4;
+using QUATERNION = ME.ECS.fpquaternion;
+#else
+using FLOAT2 = UnityEngine.Vector2;
+using FLOAT3 = UnityEngine.Vector3;
+using FLOAT4 = UnityEngine.Vector4;
+using QUATERNION = UnityEngine.Quaternion;
+#endif
+
 namespace ME.ECS {
 
     using ME.ECS.Collections;
@@ -351,7 +363,18 @@ namespace ME.ECS {
             var rotationSpeed = 50f;
             var deltaTime = 0.04f;
             var res = UnityEngine.Vector3.RotateTowards(p, t, deltaTime * rotationSpeed, 0f);
-            return res.x.ToStringDec() + res.y.ToStringDec() + res.z.ToStringDec();
+            return res.x.ToStringDec() + res.y.ToStringDec() + res.z.ToStringDec() + " :: " + res.x + " :: " + res.y + " :: " + res.z;
+            
+        }
+        
+        public string GetIEEEFloatFixed() {
+            
+            var p = new fp3(-0.9150986f, 0f, 0.4032301f);
+            var t = new fp3(0.5726798f, 0f, 0.8197792f);
+            var rotationSpeed = (fp)50f;
+            var deltaTime = (fp)0.04f;
+            var res = (fp3)VecMath.RotateTowards(p, t, deltaTime * rotationSpeed, (fp)0f);
+            return res.x.ToStringDec() + res.y.ToStringDec() + res.z.ToStringDec() + " :: " + res.x + " :: " + res.y + " :: " + res.z;
             
         }
 
@@ -671,7 +694,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public UnityEngine.Vector3 GetRandomInSphere(UnityEngine.Vector3 center, float maxRadius) {
+        public FLOAT3 GetRandomInSphere(FLOAT3 center, float maxRadius) {
         
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -689,7 +712,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public UnityEngine.Vector2 GetRandomInCircle(UnityEngine.Vector2 center, float maxRadius) {
+        public FLOAT2 GetRandomInCircle(FLOAT2 center, float maxRadius) {
         
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {

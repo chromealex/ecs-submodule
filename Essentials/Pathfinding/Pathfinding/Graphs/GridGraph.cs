@@ -2,6 +2,18 @@
 #define INLINE_METHODS
 #endif
 
+#if FIXED_POINT_MATH
+using FLOAT2 = ME.ECS.fp2;
+using FLOAT3 = ME.ECS.fp3;
+using FLOAT4 = ME.ECS.fp4;
+using QUATERNION = ME.ECS.fpquaternion;
+#else
+using FLOAT2 = UnityEngine.Vector2;
+using FLOAT3 = UnityEngine.Vector3;
+using FLOAT4 = UnityEngine.Vector4;
+using QUATERNION = UnityEngine.Quaternion;
+#endif
+
 using Unity.Jobs;
 using UnityEngine;
 
@@ -364,7 +376,7 @@ namespace ME.ECS.Pathfinding {
                     
                     var force = false;
                     var maxSlope = this.maxSlope;
-                    var angle = Vector3.Angle(targetNode.worldPosition - node.worldPosition, new Vector3(targetNode.worldPosition.x, node.worldPosition.y, targetNode.worldPosition.z) - node.worldPosition);
+                    var angle = VecMath.Angle(targetNode.worldPosition - node.worldPosition, new Vector3(targetNode.worldPosition.x, node.worldPosition.y, targetNode.worldPosition.z) - node.worldPosition);
                     if (this.useSlopePhysics == true) {
 
                         var f1 = false;
@@ -372,7 +384,7 @@ namespace ME.ECS.Pathfinding {
                         Vector3 p1 = Vector3.zero;
                         Vector3 p2 = Vector3.zero;
                         
-                        var orig = Vector3.Lerp(node.worldPosition, targetNode.worldPosition, 0.25f) + Vector3.up * (this.agentHeight * 0.5f);
+                        var orig = VecMath.Lerp(node.worldPosition, targetNode.worldPosition, 0.25f) + Vector3.up * (this.agentHeight * 0.5f);
                         if (Physics.Raycast(new Ray(orig, Vector3.down), out var hit, this.agentHeight, this.checkMask) == true) {
 
                             p1 = hit.point;
@@ -380,7 +392,7 @@ namespace ME.ECS.Pathfinding {
 
                         }
 
-                        orig = Vector3.Lerp(node.worldPosition, targetNode.worldPosition, 0.75f) + Vector3.up * (this.agentHeight * 0.5f);
+                        orig = VecMath.Lerp(node.worldPosition, targetNode.worldPosition, 0.75f) + Vector3.up * (this.agentHeight * 0.5f);
                         if (Physics.Raycast(new Ray(orig, Vector3.down), out hit, this.agentHeight, this.checkMask) == true) {
 
                             p2 = hit.point;
@@ -392,7 +404,7 @@ namespace ME.ECS.Pathfinding {
                             
                             //UnityEngine.Debug.DrawLine(p1, p1 + Vector3.up, Color.cyan, 5f);
                             //UnityEngine.Debug.DrawLine(p2, p2 + Vector3.up, Color.red, 5f);
-                            angle = Vector3.Angle(p2 - p1, new Vector3(p2.x, p1.y, p2.z) - p1);
+                            angle = VecMath.Angle(p2 - p1, new Vector3(p2.x, p1.y, p2.z) - p1);
                             if (angle <= maxSlope) force = true;
                             
                         }
@@ -424,7 +436,7 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        public override bool ClampPosition(Vector3 worldPosition, Constraint constraint, out Vector3 position) {
+        public override bool ClampPosition(FLOAT3 worldPosition, Constraint constraint, out FLOAT3 position) {
 
             var node = this.GetNearest(worldPosition, constraint);
             if (node.node != null) {
@@ -439,11 +451,11 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        public override NodeInfo GetNearest(Vector3 worldPosition, Constraint constraint) {
+        public override NodeInfo GetNearest(FLOAT3 worldPosition, Constraint constraint) {
 
             if (this.nodes == null) return default;
 
-            var clamped = new Vector3(
+            var clamped = new FLOAT3(
                 Mathf.Clamp(worldPosition.x - this.graphCenter.x, -this.nodeSize * this.size.x * 0.5f + this.nodeSize * 0.5f,
                             this.nodeSize * this.size.x * 0.5f - this.nodeSize * 0.5f),
                 Mathf.Clamp(worldPosition.y - this.graphCenter.y, -this.agentHeight * this.size.y * 0.5f, this.agentHeight * this.size.y * 0.5f),
@@ -902,7 +914,7 @@ namespace ME.ECS.Pathfinding {
 
             this.nodes = PoolListCopyable<Node>.Spawn(this.size.x * this.size.y * this.size.z);
 
-            var center = this.graphCenter - new Vector3(this.size.x * this.nodeSize * 0.5f, this.size.y * this.agentHeight * 0.5f, this.size.z * this.nodeSize * 0.5f);
+            var center = this.graphCenter - new FLOAT3(this.size.x * this.nodeSize * 0.5f, this.size.y * this.agentHeight * 0.5f, this.size.z * this.nodeSize * 0.5f);
 
             var i = 0;
             for (int y = 0; y < this.size.y; ++y) {
@@ -911,8 +923,8 @@ namespace ME.ECS.Pathfinding {
 
                     for (int z = 0; z < this.size.z; ++z) {
 
-                        var nodePosition = new Vector3(x * this.nodeSize + this.nodeSize * 0.5f, y * this.agentHeight + this.agentHeight * 0.5f,
-                                                       z * this.nodeSize + this.nodeSize * 0.5f);
+                        var nodePosition = new FLOAT3(x * this.nodeSize + this.nodeSize * 0.5f, y * this.agentHeight + this.agentHeight * 0.5f,
+                                                      z * this.nodeSize + this.nodeSize * 0.5f);
                         var worldPos = center + nodePosition;
 
                         var node = PoolClass<GridNode>.Spawn();
@@ -1352,16 +1364,16 @@ namespace ME.ECS.Pathfinding {
         public int graphIndex;
         public int index;
         public Vector3Int position;
-        public FPVector3 worldPosition;
+        public fp3 worldPosition;
         public int penalty;
         public byte walkable;
         public int area;
         public int tag;
         public int erosion;
-        public pfloat height;
+        public fp height;
         public ConnectionsArray connections;
         
-        public bool IsSuitable(BurstConstraint constraint, Unity.Collections.NativeArray<GridNodeData> nodes, Vector3Int graphSize, FPVector3 graphCenter) {
+        public bool IsSuitable(BurstConstraint constraint, Unity.Collections.NativeArray<GridNodeData> nodes, Vector3Int graphSize, fp3 graphCenter) {
 
             if (constraint.checkWalkability == 1 && this.walkable != constraint.walkable) return false;
             if (constraint.checkArea == 1 && (constraint.areaMask & (1 << this.area)) == 0) return false;

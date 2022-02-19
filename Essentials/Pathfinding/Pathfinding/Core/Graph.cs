@@ -2,6 +2,18 @@
 #define INLINE_METHODS
 #endif
 
+#if FIXED_POINT_MATH
+using FLOAT2 = ME.ECS.fp2;
+using FLOAT3 = ME.ECS.fp3;
+using FLOAT4 = ME.ECS.fp4;
+using QUATERNION = ME.ECS.fpquaternion;
+#else
+using FLOAT2 = UnityEngine.Vector2;
+using FLOAT3 = UnityEngine.Vector3;
+using FLOAT4 = UnityEngine.Vector4;
+using QUATERNION = UnityEngine.Quaternion;
+#endif
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -192,15 +204,15 @@ namespace ME.ECS.Pathfinding {
             
         }
 
-        public NodeInfo GetNearest(Vector3 worldPosition) {
+        public NodeInfo GetNearest(FLOAT3 worldPosition) {
 
             return this.GetNearest(worldPosition, Constraint.Default);
 
         }
 
-        public abstract NodeInfo GetNearest(Vector3 worldPosition, Constraint constraint);
+        public abstract NodeInfo GetNearest(FLOAT3 worldPosition, Constraint constraint);
 
-        public abstract bool ClampPosition(Vector3 worldPosition, Constraint constraint, out Vector3 position);
+        public abstract bool ClampPosition(FLOAT3 worldPosition, Constraint constraint, out FLOAT3 position);
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -330,11 +342,11 @@ namespace ME.ECS.Pathfinding {
 
             this.buildingState = BuildingState.Building;
 
-            this.minPenalty = float.MaxValue;
-            this.maxPenalty = float.MinValue;
+            this.minPenalty = fp.MaxValue;
+            this.maxPenalty = fp.MinValue;
 
-            this.minHeight = float.MaxValue;
-            this.maxHeight = float.MinValue;
+            this.minHeight = fp.MaxValue;
+            this.maxHeight = fp.MinValue;
 
             System.Diagnostics.Stopwatch swBuildNodes = null;
             if ((pathfindingLogLevel & LogLevel.GraphBuild) != 0) swBuildNodes = System.Diagnostics.Stopwatch.StartNew();

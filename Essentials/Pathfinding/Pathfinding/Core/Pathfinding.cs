@@ -259,7 +259,7 @@ namespace ME.ECS.Pathfinding {
             Vector3 nearest = default;
             if (this.graphs != null) {
 
-                float dist = float.MaxValue;
+                float dist = fp.MaxValue;
                 for (int i = 0; i < this.graphs.Count; ++i) {
 
                     if (constraint.graphMask >= 0 && (constraint.graphMask & (1 << this.graphs[i].index)) == 0) continue;
@@ -289,7 +289,7 @@ namespace ME.ECS.Pathfinding {
             NodeInfo nearest = default;
             if (this.graphs != null) {
 
-                float dist = float.MaxValue;
+                float dist = fp.MaxValue;
                 for (int i = 0; i < this.graphs.Count; ++i) {
 
                     if (constraint.graphMask >= 0 && (constraint.graphMask & (1 << this.graphs[i].index)) == 0) continue;

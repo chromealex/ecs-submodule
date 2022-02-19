@@ -2,7 +2,8 @@
     "name": "ME.ECS.Serializer",
     "rootNamespace": "",
     "references": [
-        "ME.Pools"
+        "ME.Pools",
+        "ME.ECS.FPMath"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

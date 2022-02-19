@@ -1,16 +1,14 @@
 #if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
-#if FIXED_POINT_MATH
-using Mathf = ME.ECS.FPMath;
-using PFLOAT = ME.ECS.pfloat;
-using FLOAT2 = ME.ECS.FPVector2;
-using FLOAT3 = ME.ECS.FPVector3;
-using FLOAT4 = ME.ECS.FPVector4;
-using QUATERNION = ME.ECS.FPQuaternion;
-#else
+
 using Mathf = UnityEngine.Mathf;
-using PFLOAT = System.Single;
+#if FIXED_POINT_MATH
+using FLOAT2 = ME.ECS.fp2;
+using FLOAT3 = ME.ECS.fp3;
+using FLOAT4 = ME.ECS.fp4;
+using QUATERNION = ME.ECS.fpquaternion;
+#else
 using FLOAT2 = UnityEngine.Vector2;
 using FLOAT3 = UnityEngine.Vector3;
 using FLOAT4 = UnityEngine.Vector4;
@@ -379,6 +377,13 @@ namespace ME.ECS {
         }
 
         public static string ToStringDec(this float value) {
+
+            long lVal = System.BitConverter.DoubleToInt64Bits(value);
+            return lVal.ToString("X");
+
+        }
+
+        public static string ToStringDec(this fp value) {
 
             long lVal = System.BitConverter.DoubleToInt64Bits(value);
             return lVal.ToString("X");
@@ -811,13 +816,13 @@ namespace ME.ECS {
             
         }
         
-        public static FLOAT3 CalculateBezier(FLOAT3 p0, FLOAT3 p1, FLOAT3 p2, FLOAT3 p3, PFLOAT t) {
+        public static FLOAT3 CalculateBezier(FLOAT3 p0, FLOAT3 p1, FLOAT3 p2, FLOAT3 p3, float t) {
         
             return (Mathf.Pow(1 - t, 3) * p0) + (3 * Mathf.Pow(1 - t, 2) * t * p1) + (3 * (1 - t) * t * t * p2) + (t * t * t * p3);
             
         }
         
-        public static FLOAT3 CalculateBezierPoint(FLOAT3 p1, FLOAT3 p2, FLOAT3 p3, FLOAT3 p4, PFLOAT t) {
+        public static FLOAT3 CalculateBezierPoint(FLOAT3 p1, FLOAT3 p2, FLOAT3 p3, FLOAT3 p4, float t) {
             
             float tPower3 = t * t * t;
             float tPower2 = t * t;

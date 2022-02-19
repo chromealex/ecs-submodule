@@ -1,8 +1,8 @@
-namespace ME.ECS {
-
-    public partial class FPMathTables {
-    
-        public static readonly long[] SinLut = new[] 
+namespace ME.ECS 
+{
+    partial struct fp 
+    {
+        internal static readonly long[] SinLut = new[] 
         {
             0x0L, 0x8000L, 0x10000L, 0x18000L, 0x20000L, 0x28001L, 0x30001L, 0x38001L, 
             0x40001L, 0x48002L, 0x50002L, 0x58002L, 0x60002L, 0x68002L, 0x70003L, 0x78003L, 
@@ -25741,7 +25741,5 @@ namespace ME.ECS {
             0xFFFFFFE7L, 0xFFFFFFEAL, 0xFFFFFFEDL, 0xFFFFFFF0L, 0xFFFFFFF3L, 0xFFFFFFF5L, 0xFFFFFFF7L, 0xFFFFFFF9L, 
             0xFFFFFFFBL, 0xFFFFFFFCL, 0xFFFFFFFDL, 0xFFFFFFFEL, 0xFFFFFFFFL, 0xFFFFFFFFL, 0x100000000L, 
         };
-        
     }
-    
 }

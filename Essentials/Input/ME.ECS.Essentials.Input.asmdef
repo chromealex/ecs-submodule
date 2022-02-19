@@ -4,6 +4,7 @@
     "references": [
         "ME.ECS",
         "ME.ECS.IL2CPP",
+        "ME.ECS.FPMath",
         "ME.Pools",
         "Unity.Collections"
     ],

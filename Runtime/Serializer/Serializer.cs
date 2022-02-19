@@ -70,6 +70,7 @@ namespace ME.ECS.Serializer {
         
         BufferArray = 224,
         DisposeSentinel = 223,
+        FPFloat   = 222,
         
     }
     
@@ -266,6 +267,8 @@ namespace ME.ECS.Serializer {
             
             serializers.Add(new ByteSerializer());
             serializers.Add(new SByteSerializer());
+            
+            serializers.Add(new FPSerializer());
             
             serializers.Add(new FloatSerializer());
             serializers.Add(new DoubleSerializer());

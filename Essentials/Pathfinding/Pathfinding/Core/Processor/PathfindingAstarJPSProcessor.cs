@@ -85,7 +85,7 @@ namespace ME.ECS.Pathfinding {
 
             public bool isClosed;
             public bool isOpened;
-            public pfloat startToCurNodeLen;
+            public fp startToCurNodeLen;
             public int parent;
 
         }
@@ -95,7 +95,7 @@ namespace ME.ECS.Pathfinding {
 
             public GridGraph graph;
             public Vector3Int graphSize;
-            public FPVector3 graphCenter;
+            public fp3 graphCenter;
             public BurstConstraint burstConstraint;
             public Unity.Collections.NativeList<GridNodeData> resultPath;
             public Unity.Collections.NativeArray<GridNodeData> arr;

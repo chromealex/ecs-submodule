@@ -815,6 +815,37 @@ namespace ME.ECS.Serializer {
 
     }
 
+    public struct FPSerializer : ITypeSerializer {
+
+        public byte GetTypeValue() { return (byte)TypeValue.FPFloat; }
+        public System.Type GetTypeSerialized() { return typeof(fp); }
+
+        public static void PackDirect(Packer packer, fp obj) {
+
+            Int64Serializer.PackDirect(packer, obj.RawValue);
+            
+        }
+        
+        public static fp UnpackDirect(Packer packer) {
+
+            return new fp(Int64Serializer.UnpackDirect(packer));
+
+        }
+
+        public void Pack(Packer packer, object obj) {
+
+            FPSerializer.PackDirect(packer, (fp)obj);
+            
+        }
+
+        public object Unpack(Packer packer) {
+
+            return FPSerializer.UnpackDirect(packer);
+
+        }
+
+    }
+
     public struct BooleanSerializer : ITypeSerializer {
 
         public byte GetTypeValue() { return (byte)TypeValue.Boolean; }

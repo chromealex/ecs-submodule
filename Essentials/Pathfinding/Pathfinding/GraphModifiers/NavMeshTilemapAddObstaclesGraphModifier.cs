@@ -93,8 +93,8 @@ namespace ME.ECS.Pathfinding {
 
         public void GetMinMaxHeight(out float min, out float max) {
 
-            min = float.MaxValue;
-            max = float.MinValue;
+            min = fp.MaxValue;
+            max = fp.MinValue;
 
             for (int i = 0; i < this.items.Length; ++i) {
 

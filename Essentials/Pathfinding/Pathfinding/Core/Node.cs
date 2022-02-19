@@ -126,7 +126,7 @@ namespace ME.ECS.Pathfinding {
             this.startToCurNodeLen[threadIndex] = 0f;
             this.isOpened[threadIndex] = false;
             this.isClosed[threadIndex] = false;
-            this.bestCost[threadIndex] = float.MaxValue;
+            this.bestCost[threadIndex] = fp.MaxValue;
 
         }
 

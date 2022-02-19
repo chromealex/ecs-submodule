@@ -195,7 +195,7 @@
 
         private struct Node {
 
-            public pfloat priority;
+            public fp priority;
             public T @object;
 
         }

@@ -146,7 +146,7 @@ namespace ME.ECS.Pathfinding {
                     var pos = current.worldPosition;
                     do {
 
-                        pos = Vector3.MoveTowards(pos, next.worldPosition, path.graph.GetNodeMinDistance());
+                        pos = VecMath.MoveTowards(pos, next.worldPosition, path.graph.GetNodeMinDistance());
                         
                         var node = path.graph.GetNearest(pos, cons);
                         if ( //node.walkable == false ||

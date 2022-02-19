@@ -1,5 +1,17 @@
 ﻿using ME.ECS;
 
+#if FIXED_POINT_MATH
+using FLOAT2 = ME.ECS.fp2;
+using FLOAT3 = ME.ECS.fp3;
+using FLOAT4 = ME.ECS.fp4;
+using QUATERNION = ME.ECS.fpquaternion;
+#else
+using FLOAT2 = UnityEngine.Vector2;
+using FLOAT3 = UnityEngine.Vector3;
+using FLOAT4 = UnityEngine.Vector4;
+using QUATERNION = UnityEngine.Quaternion;
+#endif
+
 namespace ME.ECS.Essentials {
 
     using Input.Components; using Input.Modules; using Input.Systems; using Input.Markers;
@@ -10,13 +22,13 @@ namespace ME.ECS.Essentials {
     namespace Input.Markers {}
 
     public delegate InputPointerData MarkerModifier(InputPointerData data);
-    public delegate bool GetWorldPointerCallback(int pointerId, UnityEngine.Camera camera, out UnityEngine.Vector3 result);
+    public delegate bool GetWorldPointerCallback(int pointerId, UnityEngine.Camera camera, out FLOAT3 result);
     
     public interface IEventMarker : IMarker {}
 
     public interface IGestureMarker : IMarker {
 
-        UnityEngine.Vector3 worldPosition { get; }
+        FLOAT3 worldPosition { get; }
 
     }
 
@@ -41,11 +53,11 @@ namespace ME.ECS.Essentials {
     public struct InputPointerData {
 
         public int pointerId;
-        public UnityEngine.Vector3 worldPosition;
-        public UnityEngine.Vector3 pressWorldPosition;
+        public FLOAT3 worldPosition;
+        public FLOAT3 pressWorldPosition;
         public InputEventType eventType;
 
-        public InputPointerData(int pointerId, UnityEngine.Vector3 worldPosition, InputEventType eventType) {
+        public InputPointerData(int pointerId, FLOAT3 worldPosition, InputEventType eventType) {
 
             this.pointerId = pointerId;
             this.worldPosition = worldPosition;
@@ -300,7 +312,7 @@ namespace ME.ECS.Essentials {
 
         }
 
-        public bool IsAllowed(in Entity player, InputEventType inputEventType, in UnityEngine.Vector3 worldPosition) {
+        public bool IsAllowed(in Entity player, InputEventType inputEventType, in FLOAT3 worldPosition) {
 
             if (this.inputMaskFilter.Count == 0) return true;
 
@@ -478,7 +490,7 @@ namespace ME.ECS.Essentials {
 
         }
         
-        public bool GetWorldPointer(int pointerId, out UnityEngine.Vector3 result) {
+        public bool GetWorldPointer(int pointerId, out FLOAT3 result) {
 
             result = default;
             if (this.camera == null) return false;
@@ -502,7 +514,7 @@ namespace ME.ECS.Essentials {
 
         }
         
-        public bool GetWorldPointer(out UnityEngine.Vector3 result) {
+        public bool GetWorldPointer(out FLOAT3 result) {
 
             return this.GetWorldPointer(0, out result);
             

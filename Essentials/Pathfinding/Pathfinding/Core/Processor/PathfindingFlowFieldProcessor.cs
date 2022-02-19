@@ -198,7 +198,7 @@ namespace ME.ECS.Pathfinding {
             public Unity.Collections.NativeArray<int> results;
             public PathCustomWalkableField pathCustomWalkableField;
             public Vector3Int graphSize;
-            public FPVector3 graphCenter;
+            public fp3 graphCenter;
             
             public int endNodeIndex;
 

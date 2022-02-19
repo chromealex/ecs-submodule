@@ -1,4 +1,14 @@
-using System.Linq;
+#if FIXED_POINT_MATH
+using FLOAT2 = ME.ECS.fp2;
+using FLOAT3 = ME.ECS.fp3;
+using FLOAT4 = ME.ECS.fp4;
+using QUATERNION = ME.ECS.fpquaternion;
+#else
+using FLOAT2 = UnityEngine.Vector2;
+using FLOAT3 = UnityEngine.Vector3;
+using FLOAT4 = UnityEngine.Vector4;
+using QUATERNION = UnityEngine.Quaternion;
+#endif
 
 namespace ME.ECS.Pathfinding {
     
@@ -273,7 +283,7 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        public override bool ClampPosition(Vector3 worldPosition, Constraint constraint, out Vector3 position) {
+        public override bool ClampPosition(FLOAT3 worldPosition, Constraint constraint, out FLOAT3 position) {
 
             if (UnityEngine.AI.NavMesh.SamplePosition(worldPosition, out var hit, 1000f, new NavMeshQueryFilter() {
                 agentTypeID = this.agentTypeId,
@@ -339,7 +349,7 @@ namespace ME.ECS.Pathfinding {
         
         }
 
-        public override NodeInfo GetNearest(UnityEngine.Vector3 worldPosition, Constraint constraint) {
+        public override NodeInfo GetNearest(FLOAT3 worldPosition, Constraint constraint) {
 
             if (this.ClampPosition(worldPosition, constraint, out var pos) == true) {
 

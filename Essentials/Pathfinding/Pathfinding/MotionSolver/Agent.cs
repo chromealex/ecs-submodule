@@ -114,7 +114,7 @@ namespace ME.ECS.Pathfinding {
             var dirLenIdx = -1;
             var dirAngleIdx = -1;
             var max = 0f;
-            var nearestAngle = float.MaxValue;
+            var nearestAngle = fp.MaxValue;
             for (int i = 0; i < this.sensorsLength.Length; ++i) {
 
                 var len = this.sensorsLength[i];

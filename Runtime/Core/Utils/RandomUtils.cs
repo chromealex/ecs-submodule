@@ -8,6 +8,18 @@ using RandomState = System.UInt32;
 using RandomState = UnityEngine.Random.State;
 #endif
 
+#if FIXED_POINT_MATH
+using FLOAT2 = ME.ECS.fp2;
+using FLOAT3 = ME.ECS.fp3;
+using FLOAT4 = ME.ECS.fp4;
+using QUATERNION = ME.ECS.fpquaternion;
+#else
+using FLOAT2 = UnityEngine.Vector2;
+using FLOAT3 = UnityEngine.Vector3;
+using FLOAT4 = UnityEngine.Vector4;
+using QUATERNION = UnityEngine.Quaternion;
+#endif
+
 namespace ME.ECS {
 
     public static class RandomUtils {
@@ -28,7 +40,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static UnityEngine.Vector3 GetRandomInSphere(this ref RandomState randomState, UnityEngine.Vector3 center, float maxRadius) {
+        public static FLOAT3 GetRandomInSphere(this ref RandomState randomState, FLOAT3 center, float maxRadius) {
             #if UNITY_MATHEMATICS
             var rnd = new Unity.Mathematics.Random(randomState);
             var dir = ((UnityEngine.Vector3)rnd.NextFloat3(-1f, 1f)).normalized;
@@ -45,7 +57,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static UnityEngine.Vector2 GetRandomInCircle(this ref RandomState randomState, UnityEngine.Vector2 center, float maxRadius) {
+        public static FLOAT2 GetRandomInCircle(this ref RandomState randomState, FLOAT2 center, float maxRadius) {
             #if UNITY_MATHEMATICS
             var rnd = new Unity.Mathematics.Random(randomState);
             var dir = ((UnityEngine.Vector2)rnd.NextFloat2(-1f, 1f)).normalized;

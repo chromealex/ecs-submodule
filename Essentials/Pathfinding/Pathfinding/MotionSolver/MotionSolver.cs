@@ -29,8 +29,8 @@ namespace ME.ECS.Pathfinding {
             public int a;
             public int b;
 
-            public FPVector2 normal;
-            public pfloat depth;
+            public fp2 normal;
+            public fp depth;
 
         }
 
@@ -39,16 +39,16 @@ namespace ME.ECS.Pathfinding {
             public int a;
             public int b;
 
-            public FPVector2 normal;
-            public pfloat depth;
+            public fp2 normal;
+            public fp depth;
 
         }
 
         [System.Serializable]
         public struct SimulationConfig {
         
-            public pfloat collisionDumping;
-            public pfloat dynamicDumping;
+            public fp collisionDumping;
+            public fp dynamicDumping;
 
             public int substeps;
             
@@ -59,13 +59,13 @@ namespace ME.ECS.Pathfinding {
 
         public struct Body : IStructComponent {
 
-            public FPVector2 position;
-            public FPVector2 velocity;
-            public FPVector2 targetPos;
+            public fp2 position;
+            public fp2 velocity;
+            public fp2 targetPos;
 
-            public pfloat speed;
-            public pfloat radius;
-            public pfloat mass;
+            public fp speed;
+            public fp radius;
+            public fp mass;
 
             public byte isStatic;
             public int layer;
@@ -78,8 +78,8 @@ namespace ME.ECS.Pathfinding {
 
         public struct Obstacle : IStructComponent {
 
-            public FPVector2 position;
-            public FPVector2 extents;
+            public fp2 position;
+            public fp2 extents;
 
         }
 
@@ -107,14 +107,14 @@ namespace ME.ECS.Pathfinding {
                         ref readonly var b = ref this.obstacles.ReadT0(entityIdB);
 
                         var difference = a.position - b.position;
-                        var closest = new FPVector2(b.position.x + FPMath.Clamp(difference.x, -b.extents.x, b.extents.x),
-                                                    b.position.y + FPMath.Clamp(difference.y, -b.extents.y, b.extents.y));
+                        var closest = new fp2(b.position.x + fpmath.clamp(difference.x, -b.extents.x, b.extents.x),
+                                                    b.position.y + fpmath.clamp(difference.y, -b.extents.y, b.extents.y));
                         difference = closest - a.position;
 
                         if (difference.sqrMagnitude < a.radius * a.radius) {
                             var distance = difference.magnitude;
-                            var normal = distance > 0f ? difference / distance : new FPVector2(1f, 0f);
-                            var depth = FPMath.Abs(distance - a.radius);
+                            var normal = distance > 0f ? difference / distance : new fp2(1f, 0f);
+                            var depth = fpmath.abs(distance - a.radius);
                             
                             var idx = this.output[0];
                             var found = false;
@@ -163,8 +163,8 @@ namespace ME.ECS.Pathfinding {
                         if (difference.sqrMagnitude < collisionDistanceSqr) {
 
                             var distance = difference.magnitude;
-                            var normal = distance > 0f ? difference / distance : new FPVector2(1f, 0f);
-                            var depth = FPMath.Abs(distance - collisionDistance);
+                            var normal = distance > 0f ? difference / distance : new fp2(1f, 0f);
+                            var depth = fpmath.abs(distance - collisionDistance);
 
                             var idx = this.output[1];
                             var found = false;
@@ -202,7 +202,7 @@ namespace ME.ECS.Pathfinding {
         [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true, Debug = false)]
         public struct ResolveCollisionsBodyVsObstacleJob : Unity.Jobs.IJobParallelFor {
 
-            public pfloat collisionDumping;
+            public fp collisionDumping;
             public ME.ECS.Buffers.FilterBag<Body> bodies;
             public ME.ECS.Buffers.FilterBag<Obstacle> obstacles;
             
@@ -223,7 +223,7 @@ namespace ME.ECS.Pathfinding {
         [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true, Debug = false)]
         public struct ResolveCollisionsBodyVsBodyJob : Unity.Jobs.IJobParallelFor {
 
-            public pfloat collisionDumping;
+            public fp collisionDumping;
             public ME.ECS.Buffers.FilterBag<Body> bodies;
             
             [Unity.Collections.NativeDisableParallelForRestriction] public Unity.Collections.NativeArray<CollisionManifoldBodyVsBody> items;
@@ -243,7 +243,7 @@ namespace ME.ECS.Pathfinding {
         [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true, Debug = false)]
         public struct ResolveDynamicDumping : Unity.Jobs.IJobParallelFor {
 
-            public pfloat velocityDumping;
+            public fp velocityDumping;
             public ME.ECS.Buffers.FilterBag<Body> bodies;
             
             public void Execute(int index) {
@@ -259,7 +259,7 @@ namespace ME.ECS.Pathfinding {
         [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true, Debug = false)]
         public struct MoveBodies : Unity.Jobs.IJobParallelFor {
 
-            public pfloat substepDeltaTime;
+            public fp substepDeltaTime;
             public ME.ECS.Buffers.FilterBag<Body> bodies;
             
             public void Execute(int index) {
@@ -303,8 +303,8 @@ namespace ME.ECS.Pathfinding {
                     var sensorLengthSqr = sensorLength * sensorLength;
                     for (int i = 0; i < body.sensorsLength.Length; ++i) {
 
-                        var sensorDir = FPVector2.Rotate(forwardDir, step * i);
-                        var angle = FPMath.Abs(Vector2.SignedAngle(sensorDir, forwardDir));
+                        var sensorDir = fp2.Rotate(forwardDir, step * i);
+                        var angle = fpmath.Abs(Vector2.SignedAngle(sensorDir, forwardDir));
                         body.sensorsLength[i] = (360f - angle) / 360f * sensorLength;
 
                     }
@@ -323,13 +323,13 @@ namespace ME.ECS.Pathfinding {
 
                             for (int i = 0; i < body.sensorsLength.Length; ++i) {
 
-                                var d = FPVector2.Rotate(forwardDir, step * i);
-                                var angle = FPMath.Abs(Vector2.SignedAngle(dir, d));
+                                var d = fp2.Rotate(forwardDir, step * i);
+                                var angle = fpmath.Abs(Vector2.SignedAngle(dir, d));
                                 if (angle <= stepSize) {
 
                                     var len = angle / step * sensorLength;
-                                    len = FPMath.Min(len, FPMath.Sqrt(dist));
-                                    body.sensorsLength[i] = FPMath.Min(body.sensorsLength[i], len);
+                                    len = fpmath.Min(len, fpmath.Sqrt(dist));
+                                    body.sensorsLength[i] = fpmath.Min(body.sensorsLength[i], len);
 
                                 }
 
@@ -347,7 +347,7 @@ namespace ME.ECS.Pathfinding {
                     var dirLenIdx = -1;
                     var dirAngleIdx = -1;
                     var max = 0f;
-                    var nearestAngle = float.MaxValue;
+                    var nearestAngle = fp.MaxValue;
                     for (int i = 0; i < body.sensorsLength.Length; ++i) {
 
                         var len = body.sensorsLength[i];
@@ -358,8 +358,8 @@ namespace ME.ECS.Pathfinding {
 
                         }
 
-                        var sensorDir = FPVector2.Rotate(forwardDir, step * i);
-                        var angle = FPMath.Repeat(Vector2.SignedAngle(sensorDir, targetDir), 360f);
+                        var sensorDir = fp2.Rotate(forwardDir, step * i);
+                        var angle = fpmath.Repeat(Vector2.SignedAngle(sensorDir, targetDir), 360f);
                         if (angle <= nearestAngle && len >= sensorLength * 0.3f) {
 
                             nearestAngle = angle;
@@ -460,7 +460,7 @@ namespace ME.ECS.Pathfinding {
                 
                 var jobCollisionBodyVsObstacle = new ResolveDynamicDumping() {
                     bodies = bodiesBag,
-                    velocityDumping = FPMath.Pow(config.dynamicDumping, substepDeltaTime),
+                    velocityDumping = fpmath.pow(config.dynamicDumping, substepDeltaTime),
                 };
                 var handle = jobCollisionBodyVsObstacle.Schedule(bodiesBag.Length, 64);
                 handle.Complete();
@@ -476,7 +476,7 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        private static void ResolveCollision(ref Body a, ref Body b, pfloat depth, FPVector2 normal, pfloat collisionDumping, int aIsStatic, int bIsStatic) {
+        private static void ResolveCollision(ref Body a, ref Body b, fp depth, fp2 normal, fp collisionDumping, int aIsStatic, int bIsStatic) {
 
             if (a.isStatic == 1 || aIsStatic == 1) {
                 b.position += depth * normal;
@@ -496,17 +496,17 @@ namespace ME.ECS.Pathfinding {
                 b.position += displace;
             }
 
-            if (FPVector2.Dot(b.velocity - a.velocity, normal) > 0) {
+            if (fpmath.dot(b.velocity - a.velocity, normal) > 0f) {
                 return;
             }
 
-            var tangent = new FPVector2(-normal.y, normal.x);
+            var tangent = new fp2(-normal.y, normal.x);
 
-            var dotTanA = FPVector2.Dot(a.velocity, tangent);
-            var dotTanB = FPVector2.Dot(b.velocity, tangent);
+            var dotTanA = fpmath.dot(a.velocity, tangent);
+            var dotTanB = fpmath.dot(b.velocity, tangent);
 
-            var dotNormalA = FPVector2.Dot(a.velocity, normal);
-            var dotNormalB = FPVector2.Dot(b.velocity, normal);
+            var dotNormalA = fpmath.dot(a.velocity, normal);
+            var dotNormalB = fpmath.dot(b.velocity, normal);
 
             var mA = (dotNormalA * (a.mass - b.mass) + 2.0f * b.mass * dotNormalB) / (a.mass + b.mass);
             var mB = (dotNormalB * (b.mass - a.mass) + 2.0f * a.mass * dotNormalA) / (a.mass + b.mass);
@@ -515,7 +515,7 @@ namespace ME.ECS.Pathfinding {
             b.velocity = tangent * dotTanB + normal * (mB * collisionDumping);
         }
 
-        private static void ResolveCollision(ref Body a, ref Obstacle b, pfloat depth, FPVector2 normal, pfloat collisionDumping) {
+        private static void ResolveCollision(ref Body a, ref Obstacle b, fp depth, fp2 normal, fp collisionDumping) {
 
             a.position -= depth * normal;
             
