@@ -237,6 +237,7 @@ namespace ME.ECS {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Inverse() {
 
+            if (this == fpquaternion.zero) return;
             var num2 = this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
             var num = 1f / num2;
             this.x = -this.x * num;
