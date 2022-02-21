@@ -9,13 +9,13 @@ namespace ME.ECS {
         internal const double K1_OVER_SQRT2 = 0.7071067811865475244008443621048490d;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 Lerp(Vector3 lhs, Vector3 rhs, float t) {
-            return VecMath.Lerp((fp3)lhs, (fp3)rhs, (fp)t);
+        public static Vector2 Lerp(Vector2 lhs, Vector2 rhs, float t) {
+            return VecMath.Lerp((fp2)lhs, (fp2)rhs, (fp)t);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector2 Lerp(Vector2 lhs, Vector2 rhs, float t) {
-            return VecMath.Lerp((fp2)lhs, (fp2)rhs, (fp)t);
+        public static Vector3 Lerp(Vector3 lhs, Vector3 rhs, float t) {
+            return VecMath.Lerp((fp3)lhs, (fp3)rhs, (fp)t);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -55,15 +55,20 @@ namespace ME.ECS {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp Angle(fp2 lhs, fp2 rhs) {
+            var num = fpmath.sqrt(lhs.sqrMagnitude * rhs.sqrMagnitude);
+            return num < fp.precision ? fp.zero : fpmath.degrees(fpmath.acos(fpmath.clamp(fpmath.dot(lhs, rhs) / num, -fp.one, fp.one)));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static fp Angle(fp3 lhs, fp3 rhs) {
             var num = fpmath.sqrt(lhs.sqrMagnitude * rhs.sqrMagnitude);
             return num < fp.precision ? fp.zero : fpmath.degrees(fpmath.acos(fpmath.clamp(fpmath.dot(lhs, rhs) / num, -fp.one, fp.one)));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static fp Angle(fp2 lhs, fp2 rhs) {
-            var num = fpmath.sqrt(lhs.sqrMagnitude * rhs.sqrMagnitude);
-            return num < fp.precision ? fp.zero : fpmath.degrees(fpmath.acos(fpmath.clamp(fpmath.dot(lhs, rhs) / num, -fp.one, fp.one)));
+        public static fp SignedAngle(fp2 lhs, fp2 rhs) {
+            return VecMath.Angle(lhs, rhs) * fpmath.sign(lhs.x * rhs.y - lhs.y * rhs.x);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
