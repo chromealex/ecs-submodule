@@ -45,8 +45,18 @@ namespace ME.ECS {
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Angle(Vector2 lhs, Vector2 rhs) {
+            return VecMath.Angle((fp2)lhs, (fp2)rhs);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Angle(Vector3 lhs, Vector3 rhs) {
             return VecMath.Angle((fp3)lhs, (fp3)rhs);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float SignedAngle(Vector2 lhs, Vector2 rhs) {
+            return VecMath.SignedAngle((fp2)lhs, (fp2)rhs);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
