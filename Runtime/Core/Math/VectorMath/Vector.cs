@@ -61,6 +61,12 @@ namespace ME.ECS {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static fp Angle(fp2 lhs, fp2 rhs) {
+            var num = fpmath.sqrt(lhs.sqrMagnitude * rhs.sqrMagnitude);
+            return num < fp.precision ? fp.zero : fpmath.degrees(fpmath.acos(fpmath.clamp(fpmath.dot(lhs, rhs) / num, -fp.one, fp.one)));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static fp SignedAngle(fp3 lhs, fp3 rhs, fp3 axis) {
             var num1 = VecMath.Angle(lhs, rhs);
             var num2 = (lhs.y * rhs.z - lhs.z * rhs.y);
