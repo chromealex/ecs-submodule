@@ -2658,7 +2658,7 @@ namespace ME.ECS {
                     for (int j = 0; j < group.runtimeSystem.systemAdvanceTickPre.Count; ++j) {
 
                         ref var system = ref group.runtimeSystem.systemAdvanceTickPre[j];
-                        if (system is IAdvanceTickStep step && step.step % tick != 0) continue;
+                        if (system is IAdvanceTickStep step && tick % step.step != Tick.Zero) continue;
 
                         #if CHECKPOINT_COLLECTOR
                         if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
