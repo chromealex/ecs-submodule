@@ -2590,7 +2590,7 @@ namespace ME.ECS {
                         #endif
 
                         var module = this.modules[i];
-                        if (module is IAdvanceTickStep step && step.step % tick != 0) continue;
+                        if (module is IAdvanceTickStep step && tick % step.step != Tick.Zero) continue;
 
                         if (module is IAdvanceTick moduleBase) {
 
@@ -2705,7 +2705,7 @@ namespace ME.ECS {
                     for (int j = 0; j < group.runtimeSystem.systemAdvanceTick.Count; ++j) {
 
                         ref var systemBase = ref group.runtimeSystem.systemAdvanceTick[j];
-                        if (systemBase is IAdvanceTickStep step && step.step % tick != 0) continue;
+                        if (systemBase is IAdvanceTickStep step && tick % step.step != Tick.Zero) continue;
 
                         if (systemBase is ISystemFilter system) {
 
@@ -2904,7 +2904,7 @@ namespace ME.ECS {
                     for (int j = 0; j < group.runtimeSystem.systemAdvanceTickPost.Count; ++j) {
 
                         ref var system = ref group.runtimeSystem.systemAdvanceTickPost[j];
-                        if (system is IAdvanceTickStep step && step.step % tick != 0) continue;
+                        if (system is IAdvanceTickStep step && tick % step.step != Tick.Zero) continue;
 
                         #if CHECKPOINT_COLLECTOR
                         if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint(system, WorldStep.LogicTick);
