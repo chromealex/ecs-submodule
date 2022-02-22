@@ -326,7 +326,16 @@ namespace ME.ECS {
             return (x - a) / (b - a);
         }
 
+        public static fp repeat(fp t, fp length) {
+            return fpmath.clamp(t - fpmath.floor(t / length) * length, 0.0f, length);
+        }
 
+        public static fp lerpangle(fp a, fp b, fp t) {
+            var num = fpmath.repeat(b - a, 360f);
+            if (num > (fp)180.0f) num -= (fp)360f;
+            return a + num * fpmath.clamp(t, 0f, 1f);
+        }
+        
         /// <summary>Returns the result of linearly interpolating from x to y using the interpolation parameter s.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static fp lerp(fp x, fp y, fp s) {

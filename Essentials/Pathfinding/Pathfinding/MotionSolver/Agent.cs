@@ -103,7 +103,7 @@ namespace ME.ECS.Pathfinding {
 
         private int GetSensorIndex(Vector3 forwardDir, Vector3 dir) {
 
-            var angle = Mathf.Repeat(Vector3.SignedAngle(forwardDir, dir, Vector3.up), 360f);
+            var angle = Mathf.Repeat(VecMath.SignedAngle(forwardDir, dir, Vector3.up), 360f);
             return Mathf.RoundToInt(angle / this.step);
 
         }
@@ -126,7 +126,7 @@ namespace ME.ECS.Pathfinding {
                 }
 
                 var sensorDir = Quaternion.Euler(0f, this.step * i, 0f) * forwardDir;
-                var angle = Mathf.Repeat(Vector3.SignedAngle(sensorDir, targetDir, Vector3.up), 360f);
+                var angle = Mathf.Repeat(VecMath.SignedAngle(sensorDir, targetDir, Vector3.up), 360f);
                 if (angle <= nearestAngle && len >= this.sensorLength * 0.3f) {
 
                     nearestAngle = angle;
@@ -166,7 +166,7 @@ namespace ME.ECS.Pathfinding {
             for (int i = 0; i < this.sensorsLength.Length; ++i) {
 
                 var sensorDir = Quaternion.Euler(0f, this.step * i, 0f) * forwardDir;
-                var angle = Mathf.Abs(Vector3.SignedAngle(sensorDir, forwardDir, Vector3.up));
+                var angle = Mathf.Abs(VecMath.SignedAngle(sensorDir, forwardDir, Vector3.up));
                 this.sensorsLength[i] = (360f - angle) / 360f * maxLength;
 
             }
@@ -184,7 +184,7 @@ namespace ME.ECS.Pathfinding {
                     for (int i = 0; i < this.sensorsLength.Length; ++i) {
 
                         var d = Quaternion.Euler(0f, this.step * i, 0f) * forwardDir;
-                        var angle = Mathf.Abs(Vector3.SignedAngle(dir, d, Vector3.up));
+                        var angle = Mathf.Abs(VecMath.SignedAngle(dir, d, Vector3.up));
                         if (angle <= this.stepSize) {
 
                             var len = angle / this.step * maxLength;
