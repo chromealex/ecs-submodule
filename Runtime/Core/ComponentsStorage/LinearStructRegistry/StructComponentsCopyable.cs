@@ -158,9 +158,7 @@ namespace ME.ECS {
                 
             }
             
-            ref var bucket = ref this.components[from.id];
-            this.components[to.id] = bucket;
-            return bucket.state;
+            return toBucket.state;
             
         }
 

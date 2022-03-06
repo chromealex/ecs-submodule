@@ -377,15 +377,31 @@ namespace ME.ECS {
         #endif
         public static Entity SetAs<TComponent>(this in Entity entity, in Entity source) where TComponent : struct, IStructComponent {
 
-            if (AllComponentTypes<TComponent>.isTag == false) {
+            if (AllComponentTypes<TComponent>.isCopyable == false) {
 
-                if (source.TryRead(out TComponent c) == true) {
+                if (AllComponentTypes<TComponent>.isTag == false) {
 
-                    entity.Set(c);
+                    if (source.TryRead(out TComponent c) == true) {
+
+                        entity.Set(c);
+
+                    } else {
+
+                        entity.Remove<TComponent>();
+
+                    }
 
                 } else {
 
-                    entity.Remove<TComponent>();
+                    if (source.Has<TComponent>() == true) {
+
+                        entity.Set<TComponent>();
+
+                    } else {
+
+                        entity.Remove<TComponent>();
+
+                    }
 
                 }
 
@@ -393,14 +409,16 @@ namespace ME.ECS {
                 
                 if (source.Has<TComponent>() == true) {
 
-                    entity.Set<TComponent>();
+                    var id = AllComponentTypes<TComponent>.typeId;
+                    var reg = Worlds.current.currentState.structComponents.list[id];
+                    reg.CopyFrom(in source, in entity);
 
                 } else {
 
                     entity.Remove<TComponent>();
 
                 }
-
+                
             }
 
             return entity;
