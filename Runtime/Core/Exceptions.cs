@@ -130,7 +130,13 @@ namespace ME.ECS {
             throw new OutOfStateException("LogicTick state is required. You can disable this check by turning off WORLD_STATE_CHECK define.");
 
         }
-        
+
+        public static void ThrowWorldStateCheckVisual() {
+
+            throw new OutOfStateException("Visual state is required. You can disable this check by turning off WORLD_STATE_CHECK define.");
+
+        }
+
     }
 
     public class AllocationException : System.Exception {
