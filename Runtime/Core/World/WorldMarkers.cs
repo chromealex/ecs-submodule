@@ -36,7 +36,7 @@ namespace ME.ECS {
         private void RemoveMarkers() {
 
             #if WORLD_STATE_CHECK
-            if (this.isActive == true && this.HasStep(WorldStep.VisualTick) == false) {
+            if (this.isActive == true && this.HasStep(WorldStep.LogicTick) == true) {
                 
                 OutOfStateException.ThrowWorldStateCheckVisual();
                 
@@ -54,7 +54,7 @@ namespace ME.ECS {
         public bool AddMarker<TMarker>(TMarker markerData) where TMarker : struct, IMarker {
 
             #if WORLD_STATE_CHECK
-            if (this.isActive == true && this.HasStep(WorldStep.VisualTick) == false) {
+            if (this.isActive == true && this.HasStep(WorldStep.LogicTick) == true) {
                 
                 OutOfStateException.ThrowWorldStateCheckVisual();
                 
