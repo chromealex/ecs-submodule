@@ -26,6 +26,8 @@ namespace ME.ECSEditor {
         private static System.Collections.Generic.Dictionary<object, UnityEditorInternal.ReorderableList> subFeatureLists = new System.Collections.Generic.Dictionary<object, UnityEditorInternal.ReorderableList>();
         private static System.Collections.Generic.Dictionary<object, Editor> editorForTarget = new System.Collections.Generic.Dictionary<object, Editor>();
         private static bool isCompilingManual;
+
+        private SerializedProperty listCategoriesProp;
         
         private static GUIStyle styleFoldout {
             get {
@@ -248,6 +250,8 @@ namespace ME.ECSEditor {
 
             }
 
+            this.listCategoriesProp = this.serializedObject.FindProperty("featuresListCategories");
+            
             this.ValidateConfigurations();
             
             if (this.targets.Length > 0 && this.target is Component) {
@@ -716,9 +720,8 @@ namespace ME.ECSEditor {
             EditorGUILayout.Space();
             
             EditorGUI.BeginDisabledGroup(EditorApplication.isPlaying == true || EditorApplication.isPaused == true);
-            //this.drawWidth = GUILayoutUtility.GetLastRect().width;
-            //this.list.DoLayoutList();
-            InitializerEditor.listCategories.DoLayoutList();
+            //InitializerEditor.listCategories.DoLayoutList();
+            EditorGUILayout.PropertyField(this.listCategoriesProp);
             EditorGUI.EndDisabledGroup();
 
         }
@@ -830,7 +833,7 @@ namespace ME.ECSEditor {
 
             if (InitializerEditor.subFeatureLists.TryGetValue(featureData.feature, out var list) == false) {
 
-                list = new UnityEditorInternal.ReorderableList(featureData.innerFeatures, typeof(FeaturesList.FeatureData), true, true, true, true);
+                list = new UnityEditorInternal.ReorderableList(featureData.innerFeatures.innerFeatures, typeof(FeaturesList.FeatureData), true, true, true, true);
                 list.drawHeaderCallback = (r) => { GUI.Label(r, "Sub Features"); };
                 list.drawElementCallback = this.OnDrawSubListItem;
                 //list.drawHeaderCallback = this.OnDrawHeaderSubItem;
@@ -1083,7 +1086,7 @@ namespace ME.ECSEditor {
 
         private float GetSubElementHeight(int index) {
 
-            var featureData = (FeaturesList.FeatureData)(((FeaturesList.FeatureData)InitializerEditor.lists[InitializerEditor.currentListIndex].list[InitializerEditor.currentSubListIndex])).innerFeatures[index];
+            var featureData = (FeaturesList.FeatureData)(((FeaturesList.FeatureData)InitializerEditor.lists[InitializerEditor.currentListIndex].list[InitializerEditor.currentSubListIndex])).innerFeatures.innerFeatures[index];
             return this.GetElementHeight(featureData, drawSubFeatures: false);
 
         }
@@ -1142,7 +1145,7 @@ namespace ME.ECSEditor {
                     var isOpen = this.IsSubFeatureFoldout(featureData.feature);
                     if (isOpen == true) {
 
-                        var features = featureData.innerFeatures;
+                        var features = featureData.innerFeatures.innerFeatures;
                         if (features != null) {
 
                             var list = this.GetSubFeatureList(featureData);
@@ -1175,7 +1178,7 @@ namespace ME.ECSEditor {
 
         private void OnDrawSubListItem(Rect rect, int index, bool isActive, bool isFocused) {
 
-            var featureData = (FeaturesList.FeatureData)((FeaturesList.FeatureData)InitializerEditor.lists[InitializerEditor.currentListIndex].list[InitializerEditor.currentSubListIndex]).innerFeatures[index];
+            var featureData = (FeaturesList.FeatureData)((FeaturesList.FeatureData)InitializerEditor.lists[InitializerEditor.currentListIndex].list[InitializerEditor.currentSubListIndex]).innerFeatures.innerFeatures[index];
             this.DrawFeature(ref rect, featureData, isActive, isFocused, drawSubFeatures: false);
 
         }
@@ -1314,17 +1317,17 @@ namespace ME.ECSEditor {
 
                 if (drawSubFeatures == true) { // Inner features
 
-                    count = (featureData.innerFeatures != null ? featureData.innerFeatures.Count : 0);
+                    count = (featureData.innerFeatures.innerFeatures != null ? featureData.innerFeatures.innerFeatures.Count : 0);
                     rect.y += InitializerEditor.ONE_LINE_HEIGHT;
                     var isOpen = GUILayoutExt.BeginFoldoutHeaderGroup(rect, this.IsSubFeatureFoldout(featureData.feature), new GUIContent(string.Format("Sub Features ({0})", count)));
                     this.SetSubFeatureFoldout(featureData.feature, isOpen);
                     if (isOpen == true) {
 
-                        var features = featureData.innerFeatures;
+                        var features = featureData.innerFeatures.innerFeatures;
                         if (features == null) {
                             
-                            featureData.innerFeatures = new System.Collections.Generic.List<FeaturesList.FeatureData>();
-                            features = featureData.innerFeatures;
+                            featureData.innerFeatures.innerFeatures = new System.Collections.Generic.List<FeaturesList.FeatureData>();
+                            features = featureData.innerFeatures.innerFeatures;
                             //featureData.innerFeatures[0] = new FeaturesList.FeatureData();
 
                         }

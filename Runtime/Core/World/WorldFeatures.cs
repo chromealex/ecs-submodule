@@ -55,7 +55,7 @@ namespace ME.ECS {
 
             FeatureBase GetSource();
             bool IsEnabled();
-            System.Collections.Generic.List<FeatureData> GetSubFeatures();
+            SubFeatures GetSubFeatures();
 
         }
 
@@ -70,12 +70,19 @@ namespace ME.ECS {
             public bool enabled;
             public FeatureBase feature;
             public FeatureBase featureInstance { get; set; }
-            [UnityEngine.SerializeReference]
-            public System.Collections.Generic.List<FeatureData> innerFeatures;
+            public SubFeatures innerFeatures;
 
             public bool IsEnabled() => this.enabled;
             public FeatureBase GetSource() => this.feature;
-            public System.Collections.Generic.List<FeatureData> GetSubFeatures() => this.innerFeatures;
+            public SubFeatures GetSubFeatures() => this.innerFeatures;
+
+        }
+
+        [System.Serializable]
+        public class SubFeatures {
+
+            [UnityEngine.SerializeReference]
+            public System.Collections.Generic.List<FeatureData> innerFeatures;
 
         }
 
@@ -101,7 +108,7 @@ namespace ME.ECS {
 
                     if (item.GetSubFeatures() != null) {
 
-                        this.InitializePre(world, item.GetSubFeatures());
+                        this.InitializePre(world, item.GetSubFeatures().innerFeatures);
 
                     }
                     
@@ -128,7 +135,7 @@ namespace ME.ECS {
                     
                     if (item.GetSubFeatures() != null) {
 
-                        this.InitializePost(world, item.GetSubFeatures());
+                        this.InitializePost(world, item.GetSubFeatures().innerFeatures);
 
                     }
                     
@@ -153,7 +160,7 @@ namespace ME.ECS {
                     
                     if (item.GetSubFeatures() != null) {
 
-                        this.DeInitialize(world, item.GetSubFeatures());
+                        this.DeInitialize(world, item.GetSubFeatures().innerFeatures);
 
                     }
 
