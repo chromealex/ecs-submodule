@@ -52,10 +52,11 @@ namespace #NAMESPACE# {
                     // Create new state
                     this.world.SetState<TState>(WorldUtilities.CreateState<TState>());
                     
+                    // Set world seed
                     this.world.SetSeed(1u);
-                    this.world.SetEntitiesCapacity(this.entitiesCapacity);
                     
                     ComponentsInitializer.DoInit();
+                    this.world.SetEntitiesCapacity(this.entitiesCapacity);
                     this.Initialize(this.world);
                     
                 }

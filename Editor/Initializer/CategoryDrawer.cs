@@ -11,7 +11,7 @@ namespace ME.ECSEditor {
             
             var items = property.FindPropertyRelative("items");
             var h = EditorUtilities.GetPropertyHeight(items, true, new GUIContent("Features"));
-            return h;
+            return h + 50f;
             
         }
 
