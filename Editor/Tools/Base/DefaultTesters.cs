@@ -128,7 +128,9 @@ namespace ME.ECSEditor.Tools {
 
             public bool IsValid(System.Type type) {
                 
-                return typeof(System.Collections.Generic.IDictionary<,>).IsAssignableFrom(type) == true;
+                if (type.IsGenericType == false) return false;
+                
+                return typeof(System.Collections.Generic.IDictionary<,>).IsAssignableFrom(type.GetGenericTypeDefinition()) == true;
                 
             }
 
@@ -210,7 +212,9 @@ namespace ME.ECSEditor.Tools {
 
             public bool IsValid(System.Type type) {
                 
-                return typeof(ME.ECS.Collections.DictionaryCopyable<,>).IsAssignableFrom(type) == true;
+                if (type.IsGenericType == false) return false;
+                
+                return typeof(ME.ECS.Collections.DictionaryCopyable<,>).IsAssignableFrom(type.GetGenericTypeDefinition()) == true;
                 
             }
 
@@ -278,6 +282,174 @@ namespace ME.ECSEditor.Tools {
                         }
                     }
                     if (valIEnumerable.Contains(k) == false) valIEnumerable.Add(k, v);
+                }
+
+                return valIEnumerable;
+
+            }
+
+        }
+        
+        public class DictionaryCopyableGenericInt : ITestGenerator, ITestEqualsChecker {
+
+            public int priority => 1;
+
+            public bool IsValid(System.Type type) {
+
+                if (type.IsGenericType == false) return false;
+                
+                return typeof(ME.ECS.Collections.DictionaryInt<>).IsAssignableFrom(type.GetGenericTypeDefinition()) == true;
+                
+            }
+
+            public bool CheckEquals(System.Reflection.MemberInfo rootType, ITester tester, object obj1, object obj2, string path, bool objectEqualsCheck) {
+                
+                var dic1 = (ME.ECS.Collections.IDictionaryInt)obj1;
+                var dic2 = (ME.ECS.Collections.IDictionaryInt)obj2;
+
+                if (dic1.Count != dic2.Count) return false;
+
+                foreach (var key in dic1.GetKeys()) {
+                    
+                    if (dic2.ContainsKey(key) == false) return false;
+                    
+                }
+
+                foreach (var key in dic2.GetKeys()) {
+                    
+                    if (dic1.ContainsKey(key) == false) return false;
+                    
+                }
+
+                var list = new System.Collections.Generic.List<object>();
+                foreach (var val1 in dic1) {
+
+                    list.Add(val1);
+
+                }
+                
+                var i = 0;
+                foreach (var val2 in dic2) {
+
+                    if (tester.IsInstanceEquals(rootType, list[i], val2, path, objectEqualsCheck) == false) return false;
+                    ++i;
+
+                }
+
+                return true;
+
+            }
+
+            public object Fill(ITester tester, object instance, System.Type type) {
+            
+                var genericTypeKey = typeof(int);
+                var genericTypeValue = type.GenericTypeArguments[0];
+                var listType = type.GetGenericTypeDefinition().MakeGenericType(genericTypeValue);
+                var valIEnumerable = (ME.ECS.Collections.IDictionaryInt)System.Activator.CreateInstance(listType, new object[] { 16 });
+                for (int j = 0; j < 16; ++j) {
+                    object k = null;
+                    object v = null;
+                    if (genericTypeKey.IsAbstract == false) {
+                        var itemKey = Utils.CreateInstance(genericTypeKey);
+                        itemKey = tester.FillRandom(itemKey, genericTypeKey);
+                        k = itemKey;
+                        if (genericTypeValue.IsAbstract == false) {
+                            var itemValue = Utils.CreateInstance(genericTypeValue);
+                            itemValue = tester.FillRandom(itemValue, genericTypeValue);
+                            v = itemValue;
+                        }
+                    } else {
+                        if (genericTypeValue.IsAbstract == false) {
+                            var itemValue = Utils.CreateInstance(genericTypeValue);
+                            itemValue = tester.FillRandom(itemValue, genericTypeValue);
+                            v = itemValue;
+                        }
+                    }
+                    if (valIEnumerable.ContainsKey((int)k) == false) valIEnumerable.Add(k, v);
+                }
+
+                return valIEnumerable;
+
+            }
+
+        }
+        
+        public class DictionaryCopyableGenericULong : ITestGenerator, ITestEqualsChecker {
+
+            public int priority => 1;
+
+            public bool IsValid(System.Type type) {
+
+                if (type.IsGenericType == false) return false;
+                
+                return typeof(ME.ECS.Collections.DictionaryULong<>).IsAssignableFrom(type.GetGenericTypeDefinition()) == true;
+                
+            }
+
+            public bool CheckEquals(System.Reflection.MemberInfo rootType, ITester tester, object obj1, object obj2, string path, bool objectEqualsCheck) {
+                
+                var dic1 = (ME.ECS.Collections.IDictionaryULong)obj1;
+                var dic2 = (ME.ECS.Collections.IDictionaryULong)obj2;
+
+                if (dic1.Count != dic2.Count) return false;
+
+                foreach (var key in dic1.GetKeys()) {
+                    
+                    if (dic2.ContainsKey(key) == false) return false;
+                    
+                }
+
+                foreach (var key in dic2.GetKeys()) {
+                    
+                    if (dic1.ContainsKey(key) == false) return false;
+                    
+                }
+
+                var list = new System.Collections.Generic.List<object>();
+                foreach (var val1 in dic1) {
+
+                    list.Add(val1);
+
+                }
+                
+                var i = 0;
+                foreach (var val2 in dic2) {
+
+                    if (tester.IsInstanceEquals(rootType, list[i], val2, path, objectEqualsCheck) == false) return false;
+                    ++i;
+
+                }
+
+                return true;
+
+            }
+
+            public object Fill(ITester tester, object instance, System.Type type) {
+            
+                var genericTypeKey = typeof(ulong);
+                var genericTypeValue = type.GenericTypeArguments[0];
+                var listType = type.GetGenericTypeDefinition().MakeGenericType(genericTypeValue);
+                var valIEnumerable = (ME.ECS.Collections.IDictionaryULong)System.Activator.CreateInstance(listType, new object[] { 16 });
+                for (int j = 0; j < 16; ++j) {
+                    object k = null;
+                    object v = null;
+                    if (genericTypeKey.IsAbstract == false) {
+                        var itemKey = Utils.CreateInstance(genericTypeKey);
+                        itemKey = tester.FillRandom(itemKey, genericTypeKey);
+                        k = itemKey;
+                        if (genericTypeValue.IsAbstract == false) {
+                            var itemValue = Utils.CreateInstance(genericTypeValue);
+                            itemValue = tester.FillRandom(itemValue, genericTypeValue);
+                            v = itemValue;
+                        }
+                    } else {
+                        if (genericTypeValue.IsAbstract == false) {
+                            var itemValue = Utils.CreateInstance(genericTypeValue);
+                            itemValue = tester.FillRandom(itemValue, genericTypeValue);
+                            v = itemValue;
+                        }
+                    }
+                    if (valIEnumerable.ContainsKey((ulong)k) == false) valIEnumerable.Add(k, v);
                 }
 
                 return valIEnumerable;
