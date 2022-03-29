@@ -13,6 +13,10 @@ namespace ME.ECS.Collections {
 
         void Add(object key, object value);
 
+        bool ContainsKey(TKey key);
+
+        int[] GetKeys();
+
     }
  
     [DebuggerDisplay("Count = {Count}")]
@@ -28,9 +32,9 @@ namespace ME.ECS.Collections {
         }
  
         [ME.ECS.Serializer.SerializeField]
-        private int[] buckets;
+        private BufferArray<int> buckets;
         [ME.ECS.Serializer.SerializeField]
-        private Entry[] entries;
+        private BufferArray<Entry> entries;
         [ME.ECS.Serializer.SerializeField]
         private int count;
         [ME.ECS.Serializer.SerializeField]
@@ -48,9 +52,17 @@ namespace ME.ECS.Collections {
         private const String HashSizeName = "HashSize";  // Must save buckets.Length
         private const String KeyValuePairsName = "KeyValuePairs";
         private const String ComparerName = "Comparer";
- 
-        
-        public void CopyFrom(DictionaryInt<TValue> other) {
+
+        int[] IDictionaryInt.GetKeys() {
+
+            var result = new int[this.Count];
+            this.Keys.CopyTo(result, 0);
+
+            return result;
+
+        }
+
+        /*public void CopyFrom(DictionaryInt<TValue> other) {
 
             this.Clear();
             foreach (var item in other) {
@@ -95,9 +107,9 @@ namespace ME.ECS.Collections {
 
             this.version = other.version;
 
-        }
+        }*/
 
-        /*
+        
         public void CopyFrom(DictionaryInt<TValue> other) {
 
             ArrayUtils.Copy(other.buckets, ref this.buckets);
@@ -140,7 +152,7 @@ namespace ME.ECS.Collections {
             this.freeCount = other.freeCount;
             
         }
-        */
+        
 
         public DictionaryInt(): this(0, null) {}
  
@@ -260,7 +272,7 @@ namespace ME.ECS.Collections {
         public void Clear() {
             if (this.count > 0) {
                 for (int i = 0; i < this.buckets.Length; i++) this.buckets[i] = -1;
-                Array.Clear(this.entries, 0, this.count);
+                ArrayUtils.Clear(this.entries);
                 this.freeList = -1;
                 this.count = 0;
                 this.freeCount = 0;
@@ -301,7 +313,7 @@ namespace ME.ECS.Collections {
             }
  
             int count = this.count;
-            Entry[] entries = this.entries;
+            var entries = this.entries;
             for (int i = 0; i < count; i++) {
                 if (entries[i].hashCode >= 0) {
                     array[index++] = new KeyValuePair<TKey,TValue>(entries[i].key, entries[i].value);
@@ -315,7 +327,7 @@ namespace ME.ECS.Collections {
  
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private int FindEntry(TKey key) {
-            if (this.buckets != null) {
+            if (this.buckets.isCreated == true) {
                 int hashCode = key.GetHashCode() & 0x7FFFFFFF;
                 for (int i = this.buckets[hashCode % this.buckets.Length]; i >= 0; i = this.entries[i].next) {
                     if (this.entries[i].hashCode == hashCode && this.entries[i].key == key) return i;
@@ -326,15 +338,15 @@ namespace ME.ECS.Collections {
  
         private void Initialize(int capacity) {
             int size = HashHelpers.GetPrime(capacity);
-            this.buckets = new int[size];
+            this.buckets = PoolArray<int>.Spawn(size);
             for (int i = 0; i < this.buckets.Length; i++) this.buckets[i] = -1;
-            this.entries = new Entry[size];
+            this.entries = PoolArray<Entry>.Spawn(size);
             this.freeList = -1;
         }
  
         private void Insert<TElementCopy>(TKey key, TValue value, bool add, TElementCopy copy) where TElementCopy : IArrayElementCopy<TValue> {
 
-            if (this.buckets == null) {
+            if (this.buckets.isCreated == false) {
                 this.Initialize(0);
             }
 
@@ -383,7 +395,7 @@ namespace ME.ECS.Collections {
 
         private ref TValue Insert(TKey key, TValue value, bool add) {
         
-            if (this.buckets == null) this.Initialize(0);
+            if (this.buckets.isCreated == false) this.Initialize(0);
             int hashCode = key.GetHashCode() & 0x7FFFFFFF;
             int targetBucket = hashCode % this.buckets.Length;
  
@@ -462,32 +474,31 @@ namespace ME.ECS.Collections {
  
         private void Resize(int newSize, bool forceNewHashCodes) {
             Contract.Assert(newSize >= this.entries.Length);
-            int[] newBuckets = new int[newSize];
-            for (int i = 0; i < newBuckets.Length; i++) newBuckets[i] = -1;
-            Entry[] newEntries = new Entry[newSize];
-            Array.Copy(this.entries, 0, newEntries, 0, this.count);
+            
+            ArrayUtils.Resize(newSize - 1, ref this.buckets);
+            ArrayUtils.Resize(newSize - 1, ref this.entries);
+            
+            for (int i = 0; i < this.buckets.Length; i++) this.buckets[i] = -1;
+
             if(forceNewHashCodes) {
                 for (int i = 0; i < this.count; i++) {
-                    if(newEntries[i].hashCode != -1) {
-                        newEntries[i].hashCode = (newEntries[i].key.GetHashCode() & 0x7FFFFFFF);
+                    if(this.entries[i].hashCode != -1) {
+                        this.entries[i].hashCode = (this.entries[i].key.GetHashCode() & 0x7FFFFFFF);
                     }
                 }
             }
             for (int i = 0; i < this.count; i++) {
-                if (newEntries[i].hashCode >= 0) {
-                    int bucket = newEntries[i].hashCode % newSize;
-                    newEntries[i].next = newBuckets[bucket];
-                    newBuckets[bucket] = i;
+                if (this.entries[i].hashCode >= 0) {
+                    int bucket = this.entries[i].hashCode % newSize;
+                    this.entries[i].next = this.buckets[bucket];
+                    this.buckets[bucket] = i;
                 }
             }
-
-            this.buckets = newBuckets;
-            this.entries = newEntries;
         }
  
         public bool Remove(TKey key) {
             
-            if (this.buckets != null) {
+            if (this.buckets.isCreated == true) {
                 int hashCode = key.GetHashCode() & 0x7FFFFFFF;
                 int bucket = hashCode % this.buckets.Length;
                 int last = -1;
@@ -563,7 +574,7 @@ namespace ME.ECS.Collections {
             }
             else if( array is DictionaryEntry[]) {
                 DictionaryEntry[] dictEntryArray = array as DictionaryEntry[];
-                Entry[] entries = this.entries;
+                var entries = this.entries;
                 for (int i = 0; i < this.count; i++) {
                     if (entries[i].hashCode >= 0) {
                         dictEntryArray[index++] = new DictionaryEntry(entries[i].key, entries[i].value);
@@ -578,7 +589,7 @@ namespace ME.ECS.Collections {
  
                 try {
                     int count = this.count;
-                    Entry[] entries = this.entries;
+                    var entries = this.entries;
                     for (int i = 0; i < count; i++) {
                         if (entries[i].hashCode >= 0) {
                             objects[index++] = new KeyValuePair<TKey,TValue>(entries[i].key, entries[i].value);
@@ -839,7 +850,7 @@ namespace ME.ECS.Collections {
                 }
                 
                 int count = this.dictionary.count;
-                Entry[] entries = this.dictionary.entries;
+                var entries = this.dictionary.entries;
                 for (int i = 0; i < count; i++) {
                     if (entries[i].hashCode >= 0) array[index++] = entries[i].key;
                 }
@@ -910,7 +921,7 @@ namespace ME.ECS.Collections {
                     }
                                          
                     int count = this.dictionary.count;
-                    Entry[] entries = this.dictionary.entries;
+                    var entries = this.dictionary.entries;
                     try {
                         for (int i = 0; i < count; i++) {
                             if (entries[i].hashCode >= 0) objects[index++] = entries[i].key;
@@ -1026,7 +1037,7 @@ namespace ME.ECS.Collections {
                 }
                 
                 int count = this.dictionary.count;
-                Entry[] entries = this.dictionary.entries;
+                var entries = this.dictionary.entries;
                 for (int i = 0; i < count; i++) {
                     if (entries[i].hashCode >= 0) array[index++] = entries[i].value;
                 }
@@ -1096,7 +1107,7 @@ namespace ME.ECS.Collections {
                     }
  
                     int count = this.dictionary.count;
-                    Entry[] entries = this.dictionary.entries;
+                    var entries = this.dictionary.entries;
                     try {
                         for (int i = 0; i < count; i++) {
                             if (entries[i].hashCode >= 0) objects[index++] = entries[i].value;
