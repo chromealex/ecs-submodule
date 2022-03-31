@@ -63,14 +63,16 @@ namespace ME.ECS.Serializer {
 
         Generic     = 229,
         GenericDictionary = 228,
+        GenericULongDictionary = 227,
+		GenericIntDictionary = 226,
         
-        HistoryEvent  = 227,
-        Char  = 226,
-        View = 225,
+        HistoryEvent  = 225,
+        Char  = 224,
+        View = 223,
         
-        BufferArray = 224,
-        DisposeSentinel = 223,
-        FPFloat   = 222,
+        BufferArray = 222,
+        DisposeSentinel = 221,
+        FPFloat   = 220,
         
     }
     

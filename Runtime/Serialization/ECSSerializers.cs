@@ -6,7 +6,7 @@ namespace ME.ECS.Serializer {
     
     public struct GenericULongDictionarySerializer : ITypeSerializer, ITypeSerializerInherit {
 
-        public byte GetTypeValue() => (byte)TypeValue.GenericDictionary;
+        public byte GetTypeValue() => (byte)TypeValue.GenericULongDictionary;
 
         public System.Type GetTypeSerialized() => typeof(ME.ECS.Collections.IDictionaryULong);
 
@@ -55,7 +55,7 @@ namespace ME.ECS.Serializer {
 
     public struct GenericIntDictionarySerializer : ITypeSerializer, ITypeSerializerInherit {
 
-        public byte GetTypeValue() => (byte)TypeValue.GenericDictionary;
+        public byte GetTypeValue() => (byte)TypeValue.GenericIntDictionary;
 
         public System.Type GetTypeSerialized() => typeof(ME.ECS.Collections.IDictionaryInt);
 
