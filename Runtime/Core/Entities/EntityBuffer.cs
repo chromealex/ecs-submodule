@@ -1,4 +1,4 @@
-﻿#if ENABLE_IL2CPP
+#if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
 
@@ -215,6 +215,7 @@ namespace ME.ECS {
             if (state > 0) {
 
                 state = 0;
+                world.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<T>.typeId);
                 if (ComponentTypes<T>.typeId >= 0) {
 
                     world.currentState.storage.archetypes.Remove<T>(in entity);
@@ -241,6 +242,7 @@ namespace ME.ECS {
             if (state == 0) {
 
                 state = 1;
+                world.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<T>.typeId);
                 if (ComponentTypes<T>.typeId >= 0) {
 
                     world.currentState.storage.archetypes.Set<T>(in entity);
