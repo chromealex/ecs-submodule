@@ -224,11 +224,13 @@ namespace ME.ECS {
 
                 }
 
+                world.currentState.storage.versions.Increment(in entity);
+                reg.UpdateVersion(in entity);
+                if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
+                if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
+
             }
                     
-            world.currentState.storage.versions.Increment(in entity);
-            if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
-
         }
 
         #if INLINE_METHODS

@@ -2096,37 +2096,8 @@ namespace ME.ECS {
 
             // Inline all manually
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            ref var storage = ref this.currentState.storage;
-            ref var bucket = ref reg.components[entity.id];
-            ref var state = ref bucket.state;
-            reg.Replace(ref bucket, in data);
-            reg.UpdateVersion(ref bucket);
-            if (state == 0) {
-
-                state = 1;
-                this.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
-                if (ComponentTypes<TComponent>.typeId >= 0) {
-
-                    storage.archetypes.Set<TComponent>(in entity);
-                    this.AddFilterByStructComponent<TComponent>(in entity);
-                    this.UpdateFilterByStructComponent<TComponent>(in entity);
-
-                }
-
-            }
+            DataBufferUtils.PushSet_INTERNAL(this, in entity, reg, in data);
             
-            if (ComponentTypes<TComponent>.typeId >= 0) {
-
-                this.ValidateFilterByStructComponent<TComponent>(in entity);
-                
-            }
-            #if ENTITY_ACTIONS
-            this.RaiseEntityActionOnAdd<TComponent>(in entity);
-            #endif
-            storage.versions.Increment(in entity);
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
-            if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-
         }
 
         #if INLINE_METHODS
@@ -2241,29 +2212,8 @@ namespace ME.ECS {
             #endif
 
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            ref var storage = ref this.currentState.storage;
-            ref var bucket = ref reg.components[entity.id];
-            if (bucket.state == 0) return;
-            bucket.state = 0;
+            DataBufferUtils.PushRemove_INTERNAL(this, in entity, reg);
             
-            this.currentState.structComponents.entitiesIndexer.Remove(entity.id, AllComponentTypes<TComponent>.typeId);
-            
-            storage.versions.Increment(in entity);
-            if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-            reg.RemoveData(in entity, ref bucket);
-            
-            if (ComponentTypes<TComponent>.typeId >= 0) {
-
-                storage.archetypes.Remove<TComponent>(in entity);
-                this.RemoveFilterByStructComponent<TComponent>(in entity);
-                this.UpdateFilterByStructComponent<TComponent>(in entity);
-
-            }
-
-            #if ENTITY_ACTIONS
-            this.RaiseEntityActionOnRemove<TComponent>(in entity);
-            #endif
-
         }
 
         #if INLINE_METHODS
