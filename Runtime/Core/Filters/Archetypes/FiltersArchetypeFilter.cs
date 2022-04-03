@@ -1,4 +1,3 @@
-//#define FILTERS_STORAGE_ARCHETYPES
 #if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
@@ -228,8 +227,7 @@ namespace ME.ECS {
             min = int.MaxValue;
             max = int.MinValue;
             var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
-            var result = new Unity.Collections.NativeArray<Entity>(filterData.storage.Count(filterData), allocator);
-            var k = 0;
+            var result = new Unity.Collections.NativeList<Entity>(filterData.archetypes.Count * 10, allocator);
             foreach (var archId in filterData.archetypes) {
 
                 var arch = filterData.storage.allArchetypes[archId];
@@ -243,13 +241,13 @@ namespace ME.ECS {
                     if (e > max) {
                         max = e;
                     }
-                    result[k++] = filterData.storage.GetEntityById(e);
+                    result.Add(filterData.storage.GetEntityById(e));
                     
                 }
                 
             }
 
-            return result;
+            return result.AsArray();
 
         }
 
@@ -570,6 +568,8 @@ namespace ME.ECS {
 
             WorldUtilities.SetComponentTypeId<T>();
             WorldUtilities.SetComponentTypeId<TComponent>();
+
+            ComponentTypes<TComponent>.isFilterLambda = true;
 
             var key = ComponentTypes<TComponent>.typeId;
             {

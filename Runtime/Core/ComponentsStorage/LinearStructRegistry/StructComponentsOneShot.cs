@@ -200,7 +200,7 @@ namespace ME.ECS {
 
             }
 
-            if (ComponentTypes<TComponent>.typeId >= 0) {
+            if (ComponentTypes<TComponent>.isFilterLambda == true && ComponentTypes<TComponent>.typeId >= 0) {
 
                 this.ValidateFilterByStructComponent<TComponent>(in entity);
                 
@@ -274,7 +274,7 @@ namespace ME.ECS {
 
             }
             
-            if (ComponentTypes<TComponent>.typeId >= 0) {
+            if (ComponentTypes<TComponent>.isFilterLambda == true && ComponentTypes<TComponent>.typeId >= 0) {
 
                 this.ValidateFilterByStructComponent<TComponent>(in entity);
                 

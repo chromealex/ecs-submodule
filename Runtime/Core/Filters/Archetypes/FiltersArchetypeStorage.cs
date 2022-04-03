@@ -641,9 +641,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
         public bool IsAlive(int id, ushort generation) {
 
             return this.cache[id].generation == generation;
@@ -664,9 +662,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
         public void Alloc(int count, ref EntitiesGroup group, Unity.Collections.Allocator allocator, bool copyMode) {
 
             var lastId = ++this.nextEntityId + count;
@@ -693,9 +689,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
         public ref Entity Alloc() {
 
             var id = -1;
@@ -726,9 +720,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
         public bool Dealloc(in Entity entity) {
 
             if (this.IsAlive(entity.id, entity.generation) == false) {
@@ -742,9 +734,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
         public void ApplyDead() {
 
             var cnt = this.deadPrepared.Count;
@@ -766,9 +756,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
         private void OnAlloc(int entityId) {
 
             ref var arch = ref this.allArchetypes[this.root];
@@ -777,9 +765,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
         private void OnDealloc(int entityId) {
 
             // Remove from archetype

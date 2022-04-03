@@ -204,9 +204,7 @@ namespace ME.ECS {
             
         }*/
         
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public static void PushRemove_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg) where T : struct, IStructComponentBase {
             
             ref var bucket = ref reg.components[entity.id];
@@ -233,9 +231,7 @@ namespace ME.ECS {
                     
         }
 
-        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public static void PushSet_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg, in T data) where T : struct, IStructComponentBase {
             
             ref var bucket = ref reg.components[entity.id];
@@ -255,7 +251,7 @@ namespace ME.ECS {
 
             }
 
-            if (ComponentTypes<T>.typeId >= 0) {
+            if (ComponentTypes<T>.isFilterLambda == true && ComponentTypes<T>.typeId >= 0) {
 
                 world.ValidateFilterByStructComponent<T>(in entity);
                 

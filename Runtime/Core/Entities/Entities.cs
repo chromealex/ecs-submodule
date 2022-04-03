@@ -37,6 +37,7 @@ namespace ME.ECS {
 
         public static int typeId = -1;
         public static bool isFilterVersioned = false;
+        public static bool isFilterLambda = false;
 
     }
 
