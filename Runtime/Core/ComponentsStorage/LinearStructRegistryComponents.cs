@@ -711,6 +711,7 @@ namespace ME.ECS {
             var hash = 0;
             for (int i = 0; i < this.list.Length; ++i) {
 
+                if (this.list.arr[i] == null) continue;
                 hash ^= this.list.arr[i].GetCustomHash();
 
             }

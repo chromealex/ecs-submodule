@@ -27,16 +27,6 @@ namespace ME.ECS {
     #endif
     public static class ArrayUtils {
 
-        private struct DefaultCopy<T> : IArrayElementCopy<T> {
-
-            public void Copy(T from, ref T to) {
-                to = from;
-            }
-
-            public void Recycle(T item) { }
-
-        }
-        
         [return: Unity.Burst.CompilerServices.AssumeRangeAttribute(0, int.MaxValue)]
         public static int AssumePositive(int value) {
             return value;
@@ -385,8 +375,32 @@ namespace ME.ECS {
         #endif
         public static void Copy<TKey, T>(DictionaryCopyable<TKey, T> fromDic, ref DictionaryCopyable<TKey, T> dic) {
             
-            ArrayUtils.Copy(fromDic, ref dic, new DefaultCopy<T>());
+            if (fromDic == null) {
             
+                if (dic != null) {
+                
+                    PoolDictionaryCopyable<TKey, T>.Recycle(ref dic);
+                    
+                }
+
+                dic = null;
+                return;
+                
+            }
+
+            if (dic == null || fromDic.Count != dic.Count) {
+            
+                if (dic != null) {
+                
+                    PoolDictionaryCopyable<TKey, T>.Recycle(ref dic);
+                }
+
+                dic = PoolDictionaryCopyable<TKey, T>.Spawn(fromDic.Count);
+                
+            }
+
+            dic.CopyFrom(fromDic);
+
         }
 
         #if INLINE_METHODS
@@ -439,8 +453,32 @@ namespace ME.ECS {
         #endif
         public static void Copy<T>(DictionaryInt<T> fromDic, ref DictionaryInt<T> dic) {
             
-            ArrayUtils.Copy(fromDic, ref dic, new DefaultCopy<T>());
+            if (fromDic == null) {
             
+                if (dic != null) {
+                
+                    PoolDictionaryInt<T>.Recycle(ref dic);
+                    
+                }
+
+                dic = null;
+                return;
+                
+            }
+
+            if (dic == null || fromDic.Count != dic.Count) {
+            
+                if (dic != null) {
+                
+                    PoolDictionaryInt<T>.Recycle(ref dic);
+                }
+
+                dic = PoolDictionaryInt<T>.Spawn(fromDic.Count);
+                
+            }
+
+            dic.CopyFrom(fromDic);
+
         }
 
         #if INLINE_METHODS
@@ -493,8 +531,32 @@ namespace ME.ECS {
         #endif
         public static void Copy<T>(DictionaryULong<T> fromDic, ref DictionaryULong<T> dic) {
             
-            ArrayUtils.Copy(fromDic, ref dic, new DefaultCopy<T>());
+            if (fromDic == null) {
             
+                if (dic != null) {
+                
+                    PoolDictionaryULong<T>.Recycle(ref dic);
+                    
+                }
+
+                dic = null;
+                return;
+                
+            }
+
+            if (dic == null || fromDic.Count != dic.Count) {
+            
+                if (dic != null) {
+                
+                    PoolDictionaryULong<T>.Recycle(ref dic);
+                }
+
+                dic = PoolDictionaryULong<T>.Spawn(fromDic.Count);
+                
+            }
+
+            dic.CopyFrom(fromDic);
+
         }
 
         #if INLINE_METHODS
