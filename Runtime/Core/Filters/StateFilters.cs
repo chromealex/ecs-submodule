@@ -1386,6 +1386,24 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public Unity.Collections.NativeList<Entity> ToList(Unity.Collections.Allocator allocator, out int min, out int max) {
+
+            return this.world.GetFilter(this.id).ToList(allocator, out min, out max);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Unity.Collections.NativeArray<Entity> ToList(Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
+
+            return this.world.GetFilter(this.id).ToList(allocator);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public Unity.Collections.NativeArray<Entity> ToArray(Unity.Collections.Allocator allocator, out int min, out int max) {
 
             return this.world.GetFilter(this.id).ToArray(allocator, out min, out max);
@@ -2115,6 +2133,44 @@ namespace ME.ECS {
         public void UseVersioned() {
 
             if (this.data.onVersionChangedOnly == 1) NativeArrayUtils.Clear(this.data.dataVersions);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Unity.Collections.NativeList<Entity> ToList(Unity.Collections.Allocator allocator, out int min, out int max) {
+
+            min = this.data.min;
+            max = this.data.max;
+            return this.ToList(allocator);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Unity.Collections.NativeList<Entity> ToList(Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
+
+            var data = new Unity.Collections.NativeList<Entity>(this.data.count, allocator);
+            for (int i = this.data.min; i <= this.data.max; ++i) {
+
+                if (this.data.dataContains[i] == 1) {
+
+                    if (this.data.onVersionChangedOnly == 1) {
+
+                        if (this.data.dataVersions[i] == 0) continue;
+                        this.data.dataVersions[i] = 0;
+
+                    }
+
+                    data.Add(this.world.currentState.storage.cache.arr[i]);
+
+                }
+
+            }
+
+            return data;
 
         }
 
