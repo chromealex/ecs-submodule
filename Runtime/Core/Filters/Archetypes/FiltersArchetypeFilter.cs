@@ -247,7 +247,45 @@ namespace ME.ECS {
                 
             }
 
+            #if UNITY_EDITOR
+            var res = result.ToArray(allocator);
+            result.Dispose();
+            return res;
+            #else
             return result.AsArray();
+            #endif
+
+        }
+
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Unity.Collections.NativeList<Entity> ToList(Unity.Collections.Allocator allocator, out int min, out int max) {
+
+            min = int.MaxValue;
+            max = int.MinValue;
+            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            var result = new Unity.Collections.NativeList<Entity>(filterData.archetypes.Count * 10, allocator);
+            foreach (var archId in filterData.archetypes) {
+
+                var arch = filterData.storage.allArchetypes[archId];
+                for (int i = 0, count = arch.entitiesArr.Count; i < count; ++i) {
+                    
+                    var e = arch.entitiesArr[i];
+                    if (e < min) {
+                        min = e;
+                    }
+
+                    if (e > max) {
+                        max = e;
+                    }
+                    result.Add(filterData.storage.GetEntityById(e));
+                    
+                }
+                
+            }
+
+            return result;
 
         }
 

@@ -37,7 +37,7 @@ public struct FilterBag<T0>  where T0:unmanaged,IStructComponentBase {
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -69,7 +69,7 @@ t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -173,7 +173,7 @@ public struct FilterBag<T0,T1>  where T0:unmanaged,IStructComponentBase where T1
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -210,7 +210,7 @@ t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -336,7 +336,7 @@ public struct FilterBag<T0,T1,T2>  where T0:unmanaged,IStructComponentBase where
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -378,7 +378,7 @@ t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -526,7 +526,7 @@ public struct FilterBag<T0,T1,T2,T3>  where T0:unmanaged,IStructComponentBase wh
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -573,7 +573,7 @@ t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -743,7 +743,7 @@ public struct FilterBag<T0,T1,T2,T3,T4>  where T0:unmanaged,IStructComponentBase
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -795,7 +795,7 @@ t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -987,7 +987,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:unmanaged,IStructComponentB
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -1044,7 +1044,7 @@ t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -1258,7 +1258,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:unmanaged,IStructCompone
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -1320,7 +1320,7 @@ t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -1556,7 +1556,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:unmanaged,IStructComp
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -1623,7 +1623,7 @@ t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -1881,7 +1881,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:unmanaged,IStructC
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -1953,7 +1953,7 @@ t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -2233,7 +2233,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:unmanaged,IStru
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -2310,7 +2310,7 @@ t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -2612,7 +2612,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:unmanaged,I
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -2694,7 +2694,7 @@ t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -3018,7 +3018,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:unmanag
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -3105,7 +3105,7 @@ t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -3451,7 +3451,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:unm
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -3543,7 +3543,7 @@ t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -3911,7 +3911,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -4008,7 +4008,7 @@ t13 = this.tagT13 == 0 ? this.tempT13[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -4398,7 +4398,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  wher
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -4500,7 +4500,7 @@ t14 = this.tagT14 == 0 ? this.tempT14[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -4912,7 +4912,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -5019,7 +5019,7 @@ t15 = this.tagT15 == 0 ? this.tempT15[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -5453,7 +5453,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T1
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -5565,7 +5565,7 @@ t16 = this.tagT16 == 0 ? this.tempT16[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -6021,7 +6021,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T1
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -6138,7 +6138,7 @@ t17 = this.tagT17 == 0 ? this.tempT17[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
@@ -6616,7 +6616,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T1
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
-        public Unity.Collections.NativeArray<Entity> buffer;
+        public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
 public Unity.Collections.NativeArray<Component<T0>> tempT0;
@@ -6738,7 +6738,7 @@ t18 = this.tagT18 == 0 ? this.tempT18[entity.id - this.offset].data : default,
         UnityEngine.Profiling.Profiler.BeginSample("Create");
         #endif
         var world = filter.world;
-        var filterArr = filter.ToArray(allocator, out var min, out var max);
+        var filterArr = filter.ToList(allocator, out var min, out var max);
         var size = max - min + 1;
         if (size < 0) size = 0;
         var regT0 = (StructComponents<T0>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T0>()];
