@@ -274,7 +274,7 @@ namespace ME.ECS.Collections {
         }
  
         public Enumerator GetEnumerator() {
-            return new Enumerator(this, Enumerator.KeyValuePair);
+            return new Enumerator(this, Enumerator.DictEntry);
         }
  
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -555,7 +555,7 @@ namespace ME.ECS.Collections {
         }
  
         IEnumerator IEnumerable.GetEnumerator() {
-            return new Enumerator(this, Enumerator.KeyValuePair);
+            return new Enumerator(this, Enumerator.DictEntry);
         }
     
         bool ICollection.IsSynchronized {
