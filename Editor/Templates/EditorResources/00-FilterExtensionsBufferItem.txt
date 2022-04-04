@@ -20,6 +20,7 @@ public struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         #JOB_FILL_ITEMS#

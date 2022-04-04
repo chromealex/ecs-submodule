@@ -37,6 +37,7 @@ public struct FilterBag<T0>  where T0:unmanaged,IStructComponentBase {
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -173,6 +174,7 @@ public struct FilterBag<T0,T1>  where T0:unmanaged,IStructComponentBase where T1
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -336,6 +338,7 @@ public struct FilterBag<T0,T1,T2>  where T0:unmanaged,IStructComponentBase where
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -526,6 +529,7 @@ public struct FilterBag<T0,T1,T2,T3>  where T0:unmanaged,IStructComponentBase wh
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -743,6 +747,7 @@ public struct FilterBag<T0,T1,T2,T3,T4>  where T0:unmanaged,IStructComponentBase
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -987,6 +992,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:unmanaged,IStructComponentB
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -1258,6 +1264,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:unmanaged,IStructCompone
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -1556,6 +1563,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:unmanaged,IStructComp
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -1881,6 +1889,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:unmanaged,IStructC
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -2233,6 +2242,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:unmanaged,IStru
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -2612,6 +2622,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:unmanaged,I
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -3018,6 +3029,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:unmanag
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -3451,6 +3463,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:unm
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -3911,6 +3924,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -4398,6 +4412,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  wher
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -4912,6 +4927,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -5453,6 +5469,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T1
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -6021,6 +6038,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T1
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
@@ -6616,6 +6634,7 @@ public struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T1
     [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.Low, Unity.Burst.FloatMode.Fast, CompileSynchronously = true)]
     private struct Job : Unity.Jobs.IJobParallelFor {
 
+        [Unity.Collections.NativeDisableParallelForRestriction]
         public Unity.Collections.NativeList<Entity> buffer;
         public int offset;
         [Unity.Collections.NativeDisableParallelForRestriction]
