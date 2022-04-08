@@ -29,6 +29,26 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public override long GetVersion(int entityId) {
+
+            return this.components[entityId].version;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public override bool HasChanged(int entityId) {
+
+            // Set as changed only if saved version is equals to current tick
+            // So we have a change in this component at current tick
+            return this.components[entityId].version == (long)Worlds.current.GetCurrentTick();
+
+        }
+
         public override int GetCustomHash() {
 
             var hash = 0;
@@ -56,7 +76,8 @@ namespace ME.ECS {
 
             if (AllComponentTypes<TComponent>.isVersioned == true) {
                 var v = (long)this.world.GetCurrentTick();
-                this.components[entity.id].version = v;
+                ref var data = ref this.components[entity.id];
+                data.version = v;
                 this.maxVersion = (v > this.maxVersion ? v : this.maxVersion);
             }
 

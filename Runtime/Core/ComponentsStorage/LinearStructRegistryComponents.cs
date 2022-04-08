@@ -44,6 +44,10 @@ namespace ME.ECS {
         public abstract int GetAllTypeBit();
         public abstract bool IsTag();
 
+        public abstract long GetVersion(in Entity entity);
+        public abstract long GetVersion(int entityId);
+        public abstract bool HasChanged(int entityId);
+
         public abstract void UpdateVersion(in Entity entity);
         public abstract void UpdateVersionNoState(in Entity entity);
         
@@ -309,8 +313,6 @@ namespace ME.ECS {
         internal SharedGroups sharedGroups;
         
         public override int GetCustomHash() => 0;
-
-        public abstract long GetVersion(in Entity entity);
 
         public abstract void UpdateVersion(ref Component<TComponent> bucket);
         

@@ -34,7 +34,9 @@ namespace ME.ECS {
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
             public bool MoveNext() {
-                
+
+                var onChanged = this.filterData.data.onChanged;
+                var changedTracked = onChanged.Count;
                 while (true) {
 
                     if (this.archIndex >= this.archetypes.Count) {
@@ -55,7 +57,24 @@ namespace ME.ECS {
 
                     }
 
-                    this.current = this.filterData.storage.GetEntityById(this.arr[this.index]);
+                    var entityId = this.arr[this.index];
+                    if (changedTracked > 0) {
+                        // Check if any component has changed on this entity
+                        var hasChanged = false;
+                        for (int i = 0, cnt = changedTracked; i < cnt; ++i) {
+                            var typeId = onChanged[i];
+                            var reg = Worlds.current.currentState.structComponents.list.arr[typeId];
+                            if (reg.HasChanged(entityId) == true) {
+                                hasChanged = true;
+                                break;
+                            }
+                        }
+
+                        if (hasChanged == false) {
+                            continue;
+                        }
+                    }
+                    this.current = this.filterData.storage.GetEntityById(entityId);
 
                     return true;
 
@@ -527,6 +546,9 @@ namespace ME.ECS {
         internal List<int> notContainsShared;
 
         [ME.ECS.Serializer.SerializeField]
+        internal List<int> onChanged;
+        
+        [ME.ECS.Serializer.SerializeField]
         internal List<int> lambdas;
 
         public void CopyFrom(FilterInternalData other) {
@@ -540,6 +562,7 @@ namespace ME.ECS {
             ArrayUtils.Copy(other.notContains, ref this.notContains);
             ArrayUtils.Copy(other.containsShared, ref this.containsShared);
             ArrayUtils.Copy(other.notContainsShared, ref this.notContainsShared);
+            ArrayUtils.Copy(other.onChanged, ref this.onChanged);
             ArrayUtils.Copy(other.lambdas, ref this.lambdas);
 
         }
@@ -555,6 +578,7 @@ namespace ME.ECS {
             PoolList<int>.Recycle(ref this.notContains);
             PoolList<int>.Recycle(ref this.containsShared);
             PoolList<int>.Recycle(ref this.notContainsShared);
+            PoolList<int>.Recycle(ref this.onChanged);
             PoolList<int>.Recycle(ref this.lambdas);
 
         }
@@ -563,14 +587,15 @@ namespace ME.ECS {
 
             return new FilterInternalData() {
                 name = string.Empty,
-                anyPair2 = new List<Pair2>(),
-                anyPair3 = new List<Pair3>(),
-                anyPair4 = new List<Pair4>(),
-                contains = new List<int>(),
-                notContains = new List<int>(),
-                containsShared = new List<int>(),
-                notContainsShared = new List<int>(),
-                lambdas = new List<int>(),
+                anyPair2 = PoolList<Pair2>.Spawn(4),
+                anyPair3 = PoolList<Pair3>.Spawn(4),
+                anyPair4 = PoolList<Pair4>.Spawn(4),
+                contains = PoolList<int>.Spawn(4),
+                notContains = PoolList<int>.Spawn(4),
+                containsShared = PoolList<int>.Spawn(4),
+                notContainsShared = PoolList<int>.Spawn(4),
+                onChanged = PoolList<int>.Spawn(4),
+                lambdas = PoolList<int>.Spawn(4),
             };
 
         }
@@ -638,6 +663,14 @@ namespace ME.ECS {
 
             this.data.lambdas.Add(ComponentTypes<T>.typeId);
             return this.With<TComponent>();
+
+        }
+
+        public FilterBuilder OnChanged<T>() where T : struct, IVersioned {
+            
+            WorldUtilities.SetComponentTypeId<T>();
+            this.data.onChanged.Add(AllComponentTypes<T>.typeId);
+            return this;
 
         }
 

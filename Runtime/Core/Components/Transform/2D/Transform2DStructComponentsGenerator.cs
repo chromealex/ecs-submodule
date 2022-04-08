@@ -5,9 +5,9 @@ namespace ME.ECS {
 
         public static void InitTypeId() {
             
-            WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Position2D>();
-            WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Rotation2D>();
-            WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Scale2D>();
+            WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Position2D>(isVersioned: true);
+            WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Rotation2D>(isVersioned: true);
+            WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Scale2D>(isVersioned: true);
             
         }
         

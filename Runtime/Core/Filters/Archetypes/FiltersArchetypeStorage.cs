@@ -85,7 +85,7 @@ namespace ME.ECS.FiltersArchetype {
             public int index;
             public DictionaryInt<Info> components; // Contains componentId => Info index
             public List<int> componentIds; // Contains raw list of component ids
-            public ListCopyable<int> entitiesArr; // Contains raw list of entities
+            public ListCopyable<int> entitiesArr; // Contains raw unsorted list of entities
             public DictionaryInt<int> edgesToAdd; // Contains edges to move from this archetype to another
             public DictionaryInt<int> edgesToRemove; // Contains edges to move from this archetype to another
 
@@ -1071,12 +1071,35 @@ namespace ME.ECS.FiltersArchetype {
                 this.UpdateFilters();
             }
 
+            var onChanged = filter.data.onChanged;
+            var changedTracked = onChanged.Count;
+            
             var count = 0;
             for (int i = 0, cnt = filter.archetypes.Count; i < cnt; ++i) {
 
                 var archId = filter.archetypesList[i];
                 var arch = this.allArchetypes[archId];
-                count += arch.entitiesArr.Count;
+                if (changedTracked > 0) {
+
+                    for (int index = 0; index < arch.entitiesArr.Count; ++index) {
+
+                        var entityId = arch.entitiesArr[index];
+                        // Check if any component has changed on this entity
+                        for (int j = 0, cntj = changedTracked; j < cntj; ++j) {
+                            var typeId = onChanged[j];
+                            var reg = Worlds.current.currentState.structComponents.list.arr[typeId];
+                            if (reg.HasChanged(entityId) == true) {
+                                ++count;
+                            }
+                        }
+
+                    }
+                    
+                } else {
+
+                    count += arch.entitiesArr.Count;
+
+                }
 
             }
 
@@ -1106,6 +1129,8 @@ namespace ME.ECS.FiltersArchetype {
             this.ApplyDead();
             this.ApplyAllRequests();
 
+            
+            
             if (this.isArchetypesDirty == true) {
 
                 this.isArchetypesDirty = false;
@@ -1113,7 +1138,7 @@ namespace ME.ECS.FiltersArchetype {
                     
                     var item = this.filters[idx];
                     foreach (var archId in this.dirtyArchetypes) {
-                    
+                        
                         if (item.archetypes.Contains(archId) == true) continue;
                         
                         ref var arch = ref this.allArchetypes[archId];
@@ -1189,6 +1214,7 @@ namespace ME.ECS.FiltersArchetype {
                     this.IsEquals(filter.data.notContains, filterBuilder.data.notContains) == true &&
                     this.IsEquals(filter.data.notContainsShared, filterBuilder.data.notContainsShared) == true &&
                     this.IsEquals(filter.data.containsShared, filterBuilder.data.containsShared) == true &&
+                    this.IsEquals(filter.data.onChanged, filterBuilder.data.onChanged) == true &&
                     this.IsEquals(filter.data.lambdas, filterBuilder.data.lambdas) == true) {
 
                     filterData = filter;
