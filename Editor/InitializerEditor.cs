@@ -356,6 +356,7 @@ namespace ME.ECSEditor {
         private System.Collections.Generic.Dictionary<System.Type, IDebugViewGUIEditor<InitializerBase>> viewsDebugEditors;
         private System.Collections.Generic.Dictionary<System.Type, IJobsViewGUIEditor<InitializerBase>> viewsJobsEditors;
         public override void OnInspectorGUI() {
+            serializedObject.Update();
 
             ((Component)this.target).transform.hideFlags = HideFlags.HideInInspector;
             
@@ -723,6 +724,8 @@ namespace ME.ECSEditor {
             //InitializerEditor.listCategories.DoLayoutList();
             EditorGUILayout.PropertyField(this.listCategoriesProp);
             EditorGUI.EndDisabledGroup();
+
+            serializedObject.ApplyModifiedProperties();
 
         }
 
