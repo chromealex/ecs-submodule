@@ -1,4 +1,4 @@
-
+#if FILTERS_STORAGE_ARCHETYPES
 namespace ME.ECS.Tests {
 
     public class Tests_Filters_OnChanged {
@@ -102,3 +102,4 @@ namespace ME.ECS.Tests {
     }
 
 }
+#endif

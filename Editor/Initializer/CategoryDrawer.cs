@@ -191,7 +191,7 @@ namespace ME.ECSEditor {
                     position.y += featureRect.height;
                     position.height -= featureRect.height;
 
-                    if (featureBase.editorComment.Length > 0) {
+                    if (string.IsNullOrEmpty(featureBase?.editorComment) == false) {
 
                         var width = this.GetWidth();
                         var style = new GUIStyle(EditorStyles.miniLabel);
