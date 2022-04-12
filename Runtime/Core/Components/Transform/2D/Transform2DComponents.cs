@@ -12,19 +12,19 @@ using QUATERNION = UnityEngine.Quaternion;
 
 namespace ME.ECS.Transform {
 
-    public struct Position2D : IStructComponent {
+    public struct Position2D : IComponent, IVersioned {
 
         public FLOAT2 value;
 
     }
     
-    public struct Rotation2D : IStructComponent {
+    public struct Rotation2D : IComponent, IVersioned {
 
         public float value;
 
     }
     
-    public struct Scale2D : IStructComponent {
+    public struct Scale2D : IComponent, IVersioned {
 
         public FLOAT2 value;
 
