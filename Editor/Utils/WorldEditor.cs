@@ -345,7 +345,7 @@ namespace ME.ECSEditor {
             
         }
         
-        #if !FILTERS_STORAGE_ARCHETYPES
+        #if FILTERS_STORAGE_LEGACY
         public FiltersStorage GetFilters() {
 
             return WorldHelper.GetFilters(this.world);

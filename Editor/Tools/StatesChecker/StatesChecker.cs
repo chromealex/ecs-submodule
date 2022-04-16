@@ -79,7 +79,7 @@ namespace ME.ECSEditor.Tools {
                         new TestInfo(TestMethod.Recycle),
                     },
                 });
-                #if !FILTERS_STORAGE_ARCHETYPES
+                #if FILTERS_STORAGE_LEGACY
                 collectedComponents.Add(new TestItem() {
                     type = typeof(ME.ECS.Storage),
                     tests = new [] {

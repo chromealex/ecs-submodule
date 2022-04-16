@@ -25,7 +25,7 @@ namespace ME.ECS {
 
 }
 
-#if !FILTERS_STORAGE_ARCHETYPES
+#if FILTERS_STORAGE_LEGACY
 namespace ME.ECS {
 
     using ME.ECS.Collections;

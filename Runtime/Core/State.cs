@@ -13,13 +13,13 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         public RandomState randomState;
 
-        #if !FILTERS_STORAGE_ARCHETYPES
+        #if FILTERS_STORAGE_LEGACY
         public FiltersStorage filters;
         [ME.ECS.Serializer.SerializeField]
         public Storage storage;
         #endif
         
-        #if FILTERS_STORAGE_ARCHETYPES
+        #if !FILTERS_STORAGE_LEGACY
         [ME.ECS.Serializer.SerializeField]
         public ME.ECS.FiltersArchetype.FiltersArchetypeStorage filters;
         public ref ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage => ref this.filters;
@@ -46,7 +46,7 @@ namespace ME.ECS {
             
             world.Register(ref this.filters, freeze, restore);
             world.Register(ref this.structComponents, freeze, restore);
-            #if !FILTERS_STORAGE_ARCHETYPES
+            #if FILTERS_STORAGE_LEGACY
             world.Register(ref this.storage, freeze, restore);
             #endif
             this.globalEvents.Initialize();
@@ -61,7 +61,7 @@ namespace ME.ECS {
 
             this.filters.CopyFrom(other.filters);
             this.structComponents.CopyFrom(other.structComponents);
-            #if !FILTERS_STORAGE_ARCHETYPES
+            #if FILTERS_STORAGE_LEGACY
             this.storage.CopyFrom(other.storage);
             #endif
             this.globalEvents.CopyFrom(in other.globalEvents);
@@ -79,7 +79,7 @@ namespace ME.ECS {
             this.globalEvents = default;
             WorldUtilities.Release(ref this.filters);
             WorldUtilities.Release(ref this.structComponents);
-            #if !FILTERS_STORAGE_ARCHETYPES
+            #if FILTERS_STORAGE_LEGACY
             WorldUtilities.Release(ref this.storage);
             #endif
 

@@ -397,7 +397,7 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.Validate(in entity);
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(entity.id, ref this.versionsNoState, true);
 
-            #if !FILTERS_STORAGE_ARCHETYPES
+            #if FILTERS_STORAGE_LEGACY
             this.world.currentState.storage.archetypes.Validate(in entity);
 
             if (ComponentTypes<TComponent>.typeId >= 0 && this.Has(in entity) == true) {

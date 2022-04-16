@@ -6,7 +6,7 @@ namespace ME.ECS {
 
     using Collections;
 
-    #if !FILTERS_STORAGE_ARCHETYPES
+    #if FILTERS_STORAGE_LEGACY
     public static class FilterBurstExt {
 
         public static bool IsForEntity(this in FiltersTree.FilterBurst filterBurst, in ArchetypeEntities arch, in Entity entity) {

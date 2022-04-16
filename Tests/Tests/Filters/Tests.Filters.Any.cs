@@ -1,4 +1,4 @@
-#if FILTERS_STORAGE_ARCHETYPES
+#if !FILTERS_STORAGE_LEGACY
 namespace ME.ECS.Tests {
 
     public class Tests_Filters_Any {

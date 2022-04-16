@@ -8,7 +8,7 @@ namespace ME.ECSEditor {
 
     public static class WorldHelper {
 
-        #if !FILTERS_STORAGE_ARCHETYPES
+        #if FILTERS_STORAGE_LEGACY
         public static FiltersStorage GetFilters(World world) {
 
             //var field = world.GetType().GetField("filtersStorage", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);

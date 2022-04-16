@@ -67,7 +67,7 @@ namespace ME.ECS {
 
         }
 
-        #if !FILTERS_STORAGE_ARCHETYPES
+        #if FILTERS_STORAGE_LEGACY
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif

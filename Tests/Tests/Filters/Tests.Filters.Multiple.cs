@@ -1,7 +1,7 @@
 ﻿
 namespace ME.ECS.Tests {
 
-    #if !FILTERS_STORAGE_ARCHETYPES
+    #if FILTERS_STORAGE_LEGACY
     public class Tests_Filters_Multiple {
 
         public struct TestData : IStructComponent {

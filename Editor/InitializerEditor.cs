@@ -150,7 +150,7 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            #if !FILTERS_STORAGE_ARCHETYPES
+            #if FILTERS_STORAGE_LEGACY
             new InitializerBase.DefineInfo("ARCHETYPE_SIZE_128", "Set archetype max bits size to 128 (Components in filters).", () => {
                 #if ARCHETYPE_SIZE_128
                 return true;
@@ -187,8 +187,8 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugOnly),
-            new InitializerBase.DefineInfo("FILTERS_STORAGE_ARCHETYPES", "Archetypes storage.", () => {
-                #if FILTERS_STORAGE_ARCHETYPES
+            new InitializerBase.DefineInfo("FILTERS_STORAGE_LEGACY", "Legacy storage instead of Archetypes.", () => {
+                #if FILTERS_STORAGE_LEGACY
                 return true;
                 #else
                 return false;

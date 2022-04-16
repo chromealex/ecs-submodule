@@ -4,7 +4,7 @@ namespace ME.ECS {
 
     using Collections;
     
-    #if !FILTERS_STORAGE_ARCHETYPES
+    #if FILTERS_STORAGE_LEGACY
     public struct FiltersCache {
 
         private World world;

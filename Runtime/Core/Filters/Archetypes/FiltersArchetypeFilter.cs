@@ -9,7 +9,7 @@ using ME.ECS.Collections;
 using Unity.IL2CPP.CompilerServices;
 using Il2Cpp = Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute;
 
-#if FILTERS_STORAGE_ARCHETYPES
+#if !FILTERS_STORAGE_LEGACY
 namespace ME.ECS {
 
     [Il2Cpp(Option.NullChecks, false)]
@@ -804,7 +804,7 @@ namespace ME.ECS {
         }
 
         public FilterBuilder OnVersionChangedOnly() {
-            throw new System.NotImplementedException("OnVersionChangedOnly can't be used with FILTERS_STORAGE_ARCHETYPES.");
+            throw new System.NotImplementedException("OnVersionChangedOnly can't be used with !FILTERS_STORAGE_LEGACY.");
         }
 
         public Filter Push() {
