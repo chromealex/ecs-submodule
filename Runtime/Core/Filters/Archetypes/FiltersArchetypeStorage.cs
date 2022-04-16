@@ -69,7 +69,7 @@ namespace ME.ECS.FiltersArchetype {
 
                 this.index = default;
                 PoolDictionaryInt<Info>.Recycle(ref this.components);
-                PoolList<int>.Recycle(ref this.componentIds);
+                PoolListCopyable<int>.Recycle(ref this.componentIds);
                 PoolListCopyable<int>.Recycle(ref this.entitiesArr);
                 PoolDictionaryInt<int>.Recycle(ref this.edgesToAdd);
                 PoolDictionaryInt<int>.Recycle(ref this.edgesToRemove);
@@ -84,17 +84,17 @@ namespace ME.ECS.FiltersArchetype {
 
             public int index;
             public DictionaryInt<Info> components; // Contains componentId => Info index
-            public List<int> componentIds; // Contains raw list of component ids
+            public ListCopyable<int> componentIds; // Contains raw list of component ids
             public ListCopyable<int> entitiesArr; // Contains raw unsorted list of entities
             public DictionaryInt<int> edgesToAdd; // Contains edges to move from this archetype to another
             public DictionaryInt<int> edgesToRemove; // Contains edges to move from this archetype to another
-
+            
             //private bool isCreated;
 
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
-            internal readonly bool HasAnyPair(List<FilterInternalData.Pair2> list) {
+            internal readonly bool HasAnyPair(ListCopyable<FilterInternalData.Pair2> list) {
 
                 for (int i = 0, cnt = list.Count; i < cnt; ++i) {
                     var pair = list[i];
@@ -111,7 +111,7 @@ namespace ME.ECS.FiltersArchetype {
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
-            internal readonly bool HasAnyPair(List<FilterInternalData.Pair3> list) {
+            internal readonly bool HasAnyPair(ListCopyable<FilterInternalData.Pair3> list) {
 
                 for (int i = 0, cnt = list.Count; i < cnt; ++i) {
                     var pair = list[i];
@@ -129,7 +129,7 @@ namespace ME.ECS.FiltersArchetype {
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
-            internal readonly bool HasAnyPair(List<FilterInternalData.Pair4> list) {
+            internal readonly bool HasAnyPair(ListCopyable<FilterInternalData.Pair4> list) {
 
                 for (int i = 0, cnt = list.Count; i < cnt; ++i) {
                     var pair = list[i];
@@ -155,7 +155,7 @@ namespace ME.ECS.FiltersArchetype {
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
-            public readonly bool HasAll(List<int> componentIds) {
+            public readonly bool HasAll(ListCopyable<int> componentIds) {
 
                 for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
                     var item = componentIds[i];
@@ -171,7 +171,7 @@ namespace ME.ECS.FiltersArchetype {
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
-            public readonly bool HasNotAll(List<int> componentIds) {
+            public readonly bool HasNotAll(ListCopyable<int> componentIds) {
 
                 for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
                     
@@ -189,7 +189,7 @@ namespace ME.ECS.FiltersArchetype {
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
-            public readonly bool HasAllExcept(List<int> componentIds, int componentId) {
+            public readonly bool HasAllExcept(ListCopyable<int> componentIds, int componentId) {
 
                 for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
                     
@@ -267,7 +267,7 @@ namespace ME.ECS.FiltersArchetype {
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
-            internal static int CreateAdd(ref FiltersArchetypeStorage storage, int node, List<int> componentIds, DictionaryInt<Info> components, int componentId) {
+            internal static int CreateAdd(ref FiltersArchetypeStorage storage, int node, ListCopyable<int> componentIds, DictionaryInt<Info> components, int componentId) {
 
                 if (storage.TryGetArchetypeAdd(componentIds, componentId, out var ar) == true) {
                     return ar;
@@ -278,7 +278,7 @@ namespace ME.ECS.FiltersArchetype {
                     edgesToAdd = PoolDictionaryInt<int>.Spawn(16),
                     edgesToRemove = PoolDictionaryInt<int>.Spawn(16),
                     entitiesArr = PoolListCopyable<int>.Spawn(16),
-                    componentIds = PoolList<int>.Spawn(componentIds.Count),
+                    componentIds = PoolListCopyable<int>.Spawn(componentIds.Count),
                     components = PoolDictionaryInt<Info>.Spawn(components.Count),
                     //componentStorage = new ComponentStorage[componentIds.Count + 1],
                 };
@@ -307,7 +307,7 @@ namespace ME.ECS.FiltersArchetype {
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
-            internal static int CreateRemove(ref FiltersArchetypeStorage storage, int node, List<int> componentIds, DictionaryInt<Info> components, int componentId) {
+            internal static int CreateRemove(ref FiltersArchetypeStorage storage, int node, ListCopyable<int> componentIds, DictionaryInt<Info> components, int componentId) {
 
                 if (storage.TryGetArchetypeRemove(componentIds, componentId, out var ar) == true) {
                     return ar;
@@ -318,7 +318,7 @@ namespace ME.ECS.FiltersArchetype {
                     edgesToAdd = PoolDictionaryInt<int>.Spawn(16),
                     edgesToRemove = PoolDictionaryInt<int>.Spawn(16),
                     entitiesArr = PoolListCopyable<int>.Spawn(16),
-                    componentIds = PoolList<int>.Spawn(componentIds.Count),
+                    componentIds = PoolListCopyable<int>.Spawn(componentIds.Count),
                     components = PoolDictionaryInt<Info>.Spawn(16),
                     //componentStorage = new ComponentStorage[componentIds.Count - 1],
                 };
@@ -550,7 +550,7 @@ namespace ME.ECS.FiltersArchetype {
                 edgesToAdd = PoolDictionaryInt<int>.Spawn(16),
                 edgesToRemove = PoolDictionaryInt<int>.Spawn(16),
                 entitiesArr = PoolListCopyable<int>.Spawn(16),
-                componentIds = PoolList<int>.Spawn(10),
+                componentIds = PoolListCopyable<int>.Spawn(10),
                 components = PoolDictionaryInt<Archetype.Info>.Spawn(16),
                 index = 0,
             };
@@ -796,7 +796,7 @@ namespace ME.ECS.FiltersArchetype {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        private bool TryGetArchetypeAdd(List<int> componentIds, int componentId, out int arch) {
+        private bool TryGetArchetypeAdd(ListCopyable<int> componentIds, int componentId, out int arch) {
 
             // Try to search archetype with componentIds + componentId contained in
             arch = default;
@@ -821,7 +821,7 @@ namespace ME.ECS.FiltersArchetype {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        private bool TryGetArchetypeRemove(List<int> componentIds, int componentId, out int arch) {
+        private bool TryGetArchetypeRemove(ListCopyable<int> componentIds, int componentId, out int arch) {
 
             // Try to search archetype with componentIds except componentId contained in
             arch = default;
@@ -1166,14 +1166,14 @@ namespace ME.ECS.FiltersArchetype {
         }
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        private static bool CheckLambdas(in Archetype arch, List<int> lambdas) {
+        private static bool CheckLambdas(in Archetype arch, ListCopyable<int> lambdas) {
 
             return arch.HasAll(lambdas);
 
         }
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        private static bool CheckStaticShared(List<int> containsShared, List<int> notContainsShared) {
+        private static bool CheckStaticShared(ListCopyable<int> containsShared, ListCopyable<int> notContainsShared) {
 
             if (containsShared.Count == 0 && notContainsShared.Count == 0) {
                 return true;
@@ -1210,12 +1210,12 @@ namespace ME.ECS.FiltersArchetype {
             for (int i = 0, cnt = this.filters.Count; i < cnt; ++i) {
 
                 var filter = this.filters[i];
-                if (this.IsEquals(filter.data.contains, filterBuilder.data.contains) == true &&
-                    this.IsEquals(filter.data.notContains, filterBuilder.data.notContains) == true &&
-                    this.IsEquals(filter.data.notContainsShared, filterBuilder.data.notContainsShared) == true &&
-                    this.IsEquals(filter.data.containsShared, filterBuilder.data.containsShared) == true &&
-                    this.IsEquals(filter.data.onChanged, filterBuilder.data.onChanged) == true &&
-                    this.IsEquals(filter.data.lambdas, filterBuilder.data.lambdas) == true) {
+                if (FiltersArchetypeStorage.IsEquals(filter.data.contains, filterBuilder.data.contains) == true &&
+                    FiltersArchetypeStorage.IsEquals(filter.data.notContains, filterBuilder.data.notContains) == true &&
+                    FiltersArchetypeStorage.IsEquals(filter.data.notContainsShared, filterBuilder.data.notContainsShared) == true &&
+                    FiltersArchetypeStorage.IsEquals(filter.data.containsShared, filterBuilder.data.containsShared) == true &&
+                    FiltersArchetypeStorage.IsEquals(filter.data.onChanged, filterBuilder.data.onChanged) == true &&
+                    FiltersArchetypeStorage.IsEquals(filter.data.lambdas, filterBuilder.data.lambdas) == true) {
 
                     filterData = filter;
                     return true;
@@ -1231,7 +1231,7 @@ namespace ME.ECS.FiltersArchetype {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        private bool IsEquals(List<int> list1, List<int> list2) {
+        private static bool IsEquals(ListCopyable<int> list1, ListCopyable<int> list2) {
 
             if (list1.Count != list2.Count) {
                 return false;

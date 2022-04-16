@@ -129,13 +129,6 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("ENTITY_ACTIONS", "Turn on to add Entity Actions support. Entity Actions - raise events on Add/Remove components data on entities.", () => {
-                #if ENTITY_ACTIONS
-                return true;
-                #else
-                return false;
-                #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
             new InitializerBase.DefineInfo("ENTITY_VERSION_INCREMENT_ACTIONS", "Turn on to raise events on entity version increments.", () => {
                 #if ENTITY_VERSION_INCREMENT_ACTIONS
                 return true;

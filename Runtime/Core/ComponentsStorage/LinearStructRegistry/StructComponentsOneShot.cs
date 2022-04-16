@@ -102,10 +102,6 @@ namespace ME.ECS {
 
             }
 
-            #if ENTITY_ACTIONS
-            this.RaiseEntityActionOnRemove<TComponent>(in entity);
-            #endif
-
         }
 
         #if INLINE_METHODS
@@ -194,10 +190,6 @@ namespace ME.ECS {
 
                 }
 
-                #if ENTITY_ACTIONS
-                this.RaiseEntityActionOnAdd<TComponent>(in entity);
-                #endif
-
             }
 
             if (ComponentTypes<TComponent>.isFilterLambda == true && ComponentTypes<TComponent>.typeId >= 0) {
@@ -280,9 +272,6 @@ namespace ME.ECS {
                 
             }
             
-            #if ENTITY_ACTIONS
-            this.RaiseEntityActionOnAdd<TComponent>(in entity);
-            #endif
             storage.versions.Increment(in entity);
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);

@@ -166,44 +166,7 @@ namespace ME.ECS {
             }
             #endif
 
-            var index = entity.id;
-            ref var bucket = ref this.components[index];
-            bucket.data = buffer.Read<TComponent>();
-
-            var componentIndex = ComponentTypes<TComponent>.typeId;
-            if (bucket.state == 0) {
-
-                bucket.state = 1;
-
-                if (storageType == StorageType.Default) {
-
-                    this.world.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
-
-                } else if (storageType == StorageType.NoState) {
-                    
-                    this.world.structComponentsNoState.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
-
-                }
-
-                if (componentIndex >= 0) {
-                    
-                    this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
-                    this.world.AddFilterByStructComponent(in entity, componentIndex);
-                    this.world.UpdateFilterByStructComponent(in entity, componentIndex);
-                    
-                }
-
-                return true;
-
-            }
-            
-            if (componentIndex >= 0) {
-                
-                this.world.ValidateFilterByStructComponent(in entity, componentIndex);
-                    
-            }
-
-            return false;
+            return DataBufferUtils.PushSet_INTERNAL(this.world, in entity, this, buffer.Read<TComponent>(), storageType);
 
         }
 
@@ -217,45 +180,8 @@ namespace ME.ECS {
             }
             #endif
 
-            var index = entity.id;
-            ref var bucket = ref this.components[index];
-            bucket.data = (TComponent)data;
-
-            var componentIndex = ComponentTypes<TComponent>.typeId;
-            if (bucket.state == 0) {
-
-                bucket.state = 1;
-                
-                if (storageType == StorageType.Default) {
-
-                    this.world.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
-
-                } else if (storageType == StorageType.NoState) {
-                    
-                    this.world.structComponentsNoState.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
-
-                }
-
-                if (componentIndex >= 0) {
-                    
-                    this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
-                    this.world.AddFilterByStructComponent(in entity, componentIndex);
-                    this.world.UpdateFilterByStructComponent(in entity, componentIndex);
-                    
-                }
-
-                return true;
-
-            }
+            return DataBufferUtils.PushSet_INTERNAL(this.world, in entity, this, (TComponent)data, storageType);
             
-            if (componentIndex >= 0) {
-                
-                this.world.ValidateFilterByStructComponent(in entity, componentIndex);
-                    
-            }
-
-            return false;
-
         }
 
         #if INLINE_METHODS
@@ -269,39 +195,7 @@ namespace ME.ECS {
 
         public override bool RemoveObject(in Entity entity, StorageType storageType) {
 
-            var index = entity.id;
-            ref var bucket = ref this.components[index];
-            if (bucket.state > 0) {
-
-                this.RemoveData(in entity, ref bucket);
-                bucket.state = 0;
-
-                if (storageType == StorageType.Default) {
-
-                    this.world.currentState.structComponents.entitiesIndexer.Remove(entity.id, AllComponentTypes<TComponent>.typeId);
-
-                } else if (storageType == StorageType.NoState) {
-                    
-                    this.world.structComponentsNoState.entitiesIndexer.Remove(entity.id, AllComponentTypes<TComponent>.typeId);
-
-                }
-
-                if (ComponentTypes<TComponent>.isFilterVersioned == true) this.world.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-                
-                var componentIndex = ComponentTypes<TComponent>.typeId;
-                if (componentIndex >= 0) {
-                    
-                    this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
-                    this.world.RemoveFilterByStructComponent<TComponent>(in entity);
-                    this.world.UpdateFilterByStructComponent<TComponent>(in entity);
-                    
-                }
-
-                return true;
-
-            }
-
-            return false;
+            return DataBufferUtils.PushRemove_INTERNAL(this.world, in entity, this, storageType);
 
         }
 

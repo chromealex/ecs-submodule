@@ -529,27 +529,27 @@ namespace ME.ECS {
         internal string name;
 
         [ME.ECS.Serializer.SerializeField]
-        internal List<Pair2> anyPair2;
+        internal ListCopyable<Pair2> anyPair2;
         [ME.ECS.Serializer.SerializeField]
-        internal List<Pair3> anyPair3;
+        internal ListCopyable<Pair3> anyPair3;
         [ME.ECS.Serializer.SerializeField]
-        internal List<Pair4> anyPair4;
+        internal ListCopyable<Pair4> anyPair4;
 
         [ME.ECS.Serializer.SerializeField]
-        internal List<int> contains;
+        internal ListCopyable<int> contains;
         [ME.ECS.Serializer.SerializeField]
-        internal List<int> notContains;
+        internal ListCopyable<int> notContains;
 
         [ME.ECS.Serializer.SerializeField]
-        internal List<int> containsShared;
+        internal ListCopyable<int> containsShared;
         [ME.ECS.Serializer.SerializeField]
-        internal List<int> notContainsShared;
+        internal ListCopyable<int> notContainsShared;
 
         [ME.ECS.Serializer.SerializeField]
-        internal List<int> onChanged;
+        internal ListCopyable<int> onChanged;
         
         [ME.ECS.Serializer.SerializeField]
-        internal List<int> lambdas;
+        internal ListCopyable<int> lambdas;
 
         public void CopyFrom(FilterInternalData other) {
 
@@ -571,15 +571,15 @@ namespace ME.ECS {
 
             this.name = default;
 
-            PoolList<Pair2>.Recycle(ref this.anyPair2);
-            PoolList<Pair3>.Recycle(ref this.anyPair3);
-            PoolList<Pair4>.Recycle(ref this.anyPair4);
-            PoolList<int>.Recycle(ref this.contains);
-            PoolList<int>.Recycle(ref this.notContains);
-            PoolList<int>.Recycle(ref this.containsShared);
-            PoolList<int>.Recycle(ref this.notContainsShared);
-            PoolList<int>.Recycle(ref this.onChanged);
-            PoolList<int>.Recycle(ref this.lambdas);
+            PoolListCopyable<Pair2>.Recycle(ref this.anyPair2);
+            PoolListCopyable<Pair3>.Recycle(ref this.anyPair3);
+            PoolListCopyable<Pair4>.Recycle(ref this.anyPair4);
+            PoolListCopyable<int>.Recycle(ref this.contains);
+            PoolListCopyable<int>.Recycle(ref this.notContains);
+            PoolListCopyable<int>.Recycle(ref this.containsShared);
+            PoolListCopyable<int>.Recycle(ref this.notContainsShared);
+            PoolListCopyable<int>.Recycle(ref this.onChanged);
+            PoolListCopyable<int>.Recycle(ref this.lambdas);
 
         }
 
@@ -587,15 +587,15 @@ namespace ME.ECS {
 
             return new FilterInternalData() {
                 name = string.Empty,
-                anyPair2 = PoolList<Pair2>.Spawn(4),
-                anyPair3 = PoolList<Pair3>.Spawn(4),
-                anyPair4 = PoolList<Pair4>.Spawn(4),
-                contains = PoolList<int>.Spawn(4),
-                notContains = PoolList<int>.Spawn(4),
-                containsShared = PoolList<int>.Spawn(4),
-                notContainsShared = PoolList<int>.Spawn(4),
-                onChanged = PoolList<int>.Spawn(4),
-                lambdas = PoolList<int>.Spawn(4),
+                anyPair2 = PoolListCopyable<Pair2>.Spawn(4),
+                anyPair3 = PoolListCopyable<Pair3>.Spawn(4),
+                anyPair4 = PoolListCopyable<Pair4>.Spawn(4),
+                contains = PoolListCopyable<int>.Spawn(4),
+                notContains = PoolListCopyable<int>.Spawn(4),
+                containsShared = PoolListCopyable<int>.Spawn(4),
+                notContainsShared = PoolListCopyable<int>.Spawn(4),
+                onChanged = PoolListCopyable<int>.Spawn(4),
+                lambdas = PoolListCopyable<int>.Spawn(4),
             };
 
         }

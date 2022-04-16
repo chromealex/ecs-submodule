@@ -5,8 +5,8 @@ namespace ME.ECS {
 
         public static void InitTypeId() {
 
-            WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Nodes>();
-            WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Container>();
+            WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Nodes>(isVersioned: true, isSimple: true);
+            WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Container>(isVersioned: true, isSimple: true);
             
             Transform2DComponentsInitializer.InitTypeId();
             Transform3DComponentsInitializer.InitTypeId();

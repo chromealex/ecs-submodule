@@ -394,7 +394,15 @@ namespace ME.ECSEditor {
                     var isShared = typeof(ME.ECS.IComponentShared).IsAssignableFrom(type);
                     var isVersioned = typeof(ME.ECS.IVersioned).IsAssignableFrom(type);
                     var isVersionedNoState = typeof(ME.ECS.IVersionedNoState).IsAssignableFrom(type);
+                    var isSimple = true;
+                    if (isCopyable == true ||
+                        isDisposable == true ||
+                        isOneShot == true) {
 
+                        isSimple = false;
+
+                    }
+                    
                     if (isCopyable == false && hasFields == true && isStatic == false) {
                         
                         // Check for managed types
@@ -409,6 +417,7 @@ namespace ME.ECSEditor {
                     var resItem = itemStr;
                     resItem = resItem.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                     resItem = resItem.Replace("#ISSHARED#", isShared == true ? "true" : "false");
+                    resItem = resItem.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
                     resItem = resItem.Replace("#TYPENAME#", entityType);
                     resItem = resItem.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
                     resItem = resItem.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
@@ -432,6 +441,7 @@ namespace ME.ECSEditor {
                         resItem2 = resItem2.Replace("#TYPENAME#", entityType);
                         resItem2 = resItem2.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                         resItem2 = resItem2.Replace("#ISSHARED#", isShared == true ? "true" : "false");
+                        resItem2 = resItem2.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
                         resItem2 = resItem2.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
                         resItem2 = resItem2.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
                         resItem2 = resItem2.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
@@ -456,6 +466,7 @@ namespace ME.ECSEditor {
                         resItem3 = resItem3.Replace("#TYPENAME#", entityType);
                         resItem3 = resItem3.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                         resItem3 = resItem3.Replace("#ISSHARED#", isShared == true ? "true" : "false");
+                        resItem3 = resItem3.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISONESHOT#", isOneShot == true ? "true" : "false");

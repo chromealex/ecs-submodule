@@ -1455,9 +1455,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref TComponent GetSharedData<TComponent>(bool createIfNotExists = true) where TComponent : struct, IStructComponent {
+        public ref TComponent GetSharedData<TComponent>() where TComponent : struct, IStructComponent {
 
-            return ref this.GetData<TComponent>(in this.sharedEntity, createIfNotExists);
+            return ref this.GetData<TComponent>(in this.sharedEntity);
 
         }
 
@@ -1610,6 +1610,7 @@ namespace ME.ECS {
 
                 incrementVersion = true;
                 reg.sharedGroups.Set(entity.id, groupId);
+                this.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.currentState.storage.archetypes.Set<TComponent>(in entity);
@@ -1617,10 +1618,6 @@ namespace ME.ECS {
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
-
-                #if ENTITY_ACTIONS
-                this.RaiseEntityActionOnAdd<TComponent>(in entity);
-                #endif
 
             }
 
@@ -1697,6 +1694,7 @@ namespace ME.ECS {
                 }
 
                 state = false;
+                this.currentState.structComponents.entitiesIndexer.Remove(entity.id, AllComponentTypes<TComponent>.typeId);
                 if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
@@ -1705,10 +1703,6 @@ namespace ME.ECS {
                     this.UpdateFilterByStructComponent<TComponent>(in entity);
 
                 }
-
-                #if ENTITY_ACTIONS
-                this.RaiseEntityActionOnRemove<TComponent>(in entity);
-                #endif
 
             }
 
@@ -1755,6 +1749,7 @@ namespace ME.ECS {
             if (state == false) {
 
                 state = true;
+                this.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.currentState.storage.archetypes.Set<TComponent>(in entity);
@@ -1771,9 +1766,6 @@ namespace ME.ECS {
                 
             }
             
-            #if ENTITY_ACTIONS
-            this.RaiseEntityActionOnAdd<TComponent>(in entity);
-            #endif
             ref var bucket = ref reg.components[entity.id];
             reg.UpdateVersion(ref bucket);
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
@@ -1809,6 +1801,7 @@ namespace ME.ECS {
             if (state == false) {
 
                 state = true;
+                this.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.currentState.storage.archetypes.Set<TComponent>(in entity);
@@ -1825,9 +1818,6 @@ namespace ME.ECS {
                 
             }
             
-            #if ENTITY_ACTIONS
-            this.RaiseEntityActionOnAdd<TComponent>(in entity);
-            #endif
             this.currentState.storage.versions.Increment(in entity);
             ref var bucket = ref reg.components[entity.id];
             reg.UpdateVersion(ref bucket);
@@ -1994,7 +1984,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref TComponent GetData<TComponent>(in Entity entity, bool createIfNotExists = true) where TComponent : struct, IStructComponent {
+        public ref TComponent GetData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -2020,42 +2010,9 @@ namespace ME.ECS {
 
             // Inline all manually
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            ref var storage = ref this.currentState.storage;
-            ref var bucket = ref reg.components[entity.id];
-            if (createIfNotExists == true && bucket.state == 0) {
-
-                this.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
-                
-                bucket.state = 1;
-                if (ComponentTypes<TComponent>.typeId >= 0) {
-
-                    storage.archetypes.Set<TComponent>(in entity);
-                    this.AddFilterByStructComponent<TComponent>(in entity);
-                    this.UpdateFilterByStructComponent<TComponent>(in entity);
-
-                }
-
-                #if ENTITY_ACTIONS
-                this.RaiseEntityActionOnAdd<TComponent>(in entity);
-                #endif
-
-            }
-
-            if (ComponentTypes<TComponent>.isFilterLambda == true && ComponentTypes<TComponent>.typeId >= 0) {
-
-                this.ValidateFilterByStructComponent<TComponent>(in entity, true);
-                
-            }
+            DataBufferUtils.PushSet_INTERNAL(this, in entity, reg, new TComponent(), StorageType.Default);
             
-            {
-
-                reg.UpdateVersion(ref bucket);
-                storage.versions.Increment(in entity);
-                if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
-                if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-
-            }
-
+            ref var bucket = ref reg.components[entity.id];
             return ref bucket.data;
 
         }
@@ -2099,7 +2056,7 @@ namespace ME.ECS {
 
             // Inline all manually
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            DataBufferUtils.PushSet_INTERNAL(this, in entity, reg, in data);
+            DataBufferUtils.PushSet_INTERNAL(this, in entity, reg, in data, StorageType.Default);
             
         }
 
@@ -2215,7 +2172,7 @@ namespace ME.ECS {
             #endif
 
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            DataBufferUtils.PushRemove_INTERNAL(this, in entity, reg);
+            DataBufferUtils.PushRemove_INTERNAL(this, in entity, reg, StorageType.Default);
             
         }
 
@@ -2242,13 +2199,7 @@ namespace ME.ECS {
 
             // Inline all manually
             ref var reg = ref this.currentState.structComponents.list.arr[dataIndex];
-            if (reg.SetObject(entity, data, StorageType.Default) == true) {
-
-                this.currentState.storage.versions.Increment(in entity);
-                reg.UpdateVersion(in entity);
-                reg.UpdateVersionNoState(in entity);
-
-            }
+            reg.SetObject(entity, data, StorageType.Default);
 
         }
 
@@ -2275,13 +2226,7 @@ namespace ME.ECS {
 
             // Inline all manually
             ref var reg = ref this.currentState.structComponents.list.arr[dataIndex];
-            if (reg.SetObject(entity, buffer, storageType) == true) {
-
-                this.currentState.storage.versions.Increment(in entity);
-                reg.UpdateVersion(in entity);
-                reg.UpdateVersionNoState(in entity);
-
-            }
+            reg.SetObject(entity, buffer, storageType);
 
         }
 

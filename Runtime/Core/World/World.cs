@@ -1209,60 +1209,6 @@ namespace ME.ECS {
         }
         #endregion
 
-        #region EntityActions
-        #if ENTITY_ACTIONS
-        private static class EntityActionDirectCache<TComponent> where TComponent : struct, IStructComponent {
-
-            public static BufferArray<ListCopyable<EntityAction<TComponent>>> data;
-
-        }
-        
-        public void RaiseEntityActionOnAdd<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
-            
-            ArrayUtils.Resize(this.id, ref EntityActionDirectCache<TComponent>.data);
-            ref var list = ref EntityActionDirectCache<TComponent>.data.arr[this.id];
-            if (list == null) return;
-            for (int i = 0, count = list.Count; i < count; ++i) {
-
-                list[i].ExecuteOnAdd(in entity);
-
-            }
-
-        }
-        
-        public void RaiseEntityActionOnRemove<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
-            
-            ArrayUtils.Resize(this.id, ref EntityActionDirectCache<TComponent>.data);
-            ref var list = ref EntityActionDirectCache<TComponent>.data.arr[this.id];
-            if (list == null) return;
-            for (int i = 0, count = list.Count; i < count; ++i) {
-
-                list[i].ExecuteOnRemove(in entity);
-
-            }
-
-        }
-
-        public void RegisterEntityAction<TComponent>(EntityAction<TComponent> action) where TComponent : struct, IStructComponent {
-            
-            ArrayUtils.Resize(this.id, ref EntityActionDirectCache<TComponent>.data);
-            ref var list = ref EntityActionDirectCache<TComponent>.data.arr[this.id];
-            if (list == null) list = PoolList<EntityAction<TComponent>>.Spawn(10);
-            list.Add(action);
-
-        }
-        
-        public void UnRegisterEntityAction<TComponent>(EntityAction<TComponent> action) where TComponent : struct, IStructComponent {
-            
-            ArrayUtils.Resize(this.id, ref EntityActionDirectCache<TComponent>.data);
-            ref var list = ref EntityActionDirectCache<TComponent>.data.arr[this.id];
-            if (list == null) return;
-            list.Remove(action);
-
-        }
-        #endif
-        #endregion
-
         #region EntityVersionIncrementActions
         #if ENTITY_VERSION_INCREMENT_ACTIONS
         private event System.Action<Entity, int> onEntityVersionIncrement;
