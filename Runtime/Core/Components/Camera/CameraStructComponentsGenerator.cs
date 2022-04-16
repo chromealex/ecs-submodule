@@ -5,7 +5,7 @@ namespace ME.ECS {
     
         public static void InitTypeId() {
             
-            WorldUtilities.InitComponentTypeId<ME.ECS.Camera.Camera>();
+            WorldUtilities.InitComponentTypeId<ME.ECS.Camera.Camera>(isVersioned: true, isSimple: true);
             
         }
 

@@ -9,12 +9,12 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
 
     }
     
-    public struct IsPathfinding : IStructComponent {}
-    public struct BuildAllGraphs : IStructComponent {}
-    public struct HasPathfindingInstance : IStructComponent {}
-    public struct IsAllGraphsBuilt : IStructComponent {}
+    public struct IsPathfinding : IComponent {}
+    public struct BuildAllGraphs : IComponent {}
+    public struct HasPathfindingInstance : IComponent {}
+    public struct IsAllGraphsBuilt : IComponent {}
     
-    public struct CalculatePath : IStructComponent {
+    public struct CalculatePath : IComponent {
 
         public UnityEngine.Vector3 from;
         public UnityEngine.Vector3 to;
@@ -26,7 +26,7 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
 
     }
 
-    public struct IsPathBuilt : IStructComponent {}
+    public struct IsPathBuilt : IComponent {}
 
     public struct PathfindingInstance : IStructCopyable<PathfindingInstance> {
 

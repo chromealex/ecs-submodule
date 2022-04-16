@@ -31,10 +31,10 @@ namespace ME.ECSEditor {
 
                     }
 
-                    var itemsWhere = " where T0:unmanaged,IStructComponentBase";
+                    var itemsWhere = " where T0:unmanaged,IComponentBase";
                     for (int i = 1; i < j; ++i) {
 
-                        itemsWhere += $" where T{i}:unmanaged,IStructComponentBase";
+                        itemsWhere += $" where T{i}:unmanaged,IComponentBase";
 
                     }
 

@@ -26,7 +26,7 @@ namespace ME.ECS.Debug {
             
         }
 
-        public void SetComponent(int index, IStructComponentBase data) {
+        public void SetComponent(int index, IComponentBase data) {
             
             var world = this.world;
             var components = world.GetStructComponents();
@@ -35,7 +35,7 @@ namespace ME.ECS.Debug {
             
         }
 
-        public void SetSharedComponent(int index, IStructComponentBase data, uint groupId) {
+        public void SetSharedComponent(int index, IComponentBase data, uint groupId) {
             
             var world = this.world;
             var components = world.GetStructComponents();
@@ -47,7 +47,7 @@ namespace ME.ECS.Debug {
         public struct SharedGroup {
 
             public uint groupId;
-            public IStructComponentBase data;
+            public IComponentBase data;
 
         }
 
@@ -59,14 +59,14 @@ namespace ME.ECS.Debug {
             get { return this.entity.IsAlive(); }
         }
         
-        public IStructComponentBase[] components {
+        public IComponentBase[] components {
             
             get {
             
                 var world = this.world;
                 var components = world.GetStructComponents();
                 var registries = components.GetAllRegistries();
-                var list = new System.Collections.Generic.List<IStructComponentBase>();
+                var list = new System.Collections.Generic.List<IComponentBase>();
                 foreach (var reg in registries) {
 
                     if (reg == null) continue;
@@ -121,7 +121,7 @@ namespace ME.ECS.Debug {
             public int dataIndex;
             public uint groupId;
             [UnityEngine.SerializeReference]
-            public IStructComponentBase data;
+            public IComponentBase data;
 
         }
         

@@ -3,10 +3,10 @@ namespace ME.ECS.Tests {
 
     public class Tests_Filters_Any {
 
-        private struct TestComponent : IStructComponent {}
-        private struct TestComponent1 : IStructComponent {}
-        private struct TestComponent2 : IStructComponent {}
-        private struct TestComponent3 : IStructComponent {}
+        private struct TestComponent : IComponent {}
+        private struct TestComponent1 : IComponent {}
+        private struct TestComponent2 : IComponent {}
+        private struct TestComponent3 : IComponent {}
         
         private class TestSystem_Any : ISystem, IAdvanceTick {
 

@@ -5,7 +5,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class StructComponentsCopyable<TComponent> : StructComponents<TComponent> where TComponent : struct, IStructComponentBase, IStructCopyable<TComponent> {
+    public sealed class StructComponentsCopyable<TComponent> : StructComponents<TComponent> where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
 
         private struct CopyItem : IArrayElementCopyWithIndex<Component<TComponent>> {
 

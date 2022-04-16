@@ -1,6 +1,6 @@
 namespace ME.ECS.Essentials.Input.Components {
 
-    public interface IInputGesture2FingersComponent : IStructComponent {
+    public interface IInputGesture2FingersComponent : IComponent {
         
         InputPointerData setPointer1 { set; get; }
         InputPointerData setPointer2 { set; get; }

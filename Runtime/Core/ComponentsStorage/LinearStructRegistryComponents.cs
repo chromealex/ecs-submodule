@@ -8,16 +8,16 @@ namespace ME.ECS {
 
     public interface IStructRegistryBase {
 
-        IStructComponentBase GetObject(Entity entity);
-        bool SetObject(in Entity entity, IStructComponentBase data, StorageType storageType);
-        IStructComponentBase GetSharedObject(Entity entity, uint groupId);
-        bool SetSharedObject(in Entity entity, IStructComponentBase data, uint groupId);
+        IComponentBase GetObject(Entity entity);
+        bool SetObject(in Entity entity, IComponentBase data, StorageType storageType);
+        IComponentBase GetSharedObject(Entity entity, uint groupId);
+        bool SetSharedObject(in Entity entity, IComponentBase data, uint groupId);
         bool RemoveObject(in Entity entity, StorageType storageType);
         bool HasType(System.Type type);
 
     }
 
-    public struct Component<TComponent> where TComponent : struct, IStructComponentBase {
+    public struct Component<TComponent> where TComponent : struct, IComponentBase {
 
         public TComponent data;
         public byte state;
@@ -52,12 +52,12 @@ namespace ME.ECS {
         public abstract void UpdateVersionNoState(in Entity entity);
         
         public abstract bool HasType(System.Type type);
-        public abstract IStructComponentBase GetObject(Entity entity);
-        public abstract bool SetObject(in Entity entity, IStructComponentBase data, StorageType storageType);
+        public abstract IComponentBase GetObject(Entity entity);
+        public abstract bool SetObject(in Entity entity, IComponentBase data, StorageType storageType);
         public abstract bool SetObject(in Entity entity, UnsafeData buffer, StorageType storageType);
         public abstract System.Collections.Generic.ICollection<uint> GetSharedGroups(Entity entity);
-        public abstract IStructComponentBase GetSharedObject(Entity entity, uint groupId);
-        public abstract bool SetSharedObject(in Entity entity, IStructComponentBase data, uint groupId);
+        public abstract IComponentBase GetSharedObject(Entity entity, uint groupId);
+        public abstract bool SetSharedObject(in Entity entity, IComponentBase data, uint groupId);
         public abstract bool RemoveObject(in Entity entity, StorageType storageType);
 
         #if INLINE_METHODS
@@ -118,7 +118,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public abstract partial class StructComponentsBase<TComponent> : StructRegistryBase where TComponent : struct, IStructComponentBase {
+    public abstract partial class StructComponentsBase<TComponent> : StructRegistryBase where TComponent : struct, IComponentBase {
 
         public struct SharedGroupData {
 
@@ -423,14 +423,14 @@ namespace ME.ECS {
 
         }
 
-        public override IStructComponentBase GetSharedObject(Entity entity, uint groupId) {
+        public override IComponentBase GetSharedObject(Entity entity, uint groupId) {
 
             if (this.sharedGroups.Has(entity.id, groupId) == false) return null;
             return this.sharedGroups.Get(entity.id, groupId);
 
         }
 
-        public override bool SetSharedObject(in Entity entity, IStructComponentBase data, uint groupId) {
+        public override bool SetSharedObject(in Entity entity, IComponentBase data, uint groupId) {
             
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -844,7 +844,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void Validate<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase {
+        public void Validate<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             this.Validate<TComponent>(code, isTag);
@@ -858,7 +858,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void Validate<TComponent>(bool isTag = false) where TComponent : struct, IStructComponentBase {
+        public void Validate<TComponent>(bool isTag = false) where TComponent : struct, IComponentBase {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
@@ -874,7 +874,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void Validate<TComponent>(int code, bool isTag) where TComponent : struct, IStructComponentBase {
+        private void Validate<TComponent>(int code, bool isTag) where TComponent : struct, IComponentBase {
 
             if (ArrayUtils.WillResize(code, ref this.list) == true) {
 
@@ -898,7 +898,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void ValidateOneShot<TComponent>(bool isTag = false) where TComponent : struct, IStructComponentBase, IComponentOneShot {
+        public void ValidateOneShot<TComponent>(bool isTag = false) where TComponent : struct, IComponentBase, IComponentOneShot {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
@@ -911,7 +911,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void ValidateOneShot<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase, IComponentOneShot {
+        public void ValidateOneShot<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase, IComponentOneShot {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             this.ValidateOneShot<TComponent>(code, isTag);
@@ -928,7 +928,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void ValidateOneShot<TComponent>(int code, bool isTag) where TComponent : struct, IStructComponentBase, IComponentOneShot {
+        private void ValidateOneShot<TComponent>(int code, bool isTag) where TComponent : struct, IComponentBase, IComponentOneShot {
 
             if (ArrayUtils.WillResize(code, ref this.list) == true) {
 
@@ -952,7 +952,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void ValidateCopyable<TComponent>(bool isTag = false) where TComponent : struct, IStructComponentBase, IStructCopyable<TComponent> {
+        public void ValidateCopyable<TComponent>(bool isTag = false) where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
@@ -965,7 +965,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void ValidateCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase, IStructCopyable<TComponent> {
+        public void ValidateCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             this.ValidateCopyable<TComponent>(code, isTag);
@@ -982,7 +982,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void ValidateCopyable<TComponent>(int code, bool isTag) where TComponent : struct, IStructComponentBase, IStructCopyable<TComponent> {
+        private void ValidateCopyable<TComponent>(int code, bool isTag) where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
 
             if (ArrayUtils.WillResize(code, ref this.list) == true) {
 
@@ -1006,7 +1006,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void ValidateDisposable<TComponent>(bool isTag = false) where TComponent : struct, IStructComponentBase, IComponentDisposable {
+        public void ValidateDisposable<TComponent>(bool isTag = false) where TComponent : struct, IComponentBase, IComponentDisposable {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
@@ -1019,7 +1019,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void ValidateDisposable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase, IComponentDisposable {
+        public void ValidateDisposable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase, IComponentDisposable {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             this.ValidateDisposable<TComponent>(code, isTag);
@@ -1036,7 +1036,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void ValidateDisposable<TComponent>(int code, bool isTag) where TComponent : struct, IStructComponentBase, IComponentDisposable {
+        private void ValidateDisposable<TComponent>(int code, bool isTag) where TComponent : struct, IComponentBase, IComponentDisposable {
 
             if (ArrayUtils.WillResize(code, ref this.list) == true) {
 
@@ -1298,19 +1298,19 @@ namespace ME.ECS {
 
         }
 
-        public void ValidateData<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase {
+        public void ValidateData<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase {
 
             this.currentState.structComponents.Validate<TComponent>(in entity, isTag);
 
         }
 
-        public void ValidateDataOneShot<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase, IComponentOneShot {
+        public void ValidateDataOneShot<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase, IComponentOneShot {
 
             this.structComponentsNoState.ValidateOneShot<TComponent>(in entity, isTag);
 
         }
 
-        public void ValidateDataCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IStructComponentBase, IStructCopyable<TComponent> {
+        public void ValidateDataCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
 
             this.currentState.structComponents.ValidateCopyable<TComponent>(in entity, isTag);
 
@@ -1826,7 +1826,7 @@ namespace ME.ECS {
 
         }
         
-        public void SetSharedData(in Entity entity, in IStructComponentBase data, int dataIndex, uint groupId = 0u) {
+        public void SetSharedData(in Entity entity, in IComponentBase data, int dataIndex, uint groupId = 0u) {
             
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -1967,7 +1967,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public IStructComponentBase ReadData(in Entity entity, int registryIndex) {
+        public IComponentBase ReadData(in Entity entity, int registryIndex) {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -2176,7 +2176,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void SetData(in Entity entity, in IStructComponentBase data, int dataIndex) {
+        public void SetData(in Entity entity, in IComponentBase data, int dataIndex) {
 
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {

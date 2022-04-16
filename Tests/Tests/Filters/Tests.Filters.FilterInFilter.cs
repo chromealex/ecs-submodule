@@ -3,8 +3,8 @@ namespace ME.ECS.Tests {
 
     public class Tests_Filters_FilterInFilter {
 
-        private struct TestComponent : IStructComponent {}
-        private struct TestComponent2 : IStructComponent {}
+        private struct TestComponent : IComponent {}
+        private struct TestComponent2 : IComponent {}
         
         private class TestSystem_FilterInFilter : ISystem, IAdvanceTick {
 

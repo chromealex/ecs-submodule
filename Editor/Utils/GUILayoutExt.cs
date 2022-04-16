@@ -400,7 +400,7 @@ namespace ME.ECSEditor {
 	                                                            .SelectMany(x => x.GetTypes())
 	                                                            .Where(x => 
 		                                                                   x.IsValueType == true &&
-		                                                                   typeof(IStructComponentBase).IsAssignableFrom(x) == true
+		                                                                   typeof(IComponentBase).IsAssignableFrom(x) == true
 	                                                            )
 	                                                            .ToArray();
 
@@ -412,7 +412,7 @@ namespace ME.ECSEditor {
 	                                                                          .SelectMany(x => x.GetTypes())
 	                                                                          .Where(x => 
 		                                                                                 x.IsValueType == true &&
-		                                                                                 typeof(IStructComponentBase).IsAssignableFrom(x) == true &&
+		                                                                                 typeof(IComponentBase).IsAssignableFrom(x) == true &&
 		                                                                                 typeof(IComponentRuntime).IsAssignableFrom(x) == false
 	                                                                          )
 	                                                                          .ToArray();
@@ -518,7 +518,7 @@ namespace ME.ECSEditor {
 	                                                            .SelectMany(x => x.GetTypes())
 	                                                            .Where(x => 
 		                                                                   x.IsValueType == true &&
-		                                                                   typeof(IStructComponentBase).IsAssignableFrom(x) == true
+		                                                                   typeof(IComponentBase).IsAssignableFrom(x) == true
 	                                                            )
 	                                                            .ToArray();
 
@@ -530,7 +530,7 @@ namespace ME.ECSEditor {
 	                                                                          .SelectMany(x => x.GetTypes())
 	                                                                          .Where(x => 
 		                                                                                 x.IsValueType == true &&
-		                                                                                 typeof(IStructComponentBase).IsAssignableFrom(x) == true &&
+		                                                                                 typeof(IComponentBase).IsAssignableFrom(x) == true &&
 		                                                                                 typeof(IComponentRuntime).IsAssignableFrom(x) == false
 	                                                                          )
 	                                                                          .ToArray();
@@ -633,7 +633,7 @@ namespace ME.ECSEditor {
 					    } else {
 				                
 						    usedComponents.Add(addType);
-						    registry.SetObject(entity, (IStructComponentBase)System.Activator.CreateInstance(addType), StorageType.Default);
+						    registry.SetObject(entity, (IComponentBase)System.Activator.CreateInstance(addType), StorageType.Default);
 						    Worlds.currentWorld.AddComponentToFilter(entity);
 
 					    }
@@ -935,7 +935,7 @@ namespace ME.ECSEditor {
         }
         private static readonly System.Collections.Generic.Dictionary<int, FieldsSingleCache> fieldsSingleCache = new System.Collections.Generic.Dictionary<int, FieldsSingleCache>();
 
-        private static int GetFieldSingleCacheKey(object cacheKey, IStructComponentBase[] instances) {
+        private static int GetFieldSingleCacheKey(object cacheKey, IComponentBase[] instances) {
 	        
 	        var key = cacheKey.GetHashCode();
 	        key ^= instances.Length;
@@ -1028,7 +1028,7 @@ namespace ME.ECSEditor {
 
         }
 
-        public static bool IsSearchValid(IStructComponentBase component, string search) {
+        public static bool IsSearchValid(IComponentBase component, string search) {
 
 	        if (string.IsNullOrEmpty(search) == false) {
 
@@ -1060,7 +1060,7 @@ namespace ME.ECSEditor {
 	        
         }
 
-        public static bool DrawFieldsSingle(string search, object cacheKey, WorldEditor world, IStructComponentBase[] instances, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyBegin, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyEnd, System.Action<int, IStructComponentBase> onPropertyChanged = null) {
+        public static bool DrawFieldsSingle(string search, object cacheKey, WorldEditor world, IComponentBase[] instances, System.Action<int, IComponentBase, SerializedProperty> onPropertyBegin, System.Action<int, IComponentBase, SerializedProperty> onPropertyEnd, System.Action<int, IComponentBase> onPropertyChanged = null) {
 
 	        SerializedObject[] objs = null;
 	        var key = GUILayoutExt.GetFieldSingleCacheKey(cacheKey, instances);
@@ -1224,7 +1224,7 @@ namespace ME.ECSEditor {
 
 			        for (var index = 0; index < objs.Length; index++) {
 
-				        instances[index] = (IStructComponentBase)((TempObject)objs[index].targetObject).data;
+				        instances[index] = (IComponentBase)((TempObject)objs[index].targetObject).data;
 
 			        }
 

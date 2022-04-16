@@ -4,7 +4,7 @@
 
 namespace ME.ECS.Collections {
 
-    public struct IntrusiveHashSetBucket : IStructComponent {
+    public struct IntrusiveHashSetBucket : IComponent {
 
         public IntrusiveList list;
 

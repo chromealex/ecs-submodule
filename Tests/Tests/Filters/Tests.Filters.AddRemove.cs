@@ -3,7 +3,7 @@ namespace ME.ECS.Tests {
 
     public class Tests_Filters_AddRemove {
 
-        private struct TestComponent : IStructComponent {}
+        private struct TestComponent : IComponent {}
         
         private class TestSystem_AddRemove : ISystem, IAdvanceTick {
 

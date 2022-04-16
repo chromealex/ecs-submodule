@@ -2,7 +2,7 @@
 
 namespace ME.ECS.Essentials.Destroy.Components {
 
-    public struct Destroy : IStructComponent {
+    public struct Destroy : IComponent {
 
     }
     

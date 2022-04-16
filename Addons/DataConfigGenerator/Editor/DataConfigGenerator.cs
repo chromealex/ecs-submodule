@@ -453,7 +453,7 @@ namespace ME.ECS.DataConfigGenerator {
             foreach (var asm in asms) {
 
                 var type = asm.GetTypes()
-                               .Where(x => typeof(IStructComponentBase).IsAssignableFrom(x))
+                               .Where(x => typeof(IComponentBase).IsAssignableFrom(x))
                                .Where(x => x.FullName.EndsWith(info.name)).OrderByDescending(x => x.Name).FirstOrDefault();
                 if (type != null) return type;
 
@@ -642,7 +642,7 @@ namespace ME.ECS.DataConfigGenerator {
 
             var config = UnityEditor.AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfig>(path);
             config.name = configInfo.name;
-            config.structComponents = new IStructComponentBase[configInfo.data.Count];
+            config.structComponents = new IComponentBase[configInfo.data.Count];
             
             var i = 0;
             foreach (var kv in configInfo.data) {
@@ -677,7 +677,7 @@ namespace ME.ECS.DataConfigGenerator {
 
                 }
 
-                if (instance is IStructComponentBase) {
+                if (instance is IComponentBase) {
 
                     if (allValuesAreNull == true) {
 
@@ -688,7 +688,7 @@ namespace ME.ECS.DataConfigGenerator {
 
                     } else {
 
-                        config.structComponents[i] = (IStructComponentBase)instance;
+                        config.structComponents[i] = (IComponentBase)instance;
 
                     }
 

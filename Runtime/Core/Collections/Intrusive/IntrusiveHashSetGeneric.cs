@@ -4,7 +4,7 @@
 
 namespace ME.ECS.Collections {
 
-    public struct IntrusiveHashSetBucketGeneric<T> : IStructComponent where T : struct, System.IEquatable<T> {
+    public struct IntrusiveHashSetBucketGeneric<T> : IComponent where T : struct, System.IEquatable<T> {
 
         public IntrusiveListGeneric<T> list;
 

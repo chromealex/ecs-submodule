@@ -5,13 +5,13 @@ namespace ME.ECS.Tests {
 
     public class Tests_Filters_FilterBag {
 
-        public struct TestData : IStructComponent {
+        public struct TestData : IComponent {
 
             public int a;
 
         } 
 
-        public struct TestData2 : IStructComponent {
+        public struct TestData2 : IComponent {
 
             public int a;
 

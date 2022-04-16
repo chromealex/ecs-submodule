@@ -17,7 +17,7 @@ namespace ME.ECS.Pathfinding.RVO {
 
     }
 
-    public struct Agent : IStructComponent {
+    public struct Agent : IComponent {
 
         public UnityEngine.Vector3 position;
         public UnityEngine.Vector3 direction;

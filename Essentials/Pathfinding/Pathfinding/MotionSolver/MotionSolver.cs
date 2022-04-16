@@ -57,7 +57,7 @@ namespace ME.ECS.Pathfinding {
             
         }
 
-        public struct Body : IStructComponent {
+        public struct Body : IComponent {
 
             public fp2 position;
             public fp2 velocity;
@@ -76,7 +76,7 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        public struct Obstacle : IStructComponent {
+        public struct Obstacle : IComponent {
 
             public fp2 position;
             public fp2 extents;

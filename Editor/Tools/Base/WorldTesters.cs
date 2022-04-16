@@ -36,7 +36,7 @@ namespace ME.ECSEditor.Tools {
 
         public class BufferArrayStructRegistryBase : ITestGenerator {
 
-            public struct TestComponent : ME.ECS.IStructComponentBase {
+            public struct TestComponent : ME.ECS.IComponentBase {
 
                 public int data;
 

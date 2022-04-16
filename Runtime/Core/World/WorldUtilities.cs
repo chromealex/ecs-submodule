@@ -250,7 +250,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static bool IsComponentAsTag<TComponent>() where TComponent : struct, IStructComponentBase {
+        public static bool IsComponentAsTag<TComponent>() where TComponent : struct, IComponentBase {
 
             return AllComponentTypes<TComponent>.isTag;
 
@@ -259,7 +259,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static bool IsComponentAsCopyable<TComponent>() where TComponent : struct, IStructComponentBase {
+        public static bool IsComponentAsCopyable<TComponent>() where TComponent : struct, IComponentBase {
 
             return AllComponentTypes<TComponent>.isCopyable;
 

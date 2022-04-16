@@ -65,7 +65,7 @@ namespace ME.ECS {
     
     public static class DataBufferUtils {
 
-        /*internal static class Jobs<T0> where T0 : struct, IStructComponentBase {
+        /*internal static class Jobs<T0> where T0 : struct, IComponentBase {
             
             [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
             public unsafe struct Job : IJob {
@@ -141,7 +141,7 @@ namespace ME.ECS {
 
         }
 
-        public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.R<T0>> ForEach<T0>(this in Filter filter, ME.ECS.Filters.R<T0> onEach)  where T0:struct,IStructComponentBase {
+        public static unsafe ForEachUtils.ForEachTask<ME.ECS.Filters.R<T0>> ForEach<T0>(this in Filter filter, ME.ECS.Filters.R<T0> onEach)  where T0:struct,IComponentBase {
             
             return new ForEachUtils.ForEachTask<ME.ECS.Filters.R<T0>>(in filter, onEach, (in ForEachUtils.ForEachTask<ME.ECS.Filters.R<T0>> task, in Filter filterInternal, ME.ECS.Filters.R<T0> onEachInternal) => {
 
@@ -205,7 +205,7 @@ namespace ME.ECS {
         }*/
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static bool PushRemove_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg, StorageType storageType = StorageType.Default) where T : struct, IStructComponentBase {
+        public static bool PushRemove_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg, StorageType storageType = StorageType.Default) where T : struct, IComponentBase {
 
             var result = false;
             ref var bucket = ref reg.components[entity.id];
@@ -242,7 +242,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static ref T PushGet_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg, StorageType storageType = StorageType.Default) where T : struct, IStructComponentBase {
+        public static ref T PushGet_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg, StorageType storageType = StorageType.Default) where T : struct, IComponentBase {
             
             ref var bucket = ref reg.components[entity.id];
             ref var state = ref bucket.state;
@@ -281,7 +281,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static bool PushSet_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg, in T data, StorageType storageType = StorageType.Default) where T : struct, IStructComponentBase {
+        public static bool PushSet_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg, in T data, StorageType storageType = StorageType.Default) where T : struct, IComponentBase {
 
             var result = false;
             ref var bucket = ref reg.components[entity.id];

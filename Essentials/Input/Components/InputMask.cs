@@ -1,7 +1,7 @@
 ﻿
 namespace ME.ECS.Essentials.Input.Components {
 
-    public struct InputMask : IStructComponent {
+    public struct InputMask : IComponent {
 
         public bool allow;
         public Entity player;
@@ -13,12 +13,12 @@ namespace ME.ECS.Essentials.Input.Components {
 
     }
 
-    public struct InputAllowUI : IStructComponent {
+    public struct InputAllowUI : IComponent {
 
         public bool allow;
 
     }
     
-    public struct HasAnyInput : IStructComponent {}
+    public struct HasAnyInput : IComponent {}
     
 }

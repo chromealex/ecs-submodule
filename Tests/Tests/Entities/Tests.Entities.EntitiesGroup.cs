@@ -3,7 +3,7 @@ namespace ME.ECS.Tests {
     public class Tests_Entities_EntitiesGroup {
 
         private class TestState : State {}
-        public struct TestComponent : IStructComponent {}
+        public struct TestComponent : IComponent {}
 
         private class TestDataConfigSystem : ISystem, IAdvanceTick {
 

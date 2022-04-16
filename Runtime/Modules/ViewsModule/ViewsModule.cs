@@ -384,7 +384,7 @@ namespace ME.ECS.Views {
     /// <summary>
     /// Private component class to describe Views
     /// </summary>
-    public struct ViewComponent : IStructComponent {
+    public struct ViewComponent : IComponent {
 
         public ViewInfo viewInfo;
         public uint seed;

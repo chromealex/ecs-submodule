@@ -5,7 +5,7 @@ namespace ME.ECS {
 
         public static void InitTypeId() {
             
-            WorldUtilities.InitComponentTypeId<ME.ECS.Name.Name>();
+            WorldUtilities.InitComponentTypeId<ME.ECS.Name.Name>(isVersioned: false, isSimple: true);
             
         }
         

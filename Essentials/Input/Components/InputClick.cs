@@ -2,7 +2,7 @@
 
 namespace ME.ECS.Essentials.Input.Components {
 
-    public interface IInputPointerComponent : IStructComponent {
+    public interface IInputPointerComponent : IComponent {
         
         InputPointerData setData { set; get; }
         

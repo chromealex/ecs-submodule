@@ -4,7 +4,7 @@ namespace ME.ECS {
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Collections;
 
-    public interface IBurstComponent : IStructComponent {
+    public interface IBurstComponent : IComponent {
 
         int hashcode { get; }
 

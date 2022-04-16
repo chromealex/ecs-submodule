@@ -365,7 +365,7 @@ namespace ME.ECS.Tests {
         
         public class TestState : State { }
 
-        public struct TestStructComponent : IStructComponent {
+        public struct TestStructComponent : IComponent {
 
             public int f;
 

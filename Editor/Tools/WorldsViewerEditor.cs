@@ -522,7 +522,7 @@ namespace ME.ECSEditor {
         struct SharedRegistryData {
 
             public uint groupId;
-            public IStructComponentBase component;
+            public IComponentBase component;
             public IStructRegistryBase registry;
 
         }
@@ -575,7 +575,7 @@ namespace ME.ECSEditor {
                         {
                             var registries = componentsStructStorage.GetAllRegistries();
                             var sortedRegistries = new List<IStructRegistryBase>();
-                            var components = new List<IStructComponentBase>();
+                            var components = new List<IComponentBase>();
                             for (int i = 0; i < registries.Length; ++i) {
 
                                 var registry = registries.arr[i];
@@ -627,7 +627,7 @@ namespace ME.ECSEditor {
                         
                             var registries = componentsStructStorage.GetAllRegistries();
                             var sortedRegistries = new List<SharedRegistryData>();
-                            var components = new List<IStructComponentBase>();
+                            var components = new List<IComponentBase>();
                             for (int i = 0; i < registries.Length; ++i) {
 
                                 var registry = registries.arr[i];

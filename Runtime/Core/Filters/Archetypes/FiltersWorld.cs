@@ -131,27 +131,27 @@ namespace ME.ECS {
 
         }
 
-        public void ValidateFilterByStructComponent<T>(in Entity entity, bool makeRequest = false) where T : struct, IStructComponentBase {
+        public void ValidateFilterByStructComponent<T>(in Entity entity, bool makeRequest = false) where T : struct, IComponentBase {
 
             this.currentState.filters.Validate<T>(in entity, makeRequest);
 
         }
 
-        public void AddFilterByStructComponent<T>(in Entity entity) where T : struct, IStructComponentBase {
+        public void AddFilterByStructComponent<T>(in Entity entity) where T : struct, IComponentBase {
 
             this.currentState.filters.Set<T>(in entity);
 
         }
 
-        public void RemoveFilterByStructComponent<T>(in Entity entity) where T : struct, IStructComponentBase {
+        public void RemoveFilterByStructComponent<T>(in Entity entity) where T : struct, IComponentBase {
 
             this.currentState.filters.Remove<T>(in entity);
 
         }
 
-        public void UpdateFilterByStructComponent<T>(in Entity entity) where T : struct, IStructComponentBase { }
+        public void UpdateFilterByStructComponent<T>(in Entity entity) where T : struct, IComponentBase { }
 
-        public void UpdateFilterByStructComponentVersioned<T>(in Entity entity) where T : struct, IStructComponentBase { }
+        public void UpdateFilterByStructComponentVersioned<T>(in Entity entity) where T : struct, IComponentBase { }
 
         public void RemoveComponentFromFilter(in Entity entity) {
 

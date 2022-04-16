@@ -36,7 +36,7 @@ namespace ME.ECS.BlackBox {
         public BoxVariable[] boxVars;
         public bool isInput;
 
-        public void Process(IStructComponentBase component) {
+        public void Process(IComponentBase component) {
 
             this.Validate(component);
             for (int i = 0; i < this.boxVars.Length; ++i) {
@@ -47,7 +47,7 @@ namespace ME.ECS.BlackBox {
             
         }
 
-        public void Apply(ref IStructComponentBase component) {
+        public void Apply(ref IComponentBase component) {
             
             var fields = component.GetType().GetCachedFields();
             for (int i = 0; i < this.boxVars.Length; ++i) {
@@ -63,7 +63,7 @@ namespace ME.ECS.BlackBox {
             
         }
         
-        public void Validate(IStructComponentBase component) {
+        public void Validate(IComponentBase component) {
             
             var fields = component.GetType().GetCachedFields();
             if (this.data == null || this.data.Length != fields.Length) this.data = new FieldData[fields.Length];

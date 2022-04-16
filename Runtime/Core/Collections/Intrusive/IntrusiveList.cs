@@ -6,7 +6,7 @@ namespace ME.ECS.Collections {
 
     using System.Collections.Generic;
 
-    public struct IntrusiveListNode : IStructComponent {
+    public struct IntrusiveListNode : IComponent {
 
         public Entity next;
         public Entity prev;

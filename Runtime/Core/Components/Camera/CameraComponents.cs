@@ -1,6 +1,6 @@
 ﻿namespace ME.ECS.Camera {
     
-    public struct Camera : IStructComponent {
+    public struct Camera : IComponent, IVersioned {
 
         public bool perspective;
         public float orthoSize;

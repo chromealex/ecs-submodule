@@ -36,23 +36,23 @@ namespace ME.ECS {
 
     }
 
-    public interface IStructComponentBase { }
+    public interface IComponentBase { }
 
-    public interface IStructComponent : IStructComponentBase { }
+    public interface IStructComponent : IComponentBase { }
 
     public interface IComponent : IStructComponent { }
 
     public interface IComponentRuntime { }
     
-    public interface IComponentOneShot : IStructComponentBase, IComponentRuntime { }
+    public interface IComponentOneShot : IComponentBase, IComponentRuntime { }
 
-    public interface IVersioned : IStructComponentBase { }
+    public interface IVersioned : IComponentBase { }
 
-    public interface IVersionedNoState : IStructComponentBase { }
+    public interface IVersionedNoState : IComponentBase { }
 
-    public interface IComponentShared : IStructComponentBase { }
+    public interface IComponentShared : IComponentBase { }
 
-    public interface IComponentDisposable : IStructComponentBase {
+    public interface IComponentDisposable : IComponentBase {
 
         void OnDispose();
 
@@ -60,7 +60,7 @@ namespace ME.ECS {
 
     public interface IStructCopyableBase { }
 
-    public interface IStructCopyable<T> : IStructComponent, IStructCopyableBase where T : IStructCopyable<T> {
+    public interface IStructCopyable<T> : IComponent, IStructCopyableBase where T : IStructCopyable<T> {
 
         void CopyFrom(in T other);
         void OnRecycle();

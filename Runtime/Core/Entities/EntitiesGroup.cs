@@ -61,7 +61,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Set(IStructComponentBase component, int dataIndex) {
+        public void Set(IComponentBase component, int dataIndex) {
 
             var typeId = dataIndex;
             var world = Worlds.current;
@@ -86,7 +86,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArray<Component<T>> Read<T>() where T : struct, IStructComponentBase {
+        public BufferArray<Component<T>> Read<T>() where T : struct, IComponentBase {
 
             return this.Get<T>();
 
@@ -95,7 +95,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArray<Component<T>> Get<T>() where T : struct, IStructComponentBase {
+        public BufferArray<Component<T>> Get<T>() where T : struct, IComponentBase {
             
             var typeId = WorldUtilities.GetAllComponentTypeId<T>();
             var world = Worlds.current;
@@ -115,7 +115,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Set<T>(T component, bool updateFilters = true) where T : struct, IStructComponentBase {
+        public void Set<T>(T component, bool updateFilters = true) where T : struct, IComponentBase {
 
             var typeId = WorldUtilities.GetAllComponentTypeId<T>();
             var world = Worlds.current;
@@ -135,7 +135,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Remove<T>(bool updateFilters = true) where T : struct, IStructComponentBase {
+        public void Remove<T>(bool updateFilters = true) where T : struct, IComponentBase {
 
             var typeId = WorldUtilities.GetAllComponentTypeId<T>();
             var world = Worlds.current;
@@ -319,7 +319,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public abstract void SetObject(in EntitiesGroup group, IStructComponentBase data, bool setBits = true);
+        public abstract void SetObject(in EntitiesGroup group, IComponentBase data, bool setBits = true);
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -341,7 +341,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public override void SetObject(in EntitiesGroup group, IStructComponentBase component, bool setBits = true) {
+        public override void SetObject(in EntitiesGroup group, IComponentBase component, bool setBits = true) {
             
             var data = new Component<TComponent>() {
                 data = (TComponent)component,
