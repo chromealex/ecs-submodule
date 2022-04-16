@@ -41,6 +41,9 @@ namespace ME.ECS.Tests {
                 world.SetState<EmptyState>(WorldUtilities.CreateState<EmptyState>());
                 world.SetSeed(1u);
                 {
+                    ref var str = ref world.GetStructComponents();
+                    CoreComponentsInitializer.InitTypeId();
+                    CoreComponentsInitializer.Init(ref str);
                     setupWorld?.Invoke(world);
                 }
                 

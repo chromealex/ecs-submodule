@@ -112,16 +112,19 @@ namespace ME.ECS {
 
             if (child == root) return;
 
-            ref var container = ref child.Get<Container>();
             if (root == Entity.Empty) {
 
-                ref var nodes = ref container.entity.Get<Nodes>();
+                var childContainer = child.Read<Container>();
+                if (childContainer.entity.IsAlive() == false) return;
+                
+                ref var nodes = ref childContainer.entity.Get<Nodes>();
                 child.Remove<Container>();
                 nodes.items.Remove(child);
                 return;
 
             }
 
+            ref var container = ref child.Get<Container>();
             if (container.entity == root || root.IsAlive() == false) {
 
                 return;

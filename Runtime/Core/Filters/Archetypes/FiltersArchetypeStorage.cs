@@ -59,6 +59,8 @@ namespace ME.ECS.FiltersArchetype {
                 ArrayUtils.Copy(other.edgesToAdd, ref this.edgesToAdd);
                 ArrayUtils.Copy(other.edgesToRemove, ref this.edgesToRemove);
                 ArrayUtils.Copy(other.components, ref this.components);
+                
+                ArrayUtils.Copy(other.entitiesContains, ref this.entitiesContains);
 
             }
 
@@ -73,6 +75,7 @@ namespace ME.ECS.FiltersArchetype {
                 PoolListCopyable<int>.Recycle(ref this.entitiesArr);
                 PoolDictionaryInt<int>.Recycle(ref this.edgesToAdd);
                 PoolDictionaryInt<int>.Recycle(ref this.edgesToRemove);
+                PoolHashSetCopyable<int>.Recycle(ref this.entitiesContains);
 
             }
 
@@ -86,6 +89,7 @@ namespace ME.ECS.FiltersArchetype {
             public DictionaryInt<Info> components; // Contains componentId => Info index
             public ListCopyable<int> componentIds; // Contains raw list of component ids
             public ListCopyable<int> entitiesArr; // Contains raw unsorted list of entities
+            public HashSetCopyable<int> entitiesContains;
             public DictionaryInt<int> edgesToAdd; // Contains edges to move from this archetype to another
             public DictionaryInt<int> edgesToRemove; // Contains edges to move from this archetype to another
             
@@ -278,6 +282,7 @@ namespace ME.ECS.FiltersArchetype {
                     edgesToAdd = PoolDictionaryInt<int>.Spawn(16),
                     edgesToRemove = PoolDictionaryInt<int>.Spawn(16),
                     entitiesArr = PoolListCopyable<int>.Spawn(16),
+                    entitiesContains = PoolHashSetCopyable<int>.Spawn(16),
                     componentIds = PoolListCopyable<int>.Spawn(componentIds.Count),
                     components = PoolDictionaryInt<Info>.Spawn(components.Count),
                     //componentStorage = new ComponentStorage[componentIds.Count + 1],
@@ -318,6 +323,7 @@ namespace ME.ECS.FiltersArchetype {
                     edgesToAdd = PoolDictionaryInt<int>.Spawn(16),
                     edgesToRemove = PoolDictionaryInt<int>.Spawn(16),
                     entitiesArr = PoolListCopyable<int>.Spawn(16),
+                    entitiesContains = PoolHashSetCopyable<int>.Spawn(16),
                     componentIds = PoolListCopyable<int>.Spawn(componentIds.Count),
                     components = PoolDictionaryInt<Info>.Spawn(16),
                     //componentStorage = new ComponentStorage[componentIds.Count - 1],
@@ -366,6 +372,7 @@ namespace ME.ECS.FiltersArchetype {
             var idx = this.GetEntityArrIndex(entityId);
             var movedEntityId = arch.entitiesArr[arch.entitiesArr.Count - 1];
             arch.entitiesArr.RemoveAtFast(idx);
+            arch.entitiesContains.Remove(entityId);
             if (movedEntityId != entityId) this.SetEntityArrIndex(movedEntityId, idx);
             this.SetEntityArrIndex(entityId, -1);
             
@@ -378,6 +385,7 @@ namespace ME.ECS.FiltersArchetype {
 
             var idx = arch.entitiesArr.Count;
             arch.entitiesArr.Add(entityId);
+            arch.entitiesContains.Add(entityId);
             this.SetEntityArrIndex(entityId, idx);
             
         }
@@ -550,6 +558,7 @@ namespace ME.ECS.FiltersArchetype {
                 edgesToAdd = PoolDictionaryInt<int>.Spawn(16),
                 edgesToRemove = PoolDictionaryInt<int>.Spawn(16),
                 entitiesArr = PoolListCopyable<int>.Spawn(16),
+                entitiesContains = PoolHashSetCopyable<int>.Spawn(16),
                 componentIds = PoolListCopyable<int>.Spawn(10),
                 components = PoolDictionaryInt<Archetype.Info>.Spawn(16),
                 index = 0,
@@ -1074,6 +1083,9 @@ namespace ME.ECS.FiltersArchetype {
             var onChanged = filter.data.onChanged;
             var changedTracked = onChanged.Count;
             
+            var parentFilters = filter.data.parentFilters;
+            var parentTracked = parentFilters.Count;
+            
             var count = 0;
             for (int i = 0, cnt = filter.archetypes.Count; i < cnt; ++i) {
 
@@ -1095,7 +1107,26 @@ namespace ME.ECS.FiltersArchetype {
 
                     }
                     
-                } else {
+                }
+                
+                if (parentTracked > 0) {
+
+                    for (int index = 0; index < arch.entitiesArr.Count; ++index) {
+
+                        var entity = this.GetEntityById(arch.entitiesArr[index]).Read<ME.ECS.Transform.Container>().entity;
+                        // Check if any component has changed on this entity
+                        for (int j = 0, cntj = parentTracked; j < cntj; ++j) {
+                            var parentFilter = parentFilters[j];
+                            if (parentFilter.Contains(entity) == true) {
+                                ++count;
+                            }
+                        }
+
+                    }
+                    
+                }
+                
+                if (changedTracked == 0 && parentTracked == 0) {
 
                     count += arch.entitiesArr.Count;
 

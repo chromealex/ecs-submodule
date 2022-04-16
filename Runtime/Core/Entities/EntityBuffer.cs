@@ -203,7 +203,7 @@ namespace ME.ECS {
             });
             
         }*/
-        
+
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool PushRemove_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg, StorageType storageType = StorageType.Default) where T : struct, IStructComponentBase {
 
@@ -239,6 +239,45 @@ namespace ME.ECS {
 
             return result;
 
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static ref T PushGet_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg, StorageType storageType = StorageType.Default) where T : struct, IStructComponentBase {
+            
+            ref var bucket = ref reg.components[entity.id];
+            ref var state = ref bucket.state;
+            if (state == 0) {
+
+                state = 1;
+                if (storageType == StorageType.Default) {
+                    world.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<T>.typeId);
+                } else if (storageType == StorageType.NoState) {
+                    world.structComponentsNoState.entitiesIndexer.Set(entity.id, AllComponentTypes<T>.typeId);
+                }
+
+                if (ComponentTypes<T>.typeId >= 0) {
+
+                    world.currentState.storage.archetypes.Set<T>(in entity);
+                    world.AddFilterByStructComponent<T>(in entity);
+                    world.UpdateFilterByStructComponent<T>(in entity);
+
+                }
+
+            }
+
+            if (ComponentTypes<T>.isFilterLambda == true && ComponentTypes<T>.typeId >= 0) {
+
+                world.ValidateFilterByStructComponent<T>(in entity, true);
+                
+            }
+            
+            world.currentState.storage.versions.Increment(in entity);
+            reg.UpdateVersion(in entity);
+            if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
+            if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
+
+            return ref bucket.data;
+            
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

@@ -36,7 +36,9 @@ namespace ME.ECS {
             public bool MoveNext() {
 
                 var onChanged = this.filterData.data.onChanged;
+                var parent = this.filterData.data.parentFilters;
                 var changedTracked = onChanged.Count;
+                var parentTracked = parent.Count;
                 while (true) {
 
                     if (this.archIndex >= this.archetypes.Count) {
@@ -74,8 +76,26 @@ namespace ME.ECS {
                             continue;
                         }
                     }
+                    
                     this.current = this.filterData.storage.GetEntityById(entityId);
 
+                    if (parentTracked > 0) {
+                        // Check if any parent filter contains parent entity
+                        var parentEntity = this.current.Read<ME.ECS.Transform.Container>().entity;
+                        var found = false;
+                        for (int i = 0, cnt = parentTracked; i < cnt; ++i) {
+                            var filter = parent[i];
+                            if (filter.Contains(parentEntity) == true) {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (found == false) {
+                            continue;
+                        }
+                    }
+                    
                     return true;
 
                 }
@@ -315,6 +335,13 @@ namespace ME.ECS {
 
         }
 
+        public bool Contains(int entityId) {
+
+            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            return filterData.Contains(entityId);
+
+        }
+
         public bool IsAlive() {
 
             return this.id > 0;
@@ -481,10 +508,19 @@ namespace ME.ECS {
         #endif
         public bool Contains(in Entity entity) {
 
+            return this.Contains(entity.id);
+
+        }
+        
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool Contains(int entityId) {
+
             foreach (var archId in this.archetypes) {
 
                 var arch = this.storage.allArchetypes[archId];
-                if (arch.entitiesArr.IndexOf(entity.id) >= 0) {
+                if (arch.entitiesContains.Contains(entityId) == true) {
                     return true;
                 }
 
@@ -551,6 +587,9 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         internal ListCopyable<int> lambdas;
 
+        [ME.ECS.Serializer.SerializeField]
+        internal ListCopyable<Filter> parentFilters;
+
         public void CopyFrom(FilterInternalData other) {
 
             this.name = other.name;
@@ -564,6 +603,7 @@ namespace ME.ECS {
             ArrayUtils.Copy(other.notContainsShared, ref this.notContainsShared);
             ArrayUtils.Copy(other.onChanged, ref this.onChanged);
             ArrayUtils.Copy(other.lambdas, ref this.lambdas);
+            ArrayUtils.Copy(other.parentFilters, ref this.parentFilters);
 
         }
 
@@ -580,6 +620,7 @@ namespace ME.ECS {
             PoolListCopyable<int>.Recycle(ref this.notContainsShared);
             PoolListCopyable<int>.Recycle(ref this.onChanged);
             PoolListCopyable<int>.Recycle(ref this.lambdas);
+            PoolListCopyable<Filter>.Recycle(ref this.parentFilters);
 
         }
 
@@ -596,6 +637,7 @@ namespace ME.ECS {
                 notContainsShared = PoolListCopyable<int>.Spawn(4),
                 onChanged = PoolListCopyable<int>.Spawn(4),
                 lambdas = PoolListCopyable<int>.Spawn(4),
+                parentFilters = PoolListCopyable<Filter>.Spawn(0),
             };
 
         }
@@ -613,6 +655,8 @@ namespace ME.ECS {
     [Il2Cpp(Option.DivideByZeroChecks, false)]
     public struct FilterBuilder {
 
+        public delegate void InnerFilterBuilderDelegate(FilterBuilder builder);
+        
         internal ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage => Worlds.current.currentState.filters;
 
         [ME.ECS.Serializer.SerializeField]
@@ -663,6 +707,17 @@ namespace ME.ECS {
 
             this.data.lambdas.Add(ComponentTypes<T>.typeId);
             return this.With<TComponent>();
+
+        }
+
+        public FilterBuilder Parent(InnerFilterBuilderDelegate parentFilter) {
+
+            this.With<ME.ECS.Transform.Container>();
+            var filterBuilder = Filter.Create(this.data.name);
+            parentFilter.Invoke(filterBuilder);
+            var filter = filterBuilder.Push();
+            this.data.parentFilters.Add(filter);
+            return this;
 
         }
 

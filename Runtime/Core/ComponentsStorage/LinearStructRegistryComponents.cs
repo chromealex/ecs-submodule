@@ -2010,11 +2010,8 @@ namespace ME.ECS {
 
             // Inline all manually
             var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            DataBufferUtils.PushSet_INTERNAL(this, in entity, reg, new TComponent(), StorageType.Default);
+            return ref DataBufferUtils.PushGet_INTERNAL(this, in entity, reg, StorageType.Default);
             
-            ref var bucket = ref reg.components[entity.id];
-            return ref bucket.data;
-
         }
 
         #if INLINE_METHODS
