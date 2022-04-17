@@ -36,9 +36,14 @@ namespace ME.ECS {
             public bool MoveNext() {
 
                 var onChanged = this.filterData.data.onChanged;
-                var parent = this.filterData.data.parentFilters;
                 var changedTracked = onChanged.Count;
-                var parentTracked = parent.Count;
+                
+                var parentFilters = this.filterData.data.parentFilters;
+                var parentTracked = parentFilters.Count;
+
+                var connectedFilters = this.filterData.data.connectedFilters;
+                var connectedTracked = connectedFilters.Count;
+
                 while (true) {
 
                     if (this.archIndex >= this.archetypes.Count) {
@@ -84,8 +89,24 @@ namespace ME.ECS {
                         var parentEntity = this.current.Read<ME.ECS.Transform.Container>().entity;
                         var found = false;
                         for (int i = 0, cnt = parentTracked; i < cnt; ++i) {
-                            var filter = parent[i];
+                            var filter = parentFilters[i];
                             if (filter.Contains(parentEntity) == true) {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (found == false) {
+                            continue;
+                        }
+                    }
+                    
+                    if (connectedTracked > 0) {
+                        // Check if any parent filter contains parent entity
+                        var found = false;
+                        for (int i = 0, cnt = connectedTracked; i < cnt; ++i) {
+                            var connectedFilter = connectedFilters[i];
+                            if (connectedFilter.filter.Contains(connectedFilter.get.Invoke(this.current)) == true) {
                                 found = true;
                                 break;
                             }
@@ -589,7 +610,10 @@ namespace ME.ECS {
 
         [ME.ECS.Serializer.SerializeField]
         internal ListCopyable<Filter> parentFilters;
-
+        
+        [ME.ECS.Serializer.SerializeField]
+        internal ListCopyable<ConnectInfo> connectedFilters;
+        
         public void CopyFrom(FilterInternalData other) {
 
             this.name = other.name;
@@ -604,6 +628,7 @@ namespace ME.ECS {
             ArrayUtils.Copy(other.onChanged, ref this.onChanged);
             ArrayUtils.Copy(other.lambdas, ref this.lambdas);
             ArrayUtils.Copy(other.parentFilters, ref this.parentFilters);
+            ArrayUtils.Copy(other.connectedFilters, ref this.connectedFilters);
 
         }
 
@@ -621,6 +646,7 @@ namespace ME.ECS {
             PoolListCopyable<int>.Recycle(ref this.onChanged);
             PoolListCopyable<int>.Recycle(ref this.lambdas);
             PoolListCopyable<Filter>.Recycle(ref this.parentFilters);
+            PoolListCopyable<ConnectInfo>.Recycle(ref this.connectedFilters);
 
         }
 
@@ -638,6 +664,7 @@ namespace ME.ECS {
                 onChanged = PoolListCopyable<int>.Spawn(4),
                 lambdas = PoolListCopyable<int>.Spawn(4),
                 parentFilters = PoolListCopyable<Filter>.Spawn(0),
+                connectedFilters = PoolListCopyable<ConnectInfo>.Spawn(0),
             };
 
         }
@@ -650,12 +677,26 @@ namespace ME.ECS {
 
     }
 
+    public interface IFilterConnect {
+
+        Entity entity { get; }
+
+    }
+
+    public struct ConnectInfo {
+
+        public FilterBuilder.ConnectCustomGetEntityDelegate get;
+        public Filter filter;
+
+    }
+
     [Il2Cpp(Option.NullChecks, false)]
     [Il2Cpp(Option.ArrayBoundsChecks, false)]
     [Il2Cpp(Option.DivideByZeroChecks, false)]
     public struct FilterBuilder {
 
         public delegate void InnerFilterBuilderDelegate(FilterBuilder builder);
+        public delegate Entity ConnectCustomGetEntityDelegate(in Entity entity);
         
         internal ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage => Worlds.current.currentState.filters;
 
@@ -714,6 +755,7 @@ namespace ME.ECS {
 
             this.With<ME.ECS.Transform.Container>();
             var filterBuilder = Filter.Create(this.data.name);
+            filterBuilder.With<ME.ECS.Transform.Nodes>();
             parentFilter.Invoke(filterBuilder);
             var filter = filterBuilder.Push();
             this.data.parentFilters.Add(filter);
@@ -721,8 +763,36 @@ namespace ME.ECS {
 
         }
 
+        public FilterBuilder Connect(InnerFilterBuilderDelegate innerFilter, ConnectCustomGetEntityDelegate customGetEntity) {
+
+            var filterBuilder = Filter.Create(this.data.name);
+            innerFilter.Invoke(filterBuilder);
+            var filter = filterBuilder.Push();
+            this.data.connectedFilters.Add(new ConnectInfo() {
+                get = customGetEntity,
+                filter = filter,
+            });
+            return this;
+
+        }
+
+        public FilterBuilder Connect<TConnect>(InnerFilterBuilderDelegate innerFilter) where TConnect : struct, IStructComponent, IFilterConnect {
+
+            this.With<TConnect>();
+            var filterBuilder = Filter.Create(this.data.name);
+            innerFilter.Invoke(filterBuilder);
+            var filter = filterBuilder.Push();
+            this.data.connectedFilters.Add(new ConnectInfo() {
+                get = (in Entity e) => e.Read<TConnect>().entity,
+                filter = filter,
+            });
+            return this;
+
+        }
+
         public FilterBuilder OnChanged<T>() where T : struct, IVersioned {
-            
+
+            this.With<T>();
             WorldUtilities.SetComponentTypeId<T>();
             this.data.onChanged.Add(AllComponentTypes<T>.typeId);
             return this;

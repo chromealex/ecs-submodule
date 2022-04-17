@@ -93,8 +93,6 @@ namespace ME.ECS.FiltersArchetype {
             public DictionaryInt<int> edgesToAdd; // Contains edges to move from this archetype to another
             public DictionaryInt<int> edgesToRemove; // Contains edges to move from this archetype to another
             
-            //private bool isCreated;
-
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
@@ -278,19 +276,15 @@ namespace ME.ECS.FiltersArchetype {
                 }
 
                 var arch = new Archetype() {
-                    //isCreated = true,
                     edgesToAdd = PoolDictionaryInt<int>.Spawn(16),
                     edgesToRemove = PoolDictionaryInt<int>.Spawn(16),
                     entitiesArr = PoolListCopyable<int>.Spawn(16),
                     entitiesContains = PoolHashSetCopyable<int>.Spawn(16),
-                    componentIds = PoolListCopyable<int>.Spawn(componentIds.Count),
-                    components = PoolDictionaryInt<Info>.Spawn(components.Count),
-                    //componentStorage = new ComponentStorage[componentIds.Count + 1],
+                    componentIds = PoolListCopyable<int>.Spawn(componentIds.Count + 1),
+                    components = PoolDictionaryInt<Info>.Spawn(components.Count + 1),
                 };
-                foreach (var c in components) {
-                    arch.components.Add(c.Key, c.Value);
-                }
-
+                arch.components.CopyFrom(components);
+                
                 arch.componentIds.AddRange(componentIds);
                 storage.isArchetypesDirty = true;
                 var idx = storage.allArchetypes.Count;
@@ -319,14 +313,12 @@ namespace ME.ECS.FiltersArchetype {
                 }
 
                 var arch = new Archetype() {
-                    //isCreated = true,
                     edgesToAdd = PoolDictionaryInt<int>.Spawn(16),
                     edgesToRemove = PoolDictionaryInt<int>.Spawn(16),
                     entitiesArr = PoolListCopyable<int>.Spawn(16),
                     entitiesContains = PoolHashSetCopyable<int>.Spawn(16),
-                    componentIds = PoolListCopyable<int>.Spawn(componentIds.Count),
-                    components = PoolDictionaryInt<Info>.Spawn(16),
-                    //componentStorage = new ComponentStorage[componentIds.Count - 1],
+                    componentIds = PoolListCopyable<int>.Spawn(componentIds.Count - 1),
+                    components = PoolDictionaryInt<Info>.Spawn(components.Count - 1),
                 };
                 arch.componentIds.AddRange(componentIds);
                 storage.isArchetypesDirty = true;
@@ -475,6 +467,7 @@ namespace ME.ECS.FiltersArchetype {
             public Entity entity;
             public byte op;
             public int componentId;
+            public bool checkLambda;
 
         }
 
@@ -867,11 +860,11 @@ namespace ME.ECS.FiltersArchetype {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Set(in EntitiesGroup group, int componentId) {
+        public void Set(in EntitiesGroup group, int componentId, bool checkLambda) {
 
             for (var i = group.fromId; i <= group.toId; ++i) {
 
-                this.Set(this.GetEntityById(i), componentId);
+                this.Set(this.GetEntityById(i), componentId, checkLambda);
 
             }
 
@@ -880,11 +873,11 @@ namespace ME.ECS.FiltersArchetype {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Remove(in EntitiesGroup group, int componentId) {
+        public void Remove(in EntitiesGroup group, int componentId, bool checkLambda) {
 
             for (var i = group.fromId; i <= group.toId; ++i) {
 
-                this.Remove(this.GetEntityById(i), componentId);
+                this.Remove(this.GetEntityById(i), componentId, checkLambda);
 
             }
 
@@ -922,16 +915,16 @@ namespace ME.ECS.FiltersArchetype {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Set(in Entity entity, int componentId) {
+        public void Set(in Entity entity, int componentId, bool checkLambda) {
 
-            if (ComponentTypesLambda.itemsSet.TryGetValue(componentId, out var lambda) == true) {
+            if (checkLambda == true && ComponentTypesLambda.itemsSet.TryGetValue(componentId, out var lambda) == true) {
                 lambda.Invoke(entity);
             }
 
             if (this.forEachMode > 0) {
 
                 // Add request
-                this.AddSetRequest(in entity, componentId);
+                this.AddSetRequest(in entity, componentId, checkLambda);
                 return;
 
             }
@@ -949,7 +942,7 @@ namespace ME.ECS.FiltersArchetype {
         #endif
         public void Set<T>(in Entity entity) where T : struct {
 
-            this.Set(in entity, ComponentTypes<T>.typeId);
+            this.Set(in entity, ComponentTypes<T>.typeId, ComponentTypes<T>.isFilterLambda);
 
         }
 
@@ -961,16 +954,16 @@ namespace ME.ECS.FiltersArchetype {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Remove(in Entity entity, int componentId) {
+        public void Remove(in Entity entity, int componentId, bool checkLambda) {
 
-            if (ComponentTypesLambda.itemsRemove.TryGetValue(componentId, out var lambda) == true) {
+            if (checkLambda == true && ComponentTypesLambda.itemsRemove.TryGetValue(componentId, out var lambda) == true) {
                 lambda.Invoke(entity);
             }
 
             if (this.forEachMode > 0) {
 
                 // Add request
-                this.AddRemoveRequest(in entity, componentId);
+                this.AddRemoveRequest(in entity, componentId, checkLambda);
                 return;
 
             }
@@ -988,7 +981,7 @@ namespace ME.ECS.FiltersArchetype {
         #endif
         public void Remove<T>(in Entity entity) where T : struct {
 
-            this.Remove(in entity, ComponentTypes<T>.typeId);
+            this.Remove(in entity, ComponentTypes<T>.typeId, ComponentTypes<T>.isFilterLambda);
 
         }
 
@@ -1005,11 +998,11 @@ namespace ME.ECS.FiltersArchetype {
 
                 if (req.op == 1) {
 
-                    this.Set(in req.entity, req.componentId);
+                    this.Set(in req.entity, req.componentId, req.checkLambda);
 
                 } else if (req.op == 2) {
 
-                    this.Remove(in req.entity, req.componentId);
+                    this.Remove(in req.entity, req.componentId, req.checkLambda);
 
                 } else if (req.op == 3) {
 
@@ -1039,12 +1032,13 @@ namespace ME.ECS.FiltersArchetype {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        private void AddSetRequest(in Entity entity, int componentId) {
+        private void AddSetRequest(in Entity entity, int componentId, bool checkLambda) {
 
             this.requests.Add(new Request() {
                 entity = entity,
                 componentId = componentId,
                 op = 1,
+                checkLambda = checkLambda,
             });
 
         }
@@ -1052,12 +1046,13 @@ namespace ME.ECS.FiltersArchetype {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        private void AddRemoveRequest(in Entity entity, int componentId) {
+        private void AddRemoveRequest(in Entity entity, int componentId, bool checkLambda) {
 
             this.requests.Add(new Request() {
                 entity = entity,
                 componentId = componentId,
                 op = 2,
+                checkLambda = checkLambda,
             });
 
         }
@@ -1085,23 +1080,51 @@ namespace ME.ECS.FiltersArchetype {
             
             var parentFilters = filter.data.parentFilters;
             var parentTracked = parentFilters.Count;
-            
+
+            var connectedFilters = filter.data.connectedFilters;
+            var connectedTracked = connectedFilters.Count;
+
             var count = 0;
             for (int i = 0, cnt = filter.archetypes.Count; i < cnt; ++i) {
 
                 var archId = filter.archetypesList[i];
                 var arch = this.allArchetypes[archId];
-                if (changedTracked > 0) {
+                if (changedTracked > 0 || parentTracked > 0 || connectedTracked > 0) {
 
                     for (int index = 0; index < arch.entitiesArr.Count; ++index) {
 
                         var entityId = arch.entitiesArr[index];
-                        // Check if any component has changed on this entity
-                        for (int j = 0, cntj = changedTracked; j < cntj; ++j) {
-                            var typeId = onChanged[j];
-                            var reg = Worlds.current.currentState.structComponents.list.arr[typeId];
-                            if (reg.HasChanged(entityId) == true) {
-                                ++count;
+                        var entity = this.GetEntityById(entityId);
+                        
+                        if (changedTracked > 0) {
+                            // Check if any component has changed on this entity
+                            for (int j = 0, cntj = changedTracked; j < cntj; ++j) {
+                                var typeId = onChanged[j];
+                                var reg = Worlds.current.currentState.structComponents.list.arr[typeId];
+                                if (reg.HasChanged(entityId) == true) {
+                                    ++count;
+                                }
+                            }
+                        }
+                        
+                        if (parentTracked > 0) {
+                            var parentEntity = entity.Read<ME.ECS.Transform.Container>().entity;
+                            // Check if any component has changed on this entity
+                            for (int j = 0, cntj = parentTracked; j < cntj; ++j) {
+                                var parentFilter = parentFilters[j];
+                                if (parentFilter.Contains(parentEntity) == true) {
+                                    ++count;
+                                }
+                            }
+                        }
+
+                        if (connectedTracked > 0) {
+                            // Check if any component has changed on this entity
+                            for (int j = 0, cntj = connectedTracked; j < cntj; ++j) {
+                                var connectedFilter = connectedFilters[j];
+                                if (connectedFilter.filter.Contains(connectedFilter.get.Invoke(entity)) == true) {
+                                    ++count;
+                                }
                             }
                         }
 
@@ -1109,24 +1132,7 @@ namespace ME.ECS.FiltersArchetype {
                     
                 }
                 
-                if (parentTracked > 0) {
-
-                    for (int index = 0; index < arch.entitiesArr.Count; ++index) {
-
-                        var entity = this.GetEntityById(arch.entitiesArr[index]).Read<ME.ECS.Transform.Container>().entity;
-                        // Check if any component has changed on this entity
-                        for (int j = 0, cntj = parentTracked; j < cntj; ++j) {
-                            var parentFilter = parentFilters[j];
-                            if (parentFilter.Contains(entity) == true) {
-                                ++count;
-                            }
-                        }
-
-                    }
-                    
-                }
-                
-                if (changedTracked == 0 && parentTracked == 0) {
+                if (changedTracked == 0 && parentTracked == 0 && connectedTracked == 0) {
 
                     count += arch.entitiesArr.Count;
 
@@ -1160,14 +1166,12 @@ namespace ME.ECS.FiltersArchetype {
             this.ApplyDead();
             this.ApplyAllRequests();
 
-            
-            
             if (this.isArchetypesDirty == true) {
 
                 this.isArchetypesDirty = false;
                 for (int idx = 0, cnt = this.filters.Count; idx < cnt; ++idx) {
                     
-                    var item = this.filters[idx];
+                    ref var item = ref this.filters[idx];
                     foreach (var archId in this.dirtyArchetypes) {
                         
                         if (item.archetypes.Contains(archId) == true) continue;

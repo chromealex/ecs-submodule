@@ -58,9 +58,9 @@ namespace ME.ECS {
 
     }
 
-    public interface IStructCopyableBase { }
+    public interface ICopyableBase { }
 
-    public interface IStructCopyable<T> : IComponent, IStructCopyableBase where T : IStructCopyable<T> {
+    public interface IStructCopyable<T> : IComponent, ICopyableBase where T : IStructCopyable<T> {
 
         void CopyFrom(in T other);
         void OnRecycle();

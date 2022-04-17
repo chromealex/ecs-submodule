@@ -387,7 +387,7 @@ namespace ME.ECSEditor {
                     
                     var entityType = type.FullName.Replace("+", ".");
                     var hasFields = type.GetFields(System.Reflection.BindingFlags.Default | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 0;
-                    var isCopyable = typeof(ME.ECS.IStructCopyableBase).IsAssignableFrom(type);
+                    var isCopyable = typeof(ME.ECS.ICopyableBase).IsAssignableFrom(type);
                     var isStatic = typeof(ME.ECS.IComponentStatic).IsAssignableFrom(type);
                     var isDisposable = typeof(ME.ECS.IComponentDisposable).IsAssignableFrom(type);
                     var isOneShot = typeof(ME.ECS.IComponentOneShot).IsAssignableFrom(type);

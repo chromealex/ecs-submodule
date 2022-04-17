@@ -361,7 +361,7 @@ namespace ME.ECS {
                     if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
-            this.world.currentState.storage.Set(in group, componentIndex);
+            this.world.currentState.storage.Set(in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
 
         }
 
@@ -388,7 +388,7 @@ namespace ME.ECS {
                     if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
-            this.world.currentState.storage.Set(in group, componentIndex);
+            this.world.currentState.storage.Set(in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
 
         }
 
@@ -413,7 +413,7 @@ namespace ME.ECS {
                     }
                 }
 
-                this.world.currentState.storage.Remove(in group, componentIndex);
+                this.world.currentState.storage.Remove(in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
 
             }
             

@@ -24,6 +24,16 @@ namespace ME.ECS.Tests {
 
             public void AdvanceTick(in float deltaTime) {
                 
+                var entityIgnore = this.world.AddEntity();
+                entityIgnore.Set(new TestComponent());
+
+                var entityIgnore2 = this.world.AddEntity();
+                entityIgnore2.Set(new TestParentComponent());
+
+                var entityIgnore3 = this.world.AddEntity();
+                entityIgnore3.Set(new TestComponent());
+                entityIgnore3.Set(new TestParentComponent());
+
                 var entity = this.world.AddEntity();
                 entity.Set(new TestParentComponent());
                 entity.Set(new TestComponent());
@@ -34,17 +44,35 @@ namespace ME.ECS.Tests {
 
                 NUnit.Framework.Assert.IsTrue(this.filter.Count == 1);
 
-                foreach (var item in this.filter) {
-                    UnityEngine.Debug.Log(item);
+                {
+                    var realCount = 0;
+                    foreach (var item in this.filter) {
+                        ++realCount;
+                    }
+
+                    NUnit.Framework.Assert.IsTrue(realCount == 1);
                 }
-                
+
                 var entityParent2 = this.world.AddEntity();
                 entityParent2.Set(new TestComponent());
                 entityParent2.SetParent(entity);
 
                 NUnit.Framework.Assert.IsTrue(this.filter.Count == 2);
 
+                {
+                    var realCount = 0;
+                    foreach (var item in this.filter) {
+                        ++realCount;
+                    }
+
+                    NUnit.Framework.Assert.IsTrue(realCount == 2);
+                }
+
                 entity.Destroy();
+                
+                entityIgnore.Destroy();
+                entityIgnore2.Destroy();
+                entityIgnore3.Destroy();
 
             }
 

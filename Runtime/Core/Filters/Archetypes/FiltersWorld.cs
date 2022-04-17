@@ -111,15 +111,15 @@ namespace ME.ECS {
 
         }
 
-        public void AddFilterByStructComponent(in Entity entity, int componentId) {
+        public void AddFilterByStructComponent(in Entity entity, int componentId, bool checkLambda) {
 
-            this.currentState.filters.Set(in entity, componentId);
+            this.currentState.filters.Set(in entity, componentId, checkLambda);
 
         }
 
-        public void RemoveFilterByStructComponent(in Entity entity, int componentId) {
+        public void RemoveFilterByStructComponent(in Entity entity, int componentId, bool checkLambda) {
 
-            this.currentState.filters.Remove(in entity, componentId);
+            this.currentState.filters.Remove(in entity, componentId, checkLambda);
 
         }
 

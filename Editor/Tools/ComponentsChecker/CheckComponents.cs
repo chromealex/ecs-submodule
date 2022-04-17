@@ -36,7 +36,7 @@ namespace ME.ECSEditor.Tools {
 
                         if (type.IsValueType == true &&
                             typeof(ME.ECS.IStructComponent).IsAssignableFrom(type) == true &&
-                            typeof(ME.ECS.IStructCopyableBase).IsAssignableFrom(type) == false &&
+                            typeof(ME.ECS.ICopyableBase).IsAssignableFrom(type) == false &&
                             typeof(ME.ECS.IComponentStatic).IsAssignableFrom(type) == false &&
                             type.IsGenericType == false &&
                             type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 0) {

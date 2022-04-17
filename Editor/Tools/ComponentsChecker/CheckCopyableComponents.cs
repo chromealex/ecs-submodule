@@ -34,7 +34,7 @@ namespace ME.ECSEditor.Tools {
                     var types = asm.GetTypes();
                     foreach (var type in types) {
 
-                        if (type.IsValueType == true && typeof(ME.ECS.IStructCopyableBase).IsAssignableFrom(type) == true) {
+                        if (type.IsValueType == true && typeof(ME.ECS.ICopyableBase).IsAssignableFrom(type) == true) {
                         
                             collectedComponents.Add(new TestItem() {
                                 type = type,
