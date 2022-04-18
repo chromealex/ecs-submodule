@@ -759,9 +759,9 @@ namespace ME.ECS {
 
         }
 
-        public FilterBuilder OnChanged<T>() where T : struct, IVersioned {
+        public FilterBuilder OnChanged<T>(bool addWith = true) where T : struct, IVersioned {
 
-            this.With<T>();
+            if (addWith == true) this.With<T>();
             WorldUtilities.SetComponentTypeId<T>();
             if (this.data.onChanged.Contains(ComponentTypes<T>.typeId) == false) this.data.onChanged.Add(AllComponentTypes<T>.typeId);
             return this;
