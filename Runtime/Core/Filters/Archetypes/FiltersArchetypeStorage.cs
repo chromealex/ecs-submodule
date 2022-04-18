@@ -1078,9 +1078,6 @@ namespace ME.ECS.FiltersArchetype {
             var onChanged = filter.data.onChanged;
             var changedTracked = onChanged.Count;
             
-            var parentFilters = filter.data.parentFilters;
-            var parentTracked = parentFilters.Count;
-
             var connectedFilters = filter.data.connectedFilters;
             var connectedTracked = connectedFilters.Count;
 
@@ -1089,7 +1086,7 @@ namespace ME.ECS.FiltersArchetype {
 
                 var archId = filter.archetypesList[i];
                 var arch = this.allArchetypes[archId];
-                if (changedTracked > 0 || parentTracked > 0 || connectedTracked > 0) {
+                if (changedTracked > 0 || connectedTracked > 0) {
 
                     for (int index = 0; index < arch.entitiesArr.Count; ++index) {
 
@@ -1107,17 +1104,6 @@ namespace ME.ECS.FiltersArchetype {
                             }
                         }
                         
-                        if (parentTracked > 0) {
-                            var parentEntity = entity.Read<ME.ECS.Transform.Container>().entity;
-                            // Check if any component has changed on this entity
-                            for (int j = 0, cntj = parentTracked; j < cntj; ++j) {
-                                var parentFilter = parentFilters[j];
-                                if (parentFilter.Contains(parentEntity) == true) {
-                                    ++count;
-                                }
-                            }
-                        }
-
                         if (connectedTracked > 0) {
                             // Check if any component has changed on this entity
                             for (int j = 0, cntj = connectedTracked; j < cntj; ++j) {
@@ -1132,7 +1118,7 @@ namespace ME.ECS.FiltersArchetype {
                     
                 }
                 
-                if (changedTracked == 0 && parentTracked == 0 && connectedTracked == 0) {
+                if (changedTracked == 0 && connectedTracked == 0) {
 
                     count += arch.entitiesArr.Count;
 

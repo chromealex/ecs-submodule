@@ -38,9 +38,6 @@ namespace ME.ECS {
                 var onChanged = this.filterData.data.onChanged;
                 var changedTracked = onChanged.Count;
                 
-                var parentFilters = this.filterData.data.parentFilters;
-                var parentTracked = parentFilters.Count;
-
                 var connectedFilters = this.filterData.data.connectedFilters;
                 var connectedTracked = connectedFilters.Count;
 
@@ -84,23 +81,6 @@ namespace ME.ECS {
                     
                     this.current = this.filterData.storage.GetEntityById(entityId);
 
-                    if (parentTracked > 0) {
-                        // Check if any parent filter contains parent entity
-                        var parentEntity = this.current.Read<ME.ECS.Transform.Container>().entity;
-                        var found = false;
-                        for (int i = 0, cnt = parentTracked; i < cnt; ++i) {
-                            var filter = parentFilters[i];
-                            if (filter.Contains(parentEntity) == true) {
-                                found = true;
-                                break;
-                            }
-                        }
-
-                        if (found == false) {
-                            continue;
-                        }
-                    }
-                    
                     if (connectedTracked > 0) {
                         // Check if any parent filter contains parent entity
                         var found = false;
@@ -609,9 +589,6 @@ namespace ME.ECS {
         internal ListCopyable<int> lambdas;
 
         [ME.ECS.Serializer.SerializeField]
-        internal ListCopyable<Filter> parentFilters;
-        
-        [ME.ECS.Serializer.SerializeField]
         internal ListCopyable<ConnectInfo> connectedFilters;
         
         public void CopyFrom(FilterInternalData other) {
@@ -627,7 +604,6 @@ namespace ME.ECS {
             ArrayUtils.Copy(other.notContainsShared, ref this.notContainsShared);
             ArrayUtils.Copy(other.onChanged, ref this.onChanged);
             ArrayUtils.Copy(other.lambdas, ref this.lambdas);
-            ArrayUtils.Copy(other.parentFilters, ref this.parentFilters);
             ArrayUtils.Copy(other.connectedFilters, ref this.connectedFilters);
 
         }
@@ -645,7 +621,6 @@ namespace ME.ECS {
             PoolListCopyable<int>.Recycle(ref this.notContainsShared);
             PoolListCopyable<int>.Recycle(ref this.onChanged);
             PoolListCopyable<int>.Recycle(ref this.lambdas);
-            PoolListCopyable<Filter>.Recycle(ref this.parentFilters);
             PoolListCopyable<ConnectInfo>.Recycle(ref this.connectedFilters);
 
         }
@@ -663,7 +638,6 @@ namespace ME.ECS {
                 notContainsShared = PoolListCopyable<int>.Spawn(4),
                 onChanged = PoolListCopyable<int>.Spawn(4),
                 lambdas = PoolListCopyable<int>.Spawn(4),
-                parentFilters = PoolListCopyable<Filter>.Spawn(0),
                 connectedFilters = PoolListCopyable<ConnectInfo>.Spawn(0),
             };
 
@@ -753,12 +727,7 @@ namespace ME.ECS {
 
         public FilterBuilder Parent(InnerFilterBuilderDelegate parentFilter) {
 
-            this.With<ME.ECS.Transform.Container>();
-            var filterBuilder = Filter.Create(this.data.name);
-            filterBuilder.With<ME.ECS.Transform.Nodes>();
-            parentFilter.Invoke(filterBuilder);
-            var filter = filterBuilder.Push();
-            this.data.parentFilters.Add(filter);
+            this.Connect<ME.ECS.Transform.Container>(parentFilter);
             return this;
 
         }

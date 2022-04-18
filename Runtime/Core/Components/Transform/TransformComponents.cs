@@ -1,8 +1,10 @@
 ﻿namespace ME.ECS.Transform {
 
-    public struct Container : IComponent, IVersioned {
+    public struct Container : IComponent, IVersioned, IFilterConnect {
 
         public Entity entity;
+
+        Entity IFilterConnect.entity => this.entity;
 
     }
 
