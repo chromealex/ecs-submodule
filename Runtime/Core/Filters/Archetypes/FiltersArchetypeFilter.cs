@@ -763,7 +763,7 @@ namespace ME.ECS {
 
             this.With<T>();
             WorldUtilities.SetComponentTypeId<T>();
-            this.data.onChanged.Add(AllComponentTypes<T>.typeId);
+            if (this.data.onChanged.Contains(ComponentTypes<T>.typeId) == false) this.data.onChanged.Add(AllComponentTypes<T>.typeId);
             return this;
 
         }
@@ -771,7 +771,7 @@ namespace ME.ECS {
         public FilterBuilder WithoutShared<T>() where T : struct {
 
             WorldUtilities.SetComponentTypeId<T>();
-            this.data.notContainsShared.Add(ComponentTypes<T>.typeId);
+            if (this.data.notContainsShared.Contains(ComponentTypes<T>.typeId) == false) this.data.notContainsShared.Add(ComponentTypes<T>.typeId);
             return this;
 
         }
@@ -779,7 +779,7 @@ namespace ME.ECS {
         public FilterBuilder WithShared<T>() where T : struct {
 
             WorldUtilities.SetComponentTypeId<T>();
-            this.data.containsShared.Add(ComponentTypes<T>.typeId);
+            if (this.data.containsShared.Contains(ComponentTypes<T>.typeId) == false) this.data.containsShared.Add(ComponentTypes<T>.typeId);
             return this;
 
         }
@@ -787,7 +787,7 @@ namespace ME.ECS {
         public FilterBuilder With<T>() where T : struct {
 
             WorldUtilities.SetComponentTypeId<T>();
-            this.data.contains.Add(ComponentTypes<T>.typeId);
+            if (this.data.contains.Contains(ComponentTypes<T>.typeId) == false) this.data.contains.Add(ComponentTypes<T>.typeId);
             return this;
 
         }
@@ -795,7 +795,7 @@ namespace ME.ECS {
         public FilterBuilder Without<T>() where T : struct {
 
             WorldUtilities.SetComponentTypeId<T>();
-            this.data.notContains.Add(ComponentTypes<T>.typeId);
+            if (this.data.notContains.Contains(ComponentTypes<T>.typeId) == false) this.data.notContains.Add(ComponentTypes<T>.typeId);
             return this;
 
         }
