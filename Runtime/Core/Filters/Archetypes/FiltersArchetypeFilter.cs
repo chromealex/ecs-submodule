@@ -62,6 +62,24 @@ namespace ME.ECS {
                     }
 
                     var entityId = this.arr[this.index];
+                    this.current = this.filterData.storage.GetEntityById(entityId);
+
+                    if (connectedTracked > 0) {
+                        // Check if all custom filters contains connected entity
+                        var found = true;
+                        for (int i = 0, cnt = connectedTracked; i < cnt; ++i) {
+                            var connectedFilter = connectedFilters[i];
+                            if (connectedFilter.filter.Contains(connectedFilter.get.Invoke(this.current)) == false) {
+                                found = false;
+                                break;
+                            }
+                        }
+
+                        if (found == false) {
+                            continue;
+                        }
+                    }
+
                     if (changedTracked > 0) {
                         // Check if any component has changed on this entity
                         var hasChanged = false;
@@ -75,24 +93,6 @@ namespace ME.ECS {
                         }
 
                         if (hasChanged == false) {
-                            continue;
-                        }
-                    }
-                    
-                    this.current = this.filterData.storage.GetEntityById(entityId);
-
-                    if (connectedTracked > 0) {
-                        // Check if any parent filter contains parent entity
-                        var found = false;
-                        for (int i = 0, cnt = connectedTracked; i < cnt; ++i) {
-                            var connectedFilter = connectedFilters[i];
-                            if (connectedFilter.filter.Contains(connectedFilter.get.Invoke(this.current)) == true) {
-                                found = true;
-                                break;
-                            }
-                        }
-
-                        if (found == false) {
                             continue;
                         }
                     }

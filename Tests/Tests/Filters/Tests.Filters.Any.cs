@@ -27,6 +27,9 @@ namespace ME.ECS.Tests {
             public void AdvanceTick(in float deltaTime) {
 
                 {
+                    var entity4 = this.world.AddEntity();
+                    entity4.Set(new TestComponent3());
+
                     var entity = this.world.AddEntity();
                     entity.Set(new TestComponent());
                     entity.Set(new TestComponent1());
@@ -39,6 +42,12 @@ namespace ME.ECS.Tests {
                     entity3.Set(new TestComponent());
                     entity3.Set(new TestComponent2());
 
+                    var entity5 = this.world.AddEntity();
+                    entity5.Set(new TestComponent3());
+
+                    var entity6 = this.world.AddEntity();
+                    entity6.Set(new TestComponent());
+
                     NUnit.Framework.Assert.IsTrue(this.filter.Count == 2);
 
                     foreach (var ent in this.filter) {
@@ -46,6 +55,9 @@ namespace ME.ECS.Tests {
                     }
                     
                     entity2.Destroy();
+                    entity4.Destroy();
+                    entity5.Destroy();
+                    entity6.Destroy();
                 }
 
                 {
@@ -88,7 +100,7 @@ namespace ME.ECS.Tests {
         }
 
         [NUnit.Framework.TestAttribute]
-        public void AddRemove() {
+        public void Any() {
 
             TestsHelper.Do((w) => {
                 

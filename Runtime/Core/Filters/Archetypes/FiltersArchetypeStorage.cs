@@ -1091,31 +1091,43 @@ namespace ME.ECS.FiltersArchetype {
                     for (int index = 0; index < arch.entitiesArr.Count; ++index) {
 
                         var entityId = arch.entitiesArr[index];
-                        var entity = this.GetEntityById(entityId);
                         
+                        if (connectedTracked > 0) {
+                            var entity = this.GetEntityById(entityId);
+                            // Check if all custom filters contains connected entity
+                            var found = true;
+                            for (int j = 0, cntj = connectedTracked; j < cntj; ++j) {
+                                var connectedFilter = connectedFilters[j];
+                                if (connectedFilter.filter.Contains(connectedFilter.get.Invoke(entity)) == false) {
+                                    found = false;
+                                    break;
+                                }
+                            }
+                            
+                            if (found == false) {
+                                continue;
+                            }
+                        }
+
                         if (changedTracked > 0) {
+                            var hasChanged = false;
                             // Check if any component has changed on this entity
                             for (int j = 0, cntj = changedTracked; j < cntj; ++j) {
                                 var typeId = onChanged[j];
                                 var reg = Worlds.current.currentState.structComponents.list.arr[typeId];
                                 if (reg.HasChanged(entityId) == true) {
-                                    ++count;
+                                    hasChanged = true;
                                     break;
                                 }
+                            }
+
+                            if (hasChanged == false) {
+                                continue;
                             }
                         }
                         
-                        if (connectedTracked > 0) {
-                            // Check if any component has changed on this entity
-                            for (int j = 0, cntj = connectedTracked; j < cntj; ++j) {
-                                var connectedFilter = connectedFilters[j];
-                                if (connectedFilter.filter.Contains(connectedFilter.get.Invoke(entity)) == true) {
-                                    ++count;
-                                    break;
-                                }
-                            }
-                        }
-
+                        ++count;
+                        
                     }
                     
                 }
