@@ -538,27 +538,76 @@ namespace ME.ECS {
     [Il2Cpp(Option.DivideByZeroChecks, false)]
     internal struct FilterInternalData {
 
-        public struct Pair2 {
+        public struct Pair2 : System.IEquatable<Pair2> {
 
             public int t1;
             public int t2;
 
+            public bool Equals(Pair2 other) {
+                return this.t1 == other.t1 && this.t2 == other.t2;
+            }
+
+            public override bool Equals(object obj) {
+                return obj is Pair2 other && Equals(other);
+            }
+
+            public override int GetHashCode() {
+                unchecked {
+                    return (this.t1 * 397) ^ this.t2;
+                }
+            }
+
         }
 
-        public struct Pair3 {
+        public struct Pair3 : System.IEquatable<Pair3> {
 
             public int t1;
             public int t2;
             public int t3;
 
+            public bool Equals(Pair3 other) {
+                return this.t1 == other.t1 && this.t2 == other.t2 && this.t3 == other.t3;
+            }
+
+            public override bool Equals(object obj) {
+                return obj is Pair3 other && Equals(other);
+            }
+
+            public override int GetHashCode() {
+                unchecked {
+                    var hashCode = this.t1;
+                    hashCode = (hashCode * 397) ^ this.t2;
+                    hashCode = (hashCode * 397) ^ this.t3;
+                    return hashCode;
+                }
+            }
+
         }
 
-        public struct Pair4 {
+        public struct Pair4 : System.IEquatable<Pair4> {
 
             public int t1;
             public int t2;
             public int t3;
             public int t4;
+
+            public bool Equals(Pair4 other) {
+                return this.t1 == other.t1 && this.t2 == other.t2 && this.t3 == other.t3 && this.t4 == other.t4;
+            }
+
+            public override bool Equals(object obj) {
+                return obj is Pair4 other && Equals(other);
+            }
+
+            public override int GetHashCode() {
+                unchecked {
+                    var hashCode = this.t1;
+                    hashCode = (hashCode * 397) ^ this.t2;
+                    hashCode = (hashCode * 397) ^ this.t3;
+                    hashCode = (hashCode * 397) ^ this.t4;
+                    return hashCode;
+                }
+            }
 
         }
 

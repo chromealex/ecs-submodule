@@ -1250,6 +1250,10 @@ namespace ME.ECS.FiltersArchetype {
                     FiltersArchetypeStorage.IsEquals(filter.data.notContainsShared, filterBuilder.data.notContainsShared) == true &&
                     FiltersArchetypeStorage.IsEquals(filter.data.containsShared, filterBuilder.data.containsShared) == true &&
                     FiltersArchetypeStorage.IsEquals(filter.data.onChanged, filterBuilder.data.onChanged) == true &&
+                    FiltersArchetypeStorage.IsEquals(filter.data.anyPair2, filterBuilder.data.anyPair2) == true &&
+                    FiltersArchetypeStorage.IsEquals(filter.data.anyPair3, filterBuilder.data.anyPair3) == true &&
+                    FiltersArchetypeStorage.IsEquals(filter.data.anyPair4, filterBuilder.data.anyPair4) == true &&
+                    FiltersArchetypeStorage.IsEquals(filter.data.connectedFilters, filterBuilder.data.connectedFilters) == true &&
                     FiltersArchetypeStorage.IsEquals(filter.data.lambdas, filterBuilder.data.lambdas) == true) {
 
                     filterData = filter;
@@ -1281,6 +1285,36 @@ namespace ME.ECS.FiltersArchetype {
             }
 
             return true;
+
+        }
+
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        private static bool IsEquals<T>(ListCopyable<T> list1, ListCopyable<T> list2) where T : struct, System.IEquatable<T> {
+
+            if (list1.Count != list2.Count) {
+                return false;
+            }
+
+            for (var i = 0; i < list1.Count; ++i) {
+
+                if (list2.Contains(list1[i]) == false) {
+                    return false;
+                }
+
+            }
+
+            return true;
+
+        }
+
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        private static bool IsEquals(ListCopyable<ConnectInfo> list1, ListCopyable<ConnectInfo> list2) {
+
+            return list1.Count == 0 && list2.Count == 0;
 
         }
 
