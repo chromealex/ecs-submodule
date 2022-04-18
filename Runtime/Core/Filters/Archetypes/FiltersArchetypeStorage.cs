@@ -1100,6 +1100,7 @@ namespace ME.ECS.FiltersArchetype {
                                 var reg = Worlds.current.currentState.structComponents.list.arr[typeId];
                                 if (reg.HasChanged(entityId) == true) {
                                     ++count;
+                                    break;
                                 }
                             }
                         }
@@ -1110,6 +1111,7 @@ namespace ME.ECS.FiltersArchetype {
                                 var connectedFilter = connectedFilters[j];
                                 if (connectedFilter.filter.Contains(connectedFilter.get.Invoke(entity)) == true) {
                                     ++count;
+                                    break;
                                 }
                             }
                         }
