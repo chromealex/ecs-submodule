@@ -254,7 +254,7 @@ namespace ME.ECS.DataConfigs {
 
             for (int i = 0; i < this.structComponents.Length; ++i) {
 
-                var c = this.structComponents[idx];
+                var c = this.structComponents[i];
                 if (c != null && c.GetType() == type) {
 
                     component = (T)c;

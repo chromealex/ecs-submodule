@@ -1282,6 +1282,9 @@ namespace ME.ECS {
             if (this.currentState != null && this.currentState != state) WorldUtilities.ReleaseState<TState>(ref this.currentState);
             this.currentState = state;
             state.Initialize(this, freeze: false, restore: true);
+            
+            this.structComponentsNoState.SetEntityCapacity(state.storage.AliveCount + state.storage.DeadCount);
+            this.structComponentsNoState.Merge();
 
             //this.SetSeed(this.seed);
 
