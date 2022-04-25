@@ -124,7 +124,7 @@ namespace ME.ECS {
             
         }
 
-        static partial void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer);
+        static partial void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer, ref ME.ECS.StructComponentsContainer noStateStructComponentsContainer);
 
     }
 
