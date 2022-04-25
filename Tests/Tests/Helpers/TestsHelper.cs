@@ -28,9 +28,7 @@ namespace ME.ECS.Tests {
             int from = 0,
             int to = 2) {
         
-            ComponentTypesRegistry.allTypeId?.Clear();
-            ComponentTypesRegistry.typeId?.Clear();
-            ComponentTypesRegistry.reset?.Invoke();
+            WorldUtilities.ResetTypeIds();
             
             ME.ECS.Pools.current = new ME.ECS.PoolImplementation(isNull: false);
             World world = null;

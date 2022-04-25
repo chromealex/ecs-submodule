@@ -18,9 +18,16 @@ namespace ME.ECS {
 
     }
 
+    public struct OneShotComponentTypesCounter {
+
+        public static int counter = -1;
+
+    }
+
     public struct ComponentTypesRegistry {
 
         public static System.Collections.Generic.Dictionary<System.Type, int> allTypeId = new System.Collections.Generic.Dictionary<System.Type, int>();
+        public static System.Collections.Generic.Dictionary<System.Type, int> oneShotTypeId = new System.Collections.Generic.Dictionary<System.Type, int>();
         public static System.Collections.Generic.Dictionary<System.Type, int> typeId = new System.Collections.Generic.Dictionary<System.Type, int>();
         public static System.Action reset;
 
@@ -41,6 +48,12 @@ namespace ME.ECS {
 
     }
 
+    public struct OneShotComponentTypes<TComponent> {
+
+        public static int typeId = -1;
+
+    }
+    
     public struct AllComponentTypes<TComponent> {
 
         public static int typeId = -1;

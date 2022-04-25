@@ -900,7 +900,7 @@ namespace ME.ECS {
         #endif
         public void ValidateOneShot<TComponent>(bool isTag = false) where TComponent : struct, IComponentBase, IComponentOneShot {
 
-            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            var code = WorldUtilities.GetOneShotComponentTypeId<TComponent>();
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
             this.ValidateOneShot<TComponent>(code, isTag);
 
@@ -913,7 +913,7 @@ namespace ME.ECS {
         #endif
         public void ValidateOneShot<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase, IComponentOneShot {
 
-            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            var code = WorldUtilities.GetOneShotComponentTypeId<TComponent>();
             this.ValidateOneShot<TComponent>(code, isTag);
             var reg = (StructComponentsOneShot<TComponent>)this.list.arr[code];
             reg.Validate(in entity);

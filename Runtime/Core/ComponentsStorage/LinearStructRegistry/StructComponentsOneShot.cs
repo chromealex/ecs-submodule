@@ -84,7 +84,7 @@ namespace ME.ECS {
             }
             #endif
 
-            var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[AllComponentTypes<TComponent>.typeId];
+            var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[OneShotComponentTypes<TComponent>.typeId];
             ref var storage = ref this.currentState.storage;
             ref var bucket = ref reg.components[entity.id];
             if (bucket.state == 0) return;
@@ -117,7 +117,7 @@ namespace ME.ECS {
             }
             #endif
 
-            return this.structComponentsNoState.list.arr[AllComponentTypes<TComponent>.typeId].Has(in entity);
+            return this.structComponentsNoState.list.arr[OneShotComponentTypes<TComponent>.typeId].Has(in entity);
 
         }
         
@@ -141,7 +141,7 @@ namespace ME.ECS {
             #endif
 
             // Inline all manually
-            var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[AllComponentTypes<TComponent>.typeId];
+            var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[OneShotComponentTypes<TComponent>.typeId];
             return ref reg.components[entity.id].data;
 
         }
@@ -167,7 +167,7 @@ namespace ME.ECS {
 
             // Inline all manually
             var incrementVersion = (this.HasResetState() == false || this.HasStep(WorldStep.LogicTick) == true);
-            var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[AllComponentTypes<TComponent>.typeId];
+            var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[OneShotComponentTypes<TComponent>.typeId];
             ref var storage = ref this.currentState.storage;
             ref var bucket = ref reg.components[entity.id];
             if (createIfNotExists == true && bucket.state == 0) {
@@ -210,7 +210,7 @@ namespace ME.ECS {
                     storageType = StorageType.NoState,
                     secondsLifetime = 0f,
                     entity = entity,
-                    dataIndex = AllComponentTypes<TComponent>.typeId,
+                    dataIndex = OneShotComponentTypes<TComponent>.typeId,
                 };
 
                 if (this.structComponentsNoState.nextTickTasks.Add(task) == false) {
@@ -246,7 +246,7 @@ namespace ME.ECS {
             }
             #endif
 
-            var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[AllComponentTypes<TComponent>.typeId];
+            var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[OneShotComponentTypes<TComponent>.typeId];
             ref var storage = ref this.currentState.storage;
             ref var bucket = ref reg.components[entity.id];
             ref var state = ref bucket.state;
@@ -281,7 +281,7 @@ namespace ME.ECS {
                 storageType = StorageType.NoState,
                 secondsLifetime = 0f,
                 entity = entity,
-                dataIndex = AllComponentTypes<TComponent>.typeId,
+                dataIndex = OneShotComponentTypes<TComponent>.typeId,
             };
 
             if (this.structComponentsNoState.nextTickTasks.Add(task) == false) {

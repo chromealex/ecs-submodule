@@ -154,6 +154,8 @@ namespace ME.ECS {
 
             AllComponentTypesCounter.counter = -1;
             ComponentTypesRegistry.allTypeId.Clear();
+            ComponentTypesRegistry.oneShotTypeId.Clear();
+            ComponentTypesRegistry.typeId.Clear();
             if (ComponentTypesRegistry.reset != null) ComponentTypesRegistry.reset.Invoke();
             ComponentTypesRegistry.reset = null;
 
@@ -201,6 +203,34 @@ namespace ME.ECS {
 
                 AllComponentTypes<TComponent>.typeId = -1;
                 AllComponentTypes<TComponent>.isTag = false;
+
+            };
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static int GetOneShotComponentTypeId<TComponent>() {
+
+            if (OneShotComponentTypes<TComponent>.typeId < 0) {
+
+                WorldUtilities.CacheOneShotComponentTypeId<TComponent>();
+
+            }
+
+            return OneShotComponentTypes<TComponent>.typeId;
+
+        }
+
+        private static void CacheOneShotComponentTypeId<TComponent>() {
+            
+            OneShotComponentTypes<TComponent>.typeId = ++OneShotComponentTypesCounter.counter;
+            ComponentTypesRegistry.oneShotTypeId.Add(typeof(TComponent), OneShotComponentTypes<TComponent>.typeId);
+
+            ComponentTypesRegistry.reset += () => {
+
+                OneShotComponentTypes<TComponent>.typeId = -1;
 
             };
 
@@ -307,6 +337,7 @@ namespace ME.ECS {
         public static void SetComponentAsOneShot<TComponent>() {
 
             AllComponentTypes<TComponent>.isOneShot = true;
+            WorldUtilities.GetOneShotComponentTypeId<TComponent>();
 
         }
 
