@@ -1227,6 +1227,12 @@ namespace ME.ECS {
 
         }
 
+        public ref StructComponentsContainer GetNoStateStructComponents() {
+
+            return ref this.structComponentsNoState;
+
+        }
+
         partial void OnSpawnStructComponents() { }
 
         partial void OnRecycleStructComponents() { }
