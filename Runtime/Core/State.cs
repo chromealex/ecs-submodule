@@ -12,6 +12,7 @@ namespace ME.ECS {
         public Tick tick;
         [ME.ECS.Serializer.SerializeField]
         public RandomState randomState;
+        public Entity sharedEntity;
 
         #if FILTERS_STORAGE_LEGACY
         public FiltersStorage filters;
