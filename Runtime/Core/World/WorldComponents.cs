@@ -16,14 +16,12 @@ namespace ME.ECS {
         
         partial void OnSpawnComponents() {
 
-            this.sharedEntity = default;
             this.sharedEntityInitialized = false;
 
         }
 
         partial void OnRecycleComponents() {
 
-            this.sharedEntity = default;
             this.sharedEntityInitialized = false;
 
         }

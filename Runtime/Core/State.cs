@@ -12,6 +12,7 @@ namespace ME.ECS {
         public Tick tick;
         [ME.ECS.Serializer.SerializeField]
         public RandomState randomState;
+        [ME.ECS.Serializer.SerializeField]
         public Entity sharedEntity;
 
         #if FILTERS_STORAGE_LEGACY
@@ -59,6 +60,7 @@ namespace ME.ECS {
             
             this.tick = other.tick;
             this.randomState = other.randomState;
+            this.sharedEntity = other.sharedEntity;
 
             this.filters.CopyFrom(other.filters);
             this.structComponents.CopyFrom(other.structComponents);
@@ -74,6 +76,7 @@ namespace ME.ECS {
 
             this.tick = default;
             this.randomState = default;
+            this.sharedEntity = default;
             
             this.timers.Dispose();
             this.globalEvents.DeInitialize();
