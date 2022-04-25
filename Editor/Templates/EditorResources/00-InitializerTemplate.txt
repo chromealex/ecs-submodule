@@ -120,7 +120,7 @@ namespace ME.ECS {
         
         public static void DoInit() {
             
-            ComponentsInitializer.Init(ref Worlds.currentWorld.GetStructComponents());
+            ComponentsInitializer.Init(ref Worlds.currentWorld.GetStructComponents(), ref Worlds.currentWorld.GetNoStateStructComponents());
             
         }
 

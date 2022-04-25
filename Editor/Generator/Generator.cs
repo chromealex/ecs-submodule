@@ -422,6 +422,7 @@ namespace ME.ECSEditor {
                     resItem = resItem.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
                     resItem = resItem.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
                     resItem = resItem.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
+                    resItem = resItem.Replace("#CONTAINER#", isOneShot == true ? "noStateStructComponentsContainer" : "structComponentsContainer");
                     resItem = resItem.Replace("\r\n", "\n");
                     
                     /*
@@ -445,6 +446,7 @@ namespace ME.ECSEditor {
                         resItem2 = resItem2.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
                         resItem2 = resItem2.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
                         resItem2 = resItem2.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
+                        resItem2 = resItem2.Replace("#CONTAINER#", isOneShot == true ? "noStateStructComponentsContainer" : "structComponentsContainer");
                         resItem2 = resItem2.Replace("\r\n", "\n");
                         
                         /*
