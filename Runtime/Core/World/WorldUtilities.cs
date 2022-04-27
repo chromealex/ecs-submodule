@@ -153,6 +153,8 @@ namespace ME.ECS {
         public static void ResetTypeIds() {
 
             AllComponentTypesCounter.counter = -1;
+            OneShotComponentTypesCounter.counter = -1;
+            ComponentTypesCounter.counter = -1;
             ComponentTypesRegistry.allTypeId.Clear();
             ComponentTypesRegistry.oneShotTypeId.Clear();
             ComponentTypesRegistry.typeId.Clear();
