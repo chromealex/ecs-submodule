@@ -92,11 +92,11 @@ namespace ME.ECS.Collections {
 
             this.tick = Tick.Invalid;
             default(TProvider).Recycle(ref this.data);
-            /*try {
-                PoolClass<DisposeSentinel<T, TProvider>>.Recycle(this);
+            try {
+                PoolDisposeSentinel<T, TProvider>.Recycle(this);
             } catch (System.Exception ex) {
                 UnityEngine.Debug.LogWarning("DisposeSentinel recycling failed: " + ex.Message);
-            }*/
+            }
 
         }
     }
@@ -124,7 +124,7 @@ namespace ME.ECS.Collections {
         #endif
         public DataObject(T data) {
 
-            this.disposeSentinel = PoolClass<DisposeSentinel<T, TProvider>>.Spawn();
+            this.disposeSentinel = PoolDisposeSentinel<T, TProvider>.Spawn();
             this.disposeSentinel.data = data;
             this.disposeSentinel.tick = Worlds.currentWorld.GetLastSavedTick();
             this.isCreated = true;
@@ -204,7 +204,7 @@ namespace ME.ECS.Collections {
             var lastTick = Worlds.currentWorld.GetLastSavedTick();
             this.disposeSentinel.tick = lastTick == Tick.Invalid ? Tick.Zero : lastTick;
             var previousData = this.disposeSentinel.data;
-            this.disposeSentinel = PoolClass<DisposeSentinel<T, TProvider>>.Spawn();
+            this.disposeSentinel = PoolDisposeSentinel<T, TProvider>.Spawn();
             default(TProvider).Clone(previousData, ref this.disposeSentinel.data);
 
         }
