@@ -275,6 +275,12 @@ namespace ME.ECS {
                 ComponentTypes<TComponent>.typeId = ++ComponentTypesCounter.counter;
                 ComponentTypesRegistry.typeId.Add(typeof(TComponent), ComponentTypes<TComponent>.typeId);
 
+                ComponentTypesRegistry.reset += () => {
+
+                    ComponentTypes<TComponent>.typeId = -1;
+
+                };
+
             }
 
         }
