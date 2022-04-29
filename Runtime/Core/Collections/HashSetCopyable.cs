@@ -669,6 +669,33 @@ namespace ME.ECS.Collections {
         }
 
         /// <summary>
+        /// Remove elements that match specified predicate. Returns the number of elements removed
+        /// </summary>
+        /// <param name="match"></param>
+        /// <returns></returns>
+        public int RemoveWhere<TState>(TState state, System.Func<TState, T, bool> match) {
+            if (match == null) {
+                throw new ArgumentNullException("match");
+            }
+
+            var numRemoved = 0;
+            for (var i = 0; i < this.m_lastIndex; i++) {
+                if (this.m_slots.arr[i].hashCode >= 0) {
+                    // cache value in case delegate removes it
+                    var value = this.m_slots.arr[i].value;
+                    if (match(state, value)) {
+                        // check again that remove actually removed it
+                        if (this.Remove(value)) {
+                            numRemoved++;
+                        }
+                    }
+                }
+            }
+
+            return numRemoved;
+        }
+
+        /// <summary>
         /// Gets the IEqualityComparer that is used to determine equality of keys for 
         /// the HashSet.
         /// </summary>
