@@ -60,6 +60,7 @@ namespace ME.ECS {
         public void CopyFrom(in EntitiesIndexer other) {
             
             ArrayUtils.Copy(other.data, ref this.data);
+            ArrayUtils.Copy(other.index, ref this.index);
             
         }
 
