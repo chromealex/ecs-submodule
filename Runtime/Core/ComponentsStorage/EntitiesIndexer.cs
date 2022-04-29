@@ -105,20 +105,4 @@ namespace ME.ECS {
 
     }
 
-    public struct CopyItem : IArrayElementCopy<HashSetCopyable<int>> {
-        
-        public void Copy(HashSetCopyable<int> @from, ref HashSetCopyable<int> to) {
-            
-            ArrayUtils.Copy(from, ref to);
-            
-        }
-
-        public void Recycle(HashSetCopyable<int> item) {
-            
-            PoolHashSetCopyable<int>.Recycle(ref item);
-            
-        }
-
-    }
-
 }
