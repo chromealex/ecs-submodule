@@ -2,23 +2,55 @@ namespace ME.ECS {
     
     using Collections;
 
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
     public struct EntitiesIndexer {
 
+        public struct KeyValuePair : System.IEquatable<KeyValuePair> {
+
+            public int entityId;
+            public int componentId;
+
+            public KeyValuePair(int entityId, int componentId) {
+                this.entityId = entityId;
+                this.componentId = componentId;
+            }
+
+            public bool Equals(KeyValuePair other) {
+                return this.entityId == other.entityId && this.componentId == other.componentId;
+            }
+
+            public override bool Equals(object obj) {
+                return obj is KeyValuePair other && Equals(other);
+            }
+
+            public override int GetHashCode() {
+                unchecked {
+                    return (this.entityId * 397) ^ this.componentId;
+                }
+            }
+
+        }
+        
         [ME.ECS.Serializer.SerializeField]
-        private HashSetCopyable<System.Collections.Generic.KeyValuePair<int, int>> data;
+        private HashSetCopyable<KeyValuePair> data;
         [ME.ECS.Serializer.SerializeField]
         private HashSetCopyable<long> index;
 
         public void Initialize(int capacity) {
 
-            if (this.data == null) this.data = PoolHashSetCopyable<System.Collections.Generic.KeyValuePair<int, int>>.Spawn(capacity);
+            if (this.data == null) this.data = PoolHashSetCopyable<KeyValuePair>.Spawn(capacity);
             if (this.index == null) this.index = PoolHashSetCopyable<long>.Spawn(capacity);
 
         }
 
         public void Validate(int capacity) {
 
-            //ArrayUtils.Resize(capacity + 1, ref this.data);
+            if (this.data != null) this.data.SetCapacity(capacity);
+            if (this.index != null) this.index.SetCapacity(capacity);
             
         }
 
@@ -29,7 +61,7 @@ namespace ME.ECS {
 
         }
 
-        public HashSetCopyable<System.Collections.Generic.KeyValuePair<int, int>> Get() {
+        public HashSetCopyable<KeyValuePair> Get() {
 
             return this.data;
 
@@ -40,7 +72,7 @@ namespace ME.ECS {
             var key = MathUtils.GetKey(entityId, componentId);
             if (this.index.Add(key) == true) {
                 
-                this.data.Add(new System.Collections.Generic.KeyValuePair<int, int>(entityId, componentId));
+                this.data.Add(new KeyValuePair(entityId, componentId));
                 
             }
 
@@ -51,7 +83,7 @@ namespace ME.ECS {
             var key = MathUtils.GetKey(entityId, componentId);
             if (this.index.Remove(key) == true) {
 
-                this.data.RemoveWhere(entityId, (e, kv) => kv.Key == e);
+                this.data.RemoveWhere(entityId, (e, kv) => kv.entityId == e);
                 
             }
 
@@ -66,7 +98,7 @@ namespace ME.ECS {
 
         public void Recycle() {
             
-            PoolHashSetCopyable<System.Collections.Generic.KeyValuePair<int, int>>.Recycle(ref this.data);
+            PoolHashSetCopyable<KeyValuePair>.Recycle(ref this.data);
             PoolHashSetCopyable<long>.Recycle(ref this.index);
             
         }

@@ -746,6 +746,15 @@ namespace ME.ECS.Collections {
             this.SetCapacity(newSize, false);
         }
 
+        public void SetCapacity(int capacity) {
+            
+            var size = HashSetCopyableHashHelpers.GetPrime(capacity);
+            if (size > this.m_buckets.Length) {
+                this.SetCapacity(size, false);
+            }
+
+        }
+
         /// <summary>
         /// Set the underlying buckets array to size newSize and rehash.  Note that newSize
         /// *must* be a prime.  It is very likely that you want to call IncreaseCapacity()

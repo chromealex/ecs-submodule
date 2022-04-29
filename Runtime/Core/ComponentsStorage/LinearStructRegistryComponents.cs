@@ -826,9 +826,9 @@ namespace ME.ECS {
                 
                 foreach (var kv in list) {
 
-                    if (kv.Key != entity.id) continue;
+                    if (kv.entityId != entity.id) continue;
 
-                    var index = kv.Value;
+                    var index = kv.componentId;
                     var item = this.list.arr[index];
                     if (item != null) {
 
