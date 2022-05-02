@@ -1182,7 +1182,6 @@ namespace ME.ECS.FiltersArchetype {
                             arch.HasAnyPair(item.data.anyPair2) == true &&
                             arch.HasAnyPair(item.data.anyPair3) == true &&
                             arch.HasAnyPair(item.data.anyPair4) == true &&
-                            FiltersArchetypeStorage.CheckStaticShared(item.data.containsShared, item.data.notContainsShared) == true &&
                             FiltersArchetypeStorage.CheckLambdas(in arch, item.data.lambdas) == true) {
 
                             item.archetypes.Add(archId);
@@ -1208,7 +1207,7 @@ namespace ME.ECS.FiltersArchetype {
         }
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        private static bool CheckStaticShared(ListCopyable<int> containsShared, ListCopyable<int> notContainsShared) {
+        internal static bool CheckStaticShared(ListCopyable<int> containsShared, ListCopyable<int> notContainsShared) {
 
             if (containsShared.Count == 0 && notContainsShared.Count == 0) {
                 return true;

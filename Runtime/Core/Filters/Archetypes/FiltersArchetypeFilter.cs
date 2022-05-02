@@ -35,6 +35,10 @@ namespace ME.ECS {
             #endif
             public bool MoveNext() {
 
+                if (FiltersArchetype.FiltersArchetypeStorage.CheckStaticShared(this.filterData.data.containsShared, this.filterData.data.notContainsShared) == false) {
+                    return false;
+                }
+
                 var onChanged = this.filterData.data.onChanged;
                 var changedTracked = onChanged.Count;
                 
@@ -42,7 +46,7 @@ namespace ME.ECS {
                 var connectedTracked = connectedFilters.Count;
 
                 while (true) {
-
+                    
                     if (this.archIndex >= this.archetypes.Count) {
                         return false;
                     }
@@ -819,16 +823,14 @@ namespace ME.ECS {
 
         public FilterBuilder WithoutShared<T>() where T : struct {
 
-            WorldUtilities.SetComponentTypeId<T>();
-            if (this.data.notContainsShared.Contains(ComponentTypes<T>.typeId) == false) this.data.notContainsShared.Add(ComponentTypes<T>.typeId);
+            if (this.data.notContainsShared.Contains(AllComponentTypes<T>.typeId) == false) this.data.notContainsShared.Add(AllComponentTypes<T>.typeId);
             return this;
 
         }
 
         public FilterBuilder WithShared<T>() where T : struct {
 
-            WorldUtilities.SetComponentTypeId<T>();
-            if (this.data.containsShared.Contains(ComponentTypes<T>.typeId) == false) this.data.containsShared.Add(ComponentTypes<T>.typeId);
+            if (this.data.containsShared.Contains(AllComponentTypes<T>.typeId) == false) this.data.containsShared.Add(AllComponentTypes<T>.typeId);
             return this;
 
         }
