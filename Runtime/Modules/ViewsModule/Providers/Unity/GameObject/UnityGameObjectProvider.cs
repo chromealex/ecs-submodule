@@ -174,13 +174,13 @@ namespace ME.ECS.Views.Providers {
             public bool useDespawnTime;
             public float despawnTime;
 
-            [UnityEngine.Space(4f)]
+            [UnityEngine.Space(8f)]
             public uint cacheCustomViewId;
             
-            [UnityEngine.Space(4f)]
+            [UnityEngine.Space(8f)]
             public bool useCache;
         
-            [UnityEngine.Space(4f)]
+            [UnityEngine.Space(8f)]
             public bool useCacheTimeout;
             public float cacheTimeout;
 
