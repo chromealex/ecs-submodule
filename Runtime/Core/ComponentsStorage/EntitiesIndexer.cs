@@ -9,10 +9,10 @@ namespace ME.ECS {
     #endif
     public struct EntitiesIndexer {
 
-        public struct KeyValuePair : System.IEquatable<KeyValuePair> {
+        public readonly struct KeyValuePair : System.IEquatable<KeyValuePair> {
 
-            public int entityId;
-            public int componentId;
+            public readonly int entityId;
+            public readonly int componentId;
 
             public KeyValuePair(int entityId, int componentId) {
                 this.entityId = entityId;
@@ -24,7 +24,7 @@ namespace ME.ECS {
             }
 
             public override bool Equals(object obj) {
-                return obj is KeyValuePair other && Equals(other);
+                return obj is KeyValuePair other && this.Equals(other);
             }
 
             public override int GetHashCode() {
