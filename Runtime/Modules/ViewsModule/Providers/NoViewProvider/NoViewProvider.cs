@@ -155,10 +155,12 @@ namespace ME.ECS.Views.Providers {
 
         }
 
-        public override void Destroy(ref IView instance) {
+        public override bool Destroy(ref IView instance) {
 
             this.pool.Recycle(instance);
             instance = null;
+
+            return true;
 
         }
 
@@ -186,7 +188,7 @@ namespace ME.ECS.Views.Providers {
 
         private static ME.ECS.Collections.BufferArray<Views> currentList;
 
-        public override void Update(ME.ECS.Collections.BufferArray<Views> list, float deltaTime, bool hasChanged) {
+        public override void Update(ViewsModule module, ME.ECS.Collections.BufferArray<Views> list, float deltaTime, bool hasChanged) {
 
             if (this.world.settings.useJobsForViews == true && this.world.settings.viewsSettings.unityNoViewProviderDisableJobs == false) {
 

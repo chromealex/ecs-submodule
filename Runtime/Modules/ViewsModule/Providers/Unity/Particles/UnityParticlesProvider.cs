@@ -710,7 +710,7 @@ namespace ME.ECS.Views.Providers {
 
         }
 
-        public override void Destroy(ref IView instance) {
+        public override bool Destroy(ref IView instance) {
 
             var view = (ParticleViewBase)instance;
             for (int i = 0; i < view.items.Length; ++i) {
@@ -721,6 +721,8 @@ namespace ME.ECS.Views.Providers {
 
             this.pool.Recycle(instance);
             instance = null;
+
+            return true;
 
         }
 
@@ -806,7 +808,7 @@ namespace ME.ECS.Views.Providers {
 
         }
 
-        public override void Update(BufferArray<Views> list, float deltaTime, bool hasChanged) {
+        public override void Update(ViewsModule module, BufferArray<Views> list, float deltaTime, bool hasChanged) {
 
             this.UpdateViews(list, deltaTime);
             this.ValidateParticles();

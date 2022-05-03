@@ -168,7 +168,26 @@ namespace ME.ECS.Views.Providers {
     #endif
     public abstract class MonoBehaviourViewBase : ViewBase, IDoValidate {
 
+        [System.Serializable]
+        public struct DefaultParameters {
+
+            public bool useDespawnTime;
+            public float despawnTime;
+
+            [UnityEngine.Space(4f)]
+            public uint cacheCustomViewId;
+            
+            [UnityEngine.Space(4f)]
+            public bool useCache;
+        
+            [UnityEngine.Space(4f)]
+            public bool useCacheTimeout;
+            public float cacheTimeout;
+
+        }
+
         public ParticleSystemSimulation particleSystemSimulation;
+        public DefaultParameters defaultParameters;
         new protected UnityEngine.Transform transform;
 
         public virtual bool applyStateJob => true;
@@ -229,7 +248,7 @@ namespace ME.ECS.Views.Providers {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public abstract class MonoBehaviourView : MonoBehaviourViewBase, IView, IViewRespawnTime, IViewPool, IViewBaseInternal {
+    public abstract class MonoBehaviourView : MonoBehaviourViewBase, IView, IViewRespawnTime, IViewDestroyTime, IViewPool, IViewBaseInternal {
 
         int System.IComparable<IView>.CompareTo(IView other) {
             return 0;
@@ -241,15 +260,19 @@ namespace ME.ECS.Views.Providers {
         /// Do you want to use custom pool id?
         /// Useful if you want to store unique instance of the same prefab source in different storages.
         /// </summary>
-        public virtual uint customViewId => 0u;
+        public virtual uint customViewId => (this.defaultParameters.useCache == true ? this.defaultParameters.cacheCustomViewId : 0u);
         /// <summary>
         /// Do you want to use cache pooling for this view?
         /// </summary>
-        public virtual bool useCache => false;
+        public virtual bool useCache => this.defaultParameters.useCache;
         /// <summary>
         /// Time to get ready this instance to be used again after it has been despawned.
         /// </summary>
-        public virtual float cacheTimeout => Worlds.currentWorld.GetModule<ME.ECS.StatesHistory.IStatesHistoryModuleBase>().GetCacheSize();
+        public virtual float cacheTimeout => this.defaultParameters.useCacheTimeout == true ? this.defaultParameters.cacheTimeout : Worlds.currentWorld.GetTimeFromTick(Worlds.currentWorld.GetModule<ME.ECS.StatesHistory.IStatesHistoryModuleBase>().GetCacheSize());
+        /// <summary>
+        /// Time to despawn view before it has been pooled.
+        /// </summary>
+        public virtual float despawnDelay => (this.defaultParameters.useDespawnTime == true ? this.defaultParameters.despawnTime : 0f);
 
         public World world { get; private set; }
         public virtual Entity entity { get; private set; }
@@ -337,11 +360,12 @@ namespace ME.ECS.Views.Providers {
 
         }
 
-        public override void Destroy(ref IView instance) {
+        public override bool Destroy(ref IView instance) {
 
             var instanceTyped = (MonoBehaviourView)instance;
-            this.pool.Recycle(ref instanceTyped, instanceTyped.customViewId, instanceTyped.useCache == true ? instanceTyped.cacheTimeout : 0f);
+            var immediately = this.pool.Recycle(ref instanceTyped, instanceTyped.customViewId, instanceTyped.useCache == true ? instanceTyped.cacheTimeout : 0f);
             instance = null;
+            return immediately;
 
         }
 
@@ -369,7 +393,9 @@ namespace ME.ECS.Views.Providers {
         private TransformAccessArray currentTransformArray;
         private ListCopyable<MonoBehaviourView> tempList;
 
-        public override void Update(BufferArray<Views> list, float deltaTime, bool hasChanged) {
+        public override void Update(ViewsModule module, BufferArray<Views> list, float deltaTime, bool hasChanged) {
+
+            this.pool.Update(module, deltaTime);
 
             if (this.world.settings.useJobsForViews == false || this.world.settings.viewsSettings.unityGameObjectProviderDisableJobs == true) return;
 
@@ -442,7 +468,7 @@ namespace ME.ECS.Views.Providers {
 
                     var job = new Job() {
                         deltaTime = deltaTime,
-                        length = UnityGameObjectProvider.resultCount
+                        length = UnityGameObjectProvider.resultCount,
                     };
 
                     var handle = job.Schedule(this.currentTransformArray);

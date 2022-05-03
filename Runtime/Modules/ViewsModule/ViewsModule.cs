@@ -258,6 +258,12 @@ namespace ME.ECS.Views {
         bool useCache { get; }
 
     }
+    
+    public interface IViewDestroyTime {
+
+        float despawnDelay { get; }
+        
+    }
 
     public interface IViewPool {
 
@@ -712,11 +718,18 @@ namespace ME.ECS.Views {
         private void RecycleView_INTERNAL(ref IView instance) {
 
             var viewInstance = instance;
-            this.UnRegister(instance);
-
             if (this.registryPrefabToProvider.TryGetValue(viewInstance.prefabSourceId, out var provider) == true) {
 
-                provider.Destroy(ref viewInstance);
+                if (provider.Destroy(ref viewInstance) == true) {
+                    
+                    // Immediately destroy
+                    this.UnRegister(instance);
+                    
+                } else {
+                    
+                    // Delayed destroy - UnRegister will be called manually later
+                    
+                }
 
             }
 
@@ -1101,7 +1114,7 @@ namespace ME.ECS.Views {
             // Update providers
             foreach (var providerKv in this.registryPrefabToProvider) {
 
-                providerKv.Value.Update(this.list, deltaTime, hasChanged);
+                providerKv.Value.Update(this, this.list, deltaTime, hasChanged);
 
             }
 
