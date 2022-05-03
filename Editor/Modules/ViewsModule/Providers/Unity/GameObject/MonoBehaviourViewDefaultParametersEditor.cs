@@ -35,8 +35,14 @@ namespace ME.ECSEditor {
             h += this.DrawTooltipTipHeight(TOOLTIP_CUSTOM_VIEW_ID);
             h += this.DrawTooltipTipHeight(TOOLTIP_CACHE);
             h += this.DrawTooltipTipHeight(TOOLTIP_CACHE_TIMEOUT);
-            return EditorGUI.GetPropertyHeight(property, true) + h;
+            if (property.isExpanded == true) {
             
+                return EditorGUI.GetPropertyHeight(property, true) + h;
+
+            }
+
+            return EditorGUI.GetPropertyHeight(property, true);
+
         }
 
         private float DrawTooltipTipHeight(string label) {
