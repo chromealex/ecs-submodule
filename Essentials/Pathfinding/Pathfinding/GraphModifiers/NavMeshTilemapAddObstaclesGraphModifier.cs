@@ -23,40 +23,74 @@ namespace ME.ECS.Pathfinding {
         
         public override void ApplyBeforeConnections(Graph graph) {
 
+            var navMeshGraph = graph as NavMeshGraph;
+            var graphBounds = new Bounds(navMeshGraph.graphCenter, navMeshGraph.size);
+            var graphHeightMin = navMeshGraph.minHeight;
+            var graphHeightMax = navMeshGraph.maxHeight;
             var cache = PoolDictionary<int, Item>.Spawn(100);
+            var obstacles = PoolDictionary<int, System.Collections.Generic.List<Bounds>>.Spawn(3);
+            
             foreach (var item in this.items) {
 
                 cache.Add(item.requiredTile == null ? 0 : item.requiredTile.GetInstanceID(), item);
 
             }
             
-            var navMeshGraph = graph as NavMeshGraph;
+
             foreach (var pos in this.bounds.allPositionsWithin) {
 
-                UnityEngine.Vector3Int localPlace = new UnityEngine.Vector3Int(pos.x, pos.y, pos.z);
-                var tile = this.tilemap.GetTile(localPlace);
-                var id = tile == null ? 0 : tile.GetInstanceID();
-                if (cache.TryGetValue(id, out var item) == true) {
-                    
-                    var source = new UnityEngine.AI.NavMeshBuildSource {
-                        area = item.tag,
-                        shape = UnityEngine.AI.NavMeshBuildSourceShape.Box,
-                        transform = Matrix4x4.TRS(this.tilemap.GetCellCenterWorld(pos) - this.tilemap.layoutGrid.cellGap,
-                                                  this.tilemap.transform.rotation,
-                                                  this.tilemap.transform.lossyScale) * this.tilemap.orientationMatrix * this.tilemap.GetTransformMatrix(pos),
-                        size = new Vector3(item.customSize == true ? item.size.x : this.tilemap.layoutGrid.cellSize.x, item.customSize == true ? item.size.y : this.tilemap.layoutGrid.cellSize.y, item.height),
-                    };
-                    
-                    if (item.height < navMeshGraph.minHeight) navMeshGraph.SetMinMaxHeight(item.height, navMeshGraph.maxHeight);
-                    if (item.height > navMeshGraph.maxHeight) navMeshGraph.SetMinMaxHeight(navMeshGraph.minHeight, item.height);
+                var worldPosition = this.tilemap.GetCellCenterWorld(pos) - this.tilemap.layoutGrid.cellGap;
+                
+                if (graphBounds.Contains(worldPosition) == false) continue;
 
-                    navMeshGraph.AddBuildSource(source);
+                var tile = this.tilemap.GetTile(pos);
+                var id = tile == null ? 0 : tile.GetInstanceID();
+
+                if (cache.TryGetValue(id, out var item) == true) {
+
+                    if (obstacles.TryGetValue(item.tag, out var list) == false) {
+                        list = new System.Collections.Generic.List<Bounds>();
+                        obstacles[item.tag] = PoolList<Bounds>.Spawn(100);
+                    }
+                
+                    list.Add(new Bounds(worldPosition,
+                                        new Vector3(item.customSize == true ? item.size.x : this.tilemap.layoutGrid.cellSize.x,
+                                                    item.customSize == true ? item.size.y : this.tilemap.layoutGrid.cellSize.y, item.height)));
+                    
+
+                    if (item.height < graphHeightMin) graphHeightMin = item.height;
+                    if (item.height > graphHeightMax) graphHeightMax = item.height;
                     
                 }
-                
+
             }
+
+            foreach (var kv in obstacles) {
+                var count = kv.Value.Count;
+                BoundsCompressor.CompressBounds(kv.Value, 0.05f);
+
+                UnityEngine.Debug.Log($"Obstacles bounds compress from {count} to {kv.Value.Count}");
+                
+                foreach (var obstacle in kv.Value) {
+                    var source = new UnityEngine.AI.NavMeshBuildSource {
+                        area = kv.Key,
+                        shape = UnityEngine.AI.NavMeshBuildSourceShape.Box,
+                        transform = Matrix4x4.TRS(obstacle.center,
+                                                  this.tilemap.transform.rotation,
+                                                  this.tilemap.transform.lossyScale) * this.tilemap.orientationMatrix * this.tilemap.GetTransformMatrix(this.tilemap.WorldToCell(obstacle.center)),
+                        size = obstacle.size,
+                    };
+                    
+                    navMeshGraph.AddBuildSource(source);
+                }
+                
+                PoolList<Bounds>.Recycle(kv.Value);
+            }
+
+            navMeshGraph.SetMinMaxHeight(graphHeightMin, graphHeightMax);
             
             PoolDictionary<int, Item>.Recycle(ref cache);
+            PoolDictionary<int, System.Collections.Generic.List<Bounds>>.Recycle(ref obstacles);
 
         }
 
@@ -113,7 +147,7 @@ namespace ME.ECS.Pathfinding {
             
             Gizmos.color = Color.white;
             Gizmos.DrawWireCube(bounds.center, bounds.size);
-            
+
         }
 
     }
