@@ -1121,6 +1121,11 @@ namespace ME.ECS.Collections {
                 return value;
             }
         }
+        
+        public ref TValue Get(TKey key) {
+            return ref this[key];
+        }
+        
         public ref TValue this[TKey key]
         {
             get
