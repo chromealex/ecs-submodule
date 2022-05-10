@@ -18,7 +18,13 @@ namespace ME.ECS {
                 this.items[i].features.InitializePost(world);
                 
             }
-            
+
+            for (int i = 0; i < this.items.Count; ++i) {
+                
+                this.items[i].features.InitializeLate(world);
+                
+            }
+
         }
 
         public void DeInitialize(World world) {
@@ -121,10 +127,9 @@ namespace ME.ECS {
         public void InitializePost(World world) {
             
             this.InitializePost(world, this.features);
-            this.InitializeLate(world, this.features);
             
         }
-        
+
         public void InitializePost(World world, System.Collections.Generic.List<FeatureData> features) {
 
             for (int i = 0; i < features.Count; ++i) {
@@ -144,6 +149,12 @@ namespace ME.ECS {
                 
             }
 
+        }
+
+        public void InitializeLate(World world) {
+            
+            this.InitializeLate(world, this.features);
+            
         }
 
         public void InitializeLate(World world, System.Collections.Generic.List<FeatureData> features) {

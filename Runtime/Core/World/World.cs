@@ -1707,7 +1707,10 @@ namespace ME.ECS {
             
             ME.WeakRef.Reg(instance);
             this.features.Add(instance.GetType(), instance);
-            if (doConstruct == true) ((FeatureBase)instance).DoConstruct();
+            if (doConstruct == true) {
+                ((FeatureBase)instance).DoConstruct();
+                ((FeatureBase)instance).DoConstructLate();
+            }
 
             return true;
 
