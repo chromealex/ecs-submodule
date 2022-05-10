@@ -9,6 +9,13 @@ namespace ME.ECS {
     #endif
     public struct EntitiesIndexer {
 
+        private struct RemoveAllData {
+
+            public EntitiesIndexer indexer;
+            public int entityId;
+
+        }
+
         public readonly struct KeyValuePair : System.IEquatable<KeyValuePair> {
 
             public readonly int entityId;
@@ -83,10 +90,26 @@ namespace ME.ECS {
             var key = MathUtils.GetKey(entityId, componentId);
             if (this.index.Remove(key) == true) {
 
-                this.data.RemoveWhere(entityId, (e, kv) => kv.entityId == e);
+                this.data.Remove(new KeyValuePair(entityId, componentId));
                 
             }
 
+        }
+
+        public void Remove(int entityId) {
+
+            this.data.RemoveWhere(new RemoveAllData() {
+                indexer = this,
+                entityId = entityId,
+            }, (data, kv) => {
+                
+                var key = MathUtils.GetKey(data.entityId, kv.componentId);
+                data.indexer.index.Remove(key);
+
+                return kv.entityId == data.entityId;
+
+            });
+            
         }
 
         public void CopyFrom(in EntitiesIndexer other) {

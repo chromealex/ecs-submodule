@@ -33,6 +33,9 @@ namespace ME.ECS {
     public abstract partial class StructRegistryBase : IStructRegistryBase, IPoolableRecycle {
 
         public World world {
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
             get {
                 return Worlds.currentWorld;
             }
@@ -837,7 +840,9 @@ namespace ME.ECS {
                     }
 
                 }
-                
+
+                this.entitiesIndexer.Remove(entity.id);
+
             }
 
         }
