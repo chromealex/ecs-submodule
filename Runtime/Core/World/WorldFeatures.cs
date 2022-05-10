@@ -121,6 +121,7 @@ namespace ME.ECS {
         public void InitializePost(World world) {
             
             this.InitializePost(world, this.features);
+            this.InitializeLate(world, this.features);
             
         }
         
@@ -136,6 +137,27 @@ namespace ME.ECS {
                     if (item.GetSubFeatures() != null) {
 
                         this.InitializePost(world, item.GetSubFeatures().innerFeatures);
+
+                    }
+                    
+                }
+                
+            }
+
+        }
+
+        public void InitializeLate(World world, System.Collections.Generic.List<FeatureData> features) {
+
+            for (int i = 0; i < features.Count; ++i) {
+                
+                var item = features[i];
+                if (item.IsEnabled() == true) {
+                    
+                    item.featureInstance.DoConstructLate();
+                    
+                    if (item.GetSubFeatures() != null) {
+
+                        this.InitializeLate(world, item.GetSubFeatures().innerFeatures);
 
                     }
                     
@@ -193,6 +215,14 @@ namespace ME.ECS {
             
         }
 
+        internal void DoConstructLate() {
+            
+            Filter.RegisterInject(this.InjectFilter);
+            this.OnConstructLate();
+            Filter.UnregisterInject(this.InjectFilter);
+            
+        }
+
         internal void DoDeconstruct() {
 
             this.world = null;
@@ -205,6 +235,7 @@ namespace ME.ECS {
         
         protected abstract void OnConstruct();
         protected abstract void OnDeconstruct();
+        protected virtual void OnConstructLate() {}
 
         protected bool AddSystem<TSystem>() where TSystem : class, ISystemBase, new() {
 
