@@ -676,6 +676,8 @@ namespace ME.ECS.Network {
 
             if (historyEvent.storeInHistory == true) {
 
+                historyEvent.tick += this.statesHistoryModule.GetEventForwardReceiveTick();
+                
                 // Run event normally on certain tick
                 this.statesHistoryModule.AddEvent(historyEvent);
 

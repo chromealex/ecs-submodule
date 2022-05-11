@@ -205,7 +205,8 @@ namespace ME.ECS.StatesHistory {
         Tick GetLastSavedTick();
         
         uint GetEventForwardTick();
-        
+        uint GetEventForwardReceiveTick();
+
         void BeginAddEvents();
         void EndAddEvents();
 
@@ -357,6 +358,12 @@ namespace ME.ECS.StatesHistory {
             return next;
 
         }
+
+        uint IStatesHistoryModuleBase.GetEventForwardReceiveTick() {
+
+            return this.GetTicksForReceive();
+
+        }
         
         void IStatesHistoryModuleBase.SetEventRunner(IEventRunner eventRunner) {
 
@@ -434,6 +441,10 @@ namespace ME.ECS.StatesHistory {
 
         }
 
+        /// <summary>
+        /// Here you can set up history states capacity
+        /// </summary>
+        /// <returns></returns>
         protected virtual uint GetQueueCapacity() {
 
             return StatesHistoryModule<TState>.DEFAULT_QUEUE_CAPACITY;
@@ -451,7 +462,17 @@ namespace ME.ECS.StatesHistory {
         }
 
         /// <summary>
-        /// Event event should run on N ticks forward
+        /// Event should run on N ticks forward (after receive it from server)
+        /// </summary>
+        /// <returns></returns>
+        protected virtual uint GetTicksForReceive() {
+            
+            return Tick.Zero;
+            
+        }
+
+        /// <summary>
+        /// Event should run on N ticks forward (before send it to server)
         /// </summary>
         /// <returns></returns>
         protected virtual uint GetTicksForInput() {
@@ -488,22 +509,22 @@ namespace ME.ECS.StatesHistory {
 
         public void EndAddEvents() {
 
-            if (this.beginAddEvents == true && this.beginAddEventsCount > 0) {
+            /*if (this.beginAddEvents == true && this.beginAddEventsCount > 0) {
                 
                 //this.Simulate(this.beginAddEventsTick, this.currentTick);
 
-                //var module = this.world.GetModule<ME.ECS.Network.NetworkModule<TState>>();
+                var module = this.world.GetModule<ME.ECS.Network.NetworkModule<TState>>();
                 var st = this.GetStateBeforeTick(this.oldestTick, out var syncTick);
                 if (st == null || syncTick == Tick.Invalid) st = this.world.GetResetState<TState>();
 
-                /*if (st.tick > module.syncedTick) {
+                if (st.tick > module.syncedTick) {
 
                     module.syncedTick = st.tick;
                     module.syncHash = this.GetStateHash(st);
 
-                }*/
+                }
 
-            }
+            }*/
             
             this.beginAddEvents = false;
             
