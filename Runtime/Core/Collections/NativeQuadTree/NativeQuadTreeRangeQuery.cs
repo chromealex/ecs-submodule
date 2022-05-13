@@ -95,20 +95,20 @@ namespace ME.ECS.Collections {
             }
 
             private static AABB2D GetChildBounds(AABB2D parentBounds, int childZIndex) {
-                var half = parentBounds.Extents.x * .5f;
+                var half = parentBounds.Extents * .5f;
 
                 switch (childZIndex) {
                     case 0:
-                        return new AABB2D(new float2(parentBounds.Center.x - half, parentBounds.Center.y + half), half);
+                        return new AABB2D(new float2(parentBounds.Center.x - half.x, parentBounds.Center.y + half.y), half);
 
                     case 1:
-                        return new AABB2D(new float2(parentBounds.Center.x + half, parentBounds.Center.y + half), half);
+                        return new AABB2D(new float2(parentBounds.Center.x + half.x, parentBounds.Center.y + half.y), half);
 
                     case 2:
-                        return new AABB2D(new float2(parentBounds.Center.x - half, parentBounds.Center.y - half), half);
+                        return new AABB2D(new float2(parentBounds.Center.x - half.x, parentBounds.Center.y - half.y), half);
 
                     case 3:
-                        return new AABB2D(new float2(parentBounds.Center.x + half, parentBounds.Center.y - half), half);
+                        return new AABB2D(new float2(parentBounds.Center.x + half.x, parentBounds.Center.y - half.y), half);
 
                     default:
                         throw new Exception();
