@@ -141,6 +141,17 @@ namespace ME.ECS {
         }
 
         #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool IsDeadPrepared(int entityId) {
+
+            if (this.deadPrepared.Count == 0) return false;
+
+            return this.deadPrepared.Contains(entityId);
+
+        }
+
+        #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public ListCopyable<int> GetAlive() {

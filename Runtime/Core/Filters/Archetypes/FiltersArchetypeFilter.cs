@@ -66,6 +66,7 @@ namespace ME.ECS {
                     }
 
                     var entityId = this.arr[this.index];
+                    if (Worlds.current.currentState.storage.IsDeadPrepared(entityId) == true) return false;
                     this.current = this.filterData.storage.GetEntityById(entityId);
 
                     if (connectedTracked > 0) {

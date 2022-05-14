@@ -197,7 +197,8 @@ namespace ME.ECS.Collections {
 
         public TValue GetValueAndRemove(TKey key) {
             
-            var val = this.GetValue(key);
+            var val = this.GetValue(key, out var result);
+            if (result == false) throw new Exception($"GetValueAndRemove: key doesn't exist: {key}");
             this.Remove(key);
             return val;
 

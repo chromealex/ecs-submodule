@@ -42,7 +42,7 @@ namespace ME.ECS.Collections {
             public ref T this[int index] {
                 [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
                 get {
-                    if (this.isCreated == false || index >= this.usedLength) throw new System.IndexOutOfRangeException($"Index: {index} [0..{this.usedLength}], Tick: {Worlds.currentWorld.GetCurrentTick()}");
+                    if (this.isCreated == false || index < 0 || index >= this.usedLength) throw new System.IndexOutOfRangeException($"Index: {index} [0..{this.usedLength}], Tick: {Worlds.currentWorld.GetCurrentTick()}");
                     return ref this.data[index];
                 }
             }
@@ -124,6 +124,12 @@ namespace ME.ECS.Collections {
             this.isCreated = (length > 0 && arr != null);
 
             #if UNITY_EDITOR && EDITOR_ARRAY
+            {
+                var len = (realLength >= 0 ? realLength : length);
+                if (arr != null && arr.Length < len) {
+                    throw new System.Exception($"BufferArray try to being created with arr.Length < used_length ({arr.Length} < {len})");
+                }
+            }
             this.arr.data = arr;
             this.arr.Length = (arr != null ? arr.Length : 0);
             this.arr.usedLength = (realLength >= 0 ? realLength : length);

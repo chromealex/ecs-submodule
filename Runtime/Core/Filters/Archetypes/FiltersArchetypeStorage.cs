@@ -717,7 +717,7 @@ namespace ME.ECS.FiltersArchetype {
             this.versions.Reset(id);
 
             this.OnAlloc(e.id);
-
+            
             return ref e;
 
         }
@@ -729,7 +729,7 @@ namespace ME.ECS.FiltersArchetype {
                 return false;
             }
 
-            //using (NoStackTrace.All) UnityEngine.Debug.Log("Dealloc: " + entity + ", tick: " + Worlds.current.GetCurrentTick());
+            //UnityEngine.Debug.Log("Dealloc: " + entity + ", tick: " + Worlds.current.GetCurrentTick());
             this.deadPrepared.Add(entity.id);
 
             return true;
@@ -1350,6 +1350,17 @@ namespace ME.ECS.FiltersArchetype {
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
         public void SetFreeze(bool freeze) { }
+
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool IsDeadPrepared(int entityId) {
+
+            if (this.deadPrepared.Count == 0) return false;
+
+            return this.deadPrepared.Contains(entityId);
+
+        }
 
     }
 

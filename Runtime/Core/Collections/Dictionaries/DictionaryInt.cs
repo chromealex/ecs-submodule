@@ -210,17 +210,26 @@ namespace ME.ECS.Collections {
         }
  
         public TValue this[TKey key] {
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             get {
                 int i = this.FindEntry(key);
                 if (i >= 0) return this.entries[i].value;
                 ThrowHelper.ThrowKeyNotFoundException();
                 return default(TValue);
             }
+            #if INLINE_METHODS
+            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            #endif
             set {
                 this.Insert(key, value, false);
             }
         }
 
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
         public ref TValue GetValue(TKey key) {
             int i = this.FindEntry(key);
             if (i >= 0) {
@@ -231,6 +240,9 @@ namespace ME.ECS.Collections {
             
         }
 
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
         public ref TValue GetValue(TKey key, out bool exist) {
             int i = this.FindEntry(key);
             if (i >= 0) {
@@ -243,9 +255,13 @@ namespace ME.ECS.Collections {
             
         }
 
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
         public TValue GetValueAndRemove(TKey key) {
             
-            var val = this.GetValue(key);
+            var val = this.GetValue(key, out var result);
+            if (result == false) throw new Exception($"GetValueAndRemove: key doesn't exist: {key}");
             this.Remove(key);
             return val;
 

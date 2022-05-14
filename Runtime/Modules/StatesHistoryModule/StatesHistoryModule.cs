@@ -617,7 +617,6 @@ namespace ME.ECS.StatesHistory {
                 }
                 
             }
-            
             return arr;
 
         }
