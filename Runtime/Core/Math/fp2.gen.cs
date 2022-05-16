@@ -25,6 +25,7 @@ namespace ME.ECS
 
         /// <summary>fp2 zero value.</summary>
         public static readonly fp2 zero;
+        public static readonly fp2 one = new fp2(1f, 1f);
 
         public fp magnitude => fpmath.length(this);
         public fp sqrMagnitude => fpmath.lengthsq(this);

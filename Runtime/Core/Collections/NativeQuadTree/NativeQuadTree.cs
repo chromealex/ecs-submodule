@@ -112,12 +112,12 @@ namespace ME.ECS.Collections {
 
             // Prepare morton codes
             var mortonCodes = new NativeArray<int>(incomingElementsLength, Allocator.Temp);
-            var depthExtentsScaling = LookupTables.DepthLookup[this.maxDepth] / this.bounds.Extents;
+            var depthExtentsScaling = LookupTables.DepthLookup[this.maxDepth] / this.bounds.extents;
             for (var i = 0; i < incomingElementsLength; i++) {
                 var incPos = incomingElements[i].pos;
-                incPos -= this.bounds.Center; // Offset by center
+                incPos -= this.bounds.center; // Offset by center
                 incPos.y = -incPos.y; // World -> array
-                var pos = (incPos + this.bounds.Extents) * .5f; // Make positive
+                var pos = (incPos + this.bounds.extents) * .5f; // Make positive
                 // Now scale into available space that belongs to the depth
                 pos *= depthExtentsScaling;
                 // And interleave the bits for the morton code
@@ -197,6 +197,13 @@ namespace ME.ECS.Collections {
             AtomicSafetyHandle.CheckReadAndThrow(this.safetyHandle);
             #endif
             new QuadTreeRangeQuery().Query(this, bounds, results);
+        }
+
+        public void RangeRadiusQuery(AABB2D bounds, float radius, NativeList<QuadElement<T>> results) {
+            #if ENABLE_UNITY_COLLECTIONS_CHECKS
+            AtomicSafetyHandle.CheckReadAndThrow(this.safetyHandle);
+            #endif
+            new QuadTreeRangeQuery().RadiusQuery(this, bounds, radius, results);
         }
 
         public void Clear() {

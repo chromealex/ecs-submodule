@@ -26,6 +26,7 @@ namespace ME.ECS
 
         /// <summary>fp3 zero value.</summary>
         public static readonly fp3 zero;
+        public static readonly fp3 one = new fp3(1f, 1f, 1f);
 
         public fp magnitude => fpmath.length(this);
         public fp sqrMagnitude => fpmath.lengthsq(this);

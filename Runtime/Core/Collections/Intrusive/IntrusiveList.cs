@@ -625,13 +625,11 @@ namespace ME.ECS.Collections {
 
             var link = node.Read<IntrusiveListNode>();
             if (link.prev.IsAlive() == true) {
-                ref var prev = ref link.prev.Get<IntrusiveListNode>();
-                prev.next = link.next;
+                link.prev.Get<IntrusiveListNode>().next = link.next;
             }
 
             if (link.next.IsAlive() == true) {
-                ref var next = ref link.next.Get<IntrusiveListNode>();
-                next.prev = link.prev;
+                link.next.Get<IntrusiveListNode>().prev = link.prev;
             }
 
             if (node == this.root) this.root = link.next;
@@ -656,9 +654,7 @@ namespace ME.ECS.Collections {
         private static Entity CreateNode(in Entity data) {
 
             var node = new Entity("IntrusiveListNode");
-            ref var nodeLink = ref node.Get<IntrusiveListNode>();
-            nodeLink.data = data;
-
+            node.Get<IntrusiveListNode>().data = data;
             return node;
 
         }

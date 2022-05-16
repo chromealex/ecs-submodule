@@ -12,11 +12,11 @@ namespace ME.ECS.Collections {
 
         public static void Draw(NativeQuadTree<T> tree, NativeList<QuadElement<T>> results, AABB2D range,
                                 Color[][] texture) {
-            var widthMult = texture.Length / tree.bounds.Extents.x * 2 / 2 / 2;
-            var heightMult = texture[0].Length / tree.bounds.Extents.y * 2 / 2 / 2;
+            var widthMult = texture.Length / tree.bounds.extents.x * 2 / 2 / 2;
+            var heightMult = texture[0].Length / tree.bounds.extents.y * 2 / 2 / 2;
 
-            var widthAdd = tree.bounds.Center.x + tree.bounds.Extents.x;
-            var heightAdd = tree.bounds.Center.y + tree.bounds.Extents.y;
+            var widthAdd = tree.bounds.center.x + tree.bounds.extents.x;
+            var heightAdd = tree.bounds.center.y + tree.bounds.extents.y;
 
             for (var i = 0; i < tree.nodes.Length; i++) {
 
@@ -42,25 +42,25 @@ namespace ME.ECS.Collections {
         }
 
         private static void DrawBounds(Color[][] texture, AABB2D bounds, NativeQuadTree<T> tree) {
-            var widthMult = texture.Length / tree.bounds.Extents.x * 2 / 2 / 2;
-            var heightMult = texture[0].Length / tree.bounds.Extents.y * 2 / 2 / 2;
+            var widthMult = texture.Length / tree.bounds.extents.x * 2 / 2 / 2;
+            var heightMult = texture[0].Length / tree.bounds.extents.y * 2 / 2 / 2;
 
-            var widthAdd = tree.bounds.Center.x + tree.bounds.Extents.x;
-            var heightAdd = tree.bounds.Center.y + tree.bounds.Extents.y;
+            var widthAdd = tree.bounds.center.x + tree.bounds.extents.x;
+            var heightAdd = tree.bounds.center.y + tree.bounds.extents.y;
 
-            var top = new float2(bounds.Center.x, bounds.Center.y - bounds.Extents.y);
-            var left = new float2(bounds.Center.x - bounds.Extents.x, bounds.Center.y);
+            var top = new float2(bounds.center.x, bounds.center.y - bounds.extents.y);
+            var left = new float2(bounds.center.x - bounds.extents.x, bounds.center.y);
 
-            for (var leftToRight = 0; leftToRight < bounds.Extents.x * 2; leftToRight++) {
+            for (var leftToRight = 0; leftToRight < bounds.extents.x * 2; leftToRight++) {
                 var poxX = left.x + leftToRight;
-                texture[(int)((poxX + widthAdd) * widthMult)][(int)((bounds.Center.y + heightAdd + bounds.Extents.y) * heightMult)] = Color.blue;
-                texture[(int)((poxX + widthAdd) * widthMult)][(int)((bounds.Center.y + heightAdd - bounds.Extents.y) * heightMult)] = Color.blue;
+                texture[(int)((poxX + widthAdd) * widthMult)][(int)((bounds.center.y + heightAdd + bounds.extents.y) * heightMult)] = Color.blue;
+                texture[(int)((poxX + widthAdd) * widthMult)][(int)((bounds.center.y + heightAdd - bounds.extents.y) * heightMult)] = Color.blue;
             }
 
-            for (var topToBottom = 0; topToBottom < bounds.Extents.y * 2; topToBottom++) {
+            for (var topToBottom = 0; topToBottom < bounds.extents.y * 2; topToBottom++) {
                 var posY = top.y + topToBottom;
-                texture[(int)((bounds.Center.x + widthAdd + bounds.Extents.x) * widthMult)][(int)((posY + heightAdd) * heightMult)] = Color.blue;
-                texture[(int)((bounds.Center.x + widthAdd - bounds.Extents.x) * widthMult)][(int)((posY + heightAdd) * heightMult)] = Color.blue;
+                texture[(int)((bounds.center.x + widthAdd + bounds.extents.x) * widthMult)][(int)((posY + heightAdd) * heightMult)] = Color.blue;
+                texture[(int)((bounds.center.x + widthAdd - bounds.extents.x) * widthMult)][(int)((posY + heightAdd) * heightMult)] = Color.blue;
             }
         }
 

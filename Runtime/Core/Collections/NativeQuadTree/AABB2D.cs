@@ -6,32 +6,32 @@ namespace ME.ECS.Collections {
     [Serializable]
     public struct AABB2D {
 
-        public float2 Center;
-        public float2 Extents;
+        public float2 center;
+        public float2 extents;
 
-        public float2 Size => this.Extents * 2;
-        public float2 Min => this.Center - this.Extents;
-        public float2 Max => this.Center + this.Extents;
+        public float2 size => this.extents * 2;
+        public float2 min => this.center - this.extents;
+        public float2 max => this.center + this.extents;
 
         public AABB2D(UnityEngine.Vector2 center, float2 extents) {
-            this.Center = center;
-            this.Extents = extents;
+            this.center = center;
+            this.extents = extents;
         }
 
         public bool Contains(float2 point) {
-            if (point[0] < this.Center[0] - this.Extents[0]) {
+            if (point[0] < this.center[0] - this.extents[0]) {
                 return false;
             }
 
-            if (point[0] > this.Center[0] + this.Extents[0]) {
+            if (point[0] > this.center[0] + this.extents[0]) {
                 return false;
             }
 
-            if (point[1] < this.Center[1] - this.Extents[1]) {
+            if (point[1] < this.center[1] - this.extents[1]) {
                 return false;
             }
 
-            if (point[1] > this.Center[1] + this.Extents[1]) {
+            if (point[1] > this.center[1] + this.extents[1]) {
                 return false;
             }
 
@@ -39,8 +39,8 @@ namespace ME.ECS.Collections {
         }
 
         public bool Contains(AABB2D b) {
-            return this.Contains(b.Center + new float2(-b.Extents.x, -b.Extents.y)) && this.Contains(b.Center + new float2(-b.Extents.x, b.Extents.y)) &&
-                   this.Contains(b.Center + new float2(b.Extents.x, -b.Extents.y)) && this.Contains(b.Center + new float2(b.Extents.x, b.Extents.y));
+            return this.Contains(b.center + new float2(-b.extents.x, -b.extents.y)) && this.Contains(b.center + new float2(-b.extents.x, b.extents.y)) &&
+                   this.Contains(b.center + new float2(b.extents.x, -b.extents.y)) && this.Contains(b.center + new float2(b.extents.x, b.extents.y));
         }
 
         public bool Intersects(AABB2D b) {
@@ -51,8 +51,8 @@ namespace ME.ECS.Collections {
             //
             //return !noOverlap;
 
-            return math.abs(this.Center[0] - b.Center[0]) < this.Extents[0] + b.Extents[0] &&
-                   math.abs(this.Center[1] - b.Center[1]) < this.Extents[1] + b.Extents[1];
+            return math.abs(this.center[0] - b.center[0]) < this.extents[0] + b.extents[0] &&
+                   math.abs(this.center[1] - b.center[1]) < this.extents[1] + b.extents[1];
         }
 
     }
