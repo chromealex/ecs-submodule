@@ -3,6 +3,22 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 
+#if FIXED_POINT_MATH
+using MATH = ME.ECS.fpmath;
+using FLOAT = ME.ECS.fp;
+using FLOAT2 = ME.ECS.fp2;
+using FLOAT3 = ME.ECS.fp3;
+using FLOAT4 = ME.ECS.fp4;
+using QUATERNION = ME.ECS.fpquaternion;
+#else
+using MATH = Unity.Mathematics.math;
+using FLOAT = System.Single;
+using FLOAT2 = UnityEngine.Vector2;
+using FLOAT3 = UnityEngine.Vector3;
+using FLOAT4 = UnityEngine.Vector4;
+using QUATERNION = UnityEngine.Quaternion;
+#endif
+
 namespace ME.ECS.Collections {
 
     public unsafe partial struct NativeQuadTree<T> where T : unmanaged {
@@ -12,7 +28,7 @@ namespace ME.ECS.Collections {
             private NativeQuadTree<T> tree;
             private int count;
             private AABB2D bounds;
-            private float radiusSqr;
+            private FLOAT radiusSqr;
             private bool checkRadius;
 
             public void Query(NativeQuadTree<T> tree, in AABB2D bounds, NativeList<QuadElement<T>> results) {
@@ -30,7 +46,7 @@ namespace ME.ECS.Collections {
                 //this.fastResults->Length = this.count;
             }
 
-            public void RadiusQuery(NativeQuadTree<T> tree, in AABB2D bounds, float radius, NativeList<QuadElement<T>> results) {
+            public void RadiusQuery(NativeQuadTree<T> tree, in AABB2D bounds, FLOAT radius, NativeList<QuadElement<T>> results) {
                 
                 this.tree = tree;
                 this.bounds = bounds;
@@ -100,7 +116,7 @@ namespace ME.ECS.Collections {
                                 var element = this.tree.elements[node.firstChildIndex + k];
                                 //UnsafeUtility.ReadArrayElement<QuadElement<T>>(tree.elements->Ptr, node.firstChildIndex + k);
                                 if (this.bounds.Contains(element.pos) == true &&
-                                    (this.checkRadius == false || math.distancesq(element.pos, this.bounds.center) <= this.radiusSqr)) {
+                                    (this.checkRadius == false || MATH.distancesq(element.pos, this.bounds.center) <= this.radiusSqr)) {
                                     //UnsafeUtility.WriteArrayElement(this.fastResults->Ptr, this.count++, element);
                                     results[this.count++] = element;
                                 }
@@ -120,16 +136,16 @@ namespace ME.ECS.Collections {
 
                 switch (childZIndex) {
                     case 0:
-                        return new AABB2D(new float2(parentBounds.center.x - half.x, parentBounds.center.y + half.y), half);
+                        return new AABB2D(new FLOAT2(parentBounds.center.x - half.x, parentBounds.center.y + half.y), half);
 
                     case 1:
-                        return new AABB2D(new float2(parentBounds.center.x + half.x, parentBounds.center.y + half.y), half);
+                        return new AABB2D(new FLOAT2(parentBounds.center.x + half.x, parentBounds.center.y + half.y), half);
 
                     case 2:
-                        return new AABB2D(new float2(parentBounds.center.x - half.x, parentBounds.center.y - half.y), half);
+                        return new AABB2D(new FLOAT2(parentBounds.center.x - half.x, parentBounds.center.y - half.y), half);
 
                     case 3:
-                        return new AABB2D(new float2(parentBounds.center.x + half.x, parentBounds.center.y - half.y), half);
+                        return new AABB2D(new FLOAT2(parentBounds.center.x + half.x, parentBounds.center.y - half.y), half);
 
                     default:
                         throw new Exception();

@@ -1,4 +1,21 @@
-﻿namespace ME.ECS.Collections {
+﻿
+#if FIXED_POINT_MATH
+using MATH = ME.ECS.fpmath;
+using FLOAT = ME.ECS.fp;
+using FLOAT2 = ME.ECS.fp2;
+using FLOAT3 = ME.ECS.fp3;
+using FLOAT4 = ME.ECS.fp4;
+using QUATERNION = ME.ECS.fpquaternion;
+#else
+using MATH = Unity.Mathematics.math;
+using FLOAT = System.Single;
+using FLOAT2 = UnityEngine.Vector2;
+using FLOAT3 = UnityEngine.Vector3;
+using FLOAT4 = UnityEngine.Vector4;
+using QUATERNION = UnityEngine.Quaternion;
+#endif
+
+namespace ME.ECS.Collections {
 
     using System.Collections.Generic;
 
@@ -12,7 +29,7 @@
 
         private struct Node {
 
-            public float priority;
+            public FLOAT priority;
             public T @object;
 
         }
@@ -50,7 +67,7 @@
         /// </summary>
         /// <param name="priority"></param>
         /// <param name="obj"></param>
-        public void Enqueue(float priority, T obj) {
+        public void Enqueue(FLOAT priority, T obj) {
             var node = new Node() { priority = priority, @object = obj };
             this.queue.Add(node);
             this.heapSize++;
@@ -238,7 +255,7 @@
         /// </summary>
         /// <param name="priority"></param>
         /// <param name="obj"></param>
-        public void Enqueue(float priority, T obj) {
+        public void Enqueue(FLOAT priority, T obj) {
             var node = new Node() { priority = priority, @object = obj };
             this.queue.Add(node);
             this.heapSize++;

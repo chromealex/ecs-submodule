@@ -1,37 +1,57 @@
 using System;
-using Unity.Mathematics;
+
+#if FIXED_POINT_MATH
+using MATH = ME.ECS.fpmath;
+using FLOAT = ME.ECS.fp;
+using FLOAT2 = ME.ECS.fp2;
+using FLOAT3 = ME.ECS.fp3;
+using FLOAT4 = ME.ECS.fp4;
+using QUATERNION = ME.ECS.fpquaternion;
+#else
+using MATH = Unity.Mathematics.math;
+using FLOAT = System.Single;
+using FLOAT2 = UnityEngine.Vector2;
+using FLOAT3 = UnityEngine.Vector3;
+using FLOAT4 = UnityEngine.Vector4;
+using QUATERNION = UnityEngine.Quaternion;
+#endif
 
 namespace ME.ECS.Collections {
 
     [Serializable]
     public struct AABB2D {
 
-        public float2 center;
-        public float2 extents;
+        public FLOAT2 center;
+        public FLOAT2 extents;
 
-        public float2 size => this.extents * 2;
-        public float2 min => this.center - this.extents;
-        public float2 max => this.center + this.extents;
+        public FLOAT2 size => this.extents * 2;
+        public FLOAT2 min => this.center - this.extents;
+        public FLOAT2 max => this.center + this.extents;
 
-        public AABB2D(UnityEngine.Vector2 center, float2 extents) {
+        public AABB2D(UnityEngine.Vector2 center, Unity.Mathematics.float2 extents) {
+            this.center = center;
+            this.extents = new FLOAT2(extents.x, extents.y);
+        }
+
+        public AABB2D(FLOAT2 center, FLOAT2 extents) {
             this.center = center;
             this.extents = extents;
         }
 
-        public bool Contains(float2 point) {
-            if (point[0] < this.center[0] - this.extents[0]) {
+        public bool Contains(FLOAT2 point) {
+            if (point.x < this.center.x - this.extents.x) {
                 return false;
             }
 
-            if (point[0] > this.center[0] + this.extents[0]) {
+            if (point.x > this.center.x + this.extents.x) {
                 return false;
             }
 
-            if (point[1] < this.center[1] - this.extents[1]) {
+            if (point.y < this.center.y - this.extents.y) {
                 return false;
             }
 
-            if (point[1] > this.center[1] + this.extents[1]) {
+            if (point.y > this.center.y + this.extents.y) {
                 return false;
             }
 
@@ -39,20 +59,13 @@ namespace ME.ECS.Collections {
         }
 
         public bool Contains(AABB2D b) {
-            return this.Contains(b.center + new float2(-b.extents.x, -b.extents.y)) && this.Contains(b.center + new float2(-b.extents.x, b.extents.y)) &&
-                   this.Contains(b.center + new float2(b.extents.x, -b.extents.y)) && this.Contains(b.center + new float2(b.extents.x, b.extents.y));
+            return this.Contains(b.center + new FLOAT2(-b.extents.x, -b.extents.y)) && this.Contains(b.center + new FLOAT2(-b.extents.x, b.extents.y)) &&
+                   this.Contains(b.center + new FLOAT2(b.extents.x, -b.extents.y)) && this.Contains(b.center + new FLOAT2(b.extents.x, b.extents.y));
         }
 
         public bool Intersects(AABB2D b) {
-            //bool noOverlap = Min[0] > b.Max[0] ||
-            //                 b.Min[0] > Max[0]||
-            //                 Min[1] > b.Max[1] ||
-            //                 b.Min[1] > Max[1];
-            //
-            //return !noOverlap;
-
-            return math.abs(this.center[0] - b.center[0]) < this.extents[0] + b.extents[0] &&
-                   math.abs(this.center[1] - b.center[1]) < this.extents[1] + b.extents[1];
+            return MATH.abs(this.center.x - b.center.x) < this.extents.x + b.extents.x &&
+                   MATH.abs(this.center.y - b.center.y) < this.extents.y + b.extents.y;
         }
 
     }

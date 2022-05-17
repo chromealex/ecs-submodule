@@ -2,6 +2,22 @@
 #define INLINE_METHODS
 #endif
 
+#if FIXED_POINT_MATH
+using MATH = ME.ECS.fpmath;
+using FLOAT = ME.ECS.fp;
+using FLOAT2 = ME.ECS.fp2;
+using FLOAT3 = ME.ECS.fp3;
+using FLOAT4 = ME.ECS.fp4;
+using QUATERNION = ME.ECS.fpquaternion;
+#else
+using MATH = Unity.Mathematics.math;
+using FLOAT = System.Single;
+using FLOAT2 = UnityEngine.Vector2;
+using FLOAT3 = UnityEngine.Vector3;
+using FLOAT4 = UnityEngine.Vector4;
+using QUATERNION = UnityEngine.Quaternion;
+#endif
+
 namespace ME.ECS {
 
     using Collections;
@@ -276,7 +292,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity SetTimer(this in Entity entity, int index, float time) {
+        public static Entity SetTimer(this in Entity entity, int index, FLOAT time) {
 
             Worlds.currentWorld.SetTimer(in entity, index, time);
             return entity;
@@ -482,7 +498,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity Set<TComponent>(this in Entity entity, in TComponent data, ComponentLifetime lifetime, float customLifetime) where TComponent : struct, IStructComponent {
+        public static Entity Set<TComponent>(this in Entity entity, in TComponent data, ComponentLifetime lifetime, FLOAT customLifetime) where TComponent : struct, IStructComponent {
 
             Worlds.currentWorld.SetData(in entity, in data, lifetime, customLifetime);
             return entity;

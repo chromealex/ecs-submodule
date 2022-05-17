@@ -3,6 +3,22 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 
+#if FIXED_POINT_MATH
+using MATH = ME.ECS.fpmath;
+using FLOAT = ME.ECS.fp;
+using FLOAT2 = ME.ECS.fp2;
+using FLOAT3 = ME.ECS.fp3;
+using FLOAT4 = ME.ECS.fp4;
+using QUATERNION = ME.ECS.fpquaternion;
+#else
+using MATH = Unity.Mathematics.math;
+using FLOAT = System.Single;
+using FLOAT2 = UnityEngine.Vector2;
+using FLOAT3 = UnityEngine.Vector3;
+using FLOAT4 = UnityEngine.Vector4;
+using QUATERNION = UnityEngine.Quaternion;
+#endif
+
 namespace ME.ECS.Collections {
 
     public static class NativeQuadTreeUtils {
@@ -25,7 +41,13 @@ namespace ME.ECS.Collections {
 
         }
 
-        public static void GetResults(in UnityEngine.Vector2 position, UnityEngine.Vector2 size, Unity.Collections.NativeList<QuadElement<Entity>> results) {
+        public static void GetResults(in FLOAT2 position, FLOAT radius, Unity.Collections.NativeList<QuadElement<Entity>> results) {
+
+            NativeQuadTreeUtils<Entity>.GetResults(position, radius, results);
+
+        }
+
+        public static void GetResults(in FLOAT2 position, FLOAT2 size, Unity.Collections.NativeList<QuadElement<Entity>> results) {
 
             NativeQuadTreeUtils<Entity>.GetResults(position, size, results);
 
@@ -60,14 +82,14 @@ namespace ME.ECS.Collections {
 
         }
 
-        public static void GetResults(in float2 position, float radius, Unity.Collections.NativeList<QuadElement<T>> results) {
+        public static void GetResults(in FLOAT2 position, FLOAT radius, Unity.Collections.NativeList<QuadElement<T>> results) {
 
             if (NativeQuadTreeUtils<T>.tempTree.isCreated == false) {
                 throw new System.Exception("Temp tree collection has been disposed");
             }
             new QuadTreeJobs.QueryRadiusJob<T>() {
                 quadTree = NativeQuadTreeUtils<T>.tempTree,
-                bounds = new AABB2D(position, new Unity.Mathematics.float2(radius, radius)),
+                bounds = new AABB2D(position, new FLOAT2(radius, radius)),
                 radius = radius,
                 results = results,
             }.Schedule(NativeQuadTreeUtils<T>.jobHandle).Complete();
@@ -75,7 +97,7 @@ namespace ME.ECS.Collections {
 
         }
 
-        public static void GetResults(in float2 position, in float2 size, Unity.Collections.NativeList<QuadElement<T>> results) {
+        public static void GetResults(in FLOAT2 position, in FLOAT2 size, Unity.Collections.NativeList<QuadElement<T>> results) {
 
             if (NativeQuadTreeUtils<T>.tempTree.isCreated == false) {
                 throw new System.Exception("Temp tree collection has been disposed");
@@ -124,7 +146,7 @@ namespace ME.ECS.Collections {
 
             public NativeQuadTree<T> quadTree;
             public AABB2D bounds;
-            public float radius;
+            public FLOAT radius;
             public NativeList<QuadElement<T>> results;
 
             public void Execute() {

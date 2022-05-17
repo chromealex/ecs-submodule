@@ -31,7 +31,7 @@ namespace ME.ECS {
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalScale2D(this in Entity child, in FLOAT2 scale) => Worlds.currentWorld.SetData(in child, scale.ToScaleStruct());
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static FLOAT2 GetLocalPosition2D(this in Entity child) => child.Read<Position2D>().ToVector2();
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static FLOAT GetLocalRotation2D(this in Entity child) => child.Read<Rotation2D>().ToQuaternion2D();
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static UnityEngine.Vector2 GetLocalScale2D(this in Entity child) => child.Read<Scale2D>().ToVector2();
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static FLOAT2 GetLocalScale2D(this in Entity child) => child.Read<Scale2D>().ToVector2();
         
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static Position2D ToPositionStruct(this in FLOAT2 v) => new Position2D() { value = v };
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static FLOAT2 ToVector2(this in Position2D v) => v.value;

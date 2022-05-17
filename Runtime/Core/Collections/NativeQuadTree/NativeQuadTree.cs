@@ -3,12 +3,28 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 
+#if FIXED_POINT_MATH
+using MATH = ME.ECS.fpmath;
+using FLOAT = ME.ECS.fp;
+using FLOAT2 = ME.ECS.fp2;
+using FLOAT3 = ME.ECS.fp3;
+using FLOAT4 = ME.ECS.fp4;
+using QUATERNION = ME.ECS.fpquaternion;
+#else
+using MATH = Unity.Mathematics.math;
+using FLOAT = System.Single;
+using FLOAT2 = UnityEngine.Vector2;
+using FLOAT3 = UnityEngine.Vector3;
+using FLOAT4 = UnityEngine.Vector4;
+using QUATERNION = UnityEngine.Quaternion;
+#endif
+
 namespace ME.ECS.Collections {
 
     // Represents an element node in the quadtree.
     public struct QuadElement<T> where T : unmanaged {
 
-        public float2 pos;
+        public FLOAT2 pos;
         public T element;
 
     }
@@ -199,7 +215,7 @@ namespace ME.ECS.Collections {
             new QuadTreeRangeQuery().Query(this, bounds, results);
         }
 
-        public void RangeRadiusQuery(AABB2D bounds, float radius, NativeList<QuadElement<T>> results) {
+        public void RangeRadiusQuery(AABB2D bounds, FLOAT radius, NativeList<QuadElement<T>> results) {
             #if ENABLE_UNITY_COLLECTIONS_CHECKS
             AtomicSafetyHandle.CheckReadAndThrow(this.safetyHandle);
             #endif

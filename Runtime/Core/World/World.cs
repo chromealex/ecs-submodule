@@ -12,11 +12,15 @@ using System.Collections.Generic;
 using Unity.Jobs;
 
 #if FIXED_POINT_MATH
+using MATH = ME.ECS.fpmath;
+using FLOAT = ME.ECS.fp;
 using FLOAT2 = ME.ECS.fp2;
 using FLOAT3 = ME.ECS.fp3;
 using FLOAT4 = ME.ECS.fp4;
 using QUATERNION = ME.ECS.fpquaternion;
 #else
+using MATH = Unity.Mathematics.math;
+using FLOAT = System.Single;
 using FLOAT2 = UnityEngine.Vector2;
 using FLOAT3 = UnityEngine.Vector3;
 using FLOAT4 = UnityEngine.Vector4;
@@ -132,9 +136,9 @@ namespace ME.ECS {
 
         internal ICheckpointCollector checkpointCollector;
 
-        internal float tickTime;
+        internal FLOAT tickTime;
         internal double timeSinceStart;
-        internal float speed;
+        internal FLOAT speed;
         public bool isActive;
 
         public IContext currentSystemContext { get; internal set; }
@@ -197,7 +201,7 @@ namespace ME.ECS {
         internal int entitiesCapacity;
         private bool isLoading;
         private bool isLoaded;
-        private float loadingProgress;
+        private FLOAT loadingProgress;
         public bool isPaused { private set; get; }
 
         void IPoolableSpawn.OnSpawn() {
@@ -699,7 +703,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public FLOAT3 GetRandomInSphere(FLOAT3 center, float maxRadius) {
+        public FLOAT3 GetRandomInSphere(FLOAT3 center, FLOAT maxRadius) {
         
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -717,7 +721,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public FLOAT2 GetRandomInCircle(FLOAT2 center, float maxRadius) {
+        public FLOAT2 GetRandomInCircle(FLOAT2 center, FLOAT maxRadius) {
         
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -765,7 +769,7 @@ namespace ME.ECS {
         /// <param name="from">Inclusive</param>
         /// <param name="to">Inclusive</param>
         /// <returns></returns>
-        public float GetRandomRange(float from, float to) {
+        public FLOAT GetRandomRange(FLOAT from, FLOAT to) {
         
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -787,7 +791,7 @@ namespace ME.ECS {
         /// Returns random number 0..1
         /// </summary>
         /// <returns></returns>
-        public float GetRandomValue() {
+        public FLOAT GetRandomValue() {
             
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -836,7 +840,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void SetTickTime(float tickTime) {
+        public void SetTickTime(FLOAT tickTime) {
 
             this.tickTime = tickTime;
 
@@ -882,7 +886,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public float GetTime() {
+        public FLOAT GetTime() {
         
             return this.GetTimeFromTick(this.GetStateTick());
             
@@ -902,7 +906,7 @@ namespace ME.ECS {
         #endif
         public float GetTimeFromTick(Tick tick) {
 
-            return (float)tick * this.tickTime;
+            return (FLOAT)tick * this.tickTime;
 
         }
 
@@ -927,7 +931,7 @@ namespace ME.ECS {
             if (currentTick < targetTick) {
 
                 var delta = targetTick - currentTick;
-                var duration = delta * this.GetTickTime();
+                var duration = (float)(long)delta * this.GetTickTime();
                 return duration > maxSimulationTime ? RewindAsyncState.LongForwardRewind : RewindAsyncState.ShortForwardRewind;
 
             } else {
@@ -959,7 +963,7 @@ namespace ME.ECS {
                     this.statesHistoryModule.PauseStoreStateSinceTick(prevStateTick - cacheSize);
 
                     if (tick <= 0) tick = 1;
-                    this.timeSinceStart = (float)tick * this.GetTickTime();
+                    this.timeSinceStart = (FLOAT)tick * this.GetTickTime();
                     this.statesHistoryModule.HardResetTo(tick);
 
                     this.networkModule.SetAsyncMode(true);
@@ -990,7 +994,7 @@ namespace ME.ECS {
 
             {
                 if (tick <= 0) tick = 1;
-                this.timeSinceStart = (float)tick * this.GetTickTime();
+                this.timeSinceStart = (FLOAT)tick * this.GetTickTime();
                 
                 var prevState = this.statesHistoryModule.GetStateBeforeTick(tick);
                 if (prevState == null) prevState = this.GetResetState();
