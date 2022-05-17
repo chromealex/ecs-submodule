@@ -79,7 +79,7 @@ namespace ME.ECS {
 
                 var containerRotation = container.entity.GetRotation();
                 var containerPosition = container.entity.GetPosition();
-                child.SetLocalPosition(ECSTransform3DExtensions.Multiply_INTERNAL(QUATERNION.Inverse(containerRotation) * ECSTransform3DExtensions.GetInvScale_INTERNAL(in container.entity), (position - containerPosition)));
+                child.SetLocalPosition(QUATERNION.Inverse(containerRotation) * ECSTransform3DExtensions.Multiply_INTERNAL(ECSTransform3DExtensions.GetInvScale_INTERNAL(in container.entity), (position - containerPosition)));
 
             } else {
 
@@ -118,7 +118,14 @@ namespace ME.ECS {
             ref readonly var container = ref child.Read<Container>();
             while (container.entity.IsEmpty() == false) {
 
-                position = ECSTransform3DExtensions.Multiply_INTERNAL(container.entity.Read<Rotation>().ToQuaternion() * ECSTransform3DExtensions.GetScale_INTERNAL(in container.entity), position);
+                QUATERNION worldRot;
+                if (container.entity.TryRead<Rotation>(out var worldComponent) == true) {
+                    worldRot = worldComponent.value;
+                } else {
+                    worldRot = QUATERNION.identity;
+                }
+                
+                position = worldRot * ECSTransform3DExtensions.Multiply_INTERNAL(ECSTransform3DExtensions.GetScale_INTERNAL(in container.entity), position);
                 position += container.entity.Read<Position>().ToVector3();
                 container = ref container.entity.Read<Container>();
 
@@ -132,8 +139,13 @@ namespace ME.ECS {
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
         public static QUATERNION GetRotation(this in Entity child) {
-            
-            var worldRot = child.Read<Rotation>().ToQuaternion();
+
+            QUATERNION worldRot;
+            if (child.TryRead<Rotation>(out var worldComponent) == true) {
+                worldRot = worldComponent.value;
+            } else {
+                worldRot = QUATERNION.identity;
+            }
             ref readonly var container = ref child.Read<Container>();
             while (container.entity.IsEmpty() == false) {
 

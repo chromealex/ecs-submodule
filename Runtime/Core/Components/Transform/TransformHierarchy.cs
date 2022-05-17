@@ -89,12 +89,42 @@ namespace ME.ECS {
         public static void SetParent(this in Entity child, in Entity root, bool worldPositionStays) {
 
             if (worldPositionStays == true) {
-                
+
                 var pos = child.GetPosition();
                 var rot = child.GetRotation();
                 ECSTransformHierarchy.SetParent_INTERNAL(in child, in root);
                 child.SetPosition(pos);
                 child.SetRotation(rot);
+
+            } else {
+
+                ECSTransformHierarchy.SetParent_INTERNAL(in child, in root);
+
+            }
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void SetParent2D(this in Entity child, in Entity root) {
+
+            child.SetParent2D(in root, worldPositionStays: true);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void SetParent2D(this in Entity child, in Entity root, bool worldPositionStays) {
+
+            if (worldPositionStays == true) {
+
+                var pos = child.GetPosition2D();
+                var rot = child.GetRotation2D();
+                ECSTransformHierarchy.SetParent_INTERNAL(in child, in root);
+                child.SetPosition2D(pos);
+                child.SetRotation2D(rot);
 
             } else {
 
@@ -130,10 +160,6 @@ namespace ME.ECS {
 
             }
             
-            if (root.Has<Rotation>() == false) {
-                root.SetLocalRotation(UnityEngine.Quaternion.identity);
-            }
-
             if (ECSTransformHierarchy.FindInHierarchy(in child, in root) == true) return;
 
             if (container.entity.IsAlive() == true) {
