@@ -64,8 +64,8 @@
             this.Initialize();
         }
 
-        public ListCopyable() {
-            this.Initialize();
+        public ListCopyable() : this(ListCopyable<T>.DefaultCapacity) {
+            
         }
 
         private void Initialize() {
