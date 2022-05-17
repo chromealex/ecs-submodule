@@ -199,7 +199,7 @@ namespace ME.ECS.Views {
 
                     if (this.prefabToInstances.TryGetValue(data.key, out var list) == true) {
 
-                        module.UnRegister(data.instance);
+                        module.DeInitialize(data.instance);
                         this.Recycle_INTERNAL(list, data.instance, data.respawnTimeout);
 
                     } else {

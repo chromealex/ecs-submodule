@@ -723,12 +723,14 @@ namespace ME.ECS.Views {
                 if (provider.Destroy(ref viewInstance) == true) {
                     
                     // Immediately destroy
+                    this.DeInitialize(instance);
                     this.UnRegister(instance);
                     
                 } else {
                     
                     // Delayed destroy - UnRegister will be called manually later
-                    
+                    this.UnRegister(instance);
+
                 }
 
             }
@@ -902,8 +904,6 @@ namespace ME.ECS.Views {
         #endif
         public bool UnRegister(IView instance) {
 
-            if (instance != null) instance.DoDeInitialize();
-
             var viewInfo = new ViewInfo(instance.entity, instance.prefabSourceId, instance.creationTick);
             if (this.rendering.Remove(viewInfo) == true) {
 
@@ -914,6 +914,15 @@ namespace ME.ECS.Views {
             }
 
             return false;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void DeInitialize(IView instance) {
+
+            if (instance != null) instance.DoDeInitialize();
 
         }
 
@@ -1112,9 +1121,9 @@ namespace ME.ECS.Views {
             }
 
             // Update providers
-            foreach (var providerKv in this.registryPrefabToProvider) {
+            foreach (var providerKv in this.registryTypeToProviderInfo) {
 
-                providerKv.Value.Update(this, this.list, deltaTime, hasChanged);
+                providerKv.Value.provider.Update(this, this.list, deltaTime, hasChanged);
 
             }
 
