@@ -123,6 +123,27 @@ namespace ME.ECSEditor {
 
 	    }
 
+        public struct GUIAlphaMulUsing : IDisposable {
+
+            private Color oldColor;
+
+            public GUIAlphaMulUsing(float alpha) {
+
+                this.oldColor = GUI.color;
+                var c = this.oldColor;
+                c.a *= alpha;
+                GUI.color = c;
+
+            }
+		    
+            public void Dispose() {
+
+                GUI.color = this.oldColor;
+
+            }
+
+        }
+
 	    public struct GUIBackgroundAlphaUsing : IDisposable {
 
 		    private Color oldColor;

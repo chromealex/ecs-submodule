@@ -10,7 +10,7 @@ namespace ME.ECSEditor {
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
             
             var items = property.FindPropertyRelative("items");
-            var h = EditorUtilities.GetPropertyHeight(items, true, new GUIContent("Features"));
+            var h = EditorGUI.GetPropertyHeight(items, new GUIContent("Features"), true);
             return h + 50f;
             
         }
@@ -41,7 +41,7 @@ namespace ME.ECSEditor {
                     return h;
                 }
             }
-            h += EditorUtilities.GetPropertyHeight(items, true, new GUIContent(header.stringValue));
+            h += EditorGUI.GetPropertyHeight(items, new GUIContent(header.stringValue), true);
             h += 20f;
             return h;
             
@@ -53,7 +53,7 @@ namespace ME.ECSEditor {
             var header = property.FindPropertyRelative("folderCaption");
             var headerRect = position;
             headerRect.y += 10f;
-            headerRect.height = EditorUtilities.GetPropertyHeight(header, true, new GUIContent("Caption")) + 4f;
+            headerRect.height = EditorGUI.GetPropertyHeight(header, new GUIContent("Caption"), true) + 4f;
 
             position.y = headerRect.y;
             position.y += 20f;
@@ -89,25 +89,32 @@ namespace ME.ECSEditor {
         }
         
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
-            
-            //var enabled = property.FindPropertyRelative("enabled");
+
+            var isFeatureAssigned = false;
             var items = property.FindPropertyRelative("feature");
             var innerFeatures = property.FindPropertyRelative("innerFeatures");
             var h = EditorUtilities.GetPropertyHeight(items, true, GUIContent.none);
-            if (items.objectReferenceValue is FeatureBase featureBase && featureBase.editorComment.Length > 0) {
-
-                var width = this.GetWidth();
-                var style = new GUIStyle(EditorStyles.miniLabel);
-                style.wordWrap = true;
-                style.fixedWidth = 0f;
-                style.stretchWidth = false;
-                h += style.CalcHeight(new GUIContent(featureBase.editorComment), width);
+            
+            if (items.objectReferenceValue is FeatureBase featureBase && featureBase != null) {
                 
+                isFeatureAssigned = true;
+
+                if (featureBase.editorComment.Length > 0) {
+
+                    var width = this.GetWidth();
+                    var style = new GUIStyle(EditorStyles.miniLabel);
+                    style.wordWrap = true;
+                    style.fixedWidth = 0f;
+                    style.stretchWidth = false;
+                    h += style.CalcHeight(new GUIContent(featureBase.editorComment), width) + 4f;
+
+                }
+
             }
 
             h += 4f * 2f;
 
-            //h += EditorUtilities.GetPropertyHeight(innerFeatures, true, new GUIContent("Sub Features"));
+            if (isFeatureAssigned == true) h += EditorGUI.GetPropertyHeight(innerFeatures, new GUIContent("Sub Features"), false);
             
             return h;
             
@@ -119,7 +126,7 @@ namespace ME.ECSEditor {
 
             var enabled = property.FindPropertyRelative("enabled");
             var items = property.FindPropertyRelative("feature");
-            //var innerFeatures = property.FindPropertyRelative("innerFeatures");
+            var innerFeatures = property.FindPropertyRelative("innerFeatures");
             var enabledRect = position;
             enabledRect.height = EditorGUIUtility.singleLineHeight;
             enabledRect.width = 30f;
@@ -130,13 +137,18 @@ namespace ME.ECSEditor {
             featureRect.x += 30f;
             featureRect.width -= 30f;
 
-            using (new GUILayoutExt.GUIAlphaUsing(enabled.boolValue == false ? 0.5f : 1f)) {
+            var isFeatureAssigned = false;
+            using (new GUILayoutExt.GUIAlphaMulUsing(enabled.boolValue == false ? 0.5f : 1f)) {
 
                 EditorGUI.PropertyField(featureRect, items, GUIContent.none, true);
+
+                position.y += featureRect.height;
+                position.height -= featureRect.height;
 
                 var featureBase = items.objectReferenceValue as FeatureBase;
                 if (featureBase != null) {
 
+                    isFeatureAssigned = true;
                     var offset = 0f;
                     {
                         var systems = this.GetSystems(featureBase);
@@ -188,9 +200,6 @@ namespace ME.ECSEditor {
                     }
                     //EditorStyles.helpBox.Draw(systemsLabelRect, "SS", false, false, false, false);
 
-                    position.y += featureRect.height;
-                    position.height -= featureRect.height;
-
                     if (string.IsNullOrEmpty(featureBase?.editorComment) == false) {
 
                         var width = this.GetWidth();
@@ -200,7 +209,7 @@ namespace ME.ECSEditor {
                         style.stretchWidth = false;
                         var h = style.CalcHeight(new GUIContent(featureBase.editorComment), width);
                         var commentRect = position;
-                        commentRect.height = h;
+                        commentRect.height = h + 4f;
                         EditorGUI.LabelField(commentRect, featureBase.editorComment, style);
 
                         position.y += commentRect.height;
@@ -210,9 +219,9 @@ namespace ME.ECSEditor {
 
                 }
 
-            }
+                if (isFeatureAssigned == true) EditorGUI.PropertyField(position, innerFeatures, new GUIContent("Sub Features"), false);
 
-            //EditorGUI.PropertyField(position, innerFeatures, new GUIContent("Sub Features"), true);
+            }
 
         }
 
@@ -295,24 +304,24 @@ namespace ME.ECSEditor {
 
     }
 
-    /*[CustomPropertyDrawer(typeof(FeaturesList.SubFeatures))]
-    public class SubFeaturesDrawer : PropertyDrawer {
+    [CustomPropertyDrawer(typeof(FeaturesList))]
+    public class FeaturesListDrawer : PropertyDrawer {
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
             
-            var items = property.FindPropertyRelative("innerFeatures");
-            var h = EditorUtilities.GetPropertyHeight(items, true, new GUIContent("Sub Features"));
+            var items = property.FindPropertyRelative("features");
+            var h = EditorGUI.GetPropertyHeight(items, label, true);
             return h;
             
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             
-            var items = property.FindPropertyRelative("innerFeatures");
-            EditorGUI.PropertyField(position, items, new GUIContent("Sub Features"), true);
+            var items = property.FindPropertyRelative("features");
+            EditorGUI.PropertyField(position, items, label, true);
 
         }
 
-    }*/
+    }
 
 }

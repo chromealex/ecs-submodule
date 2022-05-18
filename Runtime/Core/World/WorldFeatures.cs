@@ -61,7 +61,7 @@ namespace ME.ECS {
 
             FeatureBase GetSource();
             bool IsEnabled();
-            SubFeatures GetSubFeatures();
+            FeaturesList GetSubFeatures();
 
         }
 
@@ -76,19 +76,11 @@ namespace ME.ECS {
             public bool enabled;
             public FeatureBase feature;
             public FeatureBase featureInstance { get; set; }
-            public SubFeatures innerFeatures;
+            public FeaturesList innerFeatures;
 
             public bool IsEnabled() => this.enabled;
             public FeatureBase GetSource() => this.feature;
-            public SubFeatures GetSubFeatures() => this.innerFeatures;
-
-        }
-
-        [System.Serializable]
-        public class SubFeatures {
-
-            [UnityEngine.SerializeReference]
-            public System.Collections.Generic.List<FeatureData> innerFeatures;
+            public FeaturesList GetSubFeatures() => this.innerFeatures;
 
         }
 
@@ -114,7 +106,7 @@ namespace ME.ECS {
 
                     if (item.GetSubFeatures() != null) {
 
-                        this.InitializePre(world, item.GetSubFeatures().innerFeatures);
+                        this.InitializePre(world, item.GetSubFeatures().features);
 
                     }
                     
@@ -141,7 +133,7 @@ namespace ME.ECS {
                     
                     if (item.GetSubFeatures() != null) {
 
-                        this.InitializePost(world, item.GetSubFeatures().innerFeatures);
+                        this.InitializePost(world, item.GetSubFeatures().features);
 
                     }
                     
@@ -168,7 +160,7 @@ namespace ME.ECS {
                     
                     if (item.GetSubFeatures() != null) {
 
-                        this.InitializeLate(world, item.GetSubFeatures().innerFeatures);
+                        this.InitializeLate(world, item.GetSubFeatures().features);
 
                     }
                     
@@ -193,7 +185,7 @@ namespace ME.ECS {
                     
                     if (item.GetSubFeatures() != null) {
 
-                        this.DeInitialize(world, item.GetSubFeatures().innerFeatures);
+                        this.DeInitialize(world, item.GetSubFeatures().features);
 
                     }
 
