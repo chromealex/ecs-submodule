@@ -82,6 +82,29 @@ namespace ME.ECS.Debug {
             
         }
 
+        public IComponentBase[] oneShotComponents {
+            
+            get {
+            
+                var world = this.world;
+                var components = world.GetNoStateStructComponents();
+                var registries = components.GetAllRegistries();
+                var list = new System.Collections.Generic.List<IComponentBase>();
+                foreach (var reg in registries) {
+
+                    if (reg == null) continue;
+                    if (reg.Has(this.entity) == false) continue;
+                    var comp = reg.GetObject(this.entity);
+                    list.Add(comp);
+
+                }
+
+                return list.ToArray();
+                
+            }
+            
+        }
+
         public SharedGroup[] sharedComponents {
             
             get {
