@@ -105,8 +105,15 @@ namespace ME.ECS.Views.Providers {
 
         }
 
+        void IView.DoDestroy() {
+
+            this.OnDisconnect();
+
+        }
+
         public virtual void OnInitialize() { }
         public virtual void OnDeInitialize() { }
+        public virtual void OnDisconnect() { }
         public virtual void ApplyStateJob(float deltaTime, bool immediately) { }
         public virtual void ApplyState(float deltaTime, bool immediately) { }
         public virtual void OnUpdate(float deltaTime) { }

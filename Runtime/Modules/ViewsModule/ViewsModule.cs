@@ -275,6 +275,7 @@ namespace ME.ECS.Views {
 
         void DoInitialize();
         void DoDeInitialize();
+        void DoDestroy();
         void ApplyState(float deltaTime, bool immediately);
         void ApplyPhysicsState(float deltaTime);
         void OnUpdate(float deltaTime);
@@ -723,12 +724,14 @@ namespace ME.ECS.Views {
                 if (provider.Destroy(ref viewInstance) == true) {
                     
                     // Immediately destroy
+                    this.DoDestroy(instance);
                     this.DeInitialize(instance);
                     this.UnRegister(instance);
                     
                 } else {
                     
-                    // Delayed destroy - UnRegister will be called manually later
+                    // Delayed destroy - DeInitialize will be called manually later
+                    this.DoDestroy(instance);
                     this.UnRegister(instance);
 
                 }
@@ -923,6 +926,15 @@ namespace ME.ECS.Views {
         public void DeInitialize(IView instance) {
 
             if (instance != null) instance.DoDeInitialize();
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void DoDestroy(IView instance) {
+
+            if (instance != null) instance.DoDestroy();
 
         }
 
