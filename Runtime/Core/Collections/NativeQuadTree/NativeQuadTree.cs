@@ -13,9 +13,9 @@ using QUATERNION = ME.ECS.fpquaternion;
 #else
 using MATH = Unity.Mathematics.math;
 using FLOAT = System.Single;
-using FLOAT2 = UnityEngine.Vector2;
-using FLOAT3 = UnityEngine.Vector3;
-using FLOAT4 = UnityEngine.Vector4;
+using FLOAT2 = Unity.Mathematics.float2;
+using FLOAT3 = Unity.Mathematics.float3;
+using FLOAT4 = Unity.Mathematics.float4;
 using QUATERNION = UnityEngine.Quaternion;
 #endif
 

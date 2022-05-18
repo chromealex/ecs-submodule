@@ -74,6 +74,13 @@ namespace ME.ECS.Serializer {
         DisposeSentinel = 221,
         FPFloat   = 220,
         
+        Int2 = 219,
+        Int3 = 218,
+        Float2    = 217,
+        Float3    = 216,
+        Float4    = 215,
+        FQuaternion = 214,
+        
     }
     
     [System.AttributeUsageAttribute(System.AttributeTargets.Field | System.AttributeTargets.Property)]
@@ -299,6 +306,13 @@ namespace ME.ECS.Serializer {
             serializers.Add(new GenericListSerializer());
             serializers.Add(new GenericDictionarySerializer());
             
+            serializers.Add(new Int2Serializer());
+            serializers.Add(new Int3Serializer());
+            serializers.Add(new Float2Serializer());
+            serializers.Add(new Float3Serializer());
+            serializers.Add(new Float4Serializer());
+            serializers.Add(new QuaternionMathSerializer());
+
             return serializers;
 
         }
@@ -456,6 +470,34 @@ namespace ME.ECS.Serializer {
             return Packer.FromStream(allSerializers, stream);
         }
 
+        private static byte[] tmpCache = new byte[0];
+        public static unsafe void PackBlittable<T>(Packer packer, T data) where T : unmanaged {
+            
+            byte* pointer = (byte*)&data;
+            int size = sizeof(T);
+            if (size >= Serializer.tmpCache.Length) System.Array.Resize(ref Serializer.tmpCache, size * 2);
+            for (int i = 0; i < size; ++i) {
+                Serializer.tmpCache[i] = pointer[i];
+            }
+            packer.WriteBytes(Serializer.tmpCache, size);
+            
+        }
+
+        public static unsafe T UnpackBlittable<T>(Packer packer) where T : unmanaged {
+            
+            var obj = new T();
+            int size = sizeof(T);
+            if (size >= Serializer.tmpCache.Length) System.Array.Resize(ref Serializer.tmpCache, size * 2);
+            packer.ReadBytes(Serializer.tmpCache, size);
+            byte* pointer = (byte*)&obj;
+            for (int i = 0; i < size; ++i) {
+                pointer[i] = Serializer.tmpCache[i];
+            }
+
+            return obj;
+            
+        }
+        
     }
 
     public class Packer {
@@ -702,6 +744,12 @@ namespace ME.ECS.Serializer {
 
         }
 
+        public void ReadBytes(byte[] output, int length) {
+
+            this.stream.Read(output, 0, length);
+
+        }
+
         public void WriteByte(byte @byte) {
 
             this.stream.WriteByte(@byte);
@@ -711,6 +759,12 @@ namespace ME.ECS.Serializer {
         public void WriteBytes(byte[] bytes) {
 
             this.stream.Write(bytes, 0, bytes.Length);
+            
+        }
+
+        public void WriteBytes(byte[] bytes, int length) {
+
+            this.stream.Write(bytes, 0, length);
             
         }
 
@@ -821,7 +875,7 @@ namespace ME.ECS.Serializer {
             return this.UnpackInternal<object>();
             
         }
-
+        
     }
 
 }

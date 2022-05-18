@@ -35,11 +35,13 @@ namespace ME.ECS.Collections {
 
         }
 
+        #if FIXED_POINT_MATH
         public static void GetResults(in UnityEngine.Vector2 position, float radius, Unity.Collections.NativeList<QuadElement<Entity>> results) {
 
             NativeQuadTreeUtils<Entity>.GetResults(position, radius, results);
 
         }
+        #endif
 
         public static void GetResults(in FLOAT2 position, FLOAT radius, Unity.Collections.NativeList<QuadElement<Entity>> results) {
 

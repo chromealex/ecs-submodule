@@ -11,20 +11,14 @@ namespace ME.ECS.Serializer {
         
         public void Pack(Packer stream, object obj) {
 
-            var v = (Vector2Int)obj;
-            Int32Serializer.PackDirect(stream, v.x);
-            Int32Serializer.PackDirect(stream, v.y);
-
+            Serializer.PackBlittable(stream, (Vector2Int)obj);
+            
         }
         
         public object Unpack(Packer stream) {
 
-            var v = new Vector2Int();
-            v.x = Int32Serializer.UnpackDirect(stream);
-            v.y = Int32Serializer.UnpackDirect(stream);
-
-            return v;
-
+            return Serializer.UnpackBlittable<Vector2Int>(stream);
+            
         }
 
     }
@@ -36,22 +30,14 @@ namespace ME.ECS.Serializer {
         
         public void Pack(Packer stream, object obj) {
 
-            var v = (Vector3Int)obj;
-            Int32Serializer.PackDirect(stream, v.x);
-            Int32Serializer.PackDirect(stream, v.y);
-            Int32Serializer.PackDirect(stream, v.z);
-
+            Serializer.PackBlittable(stream, (Vector3Int)obj);
+            
         }
         
         public object Unpack(Packer stream) {
 
-            var v = new Vector3Int();
-            v.x = Int32Serializer.UnpackDirect(stream);
-            v.y = Int32Serializer.UnpackDirect(stream);
-            v.z = Int32Serializer.UnpackDirect(stream);
-
-            return v;
-
+            return Serializer.UnpackBlittable<Vector3Int>(stream);
+            
         }
 
     }
@@ -63,20 +49,14 @@ namespace ME.ECS.Serializer {
         
         public void Pack(Packer stream, object obj) {
 
-            var v = (Vector2)obj;
-            FloatSerializer.PackDirect(stream, v.x);
-            FloatSerializer.PackDirect(stream, v.y);
-
+            Serializer.PackBlittable(stream, (Vector2)obj);
+            
         }
         
         public object Unpack(Packer stream) {
 
-            var v = new Vector2();
-            v.x = FloatSerializer.UnpackDirect(stream);
-            v.y = FloatSerializer.UnpackDirect(stream);
-
-            return v;
-
+            return Serializer.UnpackBlittable<Vector2>(stream);
+            
         }
 
     }
@@ -88,22 +68,14 @@ namespace ME.ECS.Serializer {
         
         public void Pack(Packer stream, object obj) {
 
-            var v = (Vector3)obj;
-            FloatSerializer.PackDirect(stream, v.x);
-            FloatSerializer.PackDirect(stream, v.y);
-            FloatSerializer.PackDirect(stream, v.z);
-
+            Serializer.PackBlittable(stream, (Vector3)obj);
+            
         }
         
         public object Unpack(Packer stream) {
 
-            var v = new Vector3();
-            v.x = FloatSerializer.UnpackDirect(stream);
-            v.y = FloatSerializer.UnpackDirect(stream);
-            v.z = FloatSerializer.UnpackDirect(stream);
-
-            return v;
-
+            return Serializer.UnpackBlittable<Vector3>(stream);
+            
         }
 
     }
@@ -115,24 +87,14 @@ namespace ME.ECS.Serializer {
         
         public void Pack(Packer stream, object obj) {
 
-            var v = (Vector4)obj;
-            FloatSerializer.PackDirect(stream, v.x);
-            FloatSerializer.PackDirect(stream, v.y);
-            FloatSerializer.PackDirect(stream, v.z);
-            FloatSerializer.PackDirect(stream, v.w);
-
+            Serializer.PackBlittable(stream, (Vector4)obj);
+            
         }
         
         public object Unpack(Packer stream) {
 
-            var v = new Vector4();
-            v.x = FloatSerializer.UnpackDirect(stream);
-            v.y = FloatSerializer.UnpackDirect(stream);
-            v.z = FloatSerializer.UnpackDirect(stream);
-            v.w = FloatSerializer.UnpackDirect(stream);
-
-            return v;
-
+            return Serializer.UnpackBlittable<Vector4>(stream);
+            
         }
 
     }
@@ -144,24 +106,14 @@ namespace ME.ECS.Serializer {
         
         public void Pack(Packer stream, object obj) {
 
-            var v = (Quaternion)obj;
-            FloatSerializer.PackDirect(stream, v.x);
-            FloatSerializer.PackDirect(stream, v.y);
-            FloatSerializer.PackDirect(stream, v.z);
-            FloatSerializer.PackDirect(stream, v.w);
-
+            Serializer.PackBlittable(stream, (Quaternion)obj);
+            
         }
         
         public object Unpack(Packer stream) {
 
-            var v = new Quaternion();
-            v.x = FloatSerializer.UnpackDirect(stream);
-            v.y = FloatSerializer.UnpackDirect(stream);
-            v.z = FloatSerializer.UnpackDirect(stream);
-            v.w = FloatSerializer.UnpackDirect(stream);
-
-            return v;
-
+            return Serializer.UnpackBlittable<Quaternion>(stream);
+            
         }
 
     }

@@ -3,11 +3,12 @@
     "rootNamespace": "",
     "references": [
         "ME.Pools",
-        "ME.ECS.FPMath"
+        "ME.ECS.FPMath",
+        "Unity.Mathematics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
