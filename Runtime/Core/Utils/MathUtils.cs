@@ -402,16 +402,6 @@ namespace ME.ECS {
 
         }
 
-        public static bool IsUnityMathematicsUsed() {
-
-            #if UNITY_MATHEMATICS
-            return true;
-            #else
-            return false;
-            #endif
-
-        }
-
         public static FLOAT3 GetSpiralPointByIndex(FLOAT3 center, int index, float radius = 1f) {
 
             var offset = MathUtils.GetSpiralPointByIndex(UnityEngine.Vector2Int.zero, index);

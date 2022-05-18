@@ -59,13 +59,6 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("UNITY_MATHEMATICS", "Turn on/off Unity.Mathematics for RGN or use UnityEngine.Random.", () => {
-                #if UNITY_MATHEMATICS
-                return true;
-                #else
-                return false;
-                #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
             new InitializerBase.DefineInfo("WORLD_STATE_CHECK", "If turned on, ME.ECS will check that all write data methods are in right state. If you turn off this check, you'll be able to write data in any state, but it could cause out of sync state.", () => {
                 #if WORLD_STATE_CHECK
                 return true;
