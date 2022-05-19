@@ -7,7 +7,15 @@ namespace ME.ECS.Serializer {
         [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Generic; }
         [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(GenericSerializer); }
 
-        public void Pack(Packer packer, object obj, System.Type rootType) {
+        [INLINE(256)] public static void PackDirect(Packer packer, object obj) {
+            new GenericSerializer().Pack(packer, obj);
+        }
+
+        [INLINE(256)] public static object UnpackDirect(Packer packer) {
+            return new GenericSerializer().Unpack(packer);
+        }
+
+        [INLINE(256)] public void Pack(Packer packer, object obj, System.Type rootType) {
             
             var fields = rootType.GetCachedFields();
             for (int i = 0; i < fields.Length; ++i) {
@@ -35,7 +43,7 @@ namespace ME.ECS.Serializer {
             }
 
         }
-
+        
         [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             var rootType = obj.GetType();

@@ -286,12 +286,6 @@ namespace ME.ECS.Serializer {
         [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             var arr = (System.Array)obj;
-            if (arr == null) {
-                
-                packer.WriteByte((byte)TypeValue.Null);
-                return;
-
-            }
 
             Int32Serializer.PackDirect(packer, arr.Length);
             for (int i = 0; i < arr.Length; ++i) {
@@ -303,13 +297,6 @@ namespace ME.ECS.Serializer {
 
         [INLINE(256)] public object Unpack(Packer packer) {
 
-            var b = packer.ReadByte();
-            if (b == (byte)TypeValue.Null) {
-
-                return null;
-
-            }
-            
             var length = Int32Serializer.UnpackDirect(packer);
 
             var arr = new object[length];

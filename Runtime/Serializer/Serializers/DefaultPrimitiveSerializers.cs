@@ -9,39 +9,26 @@ namespace ME.ECS.Serializer {
         
         [INLINE(256)] public static void PackDirect(Packer packer, string obj) {
 
-            if (obj == null) {
-                
-                Int32Serializer.PackDirect(packer, -1);
-                
-            } else {
+            var count = System.Text.Encoding.UTF8.GetMaxByteCount(obj.Length);
+            packer.AddCapacity(count + 4);
 
-                var count = System.Text.Encoding.UTF8.GetMaxByteCount(obj.Length);
-                packer.AddCapacity(count + 4);
-
-                var pos = packer.GetPosition();
-                var stream = packer.GetBuffer();
-                var bytesCount = System.Text.Encoding.UTF8.GetBytes(obj, 0, obj.Length, stream, pos + 4);
-                packer.SetPosition(pos);
-                Int32Serializer.PackDirect(packer, bytesCount);
-                packer.SetPosition(pos + bytesCount);
-                
-            }
-
+            var pos = packer.GetPosition();
+            var stream = packer.GetBuffer();
+            var bytesCount = System.Text.Encoding.UTF8.GetBytes(obj, 0, obj.Length, stream, pos + 4);
+            packer.SetPosition(pos);
+            Int32Serializer.PackDirect(packer, bytesCount);
+            packer.SetPosition(pos + 4 + bytesCount);
+            
         }
         
         [INLINE(256)] public static string UnpackDirect(Packer packer) {
 
             var length = Int32Serializer.UnpackDirect(packer);
-            if (length == -1) {
-                
-                return null;
-                
-            }
-
             var stream = packer.GetBuffer();
             var pos = packer.GetPosition();
+            packer.SetPosition(pos + length);
             return System.Text.Encoding.UTF8.GetString(stream, pos, length);
-
+            
         }
 
         [INLINE(256)] public void Pack(Packer packer, object obj) {
@@ -480,37 +467,6 @@ namespace ME.ECS.Serializer {
 
     }
 
-    public struct FPSerializer : ITypeSerializer {
-
-        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.FPFloat; }
-        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(fp); }
-
-        [INLINE(256)] public static void PackDirect(Packer packer, fp obj) {
-
-            Int64Serializer.PackDirect(packer, obj.RawValue);
-            
-        }
-        
-        [INLINE(256)] public static fp UnpackDirect(Packer packer) {
-
-            return new fp(Int64Serializer.UnpackDirect(packer));
-
-        }
-
-        [INLINE(256)] public void Pack(Packer packer, object obj) {
-
-            FPSerializer.PackDirect(packer, (fp)obj);
-            
-        }
-
-        [INLINE(256)] public object Unpack(Packer packer) {
-
-            return FPSerializer.UnpackDirect(packer);
-
-        }
-
-    }
-
     public struct BooleanSerializer : ITypeSerializer {
 
         [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Boolean; }
@@ -601,6 +557,37 @@ namespace ME.ECS.Serializer {
         [INLINE(256)] public object Unpack(Packer packer) {
 
             return SByteSerializer.UnpackDirect(packer);
+
+        }
+
+    }
+    
+    public struct FPSerializer : ITypeSerializer {
+
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.FPFloat; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(fp); }
+
+        [INLINE(256)] public static void PackDirect(Packer packer, fp obj) {
+
+            Int64Serializer.PackDirect(packer, obj.RawValue);
+            
+        }
+        
+        [INLINE(256)] public static fp UnpackDirect(Packer packer) {
+
+            return new fp(Int64Serializer.UnpackDirect(packer));
+
+        }
+
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
+
+            FPSerializer.PackDirect(packer, (fp)obj);
+            
+        }
+
+        [INLINE(256)] public object Unpack(Packer packer) {
+
+            return FPSerializer.UnpackDirect(packer);
 
         }
 

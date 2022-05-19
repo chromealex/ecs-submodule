@@ -124,6 +124,7 @@ namespace ME.ECS.Serializer {
             meta.metaTypeId = 0;
             meta.meta = new Dictionary<System.Type, Packer.MetaType>();
             meta.typeById = new Dictionary<int, System.Type>();
+            meta.idByType = new Dictionary<System.Type, int>();
 
             var asms = System.AppDomain.CurrentDomain.GetAssemblies();
             var arr = MetaTypeArraySerializer.UnpackDirect(packer);
@@ -137,6 +138,7 @@ namespace ME.ECS.Serializer {
 
                         meta.meta.Add(type, data);
                         meta.typeById.Add(data.id, type);
+                        meta.idByType.Add(type, data.id);
                         break;
 
                     }
