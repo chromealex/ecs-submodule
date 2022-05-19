@@ -1,16 +1,15 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
 namespace ME.ECS.Serializer {
     
     public struct GenericULongDictionarySerializer : ITypeSerializer, ITypeSerializerInherit {
 
-        public byte GetTypeValue() => (byte)TypeValue.GenericULongDictionary;
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.GenericULongDictionary;
 
-        public System.Type GetTypeSerialized() => typeof(ME.ECS.Collections.IDictionaryULong);
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(ME.ECS.Collections.IDictionaryULong);
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             var dict = (ME.ECS.Collections.IDictionaryULong)obj;
             var type = dict.GetType();
@@ -28,7 +27,7 @@ namespace ME.ECS.Serializer {
 
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             var length = Int32Serializer.UnpackDirect(packer);
             var typeIdValue = Int32Serializer.UnpackDirect(packer);
@@ -52,11 +51,11 @@ namespace ME.ECS.Serializer {
 
     public struct GenericIntDictionarySerializer : ITypeSerializer, ITypeSerializerInherit {
 
-        public byte GetTypeValue() => (byte)TypeValue.GenericIntDictionary;
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.GenericIntDictionary;
 
-        public System.Type GetTypeSerialized() => typeof(ME.ECS.Collections.IDictionaryInt);
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(ME.ECS.Collections.IDictionaryInt);
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             var dict = (ME.ECS.Collections.IDictionaryInt)obj;
             var type = dict.GetType();
@@ -74,7 +73,7 @@ namespace ME.ECS.Serializer {
 
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             var length = Int32Serializer.UnpackDirect(packer);
             var typeIdValue = Int32Serializer.UnpackDirect(packer);
@@ -98,35 +97,35 @@ namespace ME.ECS.Serializer {
 
     public struct ViewSerializer : ITypeSerializer , ITypeSerializerInherit {
 
-        public byte GetTypeValue() {
+        [INLINE(256)] public byte GetTypeValue() {
             return (byte)TypeValue.View;
         }
 
-        public System.Type GetTypeSerialized() {
+        [INLINE(256)] public System.Type GetTypeSerialized() {
             return typeof(ME.ECS.Views.IView);
         }
 
-        public static void PackDirect(Packer packer, ME.ECS.Views.IView view) {
+        [INLINE(256)] public static void PackDirect(Packer packer, ME.ECS.Views.IView view) {
             
             var viewId = Worlds.currentWorld.GetModule<ME.ECS.Views.ViewsModule>().GetViewSourceId(view);
             ViewIdSerializer.PackDirect(packer, viewId);
             
         }
 
-        public static ME.ECS.Views.IView UnpackDirect(Packer packer) {
+        [INLINE(256)] public static ME.ECS.Views.IView UnpackDirect(Packer packer) {
 
             var viewId = ViewIdSerializer.UnpackDirect(packer);
             return Worlds.currentWorld.GetModule<ME.ECS.Views.ViewsModule>().GetViewSource(viewId);
             
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             ViewSerializer.PackDirect(packer, (ME.ECS.Views.IView)obj);
 
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return ViewSerializer.UnpackDirect(packer);
 
@@ -136,16 +135,16 @@ namespace ME.ECS.Serializer {
 
     public struct TickSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() => 151;
-        public System.Type GetTypeSerialized() => typeof(Tick);
+        [INLINE(256)] public byte GetTypeValue() => 151;
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(Tick);
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             Int64Serializer.PackDirect(packer, (Tick)obj);
             
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return (Tick)Int64Serializer.UnpackDirect(packer);
             
@@ -155,28 +154,28 @@ namespace ME.ECS.Serializer {
 
     public struct ViewIdSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() => 152;
-        public System.Type GetTypeSerialized() => typeof(ViewId);
+        [INLINE(256)] public byte GetTypeValue() => 152;
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(ViewId);
 
-        public static void PackDirect(Packer packer, ViewId obj) {
+        [INLINE(256)] public static void PackDirect(Packer packer, ViewId obj) {
 
             UInt32Serializer.PackDirect(packer, obj);
             
         }
 
-        public static ViewId UnpackDirect(Packer packer) {
+        [INLINE(256)] public static ViewId UnpackDirect(Packer packer) {
 
             return UInt32Serializer.UnpackDirect(packer);
             
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             ViewIdSerializer.PackDirect(packer, (ViewId)obj);
             
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return (ViewId)ViewIdSerializer.UnpackDirect(packer);
             
@@ -186,16 +185,16 @@ namespace ME.ECS.Serializer {
 
     public struct RPCIdSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() => 153;
-        public System.Type GetTypeSerialized() => typeof(RPCId);
+        [INLINE(256)] public byte GetTypeValue() => 153;
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(RPCId);
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             Int32Serializer.PackDirect(packer, (RPCId)obj);
             
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return (RPCId)Int32Serializer.UnpackDirect(packer);
             

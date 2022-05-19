@@ -1,27 +1,26 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
+using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
 namespace ME.ECS.Serializer {
 
     public struct MetaTypeSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() {
+        [INLINE(256)] public byte GetTypeValue() {
             return (byte)TypeValue.MetaType;
         }
 
-        public System.Type GetTypeSerialized() {
+        [INLINE(256)] public System.Type GetTypeSerialized() {
             return typeof(Packer.MetaType);
         }
 
-        public static void PackDirect(Packer packer, Packer.MetaType meta) {
+        [INLINE(256)] public static void PackDirect(Packer packer, Packer.MetaType meta) {
             
             Int32Serializer.PackDirect(packer, meta.id);
             StringSerializer.PackDirect(packer, meta.type);
             
         }
 
-        public static Packer.MetaType UnpackDirect(Packer packer) {
+        [INLINE(256)] public static Packer.MetaType UnpackDirect(Packer packer) {
             
             var meta = new Packer.MetaType();
             meta.id = Int32Serializer.UnpackDirect(packer);
@@ -30,14 +29,14 @@ namespace ME.ECS.Serializer {
 
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             var meta = (Packer.MetaType)obj;
             MetaTypeSerializer.PackDirect(packer, meta);
 
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return MetaTypeSerializer.UnpackDirect(packer);
 
@@ -47,15 +46,15 @@ namespace ME.ECS.Serializer {
 
     public struct MetaTypeArraySerializer : ITypeSerializer {
 
-        public byte GetTypeValue() {
+        [INLINE(256)] public byte GetTypeValue() {
             return (byte)TypeValue.MetaTypeArray;
         }
 
-        public System.Type GetTypeSerialized() {
+        [INLINE(256)] public System.Type GetTypeSerialized() {
             return typeof(Packer.MetaType[]);
         }
 
-        public static void PackDirect(Packer packer, Packer.MetaType[] meta) {
+        [INLINE(256)] public static void PackDirect(Packer packer, Packer.MetaType[] meta) {
             
             Int32Serializer.PackDirect(packer, meta.Length);
             for (int i = 0; i < meta.Length; ++i) {
@@ -66,7 +65,7 @@ namespace ME.ECS.Serializer {
             
         }
 
-        public static Packer.MetaType[] UnpackDirect(Packer packer) {
+        [INLINE(256)] public static Packer.MetaType[] UnpackDirect(Packer packer) {
             
             var length = Int32Serializer.UnpackDirect(packer);
             var meta = new Packer.MetaType[length];
@@ -80,14 +79,14 @@ namespace ME.ECS.Serializer {
 
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             var meta = (Packer.MetaType[])obj;
             MetaTypeArraySerializer.PackDirect(packer, meta);
 
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return MetaTypeArraySerializer.UnpackDirect(packer);
             
@@ -97,15 +96,15 @@ namespace ME.ECS.Serializer {
 
     public struct MetaSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() {
+        [INLINE(256)] public byte GetTypeValue() {
             return (byte)TypeValue.Meta;
         }
 
-        public System.Type GetTypeSerialized() {
+        [INLINE(256)] public System.Type GetTypeSerialized() {
             return typeof(Packer.Meta);
         }
         
-        public static void PackDirect(Packer packer, Packer.Meta meta) {
+        [INLINE(256)] public static void PackDirect(Packer packer, Packer.Meta meta) {
 
             var arr = new Packer.MetaType[meta.meta.Count];
             var i = 0;
@@ -119,7 +118,7 @@ namespace ME.ECS.Serializer {
 
         }
         
-        public static Packer.Meta UnpackDirect(Packer packer) {
+        [INLINE(256)] public static Packer.Meta UnpackDirect(Packer packer) {
 
             var meta = new Packer.Meta();
             meta.metaTypeId = 0;
@@ -150,14 +149,14 @@ namespace ME.ECS.Serializer {
 
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             var meta = (Packer.Meta)obj;
             MetaSerializer.PackDirect(packer, meta);
 
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return MetaSerializer.UnpackDirect(packer);
 
@@ -167,22 +166,22 @@ namespace ME.ECS.Serializer {
 
     public struct PackerObjectSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() {
+        [INLINE(256)] public byte GetTypeValue() {
             return (byte)TypeValue.PackerObject;
         }
 
-        public System.Type GetTypeSerialized() {
+        [INLINE(256)] public System.Type GetTypeSerialized() {
             return typeof(Packer.PackerObject);
         }
 
-        public static void PackDirect(Packer packer, Packer.PackerObject packerObject) {
+        [INLINE(256)] public static void PackDirect(Packer packer, Packer.PackerObject packerObject) {
             
             ByteArraySerializer.PackDirect(packer, packerObject.data);
             MetaSerializer.PackDirect(packer, packerObject.meta);
             
         }
 
-        public static Packer.PackerObject UnpackDirect(Packer packer) {
+        [INLINE(256)] public static Packer.PackerObject UnpackDirect(Packer packer) {
             
             var packerObject = new Packer.PackerObject();
             packerObject.data = ByteArraySerializer.UnpackDirect(packer);
@@ -192,14 +191,14 @@ namespace ME.ECS.Serializer {
 
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             var packerObject = (Packer.PackerObject)obj;
             PackerObjectSerializer.PackDirect(packer, packerObject);
 
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return PackerObjectSerializer.UnpackDirect(packer);
 

@@ -1,13 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
 namespace ME.ECS.Serializer {
 
     public struct Vector2IntSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Vector2Int; }
-        public System.Type GetTypeSerialized() { return typeof(Vector2Int); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Vector2Int; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(Vector2Int); }
         
         public void Pack(Packer stream, object obj) {
 
@@ -25,8 +24,8 @@ namespace ME.ECS.Serializer {
 
     public struct Vector3IntSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Vector3Int; }
-        public System.Type GetTypeSerialized() { return typeof(Vector3Int); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Vector3Int; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(Vector3Int); }
         
         public void Pack(Packer stream, object obj) {
 
@@ -44,8 +43,8 @@ namespace ME.ECS.Serializer {
 
     public struct Vector2Serializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Vector2; }
-        public System.Type GetTypeSerialized() { return typeof(Vector2); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Vector2; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(Vector2); }
         
         public void Pack(Packer stream, object obj) {
 
@@ -63,8 +62,8 @@ namespace ME.ECS.Serializer {
 
     public struct Vector3Serializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Vector3; }
-        public System.Type GetTypeSerialized() { return typeof(Vector3); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Vector3; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(Vector3); }
         
         public void Pack(Packer stream, object obj) {
 
@@ -82,8 +81,8 @@ namespace ME.ECS.Serializer {
 
     public struct Vector4Serializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Vector4; }
-        public System.Type GetTypeSerialized() { return typeof(Vector4); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Vector4; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(Vector4); }
         
         public void Pack(Packer stream, object obj) {
 
@@ -101,8 +100,8 @@ namespace ME.ECS.Serializer {
 
     public struct QuaternionSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Quaternion; }
-        public System.Type GetTypeSerialized() { return typeof(Quaternion); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Quaternion; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(Quaternion); }
         
         public void Pack(Packer stream, object obj) {
 

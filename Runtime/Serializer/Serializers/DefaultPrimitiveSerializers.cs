@@ -1,49 +1,56 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
 namespace ME.ECS.Serializer {
 
     public struct StringSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.String; }
-        public System.Type GetTypeSerialized() { return typeof(string); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.String; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(string); }
         
-        public static void PackDirect(Packer packer, string obj) {
+        [INLINE(256)] public static void PackDirect(Packer packer, string obj) {
 
-            var length = obj.Length;
-            Int32Serializer.PackDirect(packer, length);
-            for (int i = 0; i < obj.Length; ++i) {
+            if (obj == null) {
+                
+                Int32Serializer.PackDirect(packer, -1);
+                
+            } else {
 
-                CharSerializer.PackDirect(packer, obj[i]);
+                var count = System.Text.Encoding.UTF8.GetMaxByteCount(obj.Length);
+                packer.AddCapacity(count + 4);
 
-            }
-            
-        }
-        
-        public static string UnpackDirect(Packer packer) {
-
-            var length = Int32Serializer.UnpackDirect(packer);
-            var sb = new System.Text.StringBuilder(length);
-            sb.Clear();
-            sb.Capacity = length;
-            for (int i = 0; i < length; ++i) {
-            
-                sb.Append(CharSerializer.UnpackDirect(packer));
+                var pos = packer.GetPosition();
+                var stream = packer.GetBuffer();
+                var bytesCount = System.Text.Encoding.UTF8.GetBytes(obj, 0, obj.Length, stream, pos + 4);
+                packer.SetPosition(pos);
+                Int32Serializer.PackDirect(packer, bytesCount);
+                packer.SetPosition(pos + bytesCount);
                 
             }
-            var res = sb.ToString();
-            return res;
+
+        }
+        
+        [INLINE(256)] public static string UnpackDirect(Packer packer) {
+
+            var length = Int32Serializer.UnpackDirect(packer);
+            if (length == -1) {
+                
+                return null;
+                
+            }
+
+            var stream = packer.GetBuffer();
+            var pos = packer.GetPosition();
+            return System.Text.Encoding.UTF8.GetString(stream, pos, length);
 
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             StringSerializer.PackDirect(packer, (string)obj);
             
         }
         
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return StringSerializer.UnpackDirect(packer);
 
@@ -53,28 +60,28 @@ namespace ME.ECS.Serializer {
 
     public struct CharSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Char; }
-        public System.Type GetTypeSerialized() { return typeof(char); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Char; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(char); }
         
-        public static void PackDirect(Packer packer, char obj) {
+        [INLINE(256)] public static void PackDirect(Packer packer, char obj) {
 
             UInt16Serializer.PackDirect(packer, obj);
             
         }
         
-        public static char UnpackDirect(Packer packer) {
+        [INLINE(256)] public static char UnpackDirect(Packer packer) {
 
             return (char)UInt16Serializer.UnpackDirect(packer);
             
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             CharSerializer.PackDirect(packer, (char)obj);
             
         }
         
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return CharSerializer.UnpackDirect(packer);
 
@@ -84,8 +91,8 @@ namespace ME.ECS.Serializer {
 
     public struct EnumSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Enum; }
-        public System.Type GetTypeSerialized() { return typeof(System.Enum); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Enum; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(System.Enum); }
         
         public void Pack(Packer stream, object obj) {
 
@@ -211,47 +218,30 @@ namespace ME.ECS.Serializer {
 
     public struct UInt16Serializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.UInt16; }
-        public System.Type GetTypeSerialized() { return typeof(System.UInt16); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.UInt16; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(System.UInt16); }
         
-        [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Explicit)]
-        private struct Int16Bytes {
+        [INLINE(256)] public static void PackDirect(Packer packer, ushort value) {
 
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public ushort value;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public byte b1;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(1)]
-            public byte b2;
-
-        }
-        
-        public static void PackDirect(Packer packer, ushort obj) {
-
-            var b = new Int16Bytes() { value = obj };
-            packer.WriteByte(b.b1);
-            packer.WriteByte(b.b2);
-
-        }
-        
-        public static ushort UnpackDirect(Packer packer) {
-
-            var res = new Int16Bytes() {
-                b1 = packer.ReadByte(),
-                b2 = packer.ReadByte()
-            };
+            const int size = 2;
+            Serializer.PackBlittable(packer, value, size);
             
-            return res.value;
+        }
+        
+        [INLINE(256)] public static ushort UnpackDirect(Packer packer) {
 
+            const int size = 2;
+            return Serializer.UnpackBlittable<ushort>(packer, size);
+            
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             UInt16Serializer.PackDirect(packer, (ushort)obj);
             
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return UInt16Serializer.UnpackDirect(packer);
 
@@ -261,52 +251,30 @@ namespace ME.ECS.Serializer {
 
     public struct Int16Serializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Int16; }
-        public System.Type GetTypeSerialized() { return typeof(System.Int16); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Int16; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(System.Int16); }
         
-        [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Explicit)]
-        private struct Int16Bytes {
+        [INLINE(256)] public static void PackDirect(Packer packer, short value) {
 
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public short value;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public byte b1;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(1)]
-            public byte b2;
-
-        }
-        
-        public static void PackDirect(Packer packer, short obj) {
-
-            var b = new Int16Bytes() { value = (short)obj };
-            byte size = 2;
-            if (b.b2 == 0) --size;
-            if (b.b2 == 0 && b.b1 == 0) --size;
-            packer.WriteByte(size);
-            if (size >= 1) packer.WriteByte(b.b1);
-            if (size >= 2) packer.WriteByte(b.b2);
-
-        }
-        
-        public static short UnpackDirect(Packer packer) {
-
-            var size = packer.ReadByte();
-            var res = new Int16Bytes() {
-                b1 = (size >= 1 ? packer.ReadByte() : byte.MinValue),
-                b2 = (size >= 2 ? packer.ReadByte() : byte.MinValue)
-            };
+            const int size = 2;
+            Serializer.PackBlittable(packer, value, size);
             
-            return res.value;
+        }
+        
+        [INLINE(256)] public static short UnpackDirect(Packer packer) {
 
+            const int size = 2;
+            return Serializer.UnpackBlittable<short>(packer, size);
+            
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             Int16Serializer.PackDirect(packer, (short)obj);
             
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return Int16Serializer.UnpackDirect(packer);
 
@@ -316,62 +284,30 @@ namespace ME.ECS.Serializer {
 
     public struct Int32Serializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Int32; }
-        public System.Type GetTypeSerialized() { return typeof(System.Int32); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Int32; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(System.Int32); }
         
-        [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Explicit)]
-        private struct Int32Bytes {
+        public static unsafe void PackDirect(Packer packer, int value) {
 
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public int value;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public byte b1;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(1)]
-            public byte b2;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(2)]
-            public byte b3;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(3)]
-            public byte b4;
-
-        }
-
-        public static void PackDirect(Packer packer, int value) {
-
-            var b = new Int32Bytes() { value = value };
-            byte size = 4;
-            if (b.b4 == 0) --size;
-            if (b.b4 == 0 && b.b3 == 0) --size;
-            if (b.b4 == 0 && b.b3 == 0 && b.b2 == 0) --size;
-            if (b.b4 == 0 && b.b3 == 0 && b.b2 == 0 && b.b1 == 0) --size;
-            packer.WriteByte(size);
-            if (size >= 1) packer.WriteByte(b.b1);
-            if (size >= 2) packer.WriteByte(b.b2);
-            if (size >= 3) packer.WriteByte(b.b3);
-            if (size >= 4) packer.WriteByte(b.b4);
+            const int size = 4;
+            Serializer.PackBlittable(packer, value, size);
             
         }
         
-        public static int UnpackDirect(Packer packer) {
+        [INLINE(256)] public static unsafe int UnpackDirect(Packer packer) {
 
-            var size = packer.ReadByte();
-            var res = new Int32Bytes() {
-                b1 = (size >= 1 ? packer.ReadByte() : byte.MinValue),
-                b2 = (size >= 2 ? packer.ReadByte() : byte.MinValue),
-                b3 = (size >= 3 ? packer.ReadByte() : byte.MinValue),
-                b4 = (size >= 4 ? packer.ReadByte() : byte.MinValue)
-            };
+            const int size = 4;
+            return Serializer.UnpackBlittable<int>(packer, size);
             
-            return res.value;
-
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             Int32Serializer.PackDirect(packer, (int)obj);
 
         }
         
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return Int32Serializer.UnpackDirect(packer);
 
@@ -381,62 +317,30 @@ namespace ME.ECS.Serializer {
 
     public struct UInt32Serializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.UInt32; }
-        public System.Type GetTypeSerialized() { return typeof(System.UInt32); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.UInt32; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(System.UInt32); }
         
-        [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Explicit)]
-        private struct Int32Bytes {
+        public static unsafe void PackDirect(Packer packer, uint value) {
 
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public uint value;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public byte b1;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(1)]
-            public byte b2;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(2)]
-            public byte b3;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(3)]
-            public byte b4;
-
-        }
-        
-        public static void PackDirect(Packer packer, uint value) {
-
-            var b = new Int32Bytes() { value = value };
-            byte size = 4;
-            if (b.b4 == 0) --size;
-            if (b.b4 == 0 && b.b3 == 0) --size;
-            if (b.b4 == 0 && b.b3 == 0 && b.b2 == 0) --size;
-            if (b.b4 == 0 && b.b3 == 0 && b.b2 == 0 && b.b1 == 0) --size;
-            packer.WriteByte(size);
-            if (size >= 1) packer.WriteByte(b.b1);
-            if (size >= 2) packer.WriteByte(b.b2);
-            if (size >= 3) packer.WriteByte(b.b3);
-            if (size >= 4) packer.WriteByte(b.b4);
+            const int size = 4;
+            Serializer.PackBlittable(packer, value, size);
             
         }
         
-        public static uint UnpackDirect(Packer packer) {
+        [INLINE(256)] public static unsafe uint UnpackDirect(Packer packer) {
 
-            var size = packer.ReadByte();
-            var res = new Int32Bytes() {
-                b1 = (size >= 1 ? packer.ReadByte() : byte.MinValue),
-                b2 = (size >= 2 ? packer.ReadByte() : byte.MinValue),
-                b3 = (size >= 3 ? packer.ReadByte() : byte.MinValue),
-                b4 = (size >= 4 ? packer.ReadByte() : byte.MinValue)
-            };
+            const int size = 4;
+            return Serializer.UnpackBlittable<uint>(packer, size);
             
-            return res.value;
-
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             UInt32Serializer.PackDirect(packer, (uint)obj);
 
         }
         
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return UInt32Serializer.UnpackDirect(packer);
 
@@ -446,99 +350,30 @@ namespace ME.ECS.Serializer {
 
     public struct Int64Serializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Int64; }
-        public System.Type GetTypeSerialized() { return typeof(System.Int64); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Int64; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(System.Int64); }
         
-        [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Explicit)]
-        private struct Int64Bytes {
+        [INLINE(256)] public static void PackDirect(Packer packer, long value) {
 
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public long value;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public byte b1;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(1)]
-            public byte b2;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(2)]
-            public byte b3;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(3)]
-            public byte b4;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(4)]
-            public byte b5;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(5)]
-            public byte b6;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(6)]
-            public byte b7;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(7)]
-            public byte b8;
-
-        }
-        
-        public static void PackDirect(Packer packer, long obj) {
-
-            var b = new Int64Bytes() { value = obj };
-            byte size = 8;
-            if (b.b8 == 0) {
-                --size;
-                if (b.b7 == 0) {
-                    --size;
-                    if (b.b6 == 0) {
-                        --size;
-                        if (b.b5 == 0) {
-                            --size;
-                            if (b.b4 == 0) {
-                                --size;
-                                if (b.b3 == 0) {
-                                    --size;
-                                    if (b.b2 == 0) {
-                                        --size;
-                                        if (b.b1 == 0) {
-                                            --size;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            packer.WriteByte(size);
-            if (size >= 1) packer.WriteByte(b.b1);
-            if (size >= 2) packer.WriteByte(b.b2);
-            if (size >= 3) packer.WriteByte(b.b3);
-            if (size >= 4) packer.WriteByte(b.b4);
-            if (size >= 5) packer.WriteByte(b.b5);
-            if (size >= 6) packer.WriteByte(b.b6);
-            if (size >= 7) packer.WriteByte(b.b7);
-            if (size >= 8) packer.WriteByte(b.b8);
-
-        }
-        
-        public static long UnpackDirect(Packer packer) {
-
-            var size = packer.ReadByte();
-            var res = new Int64Bytes() {
-                b1 = (size >= 1 ? packer.ReadByte() : byte.MinValue),
-                b2 = (size >= 2 ? packer.ReadByte() : byte.MinValue),
-                b3 = (size >= 3 ? packer.ReadByte() : byte.MinValue),
-                b4 = (size >= 4 ? packer.ReadByte() : byte.MinValue),
-                b5 = (size >= 5 ? packer.ReadByte() : byte.MinValue),
-                b6 = (size >= 6 ? packer.ReadByte() : byte.MinValue),
-                b7 = (size >= 7 ? packer.ReadByte() : byte.MinValue),
-                b8 = (size >= 8 ? packer.ReadByte() : byte.MinValue)
-            };
+            const int size = 8;
+            Serializer.PackBlittable(packer, value, size);
             
-            return res.value;
+        }
+        
+        [INLINE(256)] public static long UnpackDirect(Packer packer) {
 
+            const int size = 8;
+            return Serializer.UnpackBlittable<long>(packer, size);
+            
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             Int64Serializer.PackDirect(packer, (long)obj);
             
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return Int64Serializer.UnpackDirect(packer);
 
@@ -548,99 +383,30 @@ namespace ME.ECS.Serializer {
 
     public struct UInt64Serializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.UInt64; }
-        public System.Type GetTypeSerialized() { return typeof(System.UInt64); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.UInt64; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(System.UInt64); }
         
-        [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Explicit)]
-        private struct Int64Bytes {
+        [INLINE(256)] public static void PackDirect(Packer packer, ulong value) {
 
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public ulong value;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public byte b1;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(1)]
-            public byte b2;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(2)]
-            public byte b3;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(3)]
-            public byte b4;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(4)]
-            public byte b5;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(5)]
-            public byte b6;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(6)]
-            public byte b7;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(7)]
-            public byte b8;
-
-        }
-        
-        public static void PackDirect(Packer packer, ulong obj) {
-
-            var b = new Int64Bytes() { value = obj };
-            byte size = 8;
-            if (b.b8 == 0) {
-                --size;
-                if (b.b7 == 0) {
-                    --size;
-                    if (b.b6 == 0) {
-                        --size;
-                        if (b.b5 == 0) {
-                            --size;
-                            if (b.b4 == 0) {
-                                --size;
-                                if (b.b3 == 0) {
-                                    --size;
-                                    if (b.b2 == 0) {
-                                        --size;
-                                        if (b.b1 == 0) {
-                                            --size;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            packer.WriteByte(size);
-            if (size >= 1) packer.WriteByte(b.b1);
-            if (size >= 2) packer.WriteByte(b.b2);
-            if (size >= 3) packer.WriteByte(b.b3);
-            if (size >= 4) packer.WriteByte(b.b4);
-            if (size >= 5) packer.WriteByte(b.b5);
-            if (size >= 6) packer.WriteByte(b.b6);
-            if (size >= 7) packer.WriteByte(b.b7);
-            if (size >= 8) packer.WriteByte(b.b8);
-
-        }
-        
-        public static ulong UnpackDirect(Packer packer) {
-
-            var size = packer.ReadByte();
-            var res = new Int64Bytes() {
-                b1 = (size >= 1 ? packer.ReadByte() : byte.MinValue),
-                b2 = (size >= 2 ? packer.ReadByte() : byte.MinValue),
-                b3 = (size >= 3 ? packer.ReadByte() : byte.MinValue),
-                b4 = (size >= 4 ? packer.ReadByte() : byte.MinValue),
-                b5 = (size >= 5 ? packer.ReadByte() : byte.MinValue),
-                b6 = (size >= 6 ? packer.ReadByte() : byte.MinValue),
-                b7 = (size >= 7 ? packer.ReadByte() : byte.MinValue),
-                b8 = (size >= 8 ? packer.ReadByte() : byte.MinValue)
-            };
+            const int size = 8;
+            Serializer.PackBlittable(packer, value, size);
             
-            return res.value;
+        }
+        
+        [INLINE(256)] public static ulong UnpackDirect(Packer packer) {
 
+            const int size = 8;
+            return Serializer.UnpackBlittable<ulong>(packer, size);
+            
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             UInt64Serializer.PackDirect(packer, (ulong)obj);
             
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return UInt64Serializer.UnpackDirect(packer);
 
@@ -650,99 +416,30 @@ namespace ME.ECS.Serializer {
 
     public struct DoubleSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Double; }
-        public System.Type GetTypeSerialized() { return typeof(System.Double); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Double; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(System.Double); }
         
-        [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Explicit)]
-        private struct Float64Bytes {
+        [INLINE(256)] public static void PackDirect(Packer packer, double value) {
 
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public double value;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public byte b1;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(1)]
-            public byte b2;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(2)]
-            public byte b3;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(3)]
-            public byte b4;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(4)]
-            public byte b5;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(5)]
-            public byte b6;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(6)]
-            public byte b7;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(7)]
-            public byte b8;
-
-        }
-        
-        public static void PackDirect(Packer packer, double obj) {
-
-            var b = new Float64Bytes() { value = obj };
-            byte size = 8;
-            if (b.b8 == 0) {
-                --size;
-                if (b.b7 == 0) {
-                    --size;
-                    if (b.b6 == 0) {
-                        --size;
-                        if (b.b5 == 0) {
-                            --size;
-                            if (b.b4 == 0) {
-                                --size;
-                                if (b.b3 == 0) {
-                                    --size;
-                                    if (b.b2 == 0) {
-                                        --size;
-                                        if (b.b1 == 0) {
-                                            --size;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            packer.WriteByte(size);
-            if (size >= 1) packer.WriteByte(b.b1);
-            if (size >= 2) packer.WriteByte(b.b2);
-            if (size >= 3) packer.WriteByte(b.b3);
-            if (size >= 4) packer.WriteByte(b.b4);
-            if (size >= 5) packer.WriteByte(b.b5);
-            if (size >= 6) packer.WriteByte(b.b6);
-            if (size >= 7) packer.WriteByte(b.b7);
-            if (size >= 8) packer.WriteByte(b.b8);
-
-        }
-        
-        public static double UnpackDirect(Packer packer) {
-
-            var size = packer.ReadByte();
-            var res = new Float64Bytes() {
-                b1 = (size >= 1 ? packer.ReadByte() : byte.MinValue),
-                b2 = (size >= 2 ? packer.ReadByte() : byte.MinValue),
-                b3 = (size >= 3 ? packer.ReadByte() : byte.MinValue),
-                b4 = (size >= 4 ? packer.ReadByte() : byte.MinValue),
-                b5 = (size >= 5 ? packer.ReadByte() : byte.MinValue),
-                b6 = (size >= 6 ? packer.ReadByte() : byte.MinValue),
-                b7 = (size >= 7 ? packer.ReadByte() : byte.MinValue),
-                b8 = (size >= 8 ? packer.ReadByte() : byte.MinValue)
-            };
+            const int size = 8;
+            Serializer.PackBlittable(packer, value, size);
             
-            return res.value;
+        }
+        
+        [INLINE(256)] public static double UnpackDirect(Packer packer) {
 
+            const int size = 8;
+            return Serializer.UnpackBlittable<double>(packer, size);
+            
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             DoubleSerializer.PackDirect(packer, (double)obj);
             
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return DoubleSerializer.UnpackDirect(packer);
 
@@ -752,62 +449,30 @@ namespace ME.ECS.Serializer {
 
     public struct FloatSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Float; }
-        public System.Type GetTypeSerialized() { return typeof(System.Single); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Float; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(System.Single); }
 
-        [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Explicit)]
-        private struct FloatBytes {
+        [INLINE(256)] public static void PackDirect(Packer packer, float value) {
 
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public float value;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public byte b1;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(1)]
-            public byte b2;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(2)]
-            public byte b3;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(3)]
-            public byte b4;
-
-        }
-        
-        public static void PackDirect(Packer packer, float obj) {
-
-            var b = new FloatBytes() { value = obj };
-            byte size = 4;
-            if (b.b4 == 0) --size;
-            if (b.b4 == 0 && b.b3 == 0) --size;
-            if (b.b4 == 0 && b.b3 == 0 && b.b2 == 0) --size;
-            if (b.b4 == 0 && b.b3 == 0 && b.b2 == 0 && b.b1 == 0) --size;
-            packer.WriteByte(size);
-            if (size >= 1) packer.WriteByte(b.b1);
-            if (size >= 2) packer.WriteByte(b.b2);
-            if (size >= 3) packer.WriteByte(b.b3);
-            if (size >= 4) packer.WriteByte(b.b4);
-
-        }
-        
-        public static float UnpackDirect(Packer packer) {
-
-            var size = packer.ReadByte();
-            var res = new FloatBytes() {
-                b1 = (size >= 1 ? packer.ReadByte() : byte.MinValue),
-                b2 = (size >= 2 ? packer.ReadByte() : byte.MinValue),
-                b3 = (size >= 3 ? packer.ReadByte() : byte.MinValue),
-                b4 = (size >= 4 ? packer.ReadByte() : byte.MinValue)
-            };
+            const int size = 4;
+            Serializer.PackBlittable(packer, value, size);
             
-            return res.value;
+        }
+        
+        [INLINE(256)] public static float UnpackDirect(Packer packer) {
 
+            const int size = 4;
+            return Serializer.UnpackBlittable<float>(packer, size);
+            
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             FloatSerializer.PackDirect(packer, (float)obj);
             
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return FloatSerializer.UnpackDirect(packer);
 
@@ -817,28 +482,28 @@ namespace ME.ECS.Serializer {
 
     public struct FPSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.FPFloat; }
-        public System.Type GetTypeSerialized() { return typeof(fp); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.FPFloat; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(fp); }
 
-        public static void PackDirect(Packer packer, fp obj) {
+        [INLINE(256)] public static void PackDirect(Packer packer, fp obj) {
 
             Int64Serializer.PackDirect(packer, obj.RawValue);
             
         }
         
-        public static fp UnpackDirect(Packer packer) {
+        [INLINE(256)] public static fp UnpackDirect(Packer packer) {
 
             return new fp(Int64Serializer.UnpackDirect(packer));
 
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             FPSerializer.PackDirect(packer, (fp)obj);
             
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return FPSerializer.UnpackDirect(packer);
 
@@ -848,30 +513,30 @@ namespace ME.ECS.Serializer {
 
     public struct BooleanSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Boolean; }
-        public System.Type GetTypeSerialized() { return typeof(System.Boolean); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Boolean; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(System.Boolean); }
 
-        public static void PackDirect(Packer packer, bool obj) {
+        [INLINE(256)] public static void PackDirect(Packer packer, bool obj) {
 
             byte b = (bool)obj == true ? (byte)1 : (byte)0;
             packer.WriteByte(b);
 
         }
         
-        public static bool UnpackDirect(Packer packer) {
+        [INLINE(256)] public static bool UnpackDirect(Packer packer) {
             
             var b = packer.ReadByte();
             return b == 1 ? true : false;
 
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             BooleanSerializer.PackDirect(packer, (bool)obj);
             
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return BooleanSerializer.UnpackDirect(packer);
 
@@ -881,28 +546,28 @@ namespace ME.ECS.Serializer {
 
     public struct ByteSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Byte; }
-        public System.Type GetTypeSerialized() { return typeof(System.Byte); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Byte; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(System.Byte); }
 
-        public static void PackDirect(Packer packer, byte obj) {
+        [INLINE(256)] public static void PackDirect(Packer packer, byte obj) {
 
             packer.WriteByte(obj);
 
         }
         
-        public static byte UnpackDirect(Packer packer) {
+        [INLINE(256)] public static byte UnpackDirect(Packer packer) {
             
             return packer.ReadByte();
             
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             ByteSerializer.PackDirect(packer, (byte)obj);
             
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return ByteSerializer.UnpackDirect(packer);
 
@@ -912,40 +577,28 @@ namespace ME.ECS.Serializer {
 
     public struct SByteSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.SByte; }
-        public System.Type GetTypeSerialized() { return typeof(System.SByte); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.SByte; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(System.SByte); }
 
-        [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Explicit)]
-        private struct SByte {
+        [INLINE(256)] public static void PackDirect(Packer packer, sbyte obj) {
 
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public sbyte value;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
-            public byte b1;
+            packer.WriteByte((byte)obj);
 
         }
         
-        public static void PackDirect(Packer packer, sbyte obj) {
+        [INLINE(256)] public static sbyte UnpackDirect(Packer packer) {
 
-            var @sbyte = new SByte() { value = obj };
-            packer.WriteByte(@sbyte.b1);
-
-        }
-        
-        public static sbyte UnpackDirect(Packer packer) {
-            
-            var @sbyte = new SByte() { b1 = packer.ReadByte() };
-            return @sbyte.value;
+            return (sbyte)packer.ReadByte();
             
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             SByteSerializer.PackDirect(packer, (sbyte)obj);
             
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return SByteSerializer.UnpackDirect(packer);
 

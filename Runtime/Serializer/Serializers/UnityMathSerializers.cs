@@ -1,12 +1,12 @@
-﻿using UnityEngine;
-using Unity.Mathematics;
+﻿using Unity.Mathematics;
+using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
 namespace ME.ECS.Serializer {
 
     public struct Int2Serializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Int2; }
-        public System.Type GetTypeSerialized() { return typeof(int2); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Int2; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(int2); }
         
         public void Pack(Packer stream, object obj) {
 
@@ -24,8 +24,8 @@ namespace ME.ECS.Serializer {
 
     public struct Int3Serializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Int3; }
-        public System.Type GetTypeSerialized() { return typeof(int3); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Int3; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(int3); }
         
         public void Pack(Packer stream, object obj) {
 
@@ -43,8 +43,8 @@ namespace ME.ECS.Serializer {
 
     public struct Float2Serializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Float2; }
-        public System.Type GetTypeSerialized() { return typeof(float2); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Float2; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(float2); }
         
         public void Pack(Packer stream, object obj) {
 
@@ -62,8 +62,8 @@ namespace ME.ECS.Serializer {
 
     public struct Float3Serializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Float3; }
-        public System.Type GetTypeSerialized() { return typeof(float3); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Float3; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(float3); }
         
         public void Pack(Packer stream, object obj) {
 
@@ -81,8 +81,8 @@ namespace ME.ECS.Serializer {
 
     public struct Float4Serializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.Float4; }
-        public System.Type GetTypeSerialized() { return typeof(float4); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Float4; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(float4); }
         
         public void Pack(Packer stream, object obj) {
 
@@ -100,8 +100,8 @@ namespace ME.ECS.Serializer {
 
     public struct QuaternionMathSerializer : ITypeSerializer {
 
-        public byte GetTypeValue() { return (byte)TypeValue.FQuaternion; }
-        public System.Type GetTypeSerialized() { return typeof(quaternion); }
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.FQuaternion; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(quaternion); }
         
         public void Pack(Packer stream, object obj) {
 

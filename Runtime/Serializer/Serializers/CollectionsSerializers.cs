@@ -1,16 +1,96 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
 namespace ME.ECS.Serializer {
 
+    public struct Int16ArraySerializer : ITypeSerializer {
+
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.Int16Array;
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(System.Int16[]);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (System.Int16[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<System.Int16>(packer);
+        
+    }
+
+    public struct Int32ArraySerializer : ITypeSerializer {
+
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.Int32Array;
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(System.Int32[]);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (System.Int32[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<System.Int32>(packer);
+        
+    }
+
+    public struct Int64ArraySerializer : ITypeSerializer {
+
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.Int64Array;
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(System.Int64[]);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (System.Int64[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<System.Int64>(packer);
+        
+    }
+
+    public struct UInt16ArraySerializer : ITypeSerializer {
+
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.UInt16Array;
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(System.UInt16[]);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (System.UInt16[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<System.UInt16>(packer);
+        
+    }
+
+    public struct UInt32ArraySerializer : ITypeSerializer {
+
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.UInt32Array;
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(System.UInt32[]);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (System.UInt32[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<System.UInt32>(packer);
+        
+    }
+
+    public struct UInt64ArraySerializer : ITypeSerializer {
+
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.UInt64Array;
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(System.UInt64[]);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (System.UInt64[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<System.UInt64>(packer);
+        
+    }
+
+    public struct FloatArraySerializer : ITypeSerializer {
+
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.FloatArray;
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(float[]);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (float[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<float>(packer);
+        
+    }
+
+    public struct DoubleArraySerializer : ITypeSerializer {
+
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.DoubleArray;
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(double[]);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (double[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<double>(packer);
+        
+    }
+
+    public struct SByteArraySerializer : ITypeSerializer {
+
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.SByteArray;
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(sbyte[]);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (sbyte[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<sbyte>(packer);
+        
+    }
+
     public struct GenericListSerializer : ITypeSerializer, ITypeSerializerInherit {
 
-        public byte GetTypeValue() => (byte)TypeValue.GenericList;
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.GenericList;
 
-        public System.Type GetTypeSerialized() => typeof(IList);
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(IList);
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             var arr = (IList)obj;
             var type = arr.GetType();
@@ -79,7 +159,7 @@ namespace ME.ECS.Serializer {
 
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             var length  = Int32Serializer.UnpackDirect(packer);
             var isArray = packer.ReadByte();
@@ -146,11 +226,11 @@ namespace ME.ECS.Serializer {
 
     public struct GenericDictionarySerializer : ITypeSerializer, ITypeSerializerInherit {
 
-        public byte GetTypeValue() => (byte)TypeValue.GenericDictionary;
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.GenericDictionary;
 
-        public System.Type GetTypeSerialized() => typeof(IDictionary);
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(IDictionary);
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             var dict = (IDictionary)obj;
             var type = dict.GetType();
@@ -169,7 +249,7 @@ namespace ME.ECS.Serializer {
 
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             var length = Int32Serializer.UnpackDirect(packer);
             var typeIdKey = Int32Serializer.UnpackDirect(packer);
@@ -195,20 +275,25 @@ namespace ME.ECS.Serializer {
 
     public struct ObjectArraySerializer : ITypeSerializer {
 
-        public byte GetTypeValue() {
+        [INLINE(256)] public byte GetTypeValue() {
             return (byte)TypeValue.ObjectArray;
         }
 
-        public System.Type GetTypeSerialized() {
+        [INLINE(256)] public System.Type GetTypeSerialized() {
             return typeof(object[]);
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             var arr = (System.Array)obj;
+            if (arr == null) {
+                
+                packer.WriteByte((byte)TypeValue.Null);
+                return;
+
+            }
 
             Int32Serializer.PackDirect(packer, arr.Length);
-
             for (int i = 0; i < arr.Length; ++i) {
 
                 packer.PackInternal(arr.GetValue(i));
@@ -216,8 +301,15 @@ namespace ME.ECS.Serializer {
             }
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
+            var b = packer.ReadByte();
+            if (b == (byte)TypeValue.Null) {
+
+                return null;
+
+            }
+            
             var length = Int32Serializer.UnpackDirect(packer);
 
             var arr = new object[length];
@@ -236,22 +328,22 @@ namespace ME.ECS.Serializer {
 
     public struct ByteArraySerializer : ITypeSerializer {
 
-        public byte GetTypeValue() {
+        [INLINE(256)] public byte GetTypeValue() {
             return (byte)TypeValue.ByteArray;
         }
 
-        public System.Type GetTypeSerialized() {
+        [INLINE(256)] public System.Type GetTypeSerialized() {
             return typeof(byte[]);
         }
 
-        public static void PackDirect(Packer packer, byte[] arr) {
+        [INLINE(256)] public static void PackDirect(Packer packer, byte[] arr) {
             
             Int32Serializer.PackDirect(packer, arr.Length);
             packer.WriteBytes(arr);
 
         }
 
-        public static byte[] UnpackDirect(Packer packer) {
+        [INLINE(256)] public static byte[] UnpackDirect(Packer packer) {
             
             var length = Int32Serializer.UnpackDirect(packer);
             var arr = new byte[length];
@@ -260,13 +352,13 @@ namespace ME.ECS.Serializer {
 
         }
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             ByteArraySerializer.PackDirect(packer, (byte[])obj);
             
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             return ByteArraySerializer.UnpackDirect(packer);
 

@@ -1,12 +1,14 @@
+using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
+
 namespace ME.ECS.Serializer {
 
     public struct BufferArraySerializer : ITypeSerializer, ITypeSerializerInherit {
 
-        public byte GetTypeValue() => (byte)TypeValue.BufferArray;
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.BufferArray;
 
-        public System.Type GetTypeSerialized() => typeof(ME.ECS.Collections.IBufferArray);
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(ME.ECS.Collections.IBufferArray);
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             System.Type arrayType = obj.GetType();
             if (arrayType.IsGenericType == true) {
@@ -20,9 +22,8 @@ namespace ME.ECS.Serializer {
             if (arr == null) {
                 
                 packer.WriteByte((byte)TypeValue.Null);
-                var int32 = new Int32Serializer();
-                int32.Pack(packer, packer.GetMetaTypeId(arrayType));
-                int32.Pack(packer, packer.GetMetaTypeId(obj.GetType().GenericTypeArguments[0]));
+                Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(arrayType));
+                Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(obj.GetType().GenericTypeArguments[0]));
                 
             } else {
 
@@ -30,10 +31,9 @@ namespace ME.ECS.Serializer {
 
                 var length = buffer.Count;
 
-                var int32 = new Int32Serializer();
-                int32.Pack(packer, packer.GetMetaTypeId(arrayType));
-                int32.Pack(packer, length);
-                int32.Pack(packer, packer.GetMetaTypeId(arr.GetType().GetElementType()));
+                Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(arrayType));
+                Int32Serializer.PackDirect(packer, length);
+                Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(arr.GetType().GetElementType()));
                 for (var i = 0; i < length; ++i) {
 
                     packer.PackInternal(arr.GetValue(i));
@@ -44,7 +44,7 @@ namespace ME.ECS.Serializer {
 
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             int arrayTypeId = -1;
             int typeId = -1;
@@ -54,18 +54,16 @@ namespace ME.ECS.Serializer {
             var type = packer.ReadByte();
             if (type == (byte)TypeValue.Null) {
 
-                var int32 = new Int32Serializer();
-                arrayTypeId = (int)int32.Unpack(packer);
-                typeId = (int)int32.Unpack(packer);
+                arrayTypeId = Int32Serializer.UnpackDirect(packer);
+                typeId = Int32Serializer.UnpackDirect(packer);
                 p1 = null;
                 p2 = 0;
 
             } else {
 
-                var int32 = new Int32Serializer();
-                arrayTypeId = (int)int32.Unpack(packer);
-                var length = (int)int32.Unpack(packer);
-                typeId = (int)int32.Unpack(packer);
+                arrayTypeId = Int32Serializer.UnpackDirect(packer);
+                var length = Int32Serializer.UnpackDirect(packer);
+                typeId = Int32Serializer.UnpackDirect(packer);
                 var elementType = packer.GetMetaType(typeId);
 
                 var poolArrayType = typeof(PoolArray<>).MakeGenericType(elementType);

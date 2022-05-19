@@ -1,14 +1,15 @@
 using ME.ECS.Collections;
+using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
 namespace ME.ECS.Serializer {
 
     public struct DisposeSentinelSerializer : ITypeSerializer, ITypeSerializerInherit {
 
-        public byte GetTypeValue() => (byte)TypeValue.DisposeSentinel;
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.DisposeSentinel;
 
-        public System.Type GetTypeSerialized() => typeof(IDisposeSentinel);
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(IDisposeSentinel);
 
-        public void Pack(Packer packer, object obj) {
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
 
             var sentinel = (IDisposeSentinel)obj;
             var type = sentinel.GetType();
@@ -22,7 +23,7 @@ namespace ME.ECS.Serializer {
             
         }
 
-        public object Unpack(Packer packer) {
+        [INLINE(256)] public object Unpack(Packer packer) {
 
             var type = packer.GetMetaType(Int32Serializer.UnpackDirect(packer));
             var typeValue = packer.GetMetaType(Int32Serializer.UnpackDirect(packer));
