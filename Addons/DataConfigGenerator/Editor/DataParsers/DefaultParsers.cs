@@ -1,8 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace ME.ECS.DataConfigGenerator.DataParsers {
+
+    public struct QuaternionParser : IParser, IDefaultParser {
+
+        public bool IsValid(System.Type fieldType) {
+            return typeof(Quaternion) == fieldType;
+        }
+
+        public bool Parse(string data, System.Type fieldType, out object result) {
+            
+            var prs = data.Split(';');
+            result = Quaternion.Euler(new Vector3(float.Parse(prs[0]), float.Parse(prs[1]), float.Parse(prs[2])));
+            return true;
+
+        }
+
+    }
 
     public struct EnumParser : IParser, IDefaultParser {
 
@@ -304,5 +318,5 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
         }
 
     }
-
+    
 }
