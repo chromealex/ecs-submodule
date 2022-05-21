@@ -70,7 +70,7 @@ namespace ME.ECSEditor {
 
     }
 
-    [CustomPropertyDrawer(typeof(FeaturesList.FeatureData))]
+    [CustomPropertyDrawer(typeof(BaseFeatureData), true)]
     public class FeatureDataDrawer : PropertyDrawer {
 
         private static System.Reflection.MethodInfo contextWidthMethodInfo;
@@ -114,7 +114,7 @@ namespace ME.ECSEditor {
 
             h += 4f * 2f;
 
-            if (isFeatureAssigned == true) h += EditorGUI.GetPropertyHeight(innerFeatures, new GUIContent("Sub Features"), false);
+            if (isFeatureAssigned == true && innerFeatures != null) h += EditorGUI.GetPropertyHeight(innerFeatures, new GUIContent("Sub Features"), false);
             
             return h;
             
@@ -127,6 +127,7 @@ namespace ME.ECSEditor {
             var enabled = property.FindPropertyRelative("enabled");
             var items = property.FindPropertyRelative("feature");
             var innerFeatures = property.FindPropertyRelative("innerFeatures");
+            
             var enabledRect = position;
             enabledRect.height = EditorGUIUtility.singleLineHeight;
             enabledRect.width = 30f;
@@ -219,7 +220,10 @@ namespace ME.ECSEditor {
 
                 }
 
-                if (isFeatureAssigned == true) EditorGUI.PropertyField(position, innerFeatures, new GUIContent("Sub Features"), false);
+                if (isFeatureAssigned == true && innerFeatures != null) {
+                    
+                    EditorGUI.PropertyField(position, innerFeatures, new GUIContent("Sub Features"), false);
+                }
 
             }
 
@@ -304,7 +308,7 @@ namespace ME.ECSEditor {
 
     }
 
-    [CustomPropertyDrawer(typeof(FeaturesList))]
+    [CustomPropertyDrawer(typeof(FeaturesListBase), true)]
     public class FeaturesListDrawer : PropertyDrawer {
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
@@ -317,6 +321,26 @@ namespace ME.ECSEditor {
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             
+            var items = property.FindPropertyRelative("features");
+            EditorGUI.PropertyField(position, items, label, true);
+
+        }
+
+    }
+
+    [CustomPropertyDrawer(typeof(SubFeaturesList))]
+    public class SubFeaturesListDrawer : PropertyDrawer {
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
+
+            var items = property.FindPropertyRelative("features");
+            var h = EditorGUI.GetPropertyHeight(items, label, true);
+            return h;
+            
+        }
+
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
+
             var items = property.FindPropertyRelative("features");
             EditorGUI.PropertyField(position, items, label, true);
 
