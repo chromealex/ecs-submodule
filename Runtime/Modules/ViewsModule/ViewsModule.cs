@@ -644,7 +644,7 @@ namespace ME.ECS.Views {
             var viewInfo = new ViewInfo(entity, sourceId, this.world.GetStateTick());
             var view = new ViewComponent() {
                 viewInfo = viewInfo,
-                seed = (uint)this.world.GetSeedValue(),
+                seed = (uint)this.world.GetSeed(),
             };
             this.world.SetData(in entity, view);
 
