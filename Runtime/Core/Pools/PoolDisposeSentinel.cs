@@ -4,7 +4,7 @@ namespace ME.ECS {
     
     public class PoolDisposeSentinel<T, TProvider> where TProvider : struct, ME.ECS.Collections.IDataObjectProvider<T> {
 
-        public static IPoolImplementation current = new PoolImplementation(isNull: false);
+        public static IPoolImplementation current = new PoolImplementation(isNull: true);
         
         public struct Data {}
         
