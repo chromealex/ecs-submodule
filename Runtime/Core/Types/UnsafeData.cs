@@ -130,7 +130,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public UnsafeData Set<T>(T data) where T : struct {
+        public UnsafeData Set<T>(T data) where T : unmanaged {
 
             this.typeId = AllComponentTypes<T>.typeId;
             
