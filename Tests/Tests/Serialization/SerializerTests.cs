@@ -116,6 +116,48 @@ namespace ME.ECS.Tests {
 
         }
 
+        public struct TestUnmanagedData {
+
+            public int a;
+            public float b;
+            public byte c;
+
+        }
+
+        [NUnit.Framework.TestAttribute]
+        public void UnsafeData() {
+            
+            var source = new TestUnmanagedData() {
+                a = 123,
+                b = 234.567f,
+                c = 125,
+            };
+            var test = new UnsafeData().Set(source);
+
+            byte[] bytes;
+            {
+                var ser = new Serializers();
+                ser.Add(new UnsafeDataSerializer());
+
+                bytes = Serializer.Pack(test, ser);
+                ser.Dispose();
+            }
+            
+            {
+                var ser = new Serializers();
+                ser.Add(new UnsafeDataSerializer());
+
+                var dest = Serializer.Unpack<UnsafeData>(bytes, ser);
+                var comp = dest.Read<TestUnmanagedData>();
+
+                NUnit.Framework.Assert.AreEqual(source.a, comp.a);
+                NUnit.Framework.Assert.AreEqual(source.b, comp.b);
+                NUnit.Framework.Assert.AreEqual(source.c, comp.c);
+
+            }
+
+        }
+
         [NUnit.Framework.TestAttribute]
         public void NativeBufferArraySerialization() {
             var test = new TestDataNativeBufferArray {

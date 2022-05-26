@@ -135,7 +135,7 @@ namespace ME.ECS.Serializer {
 
     public struct TickSerializer : ITypeSerializer {
 
-        [INLINE(256)] public byte GetTypeValue() => 151;
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.Tick;
         [INLINE(256)] public System.Type GetTypeSerialized() => typeof(Tick);
 
         [INLINE(256)] public void Pack(Packer packer, object obj) {
@@ -154,7 +154,7 @@ namespace ME.ECS.Serializer {
 
     public struct ViewIdSerializer : ITypeSerializer {
 
-        [INLINE(256)] public byte GetTypeValue() => 152;
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.ViewId;
         [INLINE(256)] public System.Type GetTypeSerialized() => typeof(ViewId);
 
         [INLINE(256)] public static void PackDirect(Packer packer, ViewId obj) {
@@ -185,7 +185,7 @@ namespace ME.ECS.Serializer {
 
     public struct RPCIdSerializer : ITypeSerializer {
 
-        [INLINE(256)] public byte GetTypeValue() => 153;
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.RPCId;
         [INLINE(256)] public System.Type GetTypeSerialized() => typeof(RPCId);
 
         [INLINE(256)] public void Pack(Packer packer, object obj) {
@@ -198,6 +198,84 @@ namespace ME.ECS.Serializer {
 
             return (RPCId)Int32Serializer.UnpackDirect(packer);
             
+        }
+
+    }
+
+    public struct NextTickTaskSerializer : ITypeSerializer {
+
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.NextTickTask;
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(StructComponentsContainer.NextTickTask);
+
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
+
+            var task = (StructComponentsContainer.NextTickTask)obj;
+            Int32Serializer.PackDirect(packer, task.entity.id);
+            UInt16Serializer.PackDirect(packer, task.entity.generation);
+            ByteSerializer.PackDirect(packer, (byte)task.lifetime);
+            ByteSerializer.PackDirect(packer, (byte)task.storageType);
+            FloatSerializer.PackDirect(packer, task.secondsLifetime);
+            UnsafeDataSerializer.PackDirect(packer, task.data);
+            
+        }
+
+        [INLINE(256)] public object Unpack(Packer packer) {
+
+            var task = new StructComponentsContainer.NextTickTask();
+            var entityId = Int32Serializer.UnpackDirect(packer);
+            var generation = UInt16Serializer.UnpackDirect(packer);
+            task.entity = new Entity(entityId, generation);
+            task.lifetime = (ComponentLifetime)ByteSerializer.UnpackDirect(packer);
+            task.storageType = (StorageType)ByteSerializer.UnpackDirect(packer);
+            task.secondsLifetime = FloatSerializer.UnpackDirect(packer);
+            task.data = UnsafeDataSerializer.UnpackDirect(packer);
+            return task;
+            
+        }
+
+    }
+
+    public struct UnsafeDataSerializer : ITypeSerializer {
+
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.UnsafeData;
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(UnsafeData);
+
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
+
+            UnsafeDataSerializer.PackDirect(packer, (UnsafeData)obj);
+            
+        }
+
+        [INLINE(256)] public object Unpack(Packer packer) {
+
+            return UnsafeDataSerializer.UnpackDirect(packer);
+            
+        }
+
+        [INLINE(256)] public static void PackDirect(Packer packer, UnsafeData data) {
+            
+            Int32Serializer.PackDirect(packer, data.alignOf);
+            Int32Serializer.PackDirect(packer, data.sizeOf);
+            Int32Serializer.PackDirect(packer, data.typeId);
+            var buffer = packer.GetBufferToWrite(data.sizeOf);
+            var pos = packer.GetPositionAndMove(data.sizeOf);
+            System.Runtime.InteropServices.Marshal.Copy(data.data, buffer, pos, data.sizeOf);
+
+        }
+
+        [INLINE(256)] public static unsafe UnsafeData UnpackDirect(Packer packer) {
+            
+            var data = new UnsafeData();
+            data.alignOf = Int32Serializer.UnpackDirect(packer);
+            data.sizeOf = Int32Serializer.UnpackDirect(packer);
+            data.typeId = Int32Serializer.UnpackDirect(packer);
+            var buffer = packer.GetBuffer();
+            var pos = packer.GetPositionAndMove(data.sizeOf);
+            var intPtrV = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.Malloc(data.sizeOf, data.alignOf, Unity.Collections.Allocator.Persistent);//System.Runtime.InteropServices.Marshal.AllocHGlobal(data.sizeOf);
+            data.data = (System.IntPtr)intPtrV;
+            System.Runtime.InteropServices.Marshal.Copy(buffer, pos, data.data, data.sizeOf);
+            return data;
+
         }
 
     }
@@ -216,6 +294,8 @@ namespace ME.ECS.Serializer {
             ser.Add(new DisposeSentinelSerializer());
             ser.Add(new GenericIntDictionarySerializer());
             ser.Add(new GenericULongDictionarySerializer());
+            ser.Add(new NextTickTaskSerializer());
+            ser.Add(new UnsafeDataSerializer());
             return ser;
 
         }

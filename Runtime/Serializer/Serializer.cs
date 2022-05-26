@@ -23,7 +23,7 @@ namespace ME.ECS.Serializer {
 
     public enum TypeValue : byte {
 
-        Null = 200,
+        Null = 199,
         PackerObject = 255,
         Meta = 254,
         MetaType = 253,
@@ -83,6 +83,12 @@ namespace ME.ECS.Serializer {
         UInt64Array = 207,
         FloatArray = 206,
         DoubleArray = 205,
+        
+        Tick = 204,
+        ViewId = 203,
+        RPCId = 202,
+        NextTickTask = 201,
+        UnsafeData = 200,
 
     }
 
@@ -596,7 +602,7 @@ namespace ME.ECS.Serializer {
         }
 
         [INLINE(256)]
-        public static unsafe void PackBlittableArray<T>(Packer packer, T[] arr) where T : unmanaged {
+        public static unsafe void PackBlittableArrayPrimitives<T>(Packer packer, T[] arr) where T : unmanaged {
 
             Int32Serializer.PackDirect(packer, arr.Length);
             var writeSize = arr.Length * sizeof(T);
@@ -607,7 +613,7 @@ namespace ME.ECS.Serializer {
         }
 
         [INLINE(256)]
-        public static unsafe T[] UnpackBlittableArray<T>(Packer packer) where T : unmanaged {
+        public static unsafe T[] UnpackBlittableArrayPrimitives<T>(Packer packer) where T : unmanaged {
 
             var length = Int32Serializer.UnpackDirect(packer);
             var arr = new T[length];
@@ -765,7 +771,7 @@ namespace ME.ECS.Serializer {
             var pos = this.stream.Position;
             this.AddCapacity(bytes);
             this.stream.Position = pos + bytes;
-            return (int)pos;
+            return pos;
 
         }
 
