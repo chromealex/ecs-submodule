@@ -1,3 +1,5 @@
+using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
+
 namespace ME.ECS.Serializer {
 
     public class SerializerStream : System.IDisposable {
@@ -40,7 +42,7 @@ namespace ME.ECS.Serializer {
             
         }
 
-        public byte[] ToArray() {
+        [INLINE(256)] public byte[] ToArray() {
             
             var arr = new byte[this.position];
             System.Buffer.BlockCopy(this.buffer, 0, arr, 0, arr.Length);
@@ -48,7 +50,7 @@ namespace ME.ECS.Serializer {
             
         }
 
-        public void WriteByte(byte b) {
+        [INLINE(256)] public void WriteByte(byte b) {
 
             this.Capacity = this.position + 1;
             this.buffer[this.position] = b;
@@ -56,7 +58,7 @@ namespace ME.ECS.Serializer {
 
         }
 
-        public void Write(byte[] bytes, int offset, int length) {
+        [INLINE(256)] public void Write(byte[] bytes, int offset, int length) {
 
             this.Capacity = this.position + length;
             System.Buffer.BlockCopy(bytes, offset, this.buffer, this.position, length);
@@ -64,7 +66,7 @@ namespace ME.ECS.Serializer {
             
         }
 
-        public byte ReadByte() {
+        [INLINE(256)] public byte ReadByte() {
 
             var b = this.buffer[this.position];
             ++this.position;
@@ -72,7 +74,7 @@ namespace ME.ECS.Serializer {
 
         }
 
-        public void Read(byte[] bytes, int offset, int length) {
+        [INLINE(256)] public void Read(byte[] bytes, int offset, int length) {
 
             System.Buffer.BlockCopy(this.buffer, this.position, bytes, offset, length);
             this.position += length;
