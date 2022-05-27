@@ -1,5 +1,6 @@
-﻿using Unity.Mathematics;
+﻿#if UNITY
 using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
+using Unity.Mathematics;
 
 namespace ME.ECS.Serializer {
 
@@ -118,3 +119,4 @@ namespace ME.ECS.Serializer {
     }
 
 }
+#endif

@@ -349,7 +349,6 @@ namespace ME.ECS.Serializer {
             var serializers = new Serializers();
 
             serializers.Add(new GenericSerializer());
-            serializers.Add(new FPSerializer());
 
             serializers.Add(new ByteSerializer());
             serializers.Add(new SByteSerializer());
@@ -376,24 +375,28 @@ namespace ME.ECS.Serializer {
             serializers.Add(new UInt64ArraySerializer());
             serializers.Add(new SByteArraySerializer());
 
+            serializers.Add(new ByteArraySerializer());
+            serializers.Add(new ObjectArraySerializer());
+            serializers.Add(new GenericListSerializer());
+            serializers.Add(new GenericDictionarySerializer());
+
+            #if UNITY
+            serializers.Add(new FPSerializer());
+
             serializers.Add(new Vector2IntSerializer());
             serializers.Add(new Vector3IntSerializer());
             serializers.Add(new Vector2Serializer());
             serializers.Add(new Vector3Serializer());
             serializers.Add(new Vector4Serializer());
             serializers.Add(new QuaternionSerializer());
-
-            serializers.Add(new ByteArraySerializer());
-            serializers.Add(new ObjectArraySerializer());
-            serializers.Add(new GenericListSerializer());
-            serializers.Add(new GenericDictionarySerializer());
-
+            
             serializers.Add(new Int2Serializer());
             serializers.Add(new Int3Serializer());
             serializers.Add(new Float2Serializer());
             serializers.Add(new Float3Serializer());
             serializers.Add(new Float4Serializer());
             serializers.Add(new QuaternionMathSerializer());
+            #endif
 
             return serializers;
 
@@ -510,8 +513,7 @@ namespace ME.ECS.Serializer {
 
             var packer = Serializer.SetupDefaultPacker(allSerializers, bytes);
 
-            var serializer = new GenericSerializer();
-            var instance = (T)serializer.Unpack(packer, typeof(T));
+            var instance = packer.UnpackInternal<T>();
             allSerializers.Dispose();
             packer.Dispose();
             return instance;

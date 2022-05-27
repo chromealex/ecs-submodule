@@ -562,6 +562,7 @@ namespace ME.ECS.Serializer {
 
     }
     
+    #if UNITY
     public struct FPSerializer : ITypeSerializer {
 
         [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.FPFloat; }
@@ -592,5 +593,6 @@ namespace ME.ECS.Serializer {
         }
 
     }
+    #endif
 
 }
