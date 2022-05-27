@@ -254,8 +254,10 @@ namespace ME.ECS.Serializer {
 
         [INLINE(256)] public static void PackDirect(Packer packer, UnsafeData data) {
             
-            Int32Serializer.PackDirect(packer, data.alignOf);
             Int32Serializer.PackDirect(packer, data.sizeOf);
+            if (data.sizeOf == 0) return;
+            
+            Int32Serializer.PackDirect(packer, data.alignOf);
             Int32Serializer.PackDirect(packer, data.typeId);
             var buffer = packer.GetBufferToWrite(data.sizeOf);
             var pos = packer.GetPositionAndMove(data.sizeOf);
@@ -266,8 +268,10 @@ namespace ME.ECS.Serializer {
         [INLINE(256)] public static unsafe UnsafeData UnpackDirect(Packer packer) {
             
             var data = new UnsafeData();
-            data.alignOf = Int32Serializer.UnpackDirect(packer);
             data.sizeOf = Int32Serializer.UnpackDirect(packer);
+            if (data.sizeOf == 0) return data;
+            
+            data.alignOf = Int32Serializer.UnpackDirect(packer);
             data.typeId = Int32Serializer.UnpackDirect(packer);
             var buffer = packer.GetBuffer();
             var pos = packer.GetPositionAndMove(data.sizeOf);
