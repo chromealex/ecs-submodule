@@ -430,14 +430,16 @@ namespace ME.ECS.Collections {
             do {
 
                 ref readonly var nextLink = ref root.Read<IntrusiveListGenericNode<T>>();
+                var next = nextLink.next;
+
                 if (entityData.Equals(nextLink.data) == true) {
 
                     this.RemoveNode(root);
                     ++count;
 
                 }
-
-                root = nextLink.next;
+                
+                root = next;
 
             } while (root.IsAlive() == true);
 
