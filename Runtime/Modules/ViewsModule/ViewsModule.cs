@@ -954,7 +954,7 @@ namespace ME.ECS.Views {
             }
 
             // Call ApplyState with deltaTime = current time offset
-            var dt = UnityEngine.Mathf.Max(0f, (float)(long)(this.world.GetCurrentTick() - viewInfo.creationTick) * this.world.GetTickTime());
+            var dt = UnityEngine.Mathf.Max(0f, (float)(long)(this.world.GetCurrentTick() - viewInfo.creationTick) * (float)this.world.GetTickTime());
             instance.entityVersion = viewInfo.entity.GetVersion();
             instance.ApplyState(dt, immediately: true);
             // Simulate particle systems

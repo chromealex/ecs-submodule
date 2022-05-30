@@ -3,17 +3,11 @@
 #endif
 
 #if FIXED_POINT_MATH
-using FLOAT = ME.ECS.fp;
-using FLOAT2 = ME.ECS.fp2;
-using FLOAT3 = ME.ECS.fp3;
-using FLOAT4 = ME.ECS.fp4;
-using QUATERNION = ME.ECS.fpquaternion;
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
 #else
-using FLOAT = System.Single;
-using FLOAT2 = UnityEngine.Vector2;
-using FLOAT3 = UnityEngine.Vector3;
-using FLOAT4 = UnityEngine.Vector4;
-using QUATERNION = UnityEngine.Quaternion;
+using Unity.Mathematics;
+using tfloat = System.Single;
 #endif
 
 using System.Runtime.CompilerServices;
@@ -24,23 +18,22 @@ namespace ME.ECS {
 
     public static class ECSTransform3DExtensions {
 
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalPosition(this in Entity child, in FLOAT3 position) => Worlds.currentWorld.SetData(in child, new Position() { value = position });
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalRotation(this in Entity child, in QUATERNION rotation) => Worlds.currentWorld.SetData(in child, rotation.ToRotationStruct());
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalScale(this in Entity child, in FLOAT3 scale) => Worlds.currentWorld.SetData(in child, scale.ToScaleStruct());
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static FLOAT3 GetLocalPosition(this in Entity child) => child.Read<Position>().ToVector3();
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static QUATERNION GetLocalRotation(this in Entity child) => child.Read<Rotation>().ToQuaternion();
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static FLOAT3 GetLocalScale(this in Entity child) => child.Read<Scale>().ToVector3();
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalPosition(this in Entity child, in float3 position) => Worlds.currentWorld.SetData(in child, new Position() { value = position });
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalRotation(this in Entity child, in quaternion rotation) => Worlds.currentWorld.SetData(in child, rotation.ToRotationStruct());
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalScale(this in Entity child, in float3 scale) => Worlds.currentWorld.SetData(in child, scale.ToScaleStruct());
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float3 GetLocalPosition(this in Entity child) => child.Read<Position>().ToVector3();
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static quaternion GetLocalRotation(this in Entity child) => child.Read<Rotation>().ToQuaternion();
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float3 GetLocalScale(this in Entity child) => child.Read<Scale>().ToVector3();
         
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static Position ToPositionStruct(this in FLOAT3 v) => new Position() { value = v };
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static FLOAT3 ToVector3(this in Position v) => v.value;
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static Rotation ToRotationStruct(this in QUATERNION v) => new Rotation() { value = v };
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static QUATERNION ToQuaternion(this in Rotation v) => v.value;
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static Scale ToScaleStruct(this in FLOAT3 v) => new Scale() { value = v };
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static FLOAT3 ToVector3(this in Scale v) => v.value;
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] private static FLOAT3 Multiply_INTERNAL(FLOAT3 v1, FLOAT3 v2) => new FLOAT3(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static Position ToPositionStruct(this in float3 v) => new Position() { value = v };
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float3 ToVector3(this in Position v) => v.value;
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static Rotation ToRotationStruct(this in quaternion v) => new Rotation() { value = v };
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static quaternion ToQuaternion(this in Rotation v) => v.value;
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static Scale ToScaleStruct(this in float3 v) => new Scale() { value = v };
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float3 ToVector3(this in Scale v) => v.value;
         
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        private static FLOAT3 GetInvScale_INTERNAL(in Entity entity) {
+        private static float3 GetInvScale_INTERNAL(in Entity entity) {
             
             if (entity.TryRead(out Scale component) == true) {
 
@@ -52,12 +45,12 @@ namespace ME.ECS {
 
             }
 
-            return FLOAT3.one;
+            return new float3(1f, 1f, 1f);
             
         }
         
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        private static FLOAT3 GetScale_INTERNAL(in Entity entity) {
+        private static float3 GetScale_INTERNAL(in Entity entity) {
 
             if (entity.TryRead(out Scale component) == true) {
 
@@ -65,21 +58,21 @@ namespace ME.ECS {
 
             }
 
-            return FLOAT3.one;
+            return new float3(1f, 1f, 1f);
 
         }
 
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void SetPosition(this in Entity child, in FLOAT3 position) {
+        public static void SetPosition(this in Entity child, in float3 position) {
 
             ref readonly var container = ref child.Read<Container>();
             if (container.entity.IsEmpty() == false) {
 
                 var containerRotation = container.entity.GetRotation();
                 var containerPosition = container.entity.GetPosition();
-                child.SetLocalPosition(QUATERNION.Inverse(containerRotation) * ECSTransform3DExtensions.Multiply_INTERNAL(ECSTransform3DExtensions.GetInvScale_INTERNAL(in container.entity), (position - containerPosition)));
+                child.SetLocalPosition(math.mul(math.inverse(containerRotation), math.mul(ECSTransform3DExtensions.GetInvScale_INTERNAL(in container.entity), (position - containerPosition))));
 
             } else {
 
@@ -92,14 +85,14 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void SetRotation(this in Entity child, in QUATERNION rotation) {
+        public static void SetRotation(this in Entity child, in quaternion rotation) {
 
             ref readonly var container = ref child.Read<Container>();
             if (container.entity.IsEmpty() == false) {
 
                 var containerRotation = container.entity.GetRotation();
-                var containerRotationInverse = QUATERNION.Inverse(containerRotation);
-                child.SetLocalRotation(containerRotationInverse * rotation);
+                var containerRotationInverse = math.inverse(containerRotation);
+                child.SetLocalRotation(math.mul(containerRotationInverse, rotation));
 
             } else {
 
@@ -112,20 +105,20 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        public static FLOAT3 GetPosition(this in Entity child) {
+        public static float3 GetPosition(this in Entity child) {
 
             var position = child.Read<Position>().ToVector3();
             ref readonly var container = ref child.Read<Container>();
             while (container.entity.IsEmpty() == false) {
 
-                QUATERNION worldRot;
+                quaternion worldRot;
                 if (container.entity.TryRead<Rotation>(out var worldComponent) == true) {
                     worldRot = worldComponent.value;
                 } else {
-                    worldRot = QUATERNION.identity;
+                    worldRot = quaternion.identity;
                 }
                 
-                position = worldRot * ECSTransform3DExtensions.Multiply_INTERNAL(ECSTransform3DExtensions.GetScale_INTERNAL(in container.entity), position);
+                position = math.mul(worldRot, math.mul(ECSTransform3DExtensions.GetScale_INTERNAL(in container.entity), position));
                 position += container.entity.Read<Position>().ToVector3();
                 container = ref container.entity.Read<Container>();
 
@@ -138,18 +131,18 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        public static QUATERNION GetRotation(this in Entity child) {
+        public static quaternion GetRotation(this in Entity child) {
 
-            QUATERNION worldRot;
+            quaternion worldRot;
             if (child.TryRead<Rotation>(out var worldComponent) == true) {
                 worldRot = worldComponent.value;
             } else {
-                worldRot = QUATERNION.identity;
+                worldRot = quaternion.identity;
             }
             ref readonly var container = ref child.Read<Container>();
             while (container.entity.IsEmpty() == false) {
 
-                worldRot = container.entity.Read<Rotation>().ToQuaternion() * worldRot;
+                worldRot = math.mul(container.entity.Read<Rotation>().ToQuaternion(), worldRot);
                 container = ref container.entity.Read<Container>();
 
             }

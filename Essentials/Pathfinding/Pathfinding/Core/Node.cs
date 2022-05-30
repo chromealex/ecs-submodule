@@ -2,6 +2,7 @@
 #define INLINE_METHODS
 #endif
 using UnityEngine;
+using ME.ECS.Mathematics;
 
 namespace ME.ECS.Pathfinding {
 
@@ -14,26 +15,26 @@ namespace ME.ECS.Pathfinding {
             public static Connection NoConnection => new Connection() { index = -1 };
 
             public int index;
-            public float cost;
+            public sfloat cost;
 
         }
 
         public Graph graph;
         public int index;
-        public Vector3 worldPosition;
-        public float penalty;
+        public float3 worldPosition;
+        public sfloat penalty;
         public bool walkable;
         public int area;
         public int tag;
-        public float height;
+        public sfloat height;
 
         protected ME.ECS.Collections.ListCopyable<Connection> customConnections;
 
         internal readonly Node[] parent = new Node[Pathfinding.THREADS_COUNT];
-        internal readonly float[] startToCurNodeLen = new float[Pathfinding.THREADS_COUNT];
+        internal readonly sfloat[] startToCurNodeLen = new sfloat[Pathfinding.THREADS_COUNT];
         internal readonly bool[] isOpened = new bool[Pathfinding.THREADS_COUNT];
         internal readonly bool[] isClosed = new bool[Pathfinding.THREADS_COUNT];
-        internal readonly float[] bestCost = new float[Pathfinding.THREADS_COUNT];
+        internal readonly sfloat[] bestCost = new sfloat[Pathfinding.THREADS_COUNT];
 
         protected Node() {
         }
@@ -44,7 +45,11 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        public virtual void AddConnection(Node node, float cost = 1f) {
+        public void AddConnection(Node node) {
+            this.AddConnection(node, 1f);
+        }
+
+        public virtual void AddConnection(Node node, sfloat cost) {
             
             this.AddConnection(new Connection() {
                 index = node.index,
@@ -126,7 +131,7 @@ namespace ME.ECS.Pathfinding {
             this.startToCurNodeLen[threadIndex] = 0f;
             this.isOpened[threadIndex] = false;
             this.isClosed[threadIndex] = false;
-            this.bestCost[threadIndex] = fp.MaxValue;
+            this.bestCost[threadIndex] = sfloat.MaxValue;
 
         }
 

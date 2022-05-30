@@ -107,6 +107,51 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public ref byte SetSharedDataOneShot<TComponent>(in TComponent data) where TComponent : struct, IComponentOneShot {
+
+            return ref this.SetDataOneShot(in this.sharedEntity, in data);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void RemoveSharedDataOneShot<TComponent>() where TComponent : struct, IComponentOneShot {
+
+            this.RemoveDataOneShot<TComponent>(in this.sharedEntity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool HasSharedDataOneShot<TComponent>() where TComponent : struct, IComponentOneShot {
+
+            return this.HasDataOneShot<TComponent>(in this.sharedEntity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref readonly TComponent ReadSharedDataOneShot<TComponent>() where TComponent : struct, IComponentOneShot {
+
+            return ref this.ReadDataOneShot<TComponent>(in this.sharedEntity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref TComponent GetSharedDataOneShot<TComponent>() where TComponent : struct, IComponentOneShot {
+
+            return ref this.GetDataOneShot<TComponent>(in this.sharedEntity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public bool HasDataOneShot<TComponent>(in Entity entity) where TComponent : struct, IComponentOneShot {
 
             #if WORLD_EXCEPTIONS
@@ -292,6 +337,44 @@ namespace ME.ECS {
 
             return ref state;
             
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void SetEntityOneShot(in Entity entity) {
+            
+            #if WORLD_STATE_CHECK
+            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            #endif
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            var task = new StructComponentsContainer.NextTickTask {
+                lifetime = ComponentLifetime.NotifyAllSystemsBelow,
+                storageType = StorageType.NoState,
+                secondsLifetime = 0f,
+                entity = entity,
+                dataIndex = -1,
+                destroyEntity = true,
+            };
+
+            if (this.structComponentsNoState.nextTickTasks.Add(task) == false) {
+
+                task.Recycle();
+
+            }
+
         }
 
     }

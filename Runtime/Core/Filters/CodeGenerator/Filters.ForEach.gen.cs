@@ -22,6 +22,7 @@ public struct DataBufferStruct<T0> {
     public byte entityOps;
     public Entity entity;
     public T0 t0;
+public long versionT0;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -53,6 +54,7 @@ public byte tagT0;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 
             };
             
@@ -148,6 +150,7 @@ public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
 public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }
     #endregion
 
 }
@@ -158,7 +161,9 @@ public struct DataBufferStruct<T0,T1> {
     public byte opsT0;public byte opsT1;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -193,8 +198,10 @@ public byte tagT1;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 
             };
             
@@ -307,11 +314,13 @@ tempT1.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
 public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }
     #endregion
 
 }
@@ -322,7 +331,10 @@ public struct DataBufferStruct<T0,T1,T2> {
     public byte opsT0;public byte opsT1;public byte opsT2;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -360,10 +372,13 @@ public byte tagT2;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 
             };
             
@@ -494,15 +509,18 @@ tempT2.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
 public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }
     #endregion
 
 }
@@ -513,7 +531,11 @@ public struct DataBufferStruct<T0,T1,T2,T3> {
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;public T3 t3;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;public T3 t3;
+public long versionT3;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -554,12 +576,16 @@ public byte tagT3;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 containsT3 = this.tempT3[entity.id - this.offset].state,
 t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+versionT3 = this.tempT3[entity.id - this.offset].version,
 
             };
             
@@ -708,19 +734,23 @@ tempT3.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
-public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
 public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
 public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
 public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
 public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
+public long GetVersionT3(int index) { return this.arr.GetRefRead(index).versionT3; }
     #endregion
 
 }
@@ -731,7 +761,12 @@ public struct DataBufferStruct<T0,T1,T2,T3,T4> {
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;public T3 t3;
+public long versionT3;public T4 t4;
+public long versionT4;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -775,14 +810,19 @@ public byte tagT4;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 containsT3 = this.tempT3[entity.id - this.offset].state,
 t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+versionT3 = this.tempT3[entity.id - this.offset].version,
 containsT4 = this.tempT4[entity.id - this.offset].state,
 t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+versionT4 = this.tempT4[entity.id - this.offset].version,
 
             };
             
@@ -949,23 +989,28 @@ tempT4.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
-public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
 public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
 public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
 public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
-public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
+public long GetVersionT3(int index) { return this.arr.GetRefRead(index).versionT3; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
 public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
 public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
 public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
 public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }
+public long GetVersionT4(int index) { return this.arr.GetRefRead(index).versionT4; }
     #endregion
 
 }
@@ -976,7 +1021,13 @@ public struct DataBufferStruct<T0,T1,T2,T3,T4,T5> {
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;public T3 t3;
+public long versionT3;public T4 t4;
+public long versionT4;public T5 t5;
+public long versionT5;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -1023,16 +1074,22 @@ public byte tagT5;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 containsT3 = this.tempT3[entity.id - this.offset].state,
 t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+versionT3 = this.tempT3[entity.id - this.offset].version,
 containsT4 = this.tempT4[entity.id - this.offset].state,
 t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+versionT4 = this.tempT4[entity.id - this.offset].version,
 containsT5 = this.tempT5[entity.id - this.offset].state,
 t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+versionT5 = this.tempT5[entity.id - this.offset].version,
 
             };
             
@@ -1217,27 +1274,33 @@ tempT5.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
-public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
 public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
 public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
 public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
-public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
+public long GetVersionT3(int index) { return this.arr.GetRefRead(index).versionT3; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
 public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
 public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
 public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
-public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }
+public long GetVersionT4(int index) { return this.arr.GetRefRead(index).versionT4; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
 public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
 public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
 public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
 public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }
+public long GetVersionT5(int index) { return this.arr.GetRefRead(index).versionT5; }
     #endregion
 
 }
@@ -1248,7 +1311,14 @@ public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6> {
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;public T3 t3;
+public long versionT3;public T4 t4;
+public long versionT4;public T5 t5;
+public long versionT5;public T6 t6;
+public long versionT6;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -1298,18 +1368,25 @@ public byte tagT6;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 containsT3 = this.tempT3[entity.id - this.offset].state,
 t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+versionT3 = this.tempT3[entity.id - this.offset].version,
 containsT4 = this.tempT4[entity.id - this.offset].state,
 t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+versionT4 = this.tempT4[entity.id - this.offset].version,
 containsT5 = this.tempT5[entity.id - this.offset].state,
 t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+versionT5 = this.tempT5[entity.id - this.offset].version,
 containsT6 = this.tempT6[entity.id - this.offset].state,
 t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+versionT6 = this.tempT6[entity.id - this.offset].version,
 
             };
             
@@ -1512,31 +1589,38 @@ tempT6.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
-public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
 public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
 public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
 public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
-public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
+public long GetVersionT3(int index) { return this.arr.GetRefRead(index).versionT3; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
 public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
 public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
 public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
-public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }
+public long GetVersionT4(int index) { return this.arr.GetRefRead(index).versionT4; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
 public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
 public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
 public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
-public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }
+public long GetVersionT5(int index) { return this.arr.GetRefRead(index).versionT5; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
 public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
 public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
 public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
 public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }
+public long GetVersionT6(int index) { return this.arr.GetRefRead(index).versionT6; }
     #endregion
 
 }
@@ -1547,7 +1631,15 @@ public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7> {
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;public T3 t3;
+public long versionT3;public T4 t4;
+public long versionT4;public T5 t5;
+public long versionT5;public T6 t6;
+public long versionT6;public T7 t7;
+public long versionT7;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -1600,20 +1692,28 @@ public byte tagT7;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 containsT3 = this.tempT3[entity.id - this.offset].state,
 t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+versionT3 = this.tempT3[entity.id - this.offset].version,
 containsT4 = this.tempT4[entity.id - this.offset].state,
 t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+versionT4 = this.tempT4[entity.id - this.offset].version,
 containsT5 = this.tempT5[entity.id - this.offset].state,
 t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+versionT5 = this.tempT5[entity.id - this.offset].version,
 containsT6 = this.tempT6[entity.id - this.offset].state,
 t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+versionT6 = this.tempT6[entity.id - this.offset].version,
 containsT7 = this.tempT7[entity.id - this.offset].state,
 t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+versionT7 = this.tempT7[entity.id - this.offset].version,
 
             };
             
@@ -1834,35 +1934,43 @@ tempT7.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
-public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
 public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
 public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
 public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
-public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
+public long GetVersionT3(int index) { return this.arr.GetRefRead(index).versionT3; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
 public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
 public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
 public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
-public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }
+public long GetVersionT4(int index) { return this.arr.GetRefRead(index).versionT4; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
 public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
 public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
 public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
-public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }
+public long GetVersionT5(int index) { return this.arr.GetRefRead(index).versionT5; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
 public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
 public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
 public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
-public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }
+public long GetVersionT6(int index) { return this.arr.GetRefRead(index).versionT6; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
 public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
 public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
 public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
 public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }
+public long GetVersionT7(int index) { return this.arr.GetRefRead(index).versionT7; }
     #endregion
 
 }
@@ -1873,7 +1981,16 @@ public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8> {
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;public T3 t3;
+public long versionT3;public T4 t4;
+public long versionT4;public T5 t5;
+public long versionT5;public T6 t6;
+public long versionT6;public T7 t7;
+public long versionT7;public T8 t8;
+public long versionT8;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -1929,22 +2046,31 @@ public byte tagT8;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 containsT3 = this.tempT3[entity.id - this.offset].state,
 t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+versionT3 = this.tempT3[entity.id - this.offset].version,
 containsT4 = this.tempT4[entity.id - this.offset].state,
 t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+versionT4 = this.tempT4[entity.id - this.offset].version,
 containsT5 = this.tempT5[entity.id - this.offset].state,
 t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+versionT5 = this.tempT5[entity.id - this.offset].version,
 containsT6 = this.tempT6[entity.id - this.offset].state,
 t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+versionT6 = this.tempT6[entity.id - this.offset].version,
 containsT7 = this.tempT7[entity.id - this.offset].state,
 t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+versionT7 = this.tempT7[entity.id - this.offset].version,
 containsT8 = this.tempT8[entity.id - this.offset].state,
 t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+versionT8 = this.tempT8[entity.id - this.offset].version,
 
             };
             
@@ -2183,39 +2309,48 @@ tempT8.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
-public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
 public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
 public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
 public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
-public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
+public long GetVersionT3(int index) { return this.arr.GetRefRead(index).versionT3; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
 public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
 public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
 public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
-public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }
+public long GetVersionT4(int index) { return this.arr.GetRefRead(index).versionT4; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
 public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
 public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
 public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
-public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }
+public long GetVersionT5(int index) { return this.arr.GetRefRead(index).versionT5; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
 public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
 public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
 public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
-public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }
+public long GetVersionT6(int index) { return this.arr.GetRefRead(index).versionT6; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
 public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
 public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
 public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
-public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }
+public long GetVersionT7(int index) { return this.arr.GetRefRead(index).versionT7; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
 public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
 public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
 public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
 public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }
+public long GetVersionT8(int index) { return this.arr.GetRefRead(index).versionT8; }
     #endregion
 
 }
@@ -2226,7 +2361,17 @@ public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> {
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;public T3 t3;
+public long versionT3;public T4 t4;
+public long versionT4;public T5 t5;
+public long versionT5;public T6 t6;
+public long versionT6;public T7 t7;
+public long versionT7;public T8 t8;
+public long versionT8;public T9 t9;
+public long versionT9;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -2285,24 +2430,34 @@ public byte tagT9;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 containsT3 = this.tempT3[entity.id - this.offset].state,
 t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+versionT3 = this.tempT3[entity.id - this.offset].version,
 containsT4 = this.tempT4[entity.id - this.offset].state,
 t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+versionT4 = this.tempT4[entity.id - this.offset].version,
 containsT5 = this.tempT5[entity.id - this.offset].state,
 t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+versionT5 = this.tempT5[entity.id - this.offset].version,
 containsT6 = this.tempT6[entity.id - this.offset].state,
 t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+versionT6 = this.tempT6[entity.id - this.offset].version,
 containsT7 = this.tempT7[entity.id - this.offset].state,
 t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+versionT7 = this.tempT7[entity.id - this.offset].version,
 containsT8 = this.tempT8[entity.id - this.offset].state,
 t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+versionT8 = this.tempT8[entity.id - this.offset].version,
 containsT9 = this.tempT9[entity.id - this.offset].state,
 t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+versionT9 = this.tempT9[entity.id - this.offset].version,
 
             };
             
@@ -2559,43 +2714,53 @@ tempT9.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
-public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
 public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
 public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
 public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
-public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
+public long GetVersionT3(int index) { return this.arr.GetRefRead(index).versionT3; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
 public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
 public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
 public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
-public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }
+public long GetVersionT4(int index) { return this.arr.GetRefRead(index).versionT4; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
 public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
 public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
 public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
-public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }
+public long GetVersionT5(int index) { return this.arr.GetRefRead(index).versionT5; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
 public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
 public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
 public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
-public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }
+public long GetVersionT6(int index) { return this.arr.GetRefRead(index).versionT6; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
 public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
 public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
 public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
-public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }
+public long GetVersionT7(int index) { return this.arr.GetRefRead(index).versionT7; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
 public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
 public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
 public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
-public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }
+public long GetVersionT8(int index) { return this.arr.GetRefRead(index).versionT8; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
 public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
 public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
 public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
 public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }
+public long GetVersionT9(int index) { return this.arr.GetRefRead(index).versionT9; }
     #endregion
 
 }
@@ -2606,7 +2771,18 @@ public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> {
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;public T3 t3;
+public long versionT3;public T4 t4;
+public long versionT4;public T5 t5;
+public long versionT5;public T6 t6;
+public long versionT6;public T7 t7;
+public long versionT7;public T8 t8;
+public long versionT8;public T9 t9;
+public long versionT9;public T10 t10;
+public long versionT10;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -2668,26 +2844,37 @@ public byte tagT10;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 containsT3 = this.tempT3[entity.id - this.offset].state,
 t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+versionT3 = this.tempT3[entity.id - this.offset].version,
 containsT4 = this.tempT4[entity.id - this.offset].state,
 t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+versionT4 = this.tempT4[entity.id - this.offset].version,
 containsT5 = this.tempT5[entity.id - this.offset].state,
 t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+versionT5 = this.tempT5[entity.id - this.offset].version,
 containsT6 = this.tempT6[entity.id - this.offset].state,
 t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+versionT6 = this.tempT6[entity.id - this.offset].version,
 containsT7 = this.tempT7[entity.id - this.offset].state,
 t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+versionT7 = this.tempT7[entity.id - this.offset].version,
 containsT8 = this.tempT8[entity.id - this.offset].state,
 t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+versionT8 = this.tempT8[entity.id - this.offset].version,
 containsT9 = this.tempT9[entity.id - this.offset].state,
 t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+versionT9 = this.tempT9[entity.id - this.offset].version,
 containsT10 = this.tempT10[entity.id - this.offset].state,
 t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+versionT10 = this.tempT10[entity.id - this.offset].version,
 
             };
             
@@ -2962,47 +3149,58 @@ tempT10.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
-public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
 public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
 public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
 public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
-public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
+public long GetVersionT3(int index) { return this.arr.GetRefRead(index).versionT3; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
 public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
 public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
 public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
-public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }
+public long GetVersionT4(int index) { return this.arr.GetRefRead(index).versionT4; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
 public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
 public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
 public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
-public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }
+public long GetVersionT5(int index) { return this.arr.GetRefRead(index).versionT5; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
 public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
 public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
 public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
-public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }
+public long GetVersionT6(int index) { return this.arr.GetRefRead(index).versionT6; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
 public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
 public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
 public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
-public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }
+public long GetVersionT7(int index) { return this.arr.GetRefRead(index).versionT7; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
 public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
 public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
 public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
-public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }
+public long GetVersionT8(int index) { return this.arr.GetRefRead(index).versionT8; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
 public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
 public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
 public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
-public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }
+public long GetVersionT9(int index) { return this.arr.GetRefRead(index).versionT9; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
 public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
 public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
 public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
 public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }
+public long GetVersionT10(int index) { return this.arr.GetRefRead(index).versionT10; }
     #endregion
 
 }
@@ -3013,7 +3211,19 @@ public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> {
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;public byte opsT11;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;public T11 t11;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;public T3 t3;
+public long versionT3;public T4 t4;
+public long versionT4;public T5 t5;
+public long versionT5;public T6 t6;
+public long versionT6;public T7 t7;
+public long versionT7;public T8 t8;
+public long versionT8;public T9 t9;
+public long versionT9;public T10 t10;
+public long versionT10;public T11 t11;
+public long versionT11;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -3078,28 +3288,40 @@ public byte tagT11;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 containsT3 = this.tempT3[entity.id - this.offset].state,
 t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+versionT3 = this.tempT3[entity.id - this.offset].version,
 containsT4 = this.tempT4[entity.id - this.offset].state,
 t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+versionT4 = this.tempT4[entity.id - this.offset].version,
 containsT5 = this.tempT5[entity.id - this.offset].state,
 t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+versionT5 = this.tempT5[entity.id - this.offset].version,
 containsT6 = this.tempT6[entity.id - this.offset].state,
 t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+versionT6 = this.tempT6[entity.id - this.offset].version,
 containsT7 = this.tempT7[entity.id - this.offset].state,
 t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+versionT7 = this.tempT7[entity.id - this.offset].version,
 containsT8 = this.tempT8[entity.id - this.offset].state,
 t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+versionT8 = this.tempT8[entity.id - this.offset].version,
 containsT9 = this.tempT9[entity.id - this.offset].state,
 t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+versionT9 = this.tempT9[entity.id - this.offset].version,
 containsT10 = this.tempT10[entity.id - this.offset].state,
 t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+versionT10 = this.tempT10[entity.id - this.offset].version,
 containsT11 = this.tempT11[entity.id - this.offset].state,
 t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
+versionT11 = this.tempT11[entity.id - this.offset].version,
 
             };
             
@@ -3392,51 +3614,63 @@ tempT11.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
-public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
 public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
 public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
 public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
-public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
+public long GetVersionT3(int index) { return this.arr.GetRefRead(index).versionT3; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
 public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
 public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
 public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
-public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }
+public long GetVersionT4(int index) { return this.arr.GetRefRead(index).versionT4; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
 public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
 public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
 public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
-public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }
+public long GetVersionT5(int index) { return this.arr.GetRefRead(index).versionT5; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
 public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
 public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
 public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
-public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }
+public long GetVersionT6(int index) { return this.arr.GetRefRead(index).versionT6; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
 public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
 public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
 public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
-public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }
+public long GetVersionT7(int index) { return this.arr.GetRefRead(index).versionT7; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
 public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
 public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
 public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
-public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }
+public long GetVersionT8(int index) { return this.arr.GetRefRead(index).versionT8; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
 public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
 public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
 public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
-public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }
+public long GetVersionT9(int index) { return this.arr.GetRefRead(index).versionT9; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
 public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
 public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
 public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
-public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }
+public long GetVersionT10(int index) { return this.arr.GetRefRead(index).versionT10; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
 public void Set(int index, in T11 component) { ref var data = ref this.arr.GetRef(index); data.t11 = component; data.opsT11 = 0x2; data.containsT11 = 1; }
 public ref T11 GetT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x2; return ref data.t11; }
 public ref readonly T11 ReadT11(int index) { return ref this.arr.GetRefRead(index).t11; }
 public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }
+public long GetVersionT11(int index) { return this.arr.GetRefRead(index).versionT11; }
     #endregion
 
 }
@@ -3447,7 +3681,20 @@ public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> {
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;public byte opsT11;public byte opsT12;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;public T11 t11;public T12 t12;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;public T3 t3;
+public long versionT3;public T4 t4;
+public long versionT4;public T5 t5;
+public long versionT5;public T6 t6;
+public long versionT6;public T7 t7;
+public long versionT7;public T8 t8;
+public long versionT8;public T9 t9;
+public long versionT9;public T10 t10;
+public long versionT10;public T11 t11;
+public long versionT11;public T12 t12;
+public long versionT12;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -3515,30 +3762,43 @@ public byte tagT12;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 containsT3 = this.tempT3[entity.id - this.offset].state,
 t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+versionT3 = this.tempT3[entity.id - this.offset].version,
 containsT4 = this.tempT4[entity.id - this.offset].state,
 t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+versionT4 = this.tempT4[entity.id - this.offset].version,
 containsT5 = this.tempT5[entity.id - this.offset].state,
 t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+versionT5 = this.tempT5[entity.id - this.offset].version,
 containsT6 = this.tempT6[entity.id - this.offset].state,
 t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+versionT6 = this.tempT6[entity.id - this.offset].version,
 containsT7 = this.tempT7[entity.id - this.offset].state,
 t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+versionT7 = this.tempT7[entity.id - this.offset].version,
 containsT8 = this.tempT8[entity.id - this.offset].state,
 t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+versionT8 = this.tempT8[entity.id - this.offset].version,
 containsT9 = this.tempT9[entity.id - this.offset].state,
 t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+versionT9 = this.tempT9[entity.id - this.offset].version,
 containsT10 = this.tempT10[entity.id - this.offset].state,
 t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+versionT10 = this.tempT10[entity.id - this.offset].version,
 containsT11 = this.tempT11[entity.id - this.offset].state,
 t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
+versionT11 = this.tempT11[entity.id - this.offset].version,
 containsT12 = this.tempT12[entity.id - this.offset].state,
 t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
+versionT12 = this.tempT12[entity.id - this.offset].version,
 
             };
             
@@ -3849,55 +4109,68 @@ tempT12.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
-public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
 public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
 public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
 public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
-public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
+public long GetVersionT3(int index) { return this.arr.GetRefRead(index).versionT3; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
 public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
 public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
 public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
-public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }
+public long GetVersionT4(int index) { return this.arr.GetRefRead(index).versionT4; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
 public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
 public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
 public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
-public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }
+public long GetVersionT5(int index) { return this.arr.GetRefRead(index).versionT5; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
 public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
 public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
 public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
-public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }
+public long GetVersionT6(int index) { return this.arr.GetRefRead(index).versionT6; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
 public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
 public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
 public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
-public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }
+public long GetVersionT7(int index) { return this.arr.GetRefRead(index).versionT7; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
 public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
 public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
 public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
-public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }
+public long GetVersionT8(int index) { return this.arr.GetRefRead(index).versionT8; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
 public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
 public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
 public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
-public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }
+public long GetVersionT9(int index) { return this.arr.GetRefRead(index).versionT9; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
 public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
 public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
 public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
-public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }
+public long GetVersionT10(int index) { return this.arr.GetRefRead(index).versionT10; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
 public void Set(int index, in T11 component) { ref var data = ref this.arr.GetRef(index); data.t11 = component; data.opsT11 = 0x2; data.containsT11 = 1; }
 public ref T11 GetT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x2; return ref data.t11; }
 public ref readonly T11 ReadT11(int index) { return ref this.arr.GetRefRead(index).t11; }
-public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
+public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }
+public long GetVersionT11(int index) { return this.arr.GetRefRead(index).versionT11; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
 public void Set(int index, in T12 component) { ref var data = ref this.arr.GetRef(index); data.t12 = component; data.opsT12 = 0x2; data.containsT12 = 1; }
 public ref T12 GetT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x2; return ref data.t12; }
 public ref readonly T12 ReadT12(int index) { return ref this.arr.GetRefRead(index).t12; }
 public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }
+public long GetVersionT12(int index) { return this.arr.GetRefRead(index).versionT12; }
     #endregion
 
 }
@@ -3908,7 +4181,21 @@ public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> {
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;public byte opsT11;public byte opsT12;public byte opsT13;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;public T11 t11;public T12 t12;public T13 t13;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;public T3 t3;
+public long versionT3;public T4 t4;
+public long versionT4;public T5 t5;
+public long versionT5;public T6 t6;
+public long versionT6;public T7 t7;
+public long versionT7;public T8 t8;
+public long versionT8;public T9 t9;
+public long versionT9;public T10 t10;
+public long versionT10;public T11 t11;
+public long versionT11;public T12 t12;
+public long versionT12;public T13 t13;
+public long versionT13;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -3979,32 +4266,46 @@ public byte tagT13;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 containsT3 = this.tempT3[entity.id - this.offset].state,
 t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+versionT3 = this.tempT3[entity.id - this.offset].version,
 containsT4 = this.tempT4[entity.id - this.offset].state,
 t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+versionT4 = this.tempT4[entity.id - this.offset].version,
 containsT5 = this.tempT5[entity.id - this.offset].state,
 t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+versionT5 = this.tempT5[entity.id - this.offset].version,
 containsT6 = this.tempT6[entity.id - this.offset].state,
 t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+versionT6 = this.tempT6[entity.id - this.offset].version,
 containsT7 = this.tempT7[entity.id - this.offset].state,
 t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+versionT7 = this.tempT7[entity.id - this.offset].version,
 containsT8 = this.tempT8[entity.id - this.offset].state,
 t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+versionT8 = this.tempT8[entity.id - this.offset].version,
 containsT9 = this.tempT9[entity.id - this.offset].state,
 t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+versionT9 = this.tempT9[entity.id - this.offset].version,
 containsT10 = this.tempT10[entity.id - this.offset].state,
 t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+versionT10 = this.tempT10[entity.id - this.offset].version,
 containsT11 = this.tempT11[entity.id - this.offset].state,
 t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
+versionT11 = this.tempT11[entity.id - this.offset].version,
 containsT12 = this.tempT12[entity.id - this.offset].state,
 t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
+versionT12 = this.tempT12[entity.id - this.offset].version,
 containsT13 = this.tempT13[entity.id - this.offset].state,
 t13 = this.tagT13 == 0 ? this.tempT13[entity.id - this.offset].data : default,
+versionT13 = this.tempT13[entity.id - this.offset].version,
 
             };
             
@@ -4333,59 +4634,73 @@ tempT13.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
-public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
 public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
 public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
 public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
-public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
+public long GetVersionT3(int index) { return this.arr.GetRefRead(index).versionT3; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
 public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
 public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
 public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
-public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }
+public long GetVersionT4(int index) { return this.arr.GetRefRead(index).versionT4; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
 public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
 public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
 public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
-public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }
+public long GetVersionT5(int index) { return this.arr.GetRefRead(index).versionT5; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
 public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
 public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
 public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
-public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }
+public long GetVersionT6(int index) { return this.arr.GetRefRead(index).versionT6; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
 public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
 public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
 public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
-public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }
+public long GetVersionT7(int index) { return this.arr.GetRefRead(index).versionT7; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
 public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
 public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
 public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
-public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }
+public long GetVersionT8(int index) { return this.arr.GetRefRead(index).versionT8; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
 public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
 public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
 public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
-public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }
+public long GetVersionT9(int index) { return this.arr.GetRefRead(index).versionT9; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
 public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
 public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
 public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
-public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }
+public long GetVersionT10(int index) { return this.arr.GetRefRead(index).versionT10; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
 public void Set(int index, in T11 component) { ref var data = ref this.arr.GetRef(index); data.t11 = component; data.opsT11 = 0x2; data.containsT11 = 1; }
 public ref T11 GetT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x2; return ref data.t11; }
 public ref readonly T11 ReadT11(int index) { return ref this.arr.GetRefRead(index).t11; }
-public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
+public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }
+public long GetVersionT11(int index) { return this.arr.GetRefRead(index).versionT11; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
 public void Set(int index, in T12 component) { ref var data = ref this.arr.GetRef(index); data.t12 = component; data.opsT12 = 0x2; data.containsT12 = 1; }
 public ref T12 GetT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x2; return ref data.t12; }
 public ref readonly T12 ReadT12(int index) { return ref this.arr.GetRefRead(index).t12; }
-public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
+public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }
+public long GetVersionT12(int index) { return this.arr.GetRefRead(index).versionT12; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
 public void Set(int index, in T13 component) { ref var data = ref this.arr.GetRef(index); data.t13 = component; data.opsT13 = 0x2; data.containsT13 = 1; }
 public ref T13 GetT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x2; return ref data.t13; }
 public ref readonly T13 ReadT13(int index) { return ref this.arr.GetRefRead(index).t13; }
 public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }
+public long GetVersionT13(int index) { return this.arr.GetRefRead(index).versionT13; }
     #endregion
 
 }
@@ -4396,7 +4711,22 @@ public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;public byte opsT11;public byte opsT12;public byte opsT13;public byte opsT14;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;public T11 t11;public T12 t12;public T13 t13;public T14 t14;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;public T3 t3;
+public long versionT3;public T4 t4;
+public long versionT4;public T5 t5;
+public long versionT5;public T6 t6;
+public long versionT6;public T7 t7;
+public long versionT7;public T8 t8;
+public long versionT8;public T9 t9;
+public long versionT9;public T10 t10;
+public long versionT10;public T11 t11;
+public long versionT11;public T12 t12;
+public long versionT12;public T13 t13;
+public long versionT13;public T14 t14;
+public long versionT14;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -4470,34 +4800,49 @@ public byte tagT14;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 containsT3 = this.tempT3[entity.id - this.offset].state,
 t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+versionT3 = this.tempT3[entity.id - this.offset].version,
 containsT4 = this.tempT4[entity.id - this.offset].state,
 t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+versionT4 = this.tempT4[entity.id - this.offset].version,
 containsT5 = this.tempT5[entity.id - this.offset].state,
 t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+versionT5 = this.tempT5[entity.id - this.offset].version,
 containsT6 = this.tempT6[entity.id - this.offset].state,
 t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+versionT6 = this.tempT6[entity.id - this.offset].version,
 containsT7 = this.tempT7[entity.id - this.offset].state,
 t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+versionT7 = this.tempT7[entity.id - this.offset].version,
 containsT8 = this.tempT8[entity.id - this.offset].state,
 t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+versionT8 = this.tempT8[entity.id - this.offset].version,
 containsT9 = this.tempT9[entity.id - this.offset].state,
 t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+versionT9 = this.tempT9[entity.id - this.offset].version,
 containsT10 = this.tempT10[entity.id - this.offset].state,
 t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+versionT10 = this.tempT10[entity.id - this.offset].version,
 containsT11 = this.tempT11[entity.id - this.offset].state,
 t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
+versionT11 = this.tempT11[entity.id - this.offset].version,
 containsT12 = this.tempT12[entity.id - this.offset].state,
 t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
+versionT12 = this.tempT12[entity.id - this.offset].version,
 containsT13 = this.tempT13[entity.id - this.offset].state,
 t13 = this.tagT13 == 0 ? this.tempT13[entity.id - this.offset].data : default,
+versionT13 = this.tempT13[entity.id - this.offset].version,
 containsT14 = this.tempT14[entity.id - this.offset].state,
 t14 = this.tagT14 == 0 ? this.tempT14[entity.id - this.offset].data : default,
+versionT14 = this.tempT14[entity.id - this.offset].version,
 
             };
             
@@ -4844,63 +5189,78 @@ tempT14.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
-public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
 public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
 public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
 public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
-public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
+public long GetVersionT3(int index) { return this.arr.GetRefRead(index).versionT3; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
 public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
 public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
 public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
-public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }
+public long GetVersionT4(int index) { return this.arr.GetRefRead(index).versionT4; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
 public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
 public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
 public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
-public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }
+public long GetVersionT5(int index) { return this.arr.GetRefRead(index).versionT5; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
 public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
 public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
 public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
-public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }
+public long GetVersionT6(int index) { return this.arr.GetRefRead(index).versionT6; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
 public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
 public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
 public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
-public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }
+public long GetVersionT7(int index) { return this.arr.GetRefRead(index).versionT7; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
 public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
 public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
 public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
-public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }
+public long GetVersionT8(int index) { return this.arr.GetRefRead(index).versionT8; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
 public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
 public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
 public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
-public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }
+public long GetVersionT9(int index) { return this.arr.GetRefRead(index).versionT9; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
 public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
 public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
 public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
-public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }
+public long GetVersionT10(int index) { return this.arr.GetRefRead(index).versionT10; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
 public void Set(int index, in T11 component) { ref var data = ref this.arr.GetRef(index); data.t11 = component; data.opsT11 = 0x2; data.containsT11 = 1; }
 public ref T11 GetT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x2; return ref data.t11; }
 public ref readonly T11 ReadT11(int index) { return ref this.arr.GetRefRead(index).t11; }
-public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
+public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }
+public long GetVersionT11(int index) { return this.arr.GetRefRead(index).versionT11; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
 public void Set(int index, in T12 component) { ref var data = ref this.arr.GetRef(index); data.t12 = component; data.opsT12 = 0x2; data.containsT12 = 1; }
 public ref T12 GetT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x2; return ref data.t12; }
 public ref readonly T12 ReadT12(int index) { return ref this.arr.GetRefRead(index).t12; }
-public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
+public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }
+public long GetVersionT12(int index) { return this.arr.GetRefRead(index).versionT12; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
 public void Set(int index, in T13 component) { ref var data = ref this.arr.GetRef(index); data.t13 = component; data.opsT13 = 0x2; data.containsT13 = 1; }
 public ref T13 GetT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x2; return ref data.t13; }
 public ref readonly T13 ReadT13(int index) { return ref this.arr.GetRefRead(index).t13; }
-public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }public void RemoveT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x4; data.containsT14 = 0; }
+public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }
+public long GetVersionT13(int index) { return this.arr.GetRefRead(index).versionT13; }public void RemoveT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x4; data.containsT14 = 0; }
 public void Set(int index, in T14 component) { ref var data = ref this.arr.GetRef(index); data.t14 = component; data.opsT14 = 0x2; data.containsT14 = 1; }
 public ref T14 GetT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x2; return ref data.t14; }
 public ref readonly T14 ReadT14(int index) { return ref this.arr.GetRefRead(index).t14; }
 public bool HasT14(int index) { return this.arr.GetRefRead(index).containsT14 > 0; }
+public long GetVersionT14(int index) { return this.arr.GetRefRead(index).versionT14; }
     #endregion
 
 }
@@ -4911,7 +5271,23 @@ public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;public byte opsT11;public byte opsT12;public byte opsT13;public byte opsT14;public byte opsT15;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;public T11 t11;public T12 t12;public T13 t13;public T14 t14;public T15 t15;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;public T3 t3;
+public long versionT3;public T4 t4;
+public long versionT4;public T5 t5;
+public long versionT5;public T6 t6;
+public long versionT6;public T7 t7;
+public long versionT7;public T8 t8;
+public long versionT8;public T9 t9;
+public long versionT9;public T10 t10;
+public long versionT10;public T11 t11;
+public long versionT11;public T12 t12;
+public long versionT12;public T13 t13;
+public long versionT13;public T14 t14;
+public long versionT14;public T15 t15;
+public long versionT15;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -4988,36 +5364,52 @@ public byte tagT15;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 containsT3 = this.tempT3[entity.id - this.offset].state,
 t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+versionT3 = this.tempT3[entity.id - this.offset].version,
 containsT4 = this.tempT4[entity.id - this.offset].state,
 t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+versionT4 = this.tempT4[entity.id - this.offset].version,
 containsT5 = this.tempT5[entity.id - this.offset].state,
 t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+versionT5 = this.tempT5[entity.id - this.offset].version,
 containsT6 = this.tempT6[entity.id - this.offset].state,
 t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+versionT6 = this.tempT6[entity.id - this.offset].version,
 containsT7 = this.tempT7[entity.id - this.offset].state,
 t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+versionT7 = this.tempT7[entity.id - this.offset].version,
 containsT8 = this.tempT8[entity.id - this.offset].state,
 t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+versionT8 = this.tempT8[entity.id - this.offset].version,
 containsT9 = this.tempT9[entity.id - this.offset].state,
 t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+versionT9 = this.tempT9[entity.id - this.offset].version,
 containsT10 = this.tempT10[entity.id - this.offset].state,
 t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+versionT10 = this.tempT10[entity.id - this.offset].version,
 containsT11 = this.tempT11[entity.id - this.offset].state,
 t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
+versionT11 = this.tempT11[entity.id - this.offset].version,
 containsT12 = this.tempT12[entity.id - this.offset].state,
 t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
+versionT12 = this.tempT12[entity.id - this.offset].version,
 containsT13 = this.tempT13[entity.id - this.offset].state,
 t13 = this.tagT13 == 0 ? this.tempT13[entity.id - this.offset].data : default,
+versionT13 = this.tempT13[entity.id - this.offset].version,
 containsT14 = this.tempT14[entity.id - this.offset].state,
 t14 = this.tagT14 == 0 ? this.tempT14[entity.id - this.offset].data : default,
+versionT14 = this.tempT14[entity.id - this.offset].version,
 containsT15 = this.tempT15[entity.id - this.offset].state,
 t15 = this.tagT15 == 0 ? this.tempT15[entity.id - this.offset].data : default,
+versionT15 = this.tempT15[entity.id - this.offset].version,
 
             };
             
@@ -5382,67 +5774,83 @@ tempT15.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
-public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
 public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
 public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
 public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
-public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
+public long GetVersionT3(int index) { return this.arr.GetRefRead(index).versionT3; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
 public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
 public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
 public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
-public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }
+public long GetVersionT4(int index) { return this.arr.GetRefRead(index).versionT4; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
 public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
 public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
 public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
-public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }
+public long GetVersionT5(int index) { return this.arr.GetRefRead(index).versionT5; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
 public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
 public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
 public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
-public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }
+public long GetVersionT6(int index) { return this.arr.GetRefRead(index).versionT6; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
 public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
 public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
 public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
-public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }
+public long GetVersionT7(int index) { return this.arr.GetRefRead(index).versionT7; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
 public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
 public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
 public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
-public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }
+public long GetVersionT8(int index) { return this.arr.GetRefRead(index).versionT8; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
 public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
 public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
 public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
-public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }
+public long GetVersionT9(int index) { return this.arr.GetRefRead(index).versionT9; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
 public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
 public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
 public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
-public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }
+public long GetVersionT10(int index) { return this.arr.GetRefRead(index).versionT10; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
 public void Set(int index, in T11 component) { ref var data = ref this.arr.GetRef(index); data.t11 = component; data.opsT11 = 0x2; data.containsT11 = 1; }
 public ref T11 GetT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x2; return ref data.t11; }
 public ref readonly T11 ReadT11(int index) { return ref this.arr.GetRefRead(index).t11; }
-public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
+public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }
+public long GetVersionT11(int index) { return this.arr.GetRefRead(index).versionT11; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
 public void Set(int index, in T12 component) { ref var data = ref this.arr.GetRef(index); data.t12 = component; data.opsT12 = 0x2; data.containsT12 = 1; }
 public ref T12 GetT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x2; return ref data.t12; }
 public ref readonly T12 ReadT12(int index) { return ref this.arr.GetRefRead(index).t12; }
-public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
+public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }
+public long GetVersionT12(int index) { return this.arr.GetRefRead(index).versionT12; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
 public void Set(int index, in T13 component) { ref var data = ref this.arr.GetRef(index); data.t13 = component; data.opsT13 = 0x2; data.containsT13 = 1; }
 public ref T13 GetT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x2; return ref data.t13; }
 public ref readonly T13 ReadT13(int index) { return ref this.arr.GetRefRead(index).t13; }
-public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }public void RemoveT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x4; data.containsT14 = 0; }
+public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }
+public long GetVersionT13(int index) { return this.arr.GetRefRead(index).versionT13; }public void RemoveT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x4; data.containsT14 = 0; }
 public void Set(int index, in T14 component) { ref var data = ref this.arr.GetRef(index); data.t14 = component; data.opsT14 = 0x2; data.containsT14 = 1; }
 public ref T14 GetT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x2; return ref data.t14; }
 public ref readonly T14 ReadT14(int index) { return ref this.arr.GetRefRead(index).t14; }
-public bool HasT14(int index) { return this.arr.GetRefRead(index).containsT14 > 0; }public void RemoveT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x4; data.containsT15 = 0; }
+public bool HasT14(int index) { return this.arr.GetRefRead(index).containsT14 > 0; }
+public long GetVersionT14(int index) { return this.arr.GetRefRead(index).versionT14; }public void RemoveT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x4; data.containsT15 = 0; }
 public void Set(int index, in T15 component) { ref var data = ref this.arr.GetRef(index); data.t15 = component; data.opsT15 = 0x2; data.containsT15 = 1; }
 public ref T15 GetT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x2; return ref data.t15; }
 public ref readonly T15 ReadT15(int index) { return ref this.arr.GetRefRead(index).t15; }
 public bool HasT15(int index) { return this.arr.GetRefRead(index).containsT15 > 0; }
+public long GetVersionT15(int index) { return this.arr.GetRefRead(index).versionT15; }
     #endregion
 
 }
@@ -5453,7 +5861,24 @@ public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;public byte opsT11;public byte opsT12;public byte opsT13;public byte opsT14;public byte opsT15;public byte opsT16;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;public T11 t11;public T12 t12;public T13 t13;public T14 t14;public T15 t15;public T16 t16;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;public T3 t3;
+public long versionT3;public T4 t4;
+public long versionT4;public T5 t5;
+public long versionT5;public T6 t6;
+public long versionT6;public T7 t7;
+public long versionT7;public T8 t8;
+public long versionT8;public T9 t9;
+public long versionT9;public T10 t10;
+public long versionT10;public T11 t11;
+public long versionT11;public T12 t12;
+public long versionT12;public T13 t13;
+public long versionT13;public T14 t14;
+public long versionT14;public T15 t15;
+public long versionT15;public T16 t16;
+public long versionT16;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -5533,38 +5958,55 @@ public byte tagT16;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 containsT3 = this.tempT3[entity.id - this.offset].state,
 t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+versionT3 = this.tempT3[entity.id - this.offset].version,
 containsT4 = this.tempT4[entity.id - this.offset].state,
 t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+versionT4 = this.tempT4[entity.id - this.offset].version,
 containsT5 = this.tempT5[entity.id - this.offset].state,
 t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+versionT5 = this.tempT5[entity.id - this.offset].version,
 containsT6 = this.tempT6[entity.id - this.offset].state,
 t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+versionT6 = this.tempT6[entity.id - this.offset].version,
 containsT7 = this.tempT7[entity.id - this.offset].state,
 t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+versionT7 = this.tempT7[entity.id - this.offset].version,
 containsT8 = this.tempT8[entity.id - this.offset].state,
 t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+versionT8 = this.tempT8[entity.id - this.offset].version,
 containsT9 = this.tempT9[entity.id - this.offset].state,
 t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+versionT9 = this.tempT9[entity.id - this.offset].version,
 containsT10 = this.tempT10[entity.id - this.offset].state,
 t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+versionT10 = this.tempT10[entity.id - this.offset].version,
 containsT11 = this.tempT11[entity.id - this.offset].state,
 t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
+versionT11 = this.tempT11[entity.id - this.offset].version,
 containsT12 = this.tempT12[entity.id - this.offset].state,
 t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
+versionT12 = this.tempT12[entity.id - this.offset].version,
 containsT13 = this.tempT13[entity.id - this.offset].state,
 t13 = this.tagT13 == 0 ? this.tempT13[entity.id - this.offset].data : default,
+versionT13 = this.tempT13[entity.id - this.offset].version,
 containsT14 = this.tempT14[entity.id - this.offset].state,
 t14 = this.tagT14 == 0 ? this.tempT14[entity.id - this.offset].data : default,
+versionT14 = this.tempT14[entity.id - this.offset].version,
 containsT15 = this.tempT15[entity.id - this.offset].state,
 t15 = this.tagT15 == 0 ? this.tempT15[entity.id - this.offset].data : default,
+versionT15 = this.tempT15[entity.id - this.offset].version,
 containsT16 = this.tempT16[entity.id - this.offset].state,
 t16 = this.tagT16 == 0 ? this.tempT16[entity.id - this.offset].data : default,
+versionT16 = this.tempT16[entity.id - this.offset].version,
 
             };
             
@@ -5947,71 +6389,88 @@ tempT16.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
-public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
 public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
 public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
 public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
-public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
+public long GetVersionT3(int index) { return this.arr.GetRefRead(index).versionT3; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
 public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
 public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
 public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
-public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }
+public long GetVersionT4(int index) { return this.arr.GetRefRead(index).versionT4; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
 public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
 public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
 public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
-public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }
+public long GetVersionT5(int index) { return this.arr.GetRefRead(index).versionT5; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
 public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
 public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
 public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
-public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }
+public long GetVersionT6(int index) { return this.arr.GetRefRead(index).versionT6; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
 public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
 public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
 public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
-public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }
+public long GetVersionT7(int index) { return this.arr.GetRefRead(index).versionT7; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
 public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
 public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
 public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
-public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }
+public long GetVersionT8(int index) { return this.arr.GetRefRead(index).versionT8; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
 public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
 public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
 public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
-public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }
+public long GetVersionT9(int index) { return this.arr.GetRefRead(index).versionT9; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
 public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
 public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
 public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
-public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }
+public long GetVersionT10(int index) { return this.arr.GetRefRead(index).versionT10; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
 public void Set(int index, in T11 component) { ref var data = ref this.arr.GetRef(index); data.t11 = component; data.opsT11 = 0x2; data.containsT11 = 1; }
 public ref T11 GetT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x2; return ref data.t11; }
 public ref readonly T11 ReadT11(int index) { return ref this.arr.GetRefRead(index).t11; }
-public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
+public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }
+public long GetVersionT11(int index) { return this.arr.GetRefRead(index).versionT11; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
 public void Set(int index, in T12 component) { ref var data = ref this.arr.GetRef(index); data.t12 = component; data.opsT12 = 0x2; data.containsT12 = 1; }
 public ref T12 GetT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x2; return ref data.t12; }
 public ref readonly T12 ReadT12(int index) { return ref this.arr.GetRefRead(index).t12; }
-public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
+public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }
+public long GetVersionT12(int index) { return this.arr.GetRefRead(index).versionT12; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
 public void Set(int index, in T13 component) { ref var data = ref this.arr.GetRef(index); data.t13 = component; data.opsT13 = 0x2; data.containsT13 = 1; }
 public ref T13 GetT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x2; return ref data.t13; }
 public ref readonly T13 ReadT13(int index) { return ref this.arr.GetRefRead(index).t13; }
-public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }public void RemoveT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x4; data.containsT14 = 0; }
+public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }
+public long GetVersionT13(int index) { return this.arr.GetRefRead(index).versionT13; }public void RemoveT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x4; data.containsT14 = 0; }
 public void Set(int index, in T14 component) { ref var data = ref this.arr.GetRef(index); data.t14 = component; data.opsT14 = 0x2; data.containsT14 = 1; }
 public ref T14 GetT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x2; return ref data.t14; }
 public ref readonly T14 ReadT14(int index) { return ref this.arr.GetRefRead(index).t14; }
-public bool HasT14(int index) { return this.arr.GetRefRead(index).containsT14 > 0; }public void RemoveT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x4; data.containsT15 = 0; }
+public bool HasT14(int index) { return this.arr.GetRefRead(index).containsT14 > 0; }
+public long GetVersionT14(int index) { return this.arr.GetRefRead(index).versionT14; }public void RemoveT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x4; data.containsT15 = 0; }
 public void Set(int index, in T15 component) { ref var data = ref this.arr.GetRef(index); data.t15 = component; data.opsT15 = 0x2; data.containsT15 = 1; }
 public ref T15 GetT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x2; return ref data.t15; }
 public ref readonly T15 ReadT15(int index) { return ref this.arr.GetRefRead(index).t15; }
-public bool HasT15(int index) { return this.arr.GetRefRead(index).containsT15 > 0; }public void RemoveT16(int index) { ref var data = ref this.arr.GetRef(index); data.opsT16 = 0x4; data.containsT16 = 0; }
+public bool HasT15(int index) { return this.arr.GetRefRead(index).containsT15 > 0; }
+public long GetVersionT15(int index) { return this.arr.GetRefRead(index).versionT15; }public void RemoveT16(int index) { ref var data = ref this.arr.GetRef(index); data.opsT16 = 0x4; data.containsT16 = 0; }
 public void Set(int index, in T16 component) { ref var data = ref this.arr.GetRef(index); data.t16 = component; data.opsT16 = 0x2; data.containsT16 = 1; }
 public ref T16 GetT16(int index) { ref var data = ref this.arr.GetRef(index); data.opsT16 = 0x2; return ref data.t16; }
 public ref readonly T16 ReadT16(int index) { return ref this.arr.GetRefRead(index).t16; }
 public bool HasT16(int index) { return this.arr.GetRefRead(index).containsT16 > 0; }
+public long GetVersionT16(int index) { return this.arr.GetRefRead(index).versionT16; }
     #endregion
 
 }
@@ -6022,7 +6481,25 @@ public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;public byte opsT11;public byte opsT12;public byte opsT13;public byte opsT14;public byte opsT15;public byte opsT16;public byte opsT17;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;public T11 t11;public T12 t12;public T13 t13;public T14 t14;public T15 t15;public T16 t16;public T17 t17;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;public T3 t3;
+public long versionT3;public T4 t4;
+public long versionT4;public T5 t5;
+public long versionT5;public T6 t6;
+public long versionT6;public T7 t7;
+public long versionT7;public T8 t8;
+public long versionT8;public T9 t9;
+public long versionT9;public T10 t10;
+public long versionT10;public T11 t11;
+public long versionT11;public T12 t12;
+public long versionT12;public T13 t13;
+public long versionT13;public T14 t14;
+public long versionT14;public T15 t15;
+public long versionT15;public T16 t16;
+public long versionT16;public T17 t17;
+public long versionT17;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -6105,40 +6582,58 @@ public byte tagT17;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 containsT3 = this.tempT3[entity.id - this.offset].state,
 t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+versionT3 = this.tempT3[entity.id - this.offset].version,
 containsT4 = this.tempT4[entity.id - this.offset].state,
 t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+versionT4 = this.tempT4[entity.id - this.offset].version,
 containsT5 = this.tempT5[entity.id - this.offset].state,
 t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+versionT5 = this.tempT5[entity.id - this.offset].version,
 containsT6 = this.tempT6[entity.id - this.offset].state,
 t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+versionT6 = this.tempT6[entity.id - this.offset].version,
 containsT7 = this.tempT7[entity.id - this.offset].state,
 t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+versionT7 = this.tempT7[entity.id - this.offset].version,
 containsT8 = this.tempT8[entity.id - this.offset].state,
 t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+versionT8 = this.tempT8[entity.id - this.offset].version,
 containsT9 = this.tempT9[entity.id - this.offset].state,
 t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+versionT9 = this.tempT9[entity.id - this.offset].version,
 containsT10 = this.tempT10[entity.id - this.offset].state,
 t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+versionT10 = this.tempT10[entity.id - this.offset].version,
 containsT11 = this.tempT11[entity.id - this.offset].state,
 t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
+versionT11 = this.tempT11[entity.id - this.offset].version,
 containsT12 = this.tempT12[entity.id - this.offset].state,
 t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
+versionT12 = this.tempT12[entity.id - this.offset].version,
 containsT13 = this.tempT13[entity.id - this.offset].state,
 t13 = this.tagT13 == 0 ? this.tempT13[entity.id - this.offset].data : default,
+versionT13 = this.tempT13[entity.id - this.offset].version,
 containsT14 = this.tempT14[entity.id - this.offset].state,
 t14 = this.tagT14 == 0 ? this.tempT14[entity.id - this.offset].data : default,
+versionT14 = this.tempT14[entity.id - this.offset].version,
 containsT15 = this.tempT15[entity.id - this.offset].state,
 t15 = this.tagT15 == 0 ? this.tempT15[entity.id - this.offset].data : default,
+versionT15 = this.tempT15[entity.id - this.offset].version,
 containsT16 = this.tempT16[entity.id - this.offset].state,
 t16 = this.tagT16 == 0 ? this.tempT16[entity.id - this.offset].data : default,
+versionT16 = this.tempT16[entity.id - this.offset].version,
 containsT17 = this.tempT17[entity.id - this.offset].state,
 t17 = this.tagT17 == 0 ? this.tempT17[entity.id - this.offset].data : default,
+versionT17 = this.tempT17[entity.id - this.offset].version,
 
             };
             
@@ -6539,75 +7034,93 @@ tempT17.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
-public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
 public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
 public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
 public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
-public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
+public long GetVersionT3(int index) { return this.arr.GetRefRead(index).versionT3; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
 public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
 public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
 public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
-public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }
+public long GetVersionT4(int index) { return this.arr.GetRefRead(index).versionT4; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
 public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
 public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
 public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
-public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }
+public long GetVersionT5(int index) { return this.arr.GetRefRead(index).versionT5; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
 public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
 public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
 public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
-public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }
+public long GetVersionT6(int index) { return this.arr.GetRefRead(index).versionT6; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
 public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
 public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
 public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
-public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }
+public long GetVersionT7(int index) { return this.arr.GetRefRead(index).versionT7; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
 public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
 public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
 public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
-public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }
+public long GetVersionT8(int index) { return this.arr.GetRefRead(index).versionT8; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
 public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
 public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
 public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
-public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }
+public long GetVersionT9(int index) { return this.arr.GetRefRead(index).versionT9; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
 public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
 public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
 public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
-public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }
+public long GetVersionT10(int index) { return this.arr.GetRefRead(index).versionT10; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
 public void Set(int index, in T11 component) { ref var data = ref this.arr.GetRef(index); data.t11 = component; data.opsT11 = 0x2; data.containsT11 = 1; }
 public ref T11 GetT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x2; return ref data.t11; }
 public ref readonly T11 ReadT11(int index) { return ref this.arr.GetRefRead(index).t11; }
-public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
+public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }
+public long GetVersionT11(int index) { return this.arr.GetRefRead(index).versionT11; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
 public void Set(int index, in T12 component) { ref var data = ref this.arr.GetRef(index); data.t12 = component; data.opsT12 = 0x2; data.containsT12 = 1; }
 public ref T12 GetT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x2; return ref data.t12; }
 public ref readonly T12 ReadT12(int index) { return ref this.arr.GetRefRead(index).t12; }
-public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
+public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }
+public long GetVersionT12(int index) { return this.arr.GetRefRead(index).versionT12; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
 public void Set(int index, in T13 component) { ref var data = ref this.arr.GetRef(index); data.t13 = component; data.opsT13 = 0x2; data.containsT13 = 1; }
 public ref T13 GetT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x2; return ref data.t13; }
 public ref readonly T13 ReadT13(int index) { return ref this.arr.GetRefRead(index).t13; }
-public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }public void RemoveT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x4; data.containsT14 = 0; }
+public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }
+public long GetVersionT13(int index) { return this.arr.GetRefRead(index).versionT13; }public void RemoveT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x4; data.containsT14 = 0; }
 public void Set(int index, in T14 component) { ref var data = ref this.arr.GetRef(index); data.t14 = component; data.opsT14 = 0x2; data.containsT14 = 1; }
 public ref T14 GetT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x2; return ref data.t14; }
 public ref readonly T14 ReadT14(int index) { return ref this.arr.GetRefRead(index).t14; }
-public bool HasT14(int index) { return this.arr.GetRefRead(index).containsT14 > 0; }public void RemoveT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x4; data.containsT15 = 0; }
+public bool HasT14(int index) { return this.arr.GetRefRead(index).containsT14 > 0; }
+public long GetVersionT14(int index) { return this.arr.GetRefRead(index).versionT14; }public void RemoveT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x4; data.containsT15 = 0; }
 public void Set(int index, in T15 component) { ref var data = ref this.arr.GetRef(index); data.t15 = component; data.opsT15 = 0x2; data.containsT15 = 1; }
 public ref T15 GetT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x2; return ref data.t15; }
 public ref readonly T15 ReadT15(int index) { return ref this.arr.GetRefRead(index).t15; }
-public bool HasT15(int index) { return this.arr.GetRefRead(index).containsT15 > 0; }public void RemoveT16(int index) { ref var data = ref this.arr.GetRef(index); data.opsT16 = 0x4; data.containsT16 = 0; }
+public bool HasT15(int index) { return this.arr.GetRefRead(index).containsT15 > 0; }
+public long GetVersionT15(int index) { return this.arr.GetRefRead(index).versionT15; }public void RemoveT16(int index) { ref var data = ref this.arr.GetRef(index); data.opsT16 = 0x4; data.containsT16 = 0; }
 public void Set(int index, in T16 component) { ref var data = ref this.arr.GetRef(index); data.t16 = component; data.opsT16 = 0x2; data.containsT16 = 1; }
 public ref T16 GetT16(int index) { ref var data = ref this.arr.GetRef(index); data.opsT16 = 0x2; return ref data.t16; }
 public ref readonly T16 ReadT16(int index) { return ref this.arr.GetRefRead(index).t16; }
-public bool HasT16(int index) { return this.arr.GetRefRead(index).containsT16 > 0; }public void RemoveT17(int index) { ref var data = ref this.arr.GetRef(index); data.opsT17 = 0x4; data.containsT17 = 0; }
+public bool HasT16(int index) { return this.arr.GetRefRead(index).containsT16 > 0; }
+public long GetVersionT16(int index) { return this.arr.GetRefRead(index).versionT16; }public void RemoveT17(int index) { ref var data = ref this.arr.GetRef(index); data.opsT17 = 0x4; data.containsT17 = 0; }
 public void Set(int index, in T17 component) { ref var data = ref this.arr.GetRef(index); data.t17 = component; data.opsT17 = 0x2; data.containsT17 = 1; }
 public ref T17 GetT17(int index) { ref var data = ref this.arr.GetRef(index); data.opsT17 = 0x2; return ref data.t17; }
 public ref readonly T17 ReadT17(int index) { return ref this.arr.GetRefRead(index).t17; }
 public bool HasT17(int index) { return this.arr.GetRefRead(index).containsT17 > 0; }
+public long GetVersionT17(int index) { return this.arr.GetRefRead(index).versionT17; }
     #endregion
 
 }
@@ -6618,7 +7131,26 @@ public struct DataBufferStruct<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     public byte opsT0;public byte opsT1;public byte opsT2;public byte opsT3;public byte opsT4;public byte opsT5;public byte opsT6;public byte opsT7;public byte opsT8;public byte opsT9;public byte opsT10;public byte opsT11;public byte opsT12;public byte opsT13;public byte opsT14;public byte opsT15;public byte opsT16;public byte opsT17;public byte opsT18;
     public byte entityOps;
     public Entity entity;
-    public T0 t0;public T1 t1;public T2 t2;public T3 t3;public T4 t4;public T5 t5;public T6 t6;public T7 t7;public T8 t8;public T9 t9;public T10 t10;public T11 t11;public T12 t12;public T13 t13;public T14 t14;public T15 t15;public T16 t16;public T17 t17;public T18 t18;
+    public T0 t0;
+public long versionT0;public T1 t1;
+public long versionT1;public T2 t2;
+public long versionT2;public T3 t3;
+public long versionT3;public T4 t4;
+public long versionT4;public T5 t5;
+public long versionT5;public T6 t6;
+public long versionT6;public T7 t7;
+public long versionT7;public T8 t8;
+public long versionT8;public T9 t9;
+public long versionT9;public T10 t10;
+public long versionT10;public T11 t11;
+public long versionT11;public T12 t12;
+public long versionT12;public T13 t13;
+public long versionT13;public T14 t14;
+public long versionT14;public T15 t15;
+public long versionT15;public T16 t16;
+public long versionT16;public T17 t17;
+public long versionT17;public T18 t18;
+public long versionT18;
 }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -6704,42 +7236,61 @@ public byte tagT18;
                 entity = entity,
                 containsT0 = this.tempT0[entity.id - this.offset].state,
 t0 = this.tagT0 == 0 ? this.tempT0[entity.id - this.offset].data : default,
+versionT0 = this.tempT0[entity.id - this.offset].version,
 containsT1 = this.tempT1[entity.id - this.offset].state,
 t1 = this.tagT1 == 0 ? this.tempT1[entity.id - this.offset].data : default,
+versionT1 = this.tempT1[entity.id - this.offset].version,
 containsT2 = this.tempT2[entity.id - this.offset].state,
 t2 = this.tagT2 == 0 ? this.tempT2[entity.id - this.offset].data : default,
+versionT2 = this.tempT2[entity.id - this.offset].version,
 containsT3 = this.tempT3[entity.id - this.offset].state,
 t3 = this.tagT3 == 0 ? this.tempT3[entity.id - this.offset].data : default,
+versionT3 = this.tempT3[entity.id - this.offset].version,
 containsT4 = this.tempT4[entity.id - this.offset].state,
 t4 = this.tagT4 == 0 ? this.tempT4[entity.id - this.offset].data : default,
+versionT4 = this.tempT4[entity.id - this.offset].version,
 containsT5 = this.tempT5[entity.id - this.offset].state,
 t5 = this.tagT5 == 0 ? this.tempT5[entity.id - this.offset].data : default,
+versionT5 = this.tempT5[entity.id - this.offset].version,
 containsT6 = this.tempT6[entity.id - this.offset].state,
 t6 = this.tagT6 == 0 ? this.tempT6[entity.id - this.offset].data : default,
+versionT6 = this.tempT6[entity.id - this.offset].version,
 containsT7 = this.tempT7[entity.id - this.offset].state,
 t7 = this.tagT7 == 0 ? this.tempT7[entity.id - this.offset].data : default,
+versionT7 = this.tempT7[entity.id - this.offset].version,
 containsT8 = this.tempT8[entity.id - this.offset].state,
 t8 = this.tagT8 == 0 ? this.tempT8[entity.id - this.offset].data : default,
+versionT8 = this.tempT8[entity.id - this.offset].version,
 containsT9 = this.tempT9[entity.id - this.offset].state,
 t9 = this.tagT9 == 0 ? this.tempT9[entity.id - this.offset].data : default,
+versionT9 = this.tempT9[entity.id - this.offset].version,
 containsT10 = this.tempT10[entity.id - this.offset].state,
 t10 = this.tagT10 == 0 ? this.tempT10[entity.id - this.offset].data : default,
+versionT10 = this.tempT10[entity.id - this.offset].version,
 containsT11 = this.tempT11[entity.id - this.offset].state,
 t11 = this.tagT11 == 0 ? this.tempT11[entity.id - this.offset].data : default,
+versionT11 = this.tempT11[entity.id - this.offset].version,
 containsT12 = this.tempT12[entity.id - this.offset].state,
 t12 = this.tagT12 == 0 ? this.tempT12[entity.id - this.offset].data : default,
+versionT12 = this.tempT12[entity.id - this.offset].version,
 containsT13 = this.tempT13[entity.id - this.offset].state,
 t13 = this.tagT13 == 0 ? this.tempT13[entity.id - this.offset].data : default,
+versionT13 = this.tempT13[entity.id - this.offset].version,
 containsT14 = this.tempT14[entity.id - this.offset].state,
 t14 = this.tagT14 == 0 ? this.tempT14[entity.id - this.offset].data : default,
+versionT14 = this.tempT14[entity.id - this.offset].version,
 containsT15 = this.tempT15[entity.id - this.offset].state,
 t15 = this.tagT15 == 0 ? this.tempT15[entity.id - this.offset].data : default,
+versionT15 = this.tempT15[entity.id - this.offset].version,
 containsT16 = this.tempT16[entity.id - this.offset].state,
 t16 = this.tagT16 == 0 ? this.tempT16[entity.id - this.offset].data : default,
+versionT16 = this.tempT16[entity.id - this.offset].version,
 containsT17 = this.tempT17[entity.id - this.offset].state,
 t17 = this.tagT17 == 0 ? this.tempT17[entity.id - this.offset].data : default,
+versionT17 = this.tempT17[entity.id - this.offset].version,
 containsT18 = this.tempT18[entity.id - this.offset].state,
 t18 = this.tagT18 == 0 ? this.tempT18[entity.id - this.offset].data : default,
+versionT18 = this.tempT18[entity.id - this.offset].version,
 
             };
             
@@ -7158,79 +7709,98 @@ tempT18.Dispose();
 public void Set(int index, in T0 component) { ref var data = ref this.arr.GetRef(index); data.t0 = component; data.opsT0 = 0x2; data.containsT0 = 1; }
 public ref T0 GetT0(int index) { ref var data = ref this.arr.GetRef(index); data.opsT0 = 0x2; return ref data.t0; }
 public ref readonly T0 ReadT0(int index) { return ref this.arr.GetRefRead(index).t0; }
-public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
+public bool HasT0(int index) { return this.arr.GetRefRead(index).containsT0 > 0; }
+public long GetVersionT0(int index) { return this.arr.GetRefRead(index).versionT0; }public void RemoveT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x4; data.containsT1 = 0; }
 public void Set(int index, in T1 component) { ref var data = ref this.arr.GetRef(index); data.t1 = component; data.opsT1 = 0x2; data.containsT1 = 1; }
 public ref T1 GetT1(int index) { ref var data = ref this.arr.GetRef(index); data.opsT1 = 0x2; return ref data.t1; }
 public ref readonly T1 ReadT1(int index) { return ref this.arr.GetRefRead(index).t1; }
-public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
+public bool HasT1(int index) { return this.arr.GetRefRead(index).containsT1 > 0; }
+public long GetVersionT1(int index) { return this.arr.GetRefRead(index).versionT1; }public void RemoveT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x4; data.containsT2 = 0; }
 public void Set(int index, in T2 component) { ref var data = ref this.arr.GetRef(index); data.t2 = component; data.opsT2 = 0x2; data.containsT2 = 1; }
 public ref T2 GetT2(int index) { ref var data = ref this.arr.GetRef(index); data.opsT2 = 0x2; return ref data.t2; }
 public ref readonly T2 ReadT2(int index) { return ref this.arr.GetRefRead(index).t2; }
-public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
+public bool HasT2(int index) { return this.arr.GetRefRead(index).containsT2 > 0; }
+public long GetVersionT2(int index) { return this.arr.GetRefRead(index).versionT2; }public void RemoveT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x4; data.containsT3 = 0; }
 public void Set(int index, in T3 component) { ref var data = ref this.arr.GetRef(index); data.t3 = component; data.opsT3 = 0x2; data.containsT3 = 1; }
 public ref T3 GetT3(int index) { ref var data = ref this.arr.GetRef(index); data.opsT3 = 0x2; return ref data.t3; }
 public ref readonly T3 ReadT3(int index) { return ref this.arr.GetRefRead(index).t3; }
-public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
+public bool HasT3(int index) { return this.arr.GetRefRead(index).containsT3 > 0; }
+public long GetVersionT3(int index) { return this.arr.GetRefRead(index).versionT3; }public void RemoveT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x4; data.containsT4 = 0; }
 public void Set(int index, in T4 component) { ref var data = ref this.arr.GetRef(index); data.t4 = component; data.opsT4 = 0x2; data.containsT4 = 1; }
 public ref T4 GetT4(int index) { ref var data = ref this.arr.GetRef(index); data.opsT4 = 0x2; return ref data.t4; }
 public ref readonly T4 ReadT4(int index) { return ref this.arr.GetRefRead(index).t4; }
-public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
+public bool HasT4(int index) { return this.arr.GetRefRead(index).containsT4 > 0; }
+public long GetVersionT4(int index) { return this.arr.GetRefRead(index).versionT4; }public void RemoveT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x4; data.containsT5 = 0; }
 public void Set(int index, in T5 component) { ref var data = ref this.arr.GetRef(index); data.t5 = component; data.opsT5 = 0x2; data.containsT5 = 1; }
 public ref T5 GetT5(int index) { ref var data = ref this.arr.GetRef(index); data.opsT5 = 0x2; return ref data.t5; }
 public ref readonly T5 ReadT5(int index) { return ref this.arr.GetRefRead(index).t5; }
-public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
+public bool HasT5(int index) { return this.arr.GetRefRead(index).containsT5 > 0; }
+public long GetVersionT5(int index) { return this.arr.GetRefRead(index).versionT5; }public void RemoveT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x4; data.containsT6 = 0; }
 public void Set(int index, in T6 component) { ref var data = ref this.arr.GetRef(index); data.t6 = component; data.opsT6 = 0x2; data.containsT6 = 1; }
 public ref T6 GetT6(int index) { ref var data = ref this.arr.GetRef(index); data.opsT6 = 0x2; return ref data.t6; }
 public ref readonly T6 ReadT6(int index) { return ref this.arr.GetRefRead(index).t6; }
-public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
+public bool HasT6(int index) { return this.arr.GetRefRead(index).containsT6 > 0; }
+public long GetVersionT6(int index) { return this.arr.GetRefRead(index).versionT6; }public void RemoveT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x4; data.containsT7 = 0; }
 public void Set(int index, in T7 component) { ref var data = ref this.arr.GetRef(index); data.t7 = component; data.opsT7 = 0x2; data.containsT7 = 1; }
 public ref T7 GetT7(int index) { ref var data = ref this.arr.GetRef(index); data.opsT7 = 0x2; return ref data.t7; }
 public ref readonly T7 ReadT7(int index) { return ref this.arr.GetRefRead(index).t7; }
-public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
+public bool HasT7(int index) { return this.arr.GetRefRead(index).containsT7 > 0; }
+public long GetVersionT7(int index) { return this.arr.GetRefRead(index).versionT7; }public void RemoveT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x4; data.containsT8 = 0; }
 public void Set(int index, in T8 component) { ref var data = ref this.arr.GetRef(index); data.t8 = component; data.opsT8 = 0x2; data.containsT8 = 1; }
 public ref T8 GetT8(int index) { ref var data = ref this.arr.GetRef(index); data.opsT8 = 0x2; return ref data.t8; }
 public ref readonly T8 ReadT8(int index) { return ref this.arr.GetRefRead(index).t8; }
-public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
+public bool HasT8(int index) { return this.arr.GetRefRead(index).containsT8 > 0; }
+public long GetVersionT8(int index) { return this.arr.GetRefRead(index).versionT8; }public void RemoveT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x4; data.containsT9 = 0; }
 public void Set(int index, in T9 component) { ref var data = ref this.arr.GetRef(index); data.t9 = component; data.opsT9 = 0x2; data.containsT9 = 1; }
 public ref T9 GetT9(int index) { ref var data = ref this.arr.GetRef(index); data.opsT9 = 0x2; return ref data.t9; }
 public ref readonly T9 ReadT9(int index) { return ref this.arr.GetRefRead(index).t9; }
-public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
+public bool HasT9(int index) { return this.arr.GetRefRead(index).containsT9 > 0; }
+public long GetVersionT9(int index) { return this.arr.GetRefRead(index).versionT9; }public void RemoveT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x4; data.containsT10 = 0; }
 public void Set(int index, in T10 component) { ref var data = ref this.arr.GetRef(index); data.t10 = component; data.opsT10 = 0x2; data.containsT10 = 1; }
 public ref T10 GetT10(int index) { ref var data = ref this.arr.GetRef(index); data.opsT10 = 0x2; return ref data.t10; }
 public ref readonly T10 ReadT10(int index) { return ref this.arr.GetRefRead(index).t10; }
-public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
+public bool HasT10(int index) { return this.arr.GetRefRead(index).containsT10 > 0; }
+public long GetVersionT10(int index) { return this.arr.GetRefRead(index).versionT10; }public void RemoveT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x4; data.containsT11 = 0; }
 public void Set(int index, in T11 component) { ref var data = ref this.arr.GetRef(index); data.t11 = component; data.opsT11 = 0x2; data.containsT11 = 1; }
 public ref T11 GetT11(int index) { ref var data = ref this.arr.GetRef(index); data.opsT11 = 0x2; return ref data.t11; }
 public ref readonly T11 ReadT11(int index) { return ref this.arr.GetRefRead(index).t11; }
-public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
+public bool HasT11(int index) { return this.arr.GetRefRead(index).containsT11 > 0; }
+public long GetVersionT11(int index) { return this.arr.GetRefRead(index).versionT11; }public void RemoveT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x4; data.containsT12 = 0; }
 public void Set(int index, in T12 component) { ref var data = ref this.arr.GetRef(index); data.t12 = component; data.opsT12 = 0x2; data.containsT12 = 1; }
 public ref T12 GetT12(int index) { ref var data = ref this.arr.GetRef(index); data.opsT12 = 0x2; return ref data.t12; }
 public ref readonly T12 ReadT12(int index) { return ref this.arr.GetRefRead(index).t12; }
-public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
+public bool HasT12(int index) { return this.arr.GetRefRead(index).containsT12 > 0; }
+public long GetVersionT12(int index) { return this.arr.GetRefRead(index).versionT12; }public void RemoveT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x4; data.containsT13 = 0; }
 public void Set(int index, in T13 component) { ref var data = ref this.arr.GetRef(index); data.t13 = component; data.opsT13 = 0x2; data.containsT13 = 1; }
 public ref T13 GetT13(int index) { ref var data = ref this.arr.GetRef(index); data.opsT13 = 0x2; return ref data.t13; }
 public ref readonly T13 ReadT13(int index) { return ref this.arr.GetRefRead(index).t13; }
-public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }public void RemoveT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x4; data.containsT14 = 0; }
+public bool HasT13(int index) { return this.arr.GetRefRead(index).containsT13 > 0; }
+public long GetVersionT13(int index) { return this.arr.GetRefRead(index).versionT13; }public void RemoveT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x4; data.containsT14 = 0; }
 public void Set(int index, in T14 component) { ref var data = ref this.arr.GetRef(index); data.t14 = component; data.opsT14 = 0x2; data.containsT14 = 1; }
 public ref T14 GetT14(int index) { ref var data = ref this.arr.GetRef(index); data.opsT14 = 0x2; return ref data.t14; }
 public ref readonly T14 ReadT14(int index) { return ref this.arr.GetRefRead(index).t14; }
-public bool HasT14(int index) { return this.arr.GetRefRead(index).containsT14 > 0; }public void RemoveT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x4; data.containsT15 = 0; }
+public bool HasT14(int index) { return this.arr.GetRefRead(index).containsT14 > 0; }
+public long GetVersionT14(int index) { return this.arr.GetRefRead(index).versionT14; }public void RemoveT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x4; data.containsT15 = 0; }
 public void Set(int index, in T15 component) { ref var data = ref this.arr.GetRef(index); data.t15 = component; data.opsT15 = 0x2; data.containsT15 = 1; }
 public ref T15 GetT15(int index) { ref var data = ref this.arr.GetRef(index); data.opsT15 = 0x2; return ref data.t15; }
 public ref readonly T15 ReadT15(int index) { return ref this.arr.GetRefRead(index).t15; }
-public bool HasT15(int index) { return this.arr.GetRefRead(index).containsT15 > 0; }public void RemoveT16(int index) { ref var data = ref this.arr.GetRef(index); data.opsT16 = 0x4; data.containsT16 = 0; }
+public bool HasT15(int index) { return this.arr.GetRefRead(index).containsT15 > 0; }
+public long GetVersionT15(int index) { return this.arr.GetRefRead(index).versionT15; }public void RemoveT16(int index) { ref var data = ref this.arr.GetRef(index); data.opsT16 = 0x4; data.containsT16 = 0; }
 public void Set(int index, in T16 component) { ref var data = ref this.arr.GetRef(index); data.t16 = component; data.opsT16 = 0x2; data.containsT16 = 1; }
 public ref T16 GetT16(int index) { ref var data = ref this.arr.GetRef(index); data.opsT16 = 0x2; return ref data.t16; }
 public ref readonly T16 ReadT16(int index) { return ref this.arr.GetRefRead(index).t16; }
-public bool HasT16(int index) { return this.arr.GetRefRead(index).containsT16 > 0; }public void RemoveT17(int index) { ref var data = ref this.arr.GetRef(index); data.opsT17 = 0x4; data.containsT17 = 0; }
+public bool HasT16(int index) { return this.arr.GetRefRead(index).containsT16 > 0; }
+public long GetVersionT16(int index) { return this.arr.GetRefRead(index).versionT16; }public void RemoveT17(int index) { ref var data = ref this.arr.GetRef(index); data.opsT17 = 0x4; data.containsT17 = 0; }
 public void Set(int index, in T17 component) { ref var data = ref this.arr.GetRef(index); data.t17 = component; data.opsT17 = 0x2; data.containsT17 = 1; }
 public ref T17 GetT17(int index) { ref var data = ref this.arr.GetRef(index); data.opsT17 = 0x2; return ref data.t17; }
 public ref readonly T17 ReadT17(int index) { return ref this.arr.GetRefRead(index).t17; }
-public bool HasT17(int index) { return this.arr.GetRefRead(index).containsT17 > 0; }public void RemoveT18(int index) { ref var data = ref this.arr.GetRef(index); data.opsT18 = 0x4; data.containsT18 = 0; }
+public bool HasT17(int index) { return this.arr.GetRefRead(index).containsT17 > 0; }
+public long GetVersionT17(int index) { return this.arr.GetRefRead(index).versionT17; }public void RemoveT18(int index) { ref var data = ref this.arr.GetRef(index); data.opsT18 = 0x4; data.containsT18 = 0; }
 public void Set(int index, in T18 component) { ref var data = ref this.arr.GetRef(index); data.t18 = component; data.opsT18 = 0x2; data.containsT18 = 1; }
 public ref T18 GetT18(int index) { ref var data = ref this.arr.GetRef(index); data.opsT18 = 0x2; return ref data.t18; }
 public ref readonly T18 ReadT18(int index) { return ref this.arr.GetRefRead(index).t18; }
 public bool HasT18(int index) { return this.arr.GetRefRead(index).containsT18 > 0; }
+public long GetVersionT18(int index) { return this.arr.GetRefRead(index).versionT18; }
     #endregion
 
 }

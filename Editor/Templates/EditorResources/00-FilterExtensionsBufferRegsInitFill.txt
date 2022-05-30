@@ -1,2 +1,3 @@
 containsT#INDEX# = this.tempT#INDEX#[entity.id - this.offset].state,
 t#INDEX# = this.tagT#INDEX# == 0 ? this.tempT#INDEX#[entity.id - this.offset].data : default,
+versionT#INDEX# = this.tempT#INDEX#[entity.id - this.offset].version,

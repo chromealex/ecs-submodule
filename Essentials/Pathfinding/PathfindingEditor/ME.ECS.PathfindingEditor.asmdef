@@ -6,6 +6,7 @@
         "ME.ECS.Editor",
         "ME.Pools",
         "ME.ECS",
+        "ME.ECS.FPMath",
         "Unity.Collections"
     ],
     "includePlatforms": [

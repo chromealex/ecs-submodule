@@ -5,15 +5,11 @@
 using RandomState = System.UInt32;
 
 #if FIXED_POINT_MATH
-using FLOAT2 = ME.ECS.fp2;
-using FLOAT3 = ME.ECS.fp3;
-using FLOAT4 = ME.ECS.fp4;
-using QUATERNION = ME.ECS.fpquaternion;
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
 #else
-using FLOAT2 = UnityEngine.Vector2;
-using FLOAT3 = UnityEngine.Vector3;
-using FLOAT4 = UnityEngine.Vector4;
-using QUATERNION = UnityEngine.Quaternion;
+using Unity.Mathematics;
+using tfloat = System.Single;
 #endif
 
 namespace ME.ECS {
@@ -36,9 +32,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static FLOAT3 GetRandomInSphere(this ref RandomState randomState, FLOAT3 center, float maxRadius) {
-            var rnd = new Unity.Mathematics.Random(randomState);
-            var dir = ((UnityEngine.Vector3)rnd.NextFloat3(-1f, 1f)).normalized;
+        public static float3 GetRandomInSphere(this ref RandomState randomState, float3 center, tfloat maxRadius) {
+            var rnd = new Random(randomState);
+            var dir = math.normalize(rnd.NextFloat3(new float3(-1f, -1f, -1f), new float3(1f, 1f, 1f)));
             randomState = rnd.state;
             return center + dir * rnd.NextFloat(-maxRadius, maxRadius);
         }
@@ -46,9 +42,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static FLOAT2 GetRandomInCircle(this ref RandomState randomState, FLOAT2 center, float maxRadius) {
-            var rnd = new Unity.Mathematics.Random(randomState);
-            var dir = ((UnityEngine.Vector2)rnd.NextFloat2(-1f, 1f)).normalized;
+        public static float2 GetRandomInCircle(this ref RandomState randomState, float2 center, tfloat maxRadius) {
+            var rnd = new Random(randomState);
+            var dir = math.normalize(rnd.NextFloat2(new float2(-1f, -1f), new float2(1f, 1f)));
             randomState = rnd.state;
             return center + dir * rnd.NextFloat(-maxRadius, maxRadius);
         }
@@ -57,7 +53,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public static int GetRandomRange(this ref RandomState randomState, int from, int to) {
-            var rnd = new Unity.Mathematics.Random(randomState);
+            var rnd = new Random(randomState);
             var result = rnd.NextInt(from, to);
             randomState = rnd.state;
             return result;
@@ -66,8 +62,8 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static float GetRandomRange(this ref RandomState randomState, float from, float to) {
-            var rnd = new Unity.Mathematics.Random(randomState);
+        public static tfloat GetRandomRange(this ref RandomState randomState, tfloat from, tfloat to) {
+            var rnd = new Random(randomState);
             var result = rnd.NextFloat(from, to);
             randomState = rnd.state;
             return result;
@@ -76,15 +72,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static float GetRandomValue(this ref RandomState randomState) {
-            var rnd = new Unity.Mathematics.Random(randomState);
+        public static tfloat GetRandomValue(this ref RandomState randomState) {
+            var rnd = new Random(randomState);
             var result = rnd.NextFloat(0f, 1f);
             randomState = rnd.state;
             return result;
         }
 
         public static void SetSeed(this ref RandomState randomState, uint seed) {
-            var rnd = new Unity.Mathematics.Random(seed);
+            var rnd = new Random(seed);
             randomState = rnd.state;
         }
 

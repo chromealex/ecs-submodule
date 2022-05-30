@@ -1,0 +1,22 @@
+{
+    "name": "ME.ECS.Physics",
+    "rootNamespace": "",
+    "references": [
+        "GUID:8979e5b9ed38b420d8191f6eb2c94074",
+        "GUID:e0cd26848372d4e5c891c569017e11f1",
+        "GUID:36c45963a9fd34aa4a3447102d38d86e",
+        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:63afb046c8423dd448ae7aba042ea63d",
+        "GUID:1e50cf49f12c346f5ab77c5d33b0db51"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

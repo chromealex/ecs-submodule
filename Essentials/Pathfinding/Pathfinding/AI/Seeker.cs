@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ME.ECS.Mathematics;
 
 namespace ME.ECS.Pathfinding {
 
@@ -28,7 +29,7 @@ namespace ME.ECS.Pathfinding {
 
         }
         
-        public Path CalculatePath(Vector3 from, Vector3 to, Constraint constraint) {
+        public Path CalculatePath(float3 from, float3 to, Constraint constraint) {
             
             return this.pathfinding.CalculatePath(from, to, constraint, this.graph, new Modifier() { mod = this.modifier });
             

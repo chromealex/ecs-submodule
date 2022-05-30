@@ -1,11 +1,12 @@
 ﻿using ME.ECS;
+using ME.ECS.Mathematics;
 
 namespace ME.ECS.Pathfinding.Features.PathfindingAstar.Components {
 
     public struct Path : IStructCopyable<Path> {
 
         public ME.ECS.Pathfinding.PathCompleteState result;
-        public ME.ECS.Collections.BufferArray<UnityEngine.Vector3> path;
+        public ME.ECS.Collections.BufferArray<float3> path;
         public ME.ECS.Collections.BufferArray<ME.ECS.Pathfinding.Node> nodes;
 
         void IStructCopyable<Path>.CopyFrom(in Path other) {
@@ -22,7 +23,7 @@ namespace ME.ECS.Pathfinding.Features.PathfindingAstar.Components {
 
             //UnityEngine.Debug.LogWarning("PATH RECYCLE");
             this.result = default;
-            PoolArray<UnityEngine.Vector3>.Recycle(ref this.path);
+            PoolArray<float3>.Recycle(ref this.path);
             PoolArray<ME.ECS.Pathfinding.Node>.Recycle(ref this.nodes);
         
         }

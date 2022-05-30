@@ -2,6 +2,14 @@
 #define INLINE_METHODS
 #endif
 
+#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
+#else
+using Unity.Mathematics;
+using tfloat = System.Single;
+#endif
+
 namespace ME.ECS {
 
     using ME.ECS.Collections;
@@ -559,7 +567,8 @@ namespace ME.ECS {
             public int dataIndex;
             public ComponentLifetime lifetime;
             public StorageType storageType;
-            public float secondsLifetime;
+            public tfloat secondsLifetime;
+            public bool destroyEntity;
             
             public ComponentLifetime GetStep() => this.lifetime;
             
@@ -569,7 +578,7 @@ namespace ME.ECS {
                     
                     if (this.lifetime == ComponentLifetime.NotifyAllSystemsBelow) return;
 
-                    Worlds.currentWorld.SetData(this.entity, this.data, this.dataIndex, this.storageType);
+                    if (this.dataIndex >= 0) Worlds.currentWorld.SetData(this.entity, this.data, this.dataIndex, this.storageType);
                     
                     if (this.lifetime == ComponentLifetime.NotifyAllSystems) {
                         this.lifetime = ComponentLifetime.NotifyAllSystemsBelow;
@@ -579,15 +588,19 @@ namespace ME.ECS {
 
             }
 
-            public bool Update(float deltaTime) {
+            public bool Update(tfloat deltaTime) {
 
                 if (this.entity.IsAlive() == false) return true;
                 
                 this.secondsLifetime -= deltaTime;
                 if (this.secondsLifetime <= 0f) {
 
-                    Worlds.currentWorld.RemoveData(this.entity, this.dataIndex, this.storageType);
-                    
+                    if (this.destroyEntity == false) {
+
+                        Worlds.currentWorld.RemoveData(this.entity, this.dataIndex, this.storageType);
+
+                    }
+
                     return true;
 
                 }
@@ -610,6 +623,7 @@ namespace ME.ECS {
                 this.data.CopyFrom(in other.data);
                 this.lifetime = other.lifetime;
                 this.secondsLifetime = other.secondsLifetime;
+                this.destroyEntity = other.destroyEntity;
 
             }
             
@@ -620,6 +634,7 @@ namespace ME.ECS {
                 this.entity = default;
                 this.lifetime = default;
                 this.secondsLifetime = default;
+                this.destroyEntity = default;
                 this.data.Dispose();
 
             }
@@ -633,7 +648,12 @@ namespace ME.ECS {
             }
 
             public bool Equals(NextTickTask other) {
-                return this.entity.Equals(other.entity) && this.dataIndex == other.dataIndex && this.lifetime == other.lifetime && this.storageType == other.storageType;
+                return this.entity.Equals(other.entity) &&
+                       this.dataIndex == other.dataIndex &&
+                       this.lifetime == other.lifetime &&
+                       this.storageType == other.storageType &&
+                       this.secondsLifetime == other.secondsLifetime &&
+                       this.destroyEntity == other.destroyEntity;
             }
 
             public override bool Equals(object obj) {
@@ -642,7 +662,7 @@ namespace ME.ECS {
 
             public override int GetHashCode() {
                 unchecked {
-                    return (this.entity.GetHashCode() * 397) ^ this.dataIndex ^ (int)this.lifetime ^ (int)this.storageType;
+                    return (this.entity.GetHashCode() * 397) ^ this.dataIndex ^ (int)this.lifetime ^ (int)this.storageType ^ (int)(this.destroyEntity ? 1 : 0) ^ (int)(this.secondsLifetime * 1000f);
                 }
             }
 
@@ -1334,7 +1354,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void UseLifetimeStep(ComponentLifetime step, float deltaTime) {
+        private void UseLifetimeStep(ComponentLifetime step, tfloat deltaTime) {
 
             if (step == ComponentLifetime.NotifyAllSystemsBelow) {
                 
@@ -1350,11 +1370,14 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void UseLifetimeStep(ComponentLifetime step, float deltaTime, ref StructComponentsContainer structComponentsContainer) {
+        private void UseLifetimeStep(ComponentLifetime step, tfloat deltaTime, ref StructComponentsContainer structComponentsContainer) {
 
             var list = structComponentsContainer.nextTickTasks;
             if (list.Count > 0) {
 
+                // We need to allocate temporary list to store entities
+                // because on entity.Destroy we clean up all data including tasks list
+                var tempList = PoolList<Entity>.Spawn(10);
                 var cnt = 0;
                 foreach (ref var task in list) {
                     
@@ -1366,6 +1389,7 @@ namespace ME.ECS {
                         if (task.Update(deltaTime) == true) {
                             
                             // Remove task on complete
+                            if (task.destroyEntity == true) tempList.Add(task.entity);
                             task.Recycle();
                             task = default;
                             ++cnt;
@@ -1379,6 +1403,14 @@ namespace ME.ECS {
                     }
                     
                 }
+
+                foreach (var entity in tempList) {
+                    
+                    entity.Destroy();
+                    
+                }
+                
+                PoolList<Entity>.Recycle(ref tempList);
                 
                 if (cnt == list.Count) {
                     
@@ -1482,7 +1514,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void SetSharedData<TComponent>(in TComponent data, ComponentLifetime lifetime) where TComponent : unmanaged, IStructComponent {
+        public void SetSharedData<TComponent>(in TComponent data, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
 
             this.SetData(in this.sharedEntity, data, lifetime);
 
@@ -1870,7 +1902,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void SetTimer(in Entity entity, int index, float time) {
+        public void SetTimer(in Entity entity, int index, tfloat time) {
 
             this.currentState.timers.Set(in entity, index, time);
 
@@ -1879,7 +1911,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref float GetTimer(in Entity entity, int index) {
+        public ref tfloat GetTimer(in Entity entity, int index) {
 
             return ref this.currentState.timers.Get(in entity, index);
 
@@ -1888,7 +1920,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public float ReadTimer(in Entity entity, int index) {
+        public tfloat ReadTimer(in Entity entity, int index) {
 
             return this.currentState.timers.Read(in entity, index);
 
@@ -2069,7 +2101,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void SetData<TComponent>(in Entity entity, ComponentLifetime lifetime) where TComponent : unmanaged, IStructComponent {
+        public void SetData<TComponent>(in Entity entity, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
 
             TComponent data = default;
             this.SetData(in entity, in data, lifetime);
@@ -2079,7 +2111,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void SetData<TComponent>(in Entity entity, in TComponent data, ComponentLifetime lifetime) where TComponent : unmanaged, IStructComponent {
+        public void SetData<TComponent>(in Entity entity, in TComponent data, ComponentLifetime lifetime) where TComponent : struct, IStructComponent {
 
             this.SetData(in entity, in data, lifetime, 0f);
 
@@ -2088,7 +2120,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void SetData<TComponent>(in Entity entity, in TComponent data, ComponentLifetime lifetime, float secondsLifetime) where TComponent : unmanaged, IStructComponent {
+        public void SetData<TComponent>(in Entity entity, in TComponent data, ComponentLifetime lifetime, tfloat secondsLifetime) where TComponent : struct, IStructComponent {
 
             this.SetData(ref this.currentState.structComponents, in entity, in data, lifetime, secondsLifetime);
 
@@ -2097,7 +2129,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal void SetData<TComponent>(ref StructComponentsContainer container, in Entity entity, in TComponent data, ComponentLifetime lifetime, float secondsLifetime, bool addTaskOnly = false) where TComponent : unmanaged, IStructComponent {
+        internal void SetData<TComponent>(ref StructComponentsContainer container, in Entity entity, in TComponent data, ComponentLifetime lifetime, tfloat secondsLifetime, bool addTaskOnly = false) where TComponent : struct, IStructComponent {
             
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {

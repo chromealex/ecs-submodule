@@ -566,23 +566,23 @@ namespace ME.ECS.Serializer {
     public struct FPSerializer : ITypeSerializer {
 
         [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.FPFloat; }
-        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(fp); }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(sfloat); }
 
-        [INLINE(256)] public static void PackDirect(Packer packer, fp obj) {
+        [INLINE(256)] public static void PackDirect(Packer packer, sfloat obj) {
 
-            Int64Serializer.PackDirect(packer, obj.RawValue);
+            UInt32Serializer.PackDirect(packer, obj.RawValue);
             
         }
         
-        [INLINE(256)] public static fp UnpackDirect(Packer packer) {
+        [INLINE(256)] public static sfloat UnpackDirect(Packer packer) {
 
-            return new fp(Int64Serializer.UnpackDirect(packer));
+            return sfloat.FromRaw(UInt32Serializer.UnpackDirect(packer));
 
         }
 
         [INLINE(256)] public void Pack(Packer packer, object obj) {
 
-            FPSerializer.PackDirect(packer, (fp)obj);
+            FPSerializer.PackDirect(packer, (sfloat)obj);
             
         }
 

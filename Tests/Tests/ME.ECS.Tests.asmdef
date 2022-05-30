@@ -8,7 +8,8 @@
         "ME.Pools",
         "Unity.Burst",
         "ME.ECS.Tests.Res",
-        "ME.ECS.FPMath"
+        "ME.ECS.FPMath",
+        "Unity.Mathematics"
     ],
     "includePlatforms": [
         "Editor"

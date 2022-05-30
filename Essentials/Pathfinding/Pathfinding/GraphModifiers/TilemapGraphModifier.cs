@@ -31,12 +31,12 @@ namespace ME.ECS.Pathfinding {
             {
                 var gridGraph = (GridGraph)graph;
                 var result = PoolListCopyable<Node>.Spawn(1);
-                graph.GetNodesInBounds(result, new Bounds(graph.graphCenter, (Vector3)gridGraph.size * gridGraph.nodeSize), Constraint.Empty);
+                graph.GetNodesInBounds(result, new Bounds((Vector3)graph.graphCenter, (Vector3)gridGraph.size * gridGraph.nodeSize), Constraint.Empty);
                 {
                     foreach (var node in result) {
 
                         var worldPos = node.worldPosition;
-                        var cellPos = this.tilemap.layoutGrid.WorldToCell(worldPos);
+                        var cellPos = this.tilemap.layoutGrid.WorldToCell((Vector3)worldPos);
                         var tile = this.tilemap.GetTile(cellPos);
                         for (int i = 0; i < this.items.Length; ++i) {
 
@@ -78,12 +78,12 @@ namespace ME.ECS.Pathfinding {
             {
                 var gridGraph = (GridGraph)graph;
                 var result = PoolListCopyable<Node>.Spawn(1);
-                graph.GetNodesInBounds(result, new Bounds(graph.graphCenter, (Vector3)gridGraph.size * gridGraph.nodeSize), Constraint.Empty);
+                graph.GetNodesInBounds(result, new Bounds((Vector3)graph.graphCenter, (Vector3)gridGraph.size * gridGraph.nodeSize), Constraint.Empty);
                 {
                     foreach (var node in result) {
 
                         var worldPos = node.worldPosition;
-                        var cellPos = this.tilemap.layoutGrid.WorldToCell(worldPos);
+                        var cellPos = this.tilemap.layoutGrid.WorldToCell((Vector3)worldPos);
                         var tile = this.tilemap.GetTile(cellPos);
                         for (int i = 0; i < this.items.Length; ++i) {
 

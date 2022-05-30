@@ -23,7 +23,7 @@ namespace ME.ECS.Pathfinding {
 
                 if (this.modifyWalkability == true) {
                     
-                    var ray = new Ray(node.worldPosition + Vector3.up * 10f, Vector3.down);
+                    var ray = new Ray((Vector3)node.worldPosition + Vector3.up * 10f, Vector3.down);
                     if (Physics.Raycast(ray, out var hit, 1000f, this.layerMask) == true) {
 
                         node.walkable = this.walkable;
@@ -46,7 +46,7 @@ namespace ME.ECS.Pathfinding {
             graph.GetNodesInBounds(nodes, bounds, Constraint.Empty);
             foreach (var node in nodes) {
         
-                var ray = new Ray(node.worldPosition + Vector3.up * 10f, Vector3.down);
+                var ray = new Ray((Vector3)node.worldPosition + Vector3.up * 10f, Vector3.down);
                 if (Physics.Raycast(ray, out var hit, 1000f, this.layerMask) == true) {
 
                     var dt = this.penaltyDelta;

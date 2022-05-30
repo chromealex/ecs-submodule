@@ -1,34 +1,28 @@
 ﻿#if FIXED_POINT_MATH
-using FLOAT = ME.ECS.fp;
-using FLOAT2 = ME.ECS.fp2;
-using FLOAT3 = ME.ECS.fp3;
-using FLOAT4 = ME.ECS.fp4;
-using QUATERNION = ME.ECS.fpquaternion;
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
 #else
-using FLOAT = System.Single;
-using FLOAT2 = UnityEngine.Vector2;
-using FLOAT3 = UnityEngine.Vector3;
-using FLOAT4 = UnityEngine.Vector4;
-using QUATERNION = UnityEngine.Quaternion;
+using Unity.Mathematics;
+using tfloat = System.Single;
 #endif
 
 namespace ME.ECS.Transform {
 
     public struct Position : IComponent, IVersioned {
 
-        public FLOAT3 value;
+        public float3 value;
 
     }
     
     public struct Rotation : IComponent, IVersioned {
 
-        public QUATERNION value;
+        public quaternion value;
 
     }
     
     public struct Scale : IComponent, IVersioned {
 
-        public FLOAT3 value;
+        public float3 value;
 
     }
 

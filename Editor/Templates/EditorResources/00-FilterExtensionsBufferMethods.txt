@@ -3,3 +3,4 @@ public void Set(int index, in T#INDEX# component) { ref var data = ref this.arr.
 public ref T#INDEX# GetT#INDEX#(int index) { ref var data = ref this.arr.GetRef(index); data.opsT#INDEX# = 0x2; return ref data.t#INDEX#; }
 public ref readonly T#INDEX# ReadT#INDEX#(int index) { return ref this.arr.GetRefRead(index).t#INDEX#; }
 public bool HasT#INDEX#(int index) { return this.arr.GetRefRead(index).containsT#INDEX# > 0; }
+public long GetVersionT#INDEX#(int index) { return this.arr.GetRefRead(index).versionT#INDEX#; }

@@ -1,15 +1,11 @@
 ﻿using ME.ECS;
 
 #if FIXED_POINT_MATH
-using FLOAT2 = ME.ECS.fp2;
-using FLOAT3 = ME.ECS.fp3;
-using FLOAT4 = ME.ECS.fp4;
-using QUATERNION = ME.ECS.fpquaternion;
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
 #else
-using FLOAT2 = UnityEngine.Vector2;
-using FLOAT3 = UnityEngine.Vector3;
-using FLOAT4 = UnityEngine.Vector4;
-using QUATERNION = UnityEngine.Quaternion;
+using Unity.Mathematics;
+using tfloat = System.Single;
 #endif
 
 namespace ME.ECS.Essentials {
@@ -22,13 +18,13 @@ namespace ME.ECS.Essentials {
     namespace Input.Markers {}
 
     public delegate InputPointerData MarkerModifier(InputPointerData data);
-    public delegate bool GetWorldPointerCallback(int pointerId, UnityEngine.Camera camera, out FLOAT3 result);
+    public delegate bool GetWorldPointerCallback(int pointerId, UnityEngine.Camera camera, out float3 result);
     
     public interface IEventMarker : IMarker {}
 
     public interface IGestureMarker : IMarker {
 
-        FLOAT3 worldPosition { get; }
+        float3 worldPosition { get; }
 
     }
 
@@ -53,11 +49,11 @@ namespace ME.ECS.Essentials {
     public struct InputPointerData {
 
         public int pointerId;
-        public FLOAT3 worldPosition;
-        public FLOAT3 pressWorldPosition;
+        public float3 worldPosition;
+        public float3 pressWorldPosition;
         public InputEventType eventType;
 
-        public InputPointerData(int pointerId, FLOAT3 worldPosition, InputEventType eventType) {
+        public InputPointerData(int pointerId, float3 worldPosition, InputEventType eventType) {
 
             this.pointerId = pointerId;
             this.worldPosition = worldPosition;
@@ -68,7 +64,7 @@ namespace ME.ECS.Essentials {
 
     }
 
-    public struct InputAction<TMarker, TComponent> where TMarker : struct, ME.ECS.Essentials.Input.Input.Markers.IInputPointerMarker where TComponent : unmanaged, IInputPointerComponent {
+    public struct InputAction<TMarker, TComponent> where TMarker : struct, ME.ECS.Essentials.Input.Input.Markers.IInputPointerMarker where TComponent : struct, IInputPointerComponent {
 
         private readonly ME.ECS.Network.INetworkModuleBase networkModule;
         private readonly RPCId rpcId;
@@ -135,7 +131,7 @@ namespace ME.ECS.Essentials {
 
     }
     
-    public struct InputGesture<TMarker, TComponent> where TMarker : struct, ME.ECS.Essentials.Input.Input.Markers.IInputGesture2FingersMarker where TComponent : unmanaged, IInputGesture2FingersComponent {
+    public struct InputGesture<TMarker, TComponent> where TMarker : struct, ME.ECS.Essentials.Input.Input.Markers.IInputGesture2FingersMarker where TComponent : struct, IInputGesture2FingersComponent {
 
         private readonly ME.ECS.Network.INetworkModuleBase networkModule;
         private readonly RPCId rpcId;
@@ -312,7 +308,7 @@ namespace ME.ECS.Essentials {
 
         }
 
-        public bool IsAllowed(in Entity player, InputEventType inputEventType, in FLOAT3 worldPosition) {
+        public bool IsAllowed(in Entity player, InputEventType inputEventType, in float3 worldPosition) {
 
             if (this.inputMaskFilter.Count == 0) return true;
 
@@ -343,7 +339,7 @@ namespace ME.ECS.Essentials {
                         isAllowed = true;
                         if (mask.checkRect == true) {
 
-                            var inMask = mask.rect.Contains(posRect);
+                            var inMask = mask.rect.Contains((UnityEngine.Vector2)posRect);
                             if ((mask.insideRect == true && inMask == false) ||
                                 (mask.insideRect == false && inMask == true)) {
 
@@ -358,7 +354,7 @@ namespace ME.ECS.Essentials {
                         isAllowed = false;
                         if (mask.checkRect == true) {
 
-                            var inMask = mask.rect.Contains(posRect);
+                            var inMask = mask.rect.Contains((UnityEngine.Vector2)posRect);
                             if ((mask.insideRect == true && inMask == false) ||
                                 (mask.insideRect == false && inMask == true)) {
 
@@ -490,7 +486,7 @@ namespace ME.ECS.Essentials {
 
         }
         
-        public bool GetWorldPointer(int pointerId, out FLOAT3 result) {
+        public bool GetWorldPointer(int pointerId, out float3 result) {
 
             result = default;
             if (this.camera == null) return false;
@@ -505,7 +501,7 @@ namespace ME.ECS.Essentials {
             var ray = this.camera.ScreenPointToRay(pos);
             if (UnityEngine.Physics.Raycast(ray, out var hit, this.raycastDistance, this.raycastMask) == true) {
 
-                result = hit.point;
+                result = (float3)hit.point;
                 return true;
 
             }
@@ -514,7 +510,7 @@ namespace ME.ECS.Essentials {
 
         }
         
-        public bool GetWorldPointer(out FLOAT3 result) {
+        public bool GetWorldPointer(out float3 result) {
 
             return this.GetWorldPointer(0, out result);
             

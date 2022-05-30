@@ -1,4 +1,9 @@
-﻿
+﻿#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+#else
+using Unity.Mathematics;
+#endif
+
 namespace ME.ECS.Tests {
 
     using Serializer;
@@ -314,7 +319,7 @@ namespace ME.ECS.Tests {
                 }
             
                 var ent = new Entity("Test Entity");
-                ent.SetPosition(UnityEngine.Vector3.zero);
+                ent.SetPosition(float3.zero);
                 ent.Set(new TestStructComponent());
             
                 world.SaveResetState<TestState>();
@@ -396,7 +401,7 @@ namespace ME.ECS.Tests {
                 ++data.f;
                 
                 var pos = entity.GetPosition();
-                pos += UnityEngine.Vector3.one;
+                pos += (float3)UnityEngine.Vector3.one;
                 entity.SetPosition(pos);
                 
                 if (entity.Has<ME.ECS.Views.ViewComponent>() == false) entity.InstantiateView(this.viewId);

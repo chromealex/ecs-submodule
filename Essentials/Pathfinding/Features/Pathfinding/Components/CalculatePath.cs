@@ -1,4 +1,5 @@
-﻿
+﻿using ME.ECS.Mathematics;
+
 namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
 
     public enum PathType {
@@ -16,8 +17,8 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
     
     public struct CalculatePath : IComponent {
 
-        public UnityEngine.Vector3 from;
-        public UnityEngine.Vector3 to;
+        public float3 from;
+        public float3 to;
         public bool alignToGraphNodes;
         public ME.ECS.Pathfinding.Constraint constraint;
         public PathType pathType;

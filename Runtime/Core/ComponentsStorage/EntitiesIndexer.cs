@@ -41,16 +41,19 @@ namespace ME.ECS {
             }
 
         }
-        
+
         [ME.ECS.Serializer.SerializeField]
         private HashSetCopyable<KeyValuePair> data;
         [ME.ECS.Serializer.SerializeField]
         private HashSetCopyable<long> index;
+        [ME.ECS.Serializer.SerializeField]
+        private BufferArray<int> counters;
 
         public void Initialize(int capacity) {
-
+            
             if (this.data == null) this.data = PoolHashSetCopyable<KeyValuePair>.Spawn(capacity);
             if (this.index == null) this.index = PoolHashSetCopyable<long>.Spawn(capacity);
+            if (this.counters.isCreated == false) this.counters = PoolArray<int>.Spawn(capacity);
 
         }
 
@@ -58,13 +61,20 @@ namespace ME.ECS {
 
             if (this.data != null) this.data.SetCapacity(capacity);
             if (this.index != null) this.index.SetCapacity(capacity);
-            
+            if (this.counters.isCreated == true) ArrayUtils.Resize(capacity, ref this.counters);
+
         }
 
         public bool Has(int entityId, int componentId) {
 
-            var key = MathUtils.GetKey(entityId, componentId);
-            return this.index.Contains(key);
+            if (this.counters.arr[entityId] > 0) {
+
+                var key = MathUtils.GetKey(entityId, componentId);
+                return this.index.Contains(key);
+
+            }
+
+            return false;
 
         }
 
@@ -78,7 +88,8 @@ namespace ME.ECS {
 
             var key = MathUtils.GetKey(entityId, componentId);
             if (this.index.Add(key) == true) {
-                
+
+                ++this.counters.arr[entityId];
                 this.data.Add(new KeyValuePair(entityId, componentId));
                 
             }
@@ -90,6 +101,7 @@ namespace ME.ECS {
             var key = MathUtils.GetKey(entityId, componentId);
             if (this.index.Remove(key) == true) {
 
+                --this.counters.arr[entityId];
                 this.data.Remove(new KeyValuePair(entityId, componentId));
                 
             }
@@ -98,24 +110,39 @@ namespace ME.ECS {
 
         public void Remove(int entityId) {
 
-            this.data.RemoveWhere(new RemoveAllData() {
-                indexer = this,
-                entityId = entityId,
-            }, (data, kv) => {
-                
-                var key = MathUtils.GetKey(data.entityId, kv.componentId);
-                data.indexer.index.Remove(key);
+            if (this.counters.arr[entityId] > 0) {
 
-                return kv.entityId == data.entityId;
+                this.data.RemoveWhere(new RemoveAllData() {
+                    indexer = this,
+                    entityId = entityId,
+                }, (data, kv) => {
 
-            });
-            
+                    ref var desiredCount = ref data.indexer.counters.arr[data.entityId];
+                    if (desiredCount == 0) return false;
+
+                    if (kv.entityId == data.entityId) {
+
+                        var key = MathUtils.GetKey(data.entityId, kv.componentId);
+                        if (data.indexer.index.Remove(key) == true) {
+                            --desiredCount;
+                            return true;
+                        }
+
+                    }
+
+                    return false;
+
+                });
+
+            }
+
         }
 
         public void CopyFrom(in EntitiesIndexer other) {
             
             ArrayUtils.Copy(other.data, ref this.data);
             ArrayUtils.Copy(other.index, ref this.index);
+            ArrayUtils.Copy(other.counters, ref this.counters);
             
         }
 
@@ -123,6 +150,7 @@ namespace ME.ECS {
             
             PoolHashSetCopyable<KeyValuePair>.Recycle(ref this.data);
             PoolHashSetCopyable<long>.Recycle(ref this.index);
+            PoolArray<int>.Recycle(ref this.counters);
             
         }
 

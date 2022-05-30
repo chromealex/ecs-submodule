@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
+#else
+using Unity.Mathematics;
+using tfloat = System.Single;
+#endif
+using System.Collections;
 using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
 namespace ME.ECS.Serializer {
@@ -214,7 +221,11 @@ namespace ME.ECS.Serializer {
             UInt16Serializer.PackDirect(packer, task.entity.generation);
             ByteSerializer.PackDirect(packer, (byte)task.lifetime);
             ByteSerializer.PackDirect(packer, (byte)task.storageType);
+            #if FIXED_POINT_MATH
+            FPSerializer.PackDirect(packer, task.secondsLifetime);
+            #else
             FloatSerializer.PackDirect(packer, task.secondsLifetime);
+            #endif
             UnsafeDataSerializer.PackDirect(packer, task.data);
             
         }
@@ -227,7 +238,11 @@ namespace ME.ECS.Serializer {
             task.entity = new Entity(entityId, generation);
             task.lifetime = (ComponentLifetime)ByteSerializer.UnpackDirect(packer);
             task.storageType = (StorageType)ByteSerializer.UnpackDirect(packer);
+            #if FIXED_POINT_MATH
+            task.secondsLifetime = FPSerializer.UnpackDirect(packer);
+            #else
             task.secondsLifetime = FloatSerializer.UnpackDirect(packer);
+            #endif
             task.data = UnsafeDataSerializer.UnpackDirect(packer);
             return task;
             

@@ -5,6 +5,7 @@
         "ME.ECS",
         "ME.ECS.IL2CPP",
         "ME.ECS.FPMath",
+        "Unity.Mathematics",
         "ME.Pools",
         "Unity.Collections"
     ],

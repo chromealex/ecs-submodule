@@ -2,19 +2,11 @@
 using System.Collections.Generic;
 
 #if FIXED_POINT_MATH
-using MATH = ME.ECS.fpmath;
-using FLOAT = ME.ECS.fp;
-using FLOAT2 = ME.ECS.fp2;
-using FLOAT3 = ME.ECS.fp3;
-using FLOAT4 = ME.ECS.fp4;
-using QUATERNION = ME.ECS.fpquaternion;
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
 #else
-using MATH = Unity.Mathematics.math;
-using FLOAT = System.Single;
-using FLOAT2 = UnityEngine.Vector2;
-using FLOAT3 = UnityEngine.Vector3;
-using FLOAT4 = UnityEngine.Vector4;
-using QUATERNION = UnityEngine.Quaternion;
+using Unity.Mathematics;
+using tfloat = System.Single;
 #endif
 
 namespace ME.ECS {
@@ -886,8 +878,8 @@ namespace ME.ECS.StatesHistory {
 
         public Tick GetTickByTime(double seconds) {
 
-            var tick = (seconds / this.world.GetTickTime());
-            return MATH.floor(tick);
+            var tick = (seconds / (float)this.world.GetTickTime());
+            return (Tick)math.floor((float)tick);
 
         }
 

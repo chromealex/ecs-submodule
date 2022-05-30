@@ -1,5 +1,6 @@
 ﻿using Unity.Jobs;
 using UnityEngine;
+using ME.ECS.Mathematics;
 
 namespace ME.ECS.Pathfinding {
     
@@ -7,7 +8,7 @@ namespace ME.ECS.Pathfinding {
 
     public struct PathfindingAstarProcessor : IPathfindingProcessor {
         
-        public Path Run<TMod>(LogLevel pathfindingLogLevel, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool burstEnabled = true, bool cacheEnabled = false) where TMod : struct, IPathModifier {
+        public Path Run<TMod>(LogLevel pathfindingLogLevel, float3 from, float3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool burstEnabled = true, bool cacheEnabled = false) where TMod : struct, IPathModifier {
 
             if (threadIndex < 0) threadIndex = 0;
             threadIndex = threadIndex % Pathfinding.THREADS_COUNT;
@@ -85,7 +86,7 @@ namespace ME.ECS.Pathfinding {
 
             public bool isClosed;
             public bool isOpened;
-            public fp startToCurNodeLen;
+            public sfloat startToCurNodeLen;
             public int parent;
 
         }
@@ -94,7 +95,7 @@ namespace ME.ECS.Pathfinding {
         private struct Job : Unity.Jobs.IJob {
 
             public Vector3Int graphSize;
-            public fp3 graphCenter;
+            public float3 graphCenter;
             public BurstConstraint burstConstraint;
             public Unity.Collections.NativeList<GridNodeData> resultPath;
             public Unity.Collections.NativeArray<GridNodeData> arr;
@@ -208,7 +209,7 @@ namespace ME.ECS.Pathfinding {
             var startNodeIndex = startNode.index;
 
             var job = new Job() {
-                graphCenter = graphCenter,
+                graphCenter = (float3)graphCenter,
                 graphSize = graphSize,
                 burstConstraint = burstConstraint,
                 resultPath = resultPath,
