@@ -64,7 +64,7 @@ namespace ME.ECS.Essentials {
 
     }
 
-    public struct InputAction<TMarker, TComponent> where TMarker : struct, ME.ECS.Essentials.Input.Input.Markers.IInputPointerMarker where TComponent : struct, IInputPointerComponent {
+    public struct InputAction<TMarker, TComponent> where TMarker : struct, ME.ECS.Essentials.Input.Input.Markers.IInputPointerMarker where TComponent : unmanaged, IInputPointerComponent {
 
         private readonly ME.ECS.Network.INetworkModuleBase networkModule;
         private readonly RPCId rpcId;
@@ -131,7 +131,7 @@ namespace ME.ECS.Essentials {
 
     }
     
-    public struct InputGesture<TMarker, TComponent> where TMarker : struct, ME.ECS.Essentials.Input.Input.Markers.IInputGesture2FingersMarker where TComponent : struct, IInputGesture2FingersComponent {
+    public struct InputGesture<TMarker, TComponent> where TMarker : struct, ME.ECS.Essentials.Input.Input.Markers.IInputGesture2FingersMarker where TComponent : unmanaged, IInputGesture2FingersComponent {
 
         private readonly ME.ECS.Network.INetworkModuleBase networkModule;
         private readonly RPCId rpcId;
