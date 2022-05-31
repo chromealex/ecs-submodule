@@ -299,8 +299,9 @@ namespace ME.ECS.Tests {
                     //components
                     {
                         ref var sc = ref world.GetStructComponents();
+                        ref var sc2 = ref world.GetNoStateStructComponents();
                         ComponentsInitializerWorld.Setup(e => e.ValidateData<TestStructComponent>());
-                        CoreComponentsInitializer.Init(ref sc);
+                        CoreComponentsInitializer.Init(ref sc, ref sc2);
                         sc.Validate<TestStructComponent>();
                     }
                     //settings

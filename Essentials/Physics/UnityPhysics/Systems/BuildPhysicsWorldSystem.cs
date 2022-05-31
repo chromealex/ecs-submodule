@@ -33,13 +33,14 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
         private UnityPhysicsFeature feature;
 
         private UnityS.Physics.SimulationContext simulationContext;
-        private UnityS.Physics.PhysicsWorld physicsWorld = new UnityS.Physics.PhysicsWorld(0, 0, 0);
         private Filter staticBodies;
         private Filter dynamicBodies;
 
         // Scheduler has static data which will never changed
         // So it could be stored inside this system
         private UnityS.Physics.DispatchPairSequencer scheduler = new UnityS.Physics.DispatchPairSequencer();
+        
+        private ref UnityS.Physics.PhysicsWorld physicsWorld => ref this.feature.physicsWorldInternal;
         
         public World world { get; set; }
         
@@ -92,7 +93,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                     Entity = entity,
                     CustomTags = (byte)0,
                 };
-                
+
             }
 
         }
@@ -178,7 +179,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
         }
         
         [BurstCompile]
-        internal struct CheckStaticBodyChangesJob : IJobParallelFor {
+        private struct CheckStaticBodyChangesJob : IJobParallelFor {
 
             public Bag bag;
             public Tick currentTick;
@@ -235,7 +236,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                         bag = bagStatic,
                         currentTick = this.world.GetCurrentTick(),
                         prevTick = this.world.GetCurrentTick() - 1,
-                    }.Schedule(bagStatic.Length, 1);
+                    }.Schedule(bagStatic.Length, MathUtils.GetScheduleBatchCount(bagStatic.Length));
                 }
                 internalData.prevStaticCount = bagStatic.Length;
             }
@@ -248,22 +249,22 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
             var fillBodiesDynamicJob = new FillBodiesJob() {
                 bag = bag,
                 bodies = dynamicBodies,
-            }.Schedule(bag.Length, 64);
+            }.Schedule(bag.Length, MathUtils.GetScheduleBatchCount(bag.Length));
             var fillBodiesStaticJob = new FillBodiesJob() {
                 bag = bagStatic,
                 bodies = staticBodies,
-            }.Schedule(bagStatic.Length, 64);
+            }.Schedule(bagStatic.Length, MathUtils.GetScheduleBatchCount(bagStatic.Length));
             var fillMotionJob = new FillMotionJob() {
                 bag = bag,
                 bagMotion = bagMotion,
                 defaultPhysicsMass = PhysicsMass.CreateDynamic(UnityS.Physics.MassProperties.UnitSphere, 1f),
                 motionDatas = motionDatas,
                 motionVelocities = motionVelocities,
-            }.Schedule(bag.Length, 64);
+            }.Schedule(bag.Length, MathUtils.GetScheduleBatchCount(bag.Length));
             
             var deps = JobHandle.CombineDependencies(fillBodiesDynamicJob, fillBodiesStaticJob, fillMotionJob);
             deps = JobHandle.CombineDependencies(deps, staticBodiesCheckHandle);
-            var broadphaseJob = this.physicsWorld.CollisionWorld.ScheduleBuildBroadphaseJobs(ref this.physicsWorld, simulationParameters.TimeStep, simulationParameters.Gravity, buildStaticTree, deps, true);
+            var broadphaseJob = this.physicsWorld.CollisionWorld.ScheduleBuildBroadphaseJobs(in this.physicsWorld, simulationParameters.TimeStep, simulationParameters.Gravity, buildStaticTree, deps, true);
             
             var jobs = UnityS.Physics.Simulation.ScheduleStepJobs(ref simulationParameters, ref this.simulationContext, this.scheduler, broadphaseJob, true/*ref this.simulationContext*/);
             jobs.FinalExecutionHandle.Complete();
@@ -277,12 +278,12 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
 
                 foreach (var evt in this.simulationContext.CollisionEvents) {
 
-                    var entityAEvt = new Entity("CollisionEvent", true);
+                    var entityAEvt = new Entity(EntityFlag.OneShot);
                     entityAEvt.SetOneShot(new PhysicsEventOnCollision() {
                         data = evt,
                     });
 
-                    var entityBEvt = new Entity("CollisionEvent", true);
+                    var entityBEvt = new Entity(EntityFlag.OneShot);
                     entityBEvt.SetOneShot(new PhysicsEventOnCollision() {
                         data = evt,
                     });
@@ -295,12 +296,12 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
 
                 foreach (var evt in this.simulationContext.TriggerEvents) {
 
-                    var entityAEvt = new Entity("TriggerEvent", true);
+                    var entityAEvt = new Entity(EntityFlag.OneShot);
                     entityAEvt.SetOneShot(new PhysicsEventOnTrigger() {
                         data = evt,
                     });
 
-                    var entityBEvt = new Entity("TriggerEvent", true);
+                    var entityBEvt = new Entity(EntityFlag.OneShot);
                     entityBEvt.SetOneShot(new PhysicsEventOnTrigger() {
                         data = evt,
                     });
@@ -315,7 +316,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                     bag = bag,
                     bodies = dynamicBodies,
                     motionVelocities = motionVelocities,
-                }.Schedule(bag.Length, 64).Complete();
+                }.Schedule(bag.Length, MathUtils.GetScheduleBatchCount(bag.Length)).Complete();
             }
 
             bag.Push();

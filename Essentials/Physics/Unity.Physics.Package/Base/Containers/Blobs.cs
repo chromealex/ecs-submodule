@@ -10,7 +10,7 @@ using ME.ECS.Mathematics;
 
 namespace Unity.Entities {
 
-    internal struct RetainBlobAssets : IComponent {
+    /*internal struct RetainBlobAssets : IComponent {
 
         // DummyBlobAssetReference will always be null, but will make sure the serializer adds the BlobOwner shared componet 
         public BlobAssetReference<byte> DummyBlobAssetReference;
@@ -28,9 +28,9 @@ namespace Unity.Entities {
 
         public BlobAssetHeader* BlobAsset;
 
-    }
+    }*/
 
-    [StructLayout(LayoutKind.Explicit, Size = 8)]
+    /*[StructLayout(LayoutKind.Explicit, Size = 8)]
     internal unsafe struct BlobAssetOwner : IComponent {
 
         [FieldOffset(0)]
@@ -48,7 +48,7 @@ namespace Unity.Entities {
             if (BlobAssetBatchPtr != null) BlobAssetBatch.Retain(BlobAssetBatchPtr);
         }
 
-    }
+    }*/
 
     [StructLayout(LayoutKind.Explicit, Size = 16)]
     internal unsafe struct BlobAssetBatch {

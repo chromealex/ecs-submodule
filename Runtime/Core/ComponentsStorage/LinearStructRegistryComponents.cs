@@ -804,7 +804,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void RemoveAll(in Entity entity) {
+        public unsafe void RemoveAll(in Entity entity) {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -814,7 +814,7 @@ namespace ME.ECS {
             }
             #endif
 
-            if (this.nextTickTasks != null) {
+            /*if (this.nextTickTasks != null) {
 
                 var nullCnt = 0;
                 foreach (ref var task in this.nextTickTasks) {
@@ -842,16 +842,25 @@ namespace ME.ECS {
                     
                 }
 
-            }
+            }*/
 
-            var list = this.entitiesIndexer.Get();
+            /*
+            for (int i = 0; i < this.list.Length; ++i) {
+
+                var item = this.list.arr[i];
+                if (item != null) {
+
+                    item.Remove(in entity, clearAll: true);
+
+                }
+
+            }*/
+            
+            var list = this.entitiesIndexer.Get(entity.id);
             if (list != null) {
-                
-                foreach (var kv in list) {
 
-                    if (kv.entityId != entity.id) continue;
+                foreach (var index in list) {
 
-                    var index = kv.componentId;
                     var item = this.list.arr[index];
                     if (item != null) {
 
@@ -861,7 +870,7 @@ namespace ME.ECS {
 
                 }
 
-                this.entitiesIndexer.Remove(entity.id);
+                list.Clear();
 
             }
 
@@ -1244,6 +1253,8 @@ namespace ME.ECS {
     #endif
     public partial class World {
 
+        private Filter entitiesOneShotFilter;
+        
         public ref StructComponentsContainer GetStructComponents() {
 
             return ref this.currentState.structComponents;
@@ -1366,18 +1377,36 @@ namespace ME.ECS {
             this.UseLifetimeStep(step, deltaTime, ref this.structComponentsNoState);
             
         }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        private void UseEntityFlags() {
+
+            if (this.entitiesOneShotFilter.IsAlive() == false) {
+                Filter.Create().With<IsEntityOneShot>().Push(ref this.entitiesOneShotFilter);
+            }
+
+            foreach (var entity in this.entitiesOneShotFilter) {
+
+                entity.Destroy();
+
+            }
+            
+        }
         
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void UseLifetimeStep(ComponentLifetime step, tfloat deltaTime, ref StructComponentsContainer structComponentsContainer) {
+        private unsafe void UseLifetimeStep(ComponentLifetime step, tfloat deltaTime, ref StructComponentsContainer structComponentsContainer) {
 
             var list = structComponentsContainer.nextTickTasks;
             if (list.Count > 0) {
 
                 // We need to allocate temporary list to store entities
                 // because on entity.Destroy we clean up all data including tasks list
-                var tempList = PoolList<Entity>.Spawn(10);
+                var tempList = stackalloc Entity[list.Count];
+                var k = 0;
                 var cnt = 0;
                 foreach (ref var task in list) {
                     
@@ -1389,7 +1418,7 @@ namespace ME.ECS {
                         if (task.Update(deltaTime) == true) {
                             
                             // Remove task on complete
-                            if (task.destroyEntity == true) tempList.Add(task.entity);
+                            if (task.destroyEntity == true) tempList[k++] = task.entity;
                             task.Recycle();
                             task = default;
                             ++cnt;
@@ -1404,13 +1433,9 @@ namespace ME.ECS {
                     
                 }
 
-                foreach (var entity in tempList) {
-                    
-                    entity.Destroy();
-                    
+                for (int i = 0; i < k; ++i) {
+                    tempList[i].Destroy();
                 }
-                
-                PoolList<Entity>.Recycle(ref tempList);
                 
                 if (cnt == list.Count) {
                     
@@ -2060,7 +2085,8 @@ namespace ME.ECS {
         #endif
         public void SetData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
 
-            this.SetData(in entity, new TComponent());
+            TComponent data = default;
+            this.SetData(in entity, data);
             
         }
 

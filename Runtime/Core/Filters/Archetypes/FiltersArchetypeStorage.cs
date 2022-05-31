@@ -352,7 +352,7 @@ namespace ME.ECS.FiltersArchetype {
             
             if (this.dead == null) return 0;
             
-            return this.versions.GetHashCode() ^ this.aliveCount ^ this.nextEntityId ^ this.dead.Count ^ this.allArchetypes.Count;
+            return this.versions.GetHashCode() ^ this.flags.GetHashCode() ^ this.aliveCount ^ this.nextEntityId ^ this.dead.Count ^ this.allArchetypes.Count;
 
         }
 
@@ -482,7 +482,9 @@ namespace ME.ECS.FiltersArchetype {
         [ME.ECS.Serializer.SerializeField]
         internal ListCopyable<FilterData> filters;
         [ME.ECS.Serializer.SerializeField]
-        internal EntityVersions versions;
+        internal ME.ECS.EntityVersions versions;
+        [ME.ECS.Serializer.SerializeField]
+        internal ME.ECS.EntityFlags flags;
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<int> entitiesArrIndex;
         [ME.ECS.Serializer.SerializeField]
@@ -538,7 +540,8 @@ namespace ME.ECS.FiltersArchetype {
             this.dead = PoolListCopyable<int>.Spawn(capacity);
             this.alive = PoolListCopyable<int>.Spawn(capacity);
             this.deadPrepared = PoolListCopyable<int>.Spawn(capacity);
-            this.versions = new EntityVersions();
+            this.versions = new ME.ECS.EntityVersions(capacity);
+            this.flags = new ME.ECS.EntityFlags(capacity);
             this.aliveCount = 0;
             this.nextEntityId = -1;
             this.isCreated = true;
@@ -587,6 +590,7 @@ namespace ME.ECS.FiltersArchetype {
             this.aliveCount = other.aliveCount;
             this.nextEntityId = other.nextEntityId;
             this.versions.CopyFrom(other.versions);
+            this.flags.CopyFrom(other.flags);
             this.isArchetypesDirty = other.isArchetypesDirty;
 
             ArrayUtils.Copy(other.dirtyArchetypes, ref this.dirtyArchetypes);
@@ -615,6 +619,9 @@ namespace ME.ECS.FiltersArchetype {
 
             this.versions.Recycle();
             this.versions = default;
+            
+            this.flags.Recycle();
+            this.flags = default;
             
             this.root = default;
             PoolDictionaryULong<int>.Recycle(ref this.index);
@@ -681,6 +688,7 @@ namespace ME.ECS.FiltersArchetype {
             }
 
             this.versions.Reset(id);
+            this.flags.Reset(id);
 
             this.nextEntityId += count;
 
@@ -715,6 +723,7 @@ namespace ME.ECS.FiltersArchetype {
             }
 
             this.versions.Reset(id);
+            this.flags.Reset(id);
 
             this.OnAlloc(e.id);
             

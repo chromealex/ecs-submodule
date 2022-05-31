@@ -60,9 +60,10 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Update(tfloat deltaTime) {
+        public unsafe void Update(tfloat deltaTime) {
 
-            var temp = PoolList<long>.Spawn(10);
+            var tempList = stackalloc long[this.values.Count];
+            var k = 0;
             foreach (var value in this.values) {
 
                 var key = value.Key;
@@ -70,18 +71,15 @@ namespace ME.ECS {
                 val -= deltaTime;
                 if (val <= 0f) {
 
-                    temp.Add(key);
+                    tempList[k++] = key;
 
                 }
 
             }
 
-            foreach (var key in temp) {
-                
-                this.values.Remove(key);
-
+            for (int i = 0; i < k; ++i) {
+                this.values.Remove(tempList[i]);
             }
-            PoolList<long>.Recycle(ref temp);
             
         }
 

@@ -112,16 +112,10 @@ namespace UnityS.Physics
                 world.CollisionWorld.CollisionTolerance, timeStep, gravity, buildStaticTree);
         }
 
-        [Obsolete("ScheduleBuildBroadphaseJobs() has been deprecated. Please use the new method taking a bool as the last parameter. (RemovedAfter 2021-02-15)", true)]
-        public JobHandle ScheduleBuildBroadphaseJobs(ref PhysicsWorld world, sfloat timeStep, float3 gravity, NativeArray<int> buildStaticTree, JobHandle inputDeps, int threadCountHint = 0)
-        {
-            return ScheduleBuildBroadphaseJobs(ref world, timeStep, gravity, buildStaticTree, inputDeps, threadCountHint > 0);
-        }
-
         // Schedule a set of jobs to build the broadphase based on the given world.
-        public JobHandle ScheduleBuildBroadphaseJobs(ref PhysicsWorld world, sfloat timeStep, float3 gravity, NativeArray<int> buildStaticTree, JobHandle inputDeps, bool multiThreaded = true)
+        public readonly JobHandle ScheduleBuildBroadphaseJobs(in PhysicsWorld world, sfloat timeStep, float3 gravity, NativeArray<int> buildStaticTree, JobHandle inputDeps, bool multiThreaded = true)
         {
-            return Broadphase.ScheduleBuildJobs(ref world, timeStep, gravity, buildStaticTree, inputDeps, multiThreaded);
+            return Broadphase.ScheduleBuildJobs(in world, timeStep, gravity, buildStaticTree, inputDeps, multiThreaded);
         }
 
         // Write all overlapping body pairs to the given streams,
@@ -129,13 +123,6 @@ namespace UnityS.Physics
         public void FindOverlaps(ref NativeStream.Writer dynamicVsDynamicPairsWriter, ref NativeStream.Writer staticVsDynamicPairsWriter)
         {
             Broadphase.FindOverlaps(ref dynamicVsDynamicPairsWriter, ref staticVsDynamicPairsWriter);
-        }
-
-        [Obsolete("ScheduleFindOverlapsJobs() has been deprecated. Please use the new method taking a bool as the last parameter. (RemovedAfter 2021-02-15)", true)]
-        public SimulationJobHandles ScheduleFindOverlapsJobs(out NativeStream dynamicVsDynamicPairsStream, out NativeStream staticVsDynamicPairsStream,
-            JobHandle inputDeps, int threadCountHint = 0)
-        {
-            return ScheduleFindOverlapsJobs(out dynamicVsDynamicPairsStream, out staticVsDynamicPairsStream, inputDeps, threadCountHint > 0);
         }
 
         // Schedule a set of jobs which will write all overlapping body pairs to the given steam,
@@ -189,7 +176,7 @@ namespace UnityS.Physics
 
                 // Update broadphase
                 // Thread count is +1 for main thread
-                return Broadphase.ScheduleDynamicTreeBuildJobs(ref world, timeStep, gravity, Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobWorkerCount + 1, handle);
+                return Broadphase.ScheduleDynamicTreeBuildJobs(in world, timeStep, gravity, Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobWorkerCount + 1, handle);
             }
         }
 

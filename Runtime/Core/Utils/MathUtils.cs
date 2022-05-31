@@ -230,6 +230,26 @@ namespace ME.ECS {
     #endif
     public static class MathUtils {
 
+        public static int GetScheduleBatchCount(int count) {
+
+            const int batch = 64;
+
+            var batchCount = count / batch;
+            if (batchCount == 0) batchCount = 1;
+            if (count <= 10 && batchCount == 1) {
+
+                return batchCount;
+
+            } else if (batchCount == 1) {
+
+                batchCount = 2;
+
+            }
+            
+            return batchCount;
+
+        }
+
         public static float2 GetPointOnCircle(float2 point, float2 center, tfloat radius) {
             
             var vX = point.x - center.x;

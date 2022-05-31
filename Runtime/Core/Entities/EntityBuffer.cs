@@ -233,6 +233,11 @@ namespace ME.ECS {
                 if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
                 if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
 
+                if (world.currentState.structComponents.entitiesIndexer.GetCount(entity.id) == 0 &&
+                    (world.currentState.storage.flags.Get(entity.id) & (byte)EntityFlag.DestroyWithoutComponents) != 0) {
+                    entity.SetOneShot<IsEntityOneShot>();
+                }
+
                 result = true;
 
             }
@@ -243,12 +248,18 @@ namespace ME.ECS {
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static ref T PushGet_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg, StorageType storageType = StorageType.Default) where T : struct, IComponentBase {
-            
+
             ref var bucket = ref reg.components[entity.id];
             ref var state = ref bucket.state;
             if (state == 0) {
 
                 state = 1;
+                
+                if (world.currentState.structComponents.entitiesIndexer.GetCount(entity.id) == 0 &&
+                    (world.currentState.storage.flags.Get(entity.id) & (byte)EntityFlag.DestroyWithoutComponents) != 0) {
+                    entity.RemoveOneShot<IsEntityOneShot>();
+                }
+
                 if (storageType == StorageType.Default) {
                     world.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<T>.typeId);
                 } else if (storageType == StorageType.NoState) {
@@ -263,6 +274,24 @@ namespace ME.ECS {
 
                 }
 
+                if (AllComponentTypes<T>.isOneShot == true) {
+                    
+                    var task = new StructComponentsContainer.NextTickTask {
+                        lifetime = ComponentLifetime.NotifyAllSystemsBelow,
+                        storageType = StorageType.NoState,
+                        secondsLifetime = 0f,
+                        entity = entity,
+                        dataIndex = OneShotComponentTypes<T>.typeId,
+                    };
+
+                    if (world.structComponentsNoState.nextTickTasks.Add(task) == false) {
+
+                        task.Recycle();
+
+                    }
+
+                }
+                
             }
 
             if (ComponentTypes<T>.isFilterLambda == true && ComponentTypes<T>.typeId >= 0) {
@@ -290,6 +319,12 @@ namespace ME.ECS {
             if (state == 0) {
 
                 state = 1;
+                
+                if (world.currentState.structComponents.entitiesIndexer.GetCount(entity.id) == 0 &&
+                    (world.currentState.storage.flags.Get(entity.id) & (byte)EntityFlag.DestroyWithoutComponents) != 0) {
+                    entity.RemoveOneShot<IsEntityOneShot>();
+                }
+
                 if (storageType == StorageType.Default) {
                     world.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<T>.typeId);
                 } else if (storageType == StorageType.NoState) {
@@ -301,6 +336,24 @@ namespace ME.ECS {
                     world.currentState.storage.archetypes.Set<T>(in entity);
                     world.AddFilterByStructComponent<T>(in entity);
                     world.UpdateFilterByStructComponent<T>(in entity);
+
+                }
+
+                if (AllComponentTypes<T>.isOneShot == true) {
+                    
+                    var task = new StructComponentsContainer.NextTickTask {
+                        lifetime = ComponentLifetime.NotifyAllSystemsBelow,
+                        storageType = StorageType.NoState,
+                        secondsLifetime = 0f,
+                        entity = entity,
+                        dataIndex = OneShotComponentTypes<T>.typeId,
+                    };
+
+                    if (world.structComponentsNoState.nextTickTasks.Add(task) == false) {
+
+                        task.Recycle();
+
+                    }
 
                 }
 

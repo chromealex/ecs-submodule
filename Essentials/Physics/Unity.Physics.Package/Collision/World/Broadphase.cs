@@ -142,7 +142,7 @@ namespace UnityS.Physics
         /// <summary>
         /// Schedule a set of jobs to build the broadphase based on the given world.
         /// </summary>
-        public JobHandle ScheduleBuildJobs(ref PhysicsWorld world, sfloat timeStep, float3 gravity, NativeArray<int> buildStaticTree, JobHandle inputDeps, bool multiThreaded = true)
+        public readonly JobHandle ScheduleBuildJobs(in PhysicsWorld world, sfloat timeStep, float3 gravity, NativeArray<int> buildStaticTree, JobHandle inputDeps, bool multiThreaded = true)
         {
             if (!multiThreaded)
             {
@@ -163,16 +163,16 @@ namespace UnityS.Physics
                 // +1 for main thread
                 int threadCount = JobsUtility.JobWorkerCount + 1;
                 return JobHandle.CombineDependencies(
-                    ScheduleStaticTreeBuildJobs(ref world, threadCount, buildStaticTree, inputDeps),
-                    ScheduleDynamicTreeBuildJobs(ref world, timeStep, gravity, threadCount, inputDeps));
+                    ScheduleStaticTreeBuildJobs(in world, threadCount, buildStaticTree, inputDeps),
+                    ScheduleDynamicTreeBuildJobs(in world, timeStep, gravity, threadCount, inputDeps));
             }
         }
 
         /// <summary>
         /// Schedule a set of jobs to build the static tree of the broadphase based on the given world.
         /// </summary>
-        public JobHandle ScheduleStaticTreeBuildJobs(
-            ref PhysicsWorld world, int numThreadsHint, NativeArray<int> shouldDoWork, JobHandle inputDeps)
+        public readonly JobHandle ScheduleStaticTreeBuildJobs(
+            in PhysicsWorld world, int numThreadsHint, NativeArray<int> shouldDoWork, JobHandle inputDeps)
         {
             Assert.AreEqual(world.NumStaticBodies, m_StaticTree.NumBodies);
             if (world.NumStaticBodies == 0)
@@ -211,8 +211,8 @@ namespace UnityS.Physics
         /// <summary>
         /// Schedule a set of jobs to build the dynamic tree of the broadphase based on the given world.
         /// </summary>
-        public JobHandle ScheduleDynamicTreeBuildJobs(
-            ref PhysicsWorld world, sfloat timeStep, float3 gravity, int numThreadsHint, JobHandle inputDeps)
+        public readonly JobHandle ScheduleDynamicTreeBuildJobs(
+            in PhysicsWorld world, sfloat timeStep, float3 gravity, int numThreadsHint, JobHandle inputDeps)
         {
             Assert.AreEqual(world.NumDynamicBodies, m_DynamicTree.NumBodies);
             if (world.NumDynamicBodies == 0)

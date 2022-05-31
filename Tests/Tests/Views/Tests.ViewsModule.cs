@@ -53,8 +53,9 @@ namespace ME.ECS.Tests {
                 world.SetSeed(1u);
                 {
                     ref var str = ref world.GetStructComponents();
+                    ref var str2 = ref world.GetNoStateStructComponents();
                     CoreComponentsInitializer.InitTypeId();
-                    CoreComponentsInitializer.Init(ref str);
+                    CoreComponentsInitializer.Init(ref str, ref str2);
                     WorldUtilities.InitComponentTypeId<HasView>();
                     str.Validate<HasView>();
                     testEntity = new Entity("Test");

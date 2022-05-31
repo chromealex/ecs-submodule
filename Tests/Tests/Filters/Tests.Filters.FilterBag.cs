@@ -99,8 +99,9 @@ namespace ME.ECS.Tests {
             TestsHelper.Do((w) => {
                 
                 ref var str = ref w.GetStructComponents();
+                ref var str2 = ref w.GetNoStateStructComponents();
                 CoreComponentsInitializer.InitTypeId();
-                CoreComponentsInitializer.Init(ref str);
+                CoreComponentsInitializer.Init(ref str, ref str2);
                 WorldUtilities.InitComponentTypeId<TestData>();
                 WorldUtilities.InitComponentTypeId<TestData2>();
                 str.Validate<TestData>();

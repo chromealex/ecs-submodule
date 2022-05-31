@@ -377,7 +377,8 @@ namespace ME.ECS {
 
                 if (AllComponentTypes<TComponent>.isTag == true) {
 
-                    entity.Set<TComponent>();
+                    TComponent data = default;
+                    entity.Set(data);
 
                 } else {
                     
@@ -640,9 +641,20 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public Entity(string name, bool oneShot) {
+        public Entity(string name, EntityFlag flags) {
 
-            ref var entity = ref Worlds.current.AddEntity(name, oneShot);
+            ref var entity = ref Worlds.current.AddEntity(name, flags);
+            this.id = entity.id;
+            this.generation = entity.generation;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Entity(EntityFlag flags) {
+
+            ref var entity = ref Worlds.current.AddEntity(null, flags);
             this.id = entity.id;
             this.generation = entity.generation;
 

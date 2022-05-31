@@ -21,10 +21,14 @@ namespace ME.ECS.Essentials.Physics.Core {
         [UnityEngine.TooltipAttribute("Should feature create oneshot-entity with trigger data?")]
         public bool sendTriggerEvents = false;
         
+        internal UnityS.Physics.PhysicsWorld physicsWorldInternal;
+        public ref UnityS.Physics.PhysicsWorld physicsWorld => ref this.physicsWorldInternal;
+        
         protected override void OnConstruct() {
 
+            this.physicsWorldInternal = new UnityS.Physics.PhysicsWorld(0, 0, 0);
             this.AddSystem<BuildPhysicsWorldSystem>();
-
+            
         }
 
         protected override void OnDeconstruct() {

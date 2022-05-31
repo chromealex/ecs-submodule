@@ -111,6 +111,8 @@ namespace ME.ECS {
         internal ArchetypeEntities archetypes;
         [ME.ECS.Serializer.SerializeField]
         internal EntityVersions versions;
+        [ME.ECS.Serializer.SerializeField]
+        internal EntityFlags flags;
 
         public int GetMaxId() => this.entityId;
 
@@ -118,7 +120,7 @@ namespace ME.ECS {
 
             if (this.dead == null) return 0;
             
-            return this.versions.GetHashCode() ^ this.aliveCount ^ this.entityId ^ this.dead.Count;
+            return this.versions.GetHashCode() ^ this.flags.GetHashCode() ^ this.aliveCount ^ this.entityId ^ this.dead.Count;
 
         }
 
@@ -186,8 +188,9 @@ namespace ME.ECS {
             this.isCreated = true;
             this.aliveCount = 0;
             this.entityId = -1;
-            this.archetypes = new ArchetypeEntities();//PoolClass<ArchetypeEntities>.Spawn();
-            this.versions = new EntityVersions();//PoolClass<EntityVersions>.Spawn();
+            this.archetypes = new ArchetypeEntities();
+            this.versions = new EntityVersions(capacity);
+            this.flags = new EntityFlags(capacity);
             ME.WeakRef.Reg(this.alive);
             ME.WeakRef.Reg(this.dead);
             ME.WeakRef.Reg(this.deadPrepared);
@@ -203,10 +206,9 @@ namespace ME.ECS {
             this.isCreated = false;
             this.aliveCount = 0;
             this.entityId = -1;
-            //PoolClass<ArchetypeEntities>.Recycle(ref this.archetypes);
             this.archetypes.Recycle();
-            //PoolClass<EntityVersions>.Recycle(ref this.versions);
             this.versions.Recycle();
+            this.flags.Recycle();
 
         }
 
@@ -229,6 +231,7 @@ namespace ME.ECS {
             this.entityId = other.entityId;
             this.archetypes.CopyFrom(other.archetypes);
             this.versions.CopyFrom(other.versions);
+            this.flags.CopyFrom(other.flags);
             
         }
 
@@ -282,6 +285,7 @@ namespace ME.ECS {
             this.alive.AddRange(list);
             PoolArray<int>.Recycle(ref list);
             this.versions.Reset(id);
+            this.flags.Reset(id);
 
             this.entityId += count;
 
@@ -315,6 +319,7 @@ namespace ME.ECS {
             ref var e = ref this.cache[id];
             if (e.generation == 0) e = new Entity(id, 1);
             this.versions.Reset(id);
+            this.flags.Reset(id);
             //e = ref this.IncrementGeneration(in e);
             //using (NoStackTrace.All) UnityEngine.Debug.Log("Alloc: " + e + ", tick: " + Worlds.current.GetCurrentTick());
             return ref e;

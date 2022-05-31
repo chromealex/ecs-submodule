@@ -1410,13 +1410,13 @@ namespace ME.ECS {
 
         }
 
-        public ref Entity AddEntity(string name = null, bool oneShot = false) {
+        public ref Entity AddEntity(string name = null, EntityFlag flags = EntityFlag.None) {
 
-            return ref this.AddEntity_INTERNAL(name, oneShot: oneShot);
+            return ref this.AddEntity_INTERNAL(name, flags: flags);
 
         }
         
-        private ref Entity AddEntity_INTERNAL(string name = null, bool validate = true, bool oneShot = false) {
+        private ref Entity AddEntity_INTERNAL(string name = null, bool validate = true, EntityFlag flags = EntityFlag.None) {
             
             #if WORLD_STATE_CHECK
             if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -1446,8 +1446,14 @@ namespace ME.ECS {
 
             }
 
-            if (oneShot == true) this.SetEntityOneShot(in entity);
-            
+            if ((flags & EntityFlag.OneShot) != 0) {
+
+                entity.SetOneShot<IsEntityOneShot>();
+
+            }
+
+            this.currentState.storage.flags.Set(entity.id, flags);
+
             return ref entity;
 
         }
@@ -2898,6 +2904,7 @@ namespace ME.ECS {
             UnityEngine.Profiling.Profiler.BeginSample($"UseLifetimeStep NotifyAllSystemsBelow");
             #endif
 
+            this.UseEntityFlags();
             this.UseLifetimeStep(ComponentLifetime.NotifyAllSystemsBelow, fixedDeltaTime);
 
             #if UNITY_EDITOR
