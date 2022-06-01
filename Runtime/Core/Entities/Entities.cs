@@ -561,6 +561,7 @@ namespace ME.ECS {
 
         public const ushort GENERATION_ZERO = 0;
         public static readonly Entity Empty = new Entity(0, Entity.GENERATION_ZERO);
+        public static readonly Entity Null = new Entity(0, Entity.GENERATION_ZERO);
 
         #if MESSAGE_PACK_SUPPORT
         [MessagePack.Key(0)]

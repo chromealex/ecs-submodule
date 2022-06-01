@@ -1,9 +1,9 @@
 using System;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
-
 using ME.ECS;
 using ME.ECS.Mathematics;
+using FloatRange = UnityS.Physics.Math.FloatRange;
+using Math = ME.ECS.Mathematics;
 
 namespace UnityS.Physics
 {
@@ -85,7 +85,7 @@ namespace UnityS.Physics
         /// <param name="distanceRange">The minimum required distance and maximum possible distance between the constrained bodies.</param>
         /// <param name="springFrequency"></param>
         /// <param name="springDamping"></param>
-        public static Constraint LimitedDistance(Math.FloatRange distanceRange, sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
+        public static Constraint LimitedDistance(FloatRange distanceRange, sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
         {
             distanceRange = distanceRange.Sorted();
             return new Constraint
@@ -109,7 +109,7 @@ namespace UnityS.Physics
         /// </param>
         /// <param name="springFrequency"></param>
         /// <param name="springDamping"></param>
-        public static Constraint Cylindrical(int freeAxis, Math.FloatRange distanceRange, sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
+        public static Constraint Cylindrical(int freeAxis, FloatRange distanceRange, sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
         {
             UnityEngine.Assertions.Assert.IsTrue(freeAxis >= 0 && freeAxis <= 2);
             distanceRange = distanceRange.Sorted();
@@ -134,7 +134,7 @@ namespace UnityS.Physics
         /// </param>
         /// <param name="springFrequency"></param>
         /// <param name="springDamping"></param>
-        public static Constraint Planar(int limitedAxis, Math.FloatRange distanceRange, sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
+        public static Constraint Planar(int limitedAxis, FloatRange distanceRange, sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
         {
             UnityEngine.Assertions.Assert.IsTrue(limitedAxis >= 0 && limitedAxis <= 2);
             distanceRange = distanceRange.Sorted();
@@ -201,7 +201,7 @@ namespace UnityS.Physics
         /// </param>
         /// <param name="springFrequency"></param>
         /// <param name="springDamping"></param>
-        public static Constraint Cone(int freeAxis, Math.FloatRange angularRange, sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
+        public static Constraint Cone(int freeAxis, FloatRange angularRange, sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
         {
             UnityEngine.Assertions.Assert.IsTrue(freeAxis >= 0 && freeAxis <= 2);
             angularRange = angularRange.Sorted();
@@ -223,7 +223,7 @@ namespace UnityS.Physics
         /// <param name="angularRange">The minimum required angle and maximum possible angle of rotation between the constrained bodies around the constrained axis.</param>
         /// <param name="springFrequency"></param>
         /// <param name="springDamping"></param>
-        public static Constraint Twist(int limitedAxis, Math.FloatRange angularRange, sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
+        public static Constraint Twist(int limitedAxis, FloatRange angularRange, sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
         {
             UnityEngine.Assertions.Assert.IsTrue(limitedAxis >= 0 && limitedAxis <= 2);
             angularRange = angularRange.Sorted();
@@ -257,9 +257,9 @@ namespace UnityS.Physics
             unchecked
             {
                 return (int)math.hash(new uint3x2(
-                                          new uint3((uint)Type, (uint)Min.GetHashCode(), (uint)Max.GetHashCode()),
-                                          new uint3(math.hash(ConstrainedAxes), (uint)SpringFrequency.GetHashCode(), (uint)SpringDamping.GetHashCode())
-                                      ));
+                    new uint3((uint)Type, (uint)Min.GetHashCode(), (uint)Max.GetHashCode()),
+                    new uint3(math.hash(ConstrainedAxes), (uint)SpringFrequency.GetHashCode(), (uint)SpringDamping.GetHashCode())
+                ));
             }
         }
     }
@@ -281,4 +281,5 @@ namespace UnityS.Physics
         // instance of a particular component type per entity
         public Entity Entity;
     }
+    
 }

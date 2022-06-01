@@ -3,12 +3,15 @@ using Unity.Jobs;
 using Unity.Burst;
 using ME.ECS.Essentials.Physics.Components;
 using ME.ECS.Mathematics;
+using UnityS.Physics;
 
 namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
 
     #pragma warning disable
     using Components; using Modules; using Systems; using Markers;
     #pragma warning restore
+    
+    using Unity.Collections;
     
     using Bag = ME.ECS.Buffers.FilterBag<
         ME.ECS.Transform.Position,
@@ -22,7 +25,11 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
         PhysicsGravityFactor,
         PhysicsDamping,
         PhysicsMassOverride>;
-    
+
+    using BagJoints = ME.ECS.Buffers.FilterBag<
+        PhysicsJoint,
+        PhysicsConstrainedBodyPair>;
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -35,6 +42,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
         private UnityS.Physics.SimulationContext simulationContext;
         private Filter staticBodies;
         private Filter dynamicBodies;
+        private Filter joints;
 
         // Scheduler has static data which will never changed
         // So it could be stored inside this system
@@ -64,6 +72,15 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                   .Without<IsPhysicsStatic>()
                   .Push(ref this.dynamicBodies);
 
+            Filter.Create("BurstFilter-Joints")
+                  .With<ME.ECS.Transform.Position>()
+                  .With<ME.ECS.Transform.Rotation>()
+                  .With<ME.ECS.Transform.Scale>()
+                  .With<PhysicsJointCompanion>()
+                  .With<PhysicsConstrainedBodyPair>()
+                  .Without<IsPhysicsStatic>()
+                  .Push(ref this.joints);
+
         }
 
         void ISystemBase.OnDeconstruct() {
@@ -72,6 +89,70 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
             this.physicsWorld.Dispose();
             
             this.scheduler.Dispose();
+            
+        }
+        
+        [BurstCompile]
+        internal struct CreateJoints : IJobParallelFor {
+
+            public BagJoints bag;
+            [ReadOnly] public NativeArray<RigidBody> RigidBodies;
+            [ReadOnly] public int NumDynamicBodies;
+            [ReadOnly] public NativeHashMap<Entity, int> EntityBodyIndexMap;
+
+            [NativeDisableParallelForRestriction] public NativeArray<Joint> Joints;
+            [NativeDisableParallelForRestriction] public NativeHashMap<Entity, int>.ParallelWriter EntityJointIndexMap;
+
+            public int DefaultStaticBodyIndex;
+
+            public void Execute(int index) {
+
+                var joint = this.bag.ReadT0(index);
+                var bodyPair = this.bag.ReadT1(index);
+                var entity = this.bag.GetEntity(index);
+                
+                var entityA = bodyPair.EntityA;
+                var entityB = bodyPair.EntityB;
+                
+                // TODO find a reasonable way to look up the constraint body indices
+                // - stash body index in a component on the entity? But we don't have random access to Entity data in a job
+                // - make a map from entity to rigid body index? Sounds bad and I don't think there is any NativeArray-based map data structure yet
+
+                // If one of the entities is null, use the default static entity
+                var pair = new BodyIndexPair
+                {
+                    BodyIndexA = entityA == Entity.Null ? DefaultStaticBodyIndex : -1,
+                    BodyIndexB = entityB == Entity.Null ? DefaultStaticBodyIndex : -1,
+                };
+
+                // Find the body indices
+                pair.BodyIndexA = EntityBodyIndexMap.TryGetValue(entityA, out var idxA) ? idxA : -1;
+                pair.BodyIndexB = EntityBodyIndexMap.TryGetValue(entityB, out var idxB) ? idxB : -1;
+
+                bool isInvalid = false;
+                // Invalid if we have not found the body indices...
+                isInvalid |= (pair.BodyIndexA == -1 || pair.BodyIndexB == -1);
+                // ... or if we are constraining two static bodies
+                // Mark static-static invalid since they are not going to affect simulation in any way.
+                isInvalid |= (pair.BodyIndexA >= NumDynamicBodies && pair.BodyIndexB >= NumDynamicBodies);
+                if (isInvalid)
+                {
+                    pair = BodyIndexPair.Invalid;
+                }
+
+                Joints[index] = new Joint
+                {
+                    BodyPair = pair,
+                    Entity = entity,
+                    EnableCollision = (byte)bodyPair.EnableCollision,
+                    AFromJoint = joint.BodyAFromJoint.AsMTransform(),
+                    BFromJoint = joint.BodyBFromJoint.AsMTransform(),
+                    Version = joint.Version,
+                    Constraints = joint.GetConstraints(),
+                };
+                EntityJointIndexMap.TryAdd(entity, index);
+                
+            }
             
         }
 
@@ -207,7 +288,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
 
         void IAdvanceTick.AdvanceTick(in float deltaTime) {
 
-            this.physicsWorld.Reset(this.staticBodies.Count, this.dynamicBodies.Count, 0);
+            this.physicsWorld.Reset(this.staticBodies.Count, this.dynamicBodies.Count, this.joints.Count);
 
             var simulationParameters = new UnityS.Physics.SimulationStepInput() {
                 Gravity = new float3(0f, -9.8f, 0f),
@@ -220,6 +301,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
 
             ref var internalData = ref this.world.GetSharedData<PhysicsInternal>();
 
+            var bagJoints = new Bag(this.joints, Unity.Collections.Allocator.TempJob);
             var bag = new Bag(this.dynamicBodies, Unity.Collections.Allocator.TempJob);
             var bagStatic = new Bag(this.staticBodies, Unity.Collections.Allocator.TempJob);
             var bagMotion = new BagMotion(this.dynamicBodies, Unity.Collections.Allocator.TempJob);
@@ -264,9 +346,23 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
             
             var deps = JobHandle.CombineDependencies(fillBodiesDynamicJob, fillBodiesStaticJob, fillMotionJob);
             deps = JobHandle.CombineDependencies(deps, staticBodiesCheckHandle);
-            var broadphaseJob = this.physicsWorld.CollisionWorld.ScheduleBuildBroadphaseJobs(in this.physicsWorld, simulationParameters.TimeStep, simulationParameters.Gravity, buildStaticTree, deps, true);
             
-            var jobs = UnityS.Physics.Simulation.ScheduleStepJobs(ref simulationParameters, ref this.simulationContext, this.scheduler, broadphaseJob, true/*ref this.simulationContext*/);
+            JobHandle createJointsHandle = default;
+            if (bagJoints.Length > 0) {
+                createJointsHandle = new CreateJoints {
+                    RigidBodies = this.physicsWorld.Bodies,
+                    Joints = this.physicsWorld.Joints,
+                    DefaultStaticBodyIndex = this.physicsWorld.Bodies.Length - 1,
+                    NumDynamicBodies = dynamicBodies.Length,
+                    EntityBodyIndexMap = this.physicsWorld.CollisionWorld.EntityBodyIndexMap,
+                    EntityJointIndexMap = this.physicsWorld.DynamicsWorld.EntityJointIndexMap.AsParallelWriter(),
+                }.Schedule(bagJoints.Length, 1, deps);
+            }
+            
+            var broadphaseJob = this.physicsWorld.CollisionWorld.ScheduleBuildBroadphaseJobs(in this.physicsWorld, simulationParameters.TimeStep, simulationParameters.Gravity, buildStaticTree, deps, true);
+            deps = JobHandle.CombineDependencies(createJointsHandle, broadphaseJob);
+            
+            var jobs = UnityS.Physics.Simulation.ScheduleStepJobs(ref simulationParameters, ref this.simulationContext, this.scheduler, deps, true/*ref this.simulationContext*/);
             jobs.FinalExecutionHandle.Complete();
 
             this.world.SetSharedDataOneShot(new PhysicsOneShotInternal() {
@@ -322,6 +418,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
             bag.Push();
             bagStatic.Revert();
             bagMotion.Revert();
+            bagJoints.Revert();
 
             buildStaticTree.Dispose();
 
