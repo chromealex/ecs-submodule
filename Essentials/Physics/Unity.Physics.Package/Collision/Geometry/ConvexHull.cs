@@ -4,7 +4,7 @@ using Unity.Collections.LowLevel.Unsafe;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // A convex hull.
     // Warning: This is just the header, the hull's variable sized data follows it in memory.

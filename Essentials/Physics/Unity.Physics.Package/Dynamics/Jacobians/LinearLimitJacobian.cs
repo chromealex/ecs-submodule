@@ -1,8 +1,8 @@
 using Unity.Burst;
 using ME.ECS.Mathematics;
-using static UnityS.Physics.Math;
+using static ME.ECS.Essentials.Physics.Math;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // Solve data for a constraint that limits the linear distance between a pair of pivots in 1, 2, or 3 degrees of freedom
     [NoAlias]

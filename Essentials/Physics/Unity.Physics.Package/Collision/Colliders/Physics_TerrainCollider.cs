@@ -6,7 +6,7 @@ using UnityEngine.Assertions;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // A collider representing a terrain described by a uniform grid of height samples.
     // Warning: This is just the header, it is followed by variable sized data in memory.

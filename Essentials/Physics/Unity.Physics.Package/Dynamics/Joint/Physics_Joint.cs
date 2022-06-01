@@ -2,10 +2,10 @@ using System;
 using Unity.Collections;
 using ME.ECS;
 using ME.ECS.Mathematics;
-using FloatRange = UnityS.Physics.Math.FloatRange;
+using FloatRange = ME.ECS.Essentials.Physics.Math.FloatRange;
 using Math = ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     public enum ConstraintType : byte
     {

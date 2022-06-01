@@ -1,7 +1,7 @@
 ﻿using Unity.Properties;
-using UnityS.Physics;
+using ME.ECS.Essentials.Physics;
 using ME.ECS.Mathematics;
-using FloatRange = UnityS.Physics.Math.FloatRange;
+using FloatRange = ME.ECS.Essentials.Physics.Math.FloatRange;
 
 namespace ME.ECS.Essentials.Physics.Components
 {

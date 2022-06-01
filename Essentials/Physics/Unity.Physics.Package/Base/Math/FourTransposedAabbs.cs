@@ -1,7 +1,7 @@
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // 4 transposed AABBs
     public struct FourTransposedAabbs

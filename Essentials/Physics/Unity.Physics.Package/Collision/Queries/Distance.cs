@@ -1,13 +1,13 @@
 using System;
 using Unity.Entities;
 using UnityEngine.Assertions;
-using static UnityS.Physics.BoundingVolumeHierarchy;
-using static UnityS.Physics.Math;
+using static ME.ECS.Essentials.Physics.BoundingVolumeHierarchy;
+using static ME.ECS.Essentials.Physics.Math;
 using ME.ECS;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // The input to point distance queries
     public struct PointDistanceInput

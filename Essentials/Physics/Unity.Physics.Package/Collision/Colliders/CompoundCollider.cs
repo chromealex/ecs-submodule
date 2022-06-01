@@ -5,7 +5,7 @@ using Unity.Entities;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // A collider containing instances of other colliders
     public struct CompoundCollider : ICompositeCollider

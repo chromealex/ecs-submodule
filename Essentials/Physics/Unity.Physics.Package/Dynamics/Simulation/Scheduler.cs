@@ -8,7 +8,7 @@ using ME.ECS;
 using ME.ECS.Mathematics;
 using UnityEngine.Assertions;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // Builds phased pairs of interacting bodies, used to parallelize work items during the simulation step.
     public class DispatchPairSequencer : IDisposable

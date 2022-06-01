@@ -2,7 +2,7 @@ using Unity.Burst;
 using ME.ECS;
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // The input to AABB overlap queries
     public struct OverlapAabbInput

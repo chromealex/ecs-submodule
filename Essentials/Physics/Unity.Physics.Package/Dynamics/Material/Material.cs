@@ -2,7 +2,7 @@ using System;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     /// <summary>
     /// Defines the collision response policy of a collider

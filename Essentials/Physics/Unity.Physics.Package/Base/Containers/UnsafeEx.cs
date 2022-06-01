@@ -1,6 +1,6 @@
 using Unity.Collections.LowLevel.Unsafe;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     internal static class UnsafeEx
     {

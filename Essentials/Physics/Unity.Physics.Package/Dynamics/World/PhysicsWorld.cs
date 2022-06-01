@@ -5,7 +5,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using ME.ECS;
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // A collection of rigid bodies and joints.
     [NoAlias]

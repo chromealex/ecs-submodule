@@ -3,11 +3,11 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
-using static UnityS.Physics.Math;
+using static ME.ECS.Essentials.Physics.Math;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // The concrete type of a collider
     public enum ColliderType : byte

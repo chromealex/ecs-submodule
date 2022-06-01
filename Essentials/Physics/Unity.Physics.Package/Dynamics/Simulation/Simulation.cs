@@ -5,7 +5,7 @@ using Unity.Jobs;
 using Unity.Jobs.LowLevel.Unsafe;
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // Holds temporary data in a storage that lives as long as simulation lives
     // and is only re-allocated if necessary.

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Jobs;
 using UnityEngine.Assertions;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // A container of user callbacks, to run during scheduling of the simulation jobs
     public class SimulationCallbacks

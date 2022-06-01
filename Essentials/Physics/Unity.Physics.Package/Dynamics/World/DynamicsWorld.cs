@@ -4,7 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using ME.ECS;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // A collection of motion information used during physics simulation.
     [NoAlias]

@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using ME.ECS;
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // Describes which other objects an object can collide with.
     [DebuggerDisplay("Group: {GroupIndex} BelongsTo: {BelongsTo} CollidesWith: {CollidesWith}")]

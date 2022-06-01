@@ -3,7 +3,7 @@ using Unity.Collections.LowLevel.Unsafe;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // Interface for objects that can be hit by physics queries.
     public interface ICollidable    // TODO: rename to Physics.IQueryable?

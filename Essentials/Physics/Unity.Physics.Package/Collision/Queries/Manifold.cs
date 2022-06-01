@@ -2,11 +2,11 @@ using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using static UnityS.Physics.Math;
+using static ME.ECS.Essentials.Physics.Math;
 using ME.ECS;
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // A header preceding a number of contact points in a stream.
     struct ContactHeader

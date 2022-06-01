@@ -35,7 +35,7 @@ namespace ME.ECS.Essentials.Physics
         /// <param name="point">A point in world space.</param>
         /// <returns>A body's effective mass with respect to the specified point and impulse.</returns>
         public static sfloat GetEffectiveMass(in this PhysicsMass bodyMass, in Position bodyPosition, in Rotation bodyOrientation, float3 impulse, float3 point) =>
-            UnityS.Physics.Extensions.PhysicsWorldExtensions.GetEffectiveMassImpl(GetCenterOfMassWorldSpace(bodyMass, bodyPosition, bodyOrientation), bodyMass.InverseInertia, impulse, point);
+            ME.ECS.Essentials.Physics.Extensions.PhysicsWorldExtensions.GetEffectiveMassImpl(GetCenterOfMassWorldSpace(bodyMass, bodyPosition, bodyOrientation), bodyMass.InverseInertia, impulse, point);
 
         /// <summary>
         /// Get the center of mass in world space
@@ -75,7 +75,7 @@ namespace ME.ECS.Essentials.Physics
             var worldFromEntity = new RigidTransform(bodyOrientation.value, bodyPosition.value);
             var worldFromMotion = math.mul(worldFromEntity, bodyMass.Transform);
 
-            return UnityS.Physics.Extensions.PhysicsWorldExtensions.GetLinearVelocityImpl(worldFromMotion, bodyVelocity.Angular, bodyVelocity.Linear, point);
+            return ME.ECS.Essentials.Physics.Extensions.PhysicsWorldExtensions.GetLinearVelocityImpl(worldFromMotion, bodyVelocity.Angular, bodyVelocity.Linear, point);
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace ME.ECS.Essentials.Physics
             ref this PhysicsVelocity bodyVelocity, in PhysicsMass bodyMass, in PhysicsCollider bodyCollider,
             in Position bodyPosition, in Rotation bodyOrientation,
             sfloat explosionForce, in float3 explosionPosition, in sfloat explosionRadius,
-            in sfloat timestep, in float3 up, in UnityS.Physics.CollisionFilter explosionFilter,
+            in sfloat timestep, in float3 up, in ME.ECS.Essentials.Physics.CollisionFilter explosionFilter,
             in sfloat upwardsModifier /* = 0 */, ForceMode mode = ForceMode.Force)
         {
             var worldFromBody = new RigidTransform(bodyOrientation.value, bodyPosition.value);
@@ -185,7 +185,7 @@ namespace ME.ECS.Essentials.Physics
             // regardless of how far the centre is from the rigidbody.
             bool bExplosionProportionalToDistance = !explosionRadius.IsZero();
 
-            var pointDistanceInput = new UnityS.Physics.PointDistanceInput()
+            var pointDistanceInput = new ME.ECS.Essentials.Physics.PointDistanceInput()
             {
                 Position = math.transform(math.inverse(worldFromBody), explosionPosition),
                 MaxDistance = math.select(sfloat.MaxValue, explosionRadius, bExplosionProportionalToDistance),
@@ -197,7 +197,7 @@ namespace ME.ECS.Essentials.Physics
             // to the surface point on the rigidbody.
             // If explosionPosition is inside the rigidbody, or the rigidbody has no active colliders,
             // then the center of mass is used instead of the closest point on the surface.
-            if (!bodyCollider.value.Value.CalculateDistance(pointDistanceInput, out UnityS.Physics.DistanceHit closestHit))
+            if (!bodyCollider.value.Value.CalculateDistance(pointDistanceInput, out ME.ECS.Essentials.Physics.DistanceHit closestHit))
             {
                 // Return now if the collider is out of range.
                 return;
@@ -246,7 +246,7 @@ namespace ME.ECS.Essentials.Physics
             in sfloat upwardsModifier /* = 0 */, ForceMode mode = ForceMode.Force)
         {
             bodyVelocity.ApplyExplosionForce(bodyMass, bodyCollider, bodyPosition, bodyOrientation, explosionForce,
-                explosionPosition, explosionRadius, timestep, up, UnityS.Physics.CollisionFilter.Default, upwardsModifier, mode);
+                explosionPosition, explosionRadius, timestep, up, ME.ECS.Essentials.Physics.CollisionFilter.Default, upwardsModifier, mode);
         }
 
         public static void ApplyImpulse(ref this PhysicsVelocity pv, in PhysicsMass pm, in Position t, in Rotation r, in float3 impulse, in float3 point)
@@ -291,8 +291,8 @@ namespace ME.ECS.Essentials.Physics
             var angularVelocityWS =
                 physicsVelocity.GetAngularVelocityWorldSpace(physicsMass, new Rotation { value = orientation });
 
-            UnityS.Physics.Integrator.IntegratePosition(ref position, physicsVelocity.Linear, timestep);
-            UnityS.Physics.Integrator.IntegrateOrientation(ref orientation, angularVelocityWS, timestep);
+            ME.ECS.Essentials.Physics.Integrator.IntegratePosition(ref position, physicsVelocity.Linear, timestep);
+            ME.ECS.Essentials.Physics.Integrator.IntegrateOrientation(ref orientation, angularVelocityWS, timestep);
         }
     }
 }

@@ -4,13 +4,13 @@ namespace ME.ECS.Essentials.Physics.Components {
 
     public struct PhysicsEventOnCollision : IComponentOneShot {
 
-        public UnityS.Physics.CollisionEvent data;
+        public ME.ECS.Essentials.Physics.CollisionEvent data;
 
     }
 
     public struct PhysicsEventOnTrigger : IComponentOneShot {
 
-        public UnityS.Physics.TriggerEvent data;
+        public ME.ECS.Essentials.Physics.TriggerEvent data;
 
     }
 

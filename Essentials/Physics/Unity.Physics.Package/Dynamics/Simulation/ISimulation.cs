@@ -2,7 +2,7 @@ using System;
 using Unity.Jobs;
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // Implementations of ISimulation
     public enum SimulationType

@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // An axis aligned bounding box
     [DebuggerDisplay("{Min} - {Max}")]

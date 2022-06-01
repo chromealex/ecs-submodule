@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // Describes how mass is distributed within an object
     // Represented by a transformed box inertia of unit mass.

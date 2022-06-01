@@ -4,7 +4,7 @@ using Unity.Jobs;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // Processes body pairs and creates contacts from them
     public static class NarrowPhase

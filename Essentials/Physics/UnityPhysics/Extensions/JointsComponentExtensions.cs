@@ -1,22 +1,8 @@
-/*using ME.ECS;
-using math = ME.ECS.fpmath;
-using unitymath = Unity.Mathematics.math;
-using sfloat = ME.ECS.fp;
-using float2 = ME.ECS.fp2;
-using float3 = ME.ECS.fp3;
-using float4 = ME.ECS.fp4;
-using float3x3 = ME.ECS.fp3x3;
-using float3x4 = ME.ECS.fp3x4;
-using float4x3 = ME.ECS.fp4x3;
-using float4x4 = ME.ECS.fp4x4;
-using quaternion = ME.ECS.fpquaternion;
-using RigidTransform = ME.ECS.FPRigidTransform;
-using bool4 = Unity.Mathematics.bool4;
-using int4 = Unity.Mathematics.int4;
-using uint4 = Unity.Mathematics.uint4;
-using FloatRange = UnityS.Physics.Math.FloatRange;
+using ME.ECS.Mathematics;
+using FloatRange = ME.ECS.Essentials.Physics.Math.FloatRange;
+using ME.ECS.Essentials.Physics.Components;
 
-namespace UnityS.Physics.Extensions
+namespace ME.ECS.Essentials.Physics.Extensions
 {
     /// <summary>
     /// Extension methods for working with <see cref="PhysicsJoint"/>.
@@ -188,4 +174,3 @@ namespace UnityS.Physics.Extensions
         #endregion
     }
 }
-*/

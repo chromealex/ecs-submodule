@@ -1,8 +1,8 @@
 using Unity.Burst;
 using ME.ECS.Mathematics;
-using static UnityS.Physics.Math;
+using static ME.ECS.Essentials.Physics.Math;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // Solve data for a constraint that limits one degree of angular freedom
     [NoAlias]

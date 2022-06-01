@@ -5,7 +5,7 @@ using Unity.Collections.LowLevel.Unsafe;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // Utilities for building physics meshes
     internal static class MeshBuilder

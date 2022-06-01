@@ -2,7 +2,7 @@ using System;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     public static partial class Math
     {

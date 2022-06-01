@@ -5,7 +5,7 @@ using Unity.Collections;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     static class SafetyChecks
     {

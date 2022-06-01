@@ -1,10 +1,10 @@
 using System.Runtime.CompilerServices;
 using Unity.Burst;
 using UnityEngine.Assertions;
-using static UnityS.Physics.Math;
+using static ME.ECS.Essentials.Physics.Math;
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // Low level convex-convex contact manifold query implementations
     internal static class ConvexConvexManifoldQueries

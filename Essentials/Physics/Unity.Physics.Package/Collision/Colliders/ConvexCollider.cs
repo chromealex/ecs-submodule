@@ -6,7 +6,7 @@ using UnityEngine.Assertions;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     [Serializable]
     public struct ConvexHullGenerationParameters : IEquatable<ConvexHullGenerationParameters>

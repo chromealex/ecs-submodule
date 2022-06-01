@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // A plane described by a normal and a distance from the origin
     [DebuggerDisplay("{Normal}, {Distance}")]

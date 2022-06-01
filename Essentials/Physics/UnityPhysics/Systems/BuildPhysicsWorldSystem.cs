@@ -3,7 +3,7 @@ using Unity.Jobs;
 using Unity.Burst;
 using ME.ECS.Essentials.Physics.Components;
 using ME.ECS.Mathematics;
-using UnityS.Physics;
+using ME.ECS.Essentials.Physics;
 
 namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
 
@@ -39,16 +39,16 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
         
         private UnityPhysicsFeature feature;
 
-        private UnityS.Physics.SimulationContext simulationContext;
+        private ME.ECS.Essentials.Physics.SimulationContext simulationContext;
         private Filter staticBodies;
         private Filter dynamicBodies;
         private Filter joints;
 
         // Scheduler has static data which will never changed
         // So it could be stored inside this system
-        private UnityS.Physics.DispatchPairSequencer scheduler = new UnityS.Physics.DispatchPairSequencer();
+        private ME.ECS.Essentials.Physics.DispatchPairSequencer scheduler = new ME.ECS.Essentials.Physics.DispatchPairSequencer();
         
-        private ref UnityS.Physics.PhysicsWorld physicsWorld => ref this.feature.physicsWorldInternal;
+        private ref ME.ECS.Essentials.Physics.PhysicsWorld physicsWorld => ref this.feature.physicsWorldInternal;
         
         public World world { get; set; }
         
@@ -96,7 +96,6 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
         internal struct CreateJoints : IJobParallelFor {
 
             public BagJoints bag;
-            [ReadOnly] public NativeArray<RigidBody> RigidBodies;
             [ReadOnly] public int NumDynamicBodies;
             [ReadOnly] public NativeHashMap<Entity, int> EntityBodyIndexMap;
 
@@ -159,7 +158,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
         [BurstCompile]
         private struct FillBodiesJob : IJobParallelFor {
 
-            public Unity.Collections.NativeArray<UnityS.Physics.RigidBody> bodies;
+            public Unity.Collections.NativeArray<ME.ECS.Essentials.Physics.RigidBody> bodies;
             public Bag bag;
             
             public void Execute(int index) {
@@ -168,7 +167,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                 var rot = this.bag.ReadT1(index).value;
                 var collider = this.bag.ReadT3(index);
                 var entity = this.bag.GetEntity(index);
-                this.bodies[index] = new UnityS.Physics.RigidBody {
+                this.bodies[index] = new ME.ECS.Essentials.Physics.RigidBody {
                     WorldFromBody = new RigidTransform(rot, pos),
                     Collider = collider.IsValid == true ? collider.value : default,
                     Entity = entity,
@@ -182,8 +181,8 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
         [BurstCompile]
         private struct FillMotionJob : IJobParallelFor {
 
-            public Unity.Collections.NativeArray<UnityS.Physics.MotionData> motionDatas;
-            public Unity.Collections.NativeArray<UnityS.Physics.MotionVelocity> motionVelocities;
+            public Unity.Collections.NativeArray<ME.ECS.Essentials.Physics.MotionData> motionDatas;
+            public Unity.Collections.NativeArray<ME.ECS.Essentials.Physics.MotionVelocity> motionVelocities;
             public Bag bag;
             public BagMotion bagMotion;
             public PhysicsMass defaultPhysicsMass;
@@ -207,7 +206,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                 sfloat defaultGravityFactor = hasChunkPhysicsMassType ? sfloat.One : sfloat.Zero;
 
                 var isKinematic = !hasChunkPhysicsMassType || hasChunkPhysicsMassOverrideType && chunkMassOverride.IsKinematic != 0;
-                this.motionVelocities[index] = new UnityS.Physics.MotionVelocity {
+                this.motionVelocities[index] = new ME.ECS.Essentials.Physics.MotionVelocity {
                     LinearVelocity = chunkVelocity.Linear,
                     AngularVelocity = chunkVelocity.Angular,
                     InverseInertia = isKinematic ? this.defaultPhysicsMass.InverseInertia : chunkMass.InverseInertia,
@@ -228,7 +227,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
 
                 var a = math.mul(rot, mass.InertiaOrientation);
                 var b = math.rotate(rot, mass.CenterOfMass) + pos;
-                this.motionDatas[index] = new UnityS.Physics.MotionData {
+                this.motionDatas[index] = new ME.ECS.Essentials.Physics.MotionData {
                     WorldFromMotion = new RigidTransform(a, b),
                     BodyFromMotion = new RigidTransform(mass.InertiaOrientation, mass.CenterOfMass),
                     LinearDamping = damping.Linear,
@@ -242,8 +241,8 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
         [BurstCompile]
         private struct ApplyPhysicsJob : IJobParallelFor {
 
-            public Unity.Collections.NativeArray<UnityS.Physics.RigidBody> bodies;
-            public Unity.Collections.NativeArray<UnityS.Physics.MotionVelocity> motionVelocities;
+            public Unity.Collections.NativeArray<ME.ECS.Essentials.Physics.RigidBody> bodies;
+            public Unity.Collections.NativeArray<ME.ECS.Essentials.Physics.MotionVelocity> motionVelocities;
             public Bag bag;
 
             public void Execute(int index) {
@@ -290,10 +289,10 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
 
             this.physicsWorld.Reset(this.staticBodies.Count, this.dynamicBodies.Count, this.joints.Count);
             
-            var simulationParameters = new UnityS.Physics.SimulationStepInput() {
+            var simulationParameters = new ME.ECS.Essentials.Physics.SimulationStepInput() {
                 Gravity = new float3(0f, -9.8f, 0f),
                 NumSolverIterations = 4,
-                SolverStabilizationHeuristicSettings = UnityS.Physics.Solver.StabilizationHeuristicSettings.Default,
+                SolverStabilizationHeuristicSettings = ME.ECS.Essentials.Physics.Solver.StabilizationHeuristicSettings.Default,
                 SynchronizeCollisionWorld = true,
                 TimeStep = deltaTime,
                 World = this.physicsWorld,
@@ -301,7 +300,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
 
             ref var internalData = ref this.world.GetSharedData<PhysicsInternal>();
 
-            var bagJoints = new Bag(this.joints, Unity.Collections.Allocator.TempJob);
+            var bagJoints = new BagJoints(this.joints, Unity.Collections.Allocator.TempJob);
             var bag = new Bag(this.dynamicBodies, Unity.Collections.Allocator.TempJob);
             var bagStatic = new Bag(this.staticBodies, Unity.Collections.Allocator.TempJob);
             var bagMotion = new BagMotion(this.dynamicBodies, Unity.Collections.Allocator.TempJob);
@@ -339,7 +338,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
             var fillMotionJob = new FillMotionJob() {
                 bag = bag,
                 bagMotion = bagMotion,
-                defaultPhysicsMass = PhysicsMass.CreateDynamic(UnityS.Physics.MassProperties.UnitSphere, 1f),
+                defaultPhysicsMass = PhysicsMass.CreateDynamic(ME.ECS.Essentials.Physics.MassProperties.UnitSphere, 1f),
                 motionDatas = motionDatas,
                 motionVelocities = motionVelocities,
             }.Schedule(bag.Length, MathUtils.GetScheduleBatchCount(bag.Length));
@@ -350,7 +349,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
             JobHandle createJointsHandle = default;
             if (bagJoints.Length > 0) {
                 createJointsHandle = new CreateJoints {
-                    RigidBodies = this.physicsWorld.Bodies,
+                    bag = bagJoints,
                     Joints = this.physicsWorld.Joints,
                     DefaultStaticBodyIndex = this.physicsWorld.Bodies.Length - 1,
                     NumDynamicBodies = dynamicBodies.Length,
@@ -362,7 +361,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
             var broadphaseJob = this.physicsWorld.CollisionWorld.ScheduleBuildBroadphaseJobs(in this.physicsWorld, simulationParameters.TimeStep, simulationParameters.Gravity, buildStaticTree, deps, true);
             deps = JobHandle.CombineDependencies(createJointsHandle, broadphaseJob);
             
-            var jobs = UnityS.Physics.Simulation.ScheduleStepJobs(ref simulationParameters, ref this.simulationContext, this.scheduler, deps, true/*ref this.simulationContext*/);
+            var jobs = ME.ECS.Essentials.Physics.Simulation.ScheduleStepJobs(ref simulationParameters, ref this.simulationContext, this.scheduler, deps, true/*ref this.simulationContext*/);
             jobs.FinalExecutionHandle.Complete();
 
             this.world.SetSharedDataOneShot(new PhysicsOneShotInternal() {

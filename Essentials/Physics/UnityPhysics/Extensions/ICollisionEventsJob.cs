@@ -3,7 +3,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Jobs.LowLevel.Unsafe;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // INTERNAL UnityPhysics interface for jobs that iterate through the list of collision events produced by the solver.
     // Important: Only use inside UnityPhysics code! Jobs in other projects should implement ICollisionEventsJob.

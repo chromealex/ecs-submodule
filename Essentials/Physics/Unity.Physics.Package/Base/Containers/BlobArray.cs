@@ -1,6 +1,6 @@
 using Unity.Collections.LowLevel.Unsafe;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // Non-generic temporary stand-in for Unity BlobArray.
     // This is to work around C# wanting to treat any struct containing the generic Unity.BlobArray<T> as a managed struct.

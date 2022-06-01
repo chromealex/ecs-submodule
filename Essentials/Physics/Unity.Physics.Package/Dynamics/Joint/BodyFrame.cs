@@ -2,7 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     /// <summary>
     /// A target in the space of a rigid body that will align with a corresponding target in the space of the other body to which it is constrained.

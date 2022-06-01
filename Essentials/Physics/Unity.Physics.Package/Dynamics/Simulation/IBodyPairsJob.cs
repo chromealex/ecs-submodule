@@ -6,7 +6,7 @@ using Unity.Jobs;
 using Unity.Jobs.LowLevel.Unsafe;
 using ME.ECS;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // INTERNAL UnityPhysics interface for jobs that iterate through the list of potentially overlapping body pairs produced by the broad phase
     // Important: Only use inside UnityPhysics code! Jobs in other projects should implement IBodyPairsJob.

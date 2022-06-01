@@ -6,7 +6,7 @@ using Unity.Collections.LowLevel.Unsafe;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // A 4-way bounding volume hierarchy
     public partial struct BoundingVolumeHierarchy

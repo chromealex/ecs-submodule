@@ -7,9 +7,9 @@ using Unity.Jobs;
 
 using ME.ECS;
 using ME.ECS.Mathematics;
-using static UnityS.Physics.Math;
+using static ME.ECS.Essentials.Physics.Math;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // A collection of rigid bodies wrapped by a bounding volume hierarchy.
     // This allows to do collision queries such as raycasting, overlap testing, etc.

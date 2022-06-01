@@ -3,10 +3,10 @@ using Unity.Entities;
 using ME.ECS;
 using ME.ECS.Mathematics;
 using Unity.Collections.LowLevel.Unsafe;
-using static UnityS.Physics.BoundingVolumeHierarchy;
-using static UnityS.Physics.Math;
+using static ME.ECS.Essentials.Physics.BoundingVolumeHierarchy;
+using static ME.ECS.Essentials.Physics.Math;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // The input to collider cast queries consists of a Collider and its initial orientation,
     // and the Start & End positions of a line segment the Collider is to be swept along.

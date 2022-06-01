@@ -5,9 +5,9 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using ME.ECS;
 using ME.ECS.Mathematics;
-using static UnityS.Physics.Math;
+using static ME.ECS.Essentials.Physics.Math;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // An instance of a collider in a physics world.
     public struct RigidBody : ICollidable

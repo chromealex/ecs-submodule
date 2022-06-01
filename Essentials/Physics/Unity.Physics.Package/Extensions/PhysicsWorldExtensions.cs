@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics.Extensions
+namespace ME.ECS.Essentials.Physics.Extensions
 {
     // Utility functions acting on a physics world
     public static class PhysicsWorldExtensions

@@ -7,7 +7,7 @@ using Unity.Entities;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // A flat convex collider with either 3 or 4 coplanar vertices (ie, a triangle or a quad)
     public struct PolygonCollider : IConvexCollider

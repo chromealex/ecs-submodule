@@ -6,11 +6,11 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Jobs.LowLevel.Unsafe;
 using UnityEngine.Assertions;
-using static UnityS.Physics.BoundingVolumeHierarchy;
+using static ME.ECS.Essentials.Physics.BoundingVolumeHierarchy;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // A bounding volume around a collection of rigid bodies
     [NoAlias]

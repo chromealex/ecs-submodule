@@ -1,12 +1,12 @@
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine.Assertions;
-using static UnityS.Physics.Math;
+using static ME.ECS.Essentials.Physics.Math;
 
 using ME.ECS;
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     public interface IQueryResult
     {

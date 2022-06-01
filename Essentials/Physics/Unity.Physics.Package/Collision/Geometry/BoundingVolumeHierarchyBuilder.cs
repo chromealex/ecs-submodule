@@ -5,11 +5,11 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using UnityEngine.Assertions;
-using static UnityS.Physics.Math;
+using static ME.ECS.Essentials.Physics.Math;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // Utilities for building bounding volume hierarchies
     public partial struct BoundingVolumeHierarchy

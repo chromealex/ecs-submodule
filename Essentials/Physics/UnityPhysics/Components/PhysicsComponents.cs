@@ -11,8 +11,8 @@ namespace ME.ECS.Essentials.Physics.Components {
 
     public struct PhysicsOneShotInternal : IComponentOneShot {
 
-        public UnityS.Physics.CollisionEvents collisionEvents;
-        public UnityS.Physics.TriggerEvents triggerEvents;
+        public ME.ECS.Essentials.Physics.CollisionEvents collisionEvents;
+        public ME.ECS.Essentials.Physics.TriggerEvents triggerEvents;
 
     }
 
@@ -25,11 +25,11 @@ namespace ME.ECS.Essentials.Physics.Components {
 
     public struct PhysicsCollider : IStructCopyable<PhysicsCollider> {
         
-        public Unity.Entities.BlobAssetReference<UnityS.Physics.Collider> value;  // null is allowed
+        public Unity.Entities.BlobAssetReference<ME.ECS.Essentials.Physics.Collider> value;  // null is allowed
 
         public bool IsValid => this.value.IsCreated;
-        public unsafe UnityS.Physics.Collider* ColliderPtr => (UnityS.Physics.Collider*)this.value.GetUnsafePtr();
-        public UnityS.Physics.MassProperties MassProperties => this.value.IsCreated ? this.value.Value.MassProperties : UnityS.Physics.MassProperties.UnitSphere;
+        public unsafe ME.ECS.Essentials.Physics.Collider* ColliderPtr => (ME.ECS.Essentials.Physics.Collider*)this.value.GetUnsafePtr();
+        public ME.ECS.Essentials.Physics.MassProperties MassProperties => this.value.IsCreated ? this.value.Value.MassProperties : ME.ECS.Essentials.Physics.MassProperties.UnitSphere;
 
         public void CopyFrom(in PhysicsCollider other) {
 
@@ -94,7 +94,7 @@ namespace ME.ECS.Essentials.Physics.Components {
         public float3 CenterOfMass { get => Transform.pos; set => Transform.pos = value; }
         public quaternion InertiaOrientation { get => Transform.rot; set => Transform.rot = value; }
 
-        public static PhysicsMass CreateDynamic(UnityS.Physics.MassProperties massProperties, sfloat mass)
+        public static PhysicsMass CreateDynamic(ME.ECS.Essentials.Physics.MassProperties massProperties, sfloat mass)
         {
             //SafetyChecks.CheckFiniteAndPositiveAndThrow(mass, nameof(mass));
 
@@ -107,7 +107,7 @@ namespace ME.ECS.Essentials.Physics.Components {
             };
         }
 
-        public static PhysicsMass CreateKinematic(UnityS.Physics.MassProperties massProperties)
+        public static PhysicsMass CreateKinematic(ME.ECS.Essentials.Physics.MassProperties massProperties)
         {
             return new PhysicsMass
             {

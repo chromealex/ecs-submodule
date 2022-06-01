@@ -4,7 +4,7 @@ using UnityEngine.Assertions;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     // Common math helper functions
     [DebuggerStepThrough]

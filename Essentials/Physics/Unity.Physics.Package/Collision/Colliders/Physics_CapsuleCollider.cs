@@ -5,7 +5,7 @@ using Unity.Entities;
 
 using ME.ECS.Mathematics;
 
-namespace UnityS.Physics
+namespace ME.ECS.Essentials.Physics
 {
     public struct CapsuleGeometry : IEquatable<CapsuleGeometry>
     {
