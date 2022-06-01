@@ -686,13 +686,15 @@ namespace ME.ECS.Views {
 
             #if UNITY_EDITOR
             // [Editor-Only] Check if sourceId is scene object
-            var editorSource = (UnityEngine.Object)this.GetViewSource(sourceId);
-            var status = UnityEditor.PrefabUtility.IsPartOfAnyPrefab(editorSource);
-            if (status == true) {
-                
-                // Source is a prefab
-                throw new System.Exception($"View {editorSource} must be a scene instance");
-                
+            var editorSource = this.GetViewSource(sourceId);
+            if (editorSource is UnityEngine.Object editorSourceObj) {
+                var status = UnityEditor.PrefabUtility.IsPartOfAnyPrefab(editorSourceObj);
+                if (status == true) {
+
+                    // Source is a prefab
+                    throw new System.Exception($"View {editorSource} must be a scene instance");
+
+                }
             }
             #endif
             
@@ -746,13 +748,15 @@ namespace ME.ECS.Views {
 
             #if UNITY_EDITOR
             // [Editor-Only] Check if sourceId is prefab
-            var editorSource = (UnityEngine.Object)this.GetViewSource(sourceId);
-            var status = UnityEditor.PrefabUtility.IsPartOfAnyPrefab(editorSource);
-            if (status == false) {
-                
-                // Source is a scene object
-                throw new System.Exception($"View {editorSource} must be a prefab");
-                
+            var editorSource = this.GetViewSource(sourceId);
+            if (editorSource is UnityEngine.Object editorSourceObj) {
+                var status = UnityEditor.PrefabUtility.IsPartOfAnyPrefab(editorSourceObj);
+                if (status == false) {
+
+                    // Source is a scene object
+                    throw new System.Exception($"View {editorSource} must be a prefab");
+
+                }
             }
             #endif
 

@@ -76,7 +76,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                   .With<ME.ECS.Transform.Position>()
                   .With<ME.ECS.Transform.Rotation>()
                   .With<ME.ECS.Transform.Scale>()
-                  .With<PhysicsJointCompanion>()
+                  .With<PhysicsJoint>()
                   .With<PhysicsConstrainedBodyPair>()
                   .Without<IsPhysicsStatic>()
                   .Push(ref this.joints);
@@ -289,7 +289,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
         void IAdvanceTick.AdvanceTick(in float deltaTime) {
 
             this.physicsWorld.Reset(this.staticBodies.Count, this.dynamicBodies.Count, this.joints.Count);
-
+            
             var simulationParameters = new UnityS.Physics.SimulationStepInput() {
                 Gravity = new float3(0f, -9.8f, 0f),
                 NumSolverIterations = 4,
