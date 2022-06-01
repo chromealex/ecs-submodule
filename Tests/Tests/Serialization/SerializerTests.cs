@@ -77,14 +77,14 @@ namespace ME.ECS.Tests {
         [NUnit.Framework.TestAttribute]
         public void BufferArraySerialization() {
             var test = new TestDataBufferArray {
-                viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23),
+                viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23, DestroyViewBehaviour.DestroyWithEntity),
                 bufferComponents = new ME.ECS.Collections.BufferArray<object>(new object[] {
-                    new ME.ECS.Views.ViewComponent { seed = 123u, viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23) }, 
+                    new ME.ECS.Views.ViewComponent { seed = 123u, viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23, DestroyViewBehaviour.DestroyWithEntity) }, 
                     default,
                     default,
                     default,
                     default,
-                    new ME.ECS.Views.ViewComponent { seed = 123u, viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23) },
+                    new ME.ECS.Views.ViewComponent { seed = 123u, viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23, DestroyViewBehaviour.DestroyWithEntity) },
                     default,
                     default,
                 }, 6),
@@ -166,7 +166,7 @@ namespace ME.ECS.Tests {
         [NUnit.Framework.TestAttribute]
         public void NativeBufferArraySerialization() {
             var test = new TestDataNativeBufferArray {
-                viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23),
+                viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23, DestroyViewBehaviour.DestroyWithEntity),
                 buffer = new ME.ECS.Collections.NativeBufferArray<MyStruct>(new[] {
                     new MyStruct { bar = 1, foo = 2 },
                     new MyStruct { bar = 2, foo = 3 },

@@ -1383,10 +1383,6 @@ namespace ME.ECS {
         #endif
         private void UseEntityFlags() {
 
-            if (this.entitiesOneShotFilter.IsAlive() == false) {
-                Filter.Create().With<IsEntityOneShot>().Push(ref this.entitiesOneShotFilter);
-            }
-
             foreach (var entity in this.entitiesOneShotFilter) {
 
                 entity.Destroy();

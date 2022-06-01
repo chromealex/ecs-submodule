@@ -177,7 +177,7 @@ namespace ME.ECS {
                 for (int i = group.fromId, k = 0; i <= group.toId; ++i, ++k) {
                     
                     var entity = group.slice[k];
-                    var viewInfo = new ViewInfo(entity, sourceId, this.world.GetStateTick());
+                    var viewInfo = new ViewInfo(entity, sourceId, this.world.GetStateTick(), DestroyViewBehaviour.DestroyWithEntity);
                     var view = new ViewComponent() {
                         viewInfo = viewInfo,
                         seed = (uint)this.world.GetSeed(),

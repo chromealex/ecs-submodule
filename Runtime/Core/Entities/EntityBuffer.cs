@@ -235,7 +235,7 @@ namespace ME.ECS {
 
                 if (world.currentState.structComponents.entitiesIndexer.GetCount(entity.id) == 0 &&
                     (world.currentState.storage.flags.Get(entity.id) & (byte)EntityFlag.DestroyWithoutComponents) != 0) {
-                    entity.SetOneShot<IsEntityOneShot>();
+                    entity.SetOneShot<IsEntityEmptyOneShot>();
                 }
 
                 result = true;
@@ -257,7 +257,7 @@ namespace ME.ECS {
                 
                 if (world.currentState.structComponents.entitiesIndexer.GetCount(entity.id) == 0 &&
                     (world.currentState.storage.flags.Get(entity.id) & (byte)EntityFlag.DestroyWithoutComponents) != 0) {
-                    entity.RemoveOneShot<IsEntityOneShot>();
+                    entity.RemoveOneShot<IsEntityEmptyOneShot>();
                 }
 
                 if (storageType == StorageType.Default) {
@@ -322,7 +322,7 @@ namespace ME.ECS {
                 
                 if (world.currentState.structComponents.entitiesIndexer.GetCount(entity.id) == 0 &&
                     (world.currentState.storage.flags.Get(entity.id) & (byte)EntityFlag.DestroyWithoutComponents) != 0) {
-                    entity.RemoveOneShot<IsEntityOneShot>();
+                    entity.RemoveOneShot<IsEntityEmptyOneShot>();
                 }
 
                 if (storageType == StorageType.Default) {

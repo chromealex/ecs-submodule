@@ -788,7 +788,7 @@ namespace ME.ECSEditor {
                                     for (var j = 0; j < activeViews.Count; ++j) {
 
                                         var view = activeViews[j];
-                                        var provider = activeViewProviders[j].GetViewSourceProvider(view.prefabSourceId);
+                                        var provider = activeViewProviders[j].GetViewSourceProvider(view.info.prefabSourceId);
                                         GUILayout.Label("Provider: " + GUILayoutExt.GetTypeLabel(provider.GetType()), EditorStyles.miniBoldLabel);
                                         if (view is Object obj) {
 

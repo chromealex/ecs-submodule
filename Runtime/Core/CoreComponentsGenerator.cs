@@ -2,12 +2,14 @@
 namespace ME.ECS {
 
     public struct IsEntityOneShot : IComponentOneShot {}
+    public struct IsEntityEmptyOneShot : IComponentOneShot {}
     
     public static class CoreComponentsInitializer {
 
         public static void InitTypeId() {
             
             WorldUtilities.InitComponentTypeId<IsEntityOneShot>(true, isOneShot: true);
+            WorldUtilities.InitComponentTypeId<IsEntityEmptyOneShot>(true, isOneShot: true);
             WorldUtilities.InitComponentTypeId<ME.ECS.Views.ViewComponent>(false);
             WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveListNode>(false);
             WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
@@ -23,6 +25,7 @@ namespace ME.ECS {
         public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer, ref ME.ECS.StructComponentsContainer noStateStructComponentsContainer) {
             
             noStateStructComponentsContainer.Validate<IsEntityOneShot>(true);
+            noStateStructComponentsContainer.Validate<IsEntityEmptyOneShot>(true);
             structComponentsContainer.Validate<ME.ECS.Views.ViewComponent>(false);
             structComponentsContainer.Validate<ME.ECS.Collections.IntrusiveListNode>(false);
             structComponentsContainer.Validate<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
@@ -38,6 +41,7 @@ namespace ME.ECS {
         public static void Init(in Entity entity) {
             
             entity.ValidateData<IsEntityOneShot>(true);
+            entity.ValidateData<IsEntityEmptyOneShot>(true);
             entity.ValidateData<ME.ECS.Views.ViewComponent>(false);
             entity.ValidateData<ME.ECS.Collections.IntrusiveListNode>(false);
             entity.ValidateData<ME.ECS.Collections.IntrusiveHashSetBucket>(false);

@@ -146,8 +146,30 @@ namespace ME.ECS {
 
             world.SetSettings(this.worldSettings);
             world.SetDebugSettings(this.worldDebugSettings);
+            world.InitializeDefaults();
+
+            // Initialize scene
+            this.InitializeScene(world);
+            
+            // Initialize features
             this.InitializeFeatures(world);
             
+        }
+
+        private void InitializeScene(World world) {
+
+            var sceneEntityViews = InitializerBase.FindObjectsOfType<ME.ECS.Views.Providers.SceneViewInitializer>();
+            for (int i = 0; i < sceneEntityViews.Length; ++i) {
+
+                var view = sceneEntityViews[i];
+                if (view != null) {
+                    
+                    ((ME.ECS.Views.Providers.ISceneView)view).Initialize(world);
+                    
+                }
+
+            }
+
         }
 
         protected void InitializeFeatures(World world) {

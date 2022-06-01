@@ -1270,10 +1270,17 @@ namespace ME.ECS {
 
         }
 
-        public void SetState<TState>(State state) where TState : State, new() {
+        internal void InitializeDefaults() {
+            
+            if (this.entitiesOneShotFilter.IsAlive() == false) {
+                
+                Filter.Create().Any<IsEntityOneShot, IsEntityEmptyOneShot>().Push(ref this.entitiesOneShotFilter);
+                
+            }
 
-            //System.Array.Clear(this.storagesCache, 0, this.storagesCache.Length);
-            //System.Array.Clear(this.componentsCache, 0, this.componentsCache.Length);
+        }
+
+        public void SetState<TState>(State state) where TState : State, new() {
 
             if (this.currentState != null && this.currentState != state) WorldUtilities.ReleaseState<TState>(ref this.currentState);
             this.currentState = state;
@@ -1281,8 +1288,6 @@ namespace ME.ECS {
             
             this.structComponentsNoState.SetEntityCapacity(state.storage.AliveCount + state.storage.DeadCount);
             this.structComponentsNoState.Merge();
-
-            //this.SetSeed(this.seed);
 
         }
 

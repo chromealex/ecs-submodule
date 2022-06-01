@@ -7,7 +7,7 @@ namespace ME.ECS {
     using Collections;
 
     [System.Flags]
-    public enum EntityFlag : byte {
+    public enum EntityFlag : int {
 
         None = 0x0,
         /// <summary>
