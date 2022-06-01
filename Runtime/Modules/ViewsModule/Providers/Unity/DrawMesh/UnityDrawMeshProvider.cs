@@ -365,27 +365,34 @@ namespace ME.ECS.Views.Providers {
         internal struct NullState {}
 
         private System.Collections.Generic.Dictionary<long, DrawMeshSystemItem> psItems;
-        private PoolInternalBase pool;
+        private DictionaryCopyable<ViewId, PoolInternalBase> pools;
         private BufferArray<UnityEngine.Matrix4x4> matrices;
         private int maxMatrices = 1000;
 
         public override void OnConstruct() {
 
             this.psItems = PoolDictionary<long, DrawMeshSystemItem>.Spawn(100);
-            this.pool = new PoolInternalBase(typeof(DrawMeshViewBase));
+            this.pools = PoolDictionaryCopyable<ViewId, PoolInternalBase>.Spawn(100);
 
         }
 
         public override void OnDeconstruct() {
 
-            this.pool = null;
+            PoolDictionaryCopyable<ViewId, PoolInternalBase>.Recycle(ref this.pools);
             PoolDictionary<long, DrawMeshSystemItem>.Recycle(ref this.psItems);
 
         }
 
         public override IView Spawn(IView prefab, ViewId prefabSourceId, in Entity targetEntity) {
+            
+            if (this.pools.TryGetValue(prefabSourceId, out var pool) == false) {
+                
+                pool = new PoolInternalBase(typeof(DrawMeshViewBase));
+                this.pools.Add(prefabSourceId, pool);
+                
+            }
 
-            var obj = this.pool.Spawn(new NullState());
+            var obj = pool.Spawn(new NullState());
             if (obj == null) {
 
                 obj = System.Activator.CreateInstance(prefab.GetType());
@@ -433,7 +440,15 @@ namespace ME.ECS.Views.Providers {
 
             }
 
-            this.pool.Recycle(instance);
+            var prefabSourceId = instance.prefabSourceId;
+            if (this.pools.TryGetValue(prefabSourceId, out var pool) == false) {
+                
+                pool = new PoolInternalBase(typeof(DrawMeshViewBase));
+                this.pools.Add(prefabSourceId, pool);
+                
+            }
+
+            pool.Recycle(instance);
             instance = null;
 
             return true;

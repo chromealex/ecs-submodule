@@ -1,4 +1,3 @@
-#if !UNITY_DOTSPLAYER
 using UnityEngine;
 
 #pragma warning disable 0660, 0661
@@ -65,4 +64,3 @@ namespace ME.ECS.Mathematics
         public static implicit operator Unity.Mathematics.float4x4(float4x4 m) { return new Unity.Mathematics.float4x4((Vector4)m.c0, (Vector4)m.c1, (Vector4)m.c2, (Vector4)m.c3); }
     }
 }
-#endif
