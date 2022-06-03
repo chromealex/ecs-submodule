@@ -575,7 +575,7 @@ namespace ME.ECS.Serializer {
             fixed (byte* ptr = buffer) {
                 *(T*)(ptr + pos) = data;
             }
-
+            
         }
 
         [INLINE(256)]
@@ -587,6 +587,81 @@ namespace ME.ECS.Serializer {
                 return *(T*)(ptr + pos);
             }
 
+        }
+        
+        [INLINE(256)]
+        public static unsafe void PackSingle(Packer packer, float value) {
+            
+            var pos = packer.GetPositionAndMove(4);
+            var buffer = packer.GetBuffer();
+            if (pos % 4 == 0) {
+                fixed (byte* ptr = buffer) {
+                    *(float*)(ptr + pos) = value;
+                }
+            } else {
+                uint num = *(uint*)(&value);
+                buffer[pos] = (byte)num;
+                buffer[pos + 1] = (byte)(num >> 8);
+                buffer[pos + 2] = (byte)(num >> 16);
+                buffer[pos + 3] = (byte)(num >> 24);
+            }
+
+        }
+
+        public static unsafe float UnpackSingle(Packer packer) {
+            
+            var pos = packer.GetPositionAndMove(4);
+            var buffer = packer.GetBuffer();
+            if (pos % 4 == 0) {
+                fixed (byte* ptr = buffer) {
+                    return *(float*)(ptr + pos);
+                }
+            } else {
+                uint num = (uint)((int)buffer[pos] | (int)buffer[pos + 1] << 8 | (int)buffer[pos + 2] << 16 | (int)buffer[pos + 3] << 24);
+                return *(float*)(&num);
+            }
+            
+        }
+
+        [INLINE(256)]
+        public static unsafe void PackDouble(Packer packer, double value) {
+            
+            var pos = packer.GetPositionAndMove(8);
+            var buffer = packer.GetBuffer();
+            if (pos % 8 == 0) {
+                fixed (byte* ptr = buffer)
+                {
+                    *(double*)(ptr + pos) = value;
+                }
+            } else {
+                ulong num = (ulong)(*(long*)(&value));
+                buffer[pos] = (byte)num;
+                buffer[pos + 1] = (byte)(num >> 8);
+                buffer[pos + 2] = (byte)(num >> 16);
+                buffer[pos + 3] = (byte)(num >> 24);
+                buffer[pos + 4] = (byte)(num >> 32);
+                buffer[pos + 5] = (byte)(num >> 40);
+                buffer[pos + 6] = (byte)(num >> 48);
+                buffer[pos + 7] = (byte)(num >> 56);
+            }
+
+        }
+
+        [INLINE(256)]
+        public static unsafe double UnpackDouble(Packer packer) {
+            
+            var pos = packer.GetPositionAndMove(8);
+            var buffer = packer.GetBuffer();
+            if (pos % 8 == 0) {
+                fixed (byte* ptr = buffer) {
+                    return *(double*)(ptr + pos);
+                }
+            } else {
+                uint num = (uint)((int)buffer[pos] | (int)buffer[pos + 1] << 8 | (int)buffer[pos + 2] << 16 | (int)buffer[pos + 3] << 24);
+                ulong num2 = (ulong)((int)buffer[pos + 4] | (int)buffer[pos + 5] << 8 | (int)buffer[pos + 6] << 16 | (int)buffer[pos + 7] << 24) << 32 | (ulong)num;
+                return *(double*)(&num2);
+            }
+            
         }
 
         [INLINE(256)]

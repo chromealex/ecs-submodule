@@ -408,15 +408,13 @@ namespace ME.ECS.Serializer {
         
         [INLINE(256)] public static void PackDirect(Packer packer, double value) {
 
-            const int size = 8;
-            Serializer.PackBlittable(packer, value, size);
+            Serializer.PackDouble(packer, value);
             
         }
         
         [INLINE(256)] public static double UnpackDirect(Packer packer) {
 
-            const int size = 8;
-            return Serializer.UnpackBlittable<double>(packer, size);
+            return Serializer.UnpackDouble(packer);
             
         }
 
@@ -441,15 +439,13 @@ namespace ME.ECS.Serializer {
 
         [INLINE(256)] public static void PackDirect(Packer packer, float value) {
 
-            const int size = 4;
-            Serializer.PackBlittable(packer, value, size);
+            Serializer.PackSingle(packer, value);
             
         }
         
         [INLINE(256)] public static float UnpackDirect(Packer packer) {
 
-            const int size = 4;
-            return Serializer.UnpackBlittable<float>(packer, size);
+            return Serializer.UnpackSingle(packer);
             
         }
 
