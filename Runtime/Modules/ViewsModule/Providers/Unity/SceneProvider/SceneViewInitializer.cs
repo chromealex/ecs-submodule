@@ -45,50 +45,55 @@ namespace ME.ECS.Views.Providers {
         public bool rotation;
         public bool scale;
 
-        public void Apply(in Entity entity, UnityEngine.Transform transform) {
+        public void Apply(in Entity entity, in Entity rootEntity, SceneViewInitializer initializer, World world) {
 
-            var hasParent = false;
-            if (transform.parent != null) {
-                
-                // We have an hierarchy
-                var parentInitializers = transform.GetComponentsInParent<SceneViewInitializer>();
-                if (parentInitializers.Length > 1) {
-
-                    var parentInitializer = parentInitializers[1];
-                    switch (this.type) {
-                        case ApplyType._2D:
-                            entity.SetParent2D(parentInitializer.runtimeEntity);
-                            break;
-                        case ApplyType._3D:
-                            entity.SetParent(parentInitializer.runtimeEntity);
-                            break;
-                    }
-
-                    hasParent = true;
-
-                }
-
-            }
-
+            var transform = initializer.transform;
             switch (this.type) {
                 case ApplyType._2D:
                     if (this.position == true) entity.SetLocalPosition2D(this.GetPlaneVector(transform.localPosition, this.plane2d));
                     if (this.rotation == true) entity.SetLocalRotation2D(this.GetPlaneAngle(transform.localRotation, this.plane2d));
                     if (this.scale == true) entity.SetLocalScale2D(this.GetPlaneVector(transform.localScale, this.plane2d));
+                    entity.SetParent2D(in rootEntity, false);
                     break;
                 case ApplyType._3D:
                     if (this.position == true) entity.SetLocalPosition((float3)transform.localPosition);
                     if (this.rotation == true) entity.SetLocalRotation((quaternion)transform.localRotation);
                     if (this.scale == true) entity.SetLocalScale((float3)transform.localScale);
+                    entity.SetParent(in rootEntity, false);
                     break;
             }
 
-            if (hasParent == true) {
-                
-                transform.SetParent(null);
+            transform.SetParent(null);
+
+            if (transform.childCount > 0) {
+
+                var results = PoolList<SceneViewInitializer>.Spawn(10);
+                transform.GetComponentsInChildren(false, results);
+                for (int i = 0; i < results.Count; ++i) {
+                    
+                    var childInitializer = results[i];
+                    if (childInitializer == initializer) continue;
+                    
+                    var parents = PoolList<SceneViewInitializer>.Spawn(10);
+                    childInitializer.GetComponentsInParent(false, parents);
+                    if (parents.Contains(initializer) == true) {
+                        
+                        PoolList<SceneViewInitializer>.Recycle(ref parents);
+                        
+                        // Run just for the one level
+                        childInitializer.Initialize_INTERNAL(world, entity);
+                        
+                    } else {
+                        
+                        PoolList<SceneViewInitializer>.Recycle(ref parents);
+                        
+                    }
+
+                }
+                PoolList<SceneViewInitializer>.Recycle(ref results);
                 
             }
-            
+ 
         }
 
         private float GetPlaneAngle(UnityEngine.Quaternion rot, Plane plane) {
@@ -119,10 +124,8 @@ namespace ME.ECS.Views.Providers {
     
     public abstract class SceneViewInitializer : UnityEngine.MonoBehaviour, ISceneView {
 
-        [System.NonSerializedAttribute]
-        public Entity runtimeEntity;
-        
         [UnityEngine.SpaceAttribute]
+        public bool applyName = true;
         public EntityFlag entityFlags;
         public ME.ECS.DataConfigs.DataConfig applyDataConfig;
         
@@ -132,13 +135,18 @@ namespace ME.ECS.Views.Providers {
         [UnityEngine.SpaceAttribute]
         public DestroyViewBehaviour destroyViewBehaviour;
         
-        void ISceneView.Initialize(World world) { 
-            
-            var entity = new Entity(this.entityFlags);
-            this.runtimeEntity = entity;
+        void ISceneView.Initialize(World world) {
+
+            this.Initialize_INTERNAL(world, Entity.Null);
+
+        }
+        
+        internal void Initialize_INTERNAL(World world, Entity rootEntity) {
+
+            var entity = new Entity(this.applyName == true ? this.name : null, this.entityFlags);
             if (this.applyDataConfig != null) this.applyDataConfig.Apply(entity);
 
-            this.transformProperties.Apply(in entity, this.transform);
+            this.transformProperties.Apply(in entity, in rootEntity, this, world);
             
             this.OnInitialize(world, in entity);
             

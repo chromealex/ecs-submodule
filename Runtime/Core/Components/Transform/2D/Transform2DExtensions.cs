@@ -152,6 +152,24 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static float2 GetScale2D(this in Entity child) {
+
+            var scale = child.Read<Scale2D>().ToVector2();
+            ref readonly var container = ref child.Read<Container>();
+            while (container.entity.IsEmpty() == false) {
+
+                scale *= container.entity.Read<Scale2D>().ToVector2();
+                container = ref container.entity.Read<Container>();
+
+            }
+
+            return scale;
+
+        }
+
     }
 
 }

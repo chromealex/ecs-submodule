@@ -325,6 +325,12 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
         void IAdvanceTick.AdvanceTick(in float deltaTime) {
 
             this.physicsWorld.Reset(this.staticBodies.Count, this.dynamicBodies.Count, this.joints.Count);
+
+            if (this.physicsWorld.Bodies.Length == 0) {
+                
+                return;
+                
+            }
             
             var simulationParameters = new ME.ECS.Essentials.Physics.SimulationStepInput() {
                 Gravity = new float3(0f, -9.8f, 0f),

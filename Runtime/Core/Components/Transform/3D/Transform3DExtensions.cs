@@ -151,6 +151,24 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static float3 GetScale(this in Entity child) {
+
+            var scale = child.Read<Scale>().ToVector3();
+            ref readonly var container = ref child.Read<Container>();
+            while (container.entity.IsEmpty() == false) {
+
+                scale *= container.entity.Read<Scale>().ToVector3();
+                container = ref container.entity.Read<Container>();
+
+            }
+
+            return scale;
+
+        }
+
     }
 
 }

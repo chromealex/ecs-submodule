@@ -159,16 +159,24 @@ namespace ME.ECS {
         private void InitializeScene(World world) {
 
             var sceneEntityViews = InitializerBase.FindObjectsOfType<ME.ECS.Views.Providers.SceneViewInitializer>();
+            var list = PoolList<ME.ECS.Views.Providers.SceneViewInitializer>.Spawn(sceneEntityViews.Length);
             for (int i = 0; i < sceneEntityViews.Length; ++i) {
 
                 var view = sceneEntityViews[i];
-                if (view != null) {
+                if (view != null && view.transform.parent == null) {
                     
-                    ((ME.ECS.Views.Providers.ISceneView)view).Initialize(world);
+                    list.Add(view);
                     
                 }
 
             }
+            for (int i = 0; i < list.Count; ++i) {
+
+                var view = list[i];
+                ((ME.ECS.Views.Providers.ISceneView)view).Initialize(world);
+                
+            }
+            PoolList<ME.ECS.Views.Providers.SceneViewInitializer>.Recycle(ref list);
 
         }
 
