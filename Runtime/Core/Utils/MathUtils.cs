@@ -232,8 +232,6 @@ namespace ME.ECS {
 
         public static int GetScheduleBatchCount(int count) {
 
-            return 128;
-            
             const int batch = 64;
 
             var batchCount = count / batch;
