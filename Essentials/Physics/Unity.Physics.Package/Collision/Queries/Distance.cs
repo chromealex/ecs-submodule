@@ -18,13 +18,24 @@ namespace ME.ECS.Essentials.Physics
     }
 
     // The input to collider distance queries
-    public unsafe struct ColliderDistanceInput
+    public struct ColliderDistanceInput
     {
-        public Collider* Collider;
+        public unsafe Collider* Collider;
         public RigidTransform Transform;
         public sfloat MaxDistance;
 
         internal QueryContext QueryContext;
+
+        public ColliderDistanceInput(BlobAssetReference<Collider> collider, RigidTransform transform, sfloat maxDistance)
+        {
+            unsafe
+            {
+                Collider = (Collider*)collider.GetUnsafePtr();
+            }
+            Transform = transform;
+            MaxDistance = maxDistance;
+            QueryContext = default;
+        }
     }
 
     // A hit from a distance query
@@ -78,16 +89,46 @@ namespace ME.ECS.Essentials.Physics
         /// </summary>
         /// <value> Distance at which the hit occurred. </value>
         public sfloat Distance => Fraction;
+
+        /// <summary>
+        /// Collider key of the query collider
+        /// </summary>
+        /// <value>
+        /// If the query input uses composite collider, this field will have the collider key of it's leaf which participated in the hit,
+        /// otherwise the value will be undefined.
+        /// </value>
+        public ColliderKey QueryColliderKey;
     }
 
     // Distance query implementations
     static class DistanceQueries
     {
+        private static unsafe void FlipColliderDistanceQuery<T>(ref ColliderDistanceInput input, ConvexCollider* target, ref T collector,
+            out FlippedColliderDistanceQueryCollector<T> flippedQueryCollector)
+            where T : struct, ICollector<DistanceHit>
+        {
+            MTransform targetFromQuery = new MTransform(input.Transform);
+
+            var worldFromQuery = Mul(input.QueryContext.WorldFromLocalTransform, targetFromQuery);
+            var queryFromTarget = math.inverse(input.Transform);
+
+            input.QueryContext.WorldFromLocalTransform = worldFromQuery;
+            input.Transform = queryFromTarget;
+
+            flippedQueryCollector = new FlippedColliderDistanceQueryCollector<T>(ref collector, input.QueryContext.ColliderKey, target->Material);
+
+            input.QueryContext.ColliderKey = ColliderKey.Empty;
+            input.QueryContext.NumColliderKeyBits = 0;
+            input.Collider = (Collider*)target;
+        }
+
+        #region QueryImplementation
+
         // Distance queries have edge cases where distance = 0, eg. consider choosing the correct normal for a point that is exactly on a triangle surface.
         // Additionally, with floating point numbers there are often numerical accuracy problems near distance = 0.  Some routines handle this with special
         // cases where distance^2 < distanceEpsSq, which is expected to be rare in normal usage.  distanceEpsSq is not an exact value, but chosen to be small
         // enough that at typical simulation scale the difference between distance = distanceEps and distance = 0 is negligible.
-        private static sfloat distanceEpsSq => sfloat.FromRaw(0x322bcc77);
+        private static sfloat distanceEpsSq = 1e-8f;
 
         public struct Result
         {
@@ -122,9 +163,9 @@ namespace ME.ECS.Essentials.Physics
 
         private static Result PointPoint(float3 pointB, float3 diff, sfloat coreDistanceSq, sfloat radiusA, sfloat sumRadii)
         {
-            bool distanceZero = coreDistanceSq.IsZero();
-            sfloat invCoreDistance = math.select(math.rsqrt(coreDistanceSq), sfloat.Zero, distanceZero);
-            float3 normal = math.select(diff * invCoreDistance, new float3(sfloat.Zero, sfloat.One, sfloat.Zero), distanceZero); // choose an arbitrary normal when the distance is zero
+            bool distanceZero = coreDistanceSq == 0.0f;
+            sfloat invCoreDistance = math.select(math.rsqrt(coreDistanceSq), 0.0f, distanceZero);
+            float3 normal = math.select(diff * invCoreDistance, new float3(0, 1, 0), distanceZero); // choose an arbitrary normal when the distance is zero
             sfloat distance = coreDistanceSq * invCoreDistance;
             return new Result
             {
@@ -152,7 +193,7 @@ namespace ME.ECS.Essentials.Physics
             MTransform aFromBoxA = new MTransform(boxA->Orientation, boxA->Center);
             float3 posBinA = Mul(aFromB, sphereB->Center);
             float3 posBinBoxA = Mul(Inverse(aFromBoxA), posBinA);
-            float3 innerHalfExtents = boxA->Size * (sfloat)0.5f - boxA->BevelRadius;
+            float3 innerHalfExtents = boxA->Size * 0.5f - boxA->BevelRadius;
             float3 normalInBoxA;
             sfloat distance;
             {
@@ -163,20 +204,20 @@ namespace ME.ECS.Essentials.Physics
                 sfloat distanceSquared = math.lengthsq(difference);
 
                 // Check if the sphere center is inside the box
-                if (distanceSquared < sfloat.FromRaw(0x358637bd))
+                if (distanceSquared < 1e-6f)
                 {
                     float3 projectionLocal = projection;
                     float3 absProjectionLocal = math.abs(projectionLocal);
                     float3 del = absProjectionLocal - innerHalfExtents;
-                    int axis = IndexOfMaxComponent(new float4(del, -sfloat.MaxValue));
+                    int axis = IndexOfMaxComponent(new float4(del, -float.MaxValue));
                     switch (axis)
                     {
-                        case 0: normalInBoxA = new float3(projectionLocal.x < sfloat.Zero ? sfloat.One : -sfloat.One, sfloat.Zero, sfloat.Zero); break;
-                        case 1: normalInBoxA = new float3(sfloat.Zero, projectionLocal.y < sfloat.Zero ? sfloat.One : -sfloat.One, sfloat.Zero); break;
-                        case 2: normalInBoxA = new float3(sfloat.Zero, sfloat.Zero, projectionLocal.z < sfloat.Zero ? sfloat.One : -sfloat.One); break;
+                        case 0: normalInBoxA = new float3(projectionLocal.x < 0.0f ? 1.0f : -1.0f, 0.0f, 0.0f); break;
+                        case 1: normalInBoxA = new float3(0.0f, projectionLocal.y < 0.0f ? 1.0f : -1.0f, 0.0f); break;
+                        case 2: normalInBoxA = new float3(0.0f, 0.0f, projectionLocal.z < 0.0f ? 1.0f : -1.0f); break;
                         default:
-                            normalInBoxA = new float3(sfloat.One, sfloat.Zero, sfloat.Zero);
-                            UnityEngine.Assertions.Assert.IsTrue(false);
+                            normalInBoxA = new float3(1, 0, 0);
+                            Assert.IsTrue(false);
                             break;
                     }
                     distance = math.max(del.x, math.max(del.y, del.z));
@@ -210,9 +251,9 @@ namespace ME.ECS.Essentials.Physics
             float3 edgeA = capsuleVertex1 - capsuleVertex0;
             sfloat dot = math.dot(edgeA, centerB - capsuleVertex0);
             sfloat edgeLengthSquared = math.lengthsq(edgeA);
-            dot = math.max(dot, sfloat.Zero);
+            dot = math.max(dot, 0.0f);
             dot = math.min(dot, edgeLengthSquared);
-            sfloat invEdgeLengthSquared = sfloat.One / edgeLengthSquared;
+            sfloat invEdgeLengthSquared = 1.0f / edgeLengthSquared;
             sfloat frac = dot * invEdgeLengthSquared;
             float3 pointOnA = capsuleVertex0 + edgeA * frac;
             return PointPoint(pointOnA, centerB, capsuleRadius, capsuleRadius + sphereRadius);
@@ -233,22 +274,22 @@ namespace ME.ECS.Essentials.Physics
             sfloat invDenom, invLengthASq, invLengthBSq;
             {
                 sfloat denom = lengthASq * lengthBSq - r * r;
-                float3 inv = sfloat.One / new float3(denom, lengthASq, lengthBSq);
+                float3 inv = 1.0f / new float3(denom, lengthASq, lengthBSq);
                 invDenom = inv.x;
                 invLengthASq = inv.y;
                 invLengthBSq = inv.z;
             }
 
             sfloat fracA = (s1 * lengthBSq - s2 * r) * invDenom;
-            fracA = math.clamp(fracA, sfloat.Zero, sfloat.One);
+            fracA = math.clamp(fracA, 0.0f, 1.0f);
 
             // Find the closest point on edge B to the point on A just found
             sfloat fracB = fracA * (invLengthBSq * r) - invLengthBSq * s2;
-            fracB = math.clamp(fracB, sfloat.Zero, sfloat.One);
+            fracB = math.clamp(fracB, 0.0f, 1.0f);
 
             // If the point on B was clamped then there may be a closer point on A to the edge
             fracA = fracB * (invLengthASq * r) + invLengthASq * s1;
-            fracA = math.clamp(fracA, sfloat.Zero, sfloat.One);
+            fracA = math.clamp(fracA, 0.0f, 1.0f);
 
             closestAOut = pointA + fracA * edgeA;
             closestBOut = pointB + fracB * edgeB;
@@ -272,9 +313,9 @@ namespace ME.ECS.Essentials.Physics
             {
                 // Special case for extremely small distances, should be rare
                 float3 normal = math.cross(edgeA, edgeB);
-                if (math.lengthsq(normal) < sfloat.FromRaw(0x3727c5ac))
+                if (math.lengthsq(normal) < 1e-5f)
                 {
-                    float3 edge = math.normalizesafe(edgeA, math.normalizesafe(edgeB, new float3(sfloat.One, sfloat.Zero, sfloat.Zero))); // edges are parallel or one of the capsules is a sphere
+                    float3 edge = math.normalizesafe(edgeA, math.normalizesafe(edgeB, new float3(1, 0, 0))); // edges are parallel or one of the capsules is a sphere
                     Math.CalculatePerpendicularNormalized(edge, out normal, out float3 unused); // normal is anything perpendicular to edge
                 }
                 else
@@ -313,7 +354,7 @@ namespace ME.ECS.Essentials.Physics
                 return true;
             }
 
-            signedDistance = sfloat.MaxValue;
+            signedDistance = float.MaxValue;
             return false;
         }
 
@@ -338,7 +379,7 @@ namespace ME.ECS.Essentials.Physics
                 return new Result
                 {
                     PositionOnAinA = pointB + normal * signedDistance,
-                    NormalInA = math.select(normal, -normal, signedDistance < sfloat.Zero),
+                    NormalInA = math.select(normal, -normal, signedDistance < 0),
                     Distance = math.abs(signedDistance) - sphereRadius
                 };
             }
@@ -346,7 +387,7 @@ namespace ME.ECS.Essentials.Physics
             // Find the closest point on the triangle edges - project point onto the line through each edge, then clamp to the edge
             float4 nums = rels.Dot(edgesA);
             float4 dens = edgesA.Dot(edgesA);
-            float4 sols = math.clamp(nums / dens, sfloat.Zero, sfloat.One); // fraction along the edge TODO.ma see how it handles inf/nan from divide by zero
+            float4 sols = math.clamp(nums / dens, (sfloat)0.0f, (sfloat)1.0f); // fraction along the edge TODO.ma see how it handles inf/nan from divide by zero
             FourTransposedPoints projs = edgesA.MulT(sols) - rels;
             float4 distancesSq = projs.Dot(projs);
 
@@ -363,7 +404,7 @@ namespace ME.ECS.Essentials.Physics
             direction = math.select(proj2, direction, less2);
             distanceSq = math.select(distancesSq.z, distanceSq, less2);
 
-            sfloat triangleConvexRadius = sfloat.Zero;
+            sfloat triangleConvexRadius = 0.0f;
             return PointPoint(pointB, direction, distanceSq, triangleConvexRadius, sphereRadius);
         }
 
@@ -399,7 +440,7 @@ namespace ME.ECS.Essentials.Physics
             float3 direction;
             sfloat distanceSq;
             float3 pointCapsule;
-            sfloat sign = sfloat.One; // negated if penetrating
+            sfloat sign = 1.0f; // negated if penetrating
             {
                 // Calculate triangle edges and edge planes
                 float3 faceNormal = math.mul(aFromB.Rotation, triangleB->ConvexHull.Planes[0].Normal);
@@ -419,7 +460,7 @@ namespace ME.ECS.Essentials.Physics
                     }
                     else
                     {
-                        direction = math.select(faceNormal, -faceNormal, math.dot(c1 - c0, faceNormal) < sfloat.Zero); // rare case, capsule point is exactly on the triangle face
+                        direction = math.select(faceNormal, -faceNormal, math.dot(c1 - c0, faceNormal) < 0); // rare case, capsule point is exactly on the triangle face
                     }
                     pointCapsule = c0;
                 }
@@ -436,7 +477,7 @@ namespace ME.ECS.Essentials.Physics
                     }
                     else
                     {
-                        direction1 = math.select(faceNormal, -faceNormal, math.dot(c0 - c1, faceNormal) < sfloat.Zero); // rare case, capsule point is exactly on the triangle face
+                        direction1 = math.select(faceNormal, -faceNormal, math.dot(c0 - c1, faceNormal) < 0); // rare case, capsule point is exactly on the triangle face
                     }
                     SelectMin(ref direction, ref distanceSq, ref pointCapsule, direction1, distanceSq1, c1);
                 }
@@ -458,8 +499,8 @@ namespace ME.ECS.Essentials.Physics
                     // Find the intersection of the axis with the triangle plane
                     sfloat axisDot = math.dot(axis, faceNormal);
                     sfloat dist0 = math.dot(t0 - c0, faceNormal); // distance from c0 to the plane along the normal
-                    sfloat t = dist0 * math.select(math.rcp(axisDot), sfloat.Zero, axisDot.IsZero());
-                    if (t > sfloat.Zero && t < sfloat.One)
+                    sfloat t = dist0 * math.select(math.rcp(axisDot), 0.0f, axisDot == 0.0f);
+                    if (t > 0.0f && t < 1.0f)
                     {
                         // If they intersect, check if the intersection is inside the triangle
                         FourTransposedPoints rels = new FourTransposedPoints(c0 + axis * t) - vertsB;
@@ -474,7 +515,7 @@ namespace ME.ECS.Essentials.Physics
                             SelectMin(ref direction, ref distanceSq, ref pointCapsule, dist * faceNormal, dist * dist, closestOnCapsule);
 
                             // Even if the edge is closer than the face, we now know that the edge hit was penetrating
-                            sign = -sfloat.One;
+                            sign = -1.0f;
                         }
                     }
                 }
@@ -486,7 +527,7 @@ namespace ME.ECS.Essentials.Physics
             if (distanceSq < distanceEpsSq)
             {
                 normal = math.normalize(direction); // rare case, capsule axis almost exactly touches the triangle
-                distance = sfloat.Zero;
+                distance = 0.0f;
             }
             else
             {
@@ -637,6 +678,8 @@ namespace ME.ECS.Essentials.Physics
             return result;
         }
 
+        #endregion
+
         public static unsafe bool PointCollider<T>(PointDistanceInput input, Collider* target, ref T collector) where T : struct, ICollector<DistanceHit>
         {
             if (!CollisionFilter.IsCollisionEnabled(input.Filter, target->Filter))
@@ -661,28 +704,28 @@ namespace ME.ECS.Essentials.Physics
                     break;
                 case ColliderType.Capsule:
                     var capsule = (CapsuleCollider*)target;
-                    result = CapsuleSphere(capsule->Vertex0, capsule->Vertex1, capsule->Radius, input.Position, sfloat.Zero, MTransform.Identity);
+                    result = CapsuleSphere(capsule->Vertex0, capsule->Vertex1, capsule->Radius, input.Position, 0.0f, MTransform.Identity);
                     material = capsule->Material;
                     break;
                 case ColliderType.Triangle:
                     var triangle = (PolygonCollider*)target;
                     result = TriangleSphere(
                         triangle->Vertices[0], triangle->Vertices[1], triangle->Vertices[2], triangle->Planes[0].Normal,
-                        input.Position, sfloat.Zero, MTransform.Identity);
+                        input.Position, 0.0f, MTransform.Identity);
                     material = triangle->Material;
                     break;
                 case ColliderType.Quad:
                     var quad = (PolygonCollider*)target;
                     result = QuadSphere(
                         quad->Vertices[0], quad->Vertices[1], quad->Vertices[2], quad->Vertices[3], quad->Planes[0].Normal,
-                        input.Position, sfloat.Zero, MTransform.Identity);
+                        input.Position, 0.0f, MTransform.Identity);
                     material = quad->Material;
                     break;
                 case ColliderType.Convex:
                 case ColliderType.Box:
                 case ColliderType.Cylinder:
                     ref ConvexHull hull = ref ((ConvexCollider*)target)->ConvexHull;
-                    result = ConvexConvex(hull.VerticesPtr, hull.NumVertices, hull.ConvexRadius, &input.Position, 1, sfloat.Zero, MTransform.Identity);
+                    result = ConvexConvex(hull.VerticesPtr, hull.NumVertices, hull.ConvexRadius, &input.Position, 1, 0.0f, MTransform.Identity);
                     material = ((ConvexColliderHeader*)target)->Material;
                     break;
                 case ColliderType.Mesh:
@@ -704,6 +747,7 @@ namespace ME.ECS.Essentials.Physics
                     SurfaceNormal = math.mul(input.QueryContext.WorldFromLocalTransform.Rotation, -result.NormalInA),
                     Position = Mul(input.QueryContext.WorldFromLocalTransform, result.PositionOnAinA),
                     ColliderKey = input.QueryContext.ColliderKey,
+                    QueryColliderKey = ColliderKey.Empty,
                     Material = material,
                     RigidBodyIndex = input.QueryContext.RigidBodyIndex,
                     Entity = input.QueryContext.Entity
@@ -726,7 +770,6 @@ namespace ME.ECS.Essentials.Physics
                 input.QueryContext = QueryContext.DefaultContext;
             }
 
-            Material material = Material.Default;
             switch (input.Collider->CollisionType)
             {
                 case CollisionType.Convex:
@@ -740,7 +783,6 @@ namespace ME.ECS.Essentials.Physics
                         case ColliderType.Box:
                         case ColliderType.Cylinder:
 
-                            material = ((ConvexColliderHeader*)target)->Material;
                             MTransform targetFromQuery = new MTransform(input.Transform);
                             Result result = ConvexConvex(target, input.Collider, targetFromQuery);
                             if (result.Distance < collector.MaxFraction)
@@ -751,36 +793,279 @@ namespace ME.ECS.Essentials.Physics
                                     SurfaceNormal = math.mul(input.QueryContext.WorldFromLocalTransform.Rotation, -result.NormalInA),
                                     Position = Mul(input.QueryContext.WorldFromLocalTransform, result.PositionOnAinA),
                                     RigidBodyIndex = input.QueryContext.RigidBodyIndex,
+                                    QueryColliderKey = ColliderKey.Empty,
                                     ColliderKey = input.QueryContext.ColliderKey,
-                                    Material = material,
+                                    Material = ((ConvexColliderHeader*)target)->Material,
                                     Entity = input.QueryContext.Entity
                                 };
 
                                 return collector.AddHit(hit);
                             }
                             return false;
-                        case ColliderType.Mesh:
-                            return ConvexMesh(input, (MeshCollider*)target, ref collector);
                         case ColliderType.Compound:
-                            return ConvexCompound(input, (CompoundCollider*)target, ref collector);
+                            return ColliderCompound<DefaultCompoundDispatcher, T>(input, (CompoundCollider*)target, ref collector);
+                        case ColliderType.Mesh:
+                            return ColliderMesh<ConvexConvexDispatcher, T>(input, (MeshCollider*)target, ref collector);
                         case ColliderType.Terrain:
-                            return ConvexTerrain(input, (TerrainCollider*)target, ref collector);
+                            return ColliderTerrain<ConvexConvexDispatcher, T>(input, (TerrainCollider*)target, ref collector);
                         default:
                             SafetyChecks.ThrowNotImplementedException();
                             return default;
                     }
                 case CollisionType.Composite:
-                case CollisionType.Terrain:
-                    // no support for composite query shapes
-                    SafetyChecks.ThrowNotImplementedException();
+                    switch (input.Collider->Type)
+                    {
+                        case ColliderType.Compound:
+                            switch (target->Type)
+                            {
+                                case ColliderType.Convex:
+                                case ColliderType.Sphere:
+                                case ColliderType.Capsule:
+                                case ColliderType.Triangle:
+                                case ColliderType.Quad:
+                                case ColliderType.Box:
+                                case ColliderType.Cylinder:
+                                    return CompoundConvex(input, (ConvexCollider*)target, ref collector);
+                                case ColliderType.Compound:
+                                    return ColliderCompound<DefaultCompoundDispatcher, T>(input, (CompoundCollider*)target, ref collector);
+                                case ColliderType.Mesh:
+                                    return ColliderMesh<CompoundConvexDispatcher, T>(input, (MeshCollider*)target, ref collector);
+                                case ColliderType.Terrain:
+                                    return ColliderTerrain<CompoundConvexDispatcher, T>(input, (TerrainCollider*)target, ref collector);
+                                default:
+                                    SafetyChecks.ThrowNotImplementedException();
+                                    return default;
+                            }
+                        case ColliderType.Mesh:
+                            switch (target->Type)
+                            {
+                                case ColliderType.Convex:
+                                case ColliderType.Sphere:
+                                case ColliderType.Capsule:
+                                case ColliderType.Triangle:
+                                case ColliderType.Quad:
+                                case ColliderType.Box:
+                                case ColliderType.Cylinder:
+                                    return MeshConvex(input, (ConvexCollider*)target, ref collector);
+                                case ColliderType.Compound:
+                                    return ColliderCompound<DefaultCompoundDispatcher, T>(input, (CompoundCollider*)target, ref collector);
+                                case ColliderType.Mesh:
+                                    return ColliderMesh<MeshConvexDispatcher, T>(input, (MeshCollider*)target, ref collector);
+                                case ColliderType.Terrain:
+                                    return ColliderTerrain<MeshConvexDispatcher, T>(input, (TerrainCollider*)target, ref collector);
+                                default:
+                                    SafetyChecks.ThrowNotImplementedException();
+                                    return default;
+                            }
+                    }
                     return default;
+                case CollisionType.Terrain:
+                    switch (target->Type)
+                    {
+                        case ColliderType.Convex:
+                        case ColliderType.Sphere:
+                        case ColliderType.Capsule:
+                        case ColliderType.Triangle:
+                        case ColliderType.Quad:
+                        case ColliderType.Box:
+                        case ColliderType.Cylinder:
+                            return TerrainConvex(input, (ConvexCollider*)target, ref collector);
+                        case ColliderType.Compound:
+                            return ColliderCompound<DefaultCompoundDispatcher, T>(input, (CompoundCollider*)target, ref collector);
+                        case ColliderType.Mesh:
+                            return ColliderMesh<TerrainConvexDispatcher, T>(input, (MeshCollider*)target, ref collector);
+                        case ColliderType.Terrain:
+                            return ColliderTerrain<TerrainConvexDispatcher, T>(input, (TerrainCollider*)target, ref collector);
+                        default:
+                            SafetyChecks.ThrowNotImplementedException();
+                            return default;
+                    }
                 default:
                     SafetyChecks.ThrowNotImplementedException();
                     return default;
             }
         }
 
-        private unsafe struct ConvexMeshLeafProcessor : IPointDistanceLeafProcessor, IColliderDistanceLeafProcessor
+        internal static unsafe bool ConvexCollider<T>(ColliderDistanceInput input, Collider* target, ref T collector)
+            where T : struct, ICollector<DistanceHit>
+        {
+            Assert.IsTrue(input.Collider->CollisionType == CollisionType.Convex);
+
+            if (!input.QueryContext.IsInitialized)
+            {
+                input.QueryContext = QueryContext.DefaultContext;
+            }
+            switch (target->Type)
+            {
+                case ColliderType.Convex:
+                case ColliderType.Sphere:
+                case ColliderType.Capsule:
+                case ColliderType.Triangle:
+                case ColliderType.Quad:
+                case ColliderType.Box:
+                case ColliderType.Cylinder:
+
+                    MTransform targetFromQuery = new MTransform(input.Transform);
+                    Result result = ConvexConvex(target, input.Collider, targetFromQuery);
+                    if (result.Distance < collector.MaxFraction)
+                    {
+                        var hit = new DistanceHit
+                        {
+                            Fraction = result.Distance,
+                            SurfaceNormal = math.mul(input.QueryContext.WorldFromLocalTransform.Rotation, -result.NormalInA),
+                            Position = Mul(input.QueryContext.WorldFromLocalTransform, result.PositionOnAinA),
+                            RigidBodyIndex = input.QueryContext.RigidBodyIndex,
+                            ColliderKey = input.QueryContext.ColliderKey,
+                            QueryColliderKey = ColliderKey.Empty,
+                            Material = ((ConvexColliderHeader*)target)->Material,
+                            Entity = input.QueryContext.Entity
+                        };
+
+                        return collector.AddHit(hit);
+                    }
+                    return false;
+                case ColliderType.Compound:
+                    return ColliderCompound<ConvexCompoundDistanceDispatcher, T>(input, (CompoundCollider*)target, ref collector);
+                case ColliderType.Mesh:
+                    return ColliderMesh<ConvexConvexDispatcher, T>(input, (MeshCollider*)target, ref collector);
+                case ColliderType.Terrain:
+                    return ColliderTerrain<ConvexConvexDispatcher, T>(input, (TerrainCollider*)target, ref collector);
+                default:
+                    SafetyChecks.ThrowNotImplementedException();
+                    return default;
+            }
+        }
+
+        internal interface IColliderDistanceDispatcher
+        {
+            unsafe bool Dispatch<T>(ColliderDistanceInput input, ConvexCollider* polygon, ref T collector, uint numColliderKeyBits, uint subKey)
+                where T : struct, ICollector<DistanceHit>;
+            void Init(RigidTransform targtFromQuery);
+        }
+
+        internal struct CompoundConvexDispatcher : IColliderDistanceDispatcher
+        {
+            public unsafe bool Dispatch<T>(ColliderDistanceInput input, ConvexCollider* polygon, ref T collector, uint numColliderKeyBits, uint subKey)
+                where T : struct, ICollector<DistanceHit>
+            {
+                input.QueryContext.ColliderKey = input.QueryContext.PushSubKey(numColliderKeyBits, subKey);
+                return CompoundConvex(input, polygon, ref collector);
+            }
+
+            public void Init(RigidTransform targetFromQuery) {}
+        }
+
+        internal struct MeshConvexDispatcher : IColliderDistanceDispatcher
+        {
+            public unsafe bool Dispatch<T>(ColliderDistanceInput input, ConvexCollider* polygon, ref T collector, uint numColliderKeyBits, uint subKey)
+                where T : struct, ICollector<DistanceHit>
+            {
+                input.QueryContext.ColliderKey = input.QueryContext.PushSubKey(numColliderKeyBits, subKey);
+                return MeshConvex(input, polygon, ref collector);
+            }
+
+            public void Init(RigidTransform targetFromQuery) {}
+        }
+
+        internal struct TerrainConvexDispatcher : IColliderDistanceDispatcher
+        {
+            public unsafe bool Dispatch<T>(ColliderDistanceInput input, ConvexCollider* polygon, ref T collector, uint numColliderKeyBits, uint subKey)
+                where T : struct, ICollector<DistanceHit>
+            {
+                input.QueryContext.ColliderKey = input.QueryContext.PushSubKey(numColliderKeyBits, subKey);
+                return TerrainConvex(input, polygon, ref collector);
+            }
+
+            public void Init(RigidTransform targetFromQuery) {}
+        }
+
+        internal struct ConvexConvexDispatcher : IColliderDistanceDispatcher
+        {
+            public MTransform TargetFromQuery;
+
+            public unsafe bool Dispatch<T>(ColliderDistanceInput input, ConvexCollider* polygon, ref T collector, uint numColliderKeyBits, uint subKey)
+                where T : struct, ICollector<DistanceHit>
+            {
+                ref ConvexHull inputHull = ref ((ConvexCollider*)input.Collider)->ConvexHull;
+
+                Result result = ConvexConvex(polygon->ConvexHull.VerticesPtr, polygon->ConvexHull.NumVertices, 0.0f, inputHull.VerticesPtr,
+                    inputHull.NumVertices, inputHull.ConvexRadius, TargetFromQuery);
+                if (result.Distance < collector.MaxFraction)
+                {
+                    var hit = new DistanceHit
+                    {
+                        Fraction = result.Distance,
+                        Position = Mul(input.QueryContext.WorldFromLocalTransform, result.PositionOnAinA),
+                        SurfaceNormal = math.mul(input.QueryContext.WorldFromLocalTransform.Rotation, -result.NormalInA),
+                        RigidBodyIndex = input.QueryContext.RigidBodyIndex,
+                        ColliderKey = input.QueryContext.SetSubKey(numColliderKeyBits, subKey),
+                        Material = polygon->Material,
+                        Entity = input.QueryContext.Entity
+                    };
+
+                    return collector.AddHit(hit);
+                }
+                return false;
+            }
+
+            public void Init(RigidTransform targetFromQuery)
+            {
+                TargetFromQuery = new MTransform(targetFromQuery);
+            }
+        }
+
+        internal unsafe struct ColliderMeshLeafProcessor<D> : IColliderDistanceLeafProcessor
+            where D : struct, IColliderDistanceDispatcher
+        {
+            private readonly Mesh* m_Mesh;
+            private readonly uint m_NumColliderKeyBits;
+
+            public ColliderMeshLeafProcessor(MeshCollider* meshCollider)
+            {
+                m_Mesh = &meshCollider->Mesh;
+                m_NumColliderKeyBits = meshCollider->NumColliderKeyBits;
+            }
+
+            public bool DistanceLeaf<T>(ColliderDistanceInput input, int primitiveKey, ref T collector)
+                where T : struct, ICollector<DistanceHit>
+            {
+                m_Mesh->GetPrimitive(primitiveKey, out float3x4 vertices, out Mesh.PrimitiveFlags flags, out CollisionFilter filter, out Material material);
+
+                // Todo: work with filters
+                if (!CollisionFilter.IsCollisionEnabled(input.Collider->Filter, filter)) // TODO: could do this check within GetPrimitive()
+                {
+                    return false;
+                }
+
+                int numPolygons = Mesh.GetNumPolygonsInPrimitive(flags);
+                bool isQuad = Mesh.IsPrimitiveFlagSet(flags, Mesh.PrimitiveFlags.IsQuad);
+
+                bool acceptHit = false;
+
+                D dispatcher = new D();
+                dispatcher.Init(input.Transform);
+
+                var polygon = new PolygonCollider();
+                polygon.InitNoVertices(filter, material);
+                for (int polygonIndex = 0; polygonIndex < numPolygons; polygonIndex++)
+                {
+                    if (isQuad)
+                    {
+                        polygon.SetAsQuad(vertices[0], vertices[1], vertices[2], vertices[3]);
+                    }
+                    else
+                    {
+                        polygon.SetAsTriangle(vertices[0], vertices[1 + polygonIndex], vertices[2 + polygonIndex]);
+                    }
+
+                    acceptHit |= dispatcher.Dispatch(input, (ConvexCollider*)&polygon, ref collector, m_NumColliderKeyBits, (uint)(primitiveKey << 1 | polygonIndex));
+                }
+
+                return acceptHit;
+            }
+        }
+
+        internal unsafe struct ConvexMeshLeafProcessor : IPointDistanceLeafProcessor
         {
             private readonly Mesh* m_Mesh;
             private readonly uint m_NumColliderKeyBits;
@@ -814,74 +1099,15 @@ namespace ME.ECS.Essentials.Physics
                     {
                         result = QuadSphere(
                             vertices[0], vertices[1], vertices[2], vertices[3], triangleNormal,
-                            input.Position, sfloat.Zero, MTransform.Identity);
+                            input.Position, 0.0f, MTransform.Identity);
                     }
                     else
                     {
                         result = TriangleSphere(
                             vertices[0], vertices[1], vertices[2], triangleNormal,
-                            input.Position, sfloat.Zero, MTransform.Identity);
+                            input.Position, 0.0f, MTransform.Identity);
                     }
 
-                    if (result.Distance < collector.MaxFraction)
-                    {
-                        var hit = new DistanceHit
-                        {
-                            Fraction = result.Distance,
-                            Position = Mul(input.QueryContext.WorldFromLocalTransform, result.PositionOnAinA),
-                            SurfaceNormal = math.mul(input.QueryContext.WorldFromLocalTransform.Rotation, -result.NormalInA),
-                            RigidBodyIndex = input.QueryContext.RigidBodyIndex,
-                            ColliderKey = input.QueryContext.SetSubKey(m_NumColliderKeyBits, (uint)(primitiveKey << 1 | polygonIndex)),
-                            Material = material,
-                            Entity = input.QueryContext.Entity
-                        };
-
-                        acceptHit |= collector.AddHit(hit);
-                    }
-                }
-
-                return acceptHit;
-            }
-
-            public bool DistanceLeaf<T>(ColliderDistanceInput input, int primitiveKey, ref T collector)
-                where T : struct, ICollector<DistanceHit>
-            {
-                m_Mesh->GetPrimitive(primitiveKey, out float3x4 vertices, out Mesh.PrimitiveFlags flags, out CollisionFilter filter, out Material material);
-
-                if (!CollisionFilter.IsCollisionEnabled(input.Collider->Filter, filter)) // TODO: could do this check within GetPrimitive()
-                {
-                    return false;
-                }
-
-                int numPolygons = Mesh.GetNumPolygonsInPrimitive(flags);
-                bool isQuad = Mesh.IsPrimitiveFlagSet(flags, Mesh.PrimitiveFlags.IsQuad);
-
-                float3* v = stackalloc float3[4];
-                bool acceptHit = false;
-
-                ref ConvexHull inputHull = ref ((ConvexCollider*)input.Collider)->ConvexHull;
-                MTransform targetFromQuery = new MTransform(input.Transform);
-
-                for (int polygonIndex = 0; polygonIndex < numPolygons; polygonIndex++)
-                {
-                    int numVertices;
-                    if (isQuad)
-                    {
-                        v[0] = vertices[0];
-                        v[1] = vertices[1];
-                        v[2] = vertices[2];
-                        v[3] = vertices[3];
-                        numVertices = 4;
-                    }
-                    else
-                    {
-                        v[0] = vertices[0];
-                        v[1] = vertices[1 + polygonIndex];
-                        v[2] = vertices[2 + polygonIndex];
-                        numVertices = 3;
-                    }
-
-                    Result result = ConvexConvex(v, numVertices, sfloat.Zero, inputHull.VerticesPtr, inputHull.NumVertices, inputHull.ConvexRadius, targetFromQuery);
                     if (result.Distance < collector.MaxFraction)
                     {
                         var hit = new DistanceHit
@@ -910,14 +1136,24 @@ namespace ME.ECS.Essentials.Physics
             return meshCollider->Mesh.BoundingVolumeHierarchy.Distance(input, ref leafProcessor, ref collector);
         }
 
-        public static unsafe bool ConvexMesh<T>(ColliderDistanceInput input, MeshCollider* meshCollider, ref T collector)
+        public static unsafe bool MeshConvex<T>(ColliderDistanceInput input, ConvexCollider* convexCollider, ref T collector)
             where T : struct, ICollector<DistanceHit>
         {
-            var leafProcessor = new ConvexMeshLeafProcessor(meshCollider);
+            MeshCollider* meshCollider = (MeshCollider*)input.Collider;
+
+            FlipColliderDistanceQuery(ref input, convexCollider, ref collector, out FlippedColliderDistanceQueryCollector<T> flippedQueryCollector);
+            return ColliderMesh<ConvexConvexDispatcher, FlippedColliderDistanceQueryCollector<T>>(input, meshCollider, ref flippedQueryCollector);
+        }
+
+        public static unsafe bool ColliderMesh<D, T>(ColliderDistanceInput input, MeshCollider* meshCollider, ref T collector)
+            where D : struct, IColliderDistanceDispatcher
+            where T : struct, ICollector<DistanceHit>
+        {
+            var leafProcessor = new ColliderMeshLeafProcessor<D>(meshCollider);
             return meshCollider->Mesh.BoundingVolumeHierarchy.Distance(input, ref leafProcessor, ref collector);
         }
 
-        private unsafe struct ConvexCompoundLeafProcessor : IPointDistanceLeafProcessor, IColliderDistanceLeafProcessor
+        private unsafe struct ConvexCompoundLeafProcessor : IPointDistanceLeafProcessor
         {
             private readonly CompoundCollider* m_CompoundCollider;
 
@@ -949,6 +1185,46 @@ namespace ME.ECS.Essentials.Physics
 
                 return child.Collider->CalculateDistance(inputLs, ref collector);
             }
+        }
+
+        internal unsafe interface IColliderCompoundDistanceDispatcher
+        {
+            bool CalculateDistance<T>(ColliderDistanceInput input, ref T collector, Collider* target)
+                where T : struct, ICollector<DistanceHit>;
+        }
+
+        internal unsafe struct DefaultCompoundDispatcher : IColliderCompoundDistanceDispatcher
+        {
+            public bool CalculateDistance<T>(ColliderDistanceInput input, ref T collector, Collider* target) where T : struct, ICollector<DistanceHit>
+            {
+                return target->CalculateDistance(input, ref collector);
+            }
+        }
+
+        internal unsafe struct ConvexCompoundDistanceDispatcher : IColliderCompoundDistanceDispatcher
+        {
+            public bool CalculateDistance<T>(ColliderDistanceInput input, ref T collector, Collider* target) where T : struct, ICollector<DistanceHit>
+            {
+                return ConvexCollider(input, target, ref collector);
+            }
+        }
+
+        // The need to introduce generic dispatcher parameter arises from the introduction of FlippedColliderDistanceQueryCollector<ICollector>.
+        // With the previous code ( return target->CalculateDistance(...) instead of dispatcher.CalculateDistance(...), the code ended up in ColliderCollider() function
+        // with a giant switch inside it. One of the switch options is CompoundConvex() function, which turns the provided ICollector into a FlippedColliderDistanceQueryCollector<provided ICollector>.
+        // From there, the control flow also ends up in the same ColliderCollider() function, which is logically fine, since flipping the collector happens only once, and CompoundConvex() will not get called again.
+        // But the compiler doesn't know that, and it will endlessly try to resolve type FlippedColliderDistanceQueryCollector<T>, and end up in an endless recursion trying to resolve the type
+        // FlippedColliderDistanceQueryCollector<FlippedColliderDistanceQueryCollector<...T>>.
+        // ConvexCompoundDistanceDispatcher solves that problem, as it assumes that the input collider is Convex, and uses a different switch statement, in which CompoundConvex isn't an option.
+        internal unsafe struct ColliderCompoundLeafProcessor<D> : IColliderDistanceLeafProcessor
+            where D : struct, IColliderCompoundDistanceDispatcher
+        {
+            private readonly CompoundCollider* m_CompoundCollider;
+
+            public ColliderCompoundLeafProcessor(CompoundCollider* compoundCollider)
+            {
+                m_CompoundCollider = compoundCollider;
+            }
 
             public bool DistanceLeaf<T>(ColliderDistanceInput input, int leafData, ref T collector)
                 where T : struct, ICollector<DistanceHit>
@@ -969,7 +1245,9 @@ namespace ME.ECS.Essentials.Physics
                 // Transform the query into child space
                 inputLs.Transform = math.mul(math.inverse(child.CompoundFromChild), input.Transform);
 
-                return child.Collider->CalculateDistance(inputLs, ref collector);
+                D dispatcher = new D();
+
+                return dispatcher.CalculateDistance(inputLs, ref collector, child.Collider);
             }
         }
 
@@ -980,19 +1258,45 @@ namespace ME.ECS.Essentials.Physics
             return compoundCollider->BoundingVolumeHierarchy.Distance(input, ref leafProcessor, ref collector);
         }
 
-        public static unsafe bool ConvexCompound<T>(ColliderDistanceInput input, CompoundCollider* compoundCollider, ref T collector)
+        public static unsafe bool CompoundConvex<T>(ColliderDistanceInput input, ConvexCollider* convexCollider, ref T collector)
             where T : struct, ICollector<DistanceHit>
         {
-            var leafProcessor = new ConvexCompoundLeafProcessor(compoundCollider);
+            CompoundCollider* compoundCollider = (CompoundCollider*)input.Collider;
+
+            FlipColliderDistanceQuery(ref input, convexCollider, ref collector, out FlippedColliderDistanceQueryCollector<T> flippedQueryCollector);
+            return ColliderCompound<ConvexCompoundDistanceDispatcher, FlippedColliderDistanceQueryCollector<T>>(input, compoundCollider, ref flippedQueryCollector);
+        }
+
+        public static unsafe bool ColliderCompound<D, T>(ColliderDistanceInput input, CompoundCollider* compoundCollider, ref T collector)
+            where D : struct, IColliderCompoundDistanceDispatcher
+            where T : struct, ICollector<DistanceHit>
+        {
+            var leafProcessor = new ColliderCompoundLeafProcessor<D>(compoundCollider);
             return compoundCollider->BoundingVolumeHierarchy.Distance(input, ref leafProcessor, ref collector);
         }
 
-        public static unsafe bool ConvexTerrain<T>(ColliderDistanceInput input, TerrainCollider* terrainCollider, ref T collector)
+        public static unsafe bool TerrainConvex<T>(ColliderDistanceInput input, ConvexCollider* convexCollider, ref T collector)
+            where T : struct, ICollector<DistanceHit>
+        {
+            TerrainCollider* terrainCollider = (TerrainCollider*)input.Collider;
+
+            FlipColliderDistanceQuery(ref input, convexCollider, ref collector, out FlippedColliderDistanceQueryCollector<T> flippedQueryCollector);
+            return ColliderTerrain<ConvexConvexDispatcher, FlippedColliderDistanceQueryCollector<T>>(input, terrainCollider, ref flippedQueryCollector);
+        }
+
+        public static unsafe bool ColliderTerrain<D, T>(ColliderDistanceInput input, TerrainCollider* terrainCollider, ref T collector)
+            where D : struct, IColliderDistanceDispatcher
             where T : struct, ICollector<DistanceHit>
         {
             ref var terrain = ref terrainCollider->Terrain;
-            Material material = terrainCollider->Material;
+            CollisionFilter filter = terrainCollider->Filter;
 
+            if (!CollisionFilter.IsCollisionEnabled(filter, input.Collider->Filter))
+            {
+                return false;
+            }
+
+            Material material = terrainCollider->Material;
             bool hadHit = false;
 
             // Get the collider AABB in heightfield space
@@ -1015,8 +1319,9 @@ namespace ME.ECS.Essentials.Physics
                 walker = new Terrain.QuadTreeWalker(&terrainCollider->Terrain, queryAabb);
             }
             sfloat maxDistanceSquared = collector.MaxFraction * collector.MaxFraction;
-            ref ConvexHull inputHull = ref ((ConvexCollider*)input.Collider)->ConvexHull;
-            MTransform targetFromQuery = new MTransform(input.Transform);
+
+            D dispatcher = new D();
+            dispatcher.Init(input.Transform);
 
             // Traverse the tree
             float3* vertices = stackalloc float3[4];
@@ -1037,23 +1342,10 @@ namespace ME.ECS.Essentials.Physics
                         // Test each triangle in the quad
                         for (int iTriangle = 0; iTriangle < 2; iTriangle++)
                         {
-                            // Convex-triangle
-                            Result result = ConvexConvex(vertices, 3, sfloat.Zero, inputHull.VerticesPtr, inputHull.NumVertices, inputHull.ConvexRadius, targetFromQuery);
-                            if (result.Distance < collector.MaxFraction)
-                            {
-                                var hit = new DistanceHit
-                                {
-                                    Fraction = result.Distance,
-                                    Position = Mul(input.QueryContext.WorldFromLocalTransform, result.PositionOnAinA),
-                                    SurfaceNormal = math.mul(input.QueryContext.WorldFromLocalTransform.Rotation, -result.NormalInA),
-                                    RigidBodyIndex = input.QueryContext.RigidBodyIndex,
-                                    ColliderKey = input.QueryContext.SetSubKey(terrain.NumColliderKeyBits, terrain.GetSubKey(quadIndex, iTriangle)),
-                                    Material = material,
-                                    Entity = input.QueryContext.Entity
-                                };
+                            var polygonCollider = new PolygonCollider();
+                            polygonCollider.InitAsTriangle(vertices[0], vertices[1], vertices[2], filter, material);
 
-                                hadHit |= collector.AddHit(hit);
-                            }
+                            hadHit |= dispatcher.Dispatch(input, (ConvexCollider*)&polygonCollider, ref collector, terrain.NumColliderKeyBits, terrain.GetSubKey(quadIndex, iTriangle));
 
                             // Next triangle
                             vertices[0] = vertices[2];
@@ -1116,7 +1408,7 @@ namespace ME.ECS.Essentials.Physics
                             // Point-triangle
                             polygon.SetAsTriangle(a, b, c);
                             float3 triangleNormal = math.normalize(math.cross(b - a, c - a));
-                            Result result = TriangleSphere(a, b, c, triangleNormal, input.Position, sfloat.Zero, MTransform.Identity);
+                            Result result = TriangleSphere(a, b, c, triangleNormal, input.Position, 0.0f, MTransform.Identity);
                             if (result.Distance < collector.MaxFraction)
                             {
                                 var hit = new DistanceHit

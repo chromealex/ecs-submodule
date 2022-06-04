@@ -17,6 +17,16 @@ namespace ME.ECS.Essentials.Physics
             }
         }
 
+        // Integrate a single transform for the provided velocity and time
+        public static void Integrate(ref RigidTransform transform, in MotionVelocity motionVelocity, in sfloat timeStep)
+        {
+            // center of mass
+            IntegratePosition(ref transform.pos, motionVelocity.LinearVelocity, timeStep);
+
+            // orientation
+            IntegrateOrientation(ref transform.rot, motionVelocity.AngularVelocity, timeStep);
+        }
+
         // Schedule a job to integrate the world's motions forward by the given time step.
         internal static JobHandle ScheduleIntegrateJobs(ref DynamicsWorld world, sfloat timeStep, JobHandle inputDeps, bool multiThreaded = true)
         {
@@ -60,19 +70,13 @@ namespace ME.ECS.Essentials.Physics
                 MotionVelocity motionVelocity = motionVelocities[i];
 
                 // Update motion space
-                {
-                    // center of mass
-                    IntegratePosition(ref motionData.WorldFromMotion.pos, motionVelocity.LinearVelocity, timeStep);
-
-                    // orientation
-                    IntegrateOrientation(ref motionData.WorldFromMotion.rot, motionVelocity.AngularVelocity, timeStep);
-                }
+                Integrate(ref motionData.WorldFromMotion, motionVelocity, timeStep);
 
                 // Update velocities
                 {
                     // damping
-                    motionVelocity.LinearVelocity *= math.clamp(sfloat.One - motionData.LinearDamping * timeStep, sfloat.Zero, sfloat.One);
-                    motionVelocity.AngularVelocity *= math.clamp(sfloat.One - motionData.AngularDamping * timeStep, sfloat.Zero, sfloat.One);
+                    motionVelocity.LinearVelocity *= math.clamp(1.0f - motionData.LinearDamping * timeStep, 0.0f, 1.0f);
+                    motionVelocity.AngularVelocity *= math.clamp(1.0f - motionData.AngularDamping * timeStep, 0.0f, 1.0f);
                 }
 
                 // Write back
@@ -100,6 +104,7 @@ namespace ME.ECS.Essentials.Physics
             position += linearVelocity * timestep;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void IntegrateOrientation(ref quaternion orientation, float3 angularVelocity, sfloat timestep)
         {
             quaternion dq = IntegrateAngularVelocity(angularVelocity, timestep);
@@ -110,9 +115,9 @@ namespace ME.ECS.Essentials.Physics
         // Returns a non-normalized quaternion that approximates the change in angle angularVelocity * timestep.
         internal static quaternion IntegrateAngularVelocity(float3 angularVelocity, sfloat timestep)
         {
-            float3 halfDeltaTime = new float3(timestep * (sfloat)0.5f);
+            float3 halfDeltaTime = new float3(timestep * 0.5f);
             float3 halfDeltaAngle = angularVelocity * halfDeltaTime;
-            return new quaternion(new float4(halfDeltaAngle, sfloat.One));
+            return new quaternion(new float4(halfDeltaAngle, 1.0f));
         }
     }
 }

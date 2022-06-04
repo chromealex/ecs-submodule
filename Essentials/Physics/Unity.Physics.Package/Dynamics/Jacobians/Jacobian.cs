@@ -57,7 +57,7 @@ namespace ME.ECS.Essentials.Physics
         // Collider keys for the collision events
         public ColliderKeyPair ColliderKeys
         {
-            get => HasContactManifold ? AccessColliderKeys() : ColliderKeyPair.Empty;
+            get => HasContactManifold? AccessColliderKeys() : ColliderKeyPair.Empty;
             set
             {
                 if (HasContactManifold)
@@ -71,7 +71,7 @@ namespace ME.ECS.Essentials.Physics
         public bool HasMassFactors => (Flags & JacobianFlags.EnableMassFactors) != 0;
         public MassFactors MassFactors
         {
-            get => HasMassFactors ? AccessMassFactors() : MassFactors.Default;
+            get => HasMassFactors? AccessMassFactors() : MassFactors.Default;
             set
             {
                 if (HasMassFactors)
@@ -85,7 +85,7 @@ namespace ME.ECS.Essentials.Physics
         public bool HasSurfaceVelocity => (Flags & JacobianFlags.EnableSurfaceVelocity) != 0;
         public SurfaceVelocity SurfaceVelocity
         {
-            get => HasSurfaceVelocity ? AccessSurfaceVelocity() : new SurfaceVelocity();
+            get => HasSurfaceVelocity? AccessSurfaceVelocity() : new SurfaceVelocity();
             set
             {
                 if (HasSurfaceVelocity)
@@ -208,7 +208,7 @@ namespace ME.ECS.Essentials.Physics
 
         public unsafe ref ColliderKeyPair AccessColliderKeys()
         {
-            UnityEngine.Assertions.Assert.IsTrue((Flags & JacobianFlags.EnableCollisionEvents) != 0);
+            Assert.IsTrue((Flags & JacobianFlags.EnableCollisionEvents) != 0);
             byte* ptr = (byte*)UnsafeUtility.AddressOf(ref this);
             ptr += UnsafeUtility.SizeOf<JacobianHeader>() + SizeOfBaseJacobian(Type);
             return ref UnsafeUtility.AsRef<ColliderKeyPair>(ptr);
@@ -216,7 +216,7 @@ namespace ME.ECS.Essentials.Physics
 
         public unsafe ref EntityPair AccessEntities()
         {
-            UnityEngine.Assertions.Assert.IsTrue((Flags & JacobianFlags.EnableCollisionEvents) != 0);
+            Assert.IsTrue((Flags & JacobianFlags.EnableCollisionEvents) != 0);
             byte* ptr = (byte*)UnsafeUtility.AddressOf(ref this);
             ptr += UnsafeUtility.SizeOf<JacobianHeader>() + SizeOfBaseJacobian(Type) + SizeOfColliderKeys(Type, Flags);
             return ref UnsafeUtility.AsRef<EntityPair>(ptr);
@@ -224,7 +224,7 @@ namespace ME.ECS.Essentials.Physics
 
         public unsafe ref SurfaceVelocity AccessSurfaceVelocity()
         {
-            UnityEngine.Assertions.Assert.IsTrue((Flags & JacobianFlags.EnableSurfaceVelocity) != 0);
+            Assert.IsTrue((Flags & JacobianFlags.EnableSurfaceVelocity) != 0);
             byte* ptr = (byte*)UnsafeUtility.AddressOf(ref this);
             ptr += UnsafeUtility.SizeOf<JacobianHeader>() + SizeOfBaseJacobian(Type) +
                 SizeOfColliderKeys(Type, Flags) + SizeOfEntityPair(Type, Flags);
@@ -233,7 +233,7 @@ namespace ME.ECS.Essentials.Physics
 
         public unsafe ref MassFactors AccessMassFactors()
         {
-            UnityEngine.Assertions.Assert.IsTrue((Flags & JacobianFlags.EnableMassFactors) != 0);
+            Assert.IsTrue((Flags & JacobianFlags.EnableMassFactors) != 0);
             byte* ptr = (byte*)UnsafeUtility.AddressOf(ref this);
             ptr += UnsafeUtility.SizeOf<JacobianHeader>() + SizeOfBaseJacobian(Type) +
                 SizeOfColliderKeys(Type, Flags) + SizeOfEntityPair(Type, Flags) + SizeOfSurfaceVelocity(Type, Flags);
@@ -242,7 +242,7 @@ namespace ME.ECS.Essentials.Physics
 
         public unsafe ref ContactJacAngAndVelToReachCp AccessAngularJacobian(int pointIndex)
         {
-            UnityEngine.Assertions.Assert.IsTrue(Type == JacobianType.Contact || Type == JacobianType.Trigger);
+            Assert.IsTrue(Type == JacobianType.Contact || Type == JacobianType.Trigger);
             byte* ptr = (byte*)UnsafeUtility.AddressOf(ref this);
             ptr += UnsafeUtility.SizeOf<JacobianHeader>() + SizeOfBaseJacobian(Type) + SizeOfModifierData(Type, Flags) +
                 pointIndex * UnsafeUtility.SizeOf<ContactJacAngAndVelToReachCp>();
@@ -251,7 +251,7 @@ namespace ME.ECS.Essentials.Physics
 
         public unsafe ref ContactPoint AccessContactPoint(int pointIndex)
         {
-            UnityEngine.Assertions.Assert.IsTrue(Type == JacobianType.Contact);
+            Assert.IsTrue(Type == JacobianType.Contact);
 
             var baseJac = AccessBaseJacobian<ContactJacobian>();
             byte* ptr = (byte*)UnsafeUtility.AddressOf(ref this);
@@ -267,7 +267,29 @@ namespace ME.ECS.Essentials.Physics
     // Helper functions for working with Jacobians
     static class JacobianUtilities
     {
-        public static void CalculateTauAndDamping(sfloat springFrequency, sfloat springDampingRatio, sfloat timestep, int iterations, out sfloat tau, out sfloat damping)
+        // This is the inverse function to CalculateConstraintTauAndDamping
+        // Given a final Tau and Damping you can get the original Spring Frequency and Damping for a given solver step
+        // See Unity.Physics.Constraint struct for discussion about default Spring Frequency and Damping values.
+        public static void CalculateSpringFrequencyAndDamping(sfloat constraintTau, sfloat constraintDamping, sfloat timestep, int iterations, out sfloat springFrequency, out sfloat springDamping)
+        {
+            int n = iterations;
+            sfloat h = timestep;
+            sfloat hh = h * h;
+            sfloat a = 1.0f - constraintDamping;
+            sfloat aSum = 1.0f;
+            for (int i = 1; i < n; i++)
+            {
+                aSum += math.pow(a, i);
+            }
+
+            sfloat w = math.sqrt(constraintTau * aSum / math.pow(a, n)) / h;
+            sfloat ww = w * w;
+            springFrequency = w / (2.0f * math.PI);
+            springDamping = (math.pow(a, -n) - 1 - hh * ww) / (2.0f * h * w);
+        }
+
+        // This is the inverse function to CalculateSpringFrequencyAndDamping
+        public static void CalculateConstraintTauAndDamping(sfloat springFrequency, sfloat springDamping, sfloat timestep, int iterations, out sfloat constraintTau, out sfloat constraintDamping)
         {
             // TODO
             // - it's a significant amount of work to calculate tau and damping.  They depend on step length, so they have to be calculated each step.
@@ -276,7 +298,7 @@ namespace ME.ECS.Essentials.Physics
             //   with step length.  Can we estimate or bound that error and compensate for it?
 
             /*
-            
+
             How to derive these formulas for tau and damping:
 
             1) implicit euler integration of a damped spring
@@ -310,13 +332,13 @@ namespace ME.ECS.Essentials.Physics
             */
 
             sfloat h = timestep;
-            sfloat w = springFrequency * (sfloat)2.0f * math.PI; // convert oscillations/sec to radians/sec
-            sfloat z = springDampingRatio;
+            sfloat w = springFrequency * 2.0f * (float)math.PI; // convert oscillations/sec to radians/sec
+            sfloat z = springDamping;
             sfloat hw = h * w;
             sfloat hhww = hw * hw;
 
             // a = 1-d, aExp = a^iterations, aSum = aExp / sum(i in [0, iterations), a^i)
-            sfloat aExp = sfloat.One / (sfloat.One + hhww + (sfloat)2.0f * hw * z);
+            sfloat aExp = 1.0f / (1.0f + hhww + 2.0f * hw * z);
             sfloat a, aSum;
             if (iterations == 4)
             {
@@ -324,31 +346,26 @@ namespace ME.ECS.Essentials.Physics
                 sfloat invA2 = math.rsqrt(aExp);
                 sfloat a2 = invA2 * aExp;
                 a = math.rsqrt(invA2);
-                aSum = (sfloat.One + a2 + a * (sfloat.One + a2));
+                aSum = (1.0f + a2 + a * (1.0f + a2));
             }
             else
             {
-                a = math.pow(aExp, sfloat.One / (sfloat)iterations);
-                aSum = sfloat.One;
+                a = math.pow(aExp, 1.0f / iterations);
+                aSum = 1.0f;
                 for (int i = 1; i < iterations; i++)
                 {
-                    aSum = a * aSum + sfloat.One;
+                    aSum = a * aSum + 1.0f;
                 }
             }
 
-            damping = sfloat.One - a;
-            tau = hhww * aExp / aSum;
-        }
-
-        public static void CalculateTauAndDamping(Constraint constraint, sfloat timestep, int iterations, out sfloat tau, out sfloat damping)
-        {
-            CalculateTauAndDamping(constraint.SpringFrequency, constraint.SpringDamping, timestep, iterations, out tau, out damping);
+            constraintDamping = 1 - a;
+            constraintTau = hhww * aExp / aSum;
         }
 
         // Returns x - clamp(x, min, max)
         public static sfloat CalculateError(sfloat x, sfloat min, sfloat max)
         {
-            sfloat error = math.max(x - max, sfloat.Zero);
+            sfloat error = math.max(x - max, 0.0f);
             error = math.min(x - min, error);
             return error;
         }
@@ -356,7 +373,7 @@ namespace ME.ECS.Essentials.Physics
         // Returns the amount of error for the solver to correct, where initialError is the pre-integration error and predictedError is the expected post-integration error
         public static sfloat CalculateCorrection(sfloat predictedError, sfloat initialError, sfloat tau, sfloat damping)
         {
-            return math.max(predictedError - initialError, sfloat.Zero) * damping + math.min(predictedError, initialError) * tau;
+            return math.max(predictedError - initialError, 0.0f) * damping + math.min(predictedError, initialError) * tau;
         }
 
         // Integrate the relative orientation of a pair of bodies, faster and less memory than storing both bodies' orientations and integrating them separately
@@ -389,9 +406,9 @@ namespace ME.ECS.Essentials.Physics
         public static bool InvertSymmetricMatrix(float3 diag, float3 offDiag, out float3 invDiag, out float3 invOffDiag)
         {
             float3 offDiagSq = offDiag.zyx * offDiag.zyx;
-            sfloat determinant = (Math.HorizontalMul(diag) + (sfloat)2.0f * Math.HorizontalMul(offDiag) - math.csum(offDiagSq * diag));
-            bool determinantOk = !determinant.IsZero();
-            sfloat invDeterminant = math.select(sfloat.Zero, sfloat.One / determinant, determinantOk);
+            sfloat determinant = (Math.HorizontalMul(diag) + 2.0f * Math.HorizontalMul(offDiag) - math.csum(offDiagSq * diag));
+            bool determinantOk = (determinant != 0);
+            sfloat invDeterminant = math.select(0.0f, 1.0f / determinant, determinantOk);
             invDiag = (diag.yxx * diag.zzy - offDiagSq) * invDeterminant;
             invOffDiag = (offDiag.yxx * offDiag.zzy - diag.zyx * offDiag) * invDeterminant;
             return determinantOk;

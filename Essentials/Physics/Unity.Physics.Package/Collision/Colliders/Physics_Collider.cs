@@ -1,9 +1,8 @@
 using System;
-
+using ME.ECS;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using ME.ECS;
 using ME.ECS.Mathematics;
 using static ME.ECS.Essentials.Physics.Math;
 
@@ -38,7 +37,7 @@ namespace ME.ECS.Essentials.Physics
     }
 
     // Interface for colliders
-    internal interface ICollider : ICollidable
+    public interface ICollider : ICollidable
     {
         ColliderType Type { get; }
         CollisionType CollisionType { get; }
@@ -99,7 +98,7 @@ namespace ME.ECS.Essentials.Physics
         {
             get
             {
-                fixed (Collider* collider = &this)
+                fixed(Collider* collider = &this)
                 {
                     switch (collider->Type)
                     {
@@ -137,7 +136,7 @@ namespace ME.ECS.Essentials.Physics
             {
                 unsafe
                 {
-                    fixed (Collider* collider = &this)
+                    fixed(Collider* collider = &this)
                     {
                         switch (collider->Type)
                         {
@@ -186,7 +185,7 @@ namespace ME.ECS.Essentials.Physics
             {
                 unsafe
                 {
-                    fixed (Collider* collider = &this)
+                    fixed(Collider* collider = &this)
                     {
                         switch (collider->Type)
                         {
@@ -222,7 +221,7 @@ namespace ME.ECS.Essentials.Physics
         {
             get
             {
-                fixed (Collider* collider = &this)
+                fixed(Collider* collider = &this)
                 {
                     switch (collider->Type)
                     {
@@ -261,7 +260,7 @@ namespace ME.ECS.Essentials.Physics
         {
             get
             {
-                fixed (Collider* collider = &this)
+                fixed(Collider* collider = &this)
                 {
                     switch (collider->Type)
                     {
@@ -286,7 +285,7 @@ namespace ME.ECS.Essentials.Physics
         {
             get
             {
-                fixed (Collider* collider = &this)
+                fixed(Collider* collider = &this)
                 {
                     switch (collider->Type)
                     {
@@ -309,7 +308,7 @@ namespace ME.ECS.Essentials.Physics
 
         public unsafe bool GetChild(ref ColliderKey key, out ChildCollider child)
         {
-            fixed (Collider* collider = &this)
+            fixed(Collider* collider = &this)
             {
                 switch (collider->Type)
                 {
@@ -329,7 +328,7 @@ namespace ME.ECS.Essentials.Physics
 
         public unsafe bool GetLeaf(ColliderKey key, out ChildCollider leaf)
         {
-            fixed (Collider* collider = &this)
+            fixed(Collider* collider = &this)
             {
                 return GetLeafCollider(collider, RigidTransform.identity, key, out leaf);
             }
@@ -337,7 +336,7 @@ namespace ME.ECS.Essentials.Physics
 
         public unsafe void GetLeaves<T>([NoAlias] ref T collector) where T : struct, ILeafColliderCollector
         {
-            fixed (Collider* collider = &this)
+            fixed(Collider* collider = &this)
             {
                 switch (collider->Type)
                 {
@@ -384,7 +383,7 @@ namespace ME.ECS.Essentials.Physics
         // Calculate a bounding box around this collider, at the given transform.
         public unsafe Aabb CalculateAabb(RigidTransform transform)
         {
-            fixed (Collider* collider = &this)
+            fixed(Collider* collider = &this)
             {
                 switch (collider->Type)
                 {
@@ -420,7 +419,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastRay(RaycastInput input, ref NativeList<RaycastHit> allHits) => QueryWrappers.RayCast(ref this, input, ref allHits);
         public unsafe bool CastRay<T>(RaycastInput input, ref T collector) where T : struct, ICollector<RaycastHit>
         {
-            fixed (Collider* target = &this)
+            fixed(Collider* target = &this)
             {
                 return RaycastQueries.RayCollider(input, target, ref collector);
             }
@@ -432,7 +431,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastCollider(ColliderCastInput input, ref NativeList<ColliderCastHit> allHits) => QueryWrappers.ColliderCast(ref this, input, ref allHits);
         public unsafe bool CastCollider<T>(ColliderCastInput input, ref T collector) where T : struct, ICollector<ColliderCastHit>
         {
-            fixed (Collider* target = &this)
+            fixed(Collider* target = &this)
             {
                 return ColliderCastQueries.ColliderCollider(input, target, ref collector);
             }
@@ -444,7 +443,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(PointDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(PointDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (Collider* target = &this)
+            fixed(Collider* target = &this)
             {
                 return DistanceQueries.PointCollider(input, target, ref collector);
             }
@@ -456,7 +455,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(ColliderDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(ColliderDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (Collider* target = &this)
+            fixed(Collider* target = &this)
             {
                 return DistanceQueries.ColliderCollider(input, target, ref collector);
             }
@@ -525,23 +524,14 @@ namespace ME.ECS.Essentials.Physics
         /// <returns>A clone of the Collider wrapped in a BlobAssetReference</returns>
         public BlobAssetReference<Collider> Clone()
         {
-            BlobAssetReference<Collider> clone;
             unsafe
             {
-                fixed (Collider* oldCollider = &this)
-                {
-                    var newCollider = (Collider*)UnsafeUtility.Malloc(oldCollider->MemorySize, 16, Allocator.Temp);
+                var clone = BlobAssetReference<Collider>.Create(UnsafeUtility.AddressOf(ref this), MemorySize);
+                //reset the version
+                ((Collider*)clone.GetUnsafePtr())->m_Header.Version = 1;
 
-                    UnsafeUtility.MemCpy(newCollider, oldCollider, oldCollider->MemorySize);
-
-                    // Reset the Version
-                    newCollider->m_Header.Version = 1;
-
-                    clone = BlobAssetReference<Collider>.Create(newCollider, newCollider->MemorySize);
-                    UnsafeUtility.Free(newCollider, Allocator.Temp);
-                }
+                return clone;
             }
-            return clone;
         }
     }
 
@@ -569,13 +559,13 @@ namespace ME.ECS.Essentials.Physics
     }
 
     // An opaque key which packs a path to a specific leaf of a collider hierarchy into a single integer.
-    public struct ColliderKey : IEquatable<ColliderKey>
+    public struct ColliderKey : IEquatable<ColliderKey>, IComparable<ColliderKey>
     {
         public uint Value { get; internal set; }
 
         public static readonly ColliderKey Empty = new ColliderKey { Value = uint.MaxValue };
 
-        internal ColliderKey(uint numSubKeyBits, uint subKey)
+        public ColliderKey(uint numSubKeyBits, uint subKey)
         {
             Value = uint.MaxValue;
             PushSubKey(numSubKeyBits, subKey);
@@ -584,6 +574,11 @@ namespace ME.ECS.Essentials.Physics
         public bool Equals(ColliderKey other)
         {
             return Value == other.Value;
+        }
+
+        public int CompareTo(ColliderKey other)
+        {
+            return (int)(Value - other.Value);
         }
 
         // Append a sub key to the front of the path
@@ -624,30 +619,30 @@ namespace ME.ECS.Essentials.Physics
 
         public ColliderKey Key => m_Key;
 
-        internal static ColliderKeyPath Empty => new ColliderKeyPath(ColliderKey.Empty, 0);
+        public static ColliderKeyPath Empty => new ColliderKeyPath(ColliderKey.Empty, 0);
 
-        internal ColliderKeyPath(ColliderKey key, uint numKeyBits)
+        public ColliderKeyPath(ColliderKey key, uint numKeyBits)
         {
             m_Key = key;
             m_NumKeyBits = numKeyBits;
         }
 
         // Append the local key for a child of the shape referenced by this path
-        internal void PushChildKey(ColliderKeyPath child)
+        public void PushChildKey(ColliderKeyPath child)
         {
             m_Key.Value &= (uint)(child.m_Key.Value >> (int)m_NumKeyBits | (ulong)0xffffffff << (int)(32 - m_NumKeyBits));
             m_NumKeyBits += child.m_NumKeyBits;
         }
 
         // Remove the most leafward shape's key from this path
-        internal void PopChildKey(uint numChildKeyBits)
+        public void PopChildKey(uint numChildKeyBits)
         {
             m_NumKeyBits -= numChildKeyBits;
             m_Key.Value |= (uint)((ulong)0xffffffff >> (int)m_NumKeyBits);
         }
 
         // Get the collider key for a leaf shape that is a child of the shape referenced by this path
-        internal ColliderKey GetLeafKey(ColliderKey leafKeyLocal)
+        public ColliderKey GetLeafKey(ColliderKey leafKeyLocal)
         {
             ColliderKeyPath leafPath = this;
             leafPath.PushChildKey(new ColliderKeyPath(leafKeyLocal, 0));
@@ -674,12 +669,15 @@ namespace ME.ECS.Essentials.Physics
         // The transform of the child collider in whatever space it was queried from
         public RigidTransform TransformFromChild { get; internal set; }
 
+        // The original Entity from a hierarchy that Child is associated with
+        public Entity Entity;
+
         public unsafe Collider* Collider
         {
             get
             {
                 //Assert.IsTrue(m_Collider != null || m_Polygon.Vertices.Length > 0, "Accessing uninitialized Collider");
-                fixed (ChildCollider* self = &this)
+                fixed(ChildCollider* self = &this)
                 {
                     return (self->m_Collider != null) ? self->m_Collider : (Collider*)&self->m_Polygon;
                 }
@@ -687,45 +685,62 @@ namespace ME.ECS.Essentials.Physics
         }
 
         // Create from collider
-        internal ChildCollider(Collider* collider)
+        public ChildCollider(Collider* collider)
         {
             m_Collider = collider;
             m_Polygon = new PolygonCollider();
             TransformFromChild = new RigidTransform(quaternion.identity, float3.zero);
+            Entity = Entity.Null;
         }
 
         // Create from body
-        internal ChildCollider(Collider* collider, RigidTransform transform)
+        public ChildCollider(Collider* collider, RigidTransform transform)
         {
             m_Collider = collider;
             m_Polygon = new PolygonCollider();
             TransformFromChild = transform;
+            Entity = Entity.Null;
+        }
+
+        // Create from body with Entity indirection
+        public ChildCollider(Collider* collider, RigidTransform transform, Entity entity)
+        {
+            m_Collider = collider;
+            m_Polygon = new PolygonCollider();
+            TransformFromChild = transform;
+            Entity = entity;
         }
 
         // Create as triangle, from 3 vertices
-        internal ChildCollider(float3 a, float3 b, float3 c, CollisionFilter filter, Material material)
+        public ChildCollider(float3 a, float3 b, float3 c, CollisionFilter filter, Material material)
         {
             m_Collider = null;
             m_Polygon = new PolygonCollider();
             m_Polygon.InitAsTriangle(a, b, c, filter, material);
             TransformFromChild = new RigidTransform(quaternion.identity, float3.zero);
+            Entity = Entity.Null;
         }
 
         // Create as quad, from 4 coplanar vertices
-        internal ChildCollider(float3 a, float3 b, float3 c, float3 d, CollisionFilter filter, Material material)
+        public ChildCollider(float3 a, float3 b, float3 c, float3 d, CollisionFilter filter, Material material)
         {
             m_Collider = null;
             m_Polygon = new PolygonCollider();
             m_Polygon.InitAsQuad(a, b, c, d, filter, material);
             TransformFromChild = new RigidTransform(quaternion.identity, float3.zero);
+            Entity = Entity.Null;
         }
 
         // Combine a parent ChildCollider with another ChildCollider describing one of its children
-        internal ChildCollider(ChildCollider parent, ChildCollider child)
+        public ChildCollider(ChildCollider parent, ChildCollider child)
         {
             m_Collider = child.m_Collider;
             m_Polygon = child.m_Polygon;
             TransformFromChild = math.mul(parent.TransformFromChild, child.TransformFromChild);
+            // TODO: Only a CompoundCollider setup in code is likely to have a Entity associated with a PolygonCollider.
+            // So if we have a PolygonCollider should we really return the parent's associated Entity instead of the child's?
+            // for example: Entity = m_Polygon.Vertices.Length == 0 ? child.Entity : parent.Entity;
+            Entity = child.Entity;
         }
     }
 }

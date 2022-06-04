@@ -3,6 +3,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using ME.ECS.Mathematics;
+using UnityEngine.Assertions;
 using static ME.ECS.Essentials.Physics.Math;
 
 namespace ME.ECS.Essentials.Physics
@@ -37,7 +38,7 @@ namespace ME.ECS.Essentials.Physics
         {
             public BodyIndexPair BodyIndices;
             public CustomTagsPair BodyCustomTags;
-            public bool BodiesHaveInfiniteMass;
+            public bool BothMotionsAreKinematic;
             public NativeStream.Writer* ContactWriter;  // cannot be passed by value
         }
 
@@ -69,7 +70,7 @@ namespace ME.ECS.Essentials.Physics
             {
                 BodyIndices = pair,
                 BodyCustomTags = new CustomTagsPair { CustomTagsA = rigidBodyA.CustomTags, CustomTagsB = rigidBodyB.CustomTags },
-                BodiesHaveInfiniteMass = motionVelocityA.HasInfiniteInertiaAndMass && motionVelocityB.HasInfiniteInertiaAndMass,
+                BothMotionsAreKinematic = motionVelocityA.IsKinematic && motionVelocityB.IsKinematic,
                 ContactWriter = (NativeStream.Writer*)UnsafeUtility.AddressOf(ref contactWriter)
             };
 
@@ -148,7 +149,7 @@ namespace ME.ECS.Essentials.Physics
                 {
                     // Combined collision response of the two
                     CollisionResponsePolicy combinedCollisionResponse = Material.GetCombinedCollisionResponse(materialA, materialB);
-                    UnityEngine.Assertions.Assert.IsFalse(combinedCollisionResponse == CollisionResponsePolicy.None,
+                    Assert.IsFalse(combinedCollisionResponse == CollisionResponsePolicy.None,
                         "DisableCollisions pairs should have been filtered out earlier!");
 
                     if (combinedCollisionResponse == CollisionResponsePolicy.RaiseTriggerEvents)
@@ -221,8 +222,8 @@ namespace ME.ECS.Essentials.Physics
             }
 
             // Skip if the bodies have infinite mass and the materials don't want to raise any solver events,
-            // since the resulting contacts can't have any effect during solving
-            if (context.BodiesHaveInfiniteMass)
+            // since the resulting contacts can't have any effect during solving.
+            if (context.BothMotionsAreKinematic)
             {
                 if (combinedCollisionResponse != CollisionResponsePolicy.RaiseTriggerEvents &&
                     combinedCollisionResponse != CollisionResponsePolicy.CollideRaiseCollisionEvents)
@@ -419,7 +420,7 @@ namespace ME.ECS.Essentials.Physics
             MotionExpansion expansion, bool flipped)
         {
             // Flip the relevant inputs and call convex-vs-composite
-            expansion.Linear = -expansion.Linear;
+            expansion.Linear *= -1.0f;
             ConvexComposite(context, ColliderKey.Empty,
                 convexColliderB, compositeColliderA, worldFromB, worldFromA, expansion, !flipped);
         }
@@ -576,7 +577,7 @@ namespace ME.ECS.Essentials.Physics
                 worldFromA = worldFromB;
                 worldFromB = t;
 
-                expansion.Linear = -expansion.Linear;
+                expansion.Linear *= -1.0f;
                 flipped = !flipped;
             }
 
@@ -656,7 +657,7 @@ namespace ME.ECS.Essentials.Physics
 
             // Skip if the bodies have infinite mass and the materials don't want to raise any solver events,
             // since the resulting contacts can't have any effect during solving
-            if (context.BodiesHaveInfiniteMass)
+            if (context.BothMotionsAreKinematic)
             {
                 if (combinedCollisionResponse != CollisionResponsePolicy.RaiseTriggerEvents &&
                     combinedCollisionResponse != CollisionResponsePolicy.CollideRaiseCollisionEvents)
@@ -675,9 +676,9 @@ namespace ME.ECS.Essentials.Physics
                 // Add extra sample points along the capsule
                 float3 v0 = hull.Vertices[0];
                 float3 v1 = hull.Vertices[1];
-                float3 t0 = sfloat.Zero;
-                float3 t1 = sfloat.One;
-                float3 d = sfloat.FromRaw(0x3e124925);
+                float3 t0 = float3.zero;
+                float3 t1 = new float3(1,1,1);
+                float3 d = (sfloat)1.0f / 7.0f;
                 for (int i = 0; i < 8; i++)
                 {
                     capsuleVertices[i] = v0 * t0 + v1 * t1;
@@ -701,12 +702,12 @@ namespace ME.ECS.Essentials.Physics
                 float3 normalInB = float3.zero;
                 if (terrain.GetHeightAndGradient(pointAInB.xz, out sfloat height, out float2 gradient))
                 {
-                    float3 normal = math.normalize(new float3(gradient.x, sfloat.One, gradient.y));
+                    float3 normal = math.normalize(new float3(gradient.x, 1.0f, gradient.y));
                     sfloat distance = (pointAInB.y - height) * normal.y;
                     if (distance < maxDistance + hull.ConvexRadius)
                     {
                         // The current manifold must be flushed if it's full or the normals don't match
-                        if (math.dot(normalInB, normal) < sfloat.FromRaw(0x3f7fff58) || manifold.NumContacts == ConvexConvexManifoldQueries.Manifold.k_MaxNumContacts)
+                        if (math.dot(normalInB, normal) < 1 - 1e-5f || manifold.NumContacts == ConvexConvexManifoldQueries.Manifold.k_MaxNumContacts)
                         {
                             WriteManifold(manifold, context, colliderKeys, materialA, materialB, flipped);
                             manifold = new ConvexConvexManifoldQueries.Manifold

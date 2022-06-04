@@ -86,7 +86,7 @@ namespace ME.ECS.Essentials.Physics
                 sfloat invEffMassDiag1 = math.csum(jacA1 * jacA1 * velocityA.InverseInertia + jacB1 * jacB1 * velocityB.InverseInertia);
                 sfloat invEffMassOffDiag = math.csum(jacA0 * jacA1 * velocityA.InverseInertia + jacB0 * jacB1 * velocityB.InverseInertia);
                 sfloat det = invEffMassDiag0 * invEffMassDiag1 - invEffMassOffDiag * invEffMassOffDiag;
-                sfloat invDet = math.select(jacLengthSq / det, sfloat.Zero, det.IsZero()); // scale by jacLengthSq because the jacs were not normalized
+                sfloat invDet = math.select(jacLengthSq / det, 0.0f, det == 0.0f); // scale by jacLengthSq because the jacs were not normalized
                 effectiveMass = invDet * new float2(invEffMassDiag1, -invEffMassOffDiag);
             }
 

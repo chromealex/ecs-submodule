@@ -1,8 +1,8 @@
 using System;
+using ME.ECS;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using ME.ECS.Mathematics;
-using ME.ECS;
 using UnityEngine.Assertions;
 
 namespace ME.ECS.Essentials.Physics
@@ -13,9 +13,9 @@ namespace ME.ECS.Essentials.Physics
         internal const string k_BevelRadiusTooltip =
             "Determines how rounded the edges of the convex shape will be. A value greater than 0 results in more optimized collision, at the expense of some shape detail.";
 
-        static sfloat k_DefaultSimplificationTolerance => sfloat.FromRaw(0x3c75c28f);
-        static sfloat k_DefaultBevelRadius => sfloat.FromRaw(0x3d4ccccd);
-        static sfloat k_DefaultMinAngle => sfloat.FromRaw(0x3d32b8c2); // 2.5 degrees
+        const float k_DefaultSimplificationTolerance = 0.015f;
+        const float k_DefaultBevelRadius = 0.05f;
+        static sfloat k_DefaultMinAngle = 2.5f * math.PI / 180f; // 2.5 degrees
 
         public static readonly ConvexHullGenerationParameters Default = new ConvexHullGenerationParameters
         {
@@ -188,7 +188,7 @@ namespace ME.ECS.Essentials.Physics
                 // Fill mass properties
                 {
                     // Build the mass properties if they haven't been computed already.
-                    if (builder.HullMassProperties.Volume.IsZero())
+                    if (builder.HullMassProperties.Volume == 0.0f)
                     {
                         builder.UpdateHullMassProperties();
                     }
@@ -196,7 +196,7 @@ namespace ME.ECS.Essentials.Physics
                     var massProperties = builder.HullMassProperties;
                     Math.DiagonalizeSymmetricApproximation(massProperties.InertiaTensor, out float3x3 orientation, out float3 inertia);
 
-                    sfloat maxLengthSquared = sfloat.Zero;
+                    sfloat maxLengthSquared = 0.0f;
                     for (int v = 0, count = hull.Vertices.Length; v < count; ++v)
                     {
                         maxLengthSquared = math.max(maxLengthSquared, math.lengthsq(hull.Vertices[v] - massProperties.CenterOfMass));
@@ -266,7 +266,7 @@ namespace ME.ECS.Essentials.Physics
                             // Walk the face's outer vertices & edges
                             short firstVertexIndex = (short)FaceVertexIndices.Length;
                             byte numEdges = 0;
-                            sfloat maxCosAngle = -sfloat.One;
+                            sfloat maxCosAngle = -1.0f;
                             for (ConvexHullBuilder.FaceEdge edge = hullFace; edge.IsValid; edge = builder.GetNextFaceEdge(edge))
                             {
                                 byte vertexIndex = vertexIndexMap[builder.StartVertex(edge)];
@@ -286,14 +286,14 @@ namespace ME.ECS.Essentials.Physics
 
                                 numEdges++;
                             }
-                            UnityEngine.Assertions.Assert.IsTrue(numEdges >= 3);
+                            Assert.IsTrue(numEdges >= 3);
 
                             // Store the face
                             Faces.Add(new ConvexHull.Face
                             {
                                 FirstIndex = firstVertexIndex,
                                 NumVertices = numEdges,
-                                MinHalfAngle = math.acos(maxCosAngle) * (sfloat)0.5f
+                                MinHalfAngle = math.acos(maxCosAngle) * 0.5f
                             });
                         }
 
@@ -347,12 +347,12 @@ namespace ME.ECS.Essentials.Physics
                             for (int i = 2; i < Vertices.Length; i++)
                             {
                                 cross = math.cross(edge0, Vertices[i] - Vertices[0]);
-                                if (math.lengthsq(cross) > sfloat.FromRaw(0x322bcc77)) // take the first cross product good enough to calculate a normal
+                                if (math.lengthsq(cross) > 1e-8f) // take the first cross product good enough to calculate a normal
                                 {
                                     break;
                                 }
                             }
-                            normal = math.normalizesafe(cross, new float3(sfloat.One, sfloat.Zero, sfloat.Zero));
+                            normal = math.normalizesafe(cross, new float3(1, 0, 0));
                         }
                         sfloat distance = math.dot(normal, Vertices[0]);
                         Planes.Add(new Plane(normal, -distance));
@@ -425,7 +425,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastRay(RaycastInput input, ref NativeList<RaycastHit> allHits) => QueryWrappers.RayCast(ref this, input, ref allHits);
         public unsafe bool CastRay<T>(RaycastInput input, ref T collector) where T : struct, ICollector<RaycastHit>
         {
-            fixed (ConvexCollider* target = &this)
+            fixed(ConvexCollider* target = &this)
             {
                 return RaycastQueries.RayCollider(input, (Collider*)target, ref collector);
             }
@@ -437,7 +437,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastCollider(ColliderCastInput input, ref NativeList<ColliderCastHit> allHits) => QueryWrappers.ColliderCast(ref this, input, ref allHits);
         public unsafe bool CastCollider<T>(ColliderCastInput input, ref T collector) where T : struct, ICollector<ColliderCastHit>
         {
-            fixed (ConvexCollider* target = &this)
+            fixed(ConvexCollider* target = &this)
             {
                 return ColliderCastQueries.ColliderCollider(input, (Collider*)target, ref collector);
             }
@@ -449,7 +449,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(PointDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(PointDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (ConvexCollider* target = &this)
+            fixed(ConvexCollider* target = &this)
             {
                 return DistanceQueries.PointCollider(input, (Collider*)target, ref collector);
             }
@@ -461,7 +461,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(ColliderDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(ColliderDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (ConvexCollider* target = &this)
+            fixed(ConvexCollider* target = &this)
             {
                 return DistanceQueries.ColliderCollider(input, (Collider*)target, ref collector);
             }

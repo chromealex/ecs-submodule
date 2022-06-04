@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using ME.ECS;
 using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics.Extensions
@@ -19,17 +18,17 @@ namespace ME.ECS.Essentials.Physics.Extensions
 
         public static sfloat GetMass(this in PhysicsWorld world, int rigidBodyIndex)
         {
-            if (!(0 <= rigidBodyIndex && rigidBodyIndex < world.NumDynamicBodies)) return sfloat.Zero;
+            if (!(0 <= rigidBodyIndex && rigidBodyIndex < world.NumDynamicBodies)) return 0;
 
             MotionVelocity mv = world.MotionVelocities[rigidBodyIndex];
 
-            return mv.InverseMass.IsZero() ? sfloat.Zero : sfloat.One / mv.InverseMass;
+            return 0 == mv.InverseMass ? 0.0f : 1.0f / mv.InverseMass;
         }
 
         // Get the effective mass of a Rigid Body in a given direction and from a particular point (in World Space)
         public static sfloat GetEffectiveMass(this in PhysicsWorld world, int rigidBodyIndex, float3 impulse, float3 point)
         {
-            if (!(0 <= rigidBodyIndex && rigidBodyIndex < world.NumDynamicBodies)) return sfloat.Zero;
+            if (!(0 <= rigidBodyIndex && rigidBodyIndex < world.NumDynamicBodies)) return 0;
 
             MotionVelocity mv = world.MotionVelocities[rigidBodyIndex];
 
@@ -44,13 +43,14 @@ namespace ME.ECS.Essentials.Physics.Extensions
 
             float3 jacobian = math.cross(pointDir, impulseDir);
             sfloat invEffMass = math.csum(math.dot(jacobian, jacobian) * inverseInertia);
-            return math.select(sfloat.One / invEffMass, sfloat.Zero, math.abs(invEffMass) < sfloat.FromRaw(0x3727c5ac));
+            return math.select(1.0f / invEffMass, 0.0f, math.abs(invEffMass) < (sfloat)1e-5);
         }
 
         // Get the Rigid Bodies Center of Mass (in World Space)
         public static float3 GetCenterOfMass(this in PhysicsWorld world, int rigidBodyIndex)
         {
             if (!(0 <= rigidBodyIndex && rigidBodyIndex < world.NumDynamicBodies)) return float3.zero;
+
             return world.MotionDatas[rigidBodyIndex].WorldFromMotion.pos;
         }
 
@@ -138,34 +138,6 @@ namespace ME.ECS.Essentials.Physics.Extensions
             motionVelocities[rigidBodyIndex] = mv;
         }
 
-        // Get the linear and the angular velocity of a rigid body (in world space)
-        public static (float3 linearVelocity, float3 angularVelocity) GetLinearAngularVelocity(this in PhysicsWorld world, int rigidBodyIndex)
-        {
-            if (!(0 <= rigidBodyIndex && rigidBodyIndex < world.NumDynamicBodies)) return (float3.zero, float3.zero);
-
-            MotionVelocity mv = world.MotionVelocities[rigidBodyIndex];
-            MotionData md = world.MotionDatas[rigidBodyIndex];
-
-            float3 linear = mv.LinearVelocity;
-            float3 angular = math.rotate(md.WorldFromMotion, mv.AngularVelocity);
-            return (linear, angular);
-        }
-
-        // Set the linear and the angular velocity of a rigid body (in world space)
-        public static void SetLinearAngularVelocity(this PhysicsWorld world, int rigidBodyIndex, float3 linearVelocity, float3 angularVelocity)
-        {
-            if (!(0 <= rigidBodyIndex && rigidBodyIndex < world.NumDynamicBodies)) return;
-
-            MotionData md = world.MotionDatas[rigidBodyIndex];
-            float3 angularVelocityMotionSpace = math.rotate(math.inverse(md.WorldFromMotion.rot), angularVelocity);
-
-            Unity.Collections.NativeArray<MotionVelocity> motionVelocities = world.MotionVelocities;
-            MotionVelocity mv = motionVelocities[rigidBodyIndex];
-            mv.LinearVelocity = linearVelocity;
-            mv.AngularVelocity = angularVelocityMotionSpace;
-            motionVelocities[rigidBodyIndex] = mv;
-        }
-
         // Apply an impulse to a rigid body at a point (in world space)
         public static void ApplyImpulse(this PhysicsWorld world, int rigidBodyIndex, float3 linearImpulse, float3 point)
         {
@@ -235,7 +207,7 @@ namespace ME.ECS.Essentials.Physics.Extensions
             out float3 requiredLinearVelocity, out float3 requiredAngularVelocity
         )
         {
-            var com = new float4(centerOfMass, sfloat.One);
+            var com = new float4(centerOfMass, 1f);
             requiredLinearVelocity = (math.mul(targetTransform, com) - math.mul(worldFromBody, com)).xyz * stepFrequency;
             var angularVelocity = math.mul(targetTransform.rot, math.inverse(worldFromBody.rot)).ToEulerAngles() * stepFrequency;
             requiredAngularVelocity = math.rotate(motionFromWorld, angularVelocity);

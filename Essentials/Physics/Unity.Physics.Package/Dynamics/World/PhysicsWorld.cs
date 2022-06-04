@@ -1,7 +1,6 @@
 using System;
-using ME.ECS;
 using System.ComponentModel;
-
+using ME.ECS;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;

@@ -19,7 +19,7 @@ namespace ME.ECS.Essentials.Physics
                 Max = max;
             }
 
-            public sfloat Mid => math.lerp(Min, Max, (sfloat)0.5f);
+            public sfloat Mid => math.lerp(Min, Max, 0.5f);
 
             public bool Equals(FloatRange other) => Min.Equals(other.Min) && Max.Equals(other.Max);
 
@@ -27,7 +27,7 @@ namespace ME.ECS.Essentials.Physics
 
             public override int GetHashCode() => unchecked((int)math.hash(new float2(Min, Max)));
 
-            public static implicit operator float2 (FloatRange range) => new float2(range.Min, range.Max);
+            public static implicit operator float2(FloatRange range) => new float2(range.Min, range.Max);
 
             public static implicit operator FloatRange(float2 f) => new FloatRange { Min = f.x, Max = f.y };
 

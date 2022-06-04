@@ -1,7 +1,7 @@
 using System;
+using ME.ECS;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using ME.ECS;
 using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics
@@ -111,10 +111,10 @@ namespace ME.ECS.Essentials.Physics
             MassDistribution = new MassDistribution
             {
                 Transform = new RigidTransform(quaternion.identity, Center),
-                InertiaTensor = new float3(sfloat.FromRaw(0x3ecccccd) * Radius * Radius)
+                InertiaTensor = new float3(2.0f / 5.0f * Radius * Radius)
             },
-            Volume = sfloat.FromRaw(0x40860a92) * Radius * Radius * Radius,
-            AngularExpansionFactor = sfloat.Zero
+            Volume = (4.0f / 3.0f) * (float)math.PI * Radius * Radius * Radius,
+            AngularExpansionFactor = 0.0f
         };
 
         public Aabb CalculateAabb()
@@ -142,7 +142,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastRay(RaycastInput input, ref NativeList<RaycastHit> allHits) => QueryWrappers.RayCast(ref this, input, ref allHits);
         public unsafe bool CastRay<T>(RaycastInput input, ref T collector) where T : struct, ICollector<RaycastHit>
         {
-            fixed (SphereCollider* target = &this)
+            fixed(SphereCollider* target = &this)
             {
                 return RaycastQueries.RayCollider(input, (Collider*)target, ref collector);
             }
@@ -154,7 +154,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastCollider(ColliderCastInput input, ref NativeList<ColliderCastHit> allHits) => QueryWrappers.ColliderCast(ref this, input, ref allHits);
         public unsafe bool CastCollider<T>(ColliderCastInput input, ref T collector) where T : struct, ICollector<ColliderCastHit>
         {
-            fixed (SphereCollider* target = &this)
+            fixed(SphereCollider* target = &this)
             {
                 return ColliderCastQueries.ColliderCollider(input, (Collider*)target, ref collector);
             }
@@ -166,7 +166,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(PointDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(PointDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (SphereCollider* target = &this)
+            fixed(SphereCollider* target = &this)
             {
                 return DistanceQueries.PointCollider(input, (Collider*)target, ref collector);
             }
@@ -178,7 +178,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(ColliderDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(ColliderDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (SphereCollider* target = &this)
+            fixed(SphereCollider* target = &this)
             {
                 return DistanceQueries.ColliderCollider(input, (Collider*)target, ref collector);
             }

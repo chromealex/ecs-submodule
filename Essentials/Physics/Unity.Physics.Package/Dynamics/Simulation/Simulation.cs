@@ -97,7 +97,7 @@ namespace ME.ECS.Essentials.Physics
         //             return ScheduleReset(ref world, inputDeps, true);
         //         }
         // However, to make that possible we need a why to allocate InputVelocities within a job.
-        // The core simulation does not chain jobs across multiple simulation steps and so 
+        // The core simulation does not chain jobs across multiple simulation steps and so
         // will not hit this issue.
         internal JobHandle ScheduleReset(SimulationStepInput stepInput, JobHandle inputDeps, bool allocateEventDataStreams)
         {
@@ -297,12 +297,6 @@ namespace ME.ECS.Essentials.Physics
             StepImmediate(input, ref SimulationContext);
         }
 
-        [Obsolete("ScheduleStepJobs() has been deprecated. Please use the new method taking a bool as the last parameter. (RemovedAfter 2021-02-15)", true)]
-        public unsafe SimulationJobHandles ScheduleStepJobs(SimulationStepInput input, SimulationCallbacks callbacksIn, JobHandle inputDeps, int threadCountHint = 0)
-        {
-            return ScheduleStepJobs(input, callbacksIn, inputDeps, threadCountHint > 0);
-        }
-
         // Schedule all the jobs for the simulation step.
         // Enqueued callbacks can choose to inject additional jobs at defined sync points.
         // multiThreaded defines which simulation type will be called:
@@ -315,7 +309,7 @@ namespace ME.ECS.Essentials.Physics
             SafetyChecks.CheckInRangeAndThrow(input.NumSolverIterations, new int2(1, int.MaxValue), nameof(input.NumSolverIterations));
 
             // Dispose and reallocate input velocity buffer, if dynamic body count has increased.
-            // Dispose previous collision and trigger event data streams. 
+            // Dispose previous collision and trigger event data streams.
             // New event streams are reallocated later when the work item count is known.
             JobHandle handle = SimulationContext.ScheduleReset(input, inputDeps, false);
             SimulationContext.TimeStep = input.TimeStep;
@@ -376,7 +370,6 @@ namespace ME.ECS.Essentials.Physics
                 ref StepContext.SolverSchedulerInfo, solverStabilizationData, handle, multiThreaded);
             handle = handles.FinalExecutionHandle;
             var disposeHandle5 = handles.FinalDisposeHandle;
-            handle = callbacks.Execute(SimulationCallbacks.Phase.PostSolveJacobians, this, ref input.World, handle);
 
             // Integrate motions
             handle = Integrator.ScheduleIntegrateJobs(ref input.World.DynamicsWorld, input.TimeStep, handle, multiThreaded);
@@ -419,26 +412,29 @@ namespace ME.ECS.Essentials.Physics
             return m_StepHandles;
         }
         
-        public static unsafe SimulationJobHandles ScheduleStepJobs(ref SimulationStepInput input, ref SimulationContext SimulationContext, DispatchPairSequencer sheduler, JobHandle inputDeps, bool multiThreaded = true)
+        public static unsafe SimulationJobHandles ScheduleStepJobs(ref SimulationStepInput input, ref SimulationContext SimulationContext, ME.ECS.Essentials.Physics.DispatchPairSequencer m_Scheduler, JobHandle inputDeps, bool multiThreaded = true)
         {
             SafetyChecks.CheckFiniteAndPositiveAndThrow(input.TimeStep, nameof(input.TimeStep));
             SafetyChecks.CheckInRangeAndThrow(input.NumSolverIterations, new int2(1, int.MaxValue), nameof(input.NumSolverIterations));
 
             // Dispose and reallocate input velocity buffer, if dynamic body count has increased.
-            // Dispose previous collision and trigger event data streams. 
+            // Dispose previous collision and trigger event data streams.
             // New event streams are reallocated later when the work item count is known.
             JobHandle handle = SimulationContext.ScheduleReset(input, inputDeps, false);
             SimulationContext.TimeStep = input.TimeStep;
 
             var StepContext = new StepContext();
 
-            var m_StepHandles = new SimulationJobHandles(new JobHandle());
+            SimulationJobHandles m_StepHandles;
+
             if (input.World.NumDynamicBodies == 0)
             {
                 // No need to do anything, since nothing can move
                 m_StepHandles = new SimulationJobHandles(handle);
                 return m_StepHandles;
             }
+
+            //SimulationCallbacks callbacks = callbacksIn ?? new SimulationCallbacks();
 
             // Find all body pairs that overlap in the broadphase
             var handles = input.World.CollisionWorld.ScheduleFindOverlapsJobs(
@@ -448,7 +444,7 @@ namespace ME.ECS.Essentials.Physics
             var postOverlapsHandle = handle;
 
             // Sort all overlapping and jointed body pairs into phases
-            handles = sheduler.ScheduleCreatePhasedDispatchPairsJob(
+            handles = m_Scheduler.ScheduleCreatePhasedDispatchPairsJob(
                 ref input.World, ref dynamicVsDynamicBodyPairs, ref dynamicVsStaticBodyPairs, handle,
                 ref StepContext.PhasedDispatchPairs, out StepContext.SolverSchedulerInfo, multiThreaded);
             handle = handles.FinalExecutionHandle;
@@ -468,7 +464,7 @@ namespace ME.ECS.Essentials.Physics
                 ref StepContext.SolverSchedulerInfo, multiThreaded);
             handle = handles.FinalExecutionHandle;
             var disposeHandle3 = handles.FinalDisposeHandle;
-            //handle = callbacks.Execute(SimulationCallbacks.Phase.PostCreateContacts, this, ref input.World, handle);
+            // handle = callbacks.Execute(SimulationCallbacks.Phase.PostCreateContacts, this, ref input.World, handle);
 
             // Create contact Jacobians
             handles = Solver.ScheduleBuildJacobiansJobs(ref input.World, input.TimeStep, input.Gravity, input.NumSolverIterations,
@@ -476,7 +472,7 @@ namespace ME.ECS.Essentials.Physics
                 ref StepContext.Contacts, ref StepContext.Jacobians, multiThreaded);
             handle = handles.FinalExecutionHandle;
             var disposeHandle4 = handles.FinalDisposeHandle;
-            //handle = callbacks.Execute(SimulationCallbacks.Phase.PostCreateContactJacobians, this, ref input.World, handle);
+            // handle = callbacks.Execute(SimulationCallbacks.Phase.PostCreateContactJacobians, this, ref input.World, handle);
 
             // Solve all Jacobians
             Solver.StabilizationData solverStabilizationData = new Solver.StabilizationData(input, SimulationContext);
@@ -485,7 +481,6 @@ namespace ME.ECS.Essentials.Physics
                 ref StepContext.SolverSchedulerInfo, solverStabilizationData, handle, multiThreaded);
             handle = handles.FinalExecutionHandle;
             var disposeHandle5 = handles.FinalDisposeHandle;
-            //handle = callbacks.Execute(SimulationCallbacks.Phase.PostSolveJacobians, this, ref input.World, handle);
 
             // Integrate motions
             handle = Integrator.ScheduleIntegrateJobs(ref input.World.DynamicsWorld, input.TimeStep, handle, multiThreaded);

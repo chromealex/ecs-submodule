@@ -1,7 +1,7 @@
 using System;
+using ME.ECS;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using ME.ECS;
 using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics
@@ -67,8 +67,8 @@ namespace ME.ECS.Essentials.Physics
 
         // Convex hull data, sized for the maximum allowed number of cylinder faces
         // Todo: would be nice to use the actual types here but C# only likes fixed arrays of builtin types..
-        private unsafe fixed byte m_Vertices[sizeof(uint) * 3 * 2 * CylinderGeometry.MaxSideCount];
-        private unsafe fixed byte m_FacePlanes[sizeof(uint) * 4 * (2 + CylinderGeometry.MaxSideCount)];
+        private unsafe fixed byte m_Vertices[sizeof(float) * 3 * 2 * CylinderGeometry.MaxSideCount];
+        private unsafe fixed byte m_FacePlanes[sizeof(float) * 4 * (2 + CylinderGeometry.MaxSideCount)];
         private unsafe fixed byte m_Faces[4 * (2 + CylinderGeometry.MaxSideCount)];
         private unsafe fixed byte m_FaceVertexIndices[sizeof(byte) * 6 * CylinderGeometry.MaxSideCount];
 
@@ -133,7 +133,7 @@ namespace ME.ECS.Essentials.Physics
             MemorySize = UnsafeUtility.SizeOf<CylinderCollider>();
 
             // Initialize immutable convex data
-            fixed (CylinderCollider* collider = &this)
+            fixed(CylinderCollider* collider = &this)
             {
                 ConvexHull.VerticesBlob.Offset = UnsafeEx.CalculateOffset(ref collider->m_Vertices[0], ref ConvexHull.VerticesBlob);
                 ConvexHull.VerticesBlob.Length = 0;
@@ -176,40 +176,37 @@ namespace ME.ECS.Essentials.Physics
             ConvexHull.FaceVertexIndicesBlob.Length = m_SideCount * 6;
 
             var transform = new RigidTransform(m_Orientation, m_Center);
-            var radius = math.max(m_Radius - ConvexHull.ConvexRadius, sfloat.Zero);
-            var halfHeight = math.max(m_Height * (sfloat)0.5f - ConvexHull.ConvexRadius, sfloat.Zero);
+            var radius = math.max(m_Radius - ConvexHull.ConvexRadius, 0);
+            var halfHeight = math.max(m_Height * 0.5f - ConvexHull.ConvexRadius, 0);
 
-            sfloat sideCount = (sfloat)m_SideCount;
-
-            fixed (CylinderCollider* collider = &this)
+            fixed(CylinderCollider* collider = &this)
             {
                 // vertices
                 float3* vertices = (float3*)(&collider->m_Vertices[0]);
-                var arcStep = math.TWO_PI / sideCount;
+                var arcStep = 2f * (float)math.PI / m_SideCount;
                 for (var i = 0; i < m_SideCount; i++)
                 {
-                    sfloat _i = (sfloat)i;
-                    var x = math.cos(arcStep * _i) * radius;
-                    var y = math.sin(arcStep * _i) * radius;
+                    var x = math.cos(arcStep * i) * radius;
+                    var y = math.sin(arcStep * i) * radius;
                     vertices[i] = math.transform(transform, new float3(x, y, -halfHeight));
                     vertices[i + m_SideCount] = math.transform(transform, new float3(x, y, halfHeight));
                 }
 
                 // planes
                 Plane* planes = (Plane*)(&collider->m_FacePlanes[0]);
-                planes[0] = Math.TransformPlane(transform, new Plane(new float3(sfloat.Zero, sfloat.Zero, -sfloat.One), -halfHeight));
-                planes[1] = Math.TransformPlane(transform, new Plane(new float3(sfloat.Zero, sfloat.Zero, sfloat.One), -halfHeight));
-                sfloat d = radius * math.cos(math.PI / sideCount);
+                planes[0] = Math.TransformPlane(transform, new Plane(new float3(0f, 0f, -1f), -halfHeight));
+                planes[1] = Math.TransformPlane(transform, new Plane(new float3(0f, 0f, 1f), -halfHeight));
+                sfloat d = radius * math.cos((float)math.PI / m_SideCount);
                 for (int i = 0; i < m_SideCount; ++i)
                 {
-                    sfloat angle = math.TWO_PI * ((sfloat)i + (sfloat)0.5f) / sideCount;
-                    planes[2 + i] = Math.TransformPlane(transform, new Plane(new float3(math.cos(angle), math.sin(angle), sfloat.Zero), -d));
+                    sfloat angle = 2.0f * (float)math.PI * (i + 0.5f) / m_SideCount;
+                    planes[2 + i] = Math.TransformPlane(transform, new Plane(new float3(math.cos(angle), math.sin(angle), 0f), -d));
                 }
 
                 // faces
                 ConvexHull.Face* faces = (ConvexHull.Face*)(&collider->m_Faces[0]);
-                byte* indices = &collider->m_FaceVertexIndices[0];
-                sfloat halfAngle = math.PI_OVER_4;
+                byte* indices = (byte*)(&collider->m_FaceVertexIndices[0]);
+                sfloat halfAngle = (float)math.PI * 0.25f;
                 {
                     faces[0].FirstIndex = 0;
                     faces[0].NumVertices = (byte)m_SideCount;
@@ -227,7 +224,7 @@ namespace ME.ECS.Essentials.Physics
                         indices[i] = (byte)(i);
                     }
                 }
-                halfAngle = math.PI / sideCount;
+                halfAngle = (float)math.PI / m_SideCount;
                 for (int i = 0; i < m_SideCount; ++i)
                 {
                     int firstIndex = (2 * m_SideCount) + (4 * i);
@@ -243,18 +240,17 @@ namespace ME.ECS.Essentials.Physics
                 }
             }
 
-            sfloat radiusSq = m_Radius * m_Radius;
             MassProperties = new MassProperties
             {
                 MassDistribution = new MassDistribution
                 {
                     Transform = transform,
                     InertiaTensor = new float3(
-                        (radiusSq + m_Height * m_Height) * sfloat.FromRaw(0x3daaaaab),
-                        (radiusSq + m_Height * m_Height) * sfloat.FromRaw(0x3daaaaab),
-                        (radiusSq) * (sfloat)0.5f)
+                        (m_Radius * m_Radius + m_Height * m_Height) / 12f,
+                        (m_Radius * m_Radius + m_Height * m_Height) / 12f,
+                        (m_Radius * m_Radius) * 0.5f)
                 },
-                Volume = math.PI * radiusSq * m_Height,
+                Volume = (float)math.PI * m_Radius * m_Radius * m_Height,
                 AngularExpansionFactor = math.sqrt(radius * radius + halfHeight * halfHeight)
             };
         }
@@ -280,14 +276,23 @@ namespace ME.ECS.Essentials.Physics
         public unsafe Aabb CalculateAabb(RigidTransform transform)
         {
             transform = math.mul(transform, new RigidTransform(m_Orientation, m_Center));
-            float3 axis = math.rotate(transform, new float3(sfloat.Zero, sfloat.Zero, sfloat.One));
-            float3 v0 = transform.pos + axis * m_Height * (sfloat)0.5f;
-            float3 v1 = transform.pos - axis * m_Height * (sfloat)0.5f;
-            float3 e = m_Radius;
+            var halfAxis = math.rotate(transform, new float3(0, 0, m_Height * 0.5f));
+            float3 v0 = transform.pos + halfAxis;
+            float3 v1 = transform.pos - halfAxis;
+            var axis = v1 - v0;
+            sfloat axisLen2 = m_Height * m_Height;
+            sfloat invAxisLen2 = math.rcp(axisLen2);
+            float3 axisYZX = new float3(axis.y, axis.z, axis.x);
+            float3 axisZXY = new float3(axis.z, axis.x, axis.y);
+            float3 root = axisYZX * axisYZX;
+            root += axisZXY * axisZXY;
+            root *= invAxisLen2;
+            float3 expansion = math.sqrt(root);
+            expansion *= m_Radius;
             return new Aabb
             {
-                Min = math.min(v0, v1) - e,
-                Max = math.max(v0, v1) + e
+                Min = math.min(v0, v1) - expansion,
+                Max = math.max(v0, v1) + expansion
             };
         }
 
@@ -297,7 +302,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastRay(RaycastInput input, ref NativeList<RaycastHit> allHits) => QueryWrappers.RayCast(ref this, input, ref allHits);
         public unsafe bool CastRay<T>(RaycastInput input, ref T collector) where T : struct, ICollector<RaycastHit>
         {
-            fixed (CylinderCollider* target = &this)
+            fixed(CylinderCollider* target = &this)
             {
                 return RaycastQueries.RayCollider(input, (Collider*)target, ref collector);
             }
@@ -309,7 +314,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastCollider(ColliderCastInput input, ref NativeList<ColliderCastHit> allHits) => QueryWrappers.ColliderCast(ref this, input, ref allHits);
         public unsafe bool CastCollider<T>(ColliderCastInput input, ref T collector) where T : struct, ICollector<ColliderCastHit>
         {
-            fixed (CylinderCollider* target = &this)
+            fixed(CylinderCollider* target = &this)
             {
                 return ColliderCastQueries.ColliderCollider(input, (Collider*)target, ref collector);
             }
@@ -321,7 +326,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(PointDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(PointDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (CylinderCollider* target = &this)
+            fixed(CylinderCollider* target = &this)
             {
                 return DistanceQueries.PointCollider(input, (Collider*)target, ref collector);
             }
@@ -333,7 +338,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(ColliderDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(ColliderDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (CylinderCollider* target = &this)
+            fixed(CylinderCollider* target = &this)
             {
                 return DistanceQueries.ColliderCollider(input, (Collider*)target, ref collector);
             }

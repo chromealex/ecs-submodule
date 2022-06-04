@@ -16,8 +16,8 @@ namespace ME.ECS.Essentials.Physics
             public float3 Normal;
 
             public const int k_MaxNumContacts = 32;
-            private fixed uint /* float */  m_ContactPositions[k_MaxNumContacts * 3];
-            private fixed uint /* float */ m_Distances[k_MaxNumContacts];
+            private fixed float m_ContactPositions[k_MaxNumContacts * 3];
+            private fixed float m_Distances[k_MaxNumContacts];
 
             // Create a single point manifold from a distance query result
             public Manifold(DistanceQueries.Result convexDistance, MTransform worldFromA)
@@ -35,36 +35,36 @@ namespace ME.ECS.Essentials.Physics
             {
                 get
                 {
-                    UnityEngine.Assertions.Assert.IsTrue(contactIndex >= 0 && contactIndex < k_MaxNumContacts);
+                    Assert.IsTrue(contactIndex >= 0 && contactIndex < k_MaxNumContacts);
 
                     int offset = contactIndex * 3;
                     var contact = new ContactPoint();
 
-                    fixed (uint* positions = m_ContactPositions)
+                    fixed(float* positions = m_ContactPositions)
                     {
                         contact.Position = *(float3*)(positions + offset);
                     }
 
-                    fixed (uint* distances = m_Distances)
+                    fixed(float* distances = m_Distances)
                     {
-                        contact.Distance = sfloat.FromRaw(distances[contactIndex]);
+                        contact.Distance = distances[contactIndex];
                     }
 
                     return contact;
                 }
                 set
                 {
-                    UnityEngine.Assertions.Assert.IsTrue(contactIndex >= 0 && contactIndex < k_MaxNumContacts);
+                    Assert.IsTrue(contactIndex >= 0 && contactIndex < k_MaxNumContacts);
 
                     int offset = contactIndex * 3;
-                    fixed (uint* positions = m_ContactPositions)
+                    fixed(float* positions = m_ContactPositions)
                     {
                         *(float3*)(positions + offset) = value.Position;
                     }
 
-                    fixed (uint* distances = m_Distances)
+                    fixed(float* distances = m_Distances)
                     {
-                        distances[contactIndex] = value.Distance.RawValue;
+                        distances[contactIndex] = (float)value.Distance;
                     }
                 }
             }
@@ -131,17 +131,17 @@ namespace ME.ECS.Essentials.Physics
             MTransform boxAFromBoxB = Mul(Inverse(aFromBoxA), Mul(aFromB, bFromBoxB));
             MTransform boxBFromBoxA = Inverse(boxAFromBoxB);
 
-            float3 halfExtentsA = boxA->Size * (sfloat)0.5f;
-            float3 halfExtentsB = boxB->Size * (sfloat)0.5f;
+            float3 halfExtentsA = boxA->Size * 0.5f;
+            float3 halfExtentsB = boxB->Size * 0.5f;
 
             // Test planes of each box against the other's vertices
             float3 normal; // in BoxA-space
             sfloat distance;
             {
-                float3 normalA = new float3(sfloat.One, sfloat.Zero, sfloat.Zero);
-                float3 normalB = new float3(sfloat.One, sfloat.Zero, sfloat.Zero);
-                sfloat distA = sfloat.Zero;
-                sfloat distB = sfloat.Zero;
+                float3 normalA = new float3(1, 0, 0);
+                float3 normalB = new float3(1, 0, 0);
+                sfloat distA = 0.0f;
+                sfloat distB = 0.0f;
                 if (!PointPlanes(boxAFromBoxB, halfExtentsA, halfExtentsB, maxDistance, ref normalA, ref distA) ||
                     !PointPlanes(boxBFromBoxA, halfExtentsB, halfExtentsA, maxDistance, ref normalB, ref distB))
                 {
@@ -156,7 +156,7 @@ namespace ME.ECS.Essentials.Physics
 
             // Test edge pairs
             {
-                float3 edgeA = new float3(sfloat.One, sfloat.Zero, sfloat.Zero);
+                float3 edgeA = new float3(1.0f, 0.0f, 0.0f);
                 for (int i = 0; i < 3; i++)
                 {
                     for (int j = 0; j < 3; j++)
@@ -167,22 +167,22 @@ namespace ME.ECS.Essentials.Physics
                             case 0: edgeB = boxAFromBoxB.Rotation.c0; break;
                             case 1: edgeB = boxAFromBoxB.Rotation.c1; break;
                             case 2: edgeB = boxAFromBoxB.Rotation.c2; break;
-                            default: edgeB = new float3(sfloat.Zero); break;
+                            default: edgeB = new float3(0.0f); break;
                         }
                         float3 dir = math.cross(edgeA, edgeB);
 
                         // hack around parallel edges
-                        if (math.all(math.abs(dir) < new float3(sfloat.FromRaw(0x3727c5ac))))
+                        if (math.all(math.abs(dir) < new float3(1e-5f)))
                         {
                             continue;
                         }
 
                         float3 edgeNormal = math.normalize(dir);
-                        float3 supportA = math.select(halfExtentsA, -halfExtentsA, dir < new float3(sfloat.Zero));
+                        float3 supportA = math.select(halfExtentsA, -halfExtentsA, dir < new float3(0.0f));
                         sfloat maxA = math.abs(math.dot(supportA, edgeNormal));
                         sfloat minA = -maxA;
                         float3 dirInB = math.mul(boxBFromBoxA.Rotation, dir);
-                        float3 supportBinB = math.select(halfExtentsB, -halfExtentsB, dirInB < new float3(sfloat.Zero));
+                        float3 supportBinB = math.select(halfExtentsB, -halfExtentsB, dirInB < new float3(0.0f));
                         float3 supportB = math.mul(boxAFromBoxB.Rotation, supportBinB);
                         sfloat offsetB = math.abs(math.dot(supportB, edgeNormal));
                         sfloat centerB = math.dot(boxAFromBoxB.Translation, edgeNormal);
@@ -273,7 +273,7 @@ namespace ME.ECS.Essentials.Physics
             [NoAlias] in MTransform worldFromA, [NoAlias] in MTransform aFromB, sfloat maxDistance,
             [NoAlias] out Manifold manifold)
         {
-            UnityEngine.Assertions.Assert.IsTrue(triangleB->Vertices.Length == 3);
+            Assert.IsTrue(triangleB->Vertices.Length == 3);
 
             // Get triangle in box space
             MTransform aFromBoxA = new MTransform(boxA->Orientation, boxA->Center);
@@ -289,7 +289,7 @@ namespace ME.ECS.Essentials.Physics
             FourTransposedPoints perpsB;
             CalcTrianglePlanes(t0, t1, t2, triangleNormal, out vertsB, out edgesB, out perpsB);
 
-            float3 halfExtents = boxA->Size * (sfloat)0.5f + maxDistance;
+            float3 halfExtents = boxA->Size * 0.5f + maxDistance;
 
             // find the closest minkowski plane
             float4 plane;
@@ -302,7 +302,7 @@ namespace ME.ECS.Essentials.Physics
                     float3 tMax = math.max(math.max(t0, t1), t2) + halfExtents;
 
                     // find the aabb face closest to the origin
-                    float3 axis0 = new float3(sfloat.One, sfloat.Zero, sfloat.Zero);
+                    float3 axis0 = new float3(1, 0, 0);
                     float3 axis1 = axis0.zxy; // 010
                     float3 axis2 = axis0.yzx; // 001
 
@@ -317,7 +317,7 @@ namespace ME.ECS.Essentials.Physics
                 // Box vertex vs triangle face
                 float4 planeVertexFace;
                 {
-                    // Calculate the triangle normal 
+                    // Calculate the triangle normal
                     sfloat triangleOffset = math.dot(triangleNormal, t0);
                     sfloat expansionOffset = math.dot(math.abs(triangleNormal), halfExtents);
                     planeVertexFace = SelectMaxW(
@@ -326,7 +326,7 @@ namespace ME.ECS.Essentials.Physics
                 }
 
                 // Edge planes
-                float4 planeEdgeEdge = new float4(sfloat.Zero, sfloat.Zero, sfloat.Zero, -sfloat.MaxValue);
+                float4 planeEdgeEdge = new float4(0, 0, 0, -float.MaxValue);
                 {
                     // Test the planes from crossing axis i with each edge of the triangle, for example if i = 1 then n0 is from (0, 1, 0) x (t1 - t0).
                     for (int i = 0, j = 1, k = 2; i < 3; j = k, k = i, i++)
@@ -345,9 +345,9 @@ namespace ME.ECS.Essentials.Physics
                         bool4 valid = dots != float4.zero;
                         distances = math.select(Constants.Min4F, distances, valid);
 
-                        float3 n0 = new float3(); n0[i] = sfloat.Zero; n0[j] = nj[0]; n0[k] = nk[0];
-                        float3 n1 = new float3(); n1[i] = sfloat.Zero; n1[j] = nj[1]; n1[k] = nk[1];
-                        float3 n2 = new float3(); n2[i] = sfloat.Zero; n2[j] = nj[2]; n2[k] = nk[2];
+                        float3 n0 = new float3(); n0[i] = 0.0f; n0[j] = nj[0]; n0[k] = nk[0];
+                        float3 n1 = new float3(); n1[i] = 0.0f; n1[j] = nj[1]; n1[k] = nk[1];
+                        float3 n2 = new float3(); n2[i] = 0.0f; n2[j] = nj[2]; n2[k] = nk[2];
                         float4 temp = SelectMaxW(SelectMaxW(new float4(n0, distances.x), new float4(n1, distances.y)), new float4(n2, distances.z));
                         planeEdgeEdge = SelectMaxW(planeEdgeEdge, temp);
                     }
@@ -359,7 +359,7 @@ namespace ME.ECS.Essentials.Physics
             manifold = new Manifold();
 
             // Check for a separating plane TODO.ma could early out as soon as any plane with w>0 is found
-            if (plane.w <= sfloat.Zero)
+            if (plane.w <= 0.0f)
             {
                 // Get the normal and supporting faces
                 float3 normalInA = math.mul(boxA->Orientation, plane.xyz);
@@ -368,7 +368,7 @@ namespace ME.ECS.Essentials.Physics
                 int faceIndexB = triangleB->ConvexHull.GetSupportingFace(math.mul(math.transpose(aFromB.Rotation), normalInA));
 
                 // Build manifold
-                if (!FaceFace(ref boxA->ConvexHull, ref triangleB->ConvexHull, faceIndexA, faceIndexB, worldFromA, aFromB, normalInA, sfloat.MaxValue, ref manifold))
+                if (!FaceFace(ref boxA->ConvexHull, ref triangleB->ConvexHull, faceIndexA, faceIndexB, worldFromA, aFromB, normalInA, float.MaxValue, ref manifold))
                 {
                     // The closest points are vertices, we need GJK to find them
                     ConvexConvex(
@@ -384,7 +384,7 @@ namespace ME.ECS.Essentials.Physics
             [NoAlias] in MTransform worldFromA, [NoAlias] in MTransform aFromB, sfloat maxDistance,
             [NoAlias] out Manifold manifold)
         {
-            UnityEngine.Assertions.Assert.IsTrue(triangleA->Vertices.Length == 3);
+            Assert.IsTrue(triangleA->Vertices.Length == 3);
 
             DistanceQueries.Result convexDistance = DistanceQueries.TriangleSphere(
                 triangleA->Vertices[0], triangleA->Vertices[1], triangleA->Vertices[2], triangleA->Planes[0].Normal,
@@ -405,7 +405,7 @@ namespace ME.ECS.Essentials.Physics
             [NoAlias] in MTransform worldFromA, [NoAlias] in MTransform aFromB, sfloat maxDistance,
             [NoAlias] out Manifold manifold)
         {
-            UnityEngine.Assertions.Assert.IsTrue(triangleB->Vertices.Length == 3);
+            Assert.IsTrue(triangleB->Vertices.Length == 3);
 
             DistanceQueries.Result convexDistance = DistanceQueries.CapsuleTriangle(capsuleA, triangleB, aFromB);
             if (convexDistance.Distance < maxDistance)
@@ -544,15 +544,15 @@ namespace ME.ECS.Essentials.Physics
             int axis = IndexOfMaxComponent(max01);
             if (axis == 0)
             {
-                normalOut = new float3(sfloat.One, sfloat.Zero, sfloat.Zero);
+                normalOut = new float3(1.0f, 0.0f, 0.0f);
             }
             else if (axis == 1)
             {
-                normalOut = new float3(sfloat.Zero, sfloat.One, sfloat.Zero);
+                normalOut = new float3(0.0f, 1.0f, 0.0f);
             }
             else
             {
-                normalOut = new float3(sfloat.Zero, sfloat.Zero, sfloat.One);
+                normalOut = new float3(0.0f, 0.0f, 1.0f);
             }
             normalOut = math.select(normalOut, -normalOut, greater01);
 
@@ -640,10 +640,10 @@ namespace ME.ECS.Essentials.Physics
             sfloat start = math.dot(originA, normalB) - offsetB;
             sfloat diff = math.dot(directionA, normalB);
             sfloat end = start + diff;
-            sfloat frac = math.select(-start / diff, sfloat.Zero, diff.IsZero());
+            sfloat frac = math.select(-start / diff, 0.0f, diff == 0.0f);
 
-            bool startInside = (start <= sfloat.Zero);
-            bool endInside = (end <= sfloat.Zero);
+            bool startInside = (start <= 0.0f);
+            bool endInside = (end <= 0.0f);
 
             bool enter = !startInside & (frac > fracEnter);
             fracEnter = math.select(fracEnter, frac, enter);
@@ -657,7 +657,7 @@ namespace ME.ECS.Essentials.Physics
 
         // If the rejections of the faces from the contact normal are just barely touching, then FaceFace() might miss the closest points because of numerical error.
         // FaceFace() and FaceEdge() check if they found a point as close as the closest, and if not they return false so that the caller can add it.
-        private static sfloat closestDistanceTolerance => sfloat.FromRaw(0x38d1b717);
+        private static sfloat closestDistanceTolerance => 1e-4f;
 
         // Tries to generate a manifold between a pair of faces.  It can fail in some cases due to numerical accuracy:
         // 1) both faces are nearly perpendicular to the normal
@@ -673,7 +673,7 @@ namespace ME.ECS.Essentials.Physics
 
             // Handle cases where one of the faces is nearly perpendicular to the contact normal
             // This gets around divide by zero / numerical problems from dividing collider planes which often contain some error by a very small number, amplifying that error
-            sfloat cosMaxAngle = sfloat.FromRaw(0x3d4ccccd);
+            sfloat cosMaxAngle = 0.05f;
             sfloat dotA = math.dot(planeA.Normal, normal);
             sfloat dotB = math.dot(planeB.Normal, normal);
             bool acceptB = true; // true if vertices of B projected onto the face of A are accepted
@@ -728,8 +728,8 @@ namespace ME.ECS.Essentials.Physics
             float3* verticesA = convexA.VerticesPtr;
             for (EdgeIterator edgeA = EdgeIterator.Begin(verticesA, indicesA, -normal, faceA.NumVertices); edgeA.Valid(); edgeA.Advance())
             {
-                sfloat fracEnterA = sfloat.Zero;
-                sfloat fracExitA = sfloat.One;
+                sfloat fracEnterA = 0.0f;
+                sfloat fracExitA = 1.0f;
 
                 // For each edge of B
                 for (EdgeIterator edgeB = EdgeIterator.Begin(verticesBinA, null, normal, faceB.NumVertices); edgeB.Valid(); edgeB.Advance())
@@ -747,7 +747,7 @@ namespace ME.ECS.Essentials.Physics
                     float3 vertexAOnB = edgeA.Vertex0 - normal * distance0;
                     float3 edgeAOnB = edgeA.Edge - normal * deltaDistance;
                     foundClosestPoint |= AddEdgeContact(vertexAOnB, edgeAOnB, distance0, deltaDistance, fracEnterA, normal, convexB.ConvexRadius, sumRadii, worldFromA, distance, ref manifold);
-                    if (fracExitA < sfloat.One) // If the exit fraction is 1, then the next edge has the same contact point with enter fraction 0
+                    if (fracExitA < 1.0f) // If the exit fraction is 1, then the next edge has the same contact point with enter fraction 0
                     {
                         foundClosestPoint |= AddEdgeContact(vertexAOnB, edgeAOnB, distance0, deltaDistance, fracExitA, normal, convexB.ConvexRadius, sumRadii, worldFromA, distance, ref manifold);
                     }
@@ -781,7 +781,7 @@ namespace ME.ECS.Essentials.Physics
             float3 normal, sfloat distance, [NoAlias] ref Manifold manifold)
         {
             // Check if the face is nearly perpendicular to the normal
-            sfloat cosMaxAngle = sfloat.FromRaw(0x3d4ccccd);
+            sfloat cosMaxAngle = 0.05f;
             Plane planeA = faceConvexA.Planes[faceIndexA];
             sfloat dotA = math.dot(planeA.Normal, normal);
             if (math.abs(dotA) < cosMaxAngle)
@@ -803,8 +803,8 @@ namespace ME.ECS.Essentials.Physics
 
             // For each edge of A
             float3* verticesA = faceConvexA.VerticesPtr;
-            sfloat fracEnterB = sfloat.Zero;
-            sfloat fracExitB = sfloat.One;
+            sfloat fracEnterB = 0.0f;
+            sfloat fracExitB = 1.0f;
             for (EdgeIterator edgeA = EdgeIterator.Begin(verticesA, indicesA, -normal, faceA.NumVertices); edgeA.Valid(); edgeA.Advance())
             {
                 // Cast edge B against plane A
