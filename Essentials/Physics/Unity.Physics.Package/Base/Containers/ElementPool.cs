@@ -40,7 +40,7 @@ namespace Unity.Collections
         {
             T* elements = ((T*)m_Elements);
 
-            UnityEngine.Assertions.Assert.IsTrue(element.IsAllocated);
+            Assert.IsTrue(element.IsAllocated);
             if (m_FirstFreeIndex != -1)
             {
                 int index = m_FirstFreeIndex;
@@ -50,7 +50,7 @@ namespace Unity.Collections
                 return index;
             }
 
-            UnityEngine.Assertions.Assert.IsTrue(PeakCount < Capacity);
+            Assert.IsTrue(PeakCount < Capacity);
             elements[PeakCount++] = element;
             return PeakCount - 1;
         }
@@ -78,21 +78,21 @@ namespace Unity.Collections
 
         public T Get<T>(int index) where T : unmanaged, IPoolElement
         {
-            UnityEngine.Assertions.Assert.IsTrue(index < Capacity);
+            Assert.IsTrue(index < Capacity);
             T element = ((T*)m_Elements)[index];
-            UnityEngine.Assertions.Assert.IsTrue(element.IsAllocated);
+            Assert.IsTrue(element.IsAllocated);
             return element;
         }
 
         public void Set<T>(int index, T value) where T : unmanaged, IPoolElement
         {
-            UnityEngine.Assertions.Assert.IsTrue(index < Capacity);
+            Assert.IsTrue(index < Capacity);
             ((T*)m_Elements)[index] = value;
         }
 
         public unsafe void CopyFrom<T>(ElementPoolBase other) where T : unmanaged, IPoolElement
         {
-            UnityEngine.Assertions.Assert.IsTrue(other.PeakCount <= Capacity);
+            Assert.IsTrue(other.PeakCount <= Capacity);
             PeakCount = other.PeakCount;
             m_FirstFreeIndex = other.m_FirstFreeIndex;
             UnsafeUtility.MemCpy(m_Elements, other.m_Elements, PeakCount * UnsafeUtility.SizeOf<T>());
@@ -100,7 +100,7 @@ namespace Unity.Collections
 
         public unsafe void CopyFrom<T>(void* buffer, int length) where T : unmanaged, IPoolElement
         {
-            UnityEngine.Assertions.Assert.IsTrue(length <= Capacity);
+            Assert.IsTrue(length <= Capacity);
             PeakCount = length;
             m_FirstFreeIndex = -1;
             UnsafeUtility.MemCpy(m_Elements, buffer, PeakCount * UnsafeUtility.SizeOf<T>());

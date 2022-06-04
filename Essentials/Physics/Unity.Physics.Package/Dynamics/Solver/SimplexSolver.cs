@@ -24,7 +24,7 @@ namespace ME.ECS.Essentials.Physics
 
     public static class SimplexSolver
     {
-        static sfloat k_Epsilon => sfloat.FromRaw(0x38d1b717);
+        static sfloat k_Epsilon = 0.0001f;
 
         public static unsafe void Solve(
             sfloat deltaTime, sfloat minDeltaTime, float3 up, sfloat maxVelocity,
@@ -36,12 +36,12 @@ namespace ME.ECS.Essentials.Physics
             int numSupportPlanes = 0;
 
             sfloat remainingTime = deltaTime;
-            sfloat currentTime = sfloat.Zero;
+            sfloat currentTime = 0.0f;
 
             // Clamp the input velocity to max movement speed
-            ClampToMaxLength(maxVelocity, ref velocity);
+            Math.ClampToMaxLength(maxVelocity, ref velocity);
 
-            while (remainingTime > sfloat.Zero)
+            while (remainingTime > 0.0f)
             {
                 int hitIndex = -1;
                 sfloat minCollisionTime = remainingTime;
@@ -61,7 +61,7 @@ namespace ME.ECS.Essentials.Physics
                     }
 
                     // Clamp distance to 0, since penetration is handled by constraint.Velocity already
-                    sfloat distance = math.max(constraint.Plane.Distance, sfloat.Zero);
+                    sfloat distance = math.max(constraint.Plane.Distance, 0.0f);
                     if (distance < minCollisionTime * relProjVel)
                     {
                         minCollisionTime = distance / relProjVel;
@@ -100,7 +100,7 @@ namespace ME.ECS.Essentials.Physics
                 ExamineActivePlanes(up, supportPlanes, ref numSupportPlanes, ref velocity);
 
                 // Clamp the solved velocity to max movement speed
-                ClampToMaxLength(maxVelocity, ref velocity);
+                Math.ClampToMaxLength(maxVelocity, ref velocity);
 
                 // Can't handle more than 4 support planes
                 if (numSupportPlanes == 4)
@@ -117,111 +117,111 @@ namespace ME.ECS.Essentials.Physics
             switch (numSupportPlanes)
             {
                 case 1:
-                    {
-                        Solve1d(supportPlanes[0], ref velocity);
-                        return;
-                    }
+                {
+                    Solve1d(supportPlanes[0], ref velocity);
+                    return;
+                }
                 case 2:
-                    {
-                        // Test whether we need plane 0 at all
-                        float3 tempVelocity = velocity;
-                        Solve1d(supportPlanes[1], ref tempVelocity);
+                {
+                    // Test whether we need plane 0 at all
+                    float3 tempVelocity = velocity;
+                    Solve1d(supportPlanes[1], ref tempVelocity);
 
-                        bool plane0Used = Test1d(supportPlanes[0], tempVelocity);
-                        if (!plane0Used)
+                    bool plane0Used = Test1d(supportPlanes[0], tempVelocity);
+                    if (!plane0Used)
+                    {
+                        // Compact the buffer and reduce size
+                        supportPlanes[0] = supportPlanes[1];
+                        numSupportPlanes = 1;
+
+                        // Write back the result
+                        velocity = tempVelocity;
+                    }
+                    else
+                    {
+                        Solve2d(up, supportPlanes[0], supportPlanes[1], ref velocity);
+                    }
+
+                    return;
+                }
+                case 3:
+                {
+                    // Try to drop both planes
+                    float3 tempVelocity = velocity;
+                    Solve1d(supportPlanes[2], ref tempVelocity);
+
+                    bool plane0Used = Test1d(supportPlanes[0], tempVelocity);
+                    if (!plane0Used)
+                    {
+                        bool plane1Used = Test1d(supportPlanes[1], tempVelocity);
+                        if (!plane1Used)
                         {
                             // Compact the buffer and reduce size
-                            supportPlanes[0] = supportPlanes[1];
+                            supportPlanes[0] = supportPlanes[2];
                             numSupportPlanes = 1;
-
-                            // Write back the result
-                            velocity = tempVelocity;
+                            goto case 1;
                         }
-                        else
-                        {
-                            Solve2d(up, supportPlanes[0], supportPlanes[1], ref velocity);
-                        }
-
-                        return;
                     }
-                case 3:
+
+                    // Try to drop plane 0 or 1
+                    for (int testPlane = 0; testPlane < 2; testPlane++)
                     {
-                        // Try to drop both planes
-                        float3 tempVelocity = velocity;
-                        Solve1d(supportPlanes[2], ref tempVelocity);
+                        tempVelocity = velocity;
+                        Solve2d(up, supportPlanes[testPlane], supportPlanes[2], ref tempVelocity);
 
-                        bool plane0Used = Test1d(supportPlanes[0], tempVelocity);
-                        if (!plane0Used)
+                        bool planeUsed = Test1d(supportPlanes[1 - testPlane], tempVelocity);
+                        if (!planeUsed)
                         {
-                            bool plane1Used = Test1d(supportPlanes[1], tempVelocity);
-                            if (!plane1Used)
-                            {
-                                // Compact the buffer and reduce size
-                                supportPlanes[0] = supportPlanes[2];
-                                numSupportPlanes = 1;
-                                goto case 1;
-                            }
+                            supportPlanes[0] = supportPlanes[testPlane];
+                            supportPlanes[1] = supportPlanes[2];
+                            numSupportPlanes--;
+                            goto case 2;
                         }
-
-                        // Try to drop plane 0 or 1
-                        for (int testPlane = 0; testPlane < 2; testPlane++)
-                        {
-                            tempVelocity = velocity;
-                            Solve2d(up, supportPlanes[testPlane], supportPlanes[2], ref tempVelocity);
-
-                            bool planeUsed = Test1d(supportPlanes[1 - testPlane], tempVelocity);
-                            if (!planeUsed)
-                            {
-                                supportPlanes[0] = supportPlanes[testPlane];
-                                supportPlanes[1] = supportPlanes[2];
-                                numSupportPlanes--;
-                                goto case 2;
-                            }
-                        }
-
-                        // Try solve all three
-                        Solve3d(up, supportPlanes[0], supportPlanes[1], supportPlanes[2], ref velocity);
-
-                        return;
                     }
+
+                    // Try solve all three
+                    Solve3d(up, supportPlanes[0], supportPlanes[1], supportPlanes[2], ref velocity);
+
+                    return;
+                }
                 case 4:
+                {
+                    for (int i = 0; i < 3; i++)
                     {
-                        for (int i = 0; i < 3; i++)
+                        float3 tempVelocity = velocity;
+                        Solve3d(up, supportPlanes[(i + 1) % 3], supportPlanes[(i + 2) % 3], supportPlanes[3], ref tempVelocity);
+                        bool planeUsed = Test1d(supportPlanes[i], tempVelocity);
+                        if (!planeUsed)
                         {
-                            float3 tempVelocity = velocity;
-                            Solve3d(up, supportPlanes[(i + 1) % 3], supportPlanes[(i + 2) % 3], supportPlanes[3], ref tempVelocity);
-                            bool planeUsed = Test1d(supportPlanes[i], tempVelocity);
-                            if (!planeUsed)
-                            {
-                                supportPlanes[i] = supportPlanes[2];
-                                supportPlanes[2] = supportPlanes[3];
-                                numSupportPlanes = 3;
-                                goto case 3;
-                            }
+                            supportPlanes[i] = supportPlanes[2];
+                            supportPlanes[2] = supportPlanes[3];
+                            numSupportPlanes = 3;
+                            goto case 3;
                         }
-
-                        // Nothing can be dropped so we've failed to solve,
-                        // now we do all 3d combinations
-                        float3 tempVel = velocity;
-                        SurfaceConstraintInfo sp0 = supportPlanes[0];
-                        SurfaceConstraintInfo sp1 = supportPlanes[1];
-                        SurfaceConstraintInfo sp2 = supportPlanes[2];
-                        SurfaceConstraintInfo sp3 = supportPlanes[3];
-                        Solve3d(up, sp0, sp1, sp2, ref tempVel);
-                        Solve3d(up, sp0, sp1, sp3, ref tempVel);
-                        Solve3d(up, sp0, sp2, sp3, ref tempVel);
-                        Solve3d(up, sp1, sp2, sp3, ref tempVel);
-
-                        velocity = tempVel;
-
-                        return;
                     }
+
+                    // Nothing can be dropped so we've failed to solve,
+                    // now we do all 3d combinations
+                    float3 tempVel = velocity;
+                    SurfaceConstraintInfo sp0 = supportPlanes[0];
+                    SurfaceConstraintInfo sp1 = supportPlanes[1];
+                    SurfaceConstraintInfo sp2 = supportPlanes[2];
+                    SurfaceConstraintInfo sp3 = supportPlanes[3];
+                    Solve3d(up, sp0, sp1, sp2, ref tempVel);
+                    Solve3d(up, sp0, sp1, sp3, ref tempVel);
+                    Solve3d(up, sp0, sp2, sp3, ref tempVel);
+                    Solve3d(up, sp1, sp2, sp3, ref tempVel);
+
+                    velocity = tempVel;
+
+                    return;
+                }
                 default:
-                    {
-                        // Can't have more than 4 and less than 1 plane
-                        UnityEngine.Assertions.Assert.IsTrue(false);
-                        break;
-                    }
+                {
+                    // Can't have more than 4 and less than 1 plane
+                    Assert.IsTrue(false);
+                    break;
+                }
             }
         }
 
@@ -272,14 +272,14 @@ namespace ME.ECS.Essentials.Physics
                 float3 r0 = math.cross(plane0, plane1);
                 float3 r1 = math.cross(plane1, axis);
                 float3 r2 = math.cross(axis, plane0);
-                m.c0 = new float4(r0, sfloat.Zero);
-                m.c1 = new float4(r1, sfloat.Zero);
-                m.c2 = new float4(r2, sfloat.Zero);
-                m.c3 = new float4(sfloat.Zero, sfloat.Zero, sfloat.Zero, sfloat.One);
+                m.c0 = new float4(r0, 0.0f);
+                m.c1 = new float4(r1, 0.0f);
+                m.c2 = new float4(r2, 0.0f);
+                m.c3 = new float4(0.0f, 0.0f, 0.0f, 1.0f);
 
                 float3 sVel = constraint0.Velocity + constraint1.Velocity;
                 float3 t = new float3(
-                    math.dot(axis, sVel) * (sfloat)0.5f,
+                    math.dot(axis, sVel) * 0.5f,
                     math.dot(plane0, constraint0.Velocity),
                     math.dot(plane1, constraint1.Velocity));
 
@@ -307,10 +307,10 @@ namespace ME.ECS.Essentials.Physics
             float3 r0 = math.cross(plane1, plane2);
             float3 r1 = math.cross(plane2, plane0);
             float3 r2 = math.cross(plane0, plane1);
-            m.c0 = new float4(r0, sfloat.Zero);
-            m.c1 = new float4(r1, sfloat.Zero);
-            m.c2 = new float4(r2, sfloat.Zero);
-            m.c3 = new float4(sfloat.Zero, sfloat.Zero, sfloat.Zero, sfloat.One);
+            m.c0 = new float4(r0, 0.0f);
+            m.c1 = new float4(r1, 0.0f);
+            m.c2 = new float4(r2, 0.0f);
+            m.c3 = new float4(0.0f, 0.0f, 0.0f, 1.0f);
 
             sfloat det = math.dot(r0, plane0);
             sfloat tst = math.abs(det);
@@ -394,19 +394,6 @@ namespace ME.ECS.Essentials.Physics
             var temp = plane0;
             plane0 = plane1;
             plane1 = temp;
-        }
-
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        private static void ClampToMaxLength(sfloat maxLength, ref float3 vector)
-        {
-            sfloat lengthSq = math.lengthsq(vector);
-            bool maxExceeded = lengthSq > maxLength * maxLength;
-            if (maxExceeded)
-            {
-                sfloat invLen = math.rsqrt(lengthSq);
-                float3 rescaledVector = maxLength * invLen * vector;
-                vector = rescaledVector;
-            }
         }
     }
 }

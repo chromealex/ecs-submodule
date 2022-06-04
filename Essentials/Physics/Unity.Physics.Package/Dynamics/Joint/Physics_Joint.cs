@@ -1,7 +1,6 @@
 using System;
-using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using ME.ECS;
+using Unity.Collections;
 using ME.ECS.Mathematics;
 using UnityEngine.Assertions;
 using static ME.ECS.Essentials.Physics.Math;
@@ -15,13 +14,15 @@ namespace ME.ECS.Essentials.Physics
     }
 
     // A linear or angular constraint in 1, 2, or 3 dimensions.
+    [Serializable]
     public struct Constraint : IEquatable<Constraint>
     {
-        // TODO think more about these
-        // Current values give tau = 0.6 damping = 0.99 at 50hz
+        // Current values give tau = 0.6 damping = 0.99 at 60hz
         // The values are huge and we can't get damping = 1 -- a stiff constraint is the limit of a damped spring as spring params go to infinity.
-        public static sfloat DefaultSpringFrequency => sfloat.FromRaw(0x4771fefa); // 61950.977267809007887192914302327f
-        public static sfloat DefaultSpringDamping => sfloat.FromRaw(0x451e21f2); // 2530.12155587434178122630287018f
+        // Rather then baking them these values could be calculated using
+        // JacobianUtilities.CalculateSpringFrequencyAndDamping(0.6f, 0.99f, math.rcp(60.0f), 4, out DefaultSpringFrequency, out DefaultSpringDamping);
+        public static sfloat DefaultSpringFrequency = 74341.31f;
+        public static sfloat DefaultSpringDamping = 2530.126f;
 
         public bool3 ConstrainedAxes;
         public ConstraintType Type;
@@ -45,7 +46,7 @@ namespace ME.ECS.Essentials.Physics
         {
             get
             {
-                UnityEngine.Assertions.Assert.IsTrue(Dimension == 2);
+                Assert.IsTrue(Dimension == 2);
                 return math.select(2, math.select(0, 1, ConstrainedAxes[0]), ConstrainedAxes[2]);
             }
         }
@@ -55,7 +56,7 @@ namespace ME.ECS.Essentials.Physics
         {
             get
             {
-                UnityEngine.Assertions.Assert.IsTrue(Dimension == 1);
+                Assert.IsTrue(Dimension == 1);
                 return math.select(math.select(1, 0, ConstrainedAxes[0]), 2, ConstrainedAxes[2]);
             }
         }
@@ -67,14 +68,18 @@ namespace ME.ECS.Essentials.Physics
         /// </summary>
         /// <param name="springFrequency"></param>
         /// <param name="springDamping"></param>
-        public static Constraint BallAndSocket(sfloat springFrequency /* = DefaultSpringFrequency*/, sfloat springDamping /* = DefaultSpringDamping*/ )
+        public static Constraint BallAndSocket()
+        {
+            return BallAndSocket(DefaultSpringFrequency, DefaultSpringDamping);
+        }
+        public static Constraint BallAndSocket(sfloat springFrequency, sfloat springDamping)
         {
             return new Constraint
             {
                 ConstrainedAxes = new bool3(true),
                 Type = ConstraintType.Linear,
-                Min = sfloat.Zero,
-                Max = sfloat.Zero,
+                Min = 0.0f,
+                Max = 0.0f,
                 SpringFrequency = springFrequency,
                 SpringDamping = springDamping
             };
@@ -86,7 +91,11 @@ namespace ME.ECS.Essentials.Physics
         /// <param name="distanceRange">The minimum required distance and maximum possible distance between the constrained bodies.</param>
         /// <param name="springFrequency"></param>
         /// <param name="springDamping"></param>
-        public static Constraint LimitedDistance(FloatRange distanceRange, sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
+        public static Constraint LimitedDistance(FloatRange distanceRange)
+        {
+            return LimitedDistance(distanceRange, DefaultSpringFrequency, DefaultSpringDamping);
+        }
+        public static Constraint LimitedDistance(FloatRange distanceRange, sfloat springFrequency, sfloat springDamping)
         {
             distanceRange = distanceRange.Sorted();
             return new Constraint
@@ -110,9 +119,13 @@ namespace ME.ECS.Essentials.Physics
         /// </param>
         /// <param name="springFrequency"></param>
         /// <param name="springDamping"></param>
-        public static Constraint Cylindrical(int freeAxis, FloatRange distanceRange, sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
+        public static Constraint Cylindrical(int freeAxis, FloatRange distanceRange)
         {
-            UnityEngine.Assertions.Assert.IsTrue(freeAxis >= 0 && freeAxis <= 2);
+            return Cylindrical(freeAxis, distanceRange, DefaultSpringFrequency, DefaultSpringDamping);
+        }
+        public static Constraint Cylindrical(int freeAxis, FloatRange distanceRange, sfloat springFrequency, sfloat springDamping)
+        {
+            Assert.IsTrue(freeAxis >= 0 && freeAxis <= 2);
             distanceRange = distanceRange.Sorted();
             return new Constraint
             {
@@ -135,9 +148,13 @@ namespace ME.ECS.Essentials.Physics
         /// </param>
         /// <param name="springFrequency"></param>
         /// <param name="springDamping"></param>
-        public static Constraint Planar(int limitedAxis, FloatRange distanceRange, sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
+        public static Constraint Planar(int limitedAxis, FloatRange distanceRange)
         {
-            UnityEngine.Assertions.Assert.IsTrue(limitedAxis >= 0 && limitedAxis <= 2);
+            return Planar(limitedAxis,  distanceRange, DefaultSpringFrequency, DefaultSpringDamping);
+        }
+        public static Constraint Planar(int limitedAxis, FloatRange distanceRange, sfloat springFrequency, sfloat springDamping)
+        {
+            Assert.IsTrue(limitedAxis >= 0 && limitedAxis <= 2);
             distanceRange = distanceRange.Sorted();
             return new Constraint
             {
@@ -159,14 +176,18 @@ namespace ME.ECS.Essentials.Physics
         /// </summary>
         /// <param name="springFrequency"></param>
         /// <param name="springDamping"></param>
-        public static Constraint FixedAngle(sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
+        public static Constraint FixedAngle()
+        {
+            return FixedAngle(DefaultSpringFrequency, DefaultSpringDamping);
+        }
+        public static Constraint FixedAngle(sfloat springFrequency, sfloat springDamping)
         {
             return new Constraint
             {
                 ConstrainedAxes = new bool3(true),
                 Type = ConstraintType.Angular,
-                Min = sfloat.Zero,
-                Max = sfloat.Zero,
+                Min = 0.0f,
+                Max = 0.0f,
                 SpringFrequency = springFrequency,
                 SpringDamping = springDamping
             };
@@ -178,15 +199,19 @@ namespace ME.ECS.Essentials.Physics
         /// <param name="freeAxis">The axis around which the bodies may freely rotate.</param>
         /// <param name="springFrequency"></param>
         /// <param name="springDamping"></param>
-        public static Constraint Hinge(int freeAxis, sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
+        public static Constraint Hinge(int freeAxis)
         {
-            UnityEngine.Assertions.Assert.IsTrue(freeAxis >= 0 && freeAxis <= 2);
+            return Hinge(freeAxis, DefaultSpringFrequency, DefaultSpringDamping);
+        }
+        public static Constraint Hinge(int freeAxis, sfloat springFrequency, sfloat springDamping)
+        {
+            Assert.IsTrue(freeAxis >= 0 && freeAxis <= 2);
             return new Constraint
             {
                 ConstrainedAxes = new bool3(freeAxis != 0, freeAxis != 1, freeAxis != 2),
                 Type = ConstraintType.Angular,
-                Min = sfloat.Zero,
-                Max = sfloat.Zero,
+                Min = 0.0f,
+                Max = 0.0f,
                 SpringFrequency = springFrequency,
                 SpringDamping = springDamping
             };
@@ -202,9 +227,13 @@ namespace ME.ECS.Essentials.Physics
         /// </param>
         /// <param name="springFrequency"></param>
         /// <param name="springDamping"></param>
-        public static Constraint Cone(int freeAxis, FloatRange angularRange, sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
+        public static Constraint Cone(int freeAxis, FloatRange angularRange)
         {
-            UnityEngine.Assertions.Assert.IsTrue(freeAxis >= 0 && freeAxis <= 2);
+            return Cone(freeAxis, angularRange, DefaultSpringFrequency, DefaultSpringDamping);
+        }
+        public static Constraint Cone(int freeAxis, FloatRange angularRange, sfloat springFrequency, sfloat springDamping)
+        {
+            Assert.IsTrue(freeAxis >= 0 && freeAxis <= 2);
             angularRange = angularRange.Sorted();
             return new Constraint
             {
@@ -224,9 +253,14 @@ namespace ME.ECS.Essentials.Physics
         /// <param name="angularRange">The minimum required angle and maximum possible angle of rotation between the constrained bodies around the constrained axis.</param>
         /// <param name="springFrequency"></param>
         /// <param name="springDamping"></param>
-        public static Constraint Twist(int limitedAxis, FloatRange angularRange, sfloat springFrequency /* = DefaultSpringFrequency */, sfloat springDamping /* = DefaultSpringDamping */)
+        public static Constraint Twist(int limitedAxis, FloatRange angularRange)
         {
-            UnityEngine.Assertions.Assert.IsTrue(limitedAxis >= 0 && limitedAxis <= 2);
+            return Twist(limitedAxis, angularRange, DefaultSpringFrequency, DefaultSpringDamping);
+        }
+        
+        public static Constraint Twist(int limitedAxis, FloatRange angularRange, sfloat springFrequency, sfloat springDamping)
+        {
+            Assert.IsTrue(limitedAxis >= 0 && limitedAxis <= 2);
             angularRange = angularRange.Sorted();
             return new Constraint
             {

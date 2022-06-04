@@ -2,17 +2,13 @@
 using Unity.Burst;
 using Unity.DataFlowGraph;
 
-namespace Unity.Physics
+namespace ME.ECS.Essentials.Physics
 {
     /// <summary>
     /// DataFlowGraph node that performs a Collider Cast query on a CollisionWorld.
     /// </summary>
     public class ColliderCastNode : KernelNodeDefinition<ColliderCastNode.KernelDefs>
     {
-        public struct SimPorts : ISimulationPortDefinition
-        {
-        }
-
         public struct KernelDefs : IKernelPortDefinition
         {
             public DataInput<ColliderCastNode, ColliderCastInput> Input;
@@ -20,10 +16,6 @@ namespace Unity.Physics
 
             public DataOutput<ColliderCastNode, ColliderCastHit> Hit;
             public DataOutput<ColliderCastNode, bool> HitSuccess;
-        }
-
-        public struct Data : INodeData
-        {
         }
 
         public struct KernelData : IKernelData

@@ -1,10 +1,10 @@
 using System;
 using System.Runtime.CompilerServices;
-
+using ME.ECS;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using ME.ECS;
 using ME.ECS.Mathematics;
+using UnityEngine.Assertions;
 using static ME.ECS.Essentials.Physics.Math;
 
 namespace ME.ECS.Essentials.Physics
@@ -185,8 +185,8 @@ namespace ME.ECS.Essentials.Physics
         {
             // QueryContext.WorldFromLocalTransform is not expected to be initialized at this point
             // and should have default value (zeros in all fields)
-            UnityEngine.Assertions.Assert.IsTrue(context.WorldFromLocalTransform.Translation.Equals(float3.zero));
-            UnityEngine.Assertions.Assert.IsTrue(context.WorldFromLocalTransform.Rotation.Equals(float3x3.zero));
+            Assert.IsTrue(context.WorldFromLocalTransform.Translation.Equals(float3.zero));
+            Assert.IsTrue(context.WorldFromLocalTransform.Rotation.Equals(float3x3.zero));
 
             context.ColliderKey = ColliderKey.Empty;
             context.Entity = Entity;
@@ -214,6 +214,7 @@ namespace ME.ECS.Essentials.Physics
     }
 
     // A pair of entities
+    [Serializable]
     public struct EntityPair
     {
         // B before A for consistency with other pairs

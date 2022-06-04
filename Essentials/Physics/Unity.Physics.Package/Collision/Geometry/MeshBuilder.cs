@@ -18,7 +18,7 @@ namespace ME.ECS.Essentials.Physics
             public int VerticesMin;
             public int VerticesLength;
         }
-        
+
         internal struct TempSection
         {
             public NativeList<Mesh.PrimitiveFlags>  PrimitivesFlags;
@@ -48,10 +48,10 @@ namespace ME.ECS.Essentials.Physics
             int stackSize = 1;
             nodesIndexStack[0] = 1;
 
-            const float uniqueVerticesPerPrimitiveFactor = 1.5f;
+            sfloat uniqueVerticesPerPrimitiveFactor = 1.5f;
 
             var primitivesCountInSubTree = ProducedPrimitivesCountPerSubTree(nodes, nodeCount);
-            
+
             var subTreeIndices = new NativeList<int>(Allocator.Temp);
             var nodeIndices = new NativeList<int>(Allocator.Temp);
             var tmpVertices = new NativeList<float3>(Allocator.Temp);
@@ -90,8 +90,8 @@ namespace ME.ECS.Essentials.Physics
                     }
                 }
 
-                float tempUniqueVertexPrimitiveFactor = 1.0f;
-                const float factorStepIncrement = 0.25f;
+                sfloat tempUniqueVertexPrimitiveFactor = 1.0f;
+                sfloat factorStepIncrement = 0.25f;
 
                 while (subTreeIndices.Length > 0)
                 {
@@ -99,7 +99,7 @@ namespace ME.ECS.Essentials.Physics
                     nodeIndices.Clear();
                     int vertexCountEstimate = 0;
 
-                    for(var i = 0; i < subTreeIndices.Length; ++i)
+                    for (var i = 0; i < subTreeIndices.Length; ++i)
                     {
                         var subTreeNodeIndex = subTreeIndices[i];
                         int nodeIndexCount = (int)(tempUniqueVertexPrimitiveFactor * primitivesCountInSubTree[subTreeNodeIndex]);
@@ -114,7 +114,7 @@ namespace ME.ECS.Essentials.Physics
                     {
                         // We failed to fit any sub tree into sections.
                         // Split up nodes and push them to stack.
-                        for(var index = 0; index < subTreeIndices.Length; ++index)
+                        for (var index = 0; index < subTreeIndices.Length; ++index)
                         {
                             var subTreeNodeIndex = subTreeIndices[index];
                             BoundingVolumeHierarchy.Node nodeToSplit = nodes[subTreeNodeIndex];
@@ -134,7 +134,7 @@ namespace ME.ECS.Essentials.Physics
 
                     // Collect vertices from all sub trees.
                     tmpVertices.Clear();
-                    for(var i = 0; i < nodeIndices.Length; ++i)
+                    for (var i = 0; i < nodeIndices.Length; ++i)
                     {
                         var subTreeNodeIndex = nodeIndices[i];
                         CollectAllVerticesFromSubTree(nodes, subTreeNodeIndex, primitives, tmpVertices);
@@ -153,7 +153,7 @@ namespace ME.ECS.Essentials.Physics
                         BuildSectionGeometry(tempSections, primitives, nodeIndices, nodes, new NativeArray<float3>(uniqueVertices, Allocator.Temp));
 
                         // Remove used indices
-                        for(var i = 0; i < nodeIndices.Length; ++i)
+                        for (var i = 0; i < nodeIndices.Length; ++i)
                         {
                             var nodeTreeIndex = nodeIndices[i];
                             subTreeIndices.RemoveAtSwapBack(subTreeIndices.IndexOf(nodeTreeIndex));
@@ -198,7 +198,6 @@ namespace ME.ECS.Essentials.Physics
         private static unsafe void CollectAllVerticesFromSubTree(BoundingVolumeHierarchy.Node* nodes, int subTreeNodeIndex,
             NativeList<MeshConnectivityBuilder.Primitive> primitives, NativeList<float3> vertices)
         {
-
             int* nodesIndexStack = stackalloc int[BoundingVolumeHierarchy.Constants.UnaryStackSize];
             int stackSize = 1;
             nodesIndexStack[0] = subTreeNodeIndex;
@@ -235,8 +234,8 @@ namespace ME.ECS.Essentials.Physics
                         }
                     }
                 }
-            } while (stackSize > 0);
-
+            }
+            while (stackSize > 0);
         }
 
         private static Mesh.PrimitiveFlags ConvertPrimitiveFlags(MeshConnectivityBuilder.PrimitiveFlags flags)
@@ -262,12 +261,12 @@ namespace ME.ECS.Essentials.Physics
                 PrimitivesFlagsMin = sections.PrimitivesFlags.Length,
                 PrimitivesMin = sections.Primitives.Length
             };
-            
+
             sections.Vertices.AddRange(vertices);
 
             int* nodesIndexStack = stackalloc int[BoundingVolumeHierarchy.Constants.UnaryStackSize];
 
-            for(var rootIndex = 0; rootIndex < subTreeNodeIndices.Length; ++rootIndex)
+            for (var rootIndex = 0; rootIndex < subTreeNodeIndices.Length; ++rootIndex)
             {
                 var root = subTreeNodeIndices[rootIndex];
                 int stackSize = 1;
@@ -287,7 +286,7 @@ namespace ME.ECS.Essentials.Physics
                                 MeshConnectivityBuilder.Primitive p = primitives[node.Data[i]];
                                 sections.PrimitivesFlags.Add(ConvertPrimitiveFlags(p.Flags));
 
-                                int vertexCount = (p.Flags &MeshConnectivityBuilder.PrimitiveFlags.IsTrianglePair) != 0 ? 4 : 3;
+                                int vertexCount = (p.Flags & MeshConnectivityBuilder.PrimitiveFlags.IsTrianglePair) != 0 ? 4 : 3;
 
                                 Mesh.PrimitiveVertexIndices sectionPrimitive = new Mesh.PrimitiveVertexIndices();
                                 byte* vertexIndices = &sectionPrimitive.A;
@@ -321,20 +320,21 @@ namespace ME.ECS.Essentials.Physics
                             }
                         }
                     }
-                } while (stackSize > 0);
+                }
+                while (stackSize > 0);
             }
 
             newSectionRange.VerticesLength = sections.Vertices.Length - newSectionRange.VerticesMin;
             newSectionRange.PrimitivesLength = sections.Primitives.Length - newSectionRange.PrimitivesMin;
             newSectionRange.PrimitivesFlagsLength = sections.PrimitivesFlags.Length - newSectionRange.PrimitivesFlagsMin;
-            
+
             sections.Ranges.Add(newSectionRange);
         }
     }
 
     internal struct MeshConnectivityBuilder
     {
-        static sfloat k_MergeCoplanarTrianglesTolerance => sfloat.FromRaw(0x38d1b717);
+        sfloat k_MergeCoplanarTrianglesTolerance => 1e-4f;
 
         internal NativeArray<Vertex> Vertices;
         internal NativeArray<Triangle> Triangles;
@@ -426,7 +426,7 @@ namespace ME.ECS.Essentials.Physics
                         break;
                 }
             }
-            
+
             internal bool IsValid;
         }
 
@@ -456,8 +456,10 @@ namespace ME.ECS.Essentials.Physics
         internal Edge GetLink(Edge e) => e.IsValid ? Triangles[e.Triangle].Links(e.Start) : e;
         internal bool IsBound(Edge e) => GetLink(e).IsValid;
         internal bool IsNaked(Edge e) => !IsBound(e);
-        internal Edge GetNext(Edge e) => e.IsValid ? new Edge { Triangle = e.Triangle, Start = (e.Start + 1) % 3, IsValid = true } : e;
-        internal Edge GetPrev(Edge e) => e.IsValid ? new Edge { Triangle = e.Triangle, Start = (e.Start + 2) % 3, IsValid = true } : e;
+        internal Edge GetNext(Edge e) => e.IsValid ? new Edge { Triangle = e.Triangle, Start = (e.Start + 1) % 3, IsValid = true }
+        : e;
+        internal Edge GetPrev(Edge e) => e.IsValid ? new Edge { Triangle = e.Triangle, Start = (e.Start + 2) % 3, IsValid = true }
+        : e;
 
         internal int GetStartVertexIndex(Edge e) => Triangles[e.Triangle].Links(e.Start).Start;
 
@@ -554,7 +556,7 @@ namespace ME.ECS.Essentials.Physics
         internal bool CanAllEdgesBeDisabled(NativeArray<Edge> edges, NativeArray<PrimitiveFlags> flags, NativeArray<int3> triangles, NativeArray<float3> vertices, NativeArray<float4> planes)
         {
             bool allDisabled = true;
-            for(var i = 0; i < edges.Length; ++i)
+            for (var i = 0; i < edges.Length; ++i)
             {
                 allDisabled &= CanEdgeBeDisabled(edges[i], flags, triangles, vertices, planes);
             }
@@ -588,9 +590,17 @@ namespace ME.ECS.Essentials.Physics
         private static ulong SpatialHash(float3 vertex)
         {
             uint x, y, z;
-            x = vertex.x.RawValue;
-            y = vertex.y.RawValue;
-            z = vertex.z.RawValue;
+            unsafe
+            {
+                sfloat* tmp = &vertex.x;
+                x = *((uint*)tmp);
+
+                tmp = &vertex.y;
+                y = *((uint*)tmp);
+
+                tmp = &vertex.z;
+                z = *((uint*)tmp);
+            }
 
             const ulong p1 = 73856093;
             const ulong p2 = 19349663;
@@ -644,8 +654,8 @@ namespace ME.ECS.Essentials.Physics
 
                             verticesAndHashes[j] = new VertexWithHash()
                             {
-                                Index = int.MaxValue, 
-                                Vertex = verticesAndHashes[j].Vertex, 
+                                Index = int.MaxValue,
+                                Vertex = verticesAndHashes[j].Vertex,
                                 Hash = verticesAndHashes[j].Hash
                             };
                         }
@@ -667,7 +677,7 @@ namespace ME.ECS.Essentials.Physics
 
         public static bool IsTriangleDegenerate(float3 a, float3 b, float3 c)
         {
-            sfloat defaultTriangleDegeneracyTolerance = sfloat.FromRaw(0x33d6bf95);
+            sfloat defaultTriangleDegeneracyTolerance = 1e-7f;
 
             // Small area check
             {
@@ -700,7 +710,7 @@ namespace ME.ECS.Essentials.Physics
                 sfloat qrqr = qr * qr;
                 sfloat det = (qqrr - qrqr);
 
-                return det.IsZero();
+                return det == 0.0f;
             }
         }
 
@@ -711,7 +721,7 @@ namespace ME.ECS.Essentials.Physics
 
             Vertices = new NativeArray<Vertex>(numVertices, Allocator.Temp);
             Triangles = new NativeArray<Triangle>(numTriangles, Allocator.Temp);
-            
+
             for (int i = 0; i < numTriangles; i++)
             {
                 var triangle = new Triangle();
@@ -780,7 +790,7 @@ namespace ME.ECS.Essentials.Physics
                     }
                 }
             }
-            
+
             // Compute vertices attributes.
             for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
             {
@@ -912,7 +922,7 @@ namespace ME.ECS.Essentials.Physics
 
             // Generate triangle planes
             var planes = new NativeArray<float4>(numTriangles, Allocator.Temp);
-            
+
             for (int i = 0; i < numTriangles; i++)
             {
                 float3 v0 = vertices[triangles[i][0]];
@@ -931,7 +941,7 @@ namespace ME.ECS.Essentials.Physics
 
                 ref EdgeData edgeData = ref ((EdgeData*)edges.GetUnsafePtr())[i];
                 edgeData.Edge = Edge.Invalid();
-                edgeData.Value = sfloat.MaxValue;
+                edgeData.Value = float.MaxValue;
 
                 if (IsBound(e))
                 {
@@ -964,10 +974,10 @@ namespace ME.ECS.Essentials.Physics
             var primitives = new NativeList<Primitive>(Allocator.Temp);
 
             // Generate quads
-            for(var edgeIndex = 0; edgeIndex < edges.Length; ++edgeIndex)
+            for (var edgeIndex = 0; edgeIndex < edges.Length; ++edgeIndex)
             {
                 var edgeData = edges[edgeIndex];
-                
+
                 if (!edgeData.Edge.IsValid)
                 {
                     break;
@@ -1061,7 +1071,7 @@ namespace ME.ECS.Essentials.Physics
             }
 
             DisableEdgesOfAdjacentPrimitives(primitives, triangles, vertices, planes, flags, quadRoots, triangleRoots);
-            
+
             return primitives;
         }
 
@@ -1070,7 +1080,7 @@ namespace ME.ECS.Essentials.Physics
             NativeList<Edge> quadRoots, NativeList<Edge> triangleRoots)
         {
             var outerBoundary = new NativeArray<Edge>(4, Allocator.Temp);
-                
+
             for (int quadIndex = 0; quadIndex < quadRoots.Length; quadIndex++)
             {
                 Edge root = quadRoots[quadIndex];
@@ -1101,7 +1111,7 @@ namespace ME.ECS.Essentials.Physics
                     Flags = quadFlags
                 };
             }
-            
+
             outerBoundary = new NativeArray<Edge>(3, Allocator.Temp);
 
             for (int triangleIndex = 0; triangleIndex < triangleRoots.Length; triangleIndex++)

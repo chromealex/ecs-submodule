@@ -92,17 +92,17 @@ namespace ME.ECS.Essentials.Physics
                         float3 crossB = math.cross(n, ca);
                         sfloat detA = math.dot(crossA, B.Xyz);
                         sfloat detB = math.dot(crossB, C.Xyz);
-                        if (detA < sfloat.Zero)
+                        if (detA < 0)
                         {
-                            if (detB >= sfloat.Zero || Det(n, crossA, C.Xyz) < sfloat.Zero)
+                            if (detB >= 0 || Det(n, crossA, C.Xyz) < 0)
                             {
                                 A = B;
                             }
                         }
-                        else if (detB >= sfloat.Zero)
+                        else if (detB >= 0)
                         {
                             sfloat dot = math.dot(C.Xyz, n);
-                            if (dot < sfloat.Zero)
+                            if (dot < 0)
                             {
                                 // Reorder vertices so that n points away from the origin
                                 SupportVertex temp = A;
@@ -129,11 +129,11 @@ namespace ME.ECS.Essentials.Physics
 
                         // This routine finds the closest feature to the origin on the tetra by testing the origin against the planes of the
                         // voronoi diagram. If the origin is near the border of two regions in the diagram, then the plane tests might exclude
-                        // it from both because of float rounding.  To avoid this problem we use some tolerance testing the face planes and let
+                        // it from both because of sfloat rounding.  To avoid this problem we use some tolerance testing the face planes and let
                         // EPA handle those border cases.  1e-5 is a somewhat arbitrary value and the actual distance scales with the tetra, so
                         // this might need to be tuned later!
                         float3 faceTest = tetra.Cross(tetra.V1203).Dot(d).xyz;
-                        if (math.all(faceTest >= sfloat.FromRaw(0xb727c5ac)))
+                        if (math.all(faceTest >= -1e-5f))
                         {
                             // Origin is inside the tetra
                             Direction = float3.zero;
@@ -141,11 +141,11 @@ namespace ME.ECS.Essentials.Physics
                         }
 
                         // Check if the closest point is on a face
-                        bool3 insideFace = (faceTest >= sfloat.Zero).xyz;
+                        bool3 insideFace = (faceTest >= 0).xyz;
                         FourTransposedPoints edges = d - tetra;
                         FourTransposedPoints normals = edges.Cross(edges.V1203);
-                        bool3 insideEdge0 = (normals.Cross(edges).Dot(d) >= sfloat.Zero).xyz;
-                        bool3 insideEdge1 = (edges.V1203.Cross(normals).Dot(d) >= sfloat.Zero).xyz;
+                        bool3 insideEdge0 = (normals.Cross(edges).Dot(d) >= 0).xyz;
+                        bool3 insideEdge1 = (edges.V1203.Cross(normals).Dot(d) >= 0).xyz;
                         bool3 onFace = (insideEdge0 & insideEdge1 & !insideFace);
                         if (math.any(onFace))
                         {
@@ -175,17 +175,17 @@ namespace ME.ECS.Essentials.Physics
                 switch (NumVertices)
                 {
                     case 1:
-                        coordinates.x = sfloat.One;
+                        coordinates.x = 1;
                         break;
                     case 2:
                         sfloat distance = math.distance(A.Xyz, B.Xyz);
-                        UnityEngine.Assertions.Assert.AreNotEqual(distance, sfloat.Zero); // TODO just checking if this happens in my tests
-                        if (distance.IsZero()) // Very rare case, simplex is really 1D.
+                        UnityEngine.Assertions.Assert.AreNotEqual(distance, 0.0f); // TODO just checking if this happens in my tests
+                        if (distance == 0.0f) // Very rare case, simplex is really 1D.
                         {
                             goto case 1;
                         }
                         coordinates.x = math.distance(B.Xyz, closestPoint) / distance;
-                        coordinates.y = sfloat.One - coordinates.x;
+                        coordinates.y = 1 - coordinates.x;
                         break;
                     case 3:
                     {
@@ -193,7 +193,7 @@ namespace ME.ECS.Essentials.Physics
                         coordinates.y = math.length(math.cross(C.Xyz - closestPoint, A.Xyz - closestPoint));
                         coordinates.z = math.length(math.cross(A.Xyz - closestPoint, B.Xyz - closestPoint));
                         sfloat sum = math.csum(coordinates.xyz);
-                        if (sum.IsZero()) // Very rare case, simplex is really 2D.  Happens because of int->float conversion from the hull builder.
+                        if (sum == 0.0f) // Very rare case, simplex is really 2D.  Happens because of int->sfloat conversion from the hull builder.
                         {
                             // Choose the two farthest apart vertices to keep
                             float3 lengthsSq = new float3(math.lengthsq(A.Xyz - B.Xyz), math.lengthsq(B.Xyz - C.Xyz), math.lengthsq(C.Xyz - A.Xyz));
@@ -207,7 +207,7 @@ namespace ME.ECS.Essentials.Physics
                                 A.Xyz = B.Xyz;
                                 B.Xyz = C.Xyz;
                             }
-                            coordinates.z = sfloat.Zero;
+                            coordinates.z = 0.0f;
                             NumVertices = 2;
                             goto case 2;
                         }
@@ -221,10 +221,10 @@ namespace ME.ECS.Essentials.Physics
                         coordinates.z = Det(D.Xyz, B.Xyz, A.Xyz);
                         coordinates.w = Det(A.Xyz, B.Xyz, C.Xyz);
                         sfloat sum = math.csum(coordinates.xyzw);
-                        UnityEngine.Assertions.Assert.AreNotEqual(sum, sfloat.Zero); // TODO just checking that this doesn't happen in my tests
-                        if (sum.IsZero()) // Unexpected case, may introduce significant error by dropping a vertex but it's better than nan
+                        UnityEngine.Assertions.Assert.AreNotEqual(sum, 0.0f); // TODO just checking that this doesn't happen in my tests
+                        if (sum == 0.0f) // Unexpected case, may introduce significant error by dropping a vertex but it's better than nan
                         {
-                            coordinates.zw = sfloat.Zero;
+                            coordinates.zw = float2.zero;
                             NumVertices = 3;
                             goto case 3;
                         }
@@ -249,18 +249,18 @@ namespace ME.ECS.Essentials.Physics
             float3* verticesA, int numVerticesA, float3* verticesB, int numVerticesB,
             [NoAlias] in MTransform aFromB, PenetrationHandling penetrationHandling)
         {
-            sfloat epsTerminationSq = sfloat.FromRaw(0x322bcc77); // Main loop quits when it cannot find a point that improves the simplex by at least this much
-            sfloat epsPenetrationSq = sfloat.FromRaw(0x3089705f); // Epsilon used to check for penetration.  Should be smaller than shape cast ConvexConvex keepDistance^2.
+            sfloat epsTerminationSq = 1e-8f; // Main loop quits when it cannot find a point that improves the simplex by at least this much
+            sfloat epsPenetrationSq = 1e-9f; // Epsilon used to check for penetration.  Should be smaller than shape cast ConvexConvex keepDistance^2.
 
             // Initialize simplex.
             Simplex simplex = new Simplex();
             simplex.NumVertices = 1;
-            simplex.A = GetSupportingVertex(new float3(sfloat.One, sfloat.Zero, sfloat.Zero), verticesA, numVerticesA, verticesB, numVerticesB, aFromB);
+            simplex.A = GetSupportingVertex(new float3(1, 0, 0), verticesA, numVerticesA, verticesB, numVerticesB, aFromB);
             simplex.Direction = simplex.A.Xyz;
             simplex.ScaledDistance = math.lengthsq(simplex.A.Xyz);
             sfloat scaleSq = simplex.ScaledDistance;
 
-            // Iterate.        
+            // Iterate.
             int iteration = 0;
             bool penetration = false;
             const int maxIterations = 64;
@@ -307,7 +307,7 @@ namespace ME.ECS.Essentials.Physics
                 ConvexHullBuilder.Vertex* vertices = stackalloc ConvexHullBuilder.Vertex[verticesCapacity];
                 ConvexHullBuilder.Triangle* triangles = stackalloc ConvexHullBuilder.Triangle[triangleCapacity];
                 Aabb domain = GetSupportingAabb(verticesA, numVerticesA, verticesB, numVerticesB, aFromB);
-                sfloat simplificationTolerance = sfloat.Zero;
+                sfloat simplificationTolerance = 0.0f;
                 var hull = new ConvexHullBuilder(verticesCapacity, vertices, triangles, null,
                     domain, simplificationTolerance, ConvexHullBuilder.IntResolution.Low);
 
@@ -352,9 +352,9 @@ namespace ME.ECS.Essentials.Physics
                     switch (simplex.NumVertices)
                     {
                         case 1:
-                            support0 = new float3(sfloat.One, sfloat.Zero, sfloat.Zero);
-                            support1 = new float3(sfloat.Zero, sfloat.One, sfloat.Zero);
-                            support2 = new float3(sfloat.Zero, sfloat.Zero, sfloat.One);
+                            support0 = new float3(1, 0, 0);
+                            support1 = new float3(0, 1, 0);
+                            support2 = new float3(0, 0, 1);
                             break;
                         case 2:
                             Math.CalculatePerpendicularNormalized(math.normalize(simplex.B.Xyz - simplex.A.Xyz), out support0, out support1);
@@ -413,7 +413,7 @@ namespace ME.ECS.Essentials.Physics
                         case 1:
                         {
                             ret.ClosestPoints.Distance = math.length(simplex.A.Xyz);
-                            ret.ClosestPoints.NormalInA = -math.normalizesafe(simplex.A.Xyz, new float3(sfloat.One, sfloat.Zero, sfloat.Zero));
+                            ret.ClosestPoints.NormalInA = -math.normalizesafe(simplex.A.Xyz, new float3(1, 0, 0));
                             break;
                         }
                         case 2:
@@ -431,7 +431,7 @@ namespace ME.ECS.Essentials.Physics
                             UnityEngine.Assertions.Assert.IsTrue(simplex.NumVertices == 3);
                             float3 cross = math.cross(simplex.B.Xyz - simplex.A.Xyz, simplex.C.Xyz - simplex.A.Xyz);
                             sfloat crossLengthSq = math.lengthsq(cross);
-                            if (crossLengthSq < sfloat.FromRaw(0x322bcc77)) // hull builder can accept extremely thin triangles for which we cannot compute an accurate normal
+                            if (crossLengthSq < 1e-8f) // hull builder can accept extremely thin triangles for which we cannot compute an accurate normal
                             {
                                 simplex.NumVertices = 2;
                                 goto case 2;
@@ -439,7 +439,7 @@ namespace ME.ECS.Essentials.Physics
                             float3 normal = cross * math.rsqrt(crossLengthSq);
                             sfloat dot = math.dot(normal, simplex.A.Xyz);
                             ret.ClosestPoints.Distance = math.abs(dot);
-                            ret.ClosestPoints.NormalInA = math.select(-normal, normal, dot < sfloat.Zero);
+                            ret.ClosestPoints.NormalInA = math.select(-normal, normal, dot < 0);
                             break;
                         }
                     }
@@ -448,7 +448,7 @@ namespace ME.ECS.Essentials.Physics
                 {
                     int closestTriangleIndex;
                     Plane closestPlane = new Plane();
-                    sfloat stopThreshold = sfloat.FromRaw(0x38d1b717);
+                    sfloat stopThreshold = 1e-4f;
                     uint* uidsCache = stackalloc uint[triangleCapacity];
                     for (int i = 0; i < triangleCapacity; i++)
                     {
@@ -473,19 +473,20 @@ namespace ME.ECS.Essentials.Physics
                         }
                         closestPlane = hull.ComputePlane(closestTriangleIndex);
 
-                        // Add supporting vertex or exit. 
+                        // Add supporting vertex or exit.
                         SupportVertex sv = GetSupportingVertex(closestPlane.Normal, verticesA, numVerticesA, verticesB, numVerticesB, aFromB);
                         sfloat d2P = math.dot(closestPlane.Normal, sv.Xyz) + closestPlane.Distance;
                         if (math.abs(d2P) > stopThreshold && hull.AddPoint(sv.Xyz, sv.Id))
-                            stopThreshold *= sfloat.FromRaw(0x3fa66666);
+                            stopThreshold *= 1.3f;
                         else
                             break;
-                    } while (++iteration < maxIterations);
+                    }
+                    while (++iteration < maxIterations);
 
                     // There could be multiple triangles in the closest plane, pick the one that has the closest point to the origin on its face
                     foreach (int triangleIndex in hull.Triangles.Indices)
                     {
-                        if (distancesCache[triangleIndex] >= closestPlane.Distance - sfloat.FromRaw(0x38d1b717))
+                        if (distancesCache[triangleIndex] >= closestPlane.Distance - 1e-4f)
                         {
                             ConvexHullBuilder.Triangle triangle = hull.Triangles[triangleIndex];
                             float3 a = hull.Vertices[triangle.Vertex0].Position;
@@ -499,7 +500,7 @@ namespace ME.ECS.Essentials.Physics
                             if (math.all(dets >= 0))
                             {
                                 Plane plane = hull.ComputePlane(triangleIndex);
-                                if (math.dot(plane.Normal, closestPlane.Normal) > sfloat.FromRaw(0x3f7ff972))
+                                if (math.dot(plane.Normal, closestPlane.Normal) > (1 - 1e-4f))
                                 {
                                     closestTriangleIndex = triangleIndex;
                                     closestPlane = hull.ComputePlane(triangleIndex);
@@ -530,14 +531,14 @@ namespace ME.ECS.Essentials.Physics
                 // Compute distance and normal.
                 sfloat lengthSq = math.lengthsq(simplex.Direction);
                 sfloat invLength = math.rsqrt(lengthSq);
-                bool smallLength = lengthSq.IsZero();
-                ret.ClosestPoints.Distance = math.select(simplex.ScaledDistance * invLength, sfloat.Zero, smallLength);
-                ret.ClosestPoints.NormalInA = math.select(simplex.Direction * invLength, new float3(sfloat.One, sfloat.Zero, sfloat.Zero), smallLength);
+                bool smallLength = lengthSq == 0;
+                ret.ClosestPoints.Distance = math.select(simplex.ScaledDistance * invLength, 0.0f, smallLength);
+                ret.ClosestPoints.NormalInA = math.select(simplex.Direction * invLength, new float3(1, 0, 0), smallLength);
 
                 // Make sure the normal is always valid.
                 if (!math.all(math.isfinite(ret.ClosestPoints.NormalInA)))
                 {
-                    ret.ClosestPoints.NormalInA = new float3(sfloat.One, sfloat.Zero, sfloat.Zero);
+                    ret.ClosestPoints.NormalInA = new float3(1, 0, 0);
                 }
             }
 
@@ -557,7 +558,7 @@ namespace ME.ECS.Essentials.Physics
 
             // Done.
             UnityEngine.Assertions.Assert.IsTrue(math.isfinite(ret.ClosestPoints.Distance));
-            UnityEngine.Assertions.Assert.IsTrue(math.abs(math.lengthsq(ret.ClosestPoints.NormalInA) - sfloat.One) < sfloat.FromRaw(0x3727c5ac));
+            UnityEngine.Assertions.Assert.IsTrue(math.abs(math.lengthsq(ret.ClosestPoints.NormalInA) - 1.0f) < 1e-5f);
             return ret;
         }
 
@@ -565,7 +566,7 @@ namespace ME.ECS.Essentials.Physics
         private static unsafe int GetSupportingVertexIndex(float3 direction, float3* vertices, int numVertices)
         {
             int maxI = -1;
-            sfloat maxD = sfloat.Zero;
+            sfloat maxD = 0;
             for (int i = 0; i < numVertices; ++i)
             {
                 sfloat d = math.dot(direction, vertices[i]);

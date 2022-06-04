@@ -38,10 +38,10 @@ namespace ME.ECS.Essentials.Physics
 
         public static MassFactors Default => new MassFactors
         {
-            InverseInertiaFactorA = new float3(sfloat.One),
-            InverseMassFactorA = sfloat.One,
-            InverseInertiaFactorB = new float3(sfloat.One),
-            InverseMassFactorB = sfloat.One
+            InverseInertiaFactorA = new float3(1.0f),
+            InverseMassFactorA = 1.0f,
+            InverseInertiaFactorB = new float3(1.0f),
+            InverseMassFactorB = 1.0f
         };
     }
 
@@ -82,9 +82,12 @@ namespace ME.ECS.Essentials.Physics
             Solver.StepInput stepInput, ref NativeStream.Writer collisionEventsWriter, bool enableFrictionVelocitiesHeuristic,
             Solver.MotionStabilizationInput motionStabilizationSolverInputA, Solver.MotionStabilizationInput motionStabilizationSolverInputB)
         {
-            bool bothBodiesWithInfInertiaAndMass = velocityA.HasInfiniteInertiaAndMass && velocityB.HasInfiniteInertiaAndMass;
-            if (bothBodiesWithInfInertiaAndMass)
+            bool bothMotionsAreKinematic = velocityA.IsKinematic && velocityB.IsKinematic;
+            if (bothMotionsAreKinematic)
             {
+                // Note that static bodies are assigned with MotionVelocity.Zero.
+                // So, at this point the bodies could be a kinematic vs kinematic pair, or a kinematic vs static pair.
+                // Either way, both bodies have an infinite mass and applying contact impulses would have no effect.
                 SolveInfMassPair(ref jacHeader, velocityA, velocityB, stepInput, ref collisionEventsWriter);
             }
             else
@@ -113,8 +116,8 @@ namespace ME.ECS.Essentials.Physics
             }
 
             // Solve normal impulses
-            sfloat sumImpulses = sfloat.Zero;
-            sfloat totalAccumulatedImpulse = sfloat.Zero;
+            sfloat sumImpulses = 0.0f;
+            sfloat totalAccumulatedImpulse = 0.0f;
             bool forceCollisionEvent = false;
             for (int j = 0; j < BaseJacobian.NumContacts; j++)
             {
@@ -126,7 +129,7 @@ namespace ME.ECS.Essentials.Physics
                 sfloat dv = jacAngular.VelToReachCp - relativeVelocity;
 
                 sfloat impulse = dv * jacAngular.Jac.EffectiveMass;
-                sfloat accumulatedImpulse = math.max(jacAngular.Jac.Impulse + impulse, sfloat.Zero);
+                sfloat accumulatedImpulse = math.max(jacAngular.Jac.Impulse + impulse, 0.0f);
                 if (accumulatedImpulse != jacAngular.Jac.Impulse)
                 {
                     sfloat deltaImpulse = accumulatedImpulse - jacAngular.Jac.Impulse;
@@ -139,17 +142,17 @@ namespace ME.ECS.Essentials.Physics
                 totalAccumulatedImpulse += jacAngular.Jac.Impulse;
 
                 // Force contact event even when no impulse is applied, but there is penetration.
-                forceCollisionEvent |= jacAngular.VelToReachCp > sfloat.Zero;
+                forceCollisionEvent |= jacAngular.VelToReachCp > 0.0f;
             }
 
             // Export collision event
-            if (stepInput.IsLastIteration && (totalAccumulatedImpulse > sfloat.Zero || forceCollisionEvent) && jacHeader.HasContactManifold)
+            if (stepInput.IsLastIteration && (totalAccumulatedImpulse > 0.0f || forceCollisionEvent) && jacHeader.HasContactManifold)
             {
                 ExportCollisionEvent(totalAccumulatedImpulse, ref jacHeader, ref collisionEventsWriter);
             }
 
             // Solve friction
-            if (sumImpulses > sfloat.Zero)
+            if (sumImpulses > 0.0f)
             {
                 // Choose friction axes
                 Math.CalculatePerpendicularNormalized(BaseJacobian.Normal, out float3 frictionDir0, out float3 frictionDir1);
@@ -203,7 +206,7 @@ namespace ME.ECS.Essentials.Physics
                 // Clip TODO.ma calculate some contact radius and use it to influence balance between linear and angular friction
                 sfloat maxImpulse = sumImpulses * CoefficientOfFriction * stepInput.InvNumSolverIterations;
                 sfloat frictionImpulseSquared = math.lengthsq(imp);
-                imp *= math.min(sfloat.One, maxImpulse * math.rsqrt(frictionImpulseSquared));
+                imp *= math.min(1.0f, maxImpulse * math.rsqrt(frictionImpulseSquared));
 
                 // Apply impulses
                 ApplyImpulse(imp.x, frictionDir0, Friction0, ref tempVelocityA, ref tempVelocityB,
@@ -248,10 +251,10 @@ namespace ME.ECS.Essentials.Physics
                 sfloat relativeVelocity = BaseContactJacobian.GetJacVelocity(BaseJacobian.Normal, jacAngular.Jac,
                     velocityA.LinearVelocity, velocityA.AngularVelocity, velocityB.LinearVelocity, velocityB.AngularVelocity);
                 sfloat dv = jacAngular.VelToReachCp - relativeVelocity;
-                if (jacAngular.VelToReachCp > sfloat.Zero || dv > sfloat.Zero)
+                if (jacAngular.VelToReachCp > 0 || dv > 0)
                 {
                     // Export collision event only if impulse would be applied, or objects are penetrating
-                    ExportCollisionEvent(sfloat.Zero, ref jacHeader, ref collisionEventsWriter);
+                    ExportCollisionEvent(0.0f, ref jacHeader, ref collisionEventsWriter);
 
                     return;
                 }
@@ -297,8 +300,14 @@ namespace ME.ECS.Essentials.Physics
 
         private static void ApplyImpulse(
             sfloat impulse, float3 linear, ContactJacobianAngular jacAngular,
+            ref MotionVelocity velocityA, ref MotionVelocity velocityB)
+        {
+            ApplyImpulse(impulse, linear, jacAngular, ref velocityA, ref velocityB, 1, 1);
+        }
+        private static void ApplyImpulse(
+            sfloat impulse, float3 linear, ContactJacobianAngular jacAngular,
             ref MotionVelocity velocityA, ref MotionVelocity velocityB,
-            sfloat inverseInertiaScaleA /* = 1.0f */, sfloat inverseInertiaScaleB /* = 1.0f */)
+            sfloat inverseInertiaScaleA, sfloat inverseInertiaScaleB)
         {
             velocityA.ApplyLinearImpulse(impulse * linear);
             velocityB.ApplyLinearImpulse(-impulse * linear);
@@ -360,7 +369,7 @@ namespace ME.ECS.Essentials.Physics
                 sfloat relativeVelocity = BaseContactJacobian.GetJacVelocity(BaseJacobian.Normal, jacAngular.Jac,
                     velocityA.LinearVelocity, velocityA.AngularVelocity, velocityB.LinearVelocity, velocityB.AngularVelocity);
                 sfloat dv = jacAngular.VelToReachCp - relativeVelocity;
-                if (jacAngular.VelToReachCp > sfloat.Zero || dv > sfloat.Zero)
+                if (jacAngular.VelToReachCp > 0 || dv > 0)
                 {
                     // Export trigger event only if impulse would be applied, or objects are penetrating
                     triggerEventsWriter.Write(new TriggerEventData

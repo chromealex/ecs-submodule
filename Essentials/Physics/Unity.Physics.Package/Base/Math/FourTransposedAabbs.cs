@@ -11,12 +11,12 @@ namespace ME.ECS.Essentials.Physics
 
         public static FourTransposedAabbs Empty => new FourTransposedAabbs
         {
-            Lx = new float4(sfloat.MaxValue),
-            Hx = new float4(sfloat.MinValue),
-            Ly = new float4(sfloat.MaxValue),
-            Hy = new float4(sfloat.MinValue),
-            Lz = new float4(sfloat.MaxValue),
-            Hz = new float4(sfloat.MinValue)
+            Lx = new float4(float.MaxValue),
+            Hx = new float4(float.MinValue),
+            Ly = new float4(float.MaxValue),
+            Hy = new float4(float.MinValue),
+            Lz = new float4(float.MaxValue),
+            Hz = new float4(float.MinValue)
         };
 
         public void SetAllAabbs(Aabb aabb)

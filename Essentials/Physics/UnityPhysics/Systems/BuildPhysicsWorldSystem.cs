@@ -74,13 +74,9 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                   .Push(ref this.dynamicBodies);
 
             Filter.Create("BurstFilter-Joints")
-                  .With<ME.ECS.Transform.Position>()
-                  .With<ME.ECS.Transform.Rotation>()
-                  .With<ME.ECS.Transform.Scale>()
-                  .With<PhysicsJoint>()
-                  .With<PhysicsConstrainedBodyPair>()
-                  .Without<IsPhysicsStatic>()
-                  .Push(ref this.joints);
+                .With<PhysicsJoint>()
+                .With<PhysicsConstrainedBodyPair>()
+                .Push(ref this.joints);
 
         }
 
@@ -324,7 +320,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
 
         void IAdvanceTick.AdvanceTick(in float deltaTime) {
 
-            this.physicsWorld.Reset(this.staticBodies.Count, this.dynamicBodies.Count, this.joints.Count);
+            this.physicsWorld.Reset(this.staticBodies.Count + 1 , this.dynamicBodies.Count, this.joints.Count);
 
             if (this.physicsWorld.Bodies.Length == 0) {
                 

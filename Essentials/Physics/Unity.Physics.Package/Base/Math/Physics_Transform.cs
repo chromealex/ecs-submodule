@@ -7,13 +7,13 @@ namespace ME.ECS.Essentials.Physics
     public static partial class Math
     {
         [DebuggerStepThrough]
-        public struct MTransform: IEquatable<MTransform> // TODO: Replace with Unity float4x4 ?
+        public struct MTransform : IEquatable<MTransform> // TODO: Replace with Unity float4x4 ?
         {
             public float3x3 Rotation;
             public float3 Translation;
 
             public static MTransform Identity => new MTransform { Rotation = float3x3.identity, Translation = float3.zero };
-            
+
             public MTransform(RigidTransform transform)
             {
                 Rotation = new float3x3(transform.rot);

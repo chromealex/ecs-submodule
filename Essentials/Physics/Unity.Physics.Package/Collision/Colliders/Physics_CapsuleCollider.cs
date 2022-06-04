@@ -1,7 +1,7 @@
 using System;
+using ME.ECS;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using ME.ECS;
 using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics
@@ -127,31 +127,29 @@ namespace ME.ECS.Essentials.Physics
             {
                 float3 axis = m_Vertex1 - m_Vertex0;
                 sfloat length = math.length(axis);
-                sfloat lengthSq = length * length;
-                sfloat radiusSq = Radius * Radius;
-                sfloat cylinderMass = math.PI * length * radiusSq;
-                sfloat sphereMass = sfloat.FromRaw(0x40860a92) * Radius * radiusSq;
+                sfloat cylinderMass = (float)math.PI * length * Radius * Radius;
+                sfloat sphereMass = (float)math.PI * (4.0f / 3.0f) * Radius * Radius * Radius;
                 sfloat totalMass = cylinderMass + sphereMass;
                 cylinderMass /= totalMass;
                 sphereMass /= totalMass;
-                sfloat onAxisInertia = (cylinderMass * (sfloat)0.5f + sphereMass * sfloat.FromRaw(0x3ecccccd)) * Radius * Radius;
+                sfloat onAxisInertia = (cylinderMass * 0.5f + sphereMass * 0.4f) * Radius * Radius;
                 sfloat offAxisInertia =
-                    cylinderMass * ((sfloat)0.25f * Radius * Radius + sfloat.FromRaw(0x3daaaaab) * lengthSq) +
-                    sphereMass * (sfloat.FromRaw(0x3ecccccd) * Radius * Radius + (sfloat)0.375f * Radius * length + (sfloat)0.25f * lengthSq);
+                    cylinderMass * (1.0f / 4.0f * Radius * Radius + 1.0f / 12.0f * length * length) +
+                    sphereMass * (2.0f / 5.0f * Radius * Radius + 3.0f / 8.0f * Radius * length + 1.0f / 4.0f * length * length);
 
-                float3 axisInMotion = new float3(sfloat.Zero, sfloat.One, sfloat.Zero);
-                quaternion orientation = length.IsZero() ? quaternion.identity :
+                float3 axisInMotion = new float3(0, 1, 0);
+                quaternion orientation = length == 0 ? quaternion.identity :
                     Math.FromToRotation(axisInMotion, math.normalizesafe(Vertex1 - Vertex0, axisInMotion));
 
                 return new MassProperties
                 {
                     MassDistribution = new MassDistribution
                     {
-                        Transform = new RigidTransform(orientation, (Vertex0 + Vertex1) * (sfloat)0.5f),
+                        Transform = new RigidTransform(orientation, (Vertex0 + Vertex1) * 0.5f),
                         InertiaTensor = new float3(offAxisInertia, onAxisInertia, offAxisInertia)
                     },
-                    Volume = math.PI * radiusSq * (sfloat.FromRaw(0x3faaaaab) * Radius + math.length(Vertex1-Vertex0)),
-                    AngularExpansionFactor = math.length(m_Vertex1 - m_Vertex0) * (sfloat)0.5f
+                    Volume = (float)math.PI * Radius * Radius * ((4.0f / 3.0f) * Radius + math.length(Vertex1 - Vertex0)),
+                    AngularExpansionFactor = math.length(m_Vertex1 - m_Vertex0) * 0.5f
                 };
             }
         }
@@ -182,7 +180,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastRay(RaycastInput input, ref NativeList<RaycastHit> allHits) => QueryWrappers.RayCast(ref this, input, ref allHits);
         public unsafe bool CastRay<T>(RaycastInput input, ref T collector) where T : struct, ICollector<RaycastHit>
         {
-            fixed (CapsuleCollider* target = &this)
+            fixed(CapsuleCollider* target = &this)
             {
                 return RaycastQueries.RayCollider(input, (Collider*)target, ref collector);
             }
@@ -194,7 +192,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastCollider(ColliderCastInput input, ref NativeList<ColliderCastHit> allHits) => QueryWrappers.ColliderCast(ref this, input, ref allHits);
         public unsafe bool CastCollider<T>(ColliderCastInput input, ref T collector) where T : struct, ICollector<ColliderCastHit>
         {
-            fixed (CapsuleCollider* target = &this)
+            fixed(CapsuleCollider* target = &this)
             {
                 return ColliderCastQueries.ColliderCollider(input, (Collider*)target, ref collector);
             }
@@ -206,7 +204,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(PointDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(PointDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (CapsuleCollider* target = &this)
+            fixed(CapsuleCollider* target = &this)
             {
                 return DistanceQueries.PointCollider(input, (Collider*)target, ref collector);
             }
@@ -218,7 +216,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(ColliderDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(ColliderDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (CapsuleCollider* target = &this)
+            fixed(CapsuleCollider* target = &this)
             {
                 return DistanceQueries.ColliderCollider(input, (Collider*)target, ref collector);
             }

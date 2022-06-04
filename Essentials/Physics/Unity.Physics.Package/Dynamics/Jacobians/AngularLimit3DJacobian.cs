@@ -42,7 +42,7 @@ namespace ME.ECS.Essentials.Physics
             Damping = damping;
 
             quaternion jointOrientation = math.mul(math.inverse(RefBFromA), BFromA);
-            sfloat initialAngle = math.asin(math.length(jointOrientation.value.xyz)) * (sfloat)2.0f;
+            sfloat initialAngle = math.asin(math.length(jointOrientation.value.xyz)) * 2.0f;
             InitialError = JacobianUtilities.CalculateError(initialAngle, MinAngle, MaxAngle);
         }
 
@@ -64,10 +64,10 @@ namespace ME.ECS.Essentials.Physics
                 sfloat sinHalfAngleSq = math.lengthsq(jacA0);
                 sfloat invSinHalfAngle = Math.RSqrtSafe(sinHalfAngleSq);
                 sfloat sinHalfAngle = sinHalfAngleSq * invSinHalfAngle;
-                futureAngle = math.asin(sinHalfAngle) * (sfloat)2.0f;
+                futureAngle = math.asin(sinHalfAngle) * 2.0f;
 
-                jacA0 = math.select(jacA0 * invSinHalfAngle, new float3(sfloat.One, sfloat.Zero, sfloat.Zero), invSinHalfAngle.IsZero());
-                jacA0 = math.select(jacA0, -jacA0, jointOrientation.value.w < sfloat.Zero);
+                jacA0 = math.select(jacA0 * invSinHalfAngle, new float3(1, 0, 0), invSinHalfAngle == 0.0f);
+                jacA0 = math.select(jacA0, -jacA0, jointOrientation.value.w < 0.0f);
                 Math.CalculatePerpendicularNormalized(jacA0, out jacA1, out jacA2);
 
                 jacB0 = math.mul(futureBFromA, -jacA0);

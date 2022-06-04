@@ -1,12 +1,12 @@
+using ME.ECS;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using ME.ECS;
 using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics
 {
     // An event raised when a pair of bodies have collided during solving.
-    public struct CollisionEvent
+    public struct CollisionEvent : ISimulationEvent<CollisionEvent>
     {
         internal CollisionEventDataRef EventData;
         internal sfloat TimeStep;
@@ -21,6 +21,8 @@ namespace ME.ECS.Essentials.Physics
         public ColliderKey ColliderKeyA => EventData.Value.ColliderKeys.ColliderKeyA;
 
         public float3 Normal => EventData.Value.Normal;
+
+        public int CompareTo(CollisionEvent other) => ISimulationEventUtilities.CompareEvents(this, other);
 
         // Calculate extra details about the collision.
         // Note: Since the solver does not naturally produce this data, it requires some computation.
@@ -72,7 +74,7 @@ namespace ME.ECS.Essentials.Physics
         //@TODO: Unity should have a Allow null safety restriction
         [NativeDisableContainerSafetyRestriction]
         private readonly NativeStream m_EventDataStream;
-
+        [ReadOnly]
         private readonly NativeArray<Velocity> m_InputVelocities;
         private readonly sfloat m_TimeStep;
 
@@ -207,8 +209,8 @@ namespace ME.ECS.Essentials.Physics
             // First calculate minimum time of impact and estimate the impulse
             sfloat toi = timeStep;
             {
-                sfloat sumRemainingVelocities = sfloat.Zero;
-                sfloat numRemainingVelocities = sfloat.Zero;
+                sfloat sumRemainingVelocities = 0.0f;
+                sfloat numRemainingVelocities = 0.0f;
                 for (int i = 0; i < narrowPhaseContactPoints.Length; i++)
                 {
                     var cp = narrowPhaseContactPoints[i];
@@ -220,10 +222,10 @@ namespace ME.ECS.Essentials.Physics
                         float3 pointVelB = GetPointVelocity(motionDataB.WorldFromMotion,
                             motionVelocityB.LinearVelocity, motionVelocityB.AngularVelocity, cp.Position);
                         sfloat projRelVel = math.dot(pointVelB - pointVelA, Normal);
-                        if (projRelVel > sfloat.Zero)
+                        if (projRelVel > 0.0f)
                         {
                             sumRemainingVelocities += projRelVel;
-                            numRemainingVelocities += sfloat.One;
+                            numRemainingVelocities += 1.0f;
                         }
                     }
 
@@ -234,20 +236,20 @@ namespace ME.ECS.Essentials.Physics
                         float3 pointVelB = GetPointVelocity(motionDataB.WorldFromMotion,
                             inputVelocityB.Linear, inputVelocityB.Angular, cp.Position);
                         sfloat projRelVel = math.dot(pointVelB - pointVelA, Normal);
-                        if (projRelVel > sfloat.Zero)
+                        if (projRelVel > 0.0f)
                         {
-                            sfloat newToi = math.max(sfloat.Zero, cp.Distance / projRelVel);
+                            sfloat newToi = math.max(0.0f, cp.Distance / projRelVel);
                             toi = math.min(toi, newToi);
                         }
-                        else if (cp.Distance <= sfloat.Zero)
+                        else if (cp.Distance <= 0.0f)
                         {
                             // If in penetration, time of impact is 0 for sure
-                            toi = sfloat.Zero;
+                            toi = 0.0f;
                         }
                     }
                 }
 
-                if (numRemainingVelocities > sfloat.Zero)
+                if (numRemainingVelocities > 0.0f)
                 {
                     sfloat sumInvMass = motionVelocityA.InverseMass + motionVelocityB.InverseMass;
                     estimatedImpulse += sumRemainingVelocities / (numRemainingVelocities * sumInvMass);
@@ -256,7 +258,7 @@ namespace ME.ECS.Essentials.Physics
 
             // Then, sub-integrate for time of impact and keep contact points closer than hitDistanceThreshold
             int closestContactIndex = -1;
-            sfloat minDistance = sfloat.MaxValue;
+            sfloat minDistance = float.MaxValue;
             {
                 int estimatedContactPointCount = 0;
                 for (int i = 0; i < narrowPhaseContactPoints.Length; i++)
@@ -273,7 +275,7 @@ namespace ME.ECS.Essentials.Physics
                         // (it can happen that input velocity was separating but there
                         // still was a collision event - penetration recovery, or other
                         // body pushing in different direction).
-                        if (projRelVel > sfloat.Zero)
+                        if (projRelVel > 0.0f)
                         {
                             // Position the point on body A
                             cp.Position += Normal * cp.Distance;

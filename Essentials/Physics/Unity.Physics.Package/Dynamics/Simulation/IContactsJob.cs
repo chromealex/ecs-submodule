@@ -1,7 +1,7 @@
 using System;
+using ME.ECS;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using ME.ECS;
 using Unity.Jobs;
 using Unity.Jobs.LowLevel.Unsafe;
 using ME.ECS.Mathematics;

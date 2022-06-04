@@ -85,7 +85,7 @@ namespace ME.ECS.Essentials.Physics
                     float3 column = bFromConstraint.Rotation[i];
                     AxisInB = math.select(column, AxisInB, Is1D ^ constraint.ConstrainedAxes[i]);
 
-                    float3 dot = math.select(math.dot(column, diff), sfloat.Zero, constraint.ConstrainedAxes[i]);
+                    float3 dot = math.select(math.dot(column, diff), 0.0f, constraint.ConstrainedAxes[i]);
                     PivotBinB += column * dot;
                 }
             }
@@ -195,7 +195,7 @@ namespace ME.ECS.Essentials.Physics
                 // In 2D / 3D, distance is nonnegative.  In 2D it is measured perpendicular to the axis.
                 direction -= axis * dot;
                 sfloat futureDistanceSq = math.lengthsq(direction);
-                sfloat invFutureDistance = math.select(math.rsqrt(futureDistanceSq), sfloat.Zero, futureDistanceSq.IsZero());
+                sfloat invFutureDistance = math.select(math.rsqrt(futureDistanceSq), 0.0f, futureDistanceSq == 0.0f);
                 distance = futureDistanceSq * invFutureDistance;
                 direction *= invFutureDistance;
             }

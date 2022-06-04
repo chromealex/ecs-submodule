@@ -7,6 +7,7 @@ namespace ME.ECS.Essentials.Physics
     /// <summary>
     /// A target in the space of a rigid body that will align with a corresponding target in the space of the other body to which it is constrained.
     /// </summary>
+    [Serializable]
     public struct BodyFrame : IEquatable<BodyFrame>
     {
         /// <summary>
@@ -30,8 +31,8 @@ namespace ME.ECS.Essentials.Physics
             PerpendicularAxis = rotation.c1;
         }
 
-        static float3 k_DefaultAxis => new float3(sfloat.One, sfloat.Zero, sfloat.Zero);
-        static float3 k_DefaultPerpendicular = new float3(sfloat.Zero, sfloat.One, sfloat.Zero);
+        static readonly float3 k_DefaultAxis = new float3(1f, 0f, 0f);
+        static readonly float3 k_DefaultPerpendicular = new float3(0f, 1f, 0f);
 
         public static readonly BodyFrame Identity =
             new BodyFrame { Axis = k_DefaultAxis, PerpendicularAxis = k_DefaultPerpendicular };
@@ -60,11 +61,11 @@ namespace ME.ECS.Essentials.Physics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static float3 OrthoNormalVectorFast(float3 n)
         {
-            sfloat kRcpSqrt2 = sfloat.FromRaw(0x3f3504f3);
+            sfloat kRcpSqrt2 = 0.7071067811865475244008443621048490f;
             var usePlaneYZ = math.abs(n.z) > kRcpSqrt2;
             var a = math.select(math.dot(n.xy, n.xy), math.dot(n.yz, n.yz), usePlaneYZ);
             var k = math.rcp(math.sqrt(a));
-            return math.select(new float3(-n.y * k, n.x * k, sfloat.Zero), new float3(sfloat.Zero, -n.z * k, n.y * k), usePlaneYZ);
+            return math.select(new float3(-n.y * k, n.x * k, 0f), new float3(0f, -n.z * k, n.y * k), usePlaneYZ);
         }
 
         internal float3x3 ValidateAxes()
@@ -72,7 +73,7 @@ namespace ME.ECS.Essentials.Physics
             // TODO: math.orthonormalize() does not guarantee an ortho-normalized result when Axis is non-normalized
             var sqrMag = math.lengthsq(Axis);
             sfloat kEpsilon = Math.Constants.UnityEpsilon;
-            return sqrMag >= sfloat.One - kEpsilon && sqrMag <= sfloat.One + kEpsilon
+            return sqrMag >= 1f - kEpsilon && sqrMag <= 1f + kEpsilon
                 ? math.orthonormalize(new float3x3(Axis, PerpendicularAxis, default))
                 : OrthoNormalize(Axis, PerpendicularAxis);
         }
@@ -89,6 +90,6 @@ namespace ME.ECS.Essentials.Physics
         public override string ToString() =>
             $"BodyFrame {{ Axis = {Axis}, PerpendicularAxis = {PerpendicularAxis}, Position = {Position} }}";
 
-        public static implicit operator BodyFrame (RigidTransform transform) => new BodyFrame(transform);
+        public static implicit operator BodyFrame(RigidTransform transform) => new BodyFrame(transform);
     }
 }

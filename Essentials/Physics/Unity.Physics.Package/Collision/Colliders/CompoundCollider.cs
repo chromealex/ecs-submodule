@@ -1,7 +1,7 @@
+using ME.ECS;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using ME.ECS;
 using ME.ECS.Mathematics;
 using static ME.ECS.Essentials.Physics.Math;
 
@@ -18,12 +18,13 @@ namespace ME.ECS.Essentials.Physics
         {
             public RigidTransform CompoundFromChild;
             internal int m_ColliderOffset;
+            public Entity Entity;
 
             public unsafe Collider* Collider
             {
                 get
                 {
-                    fixed (int* offsetPtr = &m_ColliderOffset)
+                    fixed(int* offsetPtr = &m_ColliderOffset)
                     {
                         return (Collider*)((byte*)offsetPtr + *offsetPtr);
                     }
@@ -48,7 +49,7 @@ namespace ME.ECS.Essentials.Physics
         {
             get
             {
-                fixed (BlobArray* blob = &m_BvhNodesBlob)
+                fixed(BlobArray* blob = &m_BvhNodesBlob)
                 {
                     var firstNode = (BoundingVolumeHierarchy.Node*)((byte*)&(blob->Offset) + blob->Offset);
                     return new BoundingVolumeHierarchy(firstNode, nodeFilters: null);
@@ -63,6 +64,7 @@ namespace ME.ECS.Essentials.Physics
         {
             public RigidTransform CompoundFromChild;
             public BlobAssetReference<Collider> Collider;
+            public Entity Entity;
         }
 
         // Create a compound collider containing an array of other colliders.
@@ -122,6 +124,7 @@ namespace ME.ECS.Essentials.Physics
                 }
                 childrenPtr[i].m_ColliderOffset = (int)((byte*)dstAddr - (byte*)(&childrenPtr[i].m_ColliderOffset));
                 childrenPtr[i].CompoundFromChild = children[i].CompoundFromChild;
+                childrenPtr[i].Entity = children[i].Entity;
 
                 maxTotalNumColliderKeyBits = math.max(maxTotalNumColliderKeyBits, collider->TotalNumColliderKeyBits);
             }
@@ -185,7 +188,7 @@ namespace ME.ECS.Essentials.Physics
 
         private unsafe void UpdateCachedBoundingRadius()
         {
-            m_BoundingRadius = sfloat.Zero;
+            m_BoundingRadius = 0;
             float3 center = BoundingVolumeHierarchy.Domain.Center;
 
             for (int i = 0; i < NumChildren; i++)
@@ -193,7 +196,7 @@ namespace ME.ECS.Essentials.Physics
                 ref Child child = ref Children[i];
 
                 float3 childFromCenter = math.transform(math.inverse(child.CompoundFromChild), center);
-                sfloat radius = sfloat.Zero;
+                sfloat radius = 0;
 
                 switch (child.Collider->Type)
                 {
@@ -253,7 +256,7 @@ namespace ME.ECS.Essentials.Physics
 
             // Calculate combined center of mass
             float3 combinedCenterOfMass = float3.zero;
-            sfloat combinedVolume = sfloat.Zero;
+            sfloat combinedVolume = 0.0f;
             for (int i = 0; i < NumChildren; ++i)
             {
                 ref Child child = ref children[i];
@@ -269,7 +272,7 @@ namespace ME.ECS.Essentials.Physics
                 combinedCenterOfMass += math.transform(child.CompoundFromChild, mp.MassDistribution.Transform.pos) * mp.Volume;
                 combinedVolume += mp.Volume;
             }
-            if (combinedVolume > sfloat.Zero)
+            if (combinedVolume > 0.0f)
             {
                 combinedCenterOfMass /= combinedVolume;
             }
@@ -298,13 +301,13 @@ namespace ME.ECS.Essentials.Physics
                     float3 shift = math.transform(child.CompoundFromChild, mp.MassDistribution.Transform.pos) - combinedCenterOfMass;
                     float3 shiftSq = shift * shift;
                     var diag = new float3(shiftSq.y + shiftSq.z, shiftSq.x + shiftSq.z, shiftSq.x + shiftSq.y);
-                    var offDiag = -new float3(shift.x * shift.y, shift.y * shift.z, shift.z * shift.x);
+                    var offDiag = new float3(shift.x * shift.y, shift.y * shift.z, shift.z * shift.x) * -1.0f;
                     inertiaMatrix.c0 += new float3(diag.x, offDiag.x, offDiag.z);
                     inertiaMatrix.c1 += new float3(offDiag.x, diag.y, offDiag.y);
                     inertiaMatrix.c2 += new float3(offDiag.z, offDiag.y, diag.z);
 
                     // weight by its proportional volume (=mass)
-                    inertiaMatrix *= mp.Volume / (combinedVolume + sfloat.Epsilon);
+                    inertiaMatrix *= mp.Volume / (combinedVolume + float.Epsilon);
 
                     combinedInertiaMatrix += inertiaMatrix;
                 }
@@ -315,7 +318,7 @@ namespace ME.ECS.Essentials.Physics
             }
 
             // Calculate combined angular expansion factor, relative to new center of mass
-            sfloat combinedAngularExpansionFactor = sfloat.Zero;
+            sfloat combinedAngularExpansionFactor = 0.0f;
             for (int i = 0; i < NumChildren; ++i)
             {
                 ref Child child = ref children[i];
@@ -348,6 +351,13 @@ namespace ME.ECS.Essentials.Physics
             for (int childIndex = 0; childIndex < Children.Length; childIndex++)
             {
                 ref Child c = ref Children[childIndex];
+
+                // If a child is also a compound, refresh its collision filter first
+                if (c.Collider->Type == ColliderType.Compound)
+                {
+                    ((CompoundCollider*)c.Collider)->RefreshCollisionFilter();
+                }
+
                 filter = CollisionFilter.CreateUnion(filter, c.Collider->Filter);
             }
 
@@ -433,7 +443,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastRay(RaycastInput input, ref NativeList<RaycastHit> allHits) => QueryWrappers.RayCast(ref this, input, ref allHits);
         public unsafe bool CastRay<T>(RaycastInput input, ref T collector) where T : struct, ICollector<RaycastHit>
         {
-            fixed (CompoundCollider* target = &this)
+            fixed(CompoundCollider* target = &this)
             {
                 return RaycastQueries.RayCollider(input, (Collider*)target, ref collector);
             }
@@ -445,7 +455,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastCollider(ColliderCastInput input, ref NativeList<ColliderCastHit> allHits) => QueryWrappers.ColliderCast(ref this, input, ref allHits);
         public unsafe bool CastCollider<T>(ColliderCastInput input, ref T collector) where T : struct, ICollector<ColliderCastHit>
         {
-            fixed (CompoundCollider* target = &this)
+            fixed(CompoundCollider* target = &this)
             {
                 return ColliderCastQueries.ColliderCollider(input, (Collider*)target, ref collector);
             }
@@ -457,7 +467,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(PointDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(PointDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (CompoundCollider* target = &this)
+            fixed(CompoundCollider* target = &this)
             {
                 return DistanceQueries.PointCollider(input, (Collider*)target, ref collector);
             }
@@ -469,7 +479,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(ColliderDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(ColliderDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (CompoundCollider* target = &this)
+            fixed(CompoundCollider* target = &this)
             {
                 return DistanceQueries.ColliderCollider(input, (Collider*)target, ref collector);
             }
@@ -538,7 +548,7 @@ namespace ME.ECS.Essentials.Physics
             if (key.PopSubKey(NumColliderKeyBits, out uint childIndex))
             {
                 ref Child c = ref Children[(int)childIndex];
-                child = new ChildCollider(c.Collider) { TransformFromChild = c.CompoundFromChild };
+                child = new ChildCollider(c.Collider, c.CompoundFromChild, c.Entity);
                 return true;
             }
 
@@ -548,7 +558,7 @@ namespace ME.ECS.Essentials.Physics
 
         public unsafe bool GetLeaf(ColliderKey key, out ChildCollider leaf)
         {
-            fixed (CompoundCollider* root = &this)
+            fixed(CompoundCollider* root = &this)
             {
                 return Collider.GetLeafCollider((Collider*)root, RigidTransform.identity, key, out leaf);
             }
@@ -568,7 +578,7 @@ namespace ME.ECS.Essentials.Physics
                 }
                 else
                 {
-                    var child = new ChildCollider(c.Collider) { TransformFromChild = c.CompoundFromChild };
+                    var child = new ChildCollider(c.Collider, c.CompoundFromChild, c.Entity);
                     collector.AddLeaf(childKey, ref child);
                 }
             }

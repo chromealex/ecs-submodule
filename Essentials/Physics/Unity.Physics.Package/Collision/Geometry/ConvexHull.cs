@@ -8,7 +8,7 @@ namespace ME.ECS.Essentials.Physics
     // A convex hull.
     // Warning: This is just the header, the hull's variable sized data follows it in memory.
     // Therefore this struct must always be passed by reference, never by value.
-    public struct ConvexHull
+    struct ConvexHull
     {
         public struct Face : IEquatable<Face>
         {
@@ -16,8 +16,8 @@ namespace ME.ECS.Essentials.Physics
             public byte NumVertices;             // number of vertex indices in the FaceVertexIndices array
             public byte MinHalfAngleCompressed;  // 0-255 = 0-90 degrees
 
-            static sfloat k_CompressionFactor => sfloat.FromRaw(0x4322568a); // 255.0f / (math.PI * 0.5f)
-            public sfloat MinHalfAngle { set => MinHalfAngleCompressed = (byte)math.min(value * k_CompressionFactor, (sfloat)255.0f); }
+            static sfloat k_CompressionFactor = 255.0f / (math.PI * 0.5f);
+            public sfloat MinHalfAngle { set => MinHalfAngleCompressed = (byte)math.min(value * k_CompressionFactor, 255); }
             public bool Equals(Face other) => FirstIndex.Equals(other.FirstIndex) && NumVertices.Equals(other.NumVertices) && MinHalfAngleCompressed.Equals(other.MinHalfAngleCompressed);
         }
 
@@ -91,7 +91,7 @@ namespace ME.ECS.Essentials.Physics
             // Search the edges that contain supportingVertexIndex for the one that is most perpendicular to direction
             int bestEdgeIndex = -1;
             {
-                sfloat bestEdgeDot = sfloat.MaxValue;
+                sfloat bestEdgeDot = float.MaxValue;
                 float3 supportingVertex = Vertices[supportingVertexIndex];
                 Edge edge = VertexEdges[supportingVertexIndex];
                 int firstFaceIndex = edge.FaceIndex;
@@ -133,7 +133,7 @@ namespace ME.ECS.Essentials.Physics
         internal sfloat CalculateBoundingRadius(float3 pivot)
         {
             // Find the furthest point from the pivot
-            sfloat maxDistanceSq = sfloat.Zero;
+            sfloat maxDistanceSq = 0;
             for (int i = 0; i < NumVertices; i++)
             {
                 float3 vertex = Vertices[i].xyz;
