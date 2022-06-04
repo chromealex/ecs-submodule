@@ -188,7 +188,7 @@ namespace ME.ECS {
                     
                     if (this.world.HasResetState() == false) {
 
-                        this.CreateVisualInstance(in view.seed, in view.viewInfo);
+                        this.CreateVisualInstance(view.seed, in view.viewInfo);
 
                     }
 

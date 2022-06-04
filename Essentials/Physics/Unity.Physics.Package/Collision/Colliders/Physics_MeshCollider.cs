@@ -1,9 +1,8 @@
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using Unity.Entities;
-using Unity.Burst;
-
 using ME.ECS.Mathematics;
+using ME.ECS;
+using Unity.Burst;
 
 namespace ME.ECS.Essentials.Physics
 {

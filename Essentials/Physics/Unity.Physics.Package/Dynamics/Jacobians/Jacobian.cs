@@ -2,8 +2,8 @@ using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using UnityEngine.Assertions;
 using ME.ECS.Mathematics;
+using UnityEngine.Assertions;
 
 namespace ME.ECS.Essentials.Physics
 {
@@ -208,7 +208,7 @@ namespace ME.ECS.Essentials.Physics
 
         public unsafe ref ColliderKeyPair AccessColliderKeys()
         {
-            Assert.IsTrue((Flags & JacobianFlags.EnableCollisionEvents) != 0);
+            UnityEngine.Assertions.Assert.IsTrue((Flags & JacobianFlags.EnableCollisionEvents) != 0);
             byte* ptr = (byte*)UnsafeUtility.AddressOf(ref this);
             ptr += UnsafeUtility.SizeOf<JacobianHeader>() + SizeOfBaseJacobian(Type);
             return ref UnsafeUtility.AsRef<ColliderKeyPair>(ptr);
@@ -216,7 +216,7 @@ namespace ME.ECS.Essentials.Physics
 
         public unsafe ref EntityPair AccessEntities()
         {
-            Assert.IsTrue((Flags & JacobianFlags.EnableCollisionEvents) != 0);
+            UnityEngine.Assertions.Assert.IsTrue((Flags & JacobianFlags.EnableCollisionEvents) != 0);
             byte* ptr = (byte*)UnsafeUtility.AddressOf(ref this);
             ptr += UnsafeUtility.SizeOf<JacobianHeader>() + SizeOfBaseJacobian(Type) + SizeOfColliderKeys(Type, Flags);
             return ref UnsafeUtility.AsRef<EntityPair>(ptr);
@@ -224,7 +224,7 @@ namespace ME.ECS.Essentials.Physics
 
         public unsafe ref SurfaceVelocity AccessSurfaceVelocity()
         {
-            Assert.IsTrue((Flags & JacobianFlags.EnableSurfaceVelocity) != 0);
+            UnityEngine.Assertions.Assert.IsTrue((Flags & JacobianFlags.EnableSurfaceVelocity) != 0);
             byte* ptr = (byte*)UnsafeUtility.AddressOf(ref this);
             ptr += UnsafeUtility.SizeOf<JacobianHeader>() + SizeOfBaseJacobian(Type) +
                 SizeOfColliderKeys(Type, Flags) + SizeOfEntityPair(Type, Flags);
@@ -233,7 +233,7 @@ namespace ME.ECS.Essentials.Physics
 
         public unsafe ref MassFactors AccessMassFactors()
         {
-            Assert.IsTrue((Flags & JacobianFlags.EnableMassFactors) != 0);
+            UnityEngine.Assertions.Assert.IsTrue((Flags & JacobianFlags.EnableMassFactors) != 0);
             byte* ptr = (byte*)UnsafeUtility.AddressOf(ref this);
             ptr += UnsafeUtility.SizeOf<JacobianHeader>() + SizeOfBaseJacobian(Type) +
                 SizeOfColliderKeys(Type, Flags) + SizeOfEntityPair(Type, Flags) + SizeOfSurfaceVelocity(Type, Flags);
@@ -242,7 +242,7 @@ namespace ME.ECS.Essentials.Physics
 
         public unsafe ref ContactJacAngAndVelToReachCp AccessAngularJacobian(int pointIndex)
         {
-            Assert.IsTrue(Type == JacobianType.Contact || Type == JacobianType.Trigger);
+            UnityEngine.Assertions.Assert.IsTrue(Type == JacobianType.Contact || Type == JacobianType.Trigger);
             byte* ptr = (byte*)UnsafeUtility.AddressOf(ref this);
             ptr += UnsafeUtility.SizeOf<JacobianHeader>() + SizeOfBaseJacobian(Type) + SizeOfModifierData(Type, Flags) +
                 pointIndex * UnsafeUtility.SizeOf<ContactJacAngAndVelToReachCp>();
@@ -251,7 +251,7 @@ namespace ME.ECS.Essentials.Physics
 
         public unsafe ref ContactPoint AccessContactPoint(int pointIndex)
         {
-            Assert.IsTrue(Type == JacobianType.Contact);
+            UnityEngine.Assertions.Assert.IsTrue(Type == JacobianType.Contact);
 
             var baseJac = AccessBaseJacobian<ContactJacobian>();
             byte* ptr = (byte*)UnsafeUtility.AddressOf(ref this);

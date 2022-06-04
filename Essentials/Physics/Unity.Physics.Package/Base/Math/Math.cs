@@ -1,8 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using UnityEngine.Assertions;
-
 using ME.ECS.Mathematics;
+using UnityEngine.Assertions;
 
 namespace ME.ECS.Essentials.Physics
 {
@@ -49,7 +48,7 @@ namespace ME.ECS.Essentials.Physics
         public static int IndexOfMinComponent(float3 v) => v.x < v.y ? ((v.x < v.z) ? 0 : 2) : ((v.y < v.z) ? 1 : 2);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int IndexOfMinComponent(float4 v) => (int)math.cmax(math.select(new int4(0, 1, 2, 3), new int4(-1), math.cmin(v) < v));
+        public static int IndexOfMinComponent(float4 v) => math.cmax(math.select(new int4(0, 1, 2, 3), new int4(-1), math.cmin(v) < v));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int IndexOfMaxComponent(float2 v) => v.x > v.y ? 0 : 1;
@@ -58,7 +57,7 @@ namespace ME.ECS.Essentials.Physics
         public static int IndexOfMaxComponent(float3 v) => v.x > v.y ? ((v.x > v.z) ? 0 : 2) : ((v.y > v.z) ? 1 : 2);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int IndexOfMaxComponent(float4 v) => (int)math.cmax(math.select(new int4(0, 1, 2, 3), new int4(-1), math.cmax(v) > v));
+        public static int IndexOfMaxComponent(float4 v) => math.cmax(math.select(new int4(0, 1, 2, 3), new int4(-1), math.cmax(v) > v));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static sfloat HorizontalMul(float3 v) => v.x * v.y * v.z;
@@ -216,8 +215,8 @@ namespace ME.ECS.Essentials.Physics
         // Returns a quaternion q with q * from = to
         public static quaternion FromToRotation(float3 from, float3 to)
         {
-            Assert.IsTrue(math.abs(math.lengthsq(from) - sfloat.One) < sfloat.FromRaw(0x38d1b717));
-            Assert.IsTrue(math.abs(math.lengthsq(to) - sfloat.One) < sfloat.FromRaw(0x38d1b717));
+            UnityEngine.Assertions.Assert.IsTrue(math.abs(math.lengthsq(from) - sfloat.One) < sfloat.FromRaw(0x38d1b717));
+            UnityEngine.Assertions.Assert.IsTrue(math.abs(math.lengthsq(to) - sfloat.One) < sfloat.FromRaw(0x38d1b717));
             float3 cross = math.cross(from, to);
             CalculatePerpendicularNormalized(from, out float3 safeAxis, out float3 unused); // for when angle ~= 180
             sfloat dot = math.dot(from, to);

@@ -23,9 +23,15 @@ namespace ME.ECS.Essentials.Physics.Components {
     public struct IsPhysicsStatic : IComponent {
     }
 
+    public struct PhysicsCustomTags : IComponent {
+
+        public byte value;
+
+    }
+
     public struct PhysicsCollider : IStructCopyable<PhysicsCollider> {
         
-        public Unity.Entities.BlobAssetReference<ME.ECS.Essentials.Physics.Collider> value;  // null is allowed
+        public BlobAssetReference<ME.ECS.Essentials.Physics.Collider> value;  // null is allowed
 
         public bool IsValid => this.value.IsCreated;
         public unsafe ME.ECS.Essentials.Physics.Collider* ColliderPtr => (ME.ECS.Essentials.Physics.Collider*)this.value.GetUnsafePtr();
@@ -56,8 +62,10 @@ namespace ME.ECS.Essentials.Physics.Components {
         }
 
         public void OnRecycle() {
-            
-            if (this.value.IsCreated == true) this.value.Dispose();
+
+            if (this.value.IsCreated == true && this.value.IsValid == true) {
+                this.value.Dispose();
+            }
             this.value = default;
 
         }

@@ -77,6 +77,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static UnityEngine.Vector2 YZ(this UnityEngine.Vector3 v) {
+
+            return new UnityEngine.Vector2(v.y, v.z);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static UnityEngine.Vector2 XZ(this UnityEngine.Vector3 v) {
 
             return new UnityEngine.Vector2(v.x, v.z);

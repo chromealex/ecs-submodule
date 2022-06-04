@@ -72,7 +72,7 @@ namespace ME.ECS {
 
                 var containerRotation = container.entity.GetRotation();
                 var containerPosition = container.entity.GetPosition();
-                child.SetLocalPosition(math.mul(math.inverse(containerRotation), math.mul(ECSTransform3DExtensions.GetInvScale_INTERNAL(in container.entity), (position - containerPosition))));
+                child.SetLocalPosition(math.mul(math.inverse(containerRotation), ECSTransform3DExtensions.GetInvScale_INTERNAL(in container.entity) * (position - containerPosition)));
 
             } else {
 
@@ -117,8 +117,8 @@ namespace ME.ECS {
                 } else {
                     worldRot = quaternion.identity;
                 }
-                
-                position = math.mul(worldRot, math.mul(ECSTransform3DExtensions.GetScale_INTERNAL(in container.entity), position));
+
+                position = math.mul(worldRot, ECSTransform3DExtensions.GetScale_INTERNAL(in container.entity) * position);
                 position += container.entity.Read<Position>().ToVector3();
                 container = ref container.entity.Read<Container>();
 

@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-
 using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics

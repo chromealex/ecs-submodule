@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.CompilerServices;
+
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using Unity.Entities;
 using ME.ECS;
 using ME.ECS.Mathematics;
 using static ME.ECS.Essentials.Physics.Math;
@@ -29,7 +29,7 @@ namespace ME.ECS.Essentials.Physics
         {
             WorldFromBody = RigidTransform.identity,
             Collider = default,
-            Entity = Entity.Empty,
+            Entity = Entity.Null,
             CustomTags = 0
         };
 

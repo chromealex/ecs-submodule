@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Unity.Collections;
-
+using ME.ECS.Mathematics;
 using UnityEngine.Assertions;
 using Unity.Collections.LowLevel.Unsafe;
 using static ME.ECS.Essentials.Physics.Math;
 using Unity.Burst;
-
-using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics
 {
@@ -586,7 +584,7 @@ namespace ME.ECS.Essentials.Physics
                                 int vertexIndex = StartVertex(linkEdge);
 
                                 // Vertex already bound.
-                                Assert.IsTrue(newEdges[vertexIndex].Equals(Edge.Invalid));
+                                UnityEngine.Assertions.Assert.IsTrue(newEdges[vertexIndex].Equals(Edge.Invalid));
 
                                 // Link.
                                 newEdges[vertexIndex] = linkEdge;
@@ -882,7 +880,7 @@ namespace ME.ECS.Essentials.Physics
 
         private int AllocateVertex(float3 point, uint userData)
         {
-            Assert.IsTrue(m_IntegerSpaceAabb.Contains(point));
+            UnityEngine.Assertions.Assert.IsTrue(m_IntegerSpaceAabb.Contains(point));
             var vertex = new Vertex(point, userData) { IntPosition = m_IntegerSpace.ToIntegerSpace(point) };
             return Vertices.Allocate(vertex);
         }
@@ -920,7 +918,7 @@ namespace ME.ECS.Essentials.Physics
         private void BindEdges(Edge lhs, Edge rhs)
         {
             // Incompatible edges.
-            Assert.IsTrue(EndVertex(lhs) == StartVertex(rhs) && StartVertex(lhs) == EndVertex(rhs));
+            UnityEngine.Assertions.Assert.IsTrue(EndVertex(lhs) == StartVertex(rhs) && StartVertex(lhs) == EndVertex(rhs));
 
             Triangle lf = Triangles[lhs.TriangleIndex];
             Triangle rf = Triangles[rhs.TriangleIndex];
@@ -1192,7 +1190,7 @@ namespace ME.ECS.Essentials.Physics
             // Must build faces before calling
             if (NumFaces == 0)
             {
-                Assert.IsTrue(false);
+                UnityEngine.Assertions.Assert.IsTrue(false);
                 return;
             }
 
@@ -1786,7 +1784,7 @@ namespace ME.ECS.Essentials.Physics
                                     math.dot(iNormal, jNormal),
                                     math.dot(jNormal, kNormal),
                                     math.dot(kNormal, iNormal));
-                                if (dots.x < k_cosWideAngle || dots.y < k_cosWideAngle || dots.z < k_cosWideAngle)
+                                if (math.any(dots < k_cosWideAngle))
                                 {
                                     // Calculate the movement of the planes' intersection with respect to the planes' shift
                                     sfloat det = math.dot(ijCross, kNormal);
@@ -1795,7 +1793,7 @@ namespace ME.ECS.Essentials.Physics
                                     float3 kiCross = math.cross(kNormal, iNormal);
                                     sfloat shiftSq = math.lengthsq(ijCross + jkCross + kiCross) * invDet * invDet;
                                     shiftSq = math.select(shiftSq, sfloat.FromRaw(0x501502f9), invDet.IsZero()); // avoid nan/inf in unexpected case of zero or extremely small det
-                                    Assert.IsTrue(shiftSq >= sfloat.One);
+                                    UnityEngine.Assertions.Assert.IsTrue(shiftSq >= sfloat.One);
                                     maxShiftSq = math.max(maxShiftSq, shiftSq);
                                 }
                             }
@@ -2144,7 +2142,7 @@ namespace ME.ECS.Essentials.Physics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Edge GetVertexEdge(int vertexIndex)
         {
-            Assert.IsTrue(Dimension == 3);
+            UnityEngine.Assertions.Assert.IsTrue(Dimension == 3);
             foreach (int triangleIndex in Triangles.Indices)
             {
                 Triangle triangle = Triangles[triangleIndex];

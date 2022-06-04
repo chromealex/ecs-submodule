@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-
 using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics
@@ -589,9 +588,9 @@ namespace ME.ECS.Essentials.Physics
         private static ulong SpatialHash(float3 vertex)
         {
             uint x, y, z;
-            x = (uint)vertex.x.GetHashCode();
-            y = (uint)vertex.y.GetHashCode();
-            z = (uint)vertex.z.GetHashCode();
+            x = vertex.x.RawValue;
+            y = vertex.y.RawValue;
+            z = vertex.z.RawValue;
 
             const ulong p1 = 73856093;
             const ulong p2 = 19349663;

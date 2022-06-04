@@ -1,10 +1,9 @@
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using Unity.Entities;
-using UnityEngine.Assertions;
-
+using ME.ECS;
 using ME.ECS.Mathematics;
+using UnityEngine.Assertions;
 
 namespace ME.ECS.Essentials.Physics
 {
@@ -604,7 +603,7 @@ namespace ME.ECS.Essentials.Physics
 
             // Find the cell
             float2 coord = position * InverseScale.xz;
-            int2 index = new int2((int)coord.x, (int)coord.y);
+            int2 index = (int2)coord;
             float2 fraction0 = coord - (float2)index;
             float2 fraction1 = 1 - fraction0;
 
@@ -630,7 +629,7 @@ namespace ME.ECS.Essentials.Physics
         // Returns a subkey for a triangle
         public uint GetSubKey(int2 index, int triangle)
         {
-            Assert.IsTrue(math.all((index >= 0) & (index < Size - 1)) && triangle >= 0 && triangle <= 2);
+            UnityEngine.Assertions.Assert.IsTrue(math.all((index >= 0) & (index < Size - 1)) && triangle >= 0 && triangle <= 2);
             return ((uint)index.y << ((int)NumXBits + 1)) | ((uint)index.x << 1) | (uint)triangle;
         }
 
@@ -687,10 +686,8 @@ namespace ME.ECS.Essentials.Physics
                     m_Top = stack;
 
                     // Clamp the query AABB to the terrain bounds
-                    var x = aabb.Min.xz;
-                    var y = aabb.Max.xz;
-                    int2 min = math.clamp(new int2((int)x.x, (int)x.y), 0, terrain->Size - 2); // Size - 1 is number of quads, Size - 2 is the highest valid quad index
-                    int2 max = math.clamp(new int2((int)y.x, (int)y.y), 0, terrain->Size - 2);
+                    int2 min = math.clamp((int2)aabb.Min.xz, 0, terrain->Size - 2); // Size - 1 is number of quads, Size - 2 is the highest valid quad index
+                    int2 max = math.clamp((int2)aabb.Max.xz, 0, terrain->Size - 2);
 
                     // Find the deepest node that fully contains the query AABB, by finding the highest bit in which the AABB min and max differ
                     // We can begin the query from that node instead of the root, and this is much faster than traversing the tree.

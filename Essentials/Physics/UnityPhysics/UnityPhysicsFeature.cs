@@ -33,6 +33,8 @@ namespace ME.ECS.Essentials.Physics.Core {
 
         protected override void OnDeconstruct() {
             
+            this.physicsWorldInternal.Dispose();
+            
         }
 
     }

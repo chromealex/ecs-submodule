@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Unity.Collections;
-
 using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics
@@ -81,36 +80,36 @@ namespace ME.ECS.Essentials.Physics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void Geometry_CheckFiniteAndThrow(float3 value, in FixedString32Bytes paramName, FixedString32Bytes propertyName)
+        static void Geometry_CheckFiniteAndThrow(float3 value, in FixedString32Bytes paramName, in FixedString32Bytes propertyName)
         {
             if (math.any(!math.isfinite(value)))
                 throw new ArgumentException($"{propertyName} {value} was not finite.", $"{paramName}");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void Geometry_CheckFiniteAndPositiveAndThrow(sfloat value, in FixedString32Bytes paramName, FixedString32Bytes propertyName)
+        static void Geometry_CheckFiniteAndPositiveAndThrow(sfloat value, in FixedString32Bytes paramName, in FixedString32Bytes propertyName)
         {
             if (value < sfloat.Zero || !math.isfinite(value))
                 throw new ArgumentException($"{propertyName} {value} is not positive.", $"{paramName}");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void Geometry_CheckFiniteAndPositiveAndThrow(float3 value, in FixedString32Bytes paramName, FixedString32Bytes propertyName)
+        static void Geometry_CheckFiniteAndPositiveAndThrow(float3 value, in FixedString32Bytes paramName, in FixedString32Bytes propertyName)
         {
             if (math.any(value < sfloat.Zero) || math.any(!math.isfinite(value)))
                 throw new ArgumentException($"{paramName}", $"{propertyName} {value} is not positive.");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void Geometry_CheckValidAndThrow(quaternion q, in FixedString32Bytes paramName, FixedString32Bytes propertyName)
+        static void Geometry_CheckValidAndThrow(quaternion q, in FixedString32Bytes paramName, in FixedString32Bytes propertyName)
         {
-            if (q.Equals(default) || math.any(!math.isfinite(q.value.xyzw)))
+            if (q.Equals(default) || math.any(!math.isfinite(q.value)))
                 throw new ArgumentException($"{propertyName} {q} is not valid.", $"{paramName}");
         }
 
         [Conditional(ConditionalSymbol)]
-        public static void CheckValidAndThrow(NativeArray<float3> points, in FixedString32Bytes pointsName, in ConvexHullGenerationParameters generationParameters, in FixedString32Bytes paramName) {
-
+        public static void CheckValidAndThrow(NativeArray<float3> points, in FixedString32Bytes pointsName, in ConvexHullGenerationParameters generationParameters, in FixedString32Bytes paramName)
+        {
             Geometry_CheckFiniteAndPositiveAndThrow(generationParameters.BevelRadius, paramName, nameof(ConvexHullGenerationParameters.BevelRadius));
 
             for (int i = 0, count = points.Length; i < count; ++i)

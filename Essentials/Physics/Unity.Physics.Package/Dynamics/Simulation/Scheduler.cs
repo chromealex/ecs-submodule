@@ -4,7 +4,6 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
-using ME.ECS;
 using ME.ECS.Mathematics;
 using UnityEngine.Assertions;
 
@@ -63,7 +62,7 @@ namespace ME.ECS.Essentials.Physics
                 get => (int)((m_Data >> k_BodyIndexAShift) & k_InvalidBodyIndex);
                 internal set
                 {
-                    Assert.IsTrue(value < k_InvalidBodyIndex);
+                    UnityEngine.Assertions.Assert.IsTrue(value < k_InvalidBodyIndex);
                     m_Data = (m_Data & k_BodyAMask) | ((ulong)value << k_BodyIndexAShift);
                 }
             }
@@ -73,7 +72,7 @@ namespace ME.ECS.Essentials.Physics
                 get => (int)((m_Data >> k_BodyIndexBShift) & k_InvalidBodyIndex);
                 internal set
                 {
-                    Assert.IsTrue(value < k_InvalidBodyIndex);
+                    UnityEngine.Assertions.Assert.IsTrue(value < k_InvalidBodyIndex);
                     m_Data = (m_Data & k_BodyBMask) | ((ulong)value << k_BodyIndexBShift);
                 }
             }
@@ -83,7 +82,7 @@ namespace ME.ECS.Essentials.Physics
                 get => (int)((m_Data >> k_JointIndexShift) & k_InvalidJointIndex);
                 internal set
                 {
-                    Assert.IsTrue(value < k_InvalidJointIndex);
+                    UnityEngine.Assertions.Assert.IsTrue(value < k_InvalidJointIndex);
                     m_Data = (m_Data & k_JointMask) | (uint)(value << k_JointIndexShift);
                 }
             }
@@ -103,13 +102,13 @@ namespace ME.ECS.Essentials.Physics
 
             public static DispatchPair CreateJoint(BodyIndexPair pair, int jointIndex, int allowCollision)
             {
-                Assert.IsTrue(jointIndex < k_InvalidJointIndex);
+                UnityEngine.Assertions.Assert.IsTrue(jointIndex < k_InvalidJointIndex);
                 return Create(pair, jointIndex, allowCollision);
             }
 
             private static DispatchPair Create(BodyIndexPair pair, int jointIndex, int allowCollision)
             {
-                Assert.IsTrue(pair.BodyIndexA < k_InvalidBodyIndex && pair.BodyIndexB < k_InvalidBodyIndex);
+                UnityEngine.Assertions.Assert.IsTrue(pair.BodyIndexA < k_InvalidBodyIndex && pair.BodyIndexB < k_InvalidBodyIndex);
                 int selectedA = math.min(pair.BodyIndexA, pair.BodyIndexB);
                 int selectedB = math.max(pair.BodyIndexA, pair.BodyIndexB);
                 return new DispatchPair
@@ -1059,7 +1058,7 @@ namespace ME.ECS.Essentials.Physics
                     }
                 }
 
-                Assert.IsTrue(phaseIndex >= 0 && phaseIndex <= lastPhaseIndex);
+                UnityEngine.Assertions.Assert.IsTrue(phaseIndex >= 0 && phaseIndex <= lastPhaseIndex);
                 return phaseIndex;
             }
 
@@ -1096,7 +1095,7 @@ namespace ME.ECS.Essentials.Physics
                     }
                 }
 
-                Assert.IsTrue(phaseIndex >= 0 && phaseIndex <= lastPhaseIndex);
+                UnityEngine.Assertions.Assert.IsTrue(phaseIndex >= 0 && phaseIndex <= lastPhaseIndex);
                 return phaseIndex;
             }
         }

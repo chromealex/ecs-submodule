@@ -108,7 +108,7 @@ namespace ME.ECS.Essentials.Physics
                 m_Reader = stream.IsCreated ? stream.AsReader() : new NativeStream.Reader();
                 m_CurrentWorkItem = 0;
                 m_NumWorkItems = stream.IsCreated ? stream.ForEachCount : 0;
- 
+
                 m_InputVelocities = inputVelocities;
                 m_TimeStep = timeStep;
 

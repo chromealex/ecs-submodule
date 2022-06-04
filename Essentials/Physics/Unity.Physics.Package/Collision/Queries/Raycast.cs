@@ -186,7 +186,7 @@ namespace ME.ECS.Essentials.Physics
             float3 vertex0, float3 vertex1, sfloat radius,
             ref sfloat fraction, out float3 normal)
         {
-            sfloat axisLength = ME.ECS.Essentials.Physics.Math.NormalizeWithLength(vertex1 - vertex0, out float3 axis);
+            sfloat axisLength = NormalizeWithLength(vertex1 - vertex0, out float3 axis);
 
             // Ray vs infinite cylinder
             {
@@ -453,7 +453,7 @@ namespace ME.ECS.Essentials.Physics
                 var hit = new RaycastHit
                 {
                     Fraction = fraction,
-                    Position = ME.ECS.Essentials.Physics.Math.Mul(input.QueryContext.WorldFromLocalTransform, input.Ray.Origin + (input.Ray.Displacement * fraction)),
+                    Position = Mul(input.QueryContext.WorldFromLocalTransform, input.Ray.Origin + (input.Ray.Displacement * fraction)),
                     SurfaceNormal = math.mul(input.QueryContext.WorldFromLocalTransform.Rotation, normal),
                     RigidBodyIndex = input.QueryContext.RigidBodyIndex,
                     ColliderKey = input.QueryContext.ColliderKey,

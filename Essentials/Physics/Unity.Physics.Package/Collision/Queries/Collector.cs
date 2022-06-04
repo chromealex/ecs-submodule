@@ -1,10 +1,7 @@
 using Unity.Collections;
-using Unity.Entities;
+using ME.ECS;
 using UnityEngine.Assertions;
 using static ME.ECS.Essentials.Physics.Math;
-
-using ME.ECS;
-using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics
 {
@@ -40,7 +37,7 @@ namespace ME.ECS.Essentials.Physics
         {
             RigidBodyIndex = -1,
             ColliderKey = ColliderKey.Empty,
-            Entity = Entity.Empty,
+            Entity = Entity.Null,
             NumColliderKeyBits = 0,
             WorldFromLocalTransform = MTransform.Identity,
             IsInitialized = true
@@ -99,7 +96,7 @@ namespace ME.ECS.Essentials.Physics
 
         public bool AddHit(T hit)
         {
-            Assert.IsTrue(hit.Fraction < MaxFraction);
+            UnityEngine.Assertions.Assert.IsTrue(hit.Fraction < MaxFraction);
             return true;
         }
 
@@ -127,7 +124,7 @@ namespace ME.ECS.Essentials.Physics
 
         public bool AddHit(T hit)
         {
-            Assert.IsTrue(hit.Fraction <= MaxFraction);
+            UnityEngine.Assertions.Assert.IsTrue(hit.Fraction <= MaxFraction);
             MaxFraction = hit.Fraction;
             m_ClosestHit = hit;
             NumHits = 1;
@@ -156,7 +153,7 @@ namespace ME.ECS.Essentials.Physics
 
         public bool AddHit(T hit)
         {
-            Assert.IsTrue(hit.Fraction < MaxFraction);
+            UnityEngine.Assertions.Assert.IsTrue(hit.Fraction < MaxFraction);
 
             AllHits.Add(hit);
             return true;

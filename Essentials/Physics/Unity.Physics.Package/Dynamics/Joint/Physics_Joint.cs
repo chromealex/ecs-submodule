@@ -1,9 +1,10 @@
 using System;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using ME.ECS;
 using ME.ECS.Mathematics;
-using FloatRange = ME.ECS.Essentials.Physics.Math.FloatRange;
-using Math = ME.ECS.Mathematics;
+using UnityEngine.Assertions;
+using static ME.ECS.Essentials.Physics.Math;
 
 namespace ME.ECS.Essentials.Physics
 {
@@ -268,8 +269,8 @@ namespace ME.ECS.Essentials.Physics
     public struct Joint
     {
         public BodyIndexPair BodyPair;
-        public Math.MTransform AFromJoint;
-        public Math.MTransform BFromJoint;
+        public MTransform AFromJoint;
+        public MTransform BFromJoint;
         // Note that Constraints needs to be 4-byte aligned for Android 32.
         public FixedList128Bytes<Constraint> Constraints;
         public byte EnableCollision; // If non-zero, allows these bodies to collide
@@ -281,5 +282,4 @@ namespace ME.ECS.Essentials.Physics
         // instance of a particular component type per entity
         public Entity Entity;
     }
-    
 }

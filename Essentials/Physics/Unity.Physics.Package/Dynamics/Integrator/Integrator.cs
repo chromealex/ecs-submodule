@@ -2,7 +2,6 @@ using System.Runtime.CompilerServices;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
-
 using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics
@@ -96,12 +95,12 @@ namespace ME.ECS.Essentials.Physics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void IntegratePosition(ref float3 position, float3 linearVelocity, sfloat timestep)
+        internal static void IntegratePosition(ref float3 position, float3 linearVelocity, sfloat timestep)
         {
             position += linearVelocity * timestep;
         }
 
-        public static void IntegrateOrientation(ref quaternion orientation, float3 angularVelocity, sfloat timestep)
+        internal static void IntegrateOrientation(ref quaternion orientation, float3 angularVelocity, sfloat timestep)
         {
             quaternion dq = IntegrateAngularVelocity(angularVelocity, timestep);
             quaternion r = math.mul(orientation, dq);
@@ -109,7 +108,7 @@ namespace ME.ECS.Essentials.Physics
         }
 
         // Returns a non-normalized quaternion that approximates the change in angle angularVelocity * timestep.
-        public static quaternion IntegrateAngularVelocity(float3 angularVelocity, sfloat timestep)
+        internal static quaternion IntegrateAngularVelocity(float3 angularVelocity, sfloat timestep)
         {
             float3 halfDeltaTime = new float3(timestep * (sfloat)0.5f);
             float3 halfDeltaAngle = angularVelocity * halfDeltaTime;

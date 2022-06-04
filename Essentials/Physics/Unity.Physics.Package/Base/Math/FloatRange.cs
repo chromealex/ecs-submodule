@@ -1,5 +1,4 @@
 using System;
-
 using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics

@@ -1,10 +1,10 @@
-using ME.ECS;
+using System;
+using System.ComponentModel;
 using ME.ECS.Mathematics;
 using ME.ECS.Transform;
 
-namespace ME.ECS.Essentials.Physics
+namespace ME.ECS.Essentials.Physics.Extensions
 {
-    using Components;
     /// <summary>
     /// Different ways to apply changes to a rigid body's velocity.
     /// </summary>
@@ -34,8 +34,8 @@ namespace ME.ECS.Essentials.Physics
         /// <param name="impulse">An impulse in world space.</param>
         /// <param name="point">A point in world space.</param>
         /// <returns>A body's effective mass with respect to the specified point and impulse.</returns>
-        public static sfloat GetEffectiveMass(in this PhysicsMass bodyMass, in Position bodyPosition, in Rotation bodyOrientation, float3 impulse, float3 point) =>
-            ME.ECS.Essentials.Physics.Extensions.PhysicsWorldExtensions.GetEffectiveMassImpl(GetCenterOfMassWorldSpace(bodyMass, bodyPosition, bodyOrientation), bodyMass.InverseInertia, impulse, point);
+        public static sfloat GetEffectiveMass(in this ME.ECS.Essentials.Physics.Components.PhysicsMass bodyMass, in ME.ECS.Transform.Position bodyPosition, in Rotation bodyOrientation, float3 impulse, float3 point) =>
+            PhysicsWorldExtensions.GetEffectiveMassImpl(GetCenterOfMassWorldSpace(bodyMass, bodyPosition, bodyOrientation), bodyMass.InverseInertia, impulse, point);
 
         /// <summary>
         /// Get the center of mass in world space
@@ -44,8 +44,8 @@ namespace ME.ECS.Essentials.Physics
         /// <param name="bodyPosition">The body's <see cref="Translation"/> component</param>
         /// <param name="bodyOrientation">The body's <see cref="Rotation"/> component</param>
         /// <returns>The center of mass in world space</returns>
-        public static float3 GetCenterOfMassWorldSpace(in this PhysicsMass bodyMass, in Position bodyPosition, in Rotation bodyOrientation) =>
-            math.rotate((quaternion)bodyOrientation.value, bodyMass.CenterOfMass) + (float3)bodyPosition.value;
+        public static float3 GetCenterOfMassWorldSpace(in this ME.ECS.Essentials.Physics.Components.PhysicsMass bodyMass, in ME.ECS.Transform.Position bodyPosition, in Rotation bodyOrientation) =>
+            math.rotate(bodyOrientation.value, bodyMass.CenterOfMass) + (float3)bodyPosition.value;
 
         /// <summary>
         /// Set the center of mass in world space
@@ -54,10 +54,10 @@ namespace ME.ECS.Essentials.Physics
         /// <param name="bodyPosition">The body's <see cref="Translation"/> component</param>
         /// <param name="bodyOrientation">The body's <see cref="Rotation"/> component</param>
         /// <param name="com">A position in world space for the new Center Of Mass</param>
-        public static void SetCenterOfMassWorldSpace(ref this PhysicsMass bodyMass, in Position bodyPosition, in Rotation bodyOrientation, float3 com)
+        public static void SetCenterOfMassWorldSpace(ref this ME.ECS.Essentials.Physics.Components.PhysicsMass bodyMass, in ME.ECS.Transform.Position bodyPosition, in Rotation bodyOrientation, float3 com)
         {
             com -= (float3)bodyPosition.value;
-            math.rotate(math.inverse((quaternion)bodyOrientation.value), com);
+            math.rotate(math.inverse(bodyOrientation.value), com);
             bodyMass.CenterOfMass = com;
         }
 
@@ -70,12 +70,12 @@ namespace ME.ECS.Essentials.Physics
         /// <param name="bodyOrientation">The body's <see cref="Rotation"/> component</param>
         /// <param name="point">A reference position in world space</param>
         /// <returns>The linear velocity of a rigid body at a given point (in world space)</returns>
-        public static float3 GetLinearVelocity(in this PhysicsVelocity bodyVelocity, PhysicsMass bodyMass, Position bodyPosition, Rotation bodyOrientation, float3 point)
+        public static float3 GetLinearVelocity(in this ME.ECS.Essentials.Physics.Components.PhysicsVelocity bodyVelocity, ME.ECS.Essentials.Physics.Components.PhysicsMass bodyMass, ME.ECS.Transform.Position bodyPosition, Rotation bodyOrientation, float3 point)
         {
             var worldFromEntity = new RigidTransform(bodyOrientation.value, bodyPosition.value);
             var worldFromMotion = math.mul(worldFromEntity, bodyMass.Transform);
 
-            return ME.ECS.Essentials.Physics.Extensions.PhysicsWorldExtensions.GetLinearVelocityImpl(worldFromMotion, bodyVelocity.Angular, bodyVelocity.Linear, point);
+            return PhysicsWorldExtensions.GetLinearVelocityImpl(worldFromMotion, bodyVelocity.Angular, bodyVelocity.Linear, point);
         }
 
         /// <summary>
@@ -85,9 +85,9 @@ namespace ME.ECS.Essentials.Physics
         /// <param name="bodyMass">The body's <see cref="PhysicsMass"/> component</param>
         /// <param name="bodyOrientation">The body's <see cref="Rotation"/> component</param>
         /// <returns>The angular velocity of a rigid body in world space</returns>
-        public static float3 GetAngularVelocityWorldSpace(in this PhysicsVelocity bodyVelocity, in PhysicsMass bodyMass, in Rotation bodyOrientation)
+        public static float3 GetAngularVelocityWorldSpace(in this ME.ECS.Essentials.Physics.Components.PhysicsVelocity bodyVelocity, in ME.ECS.Essentials.Physics.Components.PhysicsMass bodyMass, in Rotation bodyOrientation)
         {
-            quaternion worldFromMotion = math.mul((quaternion)bodyOrientation.value, bodyMass.InertiaOrientation);
+            quaternion worldFromMotion = math.mul(bodyOrientation.value, bodyMass.InertiaOrientation);
             return math.rotate(worldFromMotion, bodyVelocity.Angular);
         }
 
@@ -98,9 +98,9 @@ namespace ME.ECS.Essentials.Physics
         /// <param name="bodyMass">The body's <see cref="PhysicsMass"/> component</param>
         /// <param name="bodyOrientation">The body's <see cref="Rotation"/> component</param>
         /// <param name="angularVelocity">An angular velocity in world space specifying radians per second about each axis.</param>
-        public static void SetAngularVelocityWorldSpace(ref this PhysicsVelocity bodyVelocity, in PhysicsMass bodyMass, in Rotation bodyOrientation, in float3 angularVelocity)
+        public static void SetAngularVelocityWorldSpace(ref this ME.ECS.Essentials.Physics.Components.PhysicsVelocity bodyVelocity, in ME.ECS.Essentials.Physics.Components.PhysicsMass bodyMass, in Rotation bodyOrientation, in float3 angularVelocity)
         {
-            quaternion inertiaOrientationInWorldSpace = math.mul((quaternion)bodyOrientation.value, bodyMass.InertiaOrientation);
+            quaternion inertiaOrientationInWorldSpace = math.mul(bodyOrientation.value, bodyMass.InertiaOrientation);
             float3 angularVelocityInertiaSpace = math.rotate(math.inverse(inertiaOrientationInWorldSpace), angularVelocity);
             bodyVelocity.Angular = angularVelocityInertiaSpace;
         }
@@ -113,10 +113,10 @@ namespace ME.ECS.Essentials.Physics
         /// <param name="mode">The method used to apply the force to its targets.</param>
         /// <param name="timestep">The change in time from the current to the next frame.</param>
         /// <param name="impulse">A returned impulse proportional to the provided 'force' and based on the supplied 'mode'.</param>
-        /// <param name="impulseMass">A returned PhysicsMass component to be passed to an Apply function.</param>
-        public static void GetImpulseFromForce(in this PhysicsMass bodyMass, in float3 force, in ForceMode mode, in sfloat timestep, out float3 impulse, out PhysicsMass impulseMass)
+        /// <param name="impulseMass">A returned ME.ECS.Essentials.Physics.Components.PhysicsMass component to be passed to an Apply function.</param>
+        public static void GetImpulseFromForce(in this ME.ECS.Essentials.Physics.Components.PhysicsMass bodyMass, in float3 force, in ForceMode mode, in sfloat timestep, out float3 impulse, out ME.ECS.Essentials.Physics.Components.PhysicsMass impulseMass)
         {
-            var unitMass = new PhysicsMass
+            var unitMass = new ME.ECS.Essentials.Physics.Components.PhysicsMass
             {
                 InverseInertia = new float3(sfloat.One),
                 InverseMass = sfloat.One,
@@ -170,10 +170,10 @@ namespace ME.ECS.Essentials.Physics
         /// <param name="upwardsModifier">Adjustment to the apparent position of the explosion to make it seem to lift objects.</param>
         /// <param name="mode">The method used to apply the force to its targets.</param>
         public static void ApplyExplosionForce(
-            ref this PhysicsVelocity bodyVelocity, in PhysicsMass bodyMass, in PhysicsCollider bodyCollider,
-            in Position bodyPosition, in Rotation bodyOrientation,
+            ref this ME.ECS.Essentials.Physics.Components.PhysicsVelocity bodyVelocity, in ME.ECS.Essentials.Physics.Components.PhysicsMass bodyMass, in ME.ECS.Essentials.Physics.Components.PhysicsCollider bodyCollider,
+            in ME.ECS.Transform.Position bodyPosition, in Rotation bodyOrientation,
             sfloat explosionForce, in float3 explosionPosition, in sfloat explosionRadius,
-            in sfloat timestep, in float3 up, in ME.ECS.Essentials.Physics.CollisionFilter explosionFilter,
+            in sfloat timestep, in float3 up, in CollisionFilter explosionFilter,
             in sfloat upwardsModifier /* = 0 */, ForceMode mode = ForceMode.Force)
         {
             var worldFromBody = new RigidTransform(bodyOrientation.value, bodyPosition.value);
@@ -185,7 +185,7 @@ namespace ME.ECS.Essentials.Physics
             // regardless of how far the centre is from the rigidbody.
             bool bExplosionProportionalToDistance = !explosionRadius.IsZero();
 
-            var pointDistanceInput = new ME.ECS.Essentials.Physics.PointDistanceInput()
+            var pointDistanceInput = new PointDistanceInput()
             {
                 Position = math.transform(math.inverse(worldFromBody), explosionPosition),
                 MaxDistance = math.select(sfloat.MaxValue, explosionRadius, bExplosionProportionalToDistance),
@@ -197,7 +197,7 @@ namespace ME.ECS.Essentials.Physics
             // to the surface point on the rigidbody.
             // If explosionPosition is inside the rigidbody, or the rigidbody has no active colliders,
             // then the center of mass is used instead of the closest point on the surface.
-            if (!bodyCollider.value.Value.CalculateDistance(pointDistanceInput, out ME.ECS.Essentials.Physics.DistanceHit closestHit))
+            if (!bodyCollider.value.Value.CalculateDistance(pointDistanceInput, out DistanceHit closestHit))
             {
                 // Return now if the collider is out of range.
                 return;
@@ -228,7 +228,7 @@ namespace ME.ECS.Essentials.Physics
                 closestHitPositionWorld -= up * upwardsModifier;
             }
 
-            bodyMass.GetImpulseFromForce(force, mode, timestep, out float3 impulse, out PhysicsMass impulseMass);
+            bodyMass.GetImpulseFromForce(force, mode, timestep, out float3 impulse, out ME.ECS.Essentials.Physics.Components.PhysicsMass impulseMass);
             bodyVelocity.ApplyImpulse(impulseMass, bodyPosition, bodyOrientation, impulse, closestHitPositionWorld);
         }
 
@@ -236,20 +236,20 @@ namespace ME.ECS.Essentials.Physics
         /// Converts a force into an impulse based on the force mode and the bodies mass and inertia properties.
         /// Equivalent to UnityEngine.Rigidbody.AddExplosionForce.
         /// ExplosionFilter is set to CollisionFIlter.Default
-        /// <see cref="ApplyExplosionForce(ref PhysicsVelocity, in PhysicsMass, in PhysicsCollider, in Translation, in Rotation, sfloat, in float3, in sfloat, in sfloat, in float3, in CollisionFilter, in sfloat, ForceMode)"></see>
+        /// <see cref="ApplyExplosionForce(ref ME.ECS.Essentials.Physics.Components.PhysicsVelocity, in ME.ECS.Essentials.Physics.Components.PhysicsMass, in ME.ECS.Essentials.Physics.Components.PhysicsCollider, in Translation, in Rotation, sfloat, in float3, in sfloat, in sfloat, in float3, in CollisionFilter, in sfloat, ForceMode)"></see>
         /// </summary>
         public static void ApplyExplosionForce(
-            ref this PhysicsVelocity bodyVelocity, in PhysicsMass bodyMass, in PhysicsCollider bodyCollider,
-            in Position bodyPosition, in Rotation bodyOrientation,
+            ref this ME.ECS.Essentials.Physics.Components.PhysicsVelocity bodyVelocity, in ME.ECS.Essentials.Physics.Components.PhysicsMass bodyMass, in ME.ECS.Essentials.Physics.Components.PhysicsCollider bodyCollider,
+            in ME.ECS.Transform.Position bodyPosition, in Rotation bodyOrientation,
             sfloat explosionForce, in float3 explosionPosition, in sfloat explosionRadius,
             in sfloat timestep, in float3 up,
             in sfloat upwardsModifier /* = 0 */, ForceMode mode = ForceMode.Force)
         {
             bodyVelocity.ApplyExplosionForce(bodyMass, bodyCollider, bodyPosition, bodyOrientation, explosionForce,
-                explosionPosition, explosionRadius, timestep, up, ME.ECS.Essentials.Physics.CollisionFilter.Default, upwardsModifier, mode);
+                explosionPosition, explosionRadius, timestep, up, CollisionFilter.Default, upwardsModifier, mode);
         }
 
-        public static void ApplyImpulse(ref this PhysicsVelocity pv, in PhysicsMass pm, in Position t, in Rotation r, in float3 impulse, in float3 point)
+        public static void ApplyImpulse(ref this ME.ECS.Essentials.Physics.Components.PhysicsVelocity pv, in ME.ECS.Essentials.Physics.Components.PhysicsMass pm, in ME.ECS.Transform.Position t, in Rotation r, in float3 impulse, in float3 point)
         {
             // Linear
             pv.ApplyLinearImpulse(pm, impulse);
@@ -266,12 +266,12 @@ namespace ME.ECS.Essentials.Physics
             }
         }
 
-        public static void ApplyLinearImpulse(ref this PhysicsVelocity velocityData, in PhysicsMass massData, in float3 impulse)
+        public static void ApplyLinearImpulse(ref this ME.ECS.Essentials.Physics.Components.PhysicsVelocity velocityData, in ME.ECS.Essentials.Physics.Components.PhysicsMass massData, in float3 impulse)
         {
             velocityData.Linear += impulse * massData.InverseMass;
         }
 
-        public static void ApplyAngularImpulse(ref this PhysicsVelocity velocityData, in PhysicsMass massData, in float3 impulse)
+        public static void ApplyAngularImpulse(ref this ME.ECS.Essentials.Physics.Components.PhysicsVelocity velocityData, in ME.ECS.Essentials.Physics.Components.PhysicsMass massData, in float3 impulse)
         {
             velocityData.Angular += impulse * massData.InverseInertia;
         }
@@ -285,14 +285,14 @@ namespace ME.ECS.Essentials.Physics
         /// <param name="position">The future position of the body.</param>
         /// <param name="orientation">The future orientation of the body.</param>
         public static void Integrate(
-            this in PhysicsVelocity physicsVelocity, in PhysicsMass physicsMass, sfloat timestep,
+            this in ME.ECS.Essentials.Physics.Components.PhysicsVelocity physicsVelocity, in ME.ECS.Essentials.Physics.Components.PhysicsMass physicsMass, sfloat timestep,
             ref float3 position, ref quaternion orientation)
         {
             var angularVelocityWS =
                 physicsVelocity.GetAngularVelocityWorldSpace(physicsMass, new Rotation { value = orientation });
 
-            ME.ECS.Essentials.Physics.Integrator.IntegratePosition(ref position, physicsVelocity.Linear, timestep);
-            ME.ECS.Essentials.Physics.Integrator.IntegrateOrientation(ref orientation, angularVelocityWS, timestep);
+            Integrator.IntegratePosition(ref position, physicsVelocity.Linear, timestep);
+            Integrator.IntegrateOrientation(ref orientation, angularVelocityWS, timestep);
         }
     }
 }

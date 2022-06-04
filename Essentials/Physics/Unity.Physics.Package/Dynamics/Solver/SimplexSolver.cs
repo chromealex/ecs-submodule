@@ -1,5 +1,6 @@
 using Unity.Collections;
 using ME.ECS.Mathematics;
+using UnityEngine.Assertions;
 
 namespace ME.ECS.Essentials.Physics
 {

@@ -1,6 +1,5 @@
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
-
 using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics

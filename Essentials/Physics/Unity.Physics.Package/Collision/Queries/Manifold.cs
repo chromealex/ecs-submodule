@@ -2,9 +2,8 @@ using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using static ME.ECS.Essentials.Physics.Math;
-using ME.ECS;
 using ME.ECS.Mathematics;
+using static ME.ECS.Essentials.Physics.Math;
 
 namespace ME.ECS.Essentials.Physics
 {
@@ -149,8 +148,8 @@ namespace ME.ECS.Essentials.Physics
                 {
                     // Combined collision response of the two
                     CollisionResponsePolicy combinedCollisionResponse = Material.GetCombinedCollisionResponse(materialA, materialB);
-                    //Unity.Assertions.Assert.IsFalse(combinedCollisionResponse == CollisionResponsePolicy.None,
-                    //    "DisableCollisions pairs should have been filtered out earlier!");
+                    UnityEngine.Assertions.Assert.IsFalse(combinedCollisionResponse == CollisionResponsePolicy.None,
+                        "DisableCollisions pairs should have been filtered out earlier!");
 
                     if (combinedCollisionResponse == CollisionResponsePolicy.RaiseTriggerEvents)
                     {

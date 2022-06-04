@@ -85,7 +85,7 @@ namespace ME.ECS {
 
                 var angle = container.entity.GetRotation2D();
                 var containerPosition = container.entity.GetPosition2D();
-                child.SetLocalPosition2D(ECSTransform2DExtensions.Rotate(angle, math.mul(ECSTransform2DExtensions.GetInvScale_INTERNAL(in container.entity), (position - containerPosition))));
+                child.SetLocalPosition2D(ECSTransform2DExtensions.Rotate(angle, ECSTransform2DExtensions.GetInvScale_INTERNAL(in container.entity) * (position - containerPosition)));
 
             } else {
 
@@ -124,7 +124,7 @@ namespace ME.ECS {
             while (container.entity.IsEmpty() == false) {
 
                 var angle = container.entity.Read<Rotation2D>().ToQuaternion2D();
-                position = ECSTransform2DExtensions.Rotate(angle, math.mul(ECSTransform2DExtensions.GetScale_INTERNAL(in container.entity), position));
+                position = ECSTransform2DExtensions.Rotate(angle, ECSTransform2DExtensions.GetScale_INTERNAL(in container.entity) * position);
                 position += container.entity.Read<Position2D>().ToVector2();
                 container = ref container.entity.Read<Container>();
 

@@ -1,8 +1,8 @@
 using System.Runtime.CompilerServices;
 using Unity.Burst;
+using ME.ECS.Mathematics;
 using UnityEngine.Assertions;
 using static ME.ECS.Essentials.Physics.Math;
-using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics
 {
@@ -35,7 +35,7 @@ namespace ME.ECS.Essentials.Physics
             {
                 get
                 {
-                    Assert.IsTrue(contactIndex >= 0 && contactIndex < k_MaxNumContacts);
+                    UnityEngine.Assertions.Assert.IsTrue(contactIndex >= 0 && contactIndex < k_MaxNumContacts);
 
                     int offset = contactIndex * 3;
                     var contact = new ContactPoint();
@@ -54,7 +54,7 @@ namespace ME.ECS.Essentials.Physics
                 }
                 set
                 {
-                    Assert.IsTrue(contactIndex >= 0 && contactIndex < k_MaxNumContacts);
+                    UnityEngine.Assertions.Assert.IsTrue(contactIndex >= 0 && contactIndex < k_MaxNumContacts);
 
                     int offset = contactIndex * 3;
                     fixed (uint* positions = m_ContactPositions)
@@ -273,7 +273,7 @@ namespace ME.ECS.Essentials.Physics
             [NoAlias] in MTransform worldFromA, [NoAlias] in MTransform aFromB, sfloat maxDistance,
             [NoAlias] out Manifold manifold)
         {
-            Assert.IsTrue(triangleB->Vertices.Length == 3);
+            UnityEngine.Assertions.Assert.IsTrue(triangleB->Vertices.Length == 3);
 
             // Get triangle in box space
             MTransform aFromBoxA = new MTransform(boxA->Orientation, boxA->Center);
@@ -384,7 +384,7 @@ namespace ME.ECS.Essentials.Physics
             [NoAlias] in MTransform worldFromA, [NoAlias] in MTransform aFromB, sfloat maxDistance,
             [NoAlias] out Manifold manifold)
         {
-            Assert.IsTrue(triangleA->Vertices.Length == 3);
+            UnityEngine.Assertions.Assert.IsTrue(triangleA->Vertices.Length == 3);
 
             DistanceQueries.Result convexDistance = DistanceQueries.TriangleSphere(
                 triangleA->Vertices[0], triangleA->Vertices[1], triangleA->Vertices[2], triangleA->Planes[0].Normal,
@@ -405,7 +405,7 @@ namespace ME.ECS.Essentials.Physics
             [NoAlias] in MTransform worldFromA, [NoAlias] in MTransform aFromB, sfloat maxDistance,
             [NoAlias] out Manifold manifold)
         {
-            Assert.IsTrue(triangleB->Vertices.Length == 3);
+            UnityEngine.Assertions.Assert.IsTrue(triangleB->Vertices.Length == 3);
 
             DistanceQueries.Result convexDistance = DistanceQueries.CapsuleTriangle(capsuleA, triangleB, aFromB);
             if (convexDistance.Distance < maxDistance)

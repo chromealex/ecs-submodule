@@ -2,8 +2,6 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 
-using ME.ECS.Mathematics;
-
 namespace ME.ECS.Essentials.Physics
 {
     // Processes body pairs and creates contacts from them

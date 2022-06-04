@@ -1,7 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
 using Unity.Collections.LowLevel.Unsafe;
-
 using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics

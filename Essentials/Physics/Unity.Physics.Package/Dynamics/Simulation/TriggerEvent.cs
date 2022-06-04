@@ -1,6 +1,5 @@
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using Unity.Entities;
 using ME.ECS;
 
 namespace ME.ECS.Essentials.Physics

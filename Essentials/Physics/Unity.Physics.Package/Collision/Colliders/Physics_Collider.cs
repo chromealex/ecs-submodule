@@ -1,11 +1,11 @@
 using System;
+
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using Unity.Entities;
-using static ME.ECS.Essentials.Physics.Math;
-
+using ME.ECS;
 using ME.ECS.Mathematics;
+using static ME.ECS.Essentials.Physics.Math;
 
 namespace ME.ECS.Essentials.Physics
 {

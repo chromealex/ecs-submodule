@@ -1,9 +1,9 @@
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using Unity.Entities;
-
+using ME.ECS;
 using ME.ECS.Mathematics;
+using static ME.ECS.Essentials.Physics.Math;
 
 namespace ME.ECS.Essentials.Physics
 {
@@ -562,7 +562,7 @@ namespace ME.ECS.Essentials.Physics
                 ColliderKey childKey = new ColliderKey(NumColliderKeyBits, i);
                 if (c.Collider->CollisionType == CollisionType.Composite)
                 {
-                    collector.PushCompositeCollider(new ColliderKeyPath(childKey, NumColliderKeyBits), new Math.MTransform(c.CompoundFromChild), out Math.MTransform worldFromCompound);
+                    collector.PushCompositeCollider(new ColliderKeyPath(childKey, NumColliderKeyBits), new MTransform(c.CompoundFromChild), out MTransform worldFromCompound);
                     c.Collider->GetLeaves(ref collector);
                     collector.PopCompositeCollider(NumColliderKeyBits, worldFromCompound);
                 }

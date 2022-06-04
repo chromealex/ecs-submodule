@@ -4,10 +4,9 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
+using ME.ECS.Mathematics;
 using UnityEngine.Assertions;
 using static ME.ECS.Essentials.Physics.Math;
-
-using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics
 {
@@ -142,7 +141,7 @@ namespace ME.ECS.Essentials.Physics
                 
                 // This code relies on range.length always being less than or equal to the number of primitives, which 
                 // happens to be Aabbs.length.  If that ever becomes not true then scratch memory size should be increased.
-                Assert.IsTrue(range.Length <= ScratchScores.Length/*, "Aabbs.Length isn't a large enough scratch memory size for SegregateSah3"*/);
+                UnityEngine.Assertions.Assert.IsTrue(range.Length <= ScratchScores.Length/*, "Aabbs.Length isn't a large enough scratch memory size for SegregateSah3"*/);
                 
                 float4* p = PointsAsFloat4 + range.Start;
 
@@ -198,7 +197,7 @@ namespace ME.ECS.Essentials.Physics
 
             void Segregate(int axis, sfloat pivot, Range range, int minItems, ref Range lRange, ref Range rRange)
             {
-                Assert.IsTrue(range.Length > 1/*, "Range length must be greater than 1."*/);
+                UnityEngine.Assertions.Assert.IsTrue(range.Length > 1/*, "Range length must be greater than 1."*/);
 
                 Aabb lDomain = Aabb.Empty;
                 Aabb rDomain = Aabb.Empty;
@@ -325,7 +324,7 @@ namespace ME.ECS.Essentials.Physics
                     hasLeftOvers = 0;
                     CreateChildren(subRanges, numSubRanges, range.Root, ref freeNodeIndex, &range, ref hasLeftOvers);
 
-                    Assert.IsTrue(hasLeftOvers <= 1/*, "Internal error"*/);
+                    UnityEngine.Assertions.Assert.IsTrue(hasLeftOvers <= 1/*, "Internal error"*/);
                 } while (hasLeftOvers > 0);
             }
 
@@ -544,7 +543,7 @@ namespace ME.ECS.Essentials.Physics
             Node* baseNode = m_Nodes;
             Node* currentNode = baseNode + nodeIndex;
 
-            Assert.IsTrue(currentNode->IsInternal);
+            UnityEngine.Assertions.Assert.IsTrue(currentNode->IsInternal);
 
             CollisionFilter combinedFilter = new CollisionFilter();
             for (int j = 0; j < 4; j++)
@@ -605,7 +604,7 @@ namespace ME.ECS.Essentials.Physics
             Node* baseNode = m_Nodes;
             Node* currentNode = baseNode + nodeIndex;
 
-            Assert.IsTrue(currentNode->IsInternal);
+            UnityEngine.Assertions.Assert.IsTrue(currentNode->IsInternal);
 
             for (int j = 0; j < 4; j++)
             {
@@ -809,7 +808,7 @@ namespace ME.ECS.Essentials.Physics
 
             public void Execute(int index)
             {
-                Assert.IsTrue(BranchNodeOffsets[index] >= 0);
+                UnityEngine.Assertions.Assert.IsTrue(BranchNodeOffsets[index] >= 0);
                 var bvh = new BoundingVolumeHierarchy(Nodes, NodeFilters);
                 int lastNode = bvh.BuildBranch(Points, Aabbs, Ranges[index], BranchNodeOffsets[index]);
 
@@ -847,7 +846,7 @@ namespace ME.ECS.Essentials.Physics
 
                 int minBranchNodeIndex = BranchNodeOffsets[0] - 1;
                 int branchCount = BranchCount[0];
-                for (int i = 1; i < branchCount; i++)
+                for (int i = 1; i < BranchCount[0]; i++)
                 {
                     minBranchNodeIndex = math.min(BranchNodeOffsets[i] - 1, minBranchNodeIndex);
                 }

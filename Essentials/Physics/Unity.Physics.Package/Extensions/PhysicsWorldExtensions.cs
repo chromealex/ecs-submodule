@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using ME.ECS;
 using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics.Extensions
@@ -36,7 +37,7 @@ namespace ME.ECS.Essentials.Physics.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sfloat GetEffectiveMassImpl(float3 centerOfMass, float3 inverseInertia, float3 impulse, float3 point)
+        internal static sfloat GetEffectiveMassImpl(float3 centerOfMass, float3 inverseInertia, float3 impulse, float3 point)
         {
             float3 pointDir = math.normalizesafe(point - centerOfMass);
             float3 impulseDir = math.normalizesafe(impulse);
@@ -106,7 +107,7 @@ namespace ME.ECS.Essentials.Physics.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float3 GetLinearVelocityImpl(RigidTransform worldFromMotion, float3 angularVelocity, float3 linearVelocity, float3 point)
+        internal static float3 GetLinearVelocityImpl(RigidTransform worldFromMotion, float3 angularVelocity, float3 linearVelocity, float3 point)
         {
             angularVelocity = math.rotate(worldFromMotion, angularVelocity);
             return linearVelocity + math.cross(angularVelocity, point - worldFromMotion.pos);

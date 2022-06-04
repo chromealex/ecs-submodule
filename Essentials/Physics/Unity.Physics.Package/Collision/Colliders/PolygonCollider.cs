@@ -3,9 +3,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using Unity.Entities;
-
 using ME.ECS.Mathematics;
+using ME.ECS;
 
 namespace ME.ECS.Essentials.Physics
 {

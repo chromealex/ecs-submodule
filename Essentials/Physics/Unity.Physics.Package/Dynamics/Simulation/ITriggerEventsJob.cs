@@ -13,36 +13,67 @@ namespace ME.ECS.Essentials.Physics
         void Execute(TriggerEvent triggerEvent);
     }
 
+#if !HAVOK_PHYSICS_EXISTS
+
     // Interface for jobs that iterate through the list of trigger events produced by the solver.
     public interface ITriggerEventsJob : ITriggerEventsJobBase
     {
     }
 
+#endif
+
     public static class ITriggerEventJobExtensions
     {
+#if !HAVOK_PHYSICS_EXISTS
         // Default Schedule() implementation for ITriggerEventsJob.
-        public static unsafe JobHandle Schedule<T>(this T jobData, JobHandle inputDeps = default)
+        public static unsafe JobHandle Schedule<T>(this T jobData, ISimulation simulation, ref PhysicsWorld world, JobHandle inputDeps)
             where T : struct, ITriggerEventsJobBase
         {
-            return ScheduleUnityPhysicsTriggerEventsJob(jobData, inputDeps);
+            // Should work only for UnityPhysics
+            if (simulation.Type != SimulationType.UnityPhysics)
+            {
+                return inputDeps;
+            }
+
+            return ScheduleUnityPhysicsTriggerEventsJob(jobData, simulation, ref world, inputDeps);
+        }
+#else
+        // In this case Schedule() implementation for ITriggerEventsJob is provided by the Havok.Physics assembly.
+        // This is a stub to catch when that assembly is missing.
+        //<todo.eoin.modifier Put in a link to documentation for this:
+        [Obsolete("This error occurs when HAVOK_PHYSICS_EXISTS is defined but Havok.Physics is missing from your package's asmdef references. (DoNotRemove)", true)]
+        public static unsafe JobHandle Schedule<T>(this T jobData, ISimulation simulation, ref PhysicsWorld world, JobHandle inputDeps,
+            HAVOK_PHYSICS_MISSING_FROM_ASMDEF _causeCompileError = HAVOK_PHYSICS_MISSING_FROM_ASMDEF.HAVOK_PHYSICS_MISSING_FROM_ASMDEF)
+            where T : struct, ITriggerEventsJobBase
+        {
+            return new JobHandle();
         }
 
+        public enum HAVOK_PHYSICS_MISSING_FROM_ASMDEF
+        {
+            HAVOK_PHYSICS_MISSING_FROM_ASMDEF
+        }
+#endif
+
         // Schedules a trigger events job only for UnityPhysics simulation
-        internal static unsafe JobHandle ScheduleUnityPhysicsTriggerEventsJob<T>(T jobData, JobHandle inputDeps)
+        internal static unsafe JobHandle ScheduleUnityPhysicsTriggerEventsJob<T>(T jobData, ISimulation simulation, ref PhysicsWorld world, JobHandle inputDeps)
             where T : struct, ITriggerEventsJobBase
         {
-            //SafetyChecks.CheckAreEqualAndThrow(SimulationType.UnityPhysics, simulation.Type);
+            SafetyChecks.CheckAreEqualAndThrow(SimulationType.UnityPhysics, simulation.Type);
 
-            var internalData = ME.ECS.Worlds.current.ReadSharedDataOneShot<ME.ECS.Essentials.Physics.Components.PhysicsOneShotInternal>();
             var data = new TriggerEventJobData<T>
             {
                 UserJobData = jobData,
-                EventReader = internalData.triggerEvents,
+                EventReader = ((Simulation)simulation).TriggerEvents
             };
 
             // Ensure the input dependencies include the end-of-simulation job, so events will have been generated
-            //inputDeps = JobHandle.CombineDependencies(inputDeps, simulation.FinalSimulationJobHandle);
+            inputDeps = JobHandle.CombineDependencies(inputDeps, simulation.FinalSimulationJobHandle);
+#if UNITY_2020_2_OR_NEWER
             var parameters = new JobsUtility.JobScheduleParameters(UnsafeUtility.AddressOf(ref data), TriggerEventJobProcess<T>.Initialize(), inputDeps, ScheduleMode.Single);
+#else
+            var parameters = new JobsUtility.JobScheduleParameters(UnsafeUtility.AddressOf(ref data), TriggerEventJobProcess<T>.Initialize(), inputDeps, ScheduleMode.Batched);
+#endif
             return JobsUtility.Schedule(ref parameters);
         }
 
@@ -60,7 +91,11 @@ namespace ME.ECS.Essentials.Physics
             {
                 if (jobReflectionData == IntPtr.Zero)
                 {
+#if UNITY_2020_2_OR_NEWER
                     jobReflectionData = JobsUtility.CreateJobReflectionData(typeof(TriggerEventJobData<T>), typeof(T), (ExecuteJobFunction)Execute);
+#else
+                    jobReflectionData = JobsUtility.CreateJobReflectionData(typeof(TriggerEventJobData<T>), typeof(T), JobType.Single, (ExecuteJobFunction)Execute);
+#endif
                 }
                 return jobReflectionData;
             }

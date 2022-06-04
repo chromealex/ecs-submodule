@@ -8,7 +8,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using ME.ECS.Mathematics;
 
-namespace Unity.Entities {
+namespace ME.ECS {
 
     /*internal struct RetainBlobAssets : IComponent {
 
@@ -249,6 +249,17 @@ namespace Unity.Entities {
             }
         }
 
+        public bool IsValid {
+            get {
+                try {
+                    this.m_data.ValidateNotNull();
+                    return true;
+                } catch (Exception) {
+                    return false;
+                }
+            }
+        }
+        
         /// <summary>
         /// Provides an unsafe pointer to the blob asset data.
         /// </summary>

@@ -1,5 +1,4 @@
 using Unity.Burst;
-using ME.ECS;
 using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics

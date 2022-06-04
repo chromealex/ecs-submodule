@@ -1,10 +1,9 @@
 using System;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using Unity.Entities;
-using UnityEngine.Assertions;
-
 using ME.ECS.Mathematics;
+using ME.ECS;
+using UnityEngine.Assertions;
 
 namespace ME.ECS.Essentials.Physics
 {
@@ -287,7 +286,7 @@ namespace ME.ECS.Essentials.Physics
 
                                 numEdges++;
                             }
-                            Assert.IsTrue(numEdges >= 3);
+                            UnityEngine.Assertions.Assert.IsTrue(numEdges >= 3);
 
                             // Store the face
                             Faces.Add(new ConvexHull.Face

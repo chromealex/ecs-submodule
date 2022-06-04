@@ -1,13 +1,13 @@
 using System;
+
 using Unity.Burst;
 using Unity.Collections;
-using Unity.Entities;
+using ME.ECS;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
-
-using ME.ECS;
 using ME.ECS.Mathematics;
 using static ME.ECS.Essentials.Physics.Math;
+using Unity.Jobs.LowLevel.Unsafe;
 
 namespace ME.ECS.Essentials.Physics
 {
@@ -36,14 +36,14 @@ namespace ME.ECS.Essentials.Physics
         {
             m_Bodies = new NativeArray<RigidBody>(numStaticBodies + numDynamicBodies, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
             Broadphase = new Broadphase(numStaticBodies, numDynamicBodies);
-            EntityBodyIndexMap = new NativeHashMap<Entity, int>(m_Bodies.Length, Allocator.Persistent);
+            EntityBodyIndexMap = new NativeHashMap<Entity, int>(m_Bodies.Length * 16, Allocator.Persistent);
         }
 
         internal CollisionWorld(NativeArray<RigidBody> bodies, Broadphase broadphase)
         {
             m_Bodies = bodies;
             Broadphase = broadphase;
-            EntityBodyIndexMap = new NativeHashMap<Entity, int>(m_Bodies.Length, Allocator.Persistent);
+            EntityBodyIndexMap = new NativeHashMap<Entity, int>(m_Bodies.Length * 16, Allocator.Persistent);
         }
 
         public void Reset(int numStaticBodies, int numDynamicBodies)
@@ -60,7 +60,7 @@ namespace ME.ECS.Essentials.Physics
             {
                 m_Bodies.Dispose();
                 m_Bodies = new NativeArray<RigidBody>(numBodies, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-                EntityBodyIndexMap.Capacity = m_Bodies.Length;
+                EntityBodyIndexMap.Capacity = m_Bodies.Length * 16;
             }
         }
 
@@ -85,7 +85,7 @@ namespace ME.ECS.Essentials.Physics
             {
                 m_Bodies = new NativeArray<RigidBody>(m_Bodies, Allocator.Persistent),
                 Broadphase = (Broadphase)Broadphase.Clone(),
-                EntityBodyIndexMap = new NativeHashMap<Entity, int>(m_Bodies.Length, Allocator.Persistent),
+                EntityBodyIndexMap = new NativeHashMap<Entity, int>(m_Bodies.Length * 16, Allocator.Persistent),
             };
             clone.UpdateBodyIndexMap();
             return clone;
@@ -112,10 +112,16 @@ namespace ME.ECS.Essentials.Physics
                 world.CollisionWorld.CollisionTolerance, timeStep, gravity, buildStaticTree);
         }
 
-        // Schedule a set of jobs to build the broadphase based on the given world.
-        public readonly JobHandle ScheduleBuildBroadphaseJobs(in PhysicsWorld world, sfloat timeStep, float3 gravity, NativeArray<int> buildStaticTree, JobHandle inputDeps, bool multiThreaded = true)
+        [Obsolete("ScheduleBuildBroadphaseJobs() has been deprecated. Please use the new method taking a bool as the last parameter. (RemovedAfter 2021-02-15)", true)]
+        public JobHandle ScheduleBuildBroadphaseJobs(ref PhysicsWorld world, sfloat timeStep, float3 gravity, NativeArray<int> buildStaticTree, JobHandle inputDeps, int threadCountHint = 0)
         {
-            return Broadphase.ScheduleBuildJobs(in world, timeStep, gravity, buildStaticTree, inputDeps, multiThreaded);
+            return ScheduleBuildBroadphaseJobs(ref world, timeStep, gravity, buildStaticTree, inputDeps, threadCountHint > 0);
+        }
+
+        // Schedule a set of jobs to build the broadphase based on the given world.
+        public JobHandle ScheduleBuildBroadphaseJobs(ref PhysicsWorld world, sfloat timeStep, float3 gravity, NativeArray<int> buildStaticTree, JobHandle inputDeps, bool multiThreaded = true)
+        {
+            return Broadphase.ScheduleBuildJobs(ref world, timeStep, gravity, buildStaticTree, inputDeps, multiThreaded);
         }
 
         // Write all overlapping body pairs to the given streams,
@@ -123,6 +129,13 @@ namespace ME.ECS.Essentials.Physics
         public void FindOverlaps(ref NativeStream.Writer dynamicVsDynamicPairsWriter, ref NativeStream.Writer staticVsDynamicPairsWriter)
         {
             Broadphase.FindOverlaps(ref dynamicVsDynamicPairsWriter, ref staticVsDynamicPairsWriter);
+        }
+
+        [Obsolete("ScheduleFindOverlapsJobs() has been deprecated. Please use the new method taking a bool as the last parameter. (RemovedAfter 2021-02-15)", true)]
+        public SimulationJobHandles ScheduleFindOverlapsJobs(out NativeStream dynamicVsDynamicPairsStream, out NativeStream staticVsDynamicPairsStream,
+            JobHandle inputDeps, int threadCountHint = 0)
+        {
+            return ScheduleFindOverlapsJobs(out dynamicVsDynamicPairsStream, out staticVsDynamicPairsStream, inputDeps, threadCountHint > 0);
         }
 
         // Schedule a set of jobs which will write all overlapping body pairs to the given steam,
@@ -176,7 +189,7 @@ namespace ME.ECS.Essentials.Physics
 
                 // Update broadphase
                 // Thread count is +1 for main thread
-                return Broadphase.ScheduleDynamicTreeBuildJobs(in world, timeStep, gravity, Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobWorkerCount + 1, handle);
+                return Broadphase.ScheduleDynamicTreeBuildJobs(ref world, timeStep, gravity, JobsUtility.JobWorkerCount + 1, handle);
             }
         }
 

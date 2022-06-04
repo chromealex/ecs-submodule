@@ -1,11 +1,9 @@
 using System;
-using Unity.Entities;
+using ME.ECS;
+using ME.ECS.Mathematics;
 using UnityEngine.Assertions;
 using static ME.ECS.Essentials.Physics.BoundingVolumeHierarchy;
 using static ME.ECS.Essentials.Physics.Math;
-using ME.ECS;
-
-using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics
 {
@@ -178,7 +176,7 @@ namespace ME.ECS.Essentials.Physics
                         case 2: normalInBoxA = new float3(sfloat.Zero, sfloat.Zero, projectionLocal.z < sfloat.Zero ? sfloat.One : -sfloat.One); break;
                         default:
                             normalInBoxA = new float3(sfloat.One, sfloat.Zero, sfloat.Zero);
-                            Assert.IsTrue(false);
+                            UnityEngine.Assertions.Assert.IsTrue(false);
                             break;
                     }
                     distance = math.max(del.x, math.max(del.y, del.z));

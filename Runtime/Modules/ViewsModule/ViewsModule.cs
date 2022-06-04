@@ -726,8 +726,15 @@ namespace ME.ECS.Views {
                 seed = this.world.GetSeed(),
             };
             this.world.SetData(in entity, view);
-            this.Register(this.GetViewSource(sourceId), viewInfo);
+            var instance = this.GetViewSource(sourceId);
+            this.Register(instance, viewInfo);
             
+            if (this.world.HasResetState() == false) {
+
+                this.UpdateView(instance, view.seed, in viewInfo);
+
+            }
+
             this.isRequestsDirty = true;
 
         }
@@ -790,7 +797,7 @@ namespace ME.ECS.Views {
 
             if (this.world.HasResetState() == false) {
 
-                this.CreateVisualInstance(in view.seed, in view.viewInfo);
+                this.CreateVisualInstance(view.seed, in view.viewInfo);
 
             }
 
@@ -1095,7 +1102,7 @@ namespace ME.ECS.Views {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void CreateVisualInstance(in uint seed, in ViewInfo viewInfo) {
+        private void CreateVisualInstance(uint seed, in ViewInfo viewInfo) {
 
             if (viewInfo.entity.IsAlive() == false) return;
 
@@ -1107,13 +1114,22 @@ namespace ME.ECS.Views {
 
             }
 
+            this.UpdateView(instance, seed, in viewInfo);
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        private void UpdateView(IView instance, in uint seed, in ViewInfo viewInfo) {
+            
             // Call ApplyState with deltaTime = current time offset
             var dt = UnityEngine.Mathf.Max(0f, (float)(long)(this.world.GetCurrentTick() - viewInfo.creationTick) * (float)this.world.GetTickTime());
             instance.entityVersion = viewInfo.entity.GetVersion();
             instance.ApplyState(dt, immediately: true);
             // Simulate particle systems
             instance.SimulateParticles(dt, seed);
-
+            
         }
 
         #if INLINE_METHODS
@@ -1214,7 +1230,7 @@ namespace ME.ECS.Views {
 
                             // is not rendering now
                             // create required instance
-                            this.CreateVisualInstance(in view.seed, in view.viewInfo);
+                            this.CreateVisualInstance(view.seed, in view.viewInfo);
                             hasChanged = true;
 
                         }

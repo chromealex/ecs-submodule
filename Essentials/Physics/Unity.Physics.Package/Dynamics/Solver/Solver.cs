@@ -2,10 +2,9 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
-
+using ME.ECS.Mathematics;
 using UnityEngine.Assertions;
 using static ME.ECS.Essentials.Physics.Math;
-using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics
 {
@@ -699,7 +698,7 @@ namespace ME.ECS.Essentials.Physics
             {
                 if (bodyBIsStatic)
                 {
-                    Assert.IsTrue(false); // static-static pairs should have been filtered during broadphase overlap test
+                    UnityEngine.Assertions.Assert.IsTrue(false); // static-static pairs should have been filtered during broadphase overlap test
                     velocityA = MotionVelocity.Zero;
                     velocityB = MotionVelocity.Zero;
                     worldFromA = MTransform.Identity;
@@ -839,7 +838,7 @@ namespace ME.ECS.Essentials.Physics
                         };
 
                         // Body A must be dynamic
-                        Assert.IsTrue(contactHeader.BodyPair.BodyIndexA < motionVelocities.Length);
+                        UnityEngine.Assertions.Assert.IsTrue(contactHeader.BodyPair.BodyIndexA < motionVelocities.Length);
                         bool isDynamicStaticPair = contactHeader.BodyPair.BodyIndexB >= motionVelocities.Length;
 
                         // If contact distance is negative, use an artificially reduced penetration depth to prevent the dynamic-dynamic contacts from depenetrating too quickly
@@ -969,7 +968,7 @@ namespace ME.ECS.Essentials.Physics
                                         invEffectiveMassOffDiag.z = sfloat.Zero;
                                         invEffectiveMassDiag.z = sfloat.One;
                                         bool success = JacobianUtilities.InvertSymmetricMatrix(invEffectiveMassDiag, invEffectiveMassOffDiag, out effectiveMassDiag, out effectiveMassOffDiag);
-                                        Assert.IsTrue(success); // it should never fail, if it does then friction will be disabled
+                                        UnityEngine.Assertions.Assert.IsTrue(success); // it should never fail, if it does then friction will be disabled
                                     }
                                     contactJacobian.Friction0.EffectiveMass = effectiveMassDiag.x;
                                     contactJacobian.Friction1.EffectiveMass = effectiveMassDiag.y;
@@ -1214,7 +1213,7 @@ namespace ME.ECS.Essentials.Physics
                 ref JacobianHeader header = ref jacIterator.ReadJacobianHeader();
 
                 // Static-static pairs should have been filtered during broadphase overlap test
-                Assert.IsTrue(header.BodyPair.BodyIndexA < motionVelocities.Length || header.BodyPair.BodyIndexB < motionVelocities.Length);
+                UnityEngine.Assertions.Assert.IsTrue(header.BodyPair.BodyIndexA < motionVelocities.Length || header.BodyPair.BodyIndexB < motionVelocities.Length);
 
                 // Get the motion pair
                 MotionVelocity velocityA = header.BodyPair.BodyIndexA < motionVelocities.Length ? motionVelocities[header.BodyPair.BodyIndexA] : MotionVelocity.Zero;
