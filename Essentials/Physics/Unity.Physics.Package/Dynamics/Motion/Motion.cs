@@ -40,15 +40,15 @@ namespace ME.ECS.Essentials.Physics
         public sfloat AngularExpansionFactor;
 
         // The mass properties of a unit sphere
-        public static MassProperties UnitSphere => new MassProperties
+        public static readonly MassProperties UnitSphere = new MassProperties
         {
             MassDistribution = new MassDistribution
             {
                 Transform = RigidTransform.identity,
-                InertiaTensor = new float3(sfloat.FromRaw(0x3ecccccd))
+                InertiaTensor = new float3(2.0f / 5.0f)
             },
-            Volume = sfloat.FromRaw(0x40860a92),
-            AngularExpansionFactor = sfloat.Zero
+            Volume = (4.0f / 3.0f) * (float)math.PI,
+            AngularExpansionFactor = 0.0f
         };
     }
 
@@ -65,12 +65,12 @@ namespace ME.ECS.Essentials.Physics
         public sfloat LinearDamping;
         public sfloat AngularDamping;
 
-        public static MotionData Zero => new MotionData
+        public static readonly MotionData Zero = new MotionData
         {
             WorldFromMotion = RigidTransform.identity,
             BodyFromMotion = RigidTransform.identity,
-            LinearDamping = sfloat.Zero,
-            AngularDamping = sfloat.Zero
+            LinearDamping = 0.0f,
+            AngularDamping = 0.0f
         };
     }
 
@@ -79,8 +79,6 @@ namespace ME.ECS.Essentials.Physics
     {
         public float3 LinearVelocity;   // world space
         public float3 AngularVelocity;  // motion space
-        public float3 PreviousLinearVelocity;
-        public float3 PreviousAngularVelocity;
         public float3 InverseInertia;
         public sfloat InverseMass;
         public sfloat AngularExpansionFactor;
@@ -88,18 +86,18 @@ namespace ME.ECS.Essentials.Physics
         // A multiplier applied to the simulation step's gravity vector
         public sfloat GravityFactor;
 
-        internal bool HasInfiniteInertiaAndMass => !math.any(InverseInertia) && InverseMass.IsZero();
+        public bool HasInfiniteMass => InverseMass == 0.0f;
+        public bool HasInfiniteInertia => !math.any(InverseInertia);
+        public bool IsKinematic => HasInfiniteMass && HasInfiniteInertia;
 
-        public static MotionVelocity Zero => new MotionVelocity
+        public static readonly MotionVelocity Zero = new MotionVelocity
         {
-            LinearVelocity = float3.zero,
-            AngularVelocity = float3.zero,
-            PreviousLinearVelocity = float3.zero,
-            PreviousAngularVelocity = float3.zero,
-            InverseInertia = float3.zero,
-            InverseMass = sfloat.Zero,
-            AngularExpansionFactor = sfloat.Zero,
-            GravityFactor = sfloat.Zero
+            LinearVelocity = new float3(0),
+            AngularVelocity = new float3(0),
+            InverseInertia = new float3(0),
+            InverseMass = 0.0f,
+            AngularExpansionFactor = 0.0f,
+            GravityFactor = 0.0f
         };
 
         // Apply a linear impulse (in world space)
@@ -137,8 +135,8 @@ namespace ME.ECS.Essentials.Physics
 
         public static readonly MotionExpansion Zero = new MotionExpansion
         {
-            Linear = new float3(sfloat.Zero),
-            Uniform = sfloat.Zero
+            Linear = new float3(0),
+            Uniform = 0.0f
         };
 
         // Expand an AABB
@@ -158,8 +156,8 @@ namespace ME.ECS.Essentials.Physics
 
         public static readonly Velocity Zero = new Velocity
         {
-            Linear = new float3(sfloat.Zero),
-            Angular = new float3(sfloat.Zero)
+            Linear = new float3(0),
+            Angular = new float3(0)
         };
     }
 }

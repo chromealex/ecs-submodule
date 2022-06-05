@@ -1,10 +1,10 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using ME.ECS;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using ME.ECS.Mathematics;
-using ME.ECS;
 
 namespace ME.ECS.Essentials.Physics
 {
@@ -17,8 +17,8 @@ namespace ME.ECS.Essentials.Physics
 
         // Convex hull data
         // Todo: would be nice to use the actual types here but C# only likes fixed arrays of builtin types
-        private unsafe fixed byte m_Vertices[sizeof(uint) * 3 * 4];     // float3[4]
-        private unsafe fixed byte m_FacePlanes[sizeof(uint) * 4 * 2];   // Plane[2]
+        private unsafe fixed byte m_Vertices[sizeof(float) * 3 * 4];     // float3[4]
+        private unsafe fixed byte m_FacePlanes[sizeof(float) * 4 * 2];   // Plane[2]
         private unsafe fixed byte m_Faces[4 * 2];                        // ConvexHull.Face[2]
         private unsafe fixed byte m_FaceVertexIndices[sizeof(byte) * 8]; // byte[8]
 
@@ -94,7 +94,7 @@ namespace ME.ECS.Essentials.Physics
             ConvexHull.VerticesBlob.Length = 3;
             ConvexHull.FaceVertexIndicesBlob.Length = 6;
 
-            fixed (PolygonCollider* collider = &this)
+            fixed(PolygonCollider* collider = &this)
             {
                 float3* vertices = (float3*)(&collider->m_Vertices[0]);
                 vertices[0] = v0;
@@ -121,7 +121,7 @@ namespace ME.ECS.Essentials.Physics
             ConvexHull.VerticesBlob.Length = 4;
             ConvexHull.FaceVertexIndicesBlob.Length = 8;
 
-            fixed (PolygonCollider* collider = &this)
+            fixed(PolygonCollider* collider = &this)
             {
                 float3* vertices = (float3*)(&collider->m_Vertices[0]);
                 vertices[0] = v0;
@@ -149,9 +149,9 @@ namespace ME.ECS.Essentials.Physics
             m_Header.Filter = filter;
             m_Header.Material = material;
 
-            ConvexHull.ConvexRadius = sfloat.Zero;
+            ConvexHull.ConvexRadius = 0.0f;
 
-            fixed (PolygonCollider* collider = &this)
+            fixed(PolygonCollider* collider = &this)
             {
                 ConvexHull.VerticesBlob.Offset = UnsafeEx.CalculateOffset(ref collider->m_Vertices[0], ref ConvexHull.VerticesBlob);
                 ConvexHull.VerticesBlob.Length = 4;
@@ -205,7 +205,7 @@ namespace ME.ECS.Essentials.Physics
             {
                 // TODO - the inertia computed here is incorrect. Computing the correct inertia is expensive, so it probably ought to be cached.
                 // Note this is only called for top level polygon colliders, not for polygons within a mesh.
-                float3 center = (ConvexHull.Vertices[0] + ConvexHull.Vertices[1] + ConvexHull.Vertices[2]) / (sfloat)3.0f;
+                float3 center = (ConvexHull.Vertices[0] + ConvexHull.Vertices[1] + ConvexHull.Vertices[2]) / 3.0f;
                 sfloat radiusSq = math.max(math.max(
                     math.lengthsq(ConvexHull.Vertices[0] - center),
                     math.lengthsq(ConvexHull.Vertices[1] - center)),
@@ -215,9 +215,9 @@ namespace ME.ECS.Essentials.Physics
                     MassDistribution = new MassDistribution
                     {
                         Transform = new RigidTransform(quaternion.identity, center),
-                        InertiaTensor = new float3(sfloat.FromRaw(0x3ecccccd) * radiusSq)
+                        InertiaTensor = new float3(2.0f / 5.0f * radiusSq)
                     },
-                    Volume = sfloat.Zero,
+                    Volume = 0,
                     AngularExpansionFactor = math.sqrt(radiusSq)
                 };
             }
@@ -256,7 +256,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastRay(RaycastInput input, ref NativeList<RaycastHit> allHits) => QueryWrappers.RayCast(ref this, input, ref allHits);
         public unsafe bool CastRay<T>(RaycastInput input, ref T collector) where T : struct, ICollector<RaycastHit>
         {
-            fixed (PolygonCollider* target = &this)
+            fixed(PolygonCollider* target = &this)
             {
                 return RaycastQueries.RayCollider(input, (Collider*)target, ref collector);
             }
@@ -268,7 +268,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastCollider(ColliderCastInput input, ref NativeList<ColliderCastHit> allHits) => QueryWrappers.ColliderCast(ref this, input, ref allHits);
         public unsafe bool CastCollider<T>(ColliderCastInput input, ref T collector) where T : struct, ICollector<ColliderCastHit>
         {
-            fixed (PolygonCollider* target = &this)
+            fixed(PolygonCollider* target = &this)
             {
                 return ColliderCastQueries.ColliderCollider(input, (Collider*)target, ref collector);
             }
@@ -280,7 +280,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(PointDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(PointDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (PolygonCollider* target = &this)
+            fixed(PolygonCollider* target = &this)
             {
                 return DistanceQueries.PointCollider(input, (Collider*)target, ref collector);
             }
@@ -292,7 +292,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(ColliderDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(ColliderDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (PolygonCollider* target = &this)
+            fixed(PolygonCollider* target = &this)
             {
                 return DistanceQueries.ColliderCollider(input, (Collider*)target, ref collector);
             }

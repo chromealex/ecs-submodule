@@ -1,6 +1,6 @@
 using System;
-
 using ME.ECS.Mathematics;
+using UnityEngine.Assertions;
 
 namespace ME.ECS.Essentials.Physics
 {
@@ -60,7 +60,7 @@ namespace ME.ECS.Essentials.Physics
                         Flags &= ~MaterialFlags.DisableCollisions & ~MaterialFlags.EnableCollisionEvents & ~MaterialFlags.IsTrigger;
                         return;
                     default:
-                        UnityEngine.Assertions.Assert.IsTrue(false, "Invalid collision response provided!");
+                        Assert.IsTrue(false, "Invalid collision response provided!");
                         return;
                 }
             }
@@ -122,12 +122,12 @@ namespace ME.ECS.Essentials.Physics
         }
 
         // A default material.
-        public static Material Default => new Material
+        public static readonly Material Default = new Material
         {
             FrictionCombinePolicy = CombinePolicy.GeometricMean,
             RestitutionCombinePolicy = CombinePolicy.GeometricMean,
-            Friction = (sfloat)0.5f,
-            Restitution = sfloat.Zero
+            Friction = 0.5f,
+            Restitution = 0.0f
         };
 
         private static CollisionResponsePolicy FlagsToCollisionResponse(MaterialFlags flags)
@@ -172,9 +172,9 @@ namespace ME.ECS.Essentials.Physics
                 case CombinePolicy.Maximum:
                     return math.max(materialA.Friction, materialB.Friction);
                 case CombinePolicy.ArithmeticMean:
-                    return (materialA.Friction + materialB.Friction) * (sfloat)0.5f;
+                    return (materialA.Friction + materialB.Friction) * 0.5f;
                 default:
-                    return sfloat.Zero;
+                    return 0;
             }
         }
 
@@ -192,9 +192,9 @@ namespace ME.ECS.Essentials.Physics
                 case CombinePolicy.Maximum:
                     return math.max(materialA.Restitution, materialB.Restitution);
                 case CombinePolicy.ArithmeticMean:
-                    return (materialA.Restitution + materialB.Restitution) * (sfloat)0.5f;
+                    return (materialA.Restitution + materialB.Restitution) * 0.5f;
                 default:
-                    return sfloat.Zero;
+                    return 0;
             }
         }
 

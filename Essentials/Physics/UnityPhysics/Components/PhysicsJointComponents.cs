@@ -12,7 +12,7 @@ namespace ME.ECS.Essentials.Physics.Components
     /// </summary>
     public struct PhysicsConstrainedBodyPair : IComponent
     {
-        internal EntityPair Entities;
+        public EntityPair Entities;
 
         /// <summary>
         /// Specifies whether the two bodies in the pair should generate contact events.
@@ -112,11 +112,12 @@ namespace ME.ECS.Essentials.Physics.Components
     /// </summary>
     public struct PhysicsJoint : IComponent
     {
-        BodyFrame m_BodyAFromJoint;
-        BodyFrame m_BodyBFromJoint;
-        byte m_Version;
-        JointType m_JointType;
-        FixedList128Bytes<Constraint> m_Constraints;
+        public BodyFrame m_BodyAFromJoint;
+        public BodyFrame m_BodyBFromJoint;
+        
+        public byte m_Version;
+        public JointType m_JointType;
+        public FixedList128Bytes<Constraint> m_Constraints;
 
         /// <summary>
         /// The anchor point and orientation in the space of the first body.

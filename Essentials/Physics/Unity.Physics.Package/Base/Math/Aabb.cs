@@ -14,7 +14,7 @@ namespace ME.ECS.Essentials.Physics
         public float3 Max;
 
         public float3 Extents => Max - Min;
-        public float3 Center => (Max + Min) * (sfloat)0.5f;
+        public float3 Center => (Max + Min) * 0.5f;
         public bool IsValid => math.all(Min <= Max);
 
         // Create an empty, invalid AABB
@@ -25,7 +25,7 @@ namespace ME.ECS.Essentials.Physics
             get
             {
                 float3 diff = Max - Min;
-                return (sfloat)2.0f * math.dot(diff, diff.yzx);
+                return 2 * math.dot(diff, diff.yzx);
             }
         }
 
@@ -91,14 +91,13 @@ namespace ME.ECS.Essentials.Physics
             return math.all(Max >= other.Min & Min <= other.Max);
         }
 
-
         /// <summary>
         /// Returns the closest point on the bounds of the AABB to the specified position.
         /// <param name="position">A target point in space.</param>
         /// </summary>
         public float3 ClosestPoint(float3 position)
         {
-            return math.min(Max,math.max(Min, position));
+            return math.min(Max, math.max(Min, position));
         }
     }
 
@@ -115,10 +114,10 @@ namespace ME.ECS.Essentials.Physics
                 return aabb;
             }
 
-            float3 halfExtentsInA = aabb.Extents * (sfloat)0.5f;
-            float3 x = math.rotate(transform.rot, new float3(halfExtentsInA.x, sfloat.Zero, sfloat.Zero));
-            float3 y = math.rotate(transform.rot, new float3(sfloat.Zero, halfExtentsInA.y, sfloat.Zero));
-            float3 z = math.rotate(transform.rot, new float3(sfloat.Zero, sfloat.Zero, halfExtentsInA.z));
+            float3 halfExtentsInA = aabb.Extents * 0.5f;
+            float3 x = math.rotate(transform.rot, new float3(halfExtentsInA.x, 0, 0));
+            float3 y = math.rotate(transform.rot, new float3(0, halfExtentsInA.y, 0));
+            float3 z = math.rotate(transform.rot, new float3(0, 0, halfExtentsInA.z));
 
             float3 halfExtentsInB = math.abs(x) + math.abs(y) + math.abs(z);
             float3 centerInB = math.transform(transform, aabb.Center);
@@ -140,7 +139,7 @@ namespace ME.ECS.Essentials.Physics
                 return aabb;
             }
 
-            float3 halfExtentsInA = aabb.Extents * (sfloat)0.5f;
+            float3 halfExtentsInA = aabb.Extents * 0.5f;
             float3 transformedX = math.abs(transform.Rotation.c0 * halfExtentsInA.x);
             float3 transformedY = math.abs(transform.Rotation.c1 * halfExtentsInA.y);
             float3 transformedZ = math.abs(transform.Rotation.c2 * halfExtentsInA.z);

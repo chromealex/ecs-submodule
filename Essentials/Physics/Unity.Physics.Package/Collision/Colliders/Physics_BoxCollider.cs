@@ -1,7 +1,7 @@
 using System;
+using ME.ECS;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using ME.ECS;
 using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics
@@ -53,8 +53,8 @@ namespace ME.ECS.Essentials.Physics
 
         // Convex hull data
         // Todo: would be nice to use the actual types here but C# only likes fixed arrays of builtin types..
-        private unsafe fixed byte m_Vertices[sizeof(uint) * 3 * 8];         // float3[8]
-        private unsafe fixed byte m_FacePlanes[sizeof(uint) * 4 * 6];       // Plane[6]
+        private unsafe fixed byte m_Vertices[sizeof(float) * 3 * 8];         // float3[8]
+        private unsafe fixed byte m_FacePlanes[sizeof(float) * 4 * 6];       // Plane[6]
         private unsafe fixed byte m_Faces[4 * 6];                            // ConvexHull.Face[6]
         private unsafe fixed byte m_FaceVertexIndices[sizeof(byte) * 24];    // byte[24]
         private unsafe fixed byte m_VertexEdges[4 * 8];                      // ConvexHull.Edge[8]
@@ -114,7 +114,7 @@ namespace ME.ECS.Essentials.Physics
             m_Header.Material = material;
 
             // Build immutable convex data
-            fixed (BoxCollider* collider = &this)
+            fixed(BoxCollider* collider = &this)
             {
                 ConvexHull.VerticesBlob.Offset = UnsafeEx.CalculateOffset(ref collider->m_Vertices[0], ref ConvexHull.VerticesBlob);
                 ConvexHull.VerticesBlob.Length = 8;
@@ -191,12 +191,12 @@ namespace ME.ECS.Essentials.Physics
             m_Orientation = geometry.Orientation;
             m_Size = geometry.Size;
 
-            fixed (BoxCollider* collider = &this)
+            fixed(BoxCollider* collider = &this)
             {
                 var transform = new RigidTransform(m_Orientation, m_Center);
 
                 // Clamp to avoid extents < 0
-                float3 he = math.max(0, m_Size * (sfloat)0.5f - ConvexHull.ConvexRadius); // half extents
+                float3 he = math.max(0, m_Size * 0.5f - ConvexHull.ConvexRadius); // half extents
 
                 float3* vertices = (float3*)(&collider->m_Vertices[0]);
                 vertices[0] = math.transform(transform, new float3(he.x, he.y, he.z));
@@ -209,12 +209,12 @@ namespace ME.ECS.Essentials.Physics
                 vertices[7] = math.transform(transform, new float3(-he.x, -he.y, -he.z));
 
                 Plane* planes = (Plane*)(&collider->m_FacePlanes[0]);
-                planes[0] = Math.TransformPlane(transform, new Plane(new float3(sfloat.One, sfloat.Zero, sfloat.Zero), -he.x));
-                planes[1] = Math.TransformPlane(transform, new Plane(new float3(-sfloat.One, sfloat.Zero, sfloat.Zero), -he.x));
-                planes[2] = Math.TransformPlane(transform, new Plane(new float3(sfloat.Zero, sfloat.One, sfloat.Zero), -he.y));
-                planes[3] = Math.TransformPlane(transform, new Plane(new float3(sfloat.Zero, -sfloat.One, sfloat.Zero), -he.y));
-                planes[4] = Math.TransformPlane(transform, new Plane(new float3(sfloat.Zero, sfloat.Zero, sfloat.One), -he.z));
-                planes[5] = Math.TransformPlane(transform, new Plane(new float3(sfloat.Zero, sfloat.Zero, -sfloat.One), -he.z));
+                planes[0] = Math.TransformPlane(transform, new Plane(new float3(1, 0, 0), -he.x));
+                planes[1] = Math.TransformPlane(transform, new Plane(new float3(-1, 0, 0), -he.x));
+                planes[2] = Math.TransformPlane(transform, new Plane(new float3(0, 1, 0), -he.y));
+                planes[3] = Math.TransformPlane(transform, new Plane(new float3(0, -1, 0), -he.y));
+                planes[4] = Math.TransformPlane(transform, new Plane(new float3(0, 0, 1), -he.z));
+                planes[5] = Math.TransformPlane(transform, new Plane(new float3(0, 0, -1), -he.z));
             }
         }
 
@@ -236,12 +236,12 @@ namespace ME.ECS.Essentials.Physics
             {
                 Transform = new RigidTransform(m_Orientation, m_Center),
                 InertiaTensor = new float3(
-                    (m_Size.y * m_Size.y + m_Size.z * m_Size.z) * sfloat.FromRaw(0x3daaaaab),
-                    (m_Size.x * m_Size.x + m_Size.z * m_Size.z) * sfloat.FromRaw(0x3daaaaab),
-                    (m_Size.x * m_Size.x + m_Size.y * m_Size.y) * sfloat.FromRaw(0x3daaaaab))
+                    (m_Size.y * m_Size.y + m_Size.z * m_Size.z) / 12.0f,
+                    (m_Size.x * m_Size.x + m_Size.z * m_Size.z) / 12.0f,
+                    (m_Size.x * m_Size.x + m_Size.y * m_Size.y) / 12.0f)
             },
             Volume = m_Size.x * m_Size.y * m_Size.z,
-            AngularExpansionFactor = math.length(m_Size * (sfloat)0.5f - ConvexHull.ConvexRadius)
+            AngularExpansionFactor = math.length(m_Size * 0.5f - ConvexHull.ConvexRadius)
         };
 
         public Aabb CalculateAabb()
@@ -254,9 +254,9 @@ namespace ME.ECS.Essentials.Physics
             float3 centerInB = math.transform(transform, m_Center);
 
             quaternion worldFromBox = math.mul(transform.rot, m_Orientation);
-            float3 x = math.mul(worldFromBox, new float3(m_Size.x * (sfloat)0.5f, sfloat.Zero, sfloat.Zero));
-            float3 y = math.mul(worldFromBox, new float3(sfloat.Zero, m_Size.y * (sfloat)0.5f, sfloat.Zero));
-            float3 z = math.mul(worldFromBox, new float3(sfloat.Zero, sfloat.Zero, m_Size.z * (sfloat)0.5f));
+            float3 x = math.mul(worldFromBox, new float3(m_Size.x * 0.5f, 0, 0));
+            float3 y = math.mul(worldFromBox, new float3(0, m_Size.y * 0.5f, 0));
+            float3 z = math.mul(worldFromBox, new float3(0, 0, m_Size.z * 0.5f));
             float3 halfExtentsInB = math.abs(x) + math.abs(y) + math.abs(z);
 
             return new Aabb
@@ -272,7 +272,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastRay(RaycastInput input, ref NativeList<RaycastHit> allHits) => QueryWrappers.RayCast(ref this, input, ref allHits);
         public unsafe bool CastRay<T>(RaycastInput input, ref T collector) where T : struct, ICollector<RaycastHit>
         {
-            fixed (BoxCollider* target = &this)
+            fixed(BoxCollider* target = &this)
             {
                 return RaycastQueries.RayCollider(input, (Collider*)target, ref collector);
             }
@@ -284,7 +284,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastCollider(ColliderCastInput input, ref NativeList<ColliderCastHit> allHits) => QueryWrappers.ColliderCast(ref this, input, ref allHits);
         public unsafe bool CastCollider<T>(ColliderCastInput input, ref T collector) where T : struct, ICollector<ColliderCastHit>
         {
-            fixed (BoxCollider* target = &this)
+            fixed(BoxCollider* target = &this)
             {
                 return ColliderCastQueries.ColliderCollider(input, (Collider*)target, ref collector);
             }
@@ -296,7 +296,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(PointDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(PointDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (BoxCollider* target = &this)
+            fixed(BoxCollider* target = &this)
             {
                 return DistanceQueries.PointCollider(input, (Collider*)target, ref collector);
             }
@@ -308,7 +308,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(ColliderDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(ColliderDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (BoxCollider* target = &this)
+            fixed(BoxCollider* target = &this)
             {
                 return DistanceQueries.ColliderCollider(input, (Collider*)target, ref collector);
             }

@@ -69,7 +69,7 @@ namespace ME.ECS.Essentials.Physics
             {
                 sfloat invEffectiveMass = math.csum(AxisInMotionA * AxisInMotionA * velocityA.InverseInertia +
                     axisInMotionB * axisInMotionB * velocityB.InverseInertia);
-                effectiveMass = math.select(sfloat.One / invEffectiveMass, sfloat.Zero, invEffectiveMass.IsZero());
+                effectiveMass = math.select(1.0f / invEffectiveMass, 0.0f, invEffectiveMass == 0.0f);
             }
 
             // Calculate the error, adjust by tau and damping, and apply an impulse to correct it
@@ -102,11 +102,11 @@ namespace ME.ECS.Essentials.Physics
 
             // Angle is in [-2pi, 2pi].
             // For comparison against the limits, find k so that angle + 2k * pi is as close to [min, max] as possible.
-            sfloat centerAngle = (MinAngle + MaxAngle) / (sfloat)2.0f;
-            bool above = angle > (centerAngle + math.PI);
-            bool below = angle < (centerAngle - math.PI);
-            angle = math.select(angle, angle - (sfloat)2.0f * math.PI, above);
-            angle = math.select(angle, angle + (sfloat)2.0f * math.PI, below);
+            sfloat centerAngle = (MinAngle + MaxAngle) / 2.0f;
+            bool above = angle > (centerAngle + (float)math.PI);
+            bool below = angle < (centerAngle - (float)math.PI);
+            angle = math.select(angle, angle - 2.0f * (float)math.PI, above);
+            angle = math.select(angle, angle + 2.0f * (float)math.PI, below);
 
             // Calculate the relative angle about the twist axis
             return JacobianUtilities.CalculateError(angle, MinAngle, MaxAngle);

@@ -74,15 +74,16 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                   .Push(ref this.dynamicBodies);
 
             Filter.Create("BurstFilter-Joints")
-                  .With<PhysicsJoint>()
-                  .With<PhysicsConstrainedBodyPair>()
-                  .Push(ref this.joints);
+                .With<PhysicsJoint>()
+                .With<PhysicsConstrainedBodyPair>()
+                .Push(ref this.joints);
 
         }
 
         void ISystemBase.OnDeconstruct() {
             
             this.simulationContext.Dispose();
+            this.physicsWorld.Dispose();
             
             this.scheduler.Dispose();
             
@@ -319,7 +320,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
 
         void IAdvanceTick.AdvanceTick(in float deltaTime) {
 
-            this.physicsWorld.Reset(this.staticBodies.Count, this.dynamicBodies.Count, this.joints.Count);
+            this.physicsWorld.Reset(this.staticBodies.Count + 1 , this.dynamicBodies.Count, this.joints.Count);
 
             if (this.physicsWorld.Bodies.Length == 0) {
                 

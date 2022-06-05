@@ -18,13 +18,13 @@ namespace ME.ECS.Essentials.Physics
         // A pair of interacting bodies (either potentially colliding, or constrained together using a Joint).
         // The indices are compressed into a single 64 bit value, for deterministic sorting, as follows:
         //
-        //        6         5         4         3         2         1         
+        //        6         5         4         3         2         1
         //    4321098765432109876543210987654321098765432109876543210987654321
         // 0b_1111111111111111111111111111111111111111111111111111111111111111
         //    [        BodyA-24      ][       BodyB-24       ]C[  Joint-15   ]
         //
         //
-        // This gives a limit of 
+        // This gives a limit of
         //    16,777,216 Rigid bodies
         //    32,767 Joints (1 bit used for Enable [C]ollisions flag)
         //
@@ -62,7 +62,7 @@ namespace ME.ECS.Essentials.Physics
                 get => (int)((m_Data >> k_BodyIndexAShift) & k_InvalidBodyIndex);
                 internal set
                 {
-                    UnityEngine.Assertions.Assert.IsTrue(value < k_InvalidBodyIndex);
+                    Assert.IsTrue(value < k_InvalidBodyIndex);
                     m_Data = (m_Data & k_BodyAMask) | ((ulong)value << k_BodyIndexAShift);
                 }
             }
@@ -72,7 +72,7 @@ namespace ME.ECS.Essentials.Physics
                 get => (int)((m_Data >> k_BodyIndexBShift) & k_InvalidBodyIndex);
                 internal set
                 {
-                    UnityEngine.Assertions.Assert.IsTrue(value < k_InvalidBodyIndex);
+                    Assert.IsTrue(value < k_InvalidBodyIndex);
                     m_Data = (m_Data & k_BodyBMask) | ((ulong)value << k_BodyIndexBShift);
                 }
             }
@@ -82,7 +82,7 @@ namespace ME.ECS.Essentials.Physics
                 get => (int)((m_Data >> k_JointIndexShift) & k_InvalidJointIndex);
                 internal set
                 {
-                    UnityEngine.Assertions.Assert.IsTrue(value < k_InvalidJointIndex);
+                    Assert.IsTrue(value < k_InvalidJointIndex);
                     m_Data = (m_Data & k_JointMask) | (uint)(value << k_JointIndexShift);
                 }
             }
@@ -102,13 +102,13 @@ namespace ME.ECS.Essentials.Physics
 
             public static DispatchPair CreateJoint(BodyIndexPair pair, int jointIndex, int allowCollision)
             {
-                UnityEngine.Assertions.Assert.IsTrue(jointIndex < k_InvalidJointIndex);
+                Assert.IsTrue(jointIndex < k_InvalidJointIndex);
                 return Create(pair, jointIndex, allowCollision);
             }
 
             private static DispatchPair Create(BodyIndexPair pair, int jointIndex, int allowCollision)
             {
-                UnityEngine.Assertions.Assert.IsTrue(pair.BodyIndexA < k_InvalidBodyIndex && pair.BodyIndexB < k_InvalidBodyIndex);
+                Assert.IsTrue(pair.BodyIndexA < k_InvalidBodyIndex && pair.BodyIndexB < k_InvalidBodyIndex);
                 int selectedA = math.min(pair.BodyIndexA, pair.BodyIndexB);
                 int selectedB = math.max(pair.BodyIndexA, pair.BodyIndexB);
                 return new DispatchPair
@@ -233,7 +233,7 @@ namespace ME.ECS.Essentials.Physics
                 [DeallocateOnJobCompletion]
                 public NativeArray<int> NumWorkItems;
 
-                public void Execute() { }
+                public void Execute() {}
             }
         }
 
@@ -679,8 +679,8 @@ namespace ME.ECS.Essentials.Physics
             [NativeDisableParallelForRestriction]
             public NativeArray<DispatchPair> InOutArray;
 
-            // Typically lastDigitIndex is resulting in 
-            // RadixSortPerBodyAJob.digitCount.nextElementIndex[i] = index of first element 
+            // Typically lastDigitIndex is resulting in
+            // RadixSortPerBodyAJob.digitCount.nextElementIndex[i] = index of first element
             // with bodyA index == i + 1
             [NativeDisableParallelForRestriction]
             [DeallocateOnJobCompletion] public NativeArray<int> NextElementIndex;
@@ -703,7 +703,7 @@ namespace ME.ECS.Essentials.Physics
             // Sorts sub array using default sort
             unsafe public static void DefaultSortOfSubArrays(ulong* inOutArray, int startIndex, int length)
             {
-                // inOutArray[startIndex] to inOutArray[startIndex + length - 1] have the same bodyA index 
+                // inOutArray[startIndex] to inOutArray[startIndex + length - 1] have the same bodyA index
                 // so we can do a simple sorting.
                 if (length > 2)
                 {
@@ -933,7 +933,7 @@ namespace ME.ECS.Essentials.Physics
                 }
 
                 // Uncomment this code when testing scheduler
-                //               CheckIntegrity(phasedDispatchPairs, numDynamicBodies, ref phaseInfo);
+//               CheckIntegrity(phasedDispatchPairs, numDynamicBodies, ref phaseInfo);
 
                 //<todo.eoin.usermod Can we get rid of this max()? Needed if the user wants to add contacts themselves.
                 numWorkItems = math.max(1, SolverSchedulerInfo.CalculateNumWorkItems(phaseInfo));
@@ -983,9 +983,9 @@ namespace ME.ECS.Essentials.Physics
             {
                 internal void Add(NativeArray<ushort> rigidBodyMasks, int bodyIndexA, int bodyIndexB)
                 {
-                    int indexInBuffer = m_NumElements++ * 2;
+                    int indexInBuffer = m_NumElements++ *2;
 
-                    fixed (int* bodyIndices = m_BodyIndices)
+                    fixed(int* bodyIndices = m_BodyIndices)
                     {
                         bodyIndices[indexInBuffer++] = bodyIndexA;
                         bodyIndices[indexInBuffer] = bodyIndexB;
@@ -1009,7 +1009,7 @@ namespace ME.ECS.Essentials.Physics
                 {
                     // Flush
                     int indexInBuffer = 0;
-                    fixed (int* bodyIndices = m_BodyIndices)
+                    fixed(int* bodyIndices = m_BodyIndices)
                     {
                         for (int i = 0; i < m_NumElements; i++)
                         {
@@ -1058,7 +1058,7 @@ namespace ME.ECS.Essentials.Physics
                     }
                 }
 
-                UnityEngine.Assertions.Assert.IsTrue(phaseIndex >= 0 && phaseIndex <= lastPhaseIndex);
+                Assert.IsTrue(phaseIndex >= 0 && phaseIndex <= lastPhaseIndex);
                 return phaseIndex;
             }
 
@@ -1095,7 +1095,7 @@ namespace ME.ECS.Essentials.Physics
                     }
                 }
 
-                UnityEngine.Assertions.Assert.IsTrue(phaseIndex >= 0 && phaseIndex <= lastPhaseIndex);
+                Assert.IsTrue(phaseIndex >= 0 && phaseIndex <= lastPhaseIndex);
                 return phaseIndex;
             }
         }

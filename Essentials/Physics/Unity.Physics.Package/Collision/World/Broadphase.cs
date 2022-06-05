@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using ME.ECS;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -70,7 +71,7 @@ namespace ME.ECS.Essentials.Physics
         public void Build(NativeArray<RigidBody> staticBodies, NativeArray<RigidBody> dynamicBodies,
             NativeArray<MotionVelocity> motionVelocities, sfloat collisionTolerance, sfloat timeStep, float3 gravity, bool buildStaticTree = true)
         {
-            sfloat aabbMargin = collisionTolerance * (sfloat)0.5f; // each body contributes half
+            sfloat aabbMargin = collisionTolerance * 0.5f; // each body contributes half
 
             if (buildStaticTree)
             {
@@ -197,7 +198,7 @@ namespace ME.ECS.Essentials.Physics
                 Points = points,
                 FiltersOut = m_StaticTree.BodyFilters,
                 RespondsToCollisionOut = m_StaticTree.RespondsToCollision,
-                AabbMargin = world.CollisionWorld.CollisionTolerance * (sfloat)0.5f, // each body contributes half
+                AabbMargin = world.CollisionWorld.CollisionTolerance * 0.5f, // each body contributes half
             }.ScheduleUnsafeIndex0(numStaticBodiesArray, 32, handle);
 
             var buildHandle = m_StaticTree.BoundingVolumeHierarchy.ScheduleBuildJobs(
@@ -230,7 +231,7 @@ namespace ME.ECS.Essentials.Physics
                 Points = points,
                 FiltersOut = m_DynamicTree.BodyFilters,
                 RespondsToCollisionOut = m_DynamicTree.RespondsToCollision,
-                AabbMargin = world.CollisionWorld.CollisionTolerance * (sfloat)0.5f, // each body contributes half
+                AabbMargin = world.CollisionWorld.CollisionTolerance * 0.5f, // each body contributes half
                 TimeStep = timeStep,
                 Gravity = gravity
             }.Schedule(world.NumDynamicBodies, 32, inputDeps);
@@ -368,7 +369,13 @@ namespace ME.ECS.Essentials.Physics
 
             public BoundingVolumeHierarchy BoundingVolumeHierarchy => new BoundingVolumeHierarchy(Nodes, NodeFilters);
 
-            public int NumBodies => BodyFilters.Length;
+            public int NumBodies
+            {
+                get
+                {
+                    return BodyFilters.Length;
+                }
+            }
 
             public Tree(int numBodies, Allocator allocator = Allocator.Persistent)
             {
@@ -516,6 +523,7 @@ namespace ME.ECS.Essentials.Physics
         {
             if (input.Filter.IsEmpty)
                 return false;
+
             var leafProcessor = new BvhLeafProcessor(rigidBodies);
 
             leafProcessor.BaseRigidBodyIndex = m_DynamicTree.NumBodies;
@@ -530,9 +538,10 @@ namespace ME.ECS.Essentials.Physics
         public unsafe bool CastCollider<T>(ColliderCastInput input, NativeArray<RigidBody> rigidBodies, ref T collector)
             where T : struct, ICollector<ColliderCastHit>
         {
-            UnityEngine.Assertions.Assert.IsTrue(input.Collider != null);
+            Assert.IsTrue(input.Collider != null);
             if (input.Collider->Filter.IsEmpty)
                 return false;
+
             var leafProcessor = new BvhLeafProcessor(rigidBodies);
 
             leafProcessor.BaseRigidBodyIndex = m_DynamicTree.NumBodies;
@@ -563,7 +572,7 @@ namespace ME.ECS.Essentials.Physics
         public unsafe bool CalculateDistance<T>(ColliderDistanceInput input, NativeArray<RigidBody> rigidBodies, ref T collector)
             where T : struct, ICollector<DistanceHit>
         {
-            UnityEngine.Assertions.Assert.IsTrue(input.Collider != null);
+            Assert.IsTrue(input.Collider != null);
             if (input.Collider->Filter.IsEmpty)
                 return false;
             var leafProcessor = new BvhLeafProcessor(rigidBodies);
@@ -948,24 +957,24 @@ namespace ME.ECS.Essentials.Physics
             {
                 if (swapped)
                 {
-                    fixed (int* l = m_PairsRight)
+                    fixed(int* l = m_PairsRight)
                     {
                         *((int4*)(l + m_Count)) = pairsLeft;
                     }
 
-                    fixed (int* r = m_PairsLeft)
+                    fixed(int* r = m_PairsLeft)
                     {
                         *((int4*)(r + m_Count)) = pairsRight;
                     }
                 }
                 else
                 {
-                    fixed (int* l = m_PairsLeft)
+                    fixed(int* l = m_PairsLeft)
                     {
                         *((int4*)(l + m_Count)) = pairsLeft;
                     }
 
-                    fixed (int* r = m_PairsRight)
+                    fixed(int* r = m_PairsRight)
                     {
                         *((int4*)(r + m_Count)) = pairsRight;
                     }
@@ -977,12 +986,12 @@ namespace ME.ECS.Essentials.Physics
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void AddPairs(int pairLeft, int4 pairsRight, int countR)
             {
-                fixed (int* l = m_PairsLeft)
+                fixed(int* l = m_PairsLeft)
                 {
                     *((int4*)(l + m_Count)) = new int4(pairLeft);
                 }
 
-                fixed (int* r = m_PairsRight)
+                fixed(int* r = m_PairsRight)
                 {
                     *((int4*)(r + m_Count)) = pairsRight;
                 }
@@ -1009,9 +1018,9 @@ namespace ME.ECS.Essentials.Physics
             {
                 if (m_Count != 0)
                 {
-                    fixed (int* l = m_PairsLeft)
+                    fixed(int* l = m_PairsLeft)
                     {
-                        fixed (int* r = m_PairsRight)
+                        fixed(int* r = m_PairsRight)
                         {
                             for (int i = 0; i < m_Count; i++)
                             {

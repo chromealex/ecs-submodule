@@ -1,7 +1,7 @@
+using ME.ECS;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using ME.ECS;
 using ME.ECS.Mathematics;
 using UnityEngine.Assertions;
 
@@ -38,17 +38,17 @@ namespace ME.ECS.Essentials.Physics
 
         // Create a terrain collider from a grid of heights
         public static BlobAssetReference<Collider> Create(
-            NativeArray<sfloat> heights, int2 size, float3 scale, CollisionMethod collisionMethod
+            NativeArray<float> heights, int2 size, float3 scale, CollisionMethod collisionMethod
         ) =>
             Create(heights, size, scale, collisionMethod, CollisionFilter.Default, Material.Default);
 
         public static BlobAssetReference<Collider> Create(
-            NativeArray<sfloat> heights, int2 size, float3 scale, CollisionMethod collisionMethod, CollisionFilter filter
+            NativeArray<float> heights, int2 size, float3 scale, CollisionMethod collisionMethod, CollisionFilter filter
         ) =>
             Create(heights, size, scale, collisionMethod, filter, Material.Default);
 
         public static unsafe BlobAssetReference<Collider> Create(
-            NativeArray<sfloat> heights, int2 size, float3 scale, CollisionMethod collisionMethod, CollisionFilter filter, Material material
+            NativeArray<float> heights, int2 size, float3 scale, CollisionMethod collisionMethod, CollisionFilter filter, Material material
         )
         {
             SafetyChecks.CheckInRangeAndThrow(size.x, new int2(2, int.MaxValue), nameof(size));
@@ -68,7 +68,7 @@ namespace ME.ECS.Essentials.Physics
             collider->m_Header.Filter = filter;
             collider->Material = material;
             collider->MemorySize = totalSize;
-            collider->Terrain.Init(size, scale, (sfloat*)heights.GetUnsafePtr());
+            collider->Terrain.Init(size, scale, (float*)heights.GetUnsafePtr());
 
             var blob = BlobAssetReference<Collider>.Create(collider, totalSize);
             UnsafeUtility.Free(collider, Allocator.Temp);
@@ -98,12 +98,12 @@ namespace ME.ECS.Essentials.Physics
                     {
                         Transform = new RigidTransform(quaternion.identity, Terrain.Aabb.Center),
                         InertiaTensor = new float3(
-                            (size.y * size.y + size.z * size.z) * sfloat.FromRaw(0x3daaaaab),
-                            (size.x * size.x + size.z * size.z) * sfloat.FromRaw(0x3daaaaab),
-                            (size.x * size.x + size.y * size.y) * sfloat.FromRaw(0x3daaaaab))
+                            (size.y * size.y + size.z * size.z) / 12.0f,
+                            (size.x * size.x + size.z * size.z) / 12.0f,
+                            (size.x * size.x + size.y * size.y) / 12.0f)
                     },
-                    Volume = sfloat.Zero,
-                    AngularExpansionFactor = math.length(Terrain.Aabb.Extents) * (sfloat)0.5f
+                    Volume = 0,
+                    AngularExpansionFactor = math.length(Terrain.Aabb.Extents) * 0.5f
                 };
             }
         }
@@ -162,7 +162,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastRay(RaycastInput input, ref NativeList<RaycastHit> allHits) => QueryWrappers.RayCast(ref this, input, ref allHits);
         public unsafe bool CastRay<T>(RaycastInput input, ref T collector) where T : struct, ICollector<RaycastHit>
         {
-            fixed (TerrainCollider* target = &this)
+            fixed(TerrainCollider* target = &this)
             {
                 return RaycastQueries.RayCollider(input, (Collider*)target, ref collector);
             }
@@ -174,7 +174,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CastCollider(ColliderCastInput input, ref NativeList<ColliderCastHit> allHits) => QueryWrappers.ColliderCast(ref this, input, ref allHits);
         public unsafe bool CastCollider<T>(ColliderCastInput input, ref T collector) where T : struct, ICollector<ColliderCastHit>
         {
-            fixed (TerrainCollider* target = &this)
+            fixed(TerrainCollider* target = &this)
             {
                 return ColliderCastQueries.ColliderCollider(input, (Collider*)target, ref collector);
             }
@@ -186,7 +186,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(PointDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(PointDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (TerrainCollider* target = &this)
+            fixed(TerrainCollider* target = &this)
             {
                 return DistanceQueries.PointCollider(input, (Collider*)target, ref collector);
             }
@@ -198,7 +198,7 @@ namespace ME.ECS.Essentials.Physics
         public bool CalculateDistance(ColliderDistanceInput input, ref NativeList<DistanceHit> allHits) => QueryWrappers.CalculateDistance(ref this, input, ref allHits);
         public unsafe bool CalculateDistance<T>(ColliderDistanceInput input, ref T collector) where T : struct, ICollector<DistanceHit>
         {
-            fixed (TerrainCollider* target = &this)
+            fixed(TerrainCollider* target = &this)
             {
                 return DistanceQueries.ColliderCollider(input, (Collider*)target, ref collector);
             }
@@ -388,7 +388,7 @@ namespace ME.ECS.Essentials.Physics
 
         // Initialize the terrain.
         // The memory must have been allocated correctly beforehand.
-        internal unsafe void Init(int2 size, float3 scale, sfloat* heights)
+        internal unsafe void Init(int2 size, float3 scale, float* heights)
         {
             int numSamples = size.x * size.y;
             CalculateTreeInfo(size, out int numNodes, out int numLevels,
@@ -411,12 +411,12 @@ namespace ME.ECS.Essentials.Physics
                     maxHeight = math.max(maxHeight, heights[iHeight]);
                 }
 
-                quantizationFactor = sfloat.FromRaw(0x46fffc00) / maxHeight;
+                quantizationFactor = (short.MaxValue - 1) / maxHeight;
             }
 
             Size = size;
             Scale = new float3(scale.x, scale.y / quantizationFactor, scale.z);
-            InverseScale = new float3(sfloat.One, quantizationFactor, sfloat.One) * math.rcp(scale);
+            InverseScale = new float3(1.0f, quantizationFactor, 1.0f) * math.rcp(scale);
 
             // Calculate the number of shape key bits required to store quad z, x and triangle index.  Size - 2 is the highest possible quad index.
             // We reserve one extra value in the x field to guarantee that all-1s is not needed to refer to any triangle, since it is reserved for invalid.
@@ -428,7 +428,7 @@ namespace ME.ECS.Essentials.Physics
             short* quantizedHeights = (short*)end;
             for (int iHeight = 0; iHeight < numSamples; iHeight++)
             {
-                quantizedHeights[iHeight] = (short)(heights[iHeight] * quantizationFactor + (sfloat)0.5f);
+                quantizedHeights[iHeight] = (short)(heights[iHeight] * quantizationFactor + 0.5f);
             }
             m_HeightsBlob.Offset = UnsafeEx.CalculateOffset(end, ref m_HeightsBlob);
             m_HeightsBlob.Length = numSamples;
@@ -475,7 +475,7 @@ namespace ME.ECS.Essentials.Physics
                     // Save the current level description for lookup in queries
                     levelData->Base = (int)(level - root);
                     levelData->Pitch = (int)levelSize.x;
-                    levelData->Scale = (sfloat)(1 << levelIndex);
+                    levelData->Scale = (float)(1 << levelIndex);
                     levelData--;
                     levelIndex++;
 
@@ -574,8 +574,8 @@ namespace ME.ECS.Essentials.Physics
             // Use min and max height of the whole heightfield to build the AABB
             Aabb = new Aabb
             {
-                Min = new float3(sfloat.Zero, (sfloat)math.cmin(root->Min4), sfloat.Zero) * Scale,
-                Max = new float3((sfloat)(size.x - 1), (sfloat)math.cmax(root->Max4), (sfloat)(size.y - 1)) * Scale
+                Min = new float3(0, math.cmin(root->Min4), 0) * Scale,
+                Max = new float3(size.x - 1, math.cmax(root->Max4), size.y - 1) * Scale
             };
         }
 
@@ -596,7 +596,7 @@ namespace ME.ECS.Essentials.Physics
         {
             if (math.any(position < float2.zero | position >= Aabb.Max.xz))
             {
-                height = sfloat.Zero;
+                height = 0.0f;
                 gradient = float2.zero;
                 return false;
             }
@@ -609,10 +609,7 @@ namespace ME.ECS.Essentials.Physics
 
             // Get heights of the corners of the cell
             int baseIndex = index.y * Size.x + index.x;
-            float4 heights = Scale.y * new float4(
-                (sfloat)Heights[baseIndex], (sfloat)Heights[baseIndex + 1],
-                (sfloat)Heights[baseIndex + Size.x], (sfloat)Heights[baseIndex + Size.x + 1]
-                );
+            float4 heights = Scale.y * new float4(Heights[baseIndex], Heights[baseIndex + 1], Heights[baseIndex + Size.x], Heights[baseIndex + Size.x + 1]);
 
             // Get the height within the cell
             bool triangle0 = fraction0.x < fraction1.y; // Select the triangle within the cell
@@ -629,7 +626,7 @@ namespace ME.ECS.Essentials.Physics
         // Returns a subkey for a triangle
         public uint GetSubKey(int2 index, int triangle)
         {
-            UnityEngine.Assertions.Assert.IsTrue(math.all((index >= 0) & (index < Size - 1)) && triangle >= 0 && triangle <= 2);
+            Assert.IsTrue(math.all((index >= 0) & (index < Size - 1)) && triangle >= 0 && triangle <= 2);
             return ((uint)index.y << ((int)NumXBits + 1)) | ((uint)index.x << 1) | (uint)triangle;
         }
 
@@ -647,9 +644,9 @@ namespace ME.ECS.Essentials.Physics
             int2 index2 = index + new int2(triangle, 1);
 
             return new ChildCollider(
-                new float3((sfloat)index0.x, (sfloat)GetHeight(index0), (sfloat)index0.y) * Scale,
-                new float3((sfloat)index1.x, (sfloat)GetHeight(index1), (sfloat)index1.y) * Scale,
-                new float3((sfloat)index2.x, (sfloat)GetHeight(index2), (sfloat)index2.y) * Scale,
+                new float3(index0.x, GetHeight(index0), index0.y) * Scale,
+                new float3(index1.x, GetHeight(index1), index1.y) * Scale,
+                new float3(index2.x, GetHeight(index2), index2.y) * Scale,
                 filter, material);
         }
 
@@ -681,7 +678,7 @@ namespace ME.ECS.Essentials.Physics
                 Bounds = new FourTransposedAabbs();
 
                 // Initialize the stack with a single node
-                fixed (int* stack = m_Stack)
+                fixed(int* stack = m_Stack)
                 {
                     m_Top = stack;
 
@@ -729,7 +726,7 @@ namespace ME.ECS.Essentials.Physics
             // Otherwise returns false.
             public bool Pop()
             {
-                fixed (int* stack = m_Stack)
+                fixed(int* stack = m_Stack)
                 {
                     if (m_Top == stack)
                     {

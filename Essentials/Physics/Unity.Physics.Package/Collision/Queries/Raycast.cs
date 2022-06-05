@@ -1,5 +1,6 @@
 using ME.ECS;
 using ME.ECS.Mathematics;
+using UnityEngine.Assertions;
 using static ME.ECS.Essentials.Physics.Math;
 
 namespace ME.ECS.Essentials.Physics
@@ -27,7 +28,7 @@ namespace ME.ECS.Essentials.Physics
             set
             {
                 m_Displacement = value;
-                ReciprocalDisplacement = math.select(math.rcp(m_Displacement), math.sqrt(sfloat.MaxValue), m_Displacement == float3.zero);
+                ReciprocalDisplacement = math.select(math.rcp(m_Displacement), math.sqrt(float.MaxValue), m_Displacement == float3.zero);
             }
         }
         float3 m_Displacement;
@@ -52,6 +53,7 @@ namespace ME.ECS.Essentials.Physics
                 float3 end = Ray.Origin + Ray.Displacement;
                 Ray.Origin = value;
                 Ray.Displacement = end - value;
+                Assert.IsTrue(math.all(math.abs(Ray.Displacement) < Math.Constants.MaxDisplacement3F), "RayCast length is very long. This would lead to floating point inaccuracies and invalid results.");
             }
         }
         /// <summary>
@@ -60,7 +62,11 @@ namespace ME.ECS.Essentials.Physics
         public float3 End
         {
             get => Ray.Origin + Ray.Displacement;
-            set => Ray.Displacement = value - Ray.Origin;
+            set
+            {
+                Ray.Displacement = value - Ray.Origin;
+                Assert.IsTrue(math.all(math.abs(Ray.Displacement) < Math.Constants.MaxDisplacement3F), "RayCast length is very long. This would lead to floating point inaccuracies and invalid results.");
+            }
         }
         /// <summary>
         /// The CollisionFilter is used to determine what objects the Ray is and isn't going to hit.
@@ -143,34 +149,34 @@ namespace ME.ECS.Essentials.Physics
         {
             normal = float3.zero;
 
-            // TODO.ma lots of float inaccuracy problems with this
+            // TODO.ma lots of sfloat inaccuracy problems with this
             float3 diff = rayOrigin - sphereCenter;
             sfloat a = math.dot(rayDisplacement, rayDisplacement);
-            sfloat b = (sfloat)2.0f * math.dot(rayDisplacement, diff);
+            sfloat b = 2.0f * math.dot(rayDisplacement, diff);
             sfloat c = math.dot(diff, diff) - sphereRadius * sphereRadius;
-            sfloat discriminant = b * b - (sfloat)4.0f * a * c;
+            sfloat discriminant = b * b - 4.0f * a * c;
 
-            if (c < sfloat.Zero)
+            if (c < 0)
             {
                 // Inside hit.
-                fraction = sfloat.Zero;
+                fraction = 0;
                 normal = math.normalize(-rayDisplacement);
                 return true;
             }
 
-            if (discriminant < sfloat.Zero)
+            if (discriminant < 0)
             {
                 return false;
             }
 
             sfloat sqrtDiscriminant = math.sqrt(discriminant);
-            sfloat invDenom = (sfloat)0.5f / a;
+            sfloat invDenom = 0.5f / a;
 
             sfloat t0 = (sqrtDiscriminant - b) * invDenom;
             sfloat t1 = (-sqrtDiscriminant - b) * invDenom;
             sfloat tMin = math.min(t0, t1);
 
-            if (tMin >= sfloat.Zero && tMin < fraction)
+            if (tMin >= 0 && tMin < fraction)
             {
                 fraction = tMin;
                 normal = (rayOrigin + rayDisplacement * fraction - sphereCenter) / sphereRadius;
@@ -199,9 +205,9 @@ namespace ME.ECS.Essentials.Physics
                 if (RaySphere(rayOrigin2D, rayDisplacement2D, vertex0, radius, ref cylinderFraction, out normal))
                 {
                     sfloat t = originDotAxis + cylinderFraction * directionDotAxis; // distance of the hit from Vertex0 along axis
-                    if (t >= sfloat.Zero && t <= axisLength)
+                    if (t >= 0.0f && t <= axisLength)
                     {
-                        if (cylinderFraction.IsZero())
+                        if (cylinderFraction == 0)
                         {
                             // Inside hit
                             normal = math.normalize(-rayDisplacement);
@@ -246,7 +252,7 @@ namespace ME.ECS.Essentials.Physics
             sfloat d = math.dot(vN, vAp);
             sfloat e = math.dot(vN, end0);
 
-            if (d * e >= sfloat.Zero)
+            if (d * e >= 0)
             {
                 unnormalizedNormal = float3.zero;
                 return false;
@@ -292,7 +298,7 @@ namespace ME.ECS.Essentials.Physics
             sfloat nDotAp = math.dot(vN, vAp);
             sfloat e = math.dot(vN, end0);
 
-            if (nDotAp * e >= sfloat.Zero)
+            if (nDotAp * e >= 0)
             {
                 unnormalizedNormal = float3.zero;
                 return false;
@@ -336,11 +342,11 @@ namespace ME.ECS.Essentials.Physics
             // TODO: Call RaySphere/Capsule/Triangle() if num vertices <= 3 ?
 
             sfloat convexRadius = hull.ConvexRadius;
-            sfloat fracEnter = -sfloat.One;
-            sfloat fracExit = (sfloat)2.0f;
+            sfloat fracEnter = -1.0f;
+            sfloat fracExit = 2.0f;
             float3 start = rayOrigin;
             float3 end = start + rayDisplacement * fraction;
-            normal = new float3(sfloat.One, sfloat.Zero, sfloat.Zero);
+            normal = new float3(1, 0, 0);
             for (int i = 0; i < hull.NumFaces; i++) // TODO.ma vectorize
             {
                 // Calculate the plane's hit fraction
@@ -348,8 +354,8 @@ namespace ME.ECS.Essentials.Physics
                 sfloat startDistance = math.dot(start, plane.Normal) + plane.Distance - convexRadius;
                 sfloat endDistance = math.dot(end, plane.Normal) + plane.Distance - convexRadius;
                 sfloat newFraction = startDistance / (startDistance - endDistance);
-                bool startInside = (startDistance < sfloat.Zero);
-                bool endInside = (endDistance < sfloat.Zero);
+                bool startInside = (startDistance < 0);
+                bool endInside = (endDistance < 0);
 
                 // If the ray is entirely outside of any plane, then it misses
                 if (!(startInside || endInside))
@@ -365,10 +371,10 @@ namespace ME.ECS.Essentials.Physics
                 fracExit = math.select(fracExit, newFraction, exit);
             }
 
-            if (fracEnter < sfloat.Zero)
+            if (fracEnter < 0)
             {
                 // Inside hit.
-                fraction = sfloat.Zero;
+                fraction = 0;
                 normal = math.normalize(-rayDisplacement);
                 return true;
             }

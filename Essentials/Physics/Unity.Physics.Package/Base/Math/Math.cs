@@ -14,18 +14,23 @@ namespace ME.ECS.Essentials.Physics
         public static class Constants
         {
             public static float4 One4F => new float4(1);
-            public static float4 Min4F => new float4(sfloat.MinValue);
-            public static float4 Max4F => new float4(sfloat.MaxValue);
-            public static float3 Min3F => new float3(sfloat.MinValue);
-            public static float3 Max3F => new float3(sfloat.MaxValue);
+            public static float4 Min4F => new float4(float.MinValue);
+            public static float4 Max4F => new float4(float.MaxValue);
+            public static float3 Min3F => new float3(float.MinValue);
+            public static float3 Max3F => new float3(float.MaxValue);
+            public static float3 MaxDisplacement3F => new float3(float.MaxValue * 0.5f);
 
-            // Smallest float such that 1.0 + eps != 1.0
+            // Smallest sfloat such that 1.0 + eps != 1.0
             // Different from float.Epsilon which is the smallest value greater than zero.
-            public static sfloat Eps => sfloat.FromRaw(0x34000000);
+            public static sfloat Eps = 1.192092896e-07F;
 
             // These constants are identical to the ones in the Unity Mathf library, to ensure identical behaviour
-            internal static sfloat UnityEpsilonNormalSqrt => sfloat.FromRaw(0x26901d7d);
-            internal static sfloat UnityEpsilon => sfloat.FromRaw(0x3727c5ac);
+            internal static sfloat UnityEpsilonNormalSqrt = 1e-15F;
+            internal static sfloat UnityEpsilon = 0.00001F;
+
+            public static sfloat Tau = 2.0f * math.PI;
+            public static sfloat OneOverTau = 1.0f / Tau;
+
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -66,14 +71,29 @@ namespace ME.ECS.Essentials.Physics
         public static sfloat HorizontalMul(float4 v) => (v.x * v.y) * (v.z * v.w);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sfloat Dotxyz1(float4 lhs, float3 rhs) => math.dot(lhs, new float4(rhs, sfloat.One));
+        public static sfloat Dotxyz1(float4 lhs, float3 rhs) => math.dot(lhs, new float4(rhs, 1));
 
+        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // public static double Dotxyz1(double4 lhs, double3 rhs) => math.dot(lhs, new double4(rhs, 1));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static sfloat Det(float3 a, float3 b, float3 c) => math.dot(math.cross(a, b), c); // TODO: use math.determinant()?
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sfloat RSqrtSafe(sfloat v) => math.select(math.rsqrt(v), sfloat.Zero, math.abs(v) < sfloat.FromRaw(0x2edbe6ff));
+        public static sfloat RSqrtSafe(sfloat v) => math.select(math.rsqrt(v), 0.0f, math.abs(v) < 1e-10f);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ClampToMaxLength(sfloat maxLength, ref float3 vector)
+        {
+            sfloat lengthSq = math.lengthsq(vector);
+            bool maxExceeded = lengthSq > maxLength * maxLength;
+            if (maxExceeded)
+            {
+                sfloat invLen = math.rsqrt(lengthSq);
+                float3 rescaledVector = maxLength * invLen * vector;
+                vector = rescaledVector;
+            }
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static sfloat NormalizeWithLength(float3 v, out float3 n)
@@ -87,7 +107,7 @@ namespace ME.ECS.Essentials.Physics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNormalized(float3 v)
         {
-            sfloat lenZero = math.lengthsq(v) - sfloat.One;
+            sfloat lenZero = math.lengthsq(v) - 1.0f;
             sfloat absLenZero = math.abs(lenZero);
             return absLenZero < Constants.UnityEpsilon;
         }
@@ -100,8 +120,8 @@ namespace ME.ECS.Essentials.Physics
             float3 invLengths = math.rsqrt(lengthsSquared);
 
             // select first direction, j x v or k x v, whichever has greater magnitude
-            float3 dir0 = new float3(-v.y, v.x, sfloat.Zero);
-            float3 dir1 = new float3(-v.z, sfloat.Zero, v.x);
+            float3 dir0 = new float3(-v.y, v.x, 0.0f);
+            float3 dir1 = new float3(-v.z, 0.0f, v.x);
             bool cmp = (lengthsSquared.y > lengthsSquared.z);
             float3 dir = math.select(dir1, dir0, cmp);
 
@@ -122,7 +142,7 @@ namespace ME.ECS.Essentials.Physics
                     case 0: return m.c0[row];
                     case 1: return m.c1[row];
                     case 2: return m.c2[row];
-                    default: UnityEngine.Assertions.Assert.IsTrue(false); return sfloat.Zero;
+                    default: UnityEngine.Assertions.Assert.IsTrue(false); return 0.0f;
                 }
             }
 
@@ -138,7 +158,7 @@ namespace ME.ECS.Essentials.Physics
             }
 
             eigenVectors = float3x3.identity;
-            sfloat epsSq = sfloat.FromRaw(0x283424dc) * (math.lengthsq(a.c0) + math.lengthsq(a.c1) + math.lengthsq(a.c2));
+            sfloat epsSq = 1e-14f * (math.lengthsq(a.c0) + math.lengthsq(a.c1) + math.lengthsq(a.c2));
             const int maxIterations = 10;
             for (int iteration = 0; iteration < maxIterations; iteration++)
             {
@@ -172,17 +192,17 @@ namespace ME.ECS.Essentials.Physics
                 float3x3 j = float3x3.identity;
                 {
                     sfloat apq = GetMatrixElement(a, p, q);
-                    sfloat tau = (GetMatrixElement(a, q, q) - GetMatrixElement(a, p, p)) / ((sfloat)2.0f * apq);
-                    sfloat t = math.sqrt(sfloat.One + tau * tau);
-                    if (tau > sfloat.Zero)
+                    sfloat tau = (GetMatrixElement(a, q, q) - GetMatrixElement(a, p, p)) / (2.0f * apq);
+                    sfloat t = math.sqrt(1.0f + tau * tau);
+                    if (tau > 0.0f)
                     {
-                        t = sfloat.One / (tau + t);
+                        t = 1.0f / (tau + t);
                     }
                     else
                     {
-                        t = sfloat.One / (tau - t);
+                        t = 1.0f / (tau - t);
                     }
-                    sfloat c = math.rsqrt(sfloat.One + t * t);
+                    sfloat c = math.rsqrt(1.0f + t * t);
                     sfloat s = t * c;
 
                     SetMatrixElement(ref j, p, p, c);
@@ -215,35 +235,33 @@ namespace ME.ECS.Essentials.Physics
         // Returns a quaternion q with q * from = to
         public static quaternion FromToRotation(float3 from, float3 to)
         {
-            UnityEngine.Assertions.Assert.IsTrue(math.abs(math.lengthsq(from) - sfloat.One) < sfloat.FromRaw(0x38d1b717));
-            UnityEngine.Assertions.Assert.IsTrue(math.abs(math.lengthsq(to) - sfloat.One) < sfloat.FromRaw(0x38d1b717));
+            Assert.IsTrue(math.abs(math.lengthsq(from) - 1.0f) < 1e-4f);
+            Assert.IsTrue(math.abs(math.lengthsq(to) - 1.0f) < 1e-4f);
             float3 cross = math.cross(from, to);
             CalculatePerpendicularNormalized(from, out float3 safeAxis, out float3 unused); // for when angle ~= 180
             sfloat dot = math.dot(from, to);
-            float3 squares = new float3((sfloat)0.5f - new float2(dot, -dot) * (sfloat)0.5f, math.lengthsq(cross));
-            float3 inverses = math.select(math.rsqrt(squares), sfloat.Zero, squares < sfloat.FromRaw(0x2edbe6ff));
+            float3 squares = new float3(0.5f - new float2(dot, -dot) * 0.5f, math.lengthsq(cross));
+            float3 inverses = math.select(math.rsqrt(squares), (sfloat)0.0f, squares < 1e-10f);
             float2 sinCosHalfAngle = squares.xy * inverses.xy;
-            float3 axis = math.select(cross * inverses.z, safeAxis, squares.z < sfloat.FromRaw(0x2edbe6ff));
+            float3 axis = math.select(cross * inverses.z, safeAxis, squares.z < 1e-10f);
             return new quaternion(new float4(axis * sinCosHalfAngle.x, sinCosHalfAngle.y));
         }
 
-        
-        // Note: taken from Unity.Animation/Core/MathExtensions.cs, which will be moved to Unity.Mathematics at some point
+        // Note: taken from Unity.Animation/Core/MathExtensions.cs, which will be moved to ME.ECS.Mathematics at some point
         //       after that, this should be removed and the Mathematics version should be used
         #region toEuler
         static float3 toEuler(quaternion q, math.RotationOrder order = math.RotationOrder.Default)
         {
+            sfloat epsilon = 1e-6f;
+
             //prepare the data
             var qv = q.value;
-            var d1 = qv * qv.wwww * new float4((sfloat)2.0f); //xw, yw, zw, ww
-            var d2 = qv * qv.yzxw * new float4((sfloat)2.0f); //xy, yz, zx, ww
+            var d1 = qv * qv.wwww * new float4(2.0f); //xw, yw, zw, ww
+            var d2 = qv * qv.yzxw * new float4(2.0f); //xy, yz, zx, ww
             var d3 = qv * qv;
-            var euler = new float3(sfloat.Zero);
+            var euler = new float3(0.0f);
 
-            //const float epsilon = 1e-6f;
-            //const float CUTOFF = (1.0f - 2.0f * epsilon) * (1.0f - 2.0f * epsilon);
-            const uint CUTOFF_U32 = 0x3f7fffbd;
-            sfloat CUTOFF = sfloat.FromRaw(CUTOFF_U32);
+            sfloat CUTOFF = (1.0f - 2.0f * epsilon) * (1.0f - 2.0f * epsilon);
 
             switch (order)
             {
@@ -260,11 +278,11 @@ namespace ME.ECS.Essentials.Physics
                     }
                     else //zxz
                     {
-                        y1 = math.clamp(y1, -sfloat.One, sfloat.One);
+                        y1 = math.clamp(y1, -1.0f, 1.0f);
                         var abcd = new float4(d2.z, d1.y, d2.y, d1.x);
-                        var x1 = (sfloat)2.0f * (abcd.x * abcd.w + abcd.y * abcd.z); //2(ad+bc)
-                        var x2 = math.csum(abcd * abcd * new float4(-sfloat.One, sfloat.One, -sfloat.One, sfloat.One));
-                        euler = new float3(math.atan2(x1, x2), math.asin(y1), sfloat.Zero);
+                        var x1 = 2.0f * (abcd.x * abcd.w + abcd.y * abcd.z); //2(ad+bc)
+                        var x2 = math.csum(abcd * abcd * new float4(-1.0f, 1.0f, -1.0f, 1.0f));
+                        euler = new float3(math.atan2(x1, x2), math.asin(y1), 0.0f);
                     }
 
                     break;
@@ -283,11 +301,11 @@ namespace ME.ECS.Essentials.Physics
                     }
                     else //zxz
                     {
-                        y1 = math.clamp(y1, -sfloat.One, sfloat.One);
+                        y1 = math.clamp(y1, -1.0f, 1.0f);
                         var abcd = new float4(d2.z, d1.y, d2.y, d1.x);
-                        var x1 = (sfloat)2.0f * (abcd.x * abcd.w + abcd.y * abcd.z); //2(ad+bc)
-                        var x2 = math.csum(abcd * abcd * new float4(-sfloat.One, sfloat.One, -sfloat.One, sfloat.One));
-                        euler = new float3(math.atan2(x1, x2), -math.asin(y1), sfloat.Zero);
+                        var x1 = 2.0f * (abcd.x * abcd.w + abcd.y * abcd.z); //2(ad+bc)
+                        var x2 = math.csum(abcd * abcd * new float4(-1.0f, 1.0f, -1.0f, 1.0f));
+                        euler = new float3(math.atan2(x1, x2), -math.asin(y1), 0.0f);
                     }
 
                     break;
@@ -306,11 +324,11 @@ namespace ME.ECS.Essentials.Physics
                     }
                     else //yzy
                     {
-                        y1 = math.clamp(y1, -sfloat.One, sfloat.One);
+                        y1 = math.clamp(y1, -1.0f, 1.0f);
                         var abcd = new float4(d2.x, d1.z, d2.y, d1.x);
-                        var x1 = (sfloat)2.0f * (abcd.x * abcd.w + abcd.y * abcd.z); //2(ad+bc)
-                        var x2 = math.csum(abcd * abcd * new float4(-sfloat.One, sfloat.One, -sfloat.One, sfloat.One));
-                        euler = new float3(math.atan2(x1, x2), math.asin(y1), sfloat.Zero);
+                        var x1 = 2.0f * (abcd.x * abcd.w + abcd.y * abcd.z); //2(ad+bc)
+                        var x2 = math.csum(abcd * abcd * new float4(-1.0f, 1.0f, -1.0f, 1.0f));
+                        euler = new float3(math.atan2(x1, x2), math.asin(y1), 0.0f);
                     }
 
                     break;
@@ -329,11 +347,11 @@ namespace ME.ECS.Essentials.Physics
                     }
                     else //yxy
                     {
-                        y1 = math.clamp(y1, -sfloat.One, sfloat.One);
+                        y1 = math.clamp(y1, -1.0f, 1.0f);
                         var abcd = new float4(d2.x, d1.z, d2.y, d1.x);
-                        var x1 = (sfloat)2.0f * (abcd.x * abcd.w + abcd.y * abcd.z); //2(ad+bc)
-                        var x2 = math.csum(abcd * abcd * new float4(-sfloat.One, sfloat.One, -sfloat.One, sfloat.One));
-                        euler = new float3(math.atan2(x1, x2), -math.asin(y1), sfloat.Zero);
+                        var x1 = 2.0f * (abcd.x * abcd.w + abcd.y * abcd.z); //2(ad+bc)
+                        var x2 = math.csum(abcd * abcd * new float4(-1.0f, 1.0f, -1.0f, 1.0f));
+                        euler = new float3(math.atan2(x1, x2), -math.asin(y1), 0.0f);
                     }
 
                     break;
@@ -352,11 +370,11 @@ namespace ME.ECS.Essentials.Physics
                     }
                     else //xyx
                     {
-                        y1 = math.clamp(y1, -sfloat.One, sfloat.One);
+                        y1 = math.clamp(y1, -1.0f, 1.0f);
                         var abcd = new float4(d2.x, d1.z, d2.z, d1.y);
-                        var x1 = (sfloat)2.0f * (abcd.x * abcd.w + abcd.y * abcd.z); //2(ad+bc)
-                        var x2 = math.csum(abcd * abcd * new float4(-sfloat.One, sfloat.One, -sfloat.One, sfloat.One));
-                        euler = new float3(math.atan2(x1, x2), math.asin(y1), sfloat.Zero);
+                        var x1 = 2.0f * (abcd.x * abcd.w + abcd.y * abcd.z); //2(ad+bc)
+                        var x2 = math.csum(abcd * abcd * new float4(-1.0f, 1.0f, -1.0f, 1.0f));
+                        euler = new float3(math.atan2(x1, x2), math.asin(y1), 0.0f);
                     }
 
                     break;
@@ -372,13 +390,14 @@ namespace ME.ECS.Essentials.Physics
                         var z1 = d2.x + d1.z;
                         var z2 = d3.x + d3.w - d3.y - d3.z;
                         euler = new float3(math.atan2(x1, x2), -math.asin(y1), math.atan2(z1, z2));
-                    } else //xzx
+                    }
+                    else   //xzx
                     {
-                        y1 = math.clamp(y1, -sfloat.One, sfloat.One);
+                        y1 = math.clamp(y1, -1.0f, 1.0f);
                         var abcd = new float4(d2.z, d1.y, d2.x, d1.z);
-                        var x1 = (sfloat)2.0f * (abcd.x * abcd.w + abcd.y * abcd.z); //2(ad+bc)
-                        var x2 = math.csum(abcd * abcd * new float4(-sfloat.One, sfloat.One, -sfloat.One, sfloat.One));
-                        euler = new float3(math.atan2(x1, x2), -math.asin(y1), sfloat.Zero);
+                        var x1 = 2.0f * (abcd.x * abcd.w + abcd.y * abcd.z); //2(ad+bc)
+                        var x2 = math.csum(abcd * abcd * new float4(-1.0f, 1.0f, -1.0f, 1.0f));
+                        euler = new float3(math.atan2(x1, x2), -math.asin(y1), 0.0f);
                     }
 
                     break;
@@ -407,6 +426,7 @@ namespace ME.ECS.Essentials.Physics
                     return euler;
             }
         }
+
         #endregion
 
         /// <summary>
@@ -426,9 +446,9 @@ namespace ME.ECS.Essentials.Physics
             // sqrt(a) * sqrt(b) = sqrt(a * b) -- valid for real numbers
             var denominator = math.sqrt(math.lengthsq(from) * math.lengthsq(to));
             if (denominator < Constants.UnityEpsilonNormalSqrt)
-                return sfloat.Zero;
+                return 0F;
 
-            var dot = math.clamp(math.dot(from, to) / denominator, -sfloat.One, sfloat.One);
+            var dot = math.clamp(math.dot(from, to) / denominator, -1F, 1F);
             return math.degrees(math.acos(dot));
         }
 
