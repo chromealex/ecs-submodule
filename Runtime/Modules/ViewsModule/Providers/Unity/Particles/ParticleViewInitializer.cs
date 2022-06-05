@@ -13,6 +13,14 @@ namespace ME.ECS.Views.Providers {
             
         }
 
+        public override void OnValidate() {
+            
+            base.OnValidate();
+
+            if (this.view == null) this.view = this.GetComponent<ParticleViewSourceBase>();
+
+        }
+
     }
 
 }

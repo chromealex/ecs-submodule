@@ -74,12 +74,8 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                   .Push(ref this.dynamicBodies);
 
             Filter.Create("BurstFilter-Joints")
-                  .With<ME.ECS.Transform.Position>()
-                  .With<ME.ECS.Transform.Rotation>()
-                  .With<ME.ECS.Transform.Scale>()
                   .With<PhysicsJoint>()
                   .With<PhysicsConstrainedBodyPair>()
-                  .Without<IsPhysicsStatic>()
                   .Push(ref this.joints);
 
         }
@@ -87,7 +83,6 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
         void ISystemBase.OnDeconstruct() {
             
             this.simulationContext.Dispose();
-            this.physicsWorld.Dispose();
             
             this.scheduler.Dispose();
             

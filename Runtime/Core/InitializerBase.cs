@@ -148,12 +148,12 @@ namespace ME.ECS {
             world.SetDebugSettings(this.worldDebugSettings);
             world.InitializeDefaults();
 
-            // Initialize scene
-            this.InitializeScene(world);
-            
             // Initialize features
             this.InitializeFeatures(world);
             
+            // Initialize scene
+            this.InitializeScene(world);
+
         }
 
         private void InitializeScene(World world) {

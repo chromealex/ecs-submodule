@@ -8,18 +8,24 @@ using tfloat = System.Single;
 
 namespace ME.ECS.Transform {
 
+    [ComponentGroup(typeof(TransformComponentConstants.GroupInfo))]
+    [ComponentOrder(1)]
     public struct Position2D : IComponent, IVersioned {
 
         public float2 value;
 
     }
     
+    [ComponentGroup(typeof(TransformComponentConstants.GroupInfo))]
+    [ComponentOrder(2)]
     public struct Rotation2D : IComponent, IVersioned {
 
         public tfloat value;
 
     }
     
+    [ComponentGroup(typeof(TransformComponentConstants.GroupInfo))]
+    [ComponentOrder(3)]
     public struct Scale2D : IComponent, IVersioned {
 
         public float2 value;

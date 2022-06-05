@@ -1,5 +1,7 @@
 namespace ME.ECS.DataConfigs {
 
+    [ComponentGroup("Data Config", GroupColor.Default, -100)]
+    [ComponentOrder(1)]
     public struct SourceConfig : IComponent, IComponentRuntime {
 
         /// <summary>

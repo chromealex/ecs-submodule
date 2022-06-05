@@ -1,6 +1,15 @@
 ﻿
 namespace ME.ECS {
 
+    public static class TransformComponentConstants {
+
+        public const GroupColor GROUP_COLOR = ME.ECS.GroupColor.Cyan;
+
+        [ComponentGroup("Transform", TransformComponentConstants.GROUP_COLOR, -1000)]
+        public static class GroupInfo { }
+
+    }
+    
     public static class TransformComponentsInitializer {
 
         public static void InitTypeId() {

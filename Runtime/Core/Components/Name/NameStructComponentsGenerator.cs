@@ -1,6 +1,15 @@
 ﻿
 namespace ME.ECS {
 
+    public static class NameComponentConstants {
+
+        public const GroupColor GROUP_COLOR = ME.ECS.GroupColor.Default;
+
+        [ComponentGroup("Entity", NameComponentConstants.GROUP_COLOR, -2000)]
+        public static class GroupInfo { }
+
+    }
+    
     public static class NameComponentsInitializer {
 
         public static void InitTypeId() {

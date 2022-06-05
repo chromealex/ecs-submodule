@@ -599,14 +599,14 @@ namespace ME.ECS.FiltersArchetype {
             ArrayUtils.Copy(other.index, ref this.index);
             
             ArrayUtils.Copy(other.allArchetypes, ref this.allArchetypes, new Archetype.CopyData());
-
+            
         }
 
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
         public void Recycle() {
-
+            
             if (this.allArchetypes != null) {
 
                 for (int i = 0; i < this.allArchetypes.Count; ++i) {

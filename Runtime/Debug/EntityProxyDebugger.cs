@@ -1,4 +1,7 @@
 ﻿
+using System.Linq;
+using System.Reflection;
+
 namespace ME.ECS.Debug {
 
     public class EntityProxyDebugger {
@@ -147,25 +150,110 @@ namespace ME.ECS.Debug {
             public IComponentBase data;
 
         }
+
+        public class DuplicateKeyComparer<TKey> : System.Collections.Generic.IComparer<TKey> where TKey : System.IComparable {
+            
+            public int Compare(TKey x, TKey y) {
+                int result = x.CompareTo(y);
+                if (result == 0) {
+                    return 1; // Handle equality as being greater. Note: this will break Remove(key) or
+                } else { // IndexOfKey(key) since the comparer never returns 0 to signal key equality
+                    return result;
+                }
+            }
+            
+        }
         
+        private class TempGroup {
+
+            public string name;
+            public int order;
+            public System.Collections.Generic.SortedList<int, ComponentData> data;
+
+        }
         public ComponentData[] GetComponentsList() {
             
             if (this.alive == false) return new ComponentData[0];
             
+            var curGroup = new TempGroup() {
+                name = "Default",
+                order = 0,
+                data = new System.Collections.Generic.SortedList<int, ComponentData>(new DuplicateKeyComparer<int>()),
+            };
+            var sorted = new System.Collections.Generic.SortedList<int, string>(new DuplicateKeyComparer<int>());
+            sorted.Add(curGroup.order, curGroup.name);
+            var groups = new System.Collections.Generic.Dictionary<string, TempGroup>();
+            groups.Add(curGroup.name, curGroup);
             var world = this.world;
             var components = world.GetStructComponents();
             var registries = components.GetAllRegistries();
-            var list = new System.Collections.Generic.List<ComponentData>();
             for (int i = 0; i < registries.Length; ++i) {
 
                 var reg = registries.arr[i];
                 if (reg == null) continue;
                 if (reg.Has(this.entity) == false) continue;
-                list.Add(new ComponentData() {
-                    dataIndex = i,
-                    data = reg.GetObject(this.entity),
-                });
 
+                var data = reg.GetObject(this.entity);
+                var componentData = new ComponentData() {
+                    dataIndex = i,
+                    data = data,
+                };
+                var hasGroup = false;
+                var type = data.GetType();
+
+                var componentOrder = 0;
+                var orderAttr = type.GetCustomAttribute<ComponentOrderAttribute>(true);
+                if (orderAttr != null) {
+
+                    componentOrder = orderAttr.order;
+
+                }
+                
+                var groupAttr = type.GetCustomAttribute<ComponentGroupAttribute>(true);
+                if (groupAttr != null) {
+
+                    if (curGroup.name != groupAttr.name) {
+
+                        if (groups.TryGetValue(groupAttr.name, out var group) == true) {
+                            
+                            group.data.Add(componentOrder, componentData);
+                            
+                        } else {
+                            
+                            group = new TempGroup() {
+                                name = groupAttr.name,
+                                order = groupAttr.order,
+                                data = new System.Collections.Generic.SortedList<int, ComponentData>(new DuplicateKeyComparer<int>()),
+                            };
+                            group.data.Add(componentOrder, componentData);
+                            groups.Add(groupAttr.name, group);
+                            sorted.Add(groupAttr.order, groupAttr.name);
+                            
+                        }
+                        
+                    }
+
+                    hasGroup = true;
+
+                }
+
+                if (hasGroup == false) {
+                    
+                    curGroup.data.Add(componentOrder, componentData);
+                    
+                }
+                
+            }
+
+            var list = new System.Collections.Generic.List<ComponentData>();
+            foreach (var kv in sorted) {
+
+                if (groups.TryGetValue(kv.Value, out var group) == true) {
+                    
+                    list.AddRange(group.data.Values);
+                    
+                }
+                
             }
 
             return list.ToArray();

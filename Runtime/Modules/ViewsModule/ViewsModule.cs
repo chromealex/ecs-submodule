@@ -437,8 +437,10 @@ namespace ME.ECS.Views {
     }
 
     /// <summary>
-    /// Private component class to describe Views
+    /// Component to describe Views
     /// </summary>
+    [ComponentGroup("Views", GroupColor.Magenta, -900)]
+    [ComponentOrder(1)]
     public struct ViewComponent : IComponent {
 
         public ViewInfo viewInfo;

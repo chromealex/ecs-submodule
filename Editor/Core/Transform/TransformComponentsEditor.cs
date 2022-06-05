@@ -12,6 +12,7 @@ namespace ME.ECSEditor {
         public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label) {
 
             var value = property.FindPropertyRelative("value");
+            UnityEditor.EditorGUI.indentLevel = 0;
             UnityEditor.EditorGUI.PropertyField(position, value, label);
 
         }

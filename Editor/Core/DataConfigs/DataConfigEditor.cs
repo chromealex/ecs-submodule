@@ -370,8 +370,9 @@ namespace ME.ECSEditor {
 
         }
 
-        public static void BuildInspectorPropertiesElement(string elementPath, IEditorContainer editor, System.Collections.Generic.HashSet<System.Type> usedComponents, SerializedProperty obj, UnityEngine.UIElements.VisualElement container, bool noFields, System.Action<int, PropertyField> onBuild = null) {
+        public static void BuildInspectorPropertiesElement(string elementPath, IEditorContainer editor, System.Collections.Generic.HashSet<System.Type> usedComponents, SerializedProperty obj, UnityEngine.UIElements.VisualElement container, bool noFields, System.Action<int, PropertyField> onBuild = null, bool drawGroups = false) {
 
+            var curGroup = string.Empty;
             obj = obj.Copy();
             container.Clear();
             var source = obj.Copy();
@@ -381,6 +382,7 @@ namespace ME.ECSEditor {
             var depth = iterator.depth;
             var i = 0;
             var iteratorNext = iterator.Copy();
+            Foldout header = null;
             do {
 
                 if (string.IsNullOrEmpty(elementPath) == false) {
@@ -393,6 +395,39 @@ namespace ME.ECSEditor {
 
                 }
                 if (iterator.propertyType != SerializedPropertyType.ManagedReference) continue;
+
+                if (drawGroups == true) {
+
+                    var groupAttr = iterator.GetValue().GetType().GetCustomAttribute<ComponentGroupAttribute>(true);
+                    if (groupAttr != null) {
+
+                        if (groupAttr.name != curGroup) {
+
+                            curGroup = groupAttr.name;
+                            var key = $"ME.ECS.Foldouts.EntityDebugComponent.Group.{curGroup}";
+                            var bColor = groupAttr.color;
+                            bColor.a = 0.1f;
+                            // Draw header
+                            header = new Foldout();
+                            header.SetValueWithoutNotify(EditorPrefs.GetBool(key, false));
+                            header.text = curGroup;
+                            header.AddToClassList("header-group");
+                            var backColor = header.style.backgroundColor;
+                            backColor.value = bColor;
+                            header.style.backgroundColor = backColor;
+                            container.Add(header);
+
+                            header.RegisterValueChangedCallback(evt => { EditorPrefs.SetBool(key, evt.newValue); });
+
+                        }
+
+                    } else {
+
+                        header = null;
+
+                    }
+
+                }
 
                 var element = new VisualElement();
                 element.AddToClassList("element");
@@ -508,8 +543,17 @@ namespace ME.ECSEditor {
                     }
 
                 }
-                
-                container.Add(element);
+
+                if (header == null) {
+
+                    container.Add(element);
+
+                } else {
+                    
+                    header.contentContainer.Add(element);
+                    
+                }
+
                 ++i;
 
             } while (iteratorNext.NextVisible(false) == true && depth <= iteratorNext.depth);

@@ -131,25 +131,58 @@ namespace ME.ECS.Views.Providers {
         
         [UnityEngine.SpaceAttribute]
         public TransformProperties transformProperties = TransformProperties.Default;
+
+        [UnityEngine.SpaceAttribute]
+        public SceneSourceComponent[] sceneSourceComponents; 
         
         [UnityEngine.SpaceAttribute]
         public DestroyViewBehaviour destroyViewBehaviour;
-        
+
+        public virtual void OnValidate() {
+
+            var list = new System.Collections.Generic.List<SceneSourceComponent>();
+            var components = this.GetComponentsInChildren<SceneSourceComponent>(false);
+            foreach (var component in components) {
+
+                var initializers = component.GetComponentsInParent<SceneViewInitializer>(true);
+                if (initializers.Length > 0 && initializers[0] == this) {
+                    
+                    list.Add(component);
+                    
+                }
+
+            }
+
+            this.sceneSourceComponents = list.ToArray();
+
+        }
+
         void ISceneView.Initialize(World world) {
 
-            this.Initialize_INTERNAL(world, Entity.Null);
+            this.Initialize_INTERNAL(world, in Entity.Null);
 
         }
         
-        internal void Initialize_INTERNAL(World world, Entity rootEntity) {
+        internal void Initialize_INTERNAL(World world, in Entity rootEntity) {
 
             var entity = new Entity(this.applyName == true ? this.name : null, this.entityFlags);
             if (this.applyDataConfig != null) this.applyDataConfig.Apply(entity);
 
             this.transformProperties.Apply(in entity, in rootEntity, this, world);
-            
+
             this.OnInitialize(world, in entity);
             
+            for (int i = 0; i < this.sceneSourceComponents.Length; ++i) {
+
+                var sceneSourceComponent = this.sceneSourceComponents[i];
+                if (sceneSourceComponent != null) {
+
+                    sceneSourceComponent.Apply(world, in entity);
+
+                }
+
+            }
+
         }
 
         protected abstract void OnInitialize(World world, in Entity entity);

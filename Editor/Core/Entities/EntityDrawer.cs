@@ -28,7 +28,7 @@ namespace ME.ECSEditor {
             //labelRect.x += EditorGUI.indentLevel * 14f;
             labelRect.width = EditorGUIUtility.labelWidth - labelRect.x;
             var contentRect = position;
-            contentRect.x = labelRect.width + labelRect.x - EditorGUI.indentLevel * 14f;
+            contentRect.x = labelRect.width + labelRect.x;// - EditorGUI.indentLevel * 14f;
             contentRect.y -= 4f;
             contentRect.width = EditorGUIUtility.currentViewWidth - labelRect.width - buttonWidth - position.x - labelRect.x;// - EditorGUI.indentLevel * 14f;
             var contentRectDescr = contentRect;
