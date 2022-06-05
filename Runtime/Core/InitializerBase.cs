@@ -163,10 +163,15 @@ namespace ME.ECS {
             for (int i = 0; i < sceneEntityViews.Length; ++i) {
 
                 var view = sceneEntityViews[i];
-                if (view != null && view.transform.parent == null) {
-                    
-                    list.Add(view);
-                    
+                if (view != null) {
+
+                    var parent = view.GetComponentsInParent<ME.ECS.Views.Providers.SceneViewInitializer>(true);
+                    if (parent.Length <= 1) {
+
+                        list.Add(view);
+
+                    }
+
                 }
 
             }
