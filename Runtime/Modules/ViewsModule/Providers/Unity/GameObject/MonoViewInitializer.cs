@@ -2,6 +2,8 @@ namespace ME.ECS.Views.Providers {
 
     public class MonoViewInitializer : SceneViewInitializer {
 
+        [UnityEngine.SpaceAttribute]
+        public DestroyViewBehaviour destroyViewBehaviour;
         public MonoBehaviourView view;
         
         protected override void OnInitialize(World world, in Entity entity) {

@@ -135,9 +135,6 @@ namespace ME.ECS.Views.Providers {
         [UnityEngine.SpaceAttribute]
         public SceneSourceComponent[] sceneSourceComponents; 
         
-        [UnityEngine.SpaceAttribute]
-        public DestroyViewBehaviour destroyViewBehaviour;
-
         public virtual void OnValidate() {
 
             var list = new System.Collections.Generic.List<SceneSourceComponent>();
