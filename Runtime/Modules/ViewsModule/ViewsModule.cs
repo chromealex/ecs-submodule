@@ -755,20 +755,6 @@ namespace ME.ECS.Views {
         #endif
         public void InstantiateView(ViewId sourceId, in Entity entity) {
 
-            #if UNITY_EDITOR
-            // [Editor-Only] Check if sourceId is prefab
-            var editorSource = this.GetViewSource(sourceId);
-            if (editorSource is UnityEngine.Object editorSourceObj) {
-                var status = UnityEditor.PrefabUtility.IsPartOfAnyPrefab(editorSourceObj);
-                if (status == false) {
-
-                    // Source is a scene object
-                    throw new System.Exception($"View {editorSource} must be a prefab");
-
-                }
-            }
-            #endif
-
             if (this.world.settings.turnOffViews == true) return;
 
             // Called by tick system

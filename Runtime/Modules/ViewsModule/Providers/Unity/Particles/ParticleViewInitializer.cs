@@ -11,7 +11,7 @@ namespace ME.ECS.Views.Providers {
                 // For ParticleProvider there is no AssignView method
                 // TODO: Make AssignView common for all providers
                 entity.InstantiateView(viewId);
-                world.UnRegisterViewSource(this.view.GetSource());
+                this.gameObject.SetActive(false);
             }
             
         }
