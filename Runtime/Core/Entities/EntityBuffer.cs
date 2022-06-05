@@ -217,7 +217,7 @@ namespace ME.ECS {
                 if (storageType == StorageType.Default) {
                     world.currentState.structComponents.entitiesIndexer.Remove(entity.id, AllComponentTypes<T>.typeId);
                 } else if (storageType == StorageType.NoState) {
-                    world.structComponentsNoState.entitiesIndexer.Remove(entity.id, AllComponentTypes<T>.typeId);
+                    world.structComponentsNoState.entitiesIndexer.Remove(entity.id, OneShotComponentTypes<T>.typeId);
                 }
                 
                 if (ComponentTypes<T>.typeId >= 0) {
@@ -263,7 +263,7 @@ namespace ME.ECS {
                 if (storageType == StorageType.Default) {
                     world.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<T>.typeId);
                 } else if (storageType == StorageType.NoState) {
-                    world.structComponentsNoState.entitiesIndexer.Set(entity.id, AllComponentTypes<T>.typeId);
+                    world.structComponentsNoState.entitiesIndexer.Set(entity.id, OneShotComponentTypes<T>.typeId);
                 }
 
                 if (ComponentTypes<T>.typeId >= 0) {
@@ -328,7 +328,7 @@ namespace ME.ECS {
                 if (storageType == StorageType.Default) {
                     world.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<T>.typeId);
                 } else if (storageType == StorageType.NoState) {
-                    world.structComponentsNoState.entitiesIndexer.Set(entity.id, AllComponentTypes<T>.typeId);
+                    world.structComponentsNoState.entitiesIndexer.Set(entity.id, OneShotComponentTypes<T>.typeId);
                 }
 
                 if (ComponentTypes<T>.typeId >= 0) {
