@@ -22,14 +22,14 @@ namespace ME.ECS.Essentials.Physics
 
             // Smallest sfloat such that 1.0 + eps != 1.0
             // Different from float.Epsilon which is the smallest value greater than zero.
-            public static sfloat Eps = 1.192092896e-07F;
+            public static readonly sfloat Eps = 1.192092896e-07F;
 
             // These constants are identical to the ones in the Unity Mathf library, to ensure identical behaviour
-            internal static sfloat UnityEpsilonNormalSqrt = 1e-15F;
-            internal static sfloat UnityEpsilon = 0.00001F;
+            internal static readonly sfloat UnityEpsilonNormalSqrt = 1e-15F;
+            internal static readonly sfloat UnityEpsilon = 0.00001F;
 
-            public static sfloat Tau = 2.0f * math.PI;
-            public static sfloat OneOverTau = 1.0f / Tau;
+            public static readonly sfloat Tau = 2.0f * math.PI;
+            public static readonly sfloat OneOverTau = 1.0f / Tau;
 
         }
 

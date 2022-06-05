@@ -128,7 +128,7 @@ namespace ME.ECS.Essentials.Physics
         // Additionally, with floating point numbers there are often numerical accuracy problems near distance = 0.  Some routines handle this with special
         // cases where distance^2 < distanceEpsSq, which is expected to be rare in normal usage.  distanceEpsSq is not an exact value, but chosen to be small
         // enough that at typical simulation scale the difference between distance = distanceEps and distance = 0 is negligible.
-        private static sfloat distanceEpsSq = 1e-8f;
+        private static readonly sfloat distanceEpsSq = 1e-8f;
 
         public struct Result
         {

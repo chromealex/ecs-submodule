@@ -181,6 +181,7 @@ namespace ME.ECS {
                 ((ME.ECS.Views.Providers.ISceneView)view).Initialize(world);
                 
             }
+            
             PoolList<ME.ECS.Views.Providers.SceneViewInitializer>.Recycle(ref list);
 
         }

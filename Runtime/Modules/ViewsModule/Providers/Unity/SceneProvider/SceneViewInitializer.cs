@@ -81,7 +81,7 @@ namespace ME.ECS.Views.Providers {
                         PoolList<SceneViewInitializer>.Recycle(ref parents);
                         
                         // Run just for the one level
-                        childInitializer.Initialize_INTERNAL(world, entity);
+                        childInitializer.Initialize_INTERNAL(world, in entity);
                         
                     } else {
                         
@@ -162,7 +162,7 @@ namespace ME.ECS.Views.Providers {
             this.Initialize_INTERNAL(world, in Entity.Null);
 
         }
-        
+
         internal void Initialize_INTERNAL(World world, in Entity rootEntity) {
 
             var entity = new Entity(this.applyName == true ? this.name : null, this.entityFlags);
@@ -170,8 +170,6 @@ namespace ME.ECS.Views.Providers {
 
             this.transformProperties.Apply(in entity, in rootEntity, this, world);
 
-            this.OnInitialize(world, in entity);
-            
             for (int i = 0; i < this.sceneSourceComponents.Length; ++i) {
 
                 var sceneSourceComponent = this.sceneSourceComponents[i];
@@ -182,6 +180,8 @@ namespace ME.ECS.Views.Providers {
                 }
 
             }
+
+            this.OnInitialize(world, in entity);
 
         }
 
