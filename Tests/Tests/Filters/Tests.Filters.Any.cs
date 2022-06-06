@@ -104,16 +104,16 @@ namespace ME.ECS.Tests {
 
             TestsHelper.Do((w) => {
                 
-                WorldUtilities.InitComponentTypeId<TestComponent>(false, true);
-                WorldUtilities.InitComponentTypeId<TestComponent1>(false, true);
-                WorldUtilities.InitComponentTypeId<TestComponent2>(false, true);
-                WorldUtilities.InitComponentTypeId<TestComponent3>(false, true);
+                WorldUtilities.InitComponentTypeId<TestComponent>(false, true, true);
+                WorldUtilities.InitComponentTypeId<TestComponent1>(false, true, true);
+                WorldUtilities.InitComponentTypeId<TestComponent2>(false, true, true);
+                WorldUtilities.InitComponentTypeId<TestComponent3>(false, true, true);
                 ComponentsInitializerWorld.Setup((e) => {
                             
-                    e.ValidateData<TestComponent>();
-                    e.ValidateData<TestComponent1>();
-                    e.ValidateData<TestComponent2>();
-                    e.ValidateData<TestComponent3>();
+                    e.ValidateDataBlittable<TestComponent>();
+                    e.ValidateDataBlittable<TestComponent1>();
+                    e.ValidateDataBlittable<TestComponent2>();
+                    e.ValidateDataBlittable<TestComponent3>();
                             
                 });
                 

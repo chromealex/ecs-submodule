@@ -7,31 +7,22 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public partial class StructComponents<TComponent> : StructComponentsBase<TComponent> where TComponent : struct, IComponentBase {
+    public partial class StructComponentsBlittable<TComponent> : StructComponentsBase<TComponent> where TComponent : struct, IComponentBase {
 
         [ME.ECS.Serializer.SerializeField]
-        internal BufferArraySliced<Component<TComponent>> components;
+        internal NativeBufferArraySliced<Component<TComponent>> components;
         [ME.ECS.Serializer.SerializeField]
         private long maxVersion;
 
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        protected override StructRegistryBase SpawnInstance() {
-
-            return PoolRegistries.Spawn<TComponent>();
+        public override void Recycle() {
+            
+            PoolRegistries.Recycle(this);
 
         }
 
         public override bool IsNeedToDispose() {
 
             return false;
-
-        }
-
-        public override void Recycle() {
-            
-            PoolRegistries.Recycle(this);
 
         }
 
@@ -119,6 +110,15 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        protected override StructRegistryBase SpawnInstance() {
+
+            return PoolRegistries.SpawnBlittable<TComponent>();
+
+        }
+
         public override void OnRecycle() {
 
             this.components = this.components.Dispose();
@@ -132,7 +132,7 @@ namespace ME.ECS {
         #endif
         public override bool Validate(int capacity) {
 
-            var resized = ArrayUtils.Resize(capacity, ref this.components, resizeWithOffset: true);
+            this.components = this.components.Resize(capacity, true, out var resized);
             base.Validate(capacity);
             return resized;
 
@@ -143,7 +143,7 @@ namespace ME.ECS {
         #endif
         public override bool Validate(in Entity entity) {
 
-            var resized = ArrayUtils.Resize(entity.id, ref this.components, true);
+            this.components = this.components.Resize(entity.id, true, out var resized);
             base.Validate(entity);
             return resized;
 
@@ -181,7 +181,7 @@ namespace ME.ECS {
             }
             #endif
 
-            return DataBufferUtils.PushSet_INTERNAL(this.world, in entity, this, buffer.Read<TComponent>(), storageType);
+            return DataBlittableBufferUtils.PushSet_INTERNAL(this.world, in entity, this, buffer.Read<TComponent>(), storageType);
 
         }
 
@@ -195,8 +195,14 @@ namespace ME.ECS {
             }
             #endif
 
-            return DataBufferUtils.PushSet_INTERNAL(this.world, in entity, this, (TComponent)data, storageType);
+            return DataBlittableBufferUtils.PushSet_INTERNAL(this.world, in entity, this, (TComponent)data, storageType);
             
+        }
+
+        public override bool RemoveObject(in Entity entity, StorageType storageType) {
+
+            return DataBlittableBufferUtils.PushRemove_INTERNAL(this.world, in entity, this, storageType);
+
         }
 
         #if INLINE_METHODS
@@ -206,12 +212,6 @@ namespace ME.ECS {
             
             bucket.data = data;
             
-        }
-
-        public override bool RemoveObject(in Entity entity, StorageType storageType) {
-
-            return DataBufferUtils.PushRemove_INTERNAL(this.world, in entity, this, storageType);
-
         }
 
         #if INLINE_METHODS
@@ -270,8 +270,8 @@ namespace ME.ECS {
         public override void CopyFrom(StructRegistryBase other) {
 
             base.CopyFrom(other);
-            var _other = (StructComponents<TComponent>)other;
-            ArrayUtils.Copy(in _other.components, ref this.components);
+            var _other = (StructComponentsBlittable<TComponent>)other;
+            NativeArrayUtils.Copy(in _other.components, ref this.components);
             this.maxVersion = _other.maxVersion;
 
         }

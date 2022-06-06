@@ -64,11 +64,13 @@ namespace ME.ECS {
     
     public struct AllComponentTypes<TComponent> {
 
+        public static readonly Unity.Burst.SharedStatic<int> burstTypeId = Unity.Burst.SharedStatic<int>.GetOrCreate<AllComponentTypes<TComponent>, int>();
         public static int typeId = -1;
         public static bool isTag = false;
         public static bool isVersioned = false;
         public static bool isVersionedNoState = false;
         public static bool isSimple = false;
+        public static bool isBlittable = false;
         public static bool isCopyable = false;
         public static bool isShared = false;
         public static bool isDisposable = false;
@@ -156,6 +158,26 @@ namespace ME.ECS {
         public static Entity ValidateDataCopyable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructCopyable<TComponent> {
 
             Worlds.currentWorld.ValidateDataCopyable<TComponent>(in entity, isTag);
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity ValidateDataBlittable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase {
+
+            Worlds.currentWorld.ValidateDataBlittable<TComponent>(in entity, isTag);
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity ValidateDataBlittableCopyable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructCopyable<TComponent> {
+
+            Worlds.currentWorld.ValidateDataBlittableCopyable<TComponent>(in entity, isTag);
             return entity;
 
         }
@@ -519,9 +541,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static ref TComponent GetShared<TComponent>(this in Entity entity, uint groupId = 0u, bool createIfNotExists = true) where TComponent : struct, IComponentShared {
+        public static ref TComponent GetShared<TComponent>(this in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
 
-            return ref Worlds.currentWorld.GetSharedData<TComponent>(in entity, groupId, createIfNotExists);
+            return ref Worlds.currentWorld.GetSharedData<TComponent>(in entity, groupId);
             
         }
 

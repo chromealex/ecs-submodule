@@ -1,4 +1,5 @@
 ﻿
+using ME.ECS.Collections;
 using Unity.Jobs;
 
 namespace ME.ECS.Tests {
@@ -20,16 +21,20 @@ namespace ME.ECS.Tests {
         [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true)]
         public struct FilterBagJobTest : Unity.Jobs.IJob, IBurst {
 
-            public Buffers.FilterBag<TestData, TestData2> data;
+            public ME.ECS.Buffers.FilterBag<TestData, TestData2> data;
 
             public void Execute() {
 
                 for (int i = 0; i < this.data.Length; ++i) {
 
+                    this.data.BeginForEachIndex(i);
+                    
                     ref var comp = ref this.data.GetT0(i);
                     comp.a += 1;
                     
                     this.data.RemoveT1(i);
+                    
+                    this.data.EndForEachIndex();
 
                 }
                 
@@ -59,10 +64,12 @@ namespace ME.ECS.Tests {
             public void AdvanceTick(in float deltaTime) {
 
                 {
+                    var a = this.testEntity.Read<TestData>().a;
+                    
                     var sw = System.Diagnostics.Stopwatch.StartNew();
                     sw.Start();
                     var job = new FilterBagJobTest() {
-                        data = new Buffers.FilterBag<TestData, TestData2>(this.filter, Unity.Collections.Allocator.TempJob),
+                        data = new ME.ECS.Buffers.FilterBag<TestData, TestData2>(this.filter, Unity.Collections.Allocator.TempJob),
                     };
                     var handle = job.Schedule();
                     handle.Complete();
@@ -76,6 +83,10 @@ namespace ME.ECS.Tests {
                     sw.Stop();
                     UnityEngine.Debug.Log(step1 + "ms, " + sw.ElapsedMilliseconds + "ms. Entities: " + this.filter.Count + ": " + this.testEntity + " has data: " +
                                           this.testEntity.Read<TestData>().a);
+                    
+                    UnityEngine.Assertions.Assert.IsTrue(this.testEntity.Read<TestData>().a == a + 1);
+                    UnityEngine.Assertions.Assert.IsTrue(this.testEntity.Has<TestData2>() == false);
+
                 }
 
                 /*{
@@ -102,10 +113,10 @@ namespace ME.ECS.Tests {
                 ref var str2 = ref w.GetNoStateStructComponents();
                 CoreComponentsInitializer.InitTypeId();
                 CoreComponentsInitializer.Init(ref str, ref str2);
-                WorldUtilities.InitComponentTypeId<TestData>();
-                WorldUtilities.InitComponentTypeId<TestData2>();
-                str.Validate<TestData>();
-                str.Validate<TestData2>();
+                WorldUtilities.InitComponentTypeId<TestData>(isBlittable: true);
+                WorldUtilities.InitComponentTypeId<TestData2>(isBlittable: true);
+                str.ValidateBlittable<TestData>();
+                str.ValidateBlittable<TestData2>();
                 
             }, (w) => {
                 
@@ -129,6 +140,8 @@ namespace ME.ECS.Tests {
                     ent.Destroy();
 
                 }
+                
+                w.UpdateFilters(Entity.Empty);
 
             }, from: 0, to: 10);
 

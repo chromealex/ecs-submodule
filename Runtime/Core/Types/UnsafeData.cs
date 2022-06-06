@@ -203,4 +203,69 @@ namespace ME.ECS {
 
     }
 
+    public unsafe struct UnsafeDataPtr {
+
+        public void* data;
+        public int sizeOf;
+        public int alignOf;
+        public int typeId;
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public UnsafeDataPtr Set<T>(T data) where T : unmanaged {
+
+            this.typeId = AllComponentTypes<T>.typeId;
+            
+            if (this.data != null) {
+                
+                NativeArrayUtils.Dispose(ref this.data);
+                
+            }
+
+            this.sizeOf = UnsafeUtility.SizeOf<T>();
+            this.alignOf = UnsafeUtility.AlignOf<T>();
+            this.data = UnsafeUtility.Malloc(this.sizeOf, this.alignOf, Unity.Collections.Allocator.Persistent);
+            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.WriteArrayElement((void*)this.data, 0, data);
+            
+            return this;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref T Get<T>() where T : struct {
+
+            return ref Unity.Collections.LowLevel.Unsafe.UnsafeUtility.ArrayElementAsRef<T>((void*)this.data, 0);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public T Read<T>() where T : struct {
+
+            return Unity.Collections.LowLevel.Unsafe.UnsafeUtility.ReadArrayElement<T>((void*)this.data, 0);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Dispose() {
+            
+            if (this.data != null) {
+
+                this.typeId = default;
+                this.sizeOf = default;
+                this.alignOf = default;
+                NativeArrayUtils.Dispose(ref this.data);
+                
+            }
+            
+        }
+
+    }
+
 }

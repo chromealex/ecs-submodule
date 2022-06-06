@@ -1270,7 +1270,7 @@ namespace ME.ECS {
 
         }
 
-        internal void InitializeDefaults() {
+        internal void TryInitializeDefaults() {
             
             if (this.entitiesOneShotFilter.IsAlive() == false) {
                 
@@ -1392,7 +1392,7 @@ namespace ME.ECS {
 
         public void SetEntitiesCapacity(int capacity) {
 
-            var curCap = this.entitiesCapacity;
+            var curCap = this.entitiesCapacity + this.currentState.storage.AliveCount;
             
             this.entitiesCapacity = capacity;
             this.SetEntityCapacityPlugins(capacity);
@@ -1469,7 +1469,7 @@ namespace ME.ECS {
 
         }
 
-        public void UpdateEntityOnCreate(in Entity entity, bool isNew) {
+        internal void UpdateEntityOnCreate(in Entity entity, bool isNew) {
 
             #if !FILTERS_STORAGE_LEGACY
             if (isNew == true) {
@@ -1836,7 +1836,9 @@ namespace ME.ECS {
         public void UpdateLogic(float deltaTime) {
 
             if (deltaTime < 0f) return;
-
+            
+            this.TryInitializeDefaults();
+            
             ////////////////
             // Update Logic Tick
             ////////////////

@@ -407,8 +407,7 @@ namespace ME.ECS.Serializer {
 
             var packer = new Packer(staticSerializers, new SerializerStream(Serializer.BUFFER_CAPACITY));
 
-            var serializer = new GenericSerializer();
-            serializer.Pack(packer, obj, typeof(T));
+            packer.PackInternal(obj, typeof(T));
 
             var result = packer.ToArray();
             packer.Dispose();
@@ -421,8 +420,7 @@ namespace ME.ECS.Serializer {
 
             var packer = Serializer.SetupDefaultPacker(staticSerializers, bytes);
 
-            var serializer = new GenericSerializer();
-            var result = (T)serializer.Unpack(packer, typeof(T));
+            var result = (T)packer.UnpackInternal();
             packer.Dispose();
             return result;
 
@@ -471,8 +469,7 @@ namespace ME.ECS.Serializer {
             byte[] bytes = null;
             var packer = new Packer(allSerializers, new SerializerStream(capacity));
 
-            var serializer = new GenericSerializer();
-            serializer.Pack(packer, obj, typeof(T));
+            packer.PackInternal(obj, typeof(T));
 
             bytes = packer.ToArray();
             packer.Dispose();

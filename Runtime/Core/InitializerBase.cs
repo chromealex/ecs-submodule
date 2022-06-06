@@ -146,7 +146,7 @@ namespace ME.ECS {
 
             world.SetSettings(this.worldSettings);
             world.SetDebugSettings(this.worldDebugSettings);
-            world.InitializeDefaults();
+            world.TryInitializeDefaults();
 
             // Initialize features
             this.InitializeFeatures(world);

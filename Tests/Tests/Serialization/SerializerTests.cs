@@ -173,7 +173,7 @@ namespace ME.ECS.Tests {
                     new MyStruct { bar = 4, foo = 5 },
                     new MyStruct { bar = 6, foo = 7 },
                     new MyStruct { bar = 8, foo = 9 }
-                }, 5)
+                }, 5, 5)
             };
 
             byte[] bytes;
@@ -301,6 +301,7 @@ namespace ME.ECS.Tests {
                         ref var sc = ref world.GetStructComponents();
                         ref var sc2 = ref world.GetNoStateStructComponents();
                         ComponentsInitializerWorld.Setup(e => e.ValidateData<TestStructComponent>());
+                        CoreComponentsInitializer.InitTypeId();
                         CoreComponentsInitializer.Init(ref sc, ref sc2);
                         sc.Validate<TestStructComponent>();
                     }

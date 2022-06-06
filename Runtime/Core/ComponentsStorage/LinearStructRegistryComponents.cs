@@ -360,12 +360,6 @@ namespace ME.ECS {
 
         }
 
-        public override void Recycle() {
-
-            PoolRegistries.Recycle(this);
-
-        }
-
         public override StructRegistryBase Clone() {
 
             var reg = this.SpawnInstance();
@@ -983,6 +977,114 @@ namespace ME.ECS {
         }
         #endregion
 
+        #region Blittable
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public void ValidateBlittable<TComponent>(bool isTag = false) where TComponent : struct, IComponentBase {
+
+            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
+            this.ValidateBlittable<TComponent>(code, isTag);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public void ValidateBlittable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase {
+
+            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            this.ValidateBlittable<TComponent>(code, isTag);
+            var reg = (StructComponentsBlittable<TComponent>)this.list.arr[code];
+            reg.Validate(in entity);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        private void ValidateBlittable<TComponent>(int code, bool isTag) where TComponent : struct, IComponentBase {
+
+            if (ArrayUtils.WillResize(code, ref this.list) == true) {
+
+                ArrayUtils.Resize(code, ref this.list, true);
+
+            }
+
+            if (this.list.arr[code] == null) {
+
+                var instance = PoolRegistries.SpawnBlittable<TComponent>();
+                this.list.arr[code] = instance;
+
+            }
+
+        }
+        #endregion
+
+        #region BlittableCopyable
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public void ValidateBlittableCopyable<TComponent>(bool isTag = false) where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
+
+            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
+            this.ValidateBlittableCopyable<TComponent>(code, isTag);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public void ValidateBlittableCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
+
+            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            this.ValidateBlittableCopyable<TComponent>(code, isTag);
+            var reg = (StructComponentsBlittableCopyable<TComponent>)this.list.arr[code];
+            reg.Validate(in entity);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        private void ValidateBlittableCopyable<TComponent>(int code, bool isTag) where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
+
+            if (ArrayUtils.WillResize(code, ref this.list) == true) {
+
+                ArrayUtils.Resize(code, ref this.list, true);
+
+            }
+
+            if (this.list.arr[code] == null) {
+
+                var instance = PoolRegistries.SpawnBlittableCopyable<TComponent>();
+                this.list.arr[code] = instance;
+
+            }
+
+        }
+        #endregion
+
         #region Copyable
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
@@ -1356,6 +1458,18 @@ namespace ME.ECS {
 
         }
 
+        public void ValidateDataBlittable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase {
+
+            this.currentState.structComponents.ValidateBlittable<TComponent>(in entity, isTag);
+
+        }
+
+        public void ValidateDataBlittableCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
+
+            this.currentState.structComponents.ValidateBlittableCopyable<TComponent>(in entity, isTag);
+
+        }
+
         public void ValidateDataDisposable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentDisposable {
 
             this.currentState.structComponents.ValidateDisposable<TComponent>(in entity, isTag);
@@ -1477,7 +1591,7 @@ namespace ME.ECS {
             #endif
 
             if (AllComponentTypes<TComponent>.isVersionedNoState == false) return 0u;
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             return reg.versionsNoState.arr[entity.id];
             
         }
@@ -1583,7 +1697,7 @@ namespace ME.ECS {
             }
             
             // Inline all manually
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             #if WORLD_EXCEPTIONS
             if (reg.sharedGroups.Has(entity.id, groupId) == false) {
                 
@@ -1620,7 +1734,7 @@ namespace ME.ECS {
             }
 
             // Inline all manually
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             if (reg.sharedGroups.Has(entity.id, groupId) == false) return false;
             return true;
 
@@ -1629,7 +1743,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref TComponent GetSharedData<TComponent>(in Entity entity, uint groupId = 0u, bool createIfNotExists = true) where TComponent : struct, IComponentShared {
+        public ref TComponent GetSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -1657,10 +1771,10 @@ namespace ME.ECS {
             }
 
             // Inline all manually
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             ref var state = ref reg.sharedGroups.Has(entity.id, groupId);
             var incrementVersion = (this.HasStep(WorldStep.LogicTick) == true || this.HasResetState() == false);
-            if (state == false && createIfNotExists == true) {
+            if (state == false) {
 
                 #if WORLD_EXCEPTIONS
                 if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
@@ -1670,6 +1784,11 @@ namespace ME.ECS {
                 }
                 #endif
 
+                if (this.currentState.structComponents.entitiesIndexer.GetCount(entity.id) == 0 &&
+                    (this.currentState.storage.flags.Get(entity.id) & (byte)EntityFlag.DestroyWithoutComponents) != 0) {
+                    entity.RemoveOneShot<IsEntityEmptyOneShot>();
+                }
+                
                 incrementVersion = true;
                 reg.sharedGroups.Set(entity.id, groupId);
                 this.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
@@ -1699,8 +1818,20 @@ namespace ME.ECS {
                     }
                 }
 
-                ref var bucket = ref reg.components[entity.id];
-                reg.UpdateVersion(ref bucket);
+                if (AllComponentTypes<TComponent>.isBlittable == true) {
+
+                    var regType = (StructComponentsBlittable<TComponent>)reg;
+                    ref var bucket = ref regType.components[entity.id];
+                    reg.UpdateVersion(ref bucket);
+
+                } else {
+                
+                    var regType = (StructComponents<TComponent>)reg;
+                    ref var bucket = ref regType.components[entity.id];
+                    reg.UpdateVersion(ref bucket);
+
+                }
+                
                 if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
                 if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
@@ -1792,7 +1923,7 @@ namespace ME.ECS {
             #endif
 
             // Inline all manually
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+            var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             if (AllComponentTypes<TComponent>.isTag == false) {
                 
                 reg.sharedGroups.Set(entity.id, groupId, data);
@@ -1828,8 +1959,20 @@ namespace ME.ECS {
                 
             }
             
-            ref var bucket = ref reg.components[entity.id];
-            reg.UpdateVersion(ref bucket);
+            if (AllComponentTypes<TComponent>.isBlittable == true) {
+
+                var regType = (StructComponentsBlittable<TComponent>)reg;
+                ref var bucket = ref regType.components[entity.id];
+                reg.UpdateVersion(ref bucket);
+
+            } else {
+                
+                var regType = (StructComponents<TComponent>)reg;
+                ref var bucket = ref regType.components[entity.id];
+                reg.UpdateVersion(ref bucket);
+
+            }
+
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
             if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
 
@@ -1840,52 +1983,9 @@ namespace ME.ECS {
         #endif
         public void SetSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
 
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            // Inline all manually
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            if (AllComponentTypes<TComponent>.isTag == false) reg.sharedGroups.Set(entity.id, groupId);
-            ref var state = ref reg.sharedGroups.Has(entity.id, groupId);
-            if (state == false) {
-
-                state = true;
-                this.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
-                if (ComponentTypes<TComponent>.typeId >= 0) {
-
-                    this.currentState.storage.archetypes.Set<TComponent>(in entity);
-                    this.AddFilterByStructComponent<TComponent>(in entity);
-                    this.UpdateFilterByStructComponent<TComponent>(in entity);
-
-                }
-
-            }
+            TComponent data = default;
+            this.SetSharedData<TComponent>(in entity, in data, groupId);
             
-            if (ComponentTypes<TComponent>.isFilterLambda == true && ComponentTypes<TComponent>.typeId >= 0) {
-
-                this.ValidateFilterByStructComponent<TComponent>(in entity);
-                
-            }
-            
-            this.currentState.storage.versions.Increment(in entity);
-            ref var bucket = ref reg.components[entity.id];
-            reg.UpdateVersion(ref bucket);
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
-            if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-
         }
         
         public void SetSharedData(in Entity entity, in IComponentBase data, int dataIndex, uint groupId = 0u) {
@@ -1977,10 +2077,22 @@ namespace ME.ECS {
             }
             #endif
 
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            var c = reg.components[entity.id];
-            component = c.data;
-            return c.state > 0;
+            if (AllComponentTypes<TComponent>.isBlittable == true) {
+                
+                // Inline all manually
+                var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                var c = reg.components[entity.id];
+                component = c.data;
+                return c.state > 0;
+
+            } else {
+
+                var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                var c = reg.components[entity.id];
+                component = c.data;
+                return c.state > 0;
+
+            }
 
         }
         
@@ -2020,9 +2132,19 @@ namespace ME.ECS {
             }
             #endif
 
-            // Inline all manually
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            return ref reg.components[entity.id].data;
+            if (AllComponentTypes<TComponent>.isBlittable == true) {
+                
+                // Inline all manually
+                var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                return ref reg.components[entity.id].data;
+
+            } else {
+
+                // Inline all manually
+                var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                return ref reg.components[entity.id].data;
+
+            }
 
         }
 
@@ -2070,10 +2192,20 @@ namespace ME.ECS {
             }
             #endif
 
-            // Inline all manually
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            return ref DataBufferUtils.PushGet_INTERNAL(this, in entity, reg, StorageType.Default);
-            
+            if (AllComponentTypes<TComponent>.isBlittable == true) {
+                
+                // Inline all manually
+                var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                return ref DataBlittableBufferUtils.PushGet_INTERNAL(this, in entity, reg, StorageType.Default);
+
+            } else {
+
+                // Inline all manually
+                var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                return ref DataBufferUtils.PushGet_INTERNAL(this, in entity, reg, StorageType.Default);
+
+            }
+
         }
 
         #if INLINE_METHODS
@@ -2114,10 +2246,20 @@ namespace ME.ECS {
             }
             #endif
 
-            // Inline all manually
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            DataBufferUtils.PushSet_INTERNAL(this, in entity, reg, in data, StorageType.Default);
-            
+            if (AllComponentTypes<TComponent>.isBlittable == true) {
+                
+                // Inline all manually
+                var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                DataBlittableBufferUtils.PushSet_INTERNAL(this, in entity, reg, in data, StorageType.Default);
+
+            } else {
+
+                // Inline all manually
+                var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                DataBufferUtils.PushSet_INTERNAL(this, in entity, reg, in data, StorageType.Default);
+
+            }
+
         }
 
         #if INLINE_METHODS
@@ -2231,9 +2373,18 @@ namespace ME.ECS {
             }
             #endif
 
-            var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            DataBufferUtils.PushRemove_INTERNAL(this, in entity, reg, StorageType.Default);
-            
+            if (AllComponentTypes<TComponent>.isBlittable == true) {
+             
+                var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                DataBlittableBufferUtils.PushRemove_INTERNAL(this, in entity, reg, StorageType.Default);
+   
+            } else {
+
+                var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                DataBufferUtils.PushRemove_INTERNAL(this, in entity, reg, StorageType.Default);
+
+            }
+
         }
 
         #if INLINE_METHODS

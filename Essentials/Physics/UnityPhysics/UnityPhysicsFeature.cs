@@ -1,4 +1,5 @@
 ﻿using ME.ECS;
+using ME.ECS.Mathematics;
 
 namespace ME.ECS.Essentials.Physics.Core {
 
@@ -20,12 +21,16 @@ namespace ME.ECS.Essentials.Physics.Core {
         public bool sendCollisionEvents = false;
         [UnityEngine.TooltipAttribute("Should feature create oneshot-entity with trigger data?")]
         public bool sendTriggerEvents = false;
+
+        public float3 gravity = new float3(0f, -9.8f, 0f);
         
         internal ME.ECS.Essentials.Physics.PhysicsWorld physicsWorldInternal;
         public ref ME.ECS.Essentials.Physics.PhysicsWorld physicsWorld => ref this.physicsWorldInternal;
         
         protected override void OnConstruct() {
 
+            Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
+            
             this.physicsWorldInternal = new ME.ECS.Essentials.Physics.PhysicsWorld(0, 0, 0);
             this.AddSystem<BuildPhysicsWorldSystem>();
             

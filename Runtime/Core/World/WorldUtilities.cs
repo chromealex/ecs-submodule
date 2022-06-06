@@ -199,10 +199,12 @@ namespace ME.ECS {
         private static void CacheAllComponentTypeId<TComponent>() {
             
             AllComponentTypes<TComponent>.typeId = ++AllComponentTypesCounter.counter;
+            AllComponentTypes<TComponent>.burstTypeId.Data = AllComponentTypes<TComponent>.typeId;
             ComponentTypesRegistry.allTypeId.Add(typeof(TComponent), AllComponentTypes<TComponent>.typeId);
 
             ComponentTypesRegistry.reset += () => {
 
+                AllComponentTypes<TComponent>.burstTypeId.Data = -1;
                 AllComponentTypes<TComponent>.typeId = -1;
                 AllComponentTypes<TComponent>.isTag = false;
 
@@ -324,6 +326,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void SetComponentAsBlittable<TComponent>() {
+
+            AllComponentTypes<TComponent>.isBlittable = true;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void SetComponentAsVersioned<TComponent>() {
 
             AllComponentTypes<TComponent>.isVersioned = true;
@@ -379,11 +390,12 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static bool InitComponentTypeId<TComponent>(bool isTag = false, bool isSimple = false, bool isCopyable = false, bool isDisposable = false, bool isVersioned = false, bool isVersionedNoState = false, bool isShared = false, bool isOneShot = false) {
+        public static bool InitComponentTypeId<TComponent>(bool isTag = false, bool isSimple = false, bool isBlittable = false, bool isCopyable = false, bool isDisposable = false, bool isVersioned = false, bool isVersionedNoState = false, bool isShared = false, bool isOneShot = false) {
 
             var isNew = (AllComponentTypes<TComponent>.typeId == -1);
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
             if (isSimple == true) WorldUtilities.SetComponentAsSimple<TComponent>();
+            if (isBlittable == true) WorldUtilities.SetComponentAsBlittable<TComponent>();
             if (isVersioned == true) WorldUtilities.SetComponentAsVersioned<TComponent>();
             if (isVersionedNoState == true) WorldUtilities.SetComponentAsVersionedNoState<TComponent>();
             if (isCopyable == true) WorldUtilities.SetComponentAsCopyable<TComponent>();

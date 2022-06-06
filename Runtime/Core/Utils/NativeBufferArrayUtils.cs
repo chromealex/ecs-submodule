@@ -191,7 +191,7 @@ namespace ME.ECS {
 
             var newArr = arr.arr;
             NativeArrayUtils.Copy(fromArr.arr, sourceIndex, ref newArr, destIndex, length);
-            arr = new NativeBufferArray<T>(newArr, fromArr.Length);
+            arr = new NativeBufferArray<T>(newArr, newArr.Length);
 
         }
 

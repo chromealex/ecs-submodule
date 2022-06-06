@@ -60,16 +60,13 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
             Filter.Create("BurstFilter-Static")
                   .With<ME.ECS.Transform.Position>()
                   .With<ME.ECS.Transform.Rotation>()
-                  .With<ME.ECS.Transform.Scale>()
-                  .With<PhysicsBody>()
                   .With<IsPhysicsStatic>()
                   .Push(ref this.staticBodies);
 
             Filter.Create("BurstFilter-Dynamic")
                   .With<ME.ECS.Transform.Position>()
                   .With<ME.ECS.Transform.Rotation>()
-                  .With<ME.ECS.Transform.Scale>()
-                  .With<PhysicsBody>()
+                  .With<PhysicsMass>()
                   .Without<IsPhysicsStatic>()
                   .Push(ref this.dynamicBodies);
 
@@ -83,7 +80,6 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
         void ISystemBase.OnDeconstruct() {
             
             this.simulationContext.Dispose();
-            this.physicsWorld.Dispose();
             
             this.scheduler.Dispose();
             
@@ -103,6 +99,8 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
 
             public void Execute(int index) {
 
+                this.bag.BeginForEachIndex(index);
+                
                 var joint = this.bag.ReadT0(index);
                 var bodyPair = this.bag.ReadT1(index);
                 var entity = this.bag.GetEntity(index);
@@ -147,7 +145,9 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                     Constraints = joint.GetConstraints(),
                 };
                 EntityJointIndexMap.TryAdd(entity, index);
-                
+
+                this.bag.EndForEachIndex();
+
             }
             
         }
@@ -163,7 +163,9 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
             [Unity.Collections.LowLevel.Unsafe.NativeDisableContainerSafetyRestrictionAttribute] public NativeHashMap<Entity, int>.ParallelWriter EntityBodyIndexMap;
 
             public void Execute(int index) {
-
+                
+                this.bag.BeginForEachIndex(index);
+                
                 int rbIndex = this.FirstBodyIndex + index;
                 var collider = this.bag.ReadT0(index);
                 var hasChunkPhysicsColliderType = this.bag.HasT0(index);
@@ -179,6 +181,8 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                     CustomTags = hasChunkPhysicsCustomTagsType ? this.bag.ReadT3(index).value : (byte)0
                 };
                 EntityBodyIndexMap.TryAdd(entity, rbIndex);
+                
+                this.bag.EndForEachIndex();
 
             }
 
@@ -217,11 +221,11 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
             public Bag bag;
             public BagMotion bagMotion;
             public PhysicsMass defaultPhysicsMass;
-            //public NativeArray<float3> bagParentPositions;
-            //public NativeArray<quaternion> bagParentRotations;
 
             public void Execute(int index) {
 
+                this.bag.BeginForEachIndex(index);
+                
                 var pos = (float3)this.bag.ReadT4(index).value;
                 var rot = (quaternion)this.bag.ReadT5(index).value;
                 
@@ -266,7 +270,9 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                     LinearDamping = damping.Linear,
                     AngularDamping = damping.Angular,
                 };
-                
+
+                this.bag.EndForEachIndex();
+
             }
 
         }
@@ -274,11 +280,13 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
         [BurstCompile]
         private struct ApplyPhysicsJob : IJobParallelFor {
 
-            public Unity.Collections.NativeArray<ME.ECS.Essentials.Physics.RigidBody> bodies;
+            //public Unity.Collections.NativeArray<ME.ECS.Essentials.Physics.RigidBody> bodies;
             public Unity.Collections.NativeArray<ME.ECS.Essentials.Physics.MotionVelocity> motionVelocities;
             public Bag bag;
 
             public void Execute(int index) {
+
+                this.bag.BeginForEachIndex(index);
                 
                 //var data = this.bodies[index].WorldFromBody;
                 //this.bag.GetT0(index).value = data.pos;
@@ -286,6 +294,8 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                 ref var vel = ref this.bag.GetT1(index);
                 vel.Angular = this.motionVelocities[index].AngularVelocity;
                 vel.Linear = this.motionVelocities[index].LinearVelocity;
+                
+                this.bag.EndForEachIndex();
                 
             }
 
@@ -302,12 +312,12 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
             
             public void Execute(int index) {
                 
-                bool didBatchChange = (this.bag.GetVersionT0(index) != this.currentTick ||
-                                       this.bag.GetVersionT0(index) != this.prevTick ||
-                                       this.bag.GetVersionT1(index) != this.currentTick ||
-                                       this.bag.GetVersionT1(index) != this.prevTick ||
-                                       this.bag.GetVersionT2(index) != this.currentTick ||
-                                       this.bag.GetVersionT2(index) != this.prevTick);
+                bool didBatchChange = (this.bag.GetVersionT2(index) != this.currentTick ||
+                                       this.bag.GetVersionT2(index) != this.prevTick ||
+                                       this.bag.GetVersionT4(index) != this.currentTick ||
+                                       this.bag.GetVersionT4(index) != this.prevTick ||
+                                       this.bag.GetVersionT5(index) != this.currentTick ||
+                                       this.bag.GetVersionT5(index) != this.prevTick);
                 if (didBatchChange == true) {
                     // Note that multiple worker threads may be running at the same time.
                     // They either write 1 to Result[0] or not write at all.  In case multiple
@@ -320,6 +330,9 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
 
         void IAdvanceTick.AdvanceTick(in float deltaTime) {
 
+            var marker = new Unity.Profiling.ProfilerMarker("[Physics] Build World");
+            marker.Begin();
+            
             this.physicsWorld.Reset(this.staticBodies.Count + 1 , this.dynamicBodies.Count, this.joints.Count);
 
             if (this.physicsWorld.Bodies.Length == 0) {
@@ -329,7 +342,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
             }
             
             var simulationParameters = new ME.ECS.Essentials.Physics.SimulationStepInput() {
-                Gravity = new float3(0f, -9.8f, 0f),
+                Gravity = this.feature.gravity,
                 NumSolverIterations = 4,
                 SolverStabilizationHeuristicSettings = ME.ECS.Essentials.Physics.Solver.StabilizationHeuristicSettings.Default,
                 SynchronizeCollisionWorld = true,
@@ -361,8 +374,6 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                 internalData.prevStaticCount = bagStatic.Length;
             }
 
-            //var dynamicBodies = this.physicsWorld.Bodies;
-            //var staticBodies = this.physicsWorld.StaticBodies;
             var motionDatas = this.physicsWorld.MotionDatas;
             var motionVelocities = this.physicsWorld.MotionVelocities;
 
@@ -382,7 +393,6 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                     BodyIndex = this.physicsWorld.Bodies.Length - 1,
                     EntityBodyIndexMap = this.physicsWorld.CollisionWorld.EntityBodyIndexMap.AsParallelWriter(),
                 }.Schedule());
-                JobHandle.CombineDependencies(jobHandles).Complete();
                 
                 if (bag.Length > 0) {
 
@@ -394,18 +404,14 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                         FirstBodyIndex = 0,
                         EntityBodyIndexMap = this.physicsWorld.CollisionWorld.EntityBodyIndexMap.AsParallelWriter(),
                     }.Schedule(bag.Length, MathUtils.GetScheduleBatchCount(bag.Length)));
-                    JobHandle.CombineDependencies(jobHandles).Complete();
 
                     jobHandles.Add(new FillMotionJob() {
                         bag = bag,
                         bagMotion = bagMotion,
-                        //bagParentPositions = rootPositionsDynamic,
-                        //bagParentRotations = rootRotationsDynamic,
                         defaultPhysicsMass = PhysicsMass.CreateDynamic(ME.ECS.Essentials.Physics.MassProperties.UnitSphere, 1f),
                         motionDatas = motionDatas,
                         motionVelocities = motionVelocities,
                     }.Schedule(bag.Length, MathUtils.GetScheduleBatchCount(bag.Length)));
-                    JobHandle.CombineDependencies(jobHandles).Complete();
 
                 }
 
@@ -419,7 +425,6 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                         FirstBodyIndex = bag.Length,
                         EntityBodyIndexMap = this.physicsWorld.CollisionWorld.EntityBodyIndexMap.AsParallelWriter(),
                     }.Schedule(bagStatic.Length, MathUtils.GetScheduleBatchCount(bagStatic.Length)));
-                    JobHandle.CombineDependencies(jobHandles).Complete();
 
                 }
 
@@ -435,7 +440,6 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                         EntityBodyIndexMap = this.physicsWorld.CollisionWorld.EntityBodyIndexMap,
                         EntityJointIndexMap = this.physicsWorld.DynamicsWorld.EntityJointIndexMap.AsParallelWriter(),
                     }.Schedule(bagJoints.Length, 1, handle));
-                    JobHandle.CombineDependencies(jobHandles).Complete();
                 }
 
                 var buildBroadphaseHandle = this.physicsWorld.CollisionWorld.ScheduleBuildBroadphaseJobs(
@@ -451,7 +455,12 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                 
             }
 
+            marker.End();
+            
             {
+
+                marker = new Unity.Profiling.ProfilerMarker("[Physics] Step World");
+                marker.Begin();
 
                 var jobs = ME.ECS.Essentials.Physics.Simulation.ScheduleStepJobs(ref simulationParameters,
                                                                                  ref this.simulationContext,
@@ -459,6 +468,11 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                                                                                  outputDependency,
                                                                                  true);
                 jobs.FinalExecutionHandle.Complete();
+
+                marker.End();
+                
+                marker = new Unity.Profiling.ProfilerMarker("[Physics] Apply World");
+                marker.Begin();
 
                 this.world.SetSharedDataOneShot(new PhysicsOneShotInternal() {
                     collisionEvents = this.simulationContext.CollisionEvents,
@@ -506,7 +520,7 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
                     var dynamicBodies = this.physicsWorld.DynamicBodies;
                     new ApplyPhysicsJob() {
                         bag = bag,
-                        bodies = dynamicBodies,
+                        //bodies = dynamicBodies,
                         motionVelocities = motionVelocities,
                     }.Schedule(bag.Length, MathUtils.GetScheduleBatchCount(bag.Length)).Complete();
 
@@ -521,8 +535,13 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
 
                 }
 
-            }
+                marker.End();
 
+            }
+            
+            marker = new Unity.Profiling.ProfilerMarker("[Physics] Clean up");
+            marker.Begin();
+            
             bag.Push();
             bagStatic.Revert();
             bagMotion.Revert();
@@ -534,6 +553,8 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
             rootRotationsStatic.Dispose();
 
             buildStaticTree.Dispose();
+
+            marker.End();
 
         }
 

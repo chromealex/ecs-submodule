@@ -274,6 +274,12 @@ namespace ME.ECS {
     #endif
     public sealed class StructComponentsOneShot<TComponent> : StructComponents<TComponent> where TComponent : struct, IComponentBase, IComponentOneShot {
 
+        public override void Recycle() {
+            
+            PoolRegistries.Recycle(this);
+
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif

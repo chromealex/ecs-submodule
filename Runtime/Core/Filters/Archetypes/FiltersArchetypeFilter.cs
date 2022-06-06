@@ -305,13 +305,14 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        public Unity.Collections.NativeList<Entity> ToList(Unity.Collections.Allocator allocator, out int min, out int max) {
+        public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator, out int min, out int max) {
 
             min = int.MaxValue;
             max = int.MinValue;
+            //Worlds.current.currentState.filters.UpdateFilters();
             var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
-            var result = new Unity.Collections.NativeList<Entity>(filterData.archetypes.Count * 10, allocator);
-            foreach (var archId in filterData.archetypes) {
+            var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count * 10, allocator);
+            foreach (var archId in filterData.archetypesList) {
 
                 var arch = filterData.storage.allArchetypes[archId];
                 for (int i = 0, count = arch.entitiesArr.Count; i < count; ++i) {
@@ -324,9 +325,32 @@ namespace ME.ECS {
                     if (e > max) {
                         max = e;
                     }
-                    result.Add(filterData.storage.GetEntityById(e));
+                    result.Add(e);
                     
                 }
+                
+            }
+
+            return result;
+
+        }
+
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator) {
+
+            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            //Worlds.current.currentState.filters.UpdateFilters();
+            var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count * 10, allocator);
+            foreach (var archId in filterData.archetypesList) {
+
+                var arch = filterData.storage.allArchetypes[archId];
+                var arr = arch.entitiesArr.innerArray;
+                var temp = new Unity.Collections.NativeArray<int>(arch.entitiesArr.Count, Unity.Collections.Allocator.Temp);
+                Unity.Collections.NativeArray<int>.Copy(arr.arr, temp, arch.entitiesArr.Count);
+                result.AddRange(temp);
+                temp.Dispose();
                 
             }
 

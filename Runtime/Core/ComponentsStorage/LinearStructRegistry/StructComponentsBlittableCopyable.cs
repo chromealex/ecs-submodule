@@ -1,70 +1,17 @@
 namespace ME.ECS {
 
+    using Collections;
+    
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class StructComponentsCopyable<TComponent> : StructComponents<TComponent> where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
+    public class StructComponentsBlittableCopyable<TComponent> : StructComponentsBlittable<TComponent> where TComponent : struct, IStructCopyable<TComponent> {
 
         public override void Recycle() {
             
             PoolRegistries.Recycle(this);
-
-        }
-
-        internal struct CopyItem : IArrayElementCopyWithIndex<Component<TComponent>> {
-
-            #if INLINE_METHODS
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Copy(int index, Component<TComponent> @from, ref Component<TComponent> to) {
-
-                var hasFrom = (from.state > 0);
-                var hasTo = (to.state > 0);
-                if (hasFrom == false && hasTo == false) return;
-
-                to.state = from.state;
-                to.version = from.version;
-
-                if (hasFrom == false && hasTo == true) {
-                    
-                    from.data.OnRecycle();
-                    to.data.OnRecycle();
-                    
-                } else {
-
-                    to.data.CopyFrom(in from.data);
-
-                }
-
-            }
-
-            #if INLINE_METHODS
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Recycle(int index, ref Component<TComponent> item) {
-
-                item.data.OnRecycle();
-                item = default;
-
-            }
-
-        }
-
-        internal struct ElementCopy : IArrayElementCopy<SharedGroupData> {
-
-            public void Copy(SharedGroupData @from, ref SharedGroupData to) {
-                
-                to.data.CopyFrom(from.data);
-                
-            }
-
-            public void Recycle(SharedGroupData item) {
-                
-                item.data.OnRecycle();
-                
-            }
 
         }
 
@@ -89,7 +36,7 @@ namespace ME.ECS {
         #endif
         protected override StructRegistryBase SpawnInstance() {
 
-            return PoolRegistries.SpawnCopyable<TComponent>();
+            return PoolRegistries.SpawnBlittableCopyable<TComponent>();
 
         }
 
@@ -131,11 +78,11 @@ namespace ME.ECS {
         #endif
         public override void CopyFrom(StructRegistryBase other) {
 
-            var _other = (StructComponents<TComponent>)other;
+            var _other = (StructComponentsBlittable<TComponent>)other;
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
-            ArrayUtils.CopyWithIndex(_other.components, ref this.components, new CopyItem());
+            NativeArrayUtils.CopyWithIndex(_other.components, ref this.components, new StructComponentsCopyable<TComponent>.CopyItem());
 
-            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(_other.sharedGroups, new ElementCopy());
+            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(_other.sharedGroups, new StructComponentsCopyable<TComponent>.ElementCopy());
             
         }
 

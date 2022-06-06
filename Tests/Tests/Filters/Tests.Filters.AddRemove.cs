@@ -59,10 +59,10 @@ namespace ME.ECS.Tests {
 
             TestsHelper.Do((w) => {
                 
-                WorldUtilities.InitComponentTypeId<TestComponent>(false, true);
+                WorldUtilities.InitComponentTypeId<TestComponent>(false, true, true);
                 ComponentsInitializerWorld.Setup((e) => {
                             
-                    e.ValidateData<TestComponent>();
+                    e.ValidateDataBlittable<TestComponent>();
                             
                 });
                 

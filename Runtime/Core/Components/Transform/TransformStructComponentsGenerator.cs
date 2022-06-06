@@ -14,8 +14,8 @@ namespace ME.ECS {
 
         public static void InitTypeId() {
 
-            WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Nodes>(isVersioned: true, isSimple: true);
-            WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Container>(isVersioned: true, isSimple: true);
+            WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Nodes>(isVersioned: true, isSimple: true, isBlittable: true);
+            WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Container>(isVersioned: true, isSimple: true, isBlittable: true);
             
             Transform2DComponentsInitializer.InitTypeId();
             Transform3DComponentsInitializer.InitTypeId();
@@ -24,8 +24,8 @@ namespace ME.ECS {
 
         public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
     
-            structComponentsContainer.Validate<ME.ECS.Transform.Nodes>();
-            structComponentsContainer.Validate<ME.ECS.Transform.Container>();
+            structComponentsContainer.ValidateBlittable<ME.ECS.Transform.Nodes>();
+            structComponentsContainer.ValidateBlittable<ME.ECS.Transform.Container>();
 
             Transform2DComponentsInitializer.Init(ref structComponentsContainer);
             Transform3DComponentsInitializer.Init(ref structComponentsContainer);
@@ -34,8 +34,8 @@ namespace ME.ECS {
     
         public static void Init(in Entity entity) {
 
-            entity.ValidateData<ME.ECS.Transform.Nodes>();
-            entity.ValidateData<ME.ECS.Transform.Container>();
+            entity.ValidateDataBlittable<ME.ECS.Transform.Nodes>();
+            entity.ValidateDataBlittable<ME.ECS.Transform.Container>();
             
             Transform2DComponentsInitializer.Init(in entity);
             Transform3DComponentsInitializer.Init(in entity);

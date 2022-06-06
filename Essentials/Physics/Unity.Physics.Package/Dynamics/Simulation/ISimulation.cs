@@ -22,7 +22,6 @@ namespace ME.ECS.Essentials.Physics
         public int NumSolverIterations; // Number of iterations to perform while solving constraints
         public bool SynchronizeCollisionWorld; // Whether to update the collision world after the step for more precise queries
         public Solver.StabilizationHeuristicSettings SolverStabilizationHeuristicSettings; // Settings for solver stabilization heuristic in Unity.Physics
-        public NativeArray<int> HaveStaticBodiesChanged; // Array of size 1 used for optimization of static body synchronization.
     }
 
     // Result of ISimulation.ScheduleStepJobs()

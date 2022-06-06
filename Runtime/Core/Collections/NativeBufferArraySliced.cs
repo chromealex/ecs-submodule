@@ -42,6 +42,18 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public NativeBufferArraySliced(int length) {
+
+            this.isCreated = true;
+            this.data = new NativeBufferArray<T>(length);
+            this.tails = default;
+            this.tailsLength = 0;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         private NativeBufferArraySliced(NativeBufferArray<T> arr, BufferArray<NativeBufferArray<T>> tails) {
 
             this.isCreated = true;

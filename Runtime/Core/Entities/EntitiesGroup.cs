@@ -421,6 +421,91 @@ namespace ME.ECS {
 
     }
 
+    public partial class StructComponentsBlittable<TComponent> {
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public override void SetObject(in EntitiesGroup group, IComponentBase component, bool setBits = true) {
+            
+            var data = new Component<TComponent>() {
+                data = (TComponent)component,
+                state = 1,
+                version = ++this.maxVersion + 1,
+            };
+            var componentIndex = ComponentTypes<TComponent>.typeId;
+            ref var archetypes = ref this.world.currentState.storage.archetypes;
+            if (group.copyMode == true) {
+                for (int i = group.fromId; i <= group.toId; ++i) {
+                    this.components.data[i] = data;
+                }
+                if (componentIndex >= 0 && setBits == true) archetypes.Set(in group, componentIndex);
+            } else {
+                for (int i = group.fromId; i <= group.toId; ++i) {
+                    this.components.data[i] = data;
+                    if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
+                }
+            }
+            this.world.currentState.storage.Set(in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public override void Set(in EntitiesGroup group, TComponent component, bool setBits = true) {
+            
+            var data = new Component<TComponent>() {
+                data = component,
+                state = 1,
+                version = ++this.maxVersion + 1,
+            };
+            var componentIndex = ComponentTypes<TComponent>.typeId;
+            ref var archetypes = ref this.world.currentState.storage.archetypes;
+            if (group.copyMode == true) {
+                for (int i = group.fromId; i <= group.toId; ++i) {
+                    this.components.data[i] = data;
+                }
+                if (componentIndex >= 0 && setBits == true) archetypes.Set(in group, componentIndex);
+            } else {
+                for (int i = group.fromId; i <= group.toId; ++i) {
+                    this.components.data[i] = data;
+                    if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
+                }
+            }
+            this.world.currentState.storage.Set(in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public override void Remove(in EntitiesGroup group, bool setBits = true) {
+
+            NativeArrayUtils.Clear(this.components.data.arr, group.fromId, group.Length);
+
+            if (setBits == true) {
+                
+                var componentIndex = ComponentTypes<TComponent>.typeId;
+                if (componentIndex >= 0) {
+                    ref var archetypes = ref this.world.currentState.storage.archetypes;
+                    if (group.copyMode == true) {
+                        archetypes.Remove(in group, componentIndex);
+                    } else {
+                        for (int i = group.fromId; i <= group.toId; ++i) {
+                            archetypes.Remove(i, componentIndex);
+                        }
+                    }
+                }
+
+                this.world.currentState.storage.Remove(in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
+
+            }
+            
+        }
+
+    }
+
     public partial class World {
 
         /// <summary>

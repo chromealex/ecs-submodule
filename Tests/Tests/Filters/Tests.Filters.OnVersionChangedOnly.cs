@@ -56,8 +56,8 @@ namespace ME.ECS.Tests {
                 ref var str = ref w.GetStructComponents();
                 CoreComponentsInitializer.InitTypeId();
                 CoreComponentsInitializer.Init(ref str);
-                WorldUtilities.InitComponentTypeId<TestData>();
-                str.Validate<TestData>();
+                WorldUtilities.InitComponentTypeId<TestData>(isBlittable: true);
+                str.ValidateBlittable<TestData>();
                 
             }, (w) => {
                 
