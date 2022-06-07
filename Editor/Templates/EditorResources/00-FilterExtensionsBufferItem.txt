@@ -3,13 +3,14 @@
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<#ITEMS_TYPE#> #ITEMS_WHERE# {
+public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");

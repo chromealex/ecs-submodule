@@ -19,24 +19,14 @@ namespace ME.ECS.Tests {
         } 
 
         [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true)]
-        public struct FilterBagJobTest : Unity.Jobs.IJob, IBurst {
+        public struct FilterBagJobTest : IJobParallelForFilterBag<ME.ECS.Buffers.FilterBag<TestData, TestData2>> {
 
-            public ME.ECS.Buffers.FilterBag<TestData, TestData2> data;
-
-            public void Execute() {
-
-                for (int i = 0; i < this.data.Length; ++i) {
-
-                    this.data.BeginForEachIndex(i);
-                    
-                    ref var comp = ref this.data.GetT0(i);
-                    comp.a += 1;
-                    
-                    this.data.RemoveT1(i);
-                    
-                    this.data.EndForEachIndex();
-
-                }
+            public void Execute(ref ME.ECS.Buffers.FilterBag<TestData, TestData2> bag, int index) {
+                
+                ref var comp = ref bag.GetT0(index);
+                comp.a += 1;
+                
+                bag.RemoveT1(index);
                 
             }
 
@@ -68,17 +58,17 @@ namespace ME.ECS.Tests {
                     
                     var sw = System.Diagnostics.Stopwatch.StartNew();
                     sw.Start();
+                    var bag = new ME.ECS.Buffers.FilterBag<TestData, TestData2>(this.filter, Unity.Collections.Allocator.TempJob);
                     var job = new FilterBagJobTest() {
-                        data = new ME.ECS.Buffers.FilterBag<TestData, TestData2>(this.filter, Unity.Collections.Allocator.TempJob),
                     };
-                    var handle = job.Schedule();
+                    var handle = job.Schedule(bag);
                     handle.Complete();
                     sw.Stop();
                     var step1 = sw.ElapsedMilliseconds;
 
                     sw = System.Diagnostics.Stopwatch.StartNew();
                     sw.Start();
-                    job.data.Push();
+                    bag.Push();
 
                     sw.Stop();
                     UnityEngine.Debug.Log(step1 + "ms, " + sw.ElapsedMilliseconds + "ms. Entities: " + this.filter.Count + ": " + this.testEntity + " has data: " +

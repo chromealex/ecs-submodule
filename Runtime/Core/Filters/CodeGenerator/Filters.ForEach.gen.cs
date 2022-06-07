@@ -13,6 +13,12 @@ namespace ME.ECS {
     using Unity.Collections.LowLevel.Unsafe;
     using System.Runtime.InteropServices;
 
+    public interface IFilterBag {
+        int Count { get; }
+        void BeginForEachIndex(int chunkIndex);
+        void EndForEachIndex();
+    }
+
     public unsafe struct Ptr {
 
         public void* value;
@@ -34,13 +40,14 @@ namespace ME.ECS {
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0>  where T0:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0> : IFilterBag  where T0:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -134,13 +141,14 @@ public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -248,13 +256,14 @@ public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -376,13 +385,14 @@ public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2,T3>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2,T3> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -518,13 +528,14 @@ public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2,T3,T4>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2,T3,T4> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -674,13 +685,14 @@ public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -844,13 +856,14 @@ public long GetVersionT5(int index) => UnsafeUtility.ArrayElementAsRef<Component
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -1028,13 +1041,14 @@ public long GetVersionT6(int index) => UnsafeUtility.ArrayElementAsRef<Component
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -1226,13 +1240,14 @@ public long GetVersionT7(int index) => UnsafeUtility.ArrayElementAsRef<Component
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -1438,13 +1453,14 @@ public long GetVersionT8(int index) => UnsafeUtility.ArrayElementAsRef<Component
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -1664,13 +1680,14 @@ public long GetVersionT9(int index) => UnsafeUtility.ArrayElementAsRef<Component
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -1904,13 +1921,14 @@ public long GetVersionT10(int index) => UnsafeUtility.ArrayElementAsRef<Componen
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase where T11:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase where T11:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -2158,13 +2176,14 @@ public long GetVersionT11(int index) => UnsafeUtility.ArrayElementAsRef<Componen
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase where T11:unmanaged,IComponentBase where T12:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase where T11:unmanaged,IComponentBase where T12:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -2426,13 +2445,14 @@ public long GetVersionT12(int index) => UnsafeUtility.ArrayElementAsRef<Componen
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase where T11:unmanaged,IComponentBase where T12:unmanaged,IComponentBase where T13:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase where T11:unmanaged,IComponentBase where T12:unmanaged,IComponentBase where T13:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -2708,13 +2728,14 @@ public long GetVersionT13(int index) => UnsafeUtility.ArrayElementAsRef<Componen
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase where T11:unmanaged,IComponentBase where T12:unmanaged,IComponentBase where T13:unmanaged,IComponentBase where T14:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase where T11:unmanaged,IComponentBase where T12:unmanaged,IComponentBase where T13:unmanaged,IComponentBase where T14:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -3004,13 +3025,14 @@ public long GetVersionT14(int index) => UnsafeUtility.ArrayElementAsRef<Componen
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase where T11:unmanaged,IComponentBase where T12:unmanaged,IComponentBase where T13:unmanaged,IComponentBase where T14:unmanaged,IComponentBase where T15:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase where T11:unmanaged,IComponentBase where T12:unmanaged,IComponentBase where T13:unmanaged,IComponentBase where T14:unmanaged,IComponentBase where T15:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -3314,13 +3336,14 @@ public long GetVersionT15(int index) => UnsafeUtility.ArrayElementAsRef<Componen
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase where T11:unmanaged,IComponentBase where T12:unmanaged,IComponentBase where T13:unmanaged,IComponentBase where T14:unmanaged,IComponentBase where T15:unmanaged,IComponentBase where T16:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase where T11:unmanaged,IComponentBase where T12:unmanaged,IComponentBase where T13:unmanaged,IComponentBase where T14:unmanaged,IComponentBase where T15:unmanaged,IComponentBase where T16:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -3638,13 +3661,14 @@ public long GetVersionT16(int index) => UnsafeUtility.ArrayElementAsRef<Componen
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase where T11:unmanaged,IComponentBase where T12:unmanaged,IComponentBase where T13:unmanaged,IComponentBase where T14:unmanaged,IComponentBase where T15:unmanaged,IComponentBase where T16:unmanaged,IComponentBase where T17:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase where T11:unmanaged,IComponentBase where T12:unmanaged,IComponentBase where T13:unmanaged,IComponentBase where T14:unmanaged,IComponentBase where T15:unmanaged,IComponentBase where T16:unmanaged,IComponentBase where T17:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -3976,13 +4000,14 @@ public long GetVersionT17(int index) => UnsafeUtility.ArrayElementAsRef<Componen
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
  Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase where T11:unmanaged,IComponentBase where T12:unmanaged,IComponentBase where T13:unmanaged,IComponentBase where T14:unmanaged,IComponentBase where T15:unmanaged,IComponentBase where T16:unmanaged,IComponentBase where T17:unmanaged,IComponentBase where T18:unmanaged,IComponentBase {
+public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase where T9:unmanaged,IComponentBase where T10:unmanaged,IComponentBase where T11:unmanaged,IComponentBase where T12:unmanaged,IComponentBase where T13:unmanaged,IComponentBase where T14:unmanaged,IComponentBase where T15:unmanaged,IComponentBase where T16:unmanaged,IComponentBase where T17:unmanaged,IComponentBase where T18:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    public int Count => this.Length;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");

@@ -13,6 +13,12 @@ namespace ME.ECS {
     using Unity.Collections.LowLevel.Unsafe;
     using System.Runtime.InteropServices;
 
+    public interface IFilterBag {
+        int Count { get; }
+        void BeginForEachIndex(int chunkIndex);
+        void EndForEachIndex();
+    }
+
     public unsafe struct Ptr {
 
         public void* value;
