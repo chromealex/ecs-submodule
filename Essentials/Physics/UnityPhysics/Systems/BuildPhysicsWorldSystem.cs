@@ -309,17 +309,19 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
 
         void IAdvanceTick.AdvanceTick(in float deltaTime) {
 
-            var marker = new Unity.Profiling.ProfilerMarker("[Physics] Build World");
+            var marker = new Unity.Profiling.ProfilerMarker("[Physics] Reset World");
             marker.Begin();
             
             this.physicsWorld.Reset(this.staticBodies.Count + 1 , this.dynamicBodies.Count, this.joints.Count);
+
+            marker.End();
 
             if (this.physicsWorld.Bodies.Length == 0) {
                 
                 return;
                 
             }
-            
+
             var simulationParameters = new ME.ECS.Essentials.Physics.SimulationStepInput() {
                 Gravity = this.feature.gravity,
                 NumSolverIterations = 4,
@@ -336,180 +338,188 @@ namespace ME.ECS.Essentials.Physics.Core.Collisions.Systems {
             var bagStatic = new Bag(this.staticBodies, Unity.Collections.Allocator.TempJob);
             var bagMotion = new BagMotion(this.dynamicBodies, Unity.Collections.Allocator.TempJob);
             var buildStaticTree = new Unity.Collections.NativeArray<int>(1, Unity.Collections.Allocator.TempJob);
-            JobHandle staticBodiesCheckHandle = default;
-            buildStaticTree[0] = 0;
-            {
-                // Check static has changed
-                if (internalData.prevStaticCount != bagStatic.Length) {
-                    buildStaticTree[0] = 1;
-                } else {
-                    staticBodiesCheckHandle = new CheckStaticBodyChangesJob {
-                        result = buildStaticTree,
-                        currentTick = this.world.GetCurrentTick(),
-                        prevTick = this.world.GetCurrentTick() - 1,
-                    }.Schedule(bagStatic);
-                }
-                internalData.prevStaticCount = bagStatic.Length;
-            }
-
-            var motionDatas = this.physicsWorld.MotionDatas;
-            var motionVelocities = this.physicsWorld.MotionVelocities;
-
+            
             var rootPositionsDynamic = this.GetParentPositionsFromBag(bag);
             var rootRotationsDynamic = this.GetParentRotationsFromBag(bag);
-
             var rootPositionsStatic = this.GetParentPositionsFromBag(bagStatic);
             var rootRotationsStatic = this.GetParentRotationsFromBag(bagStatic);
 
-            JobHandle outputDependency;
-            using (var jobHandles = new NativeList<JobHandle>(4, Allocator.Temp)) {
-
-                jobHandles.Add(staticBodiesCheckHandle);
-                
-                jobHandles.Add(new FillDefaultBodiesJob {
-                    NativeBodies = this.physicsWorld.Bodies,
-                    BodyIndex = this.physicsWorld.Bodies.Length - 1,
-                    EntityBodyIndexMap = this.physicsWorld.CollisionWorld.EntityBodyIndexMap.AsParallelWriter(),
-                }.Schedule());
-                
-                if (bag.Length > 0) {
-
-                    jobHandles.Add(new FillBodiesJob() {
-                        bodies = this.physicsWorld.Bodies,
-                        bagParentPositions = rootPositionsDynamic,
-                        bagParentRotations = rootRotationsDynamic,
-                        FirstBodyIndex = 0,
-                        EntityBodyIndexMap = this.physicsWorld.CollisionWorld.EntityBodyIndexMap.AsParallelWriter(),
-                    }.Schedule(bag));
-
-                    jobHandles.Add(new FillMotionJob() {
-                        bagMotion = bagMotion,
-                        defaultPhysicsMass = PhysicsMass.CreateDynamic(ME.ECS.Essentials.Physics.MassProperties.UnitSphere, 1f),
-                        motionDatas = motionDatas,
-                        motionVelocities = motionVelocities,
-                    }.Schedule(bag));
-
-                }
-
-                if (bagStatic.Length > 0) {
-
-                    jobHandles.Add(new FillBodiesJob() {
-                        bodies = this.physicsWorld.Bodies,
-                        bagParentPositions = rootPositionsStatic,
-                        bagParentRotations = rootRotationsStatic,
-                        FirstBodyIndex = bag.Length,
-                        EntityBodyIndexMap = this.physicsWorld.CollisionWorld.EntityBodyIndexMap.AsParallelWriter(),
-                    }.Schedule(bagStatic));
-
-                }
-
-                var handle = JobHandle.CombineDependencies(jobHandles);
-                jobHandles.Clear();
-                
-                if (bagJoints.Length > 0) {
-                    jobHandles.Add(new CreateJoints {
-                        Joints = this.physicsWorld.Joints,
-                        DefaultStaticBodyIndex = this.physicsWorld.Bodies.Length - 1,
-                        NumDynamicBodies = bag.Length,
-                        EntityBodyIndexMap = this.physicsWorld.CollisionWorld.EntityBodyIndexMap,
-                        EntityJointIndexMap = this.physicsWorld.DynamicsWorld.EntityJointIndexMap.AsParallelWriter(),
-                    }.Schedule(bagJoints, handle));
-                }
-
-                var buildBroadphaseHandle = this.physicsWorld.CollisionWorld.ScheduleBuildBroadphaseJobs(
-                    ref this.physicsWorld,
-                    simulationParameters.TimeStep,
-                    simulationParameters.Gravity,
-                    buildStaticTree,
-                    handle,
-                    true);
-                jobHandles.Add(buildBroadphaseHandle);
-
-                outputDependency = JobHandle.CombineDependencies(jobHandles);
-                
-            }
-
-            marker.End();
-            
             {
-
-                marker = new Unity.Profiling.ProfilerMarker("[Physics] Step World");
+                
+                marker = new Unity.Profiling.ProfilerMarker("[Physics] Build World");
                 marker.Begin();
 
-                var jobs = ME.ECS.Essentials.Physics.Simulation.ScheduleStepJobs(ref simulationParameters,
-                                                                                 ref this.simulationContext,
-                                                                                 this.scheduler,
-                                                                                 outputDependency,
-                                                                                 true);
-                jobs.FinalExecutionHandle.Complete();
+                JobHandle staticBodiesCheckHandle = default;
+                buildStaticTree[0] = 0;
+                {
+                    // Check static has changed
+                    if (internalData.prevStaticCount != bagStatic.Length) {
+                        buildStaticTree[0] = 1;
+                    } else {
+                        staticBodiesCheckHandle = new CheckStaticBodyChangesJob {
+                            result = buildStaticTree,
+                            currentTick = this.world.GetCurrentTick(),
+                            prevTick = this.world.GetCurrentTick() - 1,
+                        }.Schedule(bagStatic);
+                    }
+
+                    internalData.prevStaticCount = bagStatic.Length;
+                }
+
+                var motionDatas = this.physicsWorld.MotionDatas;
+                var motionVelocities = this.physicsWorld.MotionVelocities;
+
+                JobHandle outputDependency;
+                using (var jobHandles = new NativeList<JobHandle>(4, Allocator.Temp)) {
+
+                    jobHandles.Add(staticBodiesCheckHandle);
+
+                    jobHandles.Add(new FillDefaultBodiesJob {
+                        NativeBodies = this.physicsWorld.Bodies,
+                        BodyIndex = this.physicsWorld.Bodies.Length - 1,
+                        EntityBodyIndexMap = this.physicsWorld.CollisionWorld.EntityBodyIndexMap.AsParallelWriter(),
+                    }.Schedule());
+
+                    if (bag.Length > 0) {
+
+                        jobHandles.Add(new FillBodiesJob() {
+                            bodies = this.physicsWorld.Bodies,
+                            bagParentPositions = rootPositionsDynamic,
+                            bagParentRotations = rootRotationsDynamic,
+                            FirstBodyIndex = 0,
+                            EntityBodyIndexMap = this.physicsWorld.CollisionWorld.EntityBodyIndexMap.AsParallelWriter(),
+                        }.Schedule(bag));
+
+                        jobHandles.Add(new FillMotionJob() {
+                            bagMotion = bagMotion,
+                            defaultPhysicsMass = PhysicsMass.CreateDynamic(ME.ECS.Essentials.Physics.MassProperties.UnitSphere, 1f),
+                            motionDatas = motionDatas,
+                            motionVelocities = motionVelocities,
+                        }.Schedule(bag));
+
+                    }
+
+                    if (bagStatic.Length > 0) {
+
+                        jobHandles.Add(new FillBodiesJob() {
+                            bodies = this.physicsWorld.Bodies,
+                            bagParentPositions = rootPositionsStatic,
+                            bagParentRotations = rootRotationsStatic,
+                            FirstBodyIndex = bag.Length,
+                            EntityBodyIndexMap = this.physicsWorld.CollisionWorld.EntityBodyIndexMap.AsParallelWriter(),
+                        }.Schedule(bagStatic));
+
+                    }
+
+                    var handle = JobHandle.CombineDependencies(jobHandles);
+                    jobHandles.Clear();
+
+                    if (bagJoints.Length > 0) {
+                        jobHandles.Add(new CreateJoints {
+                            Joints = this.physicsWorld.Joints,
+                            DefaultStaticBodyIndex = this.physicsWorld.Bodies.Length - 1,
+                            NumDynamicBodies = bag.Length,
+                            EntityBodyIndexMap = this.physicsWorld.CollisionWorld.EntityBodyIndexMap,
+                            EntityJointIndexMap = this.physicsWorld.DynamicsWorld.EntityJointIndexMap.AsParallelWriter(),
+                        }.Schedule(bagJoints, handle));
+                    }
+
+                    var buildBroadphaseHandle = this.physicsWorld.CollisionWorld.ScheduleBuildBroadphaseJobs(
+                        ref this.physicsWorld,
+                        simulationParameters.TimeStep,
+                        simulationParameters.Gravity,
+                        buildStaticTree,
+                        handle,
+                        true);
+                    jobHandles.Add(buildBroadphaseHandle);
+
+                    outputDependency = JobHandle.CombineDependencies(jobHandles);
+
+                }
 
                 marker.End();
-                
-                marker = new Unity.Profiling.ProfilerMarker("[Physics] Apply World");
-                marker.Begin();
-
-                this.world.SetSharedDataOneShot(new PhysicsOneShotInternal() {
-                    collisionEvents = this.simulationContext.CollisionEvents,
-                    triggerEvents = this.simulationContext.TriggerEvents,
-                });
-
-                if (this.feature.sendCollisionEvents == true) {
-
-                    foreach (var evt in this.simulationContext.CollisionEvents) {
-
-                        var entityAEvt = new Entity(EntityFlag.OneShot);
-                        entityAEvt.SetOneShot(new PhysicsEventOnCollision() {
-                            data = evt,
-                        });
-
-                        var entityBEvt = new Entity(EntityFlag.OneShot);
-                        entityBEvt.SetOneShot(new PhysicsEventOnCollision() {
-                            data = evt,
-                        });
-
-                    }
-
-                }
-
-                if (this.feature.sendTriggerEvents == true) {
-
-                    foreach (var evt in this.simulationContext.TriggerEvents) {
-
-                        var entityAEvt = new Entity(EntityFlag.OneShot);
-                        entityAEvt.SetOneShot(new PhysicsEventOnTrigger() {
-                            data = evt,
-                        });
-
-                        var entityBEvt = new Entity(EntityFlag.OneShot);
-                        entityBEvt.SetOneShot(new PhysicsEventOnTrigger() {
-                            data = evt,
-                        });
-
-                    }
-
-                }
 
                 {
-                    // Sync physics result with entities
-                    var dynamicBodies = this.physicsWorld.DynamicBodies;
-                    new ApplyPhysicsJob() {
-                        //bodies = dynamicBodies,
-                        motionVelocities = motionVelocities,
-                    }.Schedule(bag).Complete();
 
-                    for (int i = 0; i < bag.Length; ++i) {
+                    marker = new Unity.Profiling.ProfilerMarker("[Physics] Step World");
+                    marker.Begin();
 
-                        var data = dynamicBodies[i].WorldFromBody;
-                        var entity = bag.GetEntity(i);
-                        entity.SetPosition(data.pos);
-                        entity.SetRotation(data.rot);
+                    var jobs = ME.ECS.Essentials.Physics.Simulation.ScheduleStepJobs(ref simulationParameters,
+                                                                                     ref this.simulationContext,
+                                                                                     this.scheduler,
+                                                                                     outputDependency,
+                                                                                     true);
+                    jobs.FinalExecutionHandle.Complete();
+
+                    marker.End();
+
+                    marker = new Unity.Profiling.ProfilerMarker("[Physics] Apply World");
+                    marker.Begin();
+
+                    this.world.SetSharedDataOneShot(new PhysicsOneShotInternal() {
+                        collisionEvents = this.simulationContext.CollisionEvents,
+                        triggerEvents = this.simulationContext.TriggerEvents,
+                    });
+
+                    if (this.feature.sendCollisionEvents == true) {
+
+                        foreach (var evt in this.simulationContext.CollisionEvents) {
+
+                            var entityAEvt = new Entity(EntityFlag.OneShot);
+                            entityAEvt.SetOneShot(new PhysicsEventOnCollision() {
+                                data = evt,
+                            });
+
+                            var entityBEvt = new Entity(EntityFlag.OneShot);
+                            entityBEvt.SetOneShot(new PhysicsEventOnCollision() {
+                                data = evt,
+                            });
+
+                        }
 
                     }
 
+                    if (this.feature.sendTriggerEvents == true) {
+
+                        foreach (var evt in this.simulationContext.TriggerEvents) {
+
+                            var entityAEvt = new Entity(EntityFlag.OneShot);
+                            entityAEvt.SetOneShot(new PhysicsEventOnTrigger() {
+                                data = evt,
+                            });
+
+                            var entityBEvt = new Entity(EntityFlag.OneShot);
+                            entityBEvt.SetOneShot(new PhysicsEventOnTrigger() {
+                                data = evt,
+                            });
+
+                        }
+
+                    }
+
+                    {
+                        // Sync physics result with entities
+                        var dynamicBodies = this.physicsWorld.DynamicBodies;
+                        new ApplyPhysicsJob() {
+                            //bodies = dynamicBodies,
+                            motionVelocities = motionVelocities,
+                        }.Schedule(bag).Complete();
+
+                        for (int i = 0; i < bag.Length; ++i) {
+
+                            var data = dynamicBodies[i].WorldFromBody;
+                            var entity = bag.GetEntity(i);
+                            entity.SetPosition(data.pos);
+                            entity.SetRotation(data.rot);
+
+                        }
+
+                    }
+
+                    marker.End();
+
                 }
-
-                marker.End();
-
+                
             }
             
             marker = new Unity.Profiling.ProfilerMarker("[Physics] Clean up");

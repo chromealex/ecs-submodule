@@ -15,18 +15,24 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(#INDEX#, allocator);
-        this.stream = new Unity.Collections.NativeStream(#INDEX# * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        #REGS_INIT#
-        
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(#INDEX#, allocator);
+            this.stream = new Unity.Collections.NativeStream(#INDEX# * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            #REGS_INIT#
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -76,7 +82,10 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }

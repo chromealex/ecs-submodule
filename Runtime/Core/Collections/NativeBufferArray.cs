@@ -212,6 +212,27 @@ namespace ME.ECS.Collections {
 
         }
 
+        public NativeBufferArray<T> Resize(int index, bool resizeWithOffset, out bool result) {
+
+            var newSize = index + 1;
+            result = false;
+            if (newSize > this.Length) {
+
+                if (newSize > this.arr.Length) {
+
+                    NativeArrayUtils.Resize(newSize, ref this.arr, Allocator.Persistent, resizeWithOffset);
+
+                }
+                
+                result = true;
+                return new NativeBufferArray<T>(this.arr, newSize);
+
+            }
+
+            return this;
+
+        }
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif

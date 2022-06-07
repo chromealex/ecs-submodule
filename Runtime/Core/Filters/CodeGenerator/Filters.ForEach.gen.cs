@@ -52,20 +52,26 @@ public unsafe struct FilterBag<T0> : IFilterBag  where T0:unmanaged,IComponentBa
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(1, allocator);
-        this.stream = new Unity.Collections.NativeStream(1 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(1, allocator);
+            this.stream = new Unity.Collections.NativeStream(1 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };
-        
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -121,7 +127,10 @@ this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -153,22 +162,28 @@ public unsafe struct FilterBag<T0,T1> : IFilterBag  where T0:unmanaged,IComponen
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(2, allocator);
-        this.stream = new Unity.Collections.NativeStream(2 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(2, allocator);
+            this.stream = new Unity.Collections.NativeStream(2 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };
-        
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -230,7 +245,10 @@ this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -268,24 +286,30 @@ public unsafe struct FilterBag<T0,T1,T2> : IFilterBag  where T0:unmanaged,ICompo
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(3, allocator);
-        this.stream = new Unity.Collections.NativeStream(3 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(3, allocator);
+            this.stream = new Unity.Collections.NativeStream(3 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };
-        
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -353,7 +377,10 @@ this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -397,26 +424,32 @@ public unsafe struct FilterBag<T0,T1,T2,T3> : IFilterBag  where T0:unmanaged,ICo
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(4, allocator);
-        this.stream = new Unity.Collections.NativeStream(4 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(4, allocator);
+            this.stream = new Unity.Collections.NativeStream(4 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
 regT3.Merge();
-this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };
-        
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -490,7 +523,10 @@ this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -540,28 +576,34 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4> : IFilterBag  where T0:unmanaged,
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(5, allocator);
-        this.stream = new Unity.Collections.NativeStream(5 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(5, allocator);
+            this.stream = new Unity.Collections.NativeStream(5 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
 regT3.Merge();
-this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
 regT4.Merge();
-this.regs[4] = new Ptr() { value = regT4.components.data.GetUnsafePtr(), };
-        
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -641,7 +683,10 @@ this.regs[4] = new Ptr() { value = regT4.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -697,30 +742,36 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5> : IFilterBag  where T0:unmanag
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(6, allocator);
-        this.stream = new Unity.Collections.NativeStream(6 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(6, allocator);
+            this.stream = new Unity.Collections.NativeStream(6 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
 regT3.Merge();
-this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
 regT4.Merge();
-this.regs[4] = new Ptr() { value = regT4.components.data.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
 regT5.Merge();
-this.regs[5] = new Ptr() { value = regT5.components.data.GetUnsafePtr(), };
-        
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -806,7 +857,10 @@ this.regs[5] = new Ptr() { value = regT5.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -868,32 +922,38 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6> : IFilterBag  where T0:unma
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(7, allocator);
-        this.stream = new Unity.Collections.NativeStream(7 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(7, allocator);
+            this.stream = new Unity.Collections.NativeStream(7 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
 regT3.Merge();
-this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
 regT4.Merge();
-this.regs[4] = new Ptr() { value = regT4.components.data.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
 regT5.Merge();
-this.regs[5] = new Ptr() { value = regT5.components.data.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
 regT6.Merge();
-this.regs[6] = new Ptr() { value = regT6.components.data.GetUnsafePtr(), };
-        
+this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -985,7 +1045,10 @@ this.regs[6] = new Ptr() { value = regT6.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -1053,34 +1116,40 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7> : IFilterBag  where T0:u
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(8, allocator);
-        this.stream = new Unity.Collections.NativeStream(8 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(8, allocator);
+            this.stream = new Unity.Collections.NativeStream(8 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
 regT3.Merge();
-this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
 regT4.Merge();
-this.regs[4] = new Ptr() { value = regT4.components.data.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
 regT5.Merge();
-this.regs[5] = new Ptr() { value = regT5.components.data.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
 regT6.Merge();
-this.regs[6] = new Ptr() { value = regT6.components.data.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
+this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
 regT7.Merge();
-this.regs[7] = new Ptr() { value = regT7.components.data.GetUnsafePtr(), };
-        
+this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -1178,7 +1247,10 @@ this.regs[7] = new Ptr() { value = regT7.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -1252,36 +1324,42 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8> : IFilterBag  where T
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(9, allocator);
-        this.stream = new Unity.Collections.NativeStream(9 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(9, allocator);
+            this.stream = new Unity.Collections.NativeStream(9 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
 regT3.Merge();
-this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
 regT4.Merge();
-this.regs[4] = new Ptr() { value = regT4.components.data.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
 regT5.Merge();
-this.regs[5] = new Ptr() { value = regT5.components.data.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
 regT6.Merge();
-this.regs[6] = new Ptr() { value = regT6.components.data.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
+this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
 regT7.Merge();
-this.regs[7] = new Ptr() { value = regT7.components.data.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
+this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
 regT8.Merge();
-this.regs[8] = new Ptr() { value = regT8.components.data.GetUnsafePtr(), };
-        
+this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -1385,7 +1463,10 @@ this.regs[8] = new Ptr() { value = regT8.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -1465,38 +1546,44 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> : IFilterBag  wher
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(10, allocator);
-        this.stream = new Unity.Collections.NativeStream(10 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(10, allocator);
+            this.stream = new Unity.Collections.NativeStream(10 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
 regT3.Merge();
-this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
 regT4.Merge();
-this.regs[4] = new Ptr() { value = regT4.components.data.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
 regT5.Merge();
-this.regs[5] = new Ptr() { value = regT5.components.data.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
 regT6.Merge();
-this.regs[6] = new Ptr() { value = regT6.components.data.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
+this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
 regT7.Merge();
-this.regs[7] = new Ptr() { value = regT7.components.data.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
+this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
 regT8.Merge();
-this.regs[8] = new Ptr() { value = regT8.components.data.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
+this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
 regT9.Merge();
-this.regs[9] = new Ptr() { value = regT9.components.data.GetUnsafePtr(), };
-        
+this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -1606,7 +1693,10 @@ this.regs[9] = new Ptr() { value = regT9.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -1692,40 +1782,46 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> : IFilterBag  
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(11, allocator);
-        this.stream = new Unity.Collections.NativeStream(11 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(11, allocator);
+            this.stream = new Unity.Collections.NativeStream(11 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
 regT3.Merge();
-this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
 regT4.Merge();
-this.regs[4] = new Ptr() { value = regT4.components.data.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
 regT5.Merge();
-this.regs[5] = new Ptr() { value = regT5.components.data.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
 regT6.Merge();
-this.regs[6] = new Ptr() { value = regT6.components.data.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
+this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
 regT7.Merge();
-this.regs[7] = new Ptr() { value = regT7.components.data.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
+this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
 regT8.Merge();
-this.regs[8] = new Ptr() { value = regT8.components.data.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
+this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
 regT9.Merge();
-this.regs[9] = new Ptr() { value = regT9.components.data.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
+this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
 regT10.Merge();
-this.regs[10] = new Ptr() { value = regT10.components.data.GetUnsafePtr(), };
-        
+this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -1841,7 +1937,10 @@ this.regs[10] = new Ptr() { value = regT10.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -1933,42 +2032,48 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> : IFilterB
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(12, allocator);
-        this.stream = new Unity.Collections.NativeStream(12 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(12, allocator);
+            this.stream = new Unity.Collections.NativeStream(12 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
 regT3.Merge();
-this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
 regT4.Merge();
-this.regs[4] = new Ptr() { value = regT4.components.data.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
 regT5.Merge();
-this.regs[5] = new Ptr() { value = regT5.components.data.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
 regT6.Merge();
-this.regs[6] = new Ptr() { value = regT6.components.data.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
+this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
 regT7.Merge();
-this.regs[7] = new Ptr() { value = regT7.components.data.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
+this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
 regT8.Merge();
-this.regs[8] = new Ptr() { value = regT8.components.data.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
+this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
 regT9.Merge();
-this.regs[9] = new Ptr() { value = regT9.components.data.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
+this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
 regT10.Merge();
-this.regs[10] = new Ptr() { value = regT10.components.data.GetUnsafePtr(), };var regT11 = (StructComponentsBlittable<T11>)allRegs[AllComponentTypes<T11>.typeId];
+this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };var regT11 = (StructComponentsBlittable<T11>)allRegs[AllComponentTypes<T11>.typeId];
 regT11.Merge();
-this.regs[11] = new Ptr() { value = regT11.components.data.GetUnsafePtr(), };
-        
+this.regs[11] = new Ptr() { value = regT11.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -2090,7 +2195,10 @@ this.regs[11] = new Ptr() { value = regT11.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -2188,44 +2296,50 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> : IFil
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(13, allocator);
-        this.stream = new Unity.Collections.NativeStream(13 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(13, allocator);
+            this.stream = new Unity.Collections.NativeStream(13 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
 regT3.Merge();
-this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
 regT4.Merge();
-this.regs[4] = new Ptr() { value = regT4.components.data.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
 regT5.Merge();
-this.regs[5] = new Ptr() { value = regT5.components.data.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
 regT6.Merge();
-this.regs[6] = new Ptr() { value = regT6.components.data.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
+this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
 regT7.Merge();
-this.regs[7] = new Ptr() { value = regT7.components.data.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
+this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
 regT8.Merge();
-this.regs[8] = new Ptr() { value = regT8.components.data.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
+this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
 regT9.Merge();
-this.regs[9] = new Ptr() { value = regT9.components.data.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
+this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
 regT10.Merge();
-this.regs[10] = new Ptr() { value = regT10.components.data.GetUnsafePtr(), };var regT11 = (StructComponentsBlittable<T11>)allRegs[AllComponentTypes<T11>.typeId];
+this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };var regT11 = (StructComponentsBlittable<T11>)allRegs[AllComponentTypes<T11>.typeId];
 regT11.Merge();
-this.regs[11] = new Ptr() { value = regT11.components.data.GetUnsafePtr(), };var regT12 = (StructComponentsBlittable<T12>)allRegs[AllComponentTypes<T12>.typeId];
+this.regs[11] = new Ptr() { value = regT11.components.GetUnsafePtr(), };var regT12 = (StructComponentsBlittable<T12>)allRegs[AllComponentTypes<T12>.typeId];
 regT12.Merge();
-this.regs[12] = new Ptr() { value = regT12.components.data.GetUnsafePtr(), };
-        
+this.regs[12] = new Ptr() { value = regT12.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -2353,7 +2467,10 @@ this.regs[12] = new Ptr() { value = regT12.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -2457,46 +2574,52 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> : 
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(14, allocator);
-        this.stream = new Unity.Collections.NativeStream(14 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(14, allocator);
+            this.stream = new Unity.Collections.NativeStream(14 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
 regT3.Merge();
-this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
 regT4.Merge();
-this.regs[4] = new Ptr() { value = regT4.components.data.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
 regT5.Merge();
-this.regs[5] = new Ptr() { value = regT5.components.data.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
 regT6.Merge();
-this.regs[6] = new Ptr() { value = regT6.components.data.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
+this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
 regT7.Merge();
-this.regs[7] = new Ptr() { value = regT7.components.data.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
+this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
 regT8.Merge();
-this.regs[8] = new Ptr() { value = regT8.components.data.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
+this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
 regT9.Merge();
-this.regs[9] = new Ptr() { value = regT9.components.data.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
+this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
 regT10.Merge();
-this.regs[10] = new Ptr() { value = regT10.components.data.GetUnsafePtr(), };var regT11 = (StructComponentsBlittable<T11>)allRegs[AllComponentTypes<T11>.typeId];
+this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };var regT11 = (StructComponentsBlittable<T11>)allRegs[AllComponentTypes<T11>.typeId];
 regT11.Merge();
-this.regs[11] = new Ptr() { value = regT11.components.data.GetUnsafePtr(), };var regT12 = (StructComponentsBlittable<T12>)allRegs[AllComponentTypes<T12>.typeId];
+this.regs[11] = new Ptr() { value = regT11.components.GetUnsafePtr(), };var regT12 = (StructComponentsBlittable<T12>)allRegs[AllComponentTypes<T12>.typeId];
 regT12.Merge();
-this.regs[12] = new Ptr() { value = regT12.components.data.GetUnsafePtr(), };var regT13 = (StructComponentsBlittable<T13>)allRegs[AllComponentTypes<T13>.typeId];
+this.regs[12] = new Ptr() { value = regT12.components.GetUnsafePtr(), };var regT13 = (StructComponentsBlittable<T13>)allRegs[AllComponentTypes<T13>.typeId];
 regT13.Merge();
-this.regs[13] = new Ptr() { value = regT13.components.data.GetUnsafePtr(), };
-        
+this.regs[13] = new Ptr() { value = regT13.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -2630,7 +2753,10 @@ this.regs[13] = new Ptr() { value = regT13.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -2740,48 +2866,54 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(15, allocator);
-        this.stream = new Unity.Collections.NativeStream(15 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(15, allocator);
+            this.stream = new Unity.Collections.NativeStream(15 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
 regT3.Merge();
-this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
 regT4.Merge();
-this.regs[4] = new Ptr() { value = regT4.components.data.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
 regT5.Merge();
-this.regs[5] = new Ptr() { value = regT5.components.data.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
 regT6.Merge();
-this.regs[6] = new Ptr() { value = regT6.components.data.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
+this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
 regT7.Merge();
-this.regs[7] = new Ptr() { value = regT7.components.data.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
+this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
 regT8.Merge();
-this.regs[8] = new Ptr() { value = regT8.components.data.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
+this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
 regT9.Merge();
-this.regs[9] = new Ptr() { value = regT9.components.data.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
+this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
 regT10.Merge();
-this.regs[10] = new Ptr() { value = regT10.components.data.GetUnsafePtr(), };var regT11 = (StructComponentsBlittable<T11>)allRegs[AllComponentTypes<T11>.typeId];
+this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };var regT11 = (StructComponentsBlittable<T11>)allRegs[AllComponentTypes<T11>.typeId];
 regT11.Merge();
-this.regs[11] = new Ptr() { value = regT11.components.data.GetUnsafePtr(), };var regT12 = (StructComponentsBlittable<T12>)allRegs[AllComponentTypes<T12>.typeId];
+this.regs[11] = new Ptr() { value = regT11.components.GetUnsafePtr(), };var regT12 = (StructComponentsBlittable<T12>)allRegs[AllComponentTypes<T12>.typeId];
 regT12.Merge();
-this.regs[12] = new Ptr() { value = regT12.components.data.GetUnsafePtr(), };var regT13 = (StructComponentsBlittable<T13>)allRegs[AllComponentTypes<T13>.typeId];
+this.regs[12] = new Ptr() { value = regT12.components.GetUnsafePtr(), };var regT13 = (StructComponentsBlittable<T13>)allRegs[AllComponentTypes<T13>.typeId];
 regT13.Merge();
-this.regs[13] = new Ptr() { value = regT13.components.data.GetUnsafePtr(), };var regT14 = (StructComponentsBlittable<T14>)allRegs[AllComponentTypes<T14>.typeId];
+this.regs[13] = new Ptr() { value = regT13.components.GetUnsafePtr(), };var regT14 = (StructComponentsBlittable<T14>)allRegs[AllComponentTypes<T14>.typeId];
 regT14.Merge();
-this.regs[14] = new Ptr() { value = regT14.components.data.GetUnsafePtr(), };
-        
+this.regs[14] = new Ptr() { value = regT14.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -2921,7 +3053,10 @@ this.regs[14] = new Ptr() { value = regT14.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -3037,50 +3172,56 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(16, allocator);
-        this.stream = new Unity.Collections.NativeStream(16 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(16, allocator);
+            this.stream = new Unity.Collections.NativeStream(16 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
 regT3.Merge();
-this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
 regT4.Merge();
-this.regs[4] = new Ptr() { value = regT4.components.data.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
 regT5.Merge();
-this.regs[5] = new Ptr() { value = regT5.components.data.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
 regT6.Merge();
-this.regs[6] = new Ptr() { value = regT6.components.data.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
+this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
 regT7.Merge();
-this.regs[7] = new Ptr() { value = regT7.components.data.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
+this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
 regT8.Merge();
-this.regs[8] = new Ptr() { value = regT8.components.data.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
+this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
 regT9.Merge();
-this.regs[9] = new Ptr() { value = regT9.components.data.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
+this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
 regT10.Merge();
-this.regs[10] = new Ptr() { value = regT10.components.data.GetUnsafePtr(), };var regT11 = (StructComponentsBlittable<T11>)allRegs[AllComponentTypes<T11>.typeId];
+this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };var regT11 = (StructComponentsBlittable<T11>)allRegs[AllComponentTypes<T11>.typeId];
 regT11.Merge();
-this.regs[11] = new Ptr() { value = regT11.components.data.GetUnsafePtr(), };var regT12 = (StructComponentsBlittable<T12>)allRegs[AllComponentTypes<T12>.typeId];
+this.regs[11] = new Ptr() { value = regT11.components.GetUnsafePtr(), };var regT12 = (StructComponentsBlittable<T12>)allRegs[AllComponentTypes<T12>.typeId];
 regT12.Merge();
-this.regs[12] = new Ptr() { value = regT12.components.data.GetUnsafePtr(), };var regT13 = (StructComponentsBlittable<T13>)allRegs[AllComponentTypes<T13>.typeId];
+this.regs[12] = new Ptr() { value = regT12.components.GetUnsafePtr(), };var regT13 = (StructComponentsBlittable<T13>)allRegs[AllComponentTypes<T13>.typeId];
 regT13.Merge();
-this.regs[13] = new Ptr() { value = regT13.components.data.GetUnsafePtr(), };var regT14 = (StructComponentsBlittable<T14>)allRegs[AllComponentTypes<T14>.typeId];
+this.regs[13] = new Ptr() { value = regT13.components.GetUnsafePtr(), };var regT14 = (StructComponentsBlittable<T14>)allRegs[AllComponentTypes<T14>.typeId];
 regT14.Merge();
-this.regs[14] = new Ptr() { value = regT14.components.data.GetUnsafePtr(), };var regT15 = (StructComponentsBlittable<T15>)allRegs[AllComponentTypes<T15>.typeId];
+this.regs[14] = new Ptr() { value = regT14.components.GetUnsafePtr(), };var regT15 = (StructComponentsBlittable<T15>)allRegs[AllComponentTypes<T15>.typeId];
 regT15.Merge();
-this.regs[15] = new Ptr() { value = regT15.components.data.GetUnsafePtr(), };
-        
+this.regs[15] = new Ptr() { value = regT15.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -3226,7 +3367,10 @@ this.regs[15] = new Ptr() { value = regT15.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -3348,52 +3492,58 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(17, allocator);
-        this.stream = new Unity.Collections.NativeStream(17 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(17, allocator);
+            this.stream = new Unity.Collections.NativeStream(17 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
 regT3.Merge();
-this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
 regT4.Merge();
-this.regs[4] = new Ptr() { value = regT4.components.data.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
 regT5.Merge();
-this.regs[5] = new Ptr() { value = regT5.components.data.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
 regT6.Merge();
-this.regs[6] = new Ptr() { value = regT6.components.data.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
+this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
 regT7.Merge();
-this.regs[7] = new Ptr() { value = regT7.components.data.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
+this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
 regT8.Merge();
-this.regs[8] = new Ptr() { value = regT8.components.data.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
+this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
 regT9.Merge();
-this.regs[9] = new Ptr() { value = regT9.components.data.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
+this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
 regT10.Merge();
-this.regs[10] = new Ptr() { value = regT10.components.data.GetUnsafePtr(), };var regT11 = (StructComponentsBlittable<T11>)allRegs[AllComponentTypes<T11>.typeId];
+this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };var regT11 = (StructComponentsBlittable<T11>)allRegs[AllComponentTypes<T11>.typeId];
 regT11.Merge();
-this.regs[11] = new Ptr() { value = regT11.components.data.GetUnsafePtr(), };var regT12 = (StructComponentsBlittable<T12>)allRegs[AllComponentTypes<T12>.typeId];
+this.regs[11] = new Ptr() { value = regT11.components.GetUnsafePtr(), };var regT12 = (StructComponentsBlittable<T12>)allRegs[AllComponentTypes<T12>.typeId];
 regT12.Merge();
-this.regs[12] = new Ptr() { value = regT12.components.data.GetUnsafePtr(), };var regT13 = (StructComponentsBlittable<T13>)allRegs[AllComponentTypes<T13>.typeId];
+this.regs[12] = new Ptr() { value = regT12.components.GetUnsafePtr(), };var regT13 = (StructComponentsBlittable<T13>)allRegs[AllComponentTypes<T13>.typeId];
 regT13.Merge();
-this.regs[13] = new Ptr() { value = regT13.components.data.GetUnsafePtr(), };var regT14 = (StructComponentsBlittable<T14>)allRegs[AllComponentTypes<T14>.typeId];
+this.regs[13] = new Ptr() { value = regT13.components.GetUnsafePtr(), };var regT14 = (StructComponentsBlittable<T14>)allRegs[AllComponentTypes<T14>.typeId];
 regT14.Merge();
-this.regs[14] = new Ptr() { value = regT14.components.data.GetUnsafePtr(), };var regT15 = (StructComponentsBlittable<T15>)allRegs[AllComponentTypes<T15>.typeId];
+this.regs[14] = new Ptr() { value = regT14.components.GetUnsafePtr(), };var regT15 = (StructComponentsBlittable<T15>)allRegs[AllComponentTypes<T15>.typeId];
 regT15.Merge();
-this.regs[15] = new Ptr() { value = regT15.components.data.GetUnsafePtr(), };var regT16 = (StructComponentsBlittable<T16>)allRegs[AllComponentTypes<T16>.typeId];
+this.regs[15] = new Ptr() { value = regT15.components.GetUnsafePtr(), };var regT16 = (StructComponentsBlittable<T16>)allRegs[AllComponentTypes<T16>.typeId];
 regT16.Merge();
-this.regs[16] = new Ptr() { value = regT16.components.data.GetUnsafePtr(), };
-        
+this.regs[16] = new Ptr() { value = regT16.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -3545,7 +3695,10 @@ this.regs[16] = new Ptr() { value = regT16.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -3673,54 +3826,60 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(18, allocator);
-        this.stream = new Unity.Collections.NativeStream(18 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(18, allocator);
+            this.stream = new Unity.Collections.NativeStream(18 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
 regT3.Merge();
-this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
 regT4.Merge();
-this.regs[4] = new Ptr() { value = regT4.components.data.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
 regT5.Merge();
-this.regs[5] = new Ptr() { value = regT5.components.data.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
 regT6.Merge();
-this.regs[6] = new Ptr() { value = regT6.components.data.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
+this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
 regT7.Merge();
-this.regs[7] = new Ptr() { value = regT7.components.data.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
+this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
 regT8.Merge();
-this.regs[8] = new Ptr() { value = regT8.components.data.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
+this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
 regT9.Merge();
-this.regs[9] = new Ptr() { value = regT9.components.data.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
+this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
 regT10.Merge();
-this.regs[10] = new Ptr() { value = regT10.components.data.GetUnsafePtr(), };var regT11 = (StructComponentsBlittable<T11>)allRegs[AllComponentTypes<T11>.typeId];
+this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };var regT11 = (StructComponentsBlittable<T11>)allRegs[AllComponentTypes<T11>.typeId];
 regT11.Merge();
-this.regs[11] = new Ptr() { value = regT11.components.data.GetUnsafePtr(), };var regT12 = (StructComponentsBlittable<T12>)allRegs[AllComponentTypes<T12>.typeId];
+this.regs[11] = new Ptr() { value = regT11.components.GetUnsafePtr(), };var regT12 = (StructComponentsBlittable<T12>)allRegs[AllComponentTypes<T12>.typeId];
 regT12.Merge();
-this.regs[12] = new Ptr() { value = regT12.components.data.GetUnsafePtr(), };var regT13 = (StructComponentsBlittable<T13>)allRegs[AllComponentTypes<T13>.typeId];
+this.regs[12] = new Ptr() { value = regT12.components.GetUnsafePtr(), };var regT13 = (StructComponentsBlittable<T13>)allRegs[AllComponentTypes<T13>.typeId];
 regT13.Merge();
-this.regs[13] = new Ptr() { value = regT13.components.data.GetUnsafePtr(), };var regT14 = (StructComponentsBlittable<T14>)allRegs[AllComponentTypes<T14>.typeId];
+this.regs[13] = new Ptr() { value = regT13.components.GetUnsafePtr(), };var regT14 = (StructComponentsBlittable<T14>)allRegs[AllComponentTypes<T14>.typeId];
 regT14.Merge();
-this.regs[14] = new Ptr() { value = regT14.components.data.GetUnsafePtr(), };var regT15 = (StructComponentsBlittable<T15>)allRegs[AllComponentTypes<T15>.typeId];
+this.regs[14] = new Ptr() { value = regT14.components.GetUnsafePtr(), };var regT15 = (StructComponentsBlittable<T15>)allRegs[AllComponentTypes<T15>.typeId];
 regT15.Merge();
-this.regs[15] = new Ptr() { value = regT15.components.data.GetUnsafePtr(), };var regT16 = (StructComponentsBlittable<T16>)allRegs[AllComponentTypes<T16>.typeId];
+this.regs[15] = new Ptr() { value = regT15.components.GetUnsafePtr(), };var regT16 = (StructComponentsBlittable<T16>)allRegs[AllComponentTypes<T16>.typeId];
 regT16.Merge();
-this.regs[16] = new Ptr() { value = regT16.components.data.GetUnsafePtr(), };var regT17 = (StructComponentsBlittable<T17>)allRegs[AllComponentTypes<T17>.typeId];
+this.regs[16] = new Ptr() { value = regT16.components.GetUnsafePtr(), };var regT17 = (StructComponentsBlittable<T17>)allRegs[AllComponentTypes<T17>.typeId];
 regT17.Merge();
-this.regs[17] = new Ptr() { value = regT17.components.data.GetUnsafePtr(), };
-        
+this.regs[17] = new Ptr() { value = regT17.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -3878,7 +4037,10 @@ this.regs[17] = new Ptr() { value = regT17.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }
@@ -4012,56 +4174,62 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        var mode = Unity.Collections.NativeLeakDetection.Mode;
+        Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        
-        this.regs = new Unity.Collections.NativeArray<Ptr>(19, allocator);
-        this.stream = new Unity.Collections.NativeStream(19 * this.Length, allocator);
-        this.componentOps = this.stream.AsWriter();
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
+        this.regs = default;
+        this.stream = default;
+        this.componentOps = default;
+        if (this.Length > 0) {
+            this.regs = new Unity.Collections.NativeArray<Ptr>(19, allocator);
+            this.stream = new Unity.Collections.NativeStream(19 * this.Length, allocator);
+            this.componentOps = this.stream.AsWriter();
+            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
-this.regs[0] = new Ptr() { value = regT0.components.data.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };var regT1 = (StructComponentsBlittable<T1>)allRegs[AllComponentTypes<T1>.typeId];
 regT1.Merge();
-this.regs[1] = new Ptr() { value = regT1.components.data.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };var regT2 = (StructComponentsBlittable<T2>)allRegs[AllComponentTypes<T2>.typeId];
 regT2.Merge();
-this.regs[2] = new Ptr() { value = regT2.components.data.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };var regT3 = (StructComponentsBlittable<T3>)allRegs[AllComponentTypes<T3>.typeId];
 regT3.Merge();
-this.regs[3] = new Ptr() { value = regT3.components.data.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };var regT4 = (StructComponentsBlittable<T4>)allRegs[AllComponentTypes<T4>.typeId];
 regT4.Merge();
-this.regs[4] = new Ptr() { value = regT4.components.data.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };var regT5 = (StructComponentsBlittable<T5>)allRegs[AllComponentTypes<T5>.typeId];
 regT5.Merge();
-this.regs[5] = new Ptr() { value = regT5.components.data.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };var regT6 = (StructComponentsBlittable<T6>)allRegs[AllComponentTypes<T6>.typeId];
 regT6.Merge();
-this.regs[6] = new Ptr() { value = regT6.components.data.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
+this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };var regT7 = (StructComponentsBlittable<T7>)allRegs[AllComponentTypes<T7>.typeId];
 regT7.Merge();
-this.regs[7] = new Ptr() { value = regT7.components.data.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
+this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };var regT8 = (StructComponentsBlittable<T8>)allRegs[AllComponentTypes<T8>.typeId];
 regT8.Merge();
-this.regs[8] = new Ptr() { value = regT8.components.data.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
+this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };var regT9 = (StructComponentsBlittable<T9>)allRegs[AllComponentTypes<T9>.typeId];
 regT9.Merge();
-this.regs[9] = new Ptr() { value = regT9.components.data.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
+this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };var regT10 = (StructComponentsBlittable<T10>)allRegs[AllComponentTypes<T10>.typeId];
 regT10.Merge();
-this.regs[10] = new Ptr() { value = regT10.components.data.GetUnsafePtr(), };var regT11 = (StructComponentsBlittable<T11>)allRegs[AllComponentTypes<T11>.typeId];
+this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };var regT11 = (StructComponentsBlittable<T11>)allRegs[AllComponentTypes<T11>.typeId];
 regT11.Merge();
-this.regs[11] = new Ptr() { value = regT11.components.data.GetUnsafePtr(), };var regT12 = (StructComponentsBlittable<T12>)allRegs[AllComponentTypes<T12>.typeId];
+this.regs[11] = new Ptr() { value = regT11.components.GetUnsafePtr(), };var regT12 = (StructComponentsBlittable<T12>)allRegs[AllComponentTypes<T12>.typeId];
 regT12.Merge();
-this.regs[12] = new Ptr() { value = regT12.components.data.GetUnsafePtr(), };var regT13 = (StructComponentsBlittable<T13>)allRegs[AllComponentTypes<T13>.typeId];
+this.regs[12] = new Ptr() { value = regT12.components.GetUnsafePtr(), };var regT13 = (StructComponentsBlittable<T13>)allRegs[AllComponentTypes<T13>.typeId];
 regT13.Merge();
-this.regs[13] = new Ptr() { value = regT13.components.data.GetUnsafePtr(), };var regT14 = (StructComponentsBlittable<T14>)allRegs[AllComponentTypes<T14>.typeId];
+this.regs[13] = new Ptr() { value = regT13.components.GetUnsafePtr(), };var regT14 = (StructComponentsBlittable<T14>)allRegs[AllComponentTypes<T14>.typeId];
 regT14.Merge();
-this.regs[14] = new Ptr() { value = regT14.components.data.GetUnsafePtr(), };var regT15 = (StructComponentsBlittable<T15>)allRegs[AllComponentTypes<T15>.typeId];
+this.regs[14] = new Ptr() { value = regT14.components.GetUnsafePtr(), };var regT15 = (StructComponentsBlittable<T15>)allRegs[AllComponentTypes<T15>.typeId];
 regT15.Merge();
-this.regs[15] = new Ptr() { value = regT15.components.data.GetUnsafePtr(), };var regT16 = (StructComponentsBlittable<T16>)allRegs[AllComponentTypes<T16>.typeId];
+this.regs[15] = new Ptr() { value = regT15.components.GetUnsafePtr(), };var regT16 = (StructComponentsBlittable<T16>)allRegs[AllComponentTypes<T16>.typeId];
 regT16.Merge();
-this.regs[16] = new Ptr() { value = regT16.components.data.GetUnsafePtr(), };var regT17 = (StructComponentsBlittable<T17>)allRegs[AllComponentTypes<T17>.typeId];
+this.regs[16] = new Ptr() { value = regT16.components.GetUnsafePtr(), };var regT17 = (StructComponentsBlittable<T17>)allRegs[AllComponentTypes<T17>.typeId];
 regT17.Merge();
-this.regs[17] = new Ptr() { value = regT17.components.data.GetUnsafePtr(), };var regT18 = (StructComponentsBlittable<T18>)allRegs[AllComponentTypes<T18>.typeId];
+this.regs[17] = new Ptr() { value = regT17.components.GetUnsafePtr(), };var regT18 = (StructComponentsBlittable<T18>)allRegs[AllComponentTypes<T18>.typeId];
 regT18.Merge();
-this.regs[18] = new Ptr() { value = regT18.components.data.GetUnsafePtr(), };
-        
+this.regs[18] = new Ptr() { value = regT18.components.GetUnsafePtr(), };
+        }
+        Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
@@ -4225,7 +4393,10 @@ this.regs[18] = new Ptr() { value = regT18.components.data.GetUnsafePtr(), };
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
-        this.stream.Dispose();
+        if (this.Length > 0) {
+            this.regs.Dispose();
+            this.stream.Dispose();
+        }
         this.indexes.Dispose();
         this.entities = default;
     }

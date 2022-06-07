@@ -29,7 +29,7 @@ namespace ME.ECS.Essentials.Physics.Core {
         
         protected override void OnConstruct() {
 
-            Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
+            //Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.EnabledWithStackTrace;
             
             this.physicsWorldInternal = new ME.ECS.Essentials.Physics.PhysicsWorld(0, 0, 0);
             this.AddSystem<BuildPhysicsWorldSystem>();

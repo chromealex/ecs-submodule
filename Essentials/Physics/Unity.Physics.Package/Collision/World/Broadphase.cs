@@ -398,7 +398,6 @@ namespace ME.ECS.Essentials.Physics
             private void SetCapacity(int numBodies)
             {
                 int numNodes = numBodies + BoundingVolumeHierarchy.Constants.MaxNumTreeBranches;
-
                 if (Nodes.IsCreated)
                 {
                     Nodes.Dispose();
@@ -426,7 +425,7 @@ namespace ME.ECS.Essentials.Physics
                     BodyFilters.Dispose();
                 }
                 BodyFilters = new NativeArray<CollisionFilter>(numBodies, Allocator, NativeArrayOptions.UninitializedMemory);
-
+                
                 if (RespondsToCollision.IsCreated)
                 {
                     RespondsToCollision.Dispose();
