@@ -153,6 +153,10 @@ namespace ME.ECS {
 
     }
 
+    public interface ICopyable<T> : IStructCopyable<T> where T : IStructCopyable<T> {
+
+    }
+
     public interface ISharedGroups {
 
         System.Collections.Generic.ICollection<uint> GetGroups();

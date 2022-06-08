@@ -245,6 +245,7 @@ namespace ME.ECS.StatesHistory {
         void AddEvents(IList<HistoryEvent> historyEvents);
         void AddEvent(HistoryEvent historyEvent);
         void CancelEvent(HistoryEvent historyEvent);
+        void CancelEvents(Tick from, Tick to);
 
         HistoryEvent[] GetEvents();
         
@@ -687,6 +688,43 @@ namespace ME.ECS.StatesHistory {
 
             }*/
 
+        }
+
+        /// <summary>
+        /// Remove all events from [tick..to)
+        /// </summary>
+        /// <param name="from">Include</param>
+        /// <param name="to">Exclude</param>
+        public void CancelEvents(Tick from, Tick to) {
+
+            for (var tick = from; tick < to; ++tick) {
+
+                ME.ECS.Collections.SortedList<long, HistoryEvent> list;
+                if (this.events.TryGetValue(tick, out list) == true) {
+
+                    var keys = PoolList<long>.Spawn(list.Count);
+                    foreach (var evt in list) {
+
+                        keys.Add(evt.Key);
+
+                    }
+
+                    for (int i = 0; i < keys.Count; ++i) {
+
+                        if (list.Remove(keys[i]) == true) {
+                            
+                            --this.statEventsAdded;
+                            this.oldestTick = (this.oldestTick == Tick.Invalid || tick < this.oldestTick ? tick : this.oldestTick);
+
+                        }
+                        
+                    }
+                    PoolList<long>.Recycle(ref keys);
+                    
+                }
+                
+            }
+            
         }
 
         public void CancelEvent(HistoryEvent historyEvent) {
