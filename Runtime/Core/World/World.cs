@@ -938,7 +938,7 @@ namespace ME.ECS {
 
         }
         
-        public System.Collections.IEnumerator RewindToAsync(Tick tick, bool doVisualUpdate = true, System.Action<RewindAsyncState> onState = null, float maxSimulationTime = 1f) {
+        public async System.Threading.Tasks.Task RewindToAsync(Tick tick, bool doVisualUpdate = true, System.Action<RewindAsyncState> onState = null, float maxSimulationTime = 1f) {
 
             var rewindState = this.GetRewindState(tick, maxSimulationTime);
             onState?.Invoke(rewindState);
@@ -960,7 +960,7 @@ namespace ME.ECS {
 
                     this.networkModule.SetAsyncMode(true);
                     this.PreUpdate(0f);
-                    yield return this.SimulateAsync(this.simulationFromTick, this.simulationToTick, 0f, maxSimulationTime);
+                    await this.SimulateAsync(this.simulationFromTick, this.simulationToTick, maxSimulationTime);
                     this.networkModule.SetAsyncMode(false);
                     if (doVisualUpdate == true) {
                         
@@ -995,7 +995,7 @@ namespace ME.ECS {
                 var currentState = this.GetState();
                 currentState.CopyFrom(prevState);
                 currentState.Initialize(this, freeze: false, restore: true);
-                this.Simulate(sourceTick, tick, 0f);
+                this.Simulate(sourceTick, tick);
                 this.Refresh(doVisualUpdate);
             }
 
@@ -1858,7 +1858,7 @@ namespace ME.ECS {
 
             }
 
-            this.Simulate(this.simulationFromTick, this.simulationToTick, deltaTime);
+            this.Simulate(this.simulationFromTick, this.simulationToTick);
 
             #if UNITY_EDITOR
             UnityEngine.Profiling.Profiler.EndSample();
@@ -2408,12 +2408,12 @@ namespace ME.ECS {
 
         }
 
-        public System.Collections.IEnumerator SimulateAsync(Tick from, Tick to, float deltaTime, float maxTime) {
+        public async System.Threading.Tasks.Task SimulateAsync(Tick from, Tick to, float maxTime) {
 
             if (from > to) {
 
                 //UnityEngine.Debug.LogError( UnityEngine.Time.frameCount + " From: " + from + ", To: " + to);
-                yield break;
+                return;
 
             }
 
@@ -2433,7 +2433,7 @@ namespace ME.ECS {
 
                 if (sw.ElapsedMilliseconds >= maxTickTime) {
                 
-                    yield return null;
+                    await System.Threading.Tasks.Task.Yield();
                     sw.Restart();
                     
                 }
@@ -2977,7 +2977,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Simulate(Tick from, Tick to, float deltaTime) {
+        public void Simulate(Tick from, Tick to) {
             
             if (from > to) {
 
