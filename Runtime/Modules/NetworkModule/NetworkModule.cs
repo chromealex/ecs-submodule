@@ -149,7 +149,7 @@ namespace ME.ECS.Network {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public abstract class NetworkModule<TState> : INetworkModule<TState>, IUpdatePreLate, IUpdatePost, StatesHistory.IEventRunner, IModuleValidation where TState : State, new() {
+    public abstract class NetworkModule<TState> : INetworkModule<TState>, IUpdateLate, IUpdatePost, StatesHistory.IEventRunner, IModuleValidation where TState : State, new() {
 
         private static readonly RPCId CANCEL_EVENT_RPC_ID = -11;
         private static readonly RPCId PING_RPC_ID = -1;
@@ -865,7 +865,7 @@ namespace ME.ECS.Network {
 
         }
 
-        public virtual void UpdatePreLate(in float deltaTime) {
+        public virtual void UpdateLate(in float deltaTime) {
 
             this.ReceiveEventsAndApply();
             this.ApplyTicksByState();

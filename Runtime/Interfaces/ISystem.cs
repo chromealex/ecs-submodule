@@ -51,21 +51,21 @@ namespace ME.ECS {
 
     }
 
-    public interface IUpdatePreLate : IContext {
+    public interface IUpdateLate : IContext {
 
-        void UpdatePreLate(in float deltaTime);
-
-    }
-
-    public interface IDrawGizmos {
-
-        void OnDrawGizmos();
+        void UpdateLate(in float deltaTime);
 
     }
 
     public interface IUpdatePost : IContext {
 
         void UpdatePost(in float deltaTime);
+
+    }
+
+    public interface IDrawGizmos {
+
+        void OnDrawGizmos();
 
     }
 

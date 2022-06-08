@@ -2040,9 +2040,9 @@ namespace ME.ECS {
                         UnityEngine.Profiling.Profiler.BeginSample(this.modules[i].GetType().FullName);
                         #endif
 
-                        if (this.modules[i] is IUpdatePreLate moduleBase) {
+                        if (this.modules[i] is IUpdateLate moduleBase) {
 
-                            moduleBase.UpdatePreLate(deltaTime);
+                            moduleBase.UpdateLate(deltaTime);
 
                         }
 
@@ -2235,6 +2235,16 @@ namespace ME.ECS {
         [System.Diagnostics.ConditionalAttribute("UNITY_EDITOR")]
         public void OnDrawGizmos() {
 
+            foreach (var module in this.modules) {
+
+                if (module is IDrawGizmos gizmos) {
+                    
+                    gizmos.OnDrawGizmos();
+                    
+                }
+                
+            }
+
             foreach (var group in this.systemGroups) {
 
                 if (group.runtimeSystem.allSystems == null) continue;
@@ -2250,16 +2260,6 @@ namespace ME.ECS {
                 
             }
 
-            foreach (var module in this.modules) {
-
-                if (module is IDrawGizmos gizmos) {
-                    
-                    gizmos.OnDrawGizmos();
-                    
-                }
-                
-            }
-            
         }
 
         public void PreUpdate(float deltaTime) {
