@@ -183,7 +183,7 @@ namespace ME.ECS.Collections {
             //var arr = PoolArrayNative<T>.Spawn(this.Length);
             //if (this.data.isCreated == true) NativeArrayUtils.Copy(this.data, 0, ref arr, 0, this.data.Length);
             var ptr = this.data.Length;
-            NativeArrayUtils.Resize(this.Length, ref this.data);
+            NativeArrayUtils.Resize(this.Length - 1, ref this.data);
             for (int i = 0, length = this.tails.Length; i < length; ++i) {
 
                 ref var tail = ref this.tails.arr[i];
