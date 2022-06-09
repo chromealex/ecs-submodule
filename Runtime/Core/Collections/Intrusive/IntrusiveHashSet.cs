@@ -4,12 +4,6 @@
 
 namespace ME.ECS.Collections {
 
-    public struct IntrusiveHashSetBucket : IComponent {
-
-        public IntrusiveList list;
-
-    }
-
     public interface IIntrusiveHashSet {
 
         int Count { get; }
@@ -107,12 +101,45 @@ namespace ME.ECS.Collections {
         }
 
         [ME.ECS.Serializer.SerializeField]
-        private StackArray10<Entity> buckets;
-        [ME.ECS.Serializer.SerializeField]
-        private int count;
+        private Entity data;
+        
+        private StackArray10<Entity> buckets {
+            get {
+                if (this.data == Entity.Null) return default;
+                return this.data.Read<IntrusiveHashSetData>().buckets;
+            }
+            set {
+                this.ValidateData();
+                this.data.Get<IntrusiveHashSetData>().buckets = value;
+            }
+        }
+        
+        private int count {
+            get {
+                if (this.data == Entity.Null) return 0;
+                return this.data.Read<IntrusiveHashSetData>().count;   
+            }
+            set {
+                this.ValidateData();
+                this.data.Get<IntrusiveHashSetData>().count = value;
+            }
+        }
 
         public int Count => this.count;
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        private void ValidateData() {
+            
+            if (this.data == Entity.Null) {
+                this.data = new Entity(EntityFlag.None);
+                this.data.ValidateData<IntrusiveHashSetData>();
+                this.data.Set(new IntrusiveHashSetData());
+            }
+            
+        }
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -192,12 +219,15 @@ namespace ME.ECS.Collections {
         public void Dispose() {
 
             this.Clear();
-            for (int i = 0; i < this.buckets.Length; ++i) {
+            var buckets = this.buckets;
+            for (int i = 0; i < buckets.Length; ++i) {
                 
-                this.buckets[i].Destroy();
-                this.buckets[i] = default;
+                if (buckets[i].IsAlive() == true) buckets[i].Destroy();
+                buckets[i] = default;
 
             }
+
+            this.buckets = buckets;
 
         }
 
@@ -259,12 +289,14 @@ namespace ME.ECS.Collections {
 
             IntrusiveHashSet.Initialize(ref this);
 
-            var bucket = (entityData.GetHashCode() & 0x7fffffff) % this.buckets.Length;
-            var bucketEntity = this.buckets[bucket];
-            if (bucketEntity.IsAlive() == false) bucketEntity = this.buckets[bucket] = new Entity("IntrusiveHashSetBucket");
+            var buckets = this.buckets;
+            var bucket = (entityData.GetHashCode() & 0x7fffffff) % buckets.Length;
+            var bucketEntity = buckets[bucket];
+            if (bucketEntity.IsAlive() == false) bucketEntity = buckets[bucket] = new Entity(EntityFlag.None);
             ref var bucketList = ref bucketEntity.Get<IntrusiveHashSetBucket>();
             bucketList.list.Add(entityData);
             ++this.count;
+            this.buckets = buckets;
 
         }
 
@@ -275,12 +307,14 @@ namespace ME.ECS.Collections {
 
             IntrusiveHashSet.Initialize(ref this);
 
-            var bucket = (entityData.GetHashCode() & 0x7fffffff) % this.buckets.Length;
+            var buckets = this.buckets;
+            var bucket = (entityData.GetHashCode() & 0x7fffffff) % buckets.Length;
             var bucketEntity = this.buckets[bucket];
-            if (bucketEntity.IsAlive() == false) bucketEntity = this.buckets[bucket] = new Entity("IntrusiveHashSetBucket");
+            if (bucketEntity.IsAlive() == false) bucketEntity = buckets[bucket] = new Entity(EntityFlag.None);
             ref var bucketList = ref bucketEntity.Get<IntrusiveHashSetBucket>();
             bucketList.list.Add(entityData, out node);
             ++this.count;
+            this.buckets = buckets;
 
         }
 

@@ -5,6 +5,8 @@ namespace ME.ECS.Tests {
 
         public static World PrepareWorld() {
             
+            WorldUtilities.ResetTypeIds();
+            
             World world = null;
             WorldUtilities.CreateWorld<EmptyState>(ref world, 0.033f);
             {

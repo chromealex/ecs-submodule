@@ -6,14 +6,6 @@ namespace ME.ECS.Collections {
 
     using System.Collections.Generic;
 
-    public struct IntrusiveListNode : IComponent {
-
-        public Entity next;
-        public Entity prev;
-        public Entity data;
-
-    }
-
     public interface IIntrusiveList {
 
         int Count { get; }
@@ -108,14 +100,56 @@ namespace ME.ECS.Collections {
         }
 
         [ME.ECS.Serializer.SerializeFieldAttribute]
-        private Entity root;
-        [ME.ECS.Serializer.SerializeFieldAttribute]
-        private Entity head;
-        [ME.ECS.Serializer.SerializeFieldAttribute]
-        private int count;
+        private Entity data;
+
+        private Entity root {
+            get {
+                if (this.data == Entity.Null) return Entity.Null;
+                return this.data.Read<IntrusiveData>().root;
+            }
+            set {
+                this.ValidateData();
+                this.data.Get<IntrusiveData>().root = value;
+            }
+        }
+
+        private Entity head {
+            get {
+                if (this.data == Entity.Null) return Entity.Null;
+                return this.data.Read<IntrusiveData>().head;
+            }
+            set {
+                this.ValidateData();
+                this.data.Get<IntrusiveData>().head = value;
+            }
+        }
+
+        private int count {
+            get {
+                if (this.data == Entity.Null) return 0;
+                return this.data.Read<IntrusiveData>().count;   
+            }
+            set {
+                this.ValidateData();
+                this.data.Get<IntrusiveData>().count = value;
+            }
+        }
 
         public int Count => this.count;
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        private void ValidateData() {
+
+            if (this.data == Entity.Null) {
+                this.data = new Entity(EntityFlag.None);
+                this.data.ValidateData<IntrusiveData>();
+                this.data.Set(new IntrusiveData());
+            }
+            
+        }
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -301,7 +335,7 @@ namespace ME.ECS.Collections {
             var node = this.FindNode(index);
             if (node.IsAlive() == true) {
 
-                return node.Get<IntrusiveListNode>().data;
+                return node.Read<IntrusiveListNode>().data;
 
             }
 
@@ -546,7 +580,7 @@ namespace ME.ECS.Collections {
 
             if (this.head.IsAlive() == false) return false;
 
-            this.RemoveNode(in this.head, destroyData);
+            this.RemoveNode(this.head, destroyData);
             return true;
 
         }
@@ -559,7 +593,7 @@ namespace ME.ECS.Collections {
 
             if (this.head.IsAlive() == false) return false;
 
-            this.RemoveNode(in this.root, destroyData);
+            this.RemoveNode(this.root, destroyData);
             return true;
 
         }
@@ -653,7 +687,7 @@ namespace ME.ECS.Collections {
         #endif
         private static Entity CreateNode(in Entity data) {
 
-            var node = new Entity("IntrusiveListNode");
+            var node = new Entity(EntityFlag.None);
             node.Get<IntrusiveListNode>().data = data;
             return node;
 

@@ -6,14 +6,6 @@ namespace ME.ECS.Collections {
 
     using System.Collections.Generic;
 
-    public struct IntrusiveListGenericNode<T> : IComponent {
-
-        public Entity next;
-        public Entity prev;
-        public T data;
-
-    }
-
     public interface IIntrusiveListGeneric<T> where T : struct, System.IEquatable<T> {
 
         int Count { get; }
@@ -80,7 +72,7 @@ namespace ME.ECS.Collections {
                 if (this.head.IsAlive() == false) return false;
 
                 this.id = this.head.id;
-                this.head = this.head.Get<IntrusiveListGenericNode<T>>().next;
+                this.head = this.head.Read<IntrusiveListGenericNode<T>>().next;
                 return true;
 
             }
@@ -105,14 +97,58 @@ namespace ME.ECS.Collections {
 
         }
 
-        [ME.ECS.Serializer.SerializeField]
-        private Entity root;
-        [ME.ECS.Serializer.SerializeField]
-        private Entity head;
-        [ME.ECS.Serializer.SerializeField]
-        private int count;
+        [ME.ECS.Serializer.SerializeFieldAttribute]
+        private Entity data;
+
+        private Entity root {
+            get {
+                if (this.data == Entity.Null) return Entity.Null;
+                return this.data.Read<IntrusiveData>().root;
+            }
+            set {
+                this.ValidateData();
+                this.data.Get<IntrusiveData>().root = value;
+            }
+        }
+
+        private Entity head {
+            get {
+                if (this.data == Entity.Null) return Entity.Null;
+                return this.data.Read<IntrusiveData>().head;
+            }
+            set {
+                this.ValidateData();
+                this.data.Get<IntrusiveData>().head = value;
+            }
+        }
+
+        private int count {
+            get {
+                if (this.data == Entity.Null) return 0;
+                return this.data.Read<IntrusiveData>().count;   
+            }
+            set {
+                this.ValidateData();
+                this.data.Get<IntrusiveData>().count = value;
+            }
+        }
 
         public int Count => this.count;
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        internal void ValidateData() {
+            
+            IntrusiveListGeneric<T>.InitializeComponents();
+
+            if (this.data == Entity.Null) {
+                this.data = new Entity(EntityFlag.None);
+                this.data.ValidateData<IntrusiveData>();
+                this.data.Set(new IntrusiveData());
+            }
+            
+        }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -296,7 +332,7 @@ namespace ME.ECS.Collections {
             var node = this.FindNode(index);
             if (node.IsAlive() == true) {
 
-                return node.Get<IntrusiveListGenericNode<T>>().data;
+                return node.Read<IntrusiveListGenericNode<T>>().data;
 
             }
 
@@ -496,7 +532,7 @@ namespace ME.ECS.Collections {
 
             if (this.root.IsAlive() == false) return default;
 
-            return this.root.Get<IntrusiveListGenericNode<T>>().data;
+            return this.root.Read<IntrusiveListGenericNode<T>>().data;
 
         }
 
@@ -508,7 +544,7 @@ namespace ME.ECS.Collections {
 
             if (this.head.IsAlive() == false) return default;
 
-            return this.head.Get<IntrusiveListGenericNode<T>>().data;
+            return this.head.Read<IntrusiveListGenericNode<T>>().data;
 
         }
 
@@ -520,7 +556,7 @@ namespace ME.ECS.Collections {
 
             if (this.head.IsAlive() == false) return false;
 
-            this.RemoveNode(in this.head);
+            this.RemoveNode(this.head);
             return true;
 
         }
@@ -533,7 +569,7 @@ namespace ME.ECS.Collections {
 
             if (this.head.IsAlive() == false) return false;
 
-            this.RemoveNode(in this.root);
+            this.RemoveNode(this.root);
             return true;
 
         }
@@ -627,7 +663,7 @@ namespace ME.ECS.Collections {
         #endif
         private static Entity CreateNode(in T data) {
 
-            var node = new Entity("IntrusiveListGenericNode<T>");
+            var node = new Entity(EntityFlag.None);
             node.ValidateData<IntrusiveListGenericNode<T>>();
             node.Get<IntrusiveListGenericNode<T>>().data = data;
             return node;
@@ -636,6 +672,7 @@ namespace ME.ECS.Collections {
 
         private static void InitializeComponents() {
 
+            IntrusiveComponents.Initialize();
             WorldUtilities.InitComponentTypeId<IntrusiveListGenericNode<T>>();
             ComponentInitializer.Init(ref Worlds.currentWorld.GetStructComponents());
 
