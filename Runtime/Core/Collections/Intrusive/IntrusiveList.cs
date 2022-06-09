@@ -27,6 +27,7 @@ namespace ME.ECS.Collections {
         bool RemoveFirst(bool destroyData = false);
 
         IEnumerator<Entity> GetRange(int from, int to);
+        void GetRange(int from, int to, ListCopyable<Entity> results);
         BufferArray<Entity> ToArray();
         IntrusiveList.Enumerator GetEnumerator();
 
@@ -103,7 +104,7 @@ namespace ME.ECS.Collections {
         private Entity data;
 
         private Entity root {
-            get {
+            readonly get {
                 if (this.data == Entity.Null) return Entity.Null;
                 return this.data.Read<IntrusiveData>().root;
             }
@@ -114,7 +115,7 @@ namespace ME.ECS.Collections {
         }
 
         private Entity head {
-            get {
+            readonly get {
                 if (this.data == Entity.Null) return Entity.Null;
                 return this.data.Read<IntrusiveData>().head;
             }
@@ -125,7 +126,7 @@ namespace ME.ECS.Collections {
         }
 
         private int count {
-            get {
+            readonly get {
                 if (this.data == Entity.Null) return 0;
                 return this.data.Read<IntrusiveData>().count;   
             }
@@ -135,7 +136,7 @@ namespace ME.ECS.Collections {
             }
         }
 
-        public int Count => this.count;
+        public readonly int Count => this.count;
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -153,7 +154,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public Enumerator GetEnumerator() {
+        public readonly Enumerator GetEnumerator() {
 
             return new Enumerator(this);
 
@@ -166,7 +167,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArray<Entity> ToArray() {
+        public readonly BufferArray<Entity> ToArray() {
 
             var arr = PoolArray<Entity>.Spawn(this.count);
             var i = 0;
@@ -188,7 +189,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public bool Contains(in Entity entityData) {
+        public readonly bool Contains(in Entity entityData) {
 
             if (this.count == 0) return false;
 
@@ -234,7 +235,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public IEnumerator<Entity> GetRange(int from, int to) {
+        public readonly IEnumerator<Entity> GetRange(int from, int to) {
 
             while (from < to) {
 
@@ -242,6 +243,34 @@ namespace ME.ECS.Collections {
                 if (node.IsAlive() == true) {
 
                     yield return node.Read<IntrusiveListNode>().data;
+
+                } else {
+
+                    ++from;
+
+                }
+
+            }
+
+        }
+
+        /// <summary>
+        /// Returns enumeration of nodes in range [from..to)
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="results"></param>
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public readonly void GetRange(int from, int to, ListCopyable<Entity> results) {
+
+            while (from < to) {
+
+                var node = this.FindNode(from);
+                if (node.IsAlive() == true) {
+
+                    results.Add(node.Get<IntrusiveListNode>().data);
 
                 } else {
 
@@ -328,7 +357,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public Entity GetValue(int index) {
+        public readonly Entity GetValue(int index) {
 
             if (this.count == 0) return Entity.Empty;
 
@@ -552,7 +581,7 @@ namespace ME.ECS.Collections {
         /// Returns first element.
         /// </summary>
         /// <returns>Returns instance, default if not found</returns>
-        public Entity GetFirst() {
+        public readonly Entity GetFirst() {
 
             if (this.root.IsAlive() == false) return Entity.Empty;
 
@@ -564,7 +593,7 @@ namespace ME.ECS.Collections {
         /// Returns last element.
         /// </summary>
         /// <returns>Returns instance, default if not found</returns>
-        public Entity GetLast() {
+        public readonly Entity GetLast() {
 
             if (this.head.IsAlive() == false) return Entity.Empty;
 
@@ -602,7 +631,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private Entity FindNode(in Entity entityData) {
+        private readonly Entity FindNode(in Entity entityData) {
 
             if (this.count == 0) return Entity.Empty;
 
@@ -628,7 +657,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private Entity FindNode(int index) {
+        private readonly Entity FindNode(int index) {
 
             var idx = 0;
             var node = this.root;

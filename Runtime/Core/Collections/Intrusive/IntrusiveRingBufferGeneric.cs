@@ -85,7 +85,7 @@ namespace ME.ECS.Collections {
                 this.ValidateData();
                 this.data.Get<IntrusiveRingBufferGenericData<T>>().list = value;
             }
-            get {
+            readonly get {
                 if (this.data == Entity.Null) return default;
                 return this.data.Read<IntrusiveRingBufferGenericData<T>>().list;
             }
@@ -96,14 +96,14 @@ namespace ME.ECS.Collections {
                 this.ValidateData();
                 this.data.Get<IntrusiveRingBufferGenericData<T>>().capacity = value;
             }
-            get {
+            readonly get {
                 if (this.data == Entity.Null) return default;
                 return this.data.Read<IntrusiveRingBufferGenericData<T>>().capacity;
             }
         }
 
-        public int Capacity => this.capacity;
-        public int Count => this.list.Count;
+        public readonly int Capacity => this.capacity;
+        public readonly int Count => this.list.Count;
         
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -135,7 +135,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public Enumerator GetEnumerator() {
+        public readonly Enumerator GetEnumerator() {
 
             return new Enumerator(this);
 
@@ -148,7 +148,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArray<T> ToArray() {
+        public readonly BufferArray<T> ToArray() {
 
             var arr = PoolArray<T>.Spawn(this.Count);
             var i = 0;
@@ -170,7 +170,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public bool Contains(in T entityData) {
+        public readonly bool Contains(in T entityData) {
 
             return this.list.Contains(in entityData);
 
@@ -194,7 +194,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public T GetValue(int index) {
+        public readonly T GetValue(int index) {
 
             var idx = index % (this.capacity <= 0 ? IntrusiveRingBufferGeneric<T>.DEFAULT_CAPACITY : this.capacity);
             if (idx >= this.list.Count) return default;

@@ -104,8 +104,8 @@ namespace ME.ECS.Collections {
         private Entity data;
         
         private StackArray10<Entity> buckets {
-            get {
-                if (this.data == Entity.Null) return default;
+            readonly get {
+                if (this.data == Entity.Null) return new StackArray10<Entity>(10);
                 return this.data.Read<IntrusiveHashSetData>().buckets;
             }
             set {
@@ -115,7 +115,7 @@ namespace ME.ECS.Collections {
         }
         
         private int count {
-            get {
+            readonly get {
                 if (this.data == Entity.Null) return 0;
                 return this.data.Read<IntrusiveHashSetData>().count;   
             }
@@ -125,7 +125,7 @@ namespace ME.ECS.Collections {
             }
         }
 
-        public int Count => this.count;
+        public readonly int Count => this.count;
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -145,7 +145,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public Enumerator GetEnumerator() {
+        public readonly Enumerator GetEnumerator() {
 
             return new Enumerator(this);
 
@@ -158,7 +158,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArray<T> ToArray() {
+        public readonly BufferArray<T> ToArray() {
 
             var arr = PoolArray<T>.Spawn(this.count);
             var i = 0;
@@ -180,9 +180,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public bool Contains(in T entityData) {
-
-            IntrusiveHashSetGeneric<T>.Initialize(ref this);
+        public readonly bool Contains(in T entityData) {
 
             var bucket = (entityData.GetHashCode() & 0x7fffffff) % this.buckets.Length;
             var bucketEntity = this.buckets[bucket];
@@ -322,9 +320,7 @@ namespace ME.ECS.Collections {
         /// <param name="element"></param>
         /// <param name="output"></param>
         /// <returns></returns>
-        public bool Get(int hashcode, T element, out T output) {
-
-            IntrusiveHashSetGeneric<T>.Initialize(ref this);
+        public readonly bool Get(int hashcode, T element, out T output) {
 
             var bucket = (hashcode & 0x7fffffff) % this.buckets.Length;
             var bucketEntity = this.buckets[bucket];
