@@ -120,6 +120,7 @@ namespace ME.ECS.Collections {
         public NativeBufferArraySliced<T> CopyFrom(in NativeBufferArraySliced<T> other) {
 
             ref var data = ref this.data;
+            this.isCreated = other.isCreated;
             //var tails = this.tails;
             NativeArrayUtils.Copy(in other.data, ref data);
             //ArrayUtils.Copy(other.tails, ref tails, new ArrayCopy());
@@ -221,6 +222,8 @@ namespace ME.ECS.Collections {
 
             this.tails.Dispose();
             this.tails = default;
+
+            this.isCreated = false;
             
             return default;
 
