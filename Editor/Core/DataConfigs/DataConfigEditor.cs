@@ -396,6 +396,17 @@ namespace ME.ECSEditor {
                 }
 
                 return 0;
+            }).ThenBy(x => {
+                
+                var orderAttr = x.GetValue().GetType().GetCustomAttribute<ComponentOrderAttribute>(true);
+                if (orderAttr != null) {
+
+                    return orderAttr.order;
+
+                }
+
+                return 0;
+
             }).ToList();
             
             var i = 0;
