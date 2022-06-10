@@ -21,6 +21,18 @@ namespace ME.ECS.Mathematics
         public static explicit operator float4(Vector4 v)     { return new float4((sfloat)v.x, (sfloat)v.y, (sfloat)v.z, (sfloat)v.w); }
         public static explicit operator Vector4(float4 v)     { return new Vector4((float)v.x, (float)v.y, (float)v.z, (float)v.w); }
     }
+    
+    public partial struct int2
+    {
+        public static implicit operator Vector2Int(int2 v)     { return new Vector2Int(v.x, v.y); }
+        public static implicit operator int2(Vector2Int v)     { return new int2(v.x, v.y); }
+    }
+    
+    public partial struct int3
+    {
+        public static implicit operator Vector3Int(int3 v)     { return new Vector3Int(v.x, v.y, v.z); }
+        public static implicit operator int3(Vector3Int v)     { return new int3(v.x, v.y, v.z); }
+    }
 
     public partial struct quaternion
     {
@@ -50,6 +62,24 @@ namespace ME.ECS.Mathematics
     {
         public static implicit operator float4(Unity.Mathematics.float4 v)     { return new float4((sfloat)v.x, (sfloat)v.y, (sfloat)v.z, (sfloat)v.w); }
         public static implicit operator Unity.Mathematics.float4(float4 v)     { return new Unity.Mathematics.float4((float)v.x, (float)v.y, (float)v.z, (float)v.w); }
+    }
+    
+    public partial struct int2
+    {
+        public static implicit operator Unity.Mathematics.int2(int2 v)     { return new Unity.Mathematics.int2(v.x, v.y); }
+        public static implicit operator int2(Unity.Mathematics.int2 v)     { return new int2(v.x, v.y); }
+    }
+
+    public partial struct int3
+    {
+        public static implicit operator Unity.Mathematics.int3(int3 v)     { return new Unity.Mathematics.int3(v.x, v.y, v.z); }
+        public static implicit operator int3(Unity.Mathematics.int3 v)     { return new int3(v.x, v.y, v.z); }
+    }
+
+    public partial struct int4
+    {
+        public static implicit operator int4(Unity.Mathematics.int4 v)     { return new int4(v.x, v.y, v.z, v.w); }
+        public static implicit operator Unity.Mathematics.int4(int4 v)     { return new Unity.Mathematics.int4(v.x, v.y, v.z, v.w); }
     }
 
     public partial struct quaternion
