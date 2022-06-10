@@ -328,7 +328,7 @@ namespace ME.ECSEditor {
         public static void BuildInspectorProperties(IEditorContainer editor, System.Collections.Generic.HashSet<System.Type> usedComponents, SerializedProperty obj,
                                                     UnityEngine.UIElements.VisualElement container, bool noFields, System.Action<int, PropertyField> onBuild = null) {
 
-            BuildInspectorPropertiesElement(string.Empty, editor, usedComponents, obj, container, noFields, onBuild);
+            BuildInspectorPropertiesElement(string.Empty, editor, usedComponents, obj, container, noFields, onBuild, true);
 
         }
 
@@ -379,12 +379,33 @@ namespace ME.ECSEditor {
             SerializedProperty iterator = obj;
             if (iterator.NextVisible(true) == false) return;
             if (iterator.NextVisible(true) == false) return;
+
             var depth = iterator.depth;
+            var it = iterator.Copy();
+            var props = new System.Collections.Generic.List<SerializedProperty>();
+            do {
+                props.Add(it.Copy());
+            } while (it.NextVisible(false));
+
+            props = props.OrderBy(x => {
+                var groupAttr = x.GetValue().GetType().GetCustomAttribute<ComponentGroupAttribute>(true);
+                if (groupAttr != null) {
+
+                    return groupAttr.order;
+
+                }
+
+                return 0;
+            }).ToList();
+            
             var i = 0;
-            var iteratorNext = iterator.Copy();
+            //var iteratorNext = iterator.Copy();
+            SerializedProperty iteratorNext = null;
             Foldout header = null;
             do {
 
+                iteratorNext = props[i];
+                
                 if (string.IsNullOrEmpty(elementPath) == false) {
 
                     iterator = iteratorNext.FindPropertyRelative(elementPath);
@@ -394,7 +415,11 @@ namespace ME.ECSEditor {
                     iterator = iteratorNext;
 
                 }
-                if (iterator.propertyType != SerializedPropertyType.ManagedReference) continue;
+
+                if (iterator.propertyType != SerializedPropertyType.ManagedReference) {
+                    ++i;
+                    continue;
+                }
 
                 if (drawGroups == true) {
 
@@ -502,7 +527,7 @@ namespace ME.ECSEditor {
                         if (cnt == 1 /*&& height <= 22f*/) iterator.NextVisible(true);
 
                     }
-                    
+
                     var propertyField = new PropertyField(iterator.Copy(), label);
                     propertyField.BindProperty(iterator);
                     onBuild?.Invoke(i, propertyField);
@@ -556,7 +581,7 @@ namespace ME.ECSEditor {
 
                 ++i;
 
-            } while (iteratorNext.NextVisible(false) == true && depth <= iteratorNext.depth);
+            } while (/*iteratorNext.NextVisible(false) == true*/i < props.Count /*&& depth <= iteratorNext.depth*/);
             
         }
 
