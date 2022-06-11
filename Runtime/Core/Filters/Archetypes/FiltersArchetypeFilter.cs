@@ -770,6 +770,7 @@ namespace ME.ECS {
             WorldUtilities.SetComponentTypeId<TComponent>();
 
             ComponentTypes<TComponent>.isFilterLambda = true;
+            ComponentTypes<TComponent>.burstIsFilterLambda.Data = 1;
 
             var key = ComponentTypes<TComponent>.typeId;
             {

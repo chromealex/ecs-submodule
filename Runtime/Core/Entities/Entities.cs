@@ -50,6 +50,9 @@ namespace ME.ECS {
 
     public struct ComponentTypes<TComponent> {
 
+        public static readonly Unity.Burst.SharedStatic<int> burstTypeId = Unity.Burst.SharedStatic<int>.GetOrCreate<ComponentTypes<TComponent>, int>();
+        public static readonly Unity.Burst.SharedStatic<byte> burstIsFilterVersioned = Unity.Burst.SharedStatic<byte>.GetOrCreate<ComponentTypes<TComponent>, byte>();
+        public static readonly Unity.Burst.SharedStatic<byte> burstIsFilterLambda = Unity.Burst.SharedStatic<byte>.GetOrCreate<ComponentTypes<TComponent>, byte>();
         public static int typeId = -1;
         public static bool isFilterVersioned = false;
         public static bool isFilterLambda = false;
@@ -65,6 +68,7 @@ namespace ME.ECS {
     public struct AllComponentTypes<TComponent> {
 
         public static readonly Unity.Burst.SharedStatic<int> burstTypeId = Unity.Burst.SharedStatic<int>.GetOrCreate<AllComponentTypes<TComponent>, int>();
+        public static readonly Unity.Burst.SharedStatic<byte> burstIsVersionedNoState = Unity.Burst.SharedStatic<byte>.GetOrCreate<AllComponentTypes<TComponent>, byte>();
         public static int typeId = -1;
         public static bool isTag = false;
         public static bool isVersioned = false;

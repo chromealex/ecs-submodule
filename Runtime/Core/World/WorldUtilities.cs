@@ -263,7 +263,10 @@ namespace ME.ECS {
         #endif
         public static void SetComponentAsFilterVersioned<TComponent>(bool state) {
 
-            if (state == true) ComponentTypes<TComponent>.isFilterVersioned = state;
+            if (state == true) {
+                ComponentTypes<TComponent>.isFilterVersioned = state;
+                ComponentTypes<TComponent>.burstIsFilterVersioned.Data = 1;
+            }
 
         }
 
@@ -275,11 +278,13 @@ namespace ME.ECS {
             if (ComponentTypes<TComponent>.typeId < 0) {
 
                 ComponentTypes<TComponent>.typeId = ++ComponentTypesCounter.counter;
+                ComponentTypes<TComponent>.burstTypeId.Data = ComponentTypes<TComponent>.typeId;
                 ComponentTypesRegistry.typeId.Add(typeof(TComponent), ComponentTypes<TComponent>.typeId);
 
                 ComponentTypesRegistry.reset += () => {
 
                     ComponentTypes<TComponent>.typeId = -1;
+                    ComponentTypes<TComponent>.burstTypeId.Data = -1;
 
                 };
 
@@ -366,6 +371,7 @@ namespace ME.ECS {
         public static void SetComponentAsVersionedNoState<TComponent>() {
 
             AllComponentTypes<TComponent>.isVersionedNoState = true;
+            AllComponentTypes<TComponent>.burstIsVersionedNoState.Data = 1;
 
         }
 

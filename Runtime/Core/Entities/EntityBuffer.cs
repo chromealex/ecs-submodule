@@ -415,4 +415,28 @@ namespace ME.ECS {
 
     }
     
+    public static class DataBlittableBurstBufferUtils {
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool NeedToPush<T>(Tick tick, ref EntityVersions entityVersions, int entityId, ref Component<T> bucket, in T data) where T : unmanaged, IComponentBase {
+
+            if (bucket.state == 0 ||
+                (ComponentTypes<T>.burstIsFilterLambda.Data == 1 && ComponentTypes<T>.burstTypeId.Data >= 0) ||
+                AllComponentTypes<T>.burstIsVersionedNoState.Data == 1 ||
+                ComponentTypes<T>.burstIsFilterVersioned.Data == 1) {
+
+                return true;
+
+            }
+
+            entityVersions.Increment(entityId);
+            bucket.data = data;
+            bucket.version = tick;
+            
+            return false;
+
+        }
+
+    }
+    
 }

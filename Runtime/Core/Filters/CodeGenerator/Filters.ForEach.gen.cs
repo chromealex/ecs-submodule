@@ -48,6 +48,8 @@ public unsafe struct FilterBag<T0> : IFilterBag  where T0:unmanaged,IComponentBa
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -55,6 +57,8 @@ public unsafe struct FilterBag<T0> : IFilterBag  where T0:unmanaged,IComponentBa
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -76,19 +80,8 @@ this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -121,9 +114,8 @@ this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -136,9 +128,19 @@ this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 
@@ -158,6 +160,8 @@ public unsafe struct FilterBag<T0,T1> : IFilterBag  where T0:unmanaged,IComponen
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -165,6 +169,8 @@ public unsafe struct FilterBag<T0,T1> : IFilterBag  where T0:unmanaged,IComponen
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -188,19 +194,8 @@ this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -239,9 +234,8 @@ this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -254,15 +248,35 @@ this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 
@@ -282,6 +296,8 @@ public unsafe struct FilterBag<T0,T1,T2> : IFilterBag  where T0:unmanaged,ICompo
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -289,6 +305,8 @@ public unsafe struct FilterBag<T0,T1,T2> : IFilterBag  where T0:unmanaged,ICompo
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -314,19 +332,8 @@ this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -371,9 +378,8 @@ this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -386,21 +392,51 @@ this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 
@@ -420,6 +456,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3> : IFilterBag  where T0:unmanaged,ICo
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -427,6 +465,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3> : IFilterBag  where T0:unmanaged,ICo
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -454,19 +494,8 @@ this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -517,9 +546,8 @@ this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -532,27 +560,67 @@ this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T3 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[3].value, this.indexes[index], component); }
-public ref T3 GetT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;}
-public ref readonly T3 ReadT3(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data; }
+public void Set(int index, in T3 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T3 GetT3(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
+}
+public ref readonly T3 ReadT3(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
 public bool HasT3(int index) => UnsafeUtility.ReadArrayElement<Component<T3>>(this.regs[3].value, this.indexes[index]).state > 0;
 public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).version;
 
@@ -572,6 +640,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4> : IFilterBag  where T0:unmanaged,
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -579,6 +649,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4> : IFilterBag  where T0:unmanaged,
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -608,19 +680,8 @@ this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -677,9 +738,8 @@ this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -692,33 +752,83 @@ this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T3 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[3].value, this.indexes[index], component); }
-public ref T3 GetT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;}
-public ref readonly T3 ReadT3(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data; }
+public void Set(int index, in T3 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T3 GetT3(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
+}
+public ref readonly T3 ReadT3(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
 public bool HasT3(int index) => UnsafeUtility.ReadArrayElement<Component<T3>>(this.regs[3].value, this.indexes[index]).state > 0;
 public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T4 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[4].value, this.indexes[index], component); }
-public ref T4 GetT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;}
-public ref readonly T4 ReadT4(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data; }
+public void Set(int index, in T4 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T4 GetT4(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
+}
+public ref readonly T4 ReadT4(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
 public bool HasT4(int index) => UnsafeUtility.ReadArrayElement<Component<T4>>(this.regs[4].value, this.indexes[index]).state > 0;
 public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).version;
 
@@ -738,6 +848,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5> : IFilterBag  where T0:unmanag
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -745,6 +857,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5> : IFilterBag  where T0:unmanag
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -776,19 +890,8 @@ this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -851,9 +954,8 @@ this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -866,39 +968,99 @@ this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T3 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[3].value, this.indexes[index], component); }
-public ref T3 GetT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;}
-public ref readonly T3 ReadT3(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data; }
+public void Set(int index, in T3 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T3 GetT3(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
+}
+public ref readonly T3 ReadT3(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
 public bool HasT3(int index) => UnsafeUtility.ReadArrayElement<Component<T3>>(this.regs[3].value, this.indexes[index]).state > 0;
 public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T4 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[4].value, this.indexes[index], component); }
-public ref T4 GetT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;}
-public ref readonly T4 ReadT4(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data; }
+public void Set(int index, in T4 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T4 GetT4(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
+}
+public ref readonly T4 ReadT4(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
 public bool HasT4(int index) => UnsafeUtility.ReadArrayElement<Component<T4>>(this.regs[4].value, this.indexes[index]).state > 0;
 public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T5 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[5].value, this.indexes[index], component); }
-public ref T5 GetT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;}
-public ref readonly T5 ReadT5(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data; }
+public void Set(int index, in T5 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T5 GetT5(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
+}
+public ref readonly T5 ReadT5(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
 public bool HasT5(int index) => UnsafeUtility.ReadArrayElement<Component<T5>>(this.regs[5].value, this.indexes[index]).state > 0;
 public long GetVersionT5(int index) => UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).version;
 
@@ -918,6 +1080,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6> : IFilterBag  where T0:unma
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -925,6 +1089,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6> : IFilterBag  where T0:unma
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -958,19 +1124,8 @@ this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -1039,9 +1194,8 @@ this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -1054,45 +1208,115 @@ this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T3 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[3].value, this.indexes[index], component); }
-public ref T3 GetT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;}
-public ref readonly T3 ReadT3(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data; }
+public void Set(int index, in T3 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T3 GetT3(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
+}
+public ref readonly T3 ReadT3(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
 public bool HasT3(int index) => UnsafeUtility.ReadArrayElement<Component<T3>>(this.regs[3].value, this.indexes[index]).state > 0;
 public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T4 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[4].value, this.indexes[index], component); }
-public ref T4 GetT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;}
-public ref readonly T4 ReadT4(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data; }
+public void Set(int index, in T4 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T4 GetT4(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
+}
+public ref readonly T4 ReadT4(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
 public bool HasT4(int index) => UnsafeUtility.ReadArrayElement<Component<T4>>(this.regs[4].value, this.indexes[index]).state > 0;
 public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T5 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[5].value, this.indexes[index], component); }
-public ref T5 GetT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;}
-public ref readonly T5 ReadT5(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data; }
+public void Set(int index, in T5 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T5 GetT5(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
+}
+public ref readonly T5 ReadT5(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
 public bool HasT5(int index) => UnsafeUtility.ReadArrayElement<Component<T5>>(this.regs[5].value, this.indexes[index]).state > 0;
 public long GetVersionT5(int index) => UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).version;
 public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T6 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[6].value, this.indexes[index], component); }
-public ref T6 GetT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;}
-public ref readonly T6 ReadT6(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data; }
+public void Set(int index, in T6 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T6 GetT6(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
+}
+public ref readonly T6 ReadT6(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
 public bool HasT6(int index) => UnsafeUtility.ReadArrayElement<Component<T6>>(this.regs[6].value, this.indexes[index]).state > 0;
 public long GetVersionT6(int index) => UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).version;
 
@@ -1112,6 +1336,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7> : IFilterBag  where T0:u
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -1119,6 +1345,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7> : IFilterBag  where T0:u
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -1154,19 +1382,8 @@ this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -1241,9 +1458,8 @@ this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -1256,51 +1472,131 @@ this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T3 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[3].value, this.indexes[index], component); }
-public ref T3 GetT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;}
-public ref readonly T3 ReadT3(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data; }
+public void Set(int index, in T3 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T3 GetT3(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
+}
+public ref readonly T3 ReadT3(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
 public bool HasT3(int index) => UnsafeUtility.ReadArrayElement<Component<T3>>(this.regs[3].value, this.indexes[index]).state > 0;
 public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T4 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[4].value, this.indexes[index], component); }
-public ref T4 GetT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;}
-public ref readonly T4 ReadT4(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data; }
+public void Set(int index, in T4 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T4 GetT4(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
+}
+public ref readonly T4 ReadT4(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
 public bool HasT4(int index) => UnsafeUtility.ReadArrayElement<Component<T4>>(this.regs[4].value, this.indexes[index]).state > 0;
 public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T5 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[5].value, this.indexes[index], component); }
-public ref T5 GetT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;}
-public ref readonly T5 ReadT5(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data; }
+public void Set(int index, in T5 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T5 GetT5(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
+}
+public ref readonly T5 ReadT5(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
 public bool HasT5(int index) => UnsafeUtility.ReadArrayElement<Component<T5>>(this.regs[5].value, this.indexes[index]).state > 0;
 public long GetVersionT5(int index) => UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).version;
 public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T6 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[6].value, this.indexes[index], component); }
-public ref T6 GetT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;}
-public ref readonly T6 ReadT6(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data; }
+public void Set(int index, in T6 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T6 GetT6(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
+}
+public ref readonly T6 ReadT6(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
 public bool HasT6(int index) => UnsafeUtility.ReadArrayElement<Component<T6>>(this.regs[6].value, this.indexes[index]).state > 0;
 public long GetVersionT6(int index) => UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).version;
 public void RemoveT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T7 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[7].value, this.indexes[index], component); }
-public ref T7 GetT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;}
-public ref readonly T7 ReadT7(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data; }
+public void Set(int index, in T7 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T7 GetT7(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
+}
+public ref readonly T7 ReadT7(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
 public bool HasT7(int index) => UnsafeUtility.ReadArrayElement<Component<T7>>(this.regs[7].value, this.indexes[index]).state > 0;
 public long GetVersionT7(int index) => UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).version;
 
@@ -1320,6 +1616,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8> : IFilterBag  where T
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -1327,6 +1625,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8> : IFilterBag  where T
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -1364,19 +1664,8 @@ this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -1457,9 +1746,8 @@ this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -1472,57 +1760,147 @@ this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T3 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[3].value, this.indexes[index], component); }
-public ref T3 GetT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;}
-public ref readonly T3 ReadT3(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data; }
+public void Set(int index, in T3 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T3 GetT3(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
+}
+public ref readonly T3 ReadT3(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
 public bool HasT3(int index) => UnsafeUtility.ReadArrayElement<Component<T3>>(this.regs[3].value, this.indexes[index]).state > 0;
 public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T4 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[4].value, this.indexes[index], component); }
-public ref T4 GetT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;}
-public ref readonly T4 ReadT4(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data; }
+public void Set(int index, in T4 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T4 GetT4(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
+}
+public ref readonly T4 ReadT4(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
 public bool HasT4(int index) => UnsafeUtility.ReadArrayElement<Component<T4>>(this.regs[4].value, this.indexes[index]).state > 0;
 public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T5 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[5].value, this.indexes[index], component); }
-public ref T5 GetT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;}
-public ref readonly T5 ReadT5(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data; }
+public void Set(int index, in T5 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T5 GetT5(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
+}
+public ref readonly T5 ReadT5(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
 public bool HasT5(int index) => UnsafeUtility.ReadArrayElement<Component<T5>>(this.regs[5].value, this.indexes[index]).state > 0;
 public long GetVersionT5(int index) => UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).version;
 public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T6 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[6].value, this.indexes[index], component); }
-public ref T6 GetT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;}
-public ref readonly T6 ReadT6(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data; }
+public void Set(int index, in T6 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T6 GetT6(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
+}
+public ref readonly T6 ReadT6(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
 public bool HasT6(int index) => UnsafeUtility.ReadArrayElement<Component<T6>>(this.regs[6].value, this.indexes[index]).state > 0;
 public long GetVersionT6(int index) => UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).version;
 public void RemoveT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T7 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[7].value, this.indexes[index], component); }
-public ref T7 GetT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;}
-public ref readonly T7 ReadT7(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data; }
+public void Set(int index, in T7 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T7 GetT7(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
+}
+public ref readonly T7 ReadT7(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
 public bool HasT7(int index) => UnsafeUtility.ReadArrayElement<Component<T7>>(this.regs[7].value, this.indexes[index]).state > 0;
 public long GetVersionT7(int index) => UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).version;
 public void RemoveT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T8 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[8].value, this.indexes[index], component); }
-public ref T8 GetT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;}
-public ref readonly T8 ReadT8(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data; }
+public void Set(int index, in T8 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T8 GetT8(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
+}
+public ref readonly T8 ReadT8(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
 public bool HasT8(int index) => UnsafeUtility.ReadArrayElement<Component<T8>>(this.regs[8].value, this.indexes[index]).state > 0;
 public long GetVersionT8(int index) => UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).version;
 
@@ -1542,6 +1920,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> : IFilterBag  wher
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -1549,6 +1929,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> : IFilterBag  wher
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -1588,19 +1970,8 @@ this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -1687,9 +2058,8 @@ this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -1702,63 +2072,163 @@ this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T3 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[3].value, this.indexes[index], component); }
-public ref T3 GetT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;}
-public ref readonly T3 ReadT3(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data; }
+public void Set(int index, in T3 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T3 GetT3(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
+}
+public ref readonly T3 ReadT3(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
 public bool HasT3(int index) => UnsafeUtility.ReadArrayElement<Component<T3>>(this.regs[3].value, this.indexes[index]).state > 0;
 public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T4 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[4].value, this.indexes[index], component); }
-public ref T4 GetT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;}
-public ref readonly T4 ReadT4(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data; }
+public void Set(int index, in T4 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T4 GetT4(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
+}
+public ref readonly T4 ReadT4(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
 public bool HasT4(int index) => UnsafeUtility.ReadArrayElement<Component<T4>>(this.regs[4].value, this.indexes[index]).state > 0;
 public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T5 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[5].value, this.indexes[index], component); }
-public ref T5 GetT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;}
-public ref readonly T5 ReadT5(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data; }
+public void Set(int index, in T5 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T5 GetT5(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
+}
+public ref readonly T5 ReadT5(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
 public bool HasT5(int index) => UnsafeUtility.ReadArrayElement<Component<T5>>(this.regs[5].value, this.indexes[index]).state > 0;
 public long GetVersionT5(int index) => UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).version;
 public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T6 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[6].value, this.indexes[index], component); }
-public ref T6 GetT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;}
-public ref readonly T6 ReadT6(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data; }
+public void Set(int index, in T6 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T6 GetT6(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
+}
+public ref readonly T6 ReadT6(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
 public bool HasT6(int index) => UnsafeUtility.ReadArrayElement<Component<T6>>(this.regs[6].value, this.indexes[index]).state > 0;
 public long GetVersionT6(int index) => UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).version;
 public void RemoveT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T7 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[7].value, this.indexes[index], component); }
-public ref T7 GetT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;}
-public ref readonly T7 ReadT7(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data; }
+public void Set(int index, in T7 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T7 GetT7(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
+}
+public ref readonly T7 ReadT7(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
 public bool HasT7(int index) => UnsafeUtility.ReadArrayElement<Component<T7>>(this.regs[7].value, this.indexes[index]).state > 0;
 public long GetVersionT7(int index) => UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).version;
 public void RemoveT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T8 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[8].value, this.indexes[index], component); }
-public ref T8 GetT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;}
-public ref readonly T8 ReadT8(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data; }
+public void Set(int index, in T8 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T8 GetT8(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
+}
+public ref readonly T8 ReadT8(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
 public bool HasT8(int index) => UnsafeUtility.ReadArrayElement<Component<T8>>(this.regs[8].value, this.indexes[index]).state > 0;
 public long GetVersionT8(int index) => UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).version;
 public void RemoveT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T9 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[9].value, this.indexes[index], component); }
-public ref T9 GetT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;}
-public ref readonly T9 ReadT9(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data; }
+public void Set(int index, in T9 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T9 GetT9(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
+}
+public ref readonly T9 ReadT9(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
 public bool HasT9(int index) => UnsafeUtility.ReadArrayElement<Component<T9>>(this.regs[9].value, this.indexes[index]).state > 0;
 public long GetVersionT9(int index) => UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).version;
 
@@ -1778,6 +2248,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> : IFilterBag  
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -1785,6 +2257,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> : IFilterBag  
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -1826,19 +2300,8 @@ this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -1931,9 +2394,8 @@ this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -1946,69 +2408,179 @@ this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T3 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[3].value, this.indexes[index], component); }
-public ref T3 GetT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;}
-public ref readonly T3 ReadT3(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data; }
+public void Set(int index, in T3 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T3 GetT3(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
+}
+public ref readonly T3 ReadT3(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
 public bool HasT3(int index) => UnsafeUtility.ReadArrayElement<Component<T3>>(this.regs[3].value, this.indexes[index]).state > 0;
 public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T4 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[4].value, this.indexes[index], component); }
-public ref T4 GetT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;}
-public ref readonly T4 ReadT4(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data; }
+public void Set(int index, in T4 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T4 GetT4(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
+}
+public ref readonly T4 ReadT4(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
 public bool HasT4(int index) => UnsafeUtility.ReadArrayElement<Component<T4>>(this.regs[4].value, this.indexes[index]).state > 0;
 public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T5 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[5].value, this.indexes[index], component); }
-public ref T5 GetT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;}
-public ref readonly T5 ReadT5(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data; }
+public void Set(int index, in T5 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T5 GetT5(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
+}
+public ref readonly T5 ReadT5(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
 public bool HasT5(int index) => UnsafeUtility.ReadArrayElement<Component<T5>>(this.regs[5].value, this.indexes[index]).state > 0;
 public long GetVersionT5(int index) => UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).version;
 public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T6 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[6].value, this.indexes[index], component); }
-public ref T6 GetT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;}
-public ref readonly T6 ReadT6(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data; }
+public void Set(int index, in T6 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T6 GetT6(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
+}
+public ref readonly T6 ReadT6(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
 public bool HasT6(int index) => UnsafeUtility.ReadArrayElement<Component<T6>>(this.regs[6].value, this.indexes[index]).state > 0;
 public long GetVersionT6(int index) => UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).version;
 public void RemoveT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T7 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[7].value, this.indexes[index], component); }
-public ref T7 GetT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;}
-public ref readonly T7 ReadT7(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data; }
+public void Set(int index, in T7 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T7 GetT7(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
+}
+public ref readonly T7 ReadT7(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
 public bool HasT7(int index) => UnsafeUtility.ReadArrayElement<Component<T7>>(this.regs[7].value, this.indexes[index]).state > 0;
 public long GetVersionT7(int index) => UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).version;
 public void RemoveT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T8 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[8].value, this.indexes[index], component); }
-public ref T8 GetT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;}
-public ref readonly T8 ReadT8(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data; }
+public void Set(int index, in T8 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T8 GetT8(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
+}
+public ref readonly T8 ReadT8(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
 public bool HasT8(int index) => UnsafeUtility.ReadArrayElement<Component<T8>>(this.regs[8].value, this.indexes[index]).state > 0;
 public long GetVersionT8(int index) => UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).version;
 public void RemoveT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T9 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[9].value, this.indexes[index], component); }
-public ref T9 GetT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;}
-public ref readonly T9 ReadT9(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data; }
+public void Set(int index, in T9 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T9 GetT9(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
+}
+public ref readonly T9 ReadT9(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
 public bool HasT9(int index) => UnsafeUtility.ReadArrayElement<Component<T9>>(this.regs[9].value, this.indexes[index]).state > 0;
 public long GetVersionT9(int index) => UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).version;
 public void RemoveT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T10 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[10].value, this.indexes[index], component); }
-public ref T10 GetT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;}
-public ref readonly T10 ReadT10(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data; }
+public void Set(int index, in T10 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T10 GetT10(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
+}
+public ref readonly T10 ReadT10(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
 public bool HasT10(int index) => UnsafeUtility.ReadArrayElement<Component<T10>>(this.regs[10].value, this.indexes[index]).state > 0;
 public long GetVersionT10(int index) => UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).version;
 
@@ -2028,6 +2600,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> : IFilterB
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -2035,6 +2609,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> : IFilterB
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -2078,19 +2654,8 @@ this.regs[11] = new Ptr() { value = regT11.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -2189,9 +2754,8 @@ this.regs[11] = new Ptr() { value = regT11.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -2204,75 +2768,195 @@ this.regs[11] = new Ptr() { value = regT11.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T3 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[3].value, this.indexes[index], component); }
-public ref T3 GetT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;}
-public ref readonly T3 ReadT3(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data; }
+public void Set(int index, in T3 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T3 GetT3(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
+}
+public ref readonly T3 ReadT3(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
 public bool HasT3(int index) => UnsafeUtility.ReadArrayElement<Component<T3>>(this.regs[3].value, this.indexes[index]).state > 0;
 public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T4 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[4].value, this.indexes[index], component); }
-public ref T4 GetT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;}
-public ref readonly T4 ReadT4(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data; }
+public void Set(int index, in T4 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T4 GetT4(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
+}
+public ref readonly T4 ReadT4(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
 public bool HasT4(int index) => UnsafeUtility.ReadArrayElement<Component<T4>>(this.regs[4].value, this.indexes[index]).state > 0;
 public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T5 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[5].value, this.indexes[index], component); }
-public ref T5 GetT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;}
-public ref readonly T5 ReadT5(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data; }
+public void Set(int index, in T5 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T5 GetT5(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
+}
+public ref readonly T5 ReadT5(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
 public bool HasT5(int index) => UnsafeUtility.ReadArrayElement<Component<T5>>(this.regs[5].value, this.indexes[index]).state > 0;
 public long GetVersionT5(int index) => UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).version;
 public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T6 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[6].value, this.indexes[index], component); }
-public ref T6 GetT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;}
-public ref readonly T6 ReadT6(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data; }
+public void Set(int index, in T6 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T6 GetT6(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
+}
+public ref readonly T6 ReadT6(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
 public bool HasT6(int index) => UnsafeUtility.ReadArrayElement<Component<T6>>(this.regs[6].value, this.indexes[index]).state > 0;
 public long GetVersionT6(int index) => UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).version;
 public void RemoveT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T7 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[7].value, this.indexes[index], component); }
-public ref T7 GetT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;}
-public ref readonly T7 ReadT7(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data; }
+public void Set(int index, in T7 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T7 GetT7(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
+}
+public ref readonly T7 ReadT7(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
 public bool HasT7(int index) => UnsafeUtility.ReadArrayElement<Component<T7>>(this.regs[7].value, this.indexes[index]).state > 0;
 public long GetVersionT7(int index) => UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).version;
 public void RemoveT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T8 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[8].value, this.indexes[index], component); }
-public ref T8 GetT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;}
-public ref readonly T8 ReadT8(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data; }
+public void Set(int index, in T8 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T8 GetT8(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
+}
+public ref readonly T8 ReadT8(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
 public bool HasT8(int index) => UnsafeUtility.ReadArrayElement<Component<T8>>(this.regs[8].value, this.indexes[index]).state > 0;
 public long GetVersionT8(int index) => UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).version;
 public void RemoveT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T9 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[9].value, this.indexes[index], component); }
-public ref T9 GetT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;}
-public ref readonly T9 ReadT9(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data; }
+public void Set(int index, in T9 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T9 GetT9(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
+}
+public ref readonly T9 ReadT9(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
 public bool HasT9(int index) => UnsafeUtility.ReadArrayElement<Component<T9>>(this.regs[9].value, this.indexes[index]).state > 0;
 public long GetVersionT9(int index) => UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).version;
 public void RemoveT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T10 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[10].value, this.indexes[index], component); }
-public ref T10 GetT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;}
-public ref readonly T10 ReadT10(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data; }
+public void Set(int index, in T10 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T10 GetT10(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
+}
+public ref readonly T10 ReadT10(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
 public bool HasT10(int index) => UnsafeUtility.ReadArrayElement<Component<T10>>(this.regs[10].value, this.indexes[index]).state > 0;
 public long GetVersionT10(int index) => UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).version;
 public void RemoveT11(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T11 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[11].value, this.indexes[index], component); }
-public ref T11 GetT11(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;}
-public ref readonly T11 ReadT11(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data; }
+public void Set(int index, in T11 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T11 GetT11(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;
+}
+public ref readonly T11 ReadT11(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;
 public bool HasT11(int index) => UnsafeUtility.ReadArrayElement<Component<T11>>(this.regs[11].value, this.indexes[index]).state > 0;
 public long GetVersionT11(int index) => UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).version;
 
@@ -2292,6 +2976,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> : IFil
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -2299,6 +2985,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> : IFil
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -2344,19 +3032,8 @@ this.regs[12] = new Ptr() { value = regT12.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -2461,9 +3138,8 @@ this.regs[12] = new Ptr() { value = regT12.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -2476,81 +3152,211 @@ this.regs[12] = new Ptr() { value = regT12.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T3 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[3].value, this.indexes[index], component); }
-public ref T3 GetT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;}
-public ref readonly T3 ReadT3(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data; }
+public void Set(int index, in T3 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T3 GetT3(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
+}
+public ref readonly T3 ReadT3(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
 public bool HasT3(int index) => UnsafeUtility.ReadArrayElement<Component<T3>>(this.regs[3].value, this.indexes[index]).state > 0;
 public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T4 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[4].value, this.indexes[index], component); }
-public ref T4 GetT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;}
-public ref readonly T4 ReadT4(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data; }
+public void Set(int index, in T4 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T4 GetT4(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
+}
+public ref readonly T4 ReadT4(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
 public bool HasT4(int index) => UnsafeUtility.ReadArrayElement<Component<T4>>(this.regs[4].value, this.indexes[index]).state > 0;
 public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T5 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[5].value, this.indexes[index], component); }
-public ref T5 GetT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;}
-public ref readonly T5 ReadT5(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data; }
+public void Set(int index, in T5 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T5 GetT5(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
+}
+public ref readonly T5 ReadT5(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
 public bool HasT5(int index) => UnsafeUtility.ReadArrayElement<Component<T5>>(this.regs[5].value, this.indexes[index]).state > 0;
 public long GetVersionT5(int index) => UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).version;
 public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T6 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[6].value, this.indexes[index], component); }
-public ref T6 GetT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;}
-public ref readonly T6 ReadT6(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data; }
+public void Set(int index, in T6 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T6 GetT6(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
+}
+public ref readonly T6 ReadT6(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
 public bool HasT6(int index) => UnsafeUtility.ReadArrayElement<Component<T6>>(this.regs[6].value, this.indexes[index]).state > 0;
 public long GetVersionT6(int index) => UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).version;
 public void RemoveT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T7 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[7].value, this.indexes[index], component); }
-public ref T7 GetT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;}
-public ref readonly T7 ReadT7(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data; }
+public void Set(int index, in T7 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T7 GetT7(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
+}
+public ref readonly T7 ReadT7(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
 public bool HasT7(int index) => UnsafeUtility.ReadArrayElement<Component<T7>>(this.regs[7].value, this.indexes[index]).state > 0;
 public long GetVersionT7(int index) => UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).version;
 public void RemoveT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T8 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[8].value, this.indexes[index], component); }
-public ref T8 GetT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;}
-public ref readonly T8 ReadT8(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data; }
+public void Set(int index, in T8 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T8 GetT8(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
+}
+public ref readonly T8 ReadT8(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
 public bool HasT8(int index) => UnsafeUtility.ReadArrayElement<Component<T8>>(this.regs[8].value, this.indexes[index]).state > 0;
 public long GetVersionT8(int index) => UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).version;
 public void RemoveT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T9 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[9].value, this.indexes[index], component); }
-public ref T9 GetT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;}
-public ref readonly T9 ReadT9(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data; }
+public void Set(int index, in T9 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T9 GetT9(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
+}
+public ref readonly T9 ReadT9(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
 public bool HasT9(int index) => UnsafeUtility.ReadArrayElement<Component<T9>>(this.regs[9].value, this.indexes[index]).state > 0;
 public long GetVersionT9(int index) => UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).version;
 public void RemoveT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T10 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[10].value, this.indexes[index], component); }
-public ref T10 GetT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;}
-public ref readonly T10 ReadT10(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data; }
+public void Set(int index, in T10 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T10 GetT10(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
+}
+public ref readonly T10 ReadT10(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
 public bool HasT10(int index) => UnsafeUtility.ReadArrayElement<Component<T10>>(this.regs[10].value, this.indexes[index]).state > 0;
 public long GetVersionT10(int index) => UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).version;
 public void RemoveT11(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T11 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[11].value, this.indexes[index], component); }
-public ref T11 GetT11(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;}
-public ref readonly T11 ReadT11(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data; }
+public void Set(int index, in T11 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T11 GetT11(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;
+}
+public ref readonly T11 ReadT11(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;
 public bool HasT11(int index) => UnsafeUtility.ReadArrayElement<Component<T11>>(this.regs[11].value, this.indexes[index]).state > 0;
 public long GetVersionT11(int index) => UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).version;
 public void RemoveT12(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T12 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[12].value, this.indexes[index], component); }
-public ref T12 GetT12(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;}
-public ref readonly T12 ReadT12(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data; }
+public void Set(int index, in T12 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T12 GetT12(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;
+}
+public ref readonly T12 ReadT12(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;
 public bool HasT12(int index) => UnsafeUtility.ReadArrayElement<Component<T12>>(this.regs[12].value, this.indexes[index]).state > 0;
 public long GetVersionT12(int index) => UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).version;
 
@@ -2570,6 +3376,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> : 
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -2577,6 +3385,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> : 
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -2624,19 +3434,8 @@ this.regs[13] = new Ptr() { value = regT13.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -2747,9 +3546,8 @@ this.regs[13] = new Ptr() { value = regT13.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -2762,87 +3560,227 @@ this.regs[13] = new Ptr() { value = regT13.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T3 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[3].value, this.indexes[index], component); }
-public ref T3 GetT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;}
-public ref readonly T3 ReadT3(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data; }
+public void Set(int index, in T3 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T3 GetT3(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
+}
+public ref readonly T3 ReadT3(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
 public bool HasT3(int index) => UnsafeUtility.ReadArrayElement<Component<T3>>(this.regs[3].value, this.indexes[index]).state > 0;
 public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T4 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[4].value, this.indexes[index], component); }
-public ref T4 GetT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;}
-public ref readonly T4 ReadT4(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data; }
+public void Set(int index, in T4 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T4 GetT4(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
+}
+public ref readonly T4 ReadT4(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
 public bool HasT4(int index) => UnsafeUtility.ReadArrayElement<Component<T4>>(this.regs[4].value, this.indexes[index]).state > 0;
 public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T5 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[5].value, this.indexes[index], component); }
-public ref T5 GetT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;}
-public ref readonly T5 ReadT5(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data; }
+public void Set(int index, in T5 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T5 GetT5(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
+}
+public ref readonly T5 ReadT5(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
 public bool HasT5(int index) => UnsafeUtility.ReadArrayElement<Component<T5>>(this.regs[5].value, this.indexes[index]).state > 0;
 public long GetVersionT5(int index) => UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).version;
 public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T6 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[6].value, this.indexes[index], component); }
-public ref T6 GetT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;}
-public ref readonly T6 ReadT6(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data; }
+public void Set(int index, in T6 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T6 GetT6(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
+}
+public ref readonly T6 ReadT6(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
 public bool HasT6(int index) => UnsafeUtility.ReadArrayElement<Component<T6>>(this.regs[6].value, this.indexes[index]).state > 0;
 public long GetVersionT6(int index) => UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).version;
 public void RemoveT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T7 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[7].value, this.indexes[index], component); }
-public ref T7 GetT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;}
-public ref readonly T7 ReadT7(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data; }
+public void Set(int index, in T7 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T7 GetT7(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
+}
+public ref readonly T7 ReadT7(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
 public bool HasT7(int index) => UnsafeUtility.ReadArrayElement<Component<T7>>(this.regs[7].value, this.indexes[index]).state > 0;
 public long GetVersionT7(int index) => UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).version;
 public void RemoveT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T8 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[8].value, this.indexes[index], component); }
-public ref T8 GetT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;}
-public ref readonly T8 ReadT8(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data; }
+public void Set(int index, in T8 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T8 GetT8(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
+}
+public ref readonly T8 ReadT8(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
 public bool HasT8(int index) => UnsafeUtility.ReadArrayElement<Component<T8>>(this.regs[8].value, this.indexes[index]).state > 0;
 public long GetVersionT8(int index) => UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).version;
 public void RemoveT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T9 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[9].value, this.indexes[index], component); }
-public ref T9 GetT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;}
-public ref readonly T9 ReadT9(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data; }
+public void Set(int index, in T9 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T9 GetT9(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
+}
+public ref readonly T9 ReadT9(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
 public bool HasT9(int index) => UnsafeUtility.ReadArrayElement<Component<T9>>(this.regs[9].value, this.indexes[index]).state > 0;
 public long GetVersionT9(int index) => UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).version;
 public void RemoveT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T10 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[10].value, this.indexes[index], component); }
-public ref T10 GetT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;}
-public ref readonly T10 ReadT10(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data; }
+public void Set(int index, in T10 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T10 GetT10(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
+}
+public ref readonly T10 ReadT10(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
 public bool HasT10(int index) => UnsafeUtility.ReadArrayElement<Component<T10>>(this.regs[10].value, this.indexes[index]).state > 0;
 public long GetVersionT10(int index) => UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).version;
 public void RemoveT11(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T11 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[11].value, this.indexes[index], component); }
-public ref T11 GetT11(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;}
-public ref readonly T11 ReadT11(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data; }
+public void Set(int index, in T11 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T11 GetT11(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;
+}
+public ref readonly T11 ReadT11(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;
 public bool HasT11(int index) => UnsafeUtility.ReadArrayElement<Component<T11>>(this.regs[11].value, this.indexes[index]).state > 0;
 public long GetVersionT11(int index) => UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).version;
 public void RemoveT12(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T12 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[12].value, this.indexes[index], component); }
-public ref T12 GetT12(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;}
-public ref readonly T12 ReadT12(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data; }
+public void Set(int index, in T12 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T12 GetT12(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;
+}
+public ref readonly T12 ReadT12(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;
 public bool HasT12(int index) => UnsafeUtility.ReadArrayElement<Component<T12>>(this.regs[12].value, this.indexes[index]).state > 0;
 public long GetVersionT12(int index) => UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).version;
 public void RemoveT13(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T13 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[13].value, this.indexes[index], component); }
-public ref T13 GetT13(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;}
-public ref readonly T13 ReadT13(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data; }
+public void Set(int index, in T13 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T13 GetT13(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;
+}
+public ref readonly T13 ReadT13(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;
 public bool HasT13(int index) => UnsafeUtility.ReadArrayElement<Component<T13>>(this.regs[13].value, this.indexes[index]).state > 0;
 public long GetVersionT13(int index) => UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).version;
 
@@ -2862,6 +3800,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -2869,6 +3809,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -2918,19 +3860,8 @@ this.regs[14] = new Ptr() { value = regT14.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -3047,9 +3978,8 @@ this.regs[14] = new Ptr() { value = regT14.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -3062,93 +3992,243 @@ this.regs[14] = new Ptr() { value = regT14.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T3 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[3].value, this.indexes[index], component); }
-public ref T3 GetT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;}
-public ref readonly T3 ReadT3(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data; }
+public void Set(int index, in T3 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T3 GetT3(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
+}
+public ref readonly T3 ReadT3(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
 public bool HasT3(int index) => UnsafeUtility.ReadArrayElement<Component<T3>>(this.regs[3].value, this.indexes[index]).state > 0;
 public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T4 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[4].value, this.indexes[index], component); }
-public ref T4 GetT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;}
-public ref readonly T4 ReadT4(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data; }
+public void Set(int index, in T4 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T4 GetT4(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
+}
+public ref readonly T4 ReadT4(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
 public bool HasT4(int index) => UnsafeUtility.ReadArrayElement<Component<T4>>(this.regs[4].value, this.indexes[index]).state > 0;
 public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T5 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[5].value, this.indexes[index], component); }
-public ref T5 GetT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;}
-public ref readonly T5 ReadT5(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data; }
+public void Set(int index, in T5 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T5 GetT5(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
+}
+public ref readonly T5 ReadT5(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
 public bool HasT5(int index) => UnsafeUtility.ReadArrayElement<Component<T5>>(this.regs[5].value, this.indexes[index]).state > 0;
 public long GetVersionT5(int index) => UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).version;
 public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T6 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[6].value, this.indexes[index], component); }
-public ref T6 GetT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;}
-public ref readonly T6 ReadT6(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data; }
+public void Set(int index, in T6 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T6 GetT6(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
+}
+public ref readonly T6 ReadT6(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
 public bool HasT6(int index) => UnsafeUtility.ReadArrayElement<Component<T6>>(this.regs[6].value, this.indexes[index]).state > 0;
 public long GetVersionT6(int index) => UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).version;
 public void RemoveT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T7 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[7].value, this.indexes[index], component); }
-public ref T7 GetT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;}
-public ref readonly T7 ReadT7(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data; }
+public void Set(int index, in T7 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T7 GetT7(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
+}
+public ref readonly T7 ReadT7(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
 public bool HasT7(int index) => UnsafeUtility.ReadArrayElement<Component<T7>>(this.regs[7].value, this.indexes[index]).state > 0;
 public long GetVersionT7(int index) => UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).version;
 public void RemoveT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T8 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[8].value, this.indexes[index], component); }
-public ref T8 GetT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;}
-public ref readonly T8 ReadT8(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data; }
+public void Set(int index, in T8 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T8 GetT8(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
+}
+public ref readonly T8 ReadT8(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
 public bool HasT8(int index) => UnsafeUtility.ReadArrayElement<Component<T8>>(this.regs[8].value, this.indexes[index]).state > 0;
 public long GetVersionT8(int index) => UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).version;
 public void RemoveT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T9 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[9].value, this.indexes[index], component); }
-public ref T9 GetT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;}
-public ref readonly T9 ReadT9(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data; }
+public void Set(int index, in T9 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T9 GetT9(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
+}
+public ref readonly T9 ReadT9(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
 public bool HasT9(int index) => UnsafeUtility.ReadArrayElement<Component<T9>>(this.regs[9].value, this.indexes[index]).state > 0;
 public long GetVersionT9(int index) => UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).version;
 public void RemoveT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T10 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[10].value, this.indexes[index], component); }
-public ref T10 GetT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;}
-public ref readonly T10 ReadT10(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data; }
+public void Set(int index, in T10 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T10 GetT10(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
+}
+public ref readonly T10 ReadT10(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
 public bool HasT10(int index) => UnsafeUtility.ReadArrayElement<Component<T10>>(this.regs[10].value, this.indexes[index]).state > 0;
 public long GetVersionT10(int index) => UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).version;
 public void RemoveT11(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T11 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[11].value, this.indexes[index], component); }
-public ref T11 GetT11(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;}
-public ref readonly T11 ReadT11(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data; }
+public void Set(int index, in T11 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T11 GetT11(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;
+}
+public ref readonly T11 ReadT11(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;
 public bool HasT11(int index) => UnsafeUtility.ReadArrayElement<Component<T11>>(this.regs[11].value, this.indexes[index]).state > 0;
 public long GetVersionT11(int index) => UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).version;
 public void RemoveT12(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T12 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[12].value, this.indexes[index], component); }
-public ref T12 GetT12(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;}
-public ref readonly T12 ReadT12(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data; }
+public void Set(int index, in T12 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T12 GetT12(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;
+}
+public ref readonly T12 ReadT12(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;
 public bool HasT12(int index) => UnsafeUtility.ReadArrayElement<Component<T12>>(this.regs[12].value, this.indexes[index]).state > 0;
 public long GetVersionT12(int index) => UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).version;
 public void RemoveT13(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T13 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[13].value, this.indexes[index], component); }
-public ref T13 GetT13(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;}
-public ref readonly T13 ReadT13(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data; }
+public void Set(int index, in T13 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T13 GetT13(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;
+}
+public ref readonly T13 ReadT13(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;
 public bool HasT13(int index) => UnsafeUtility.ReadArrayElement<Component<T13>>(this.regs[13].value, this.indexes[index]).state > 0;
 public long GetVersionT13(int index) => UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).version;
 public void RemoveT14(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T14 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[14].value, this.indexes[index], component); }
-public ref T14 GetT14(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data;}
-public ref readonly T14 ReadT14(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data; }
+public void Set(int index, in T14 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T14 GetT14(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data;
+}
+public ref readonly T14 ReadT14(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data;
 public bool HasT14(int index) => UnsafeUtility.ReadArrayElement<Component<T14>>(this.regs[14].value, this.indexes[index]).state > 0;
 public long GetVersionT14(int index) => UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).version;
 
@@ -3168,6 +4248,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -3175,6 +4257,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -3226,19 +4310,8 @@ this.regs[15] = new Ptr() { value = regT15.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -3361,9 +4434,8 @@ this.regs[15] = new Ptr() { value = regT15.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -3376,99 +4448,259 @@ this.regs[15] = new Ptr() { value = regT15.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T3 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[3].value, this.indexes[index], component); }
-public ref T3 GetT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;}
-public ref readonly T3 ReadT3(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data; }
+public void Set(int index, in T3 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T3 GetT3(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
+}
+public ref readonly T3 ReadT3(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
 public bool HasT3(int index) => UnsafeUtility.ReadArrayElement<Component<T3>>(this.regs[3].value, this.indexes[index]).state > 0;
 public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T4 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[4].value, this.indexes[index], component); }
-public ref T4 GetT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;}
-public ref readonly T4 ReadT4(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data; }
+public void Set(int index, in T4 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T4 GetT4(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
+}
+public ref readonly T4 ReadT4(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
 public bool HasT4(int index) => UnsafeUtility.ReadArrayElement<Component<T4>>(this.regs[4].value, this.indexes[index]).state > 0;
 public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T5 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[5].value, this.indexes[index], component); }
-public ref T5 GetT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;}
-public ref readonly T5 ReadT5(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data; }
+public void Set(int index, in T5 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T5 GetT5(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
+}
+public ref readonly T5 ReadT5(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
 public bool HasT5(int index) => UnsafeUtility.ReadArrayElement<Component<T5>>(this.regs[5].value, this.indexes[index]).state > 0;
 public long GetVersionT5(int index) => UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).version;
 public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T6 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[6].value, this.indexes[index], component); }
-public ref T6 GetT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;}
-public ref readonly T6 ReadT6(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data; }
+public void Set(int index, in T6 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T6 GetT6(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
+}
+public ref readonly T6 ReadT6(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
 public bool HasT6(int index) => UnsafeUtility.ReadArrayElement<Component<T6>>(this.regs[6].value, this.indexes[index]).state > 0;
 public long GetVersionT6(int index) => UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).version;
 public void RemoveT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T7 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[7].value, this.indexes[index], component); }
-public ref T7 GetT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;}
-public ref readonly T7 ReadT7(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data; }
+public void Set(int index, in T7 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T7 GetT7(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
+}
+public ref readonly T7 ReadT7(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
 public bool HasT7(int index) => UnsafeUtility.ReadArrayElement<Component<T7>>(this.regs[7].value, this.indexes[index]).state > 0;
 public long GetVersionT7(int index) => UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).version;
 public void RemoveT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T8 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[8].value, this.indexes[index], component); }
-public ref T8 GetT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;}
-public ref readonly T8 ReadT8(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data; }
+public void Set(int index, in T8 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T8 GetT8(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
+}
+public ref readonly T8 ReadT8(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
 public bool HasT8(int index) => UnsafeUtility.ReadArrayElement<Component<T8>>(this.regs[8].value, this.indexes[index]).state > 0;
 public long GetVersionT8(int index) => UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).version;
 public void RemoveT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T9 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[9].value, this.indexes[index], component); }
-public ref T9 GetT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;}
-public ref readonly T9 ReadT9(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data; }
+public void Set(int index, in T9 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T9 GetT9(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
+}
+public ref readonly T9 ReadT9(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
 public bool HasT9(int index) => UnsafeUtility.ReadArrayElement<Component<T9>>(this.regs[9].value, this.indexes[index]).state > 0;
 public long GetVersionT9(int index) => UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).version;
 public void RemoveT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T10 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[10].value, this.indexes[index], component); }
-public ref T10 GetT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;}
-public ref readonly T10 ReadT10(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data; }
+public void Set(int index, in T10 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T10 GetT10(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
+}
+public ref readonly T10 ReadT10(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
 public bool HasT10(int index) => UnsafeUtility.ReadArrayElement<Component<T10>>(this.regs[10].value, this.indexes[index]).state > 0;
 public long GetVersionT10(int index) => UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).version;
 public void RemoveT11(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T11 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[11].value, this.indexes[index], component); }
-public ref T11 GetT11(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;}
-public ref readonly T11 ReadT11(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data; }
+public void Set(int index, in T11 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T11 GetT11(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;
+}
+public ref readonly T11 ReadT11(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;
 public bool HasT11(int index) => UnsafeUtility.ReadArrayElement<Component<T11>>(this.regs[11].value, this.indexes[index]).state > 0;
 public long GetVersionT11(int index) => UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).version;
 public void RemoveT12(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T12 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[12].value, this.indexes[index], component); }
-public ref T12 GetT12(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;}
-public ref readonly T12 ReadT12(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data; }
+public void Set(int index, in T12 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T12 GetT12(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;
+}
+public ref readonly T12 ReadT12(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;
 public bool HasT12(int index) => UnsafeUtility.ReadArrayElement<Component<T12>>(this.regs[12].value, this.indexes[index]).state > 0;
 public long GetVersionT12(int index) => UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).version;
 public void RemoveT13(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T13 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[13].value, this.indexes[index], component); }
-public ref T13 GetT13(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;}
-public ref readonly T13 ReadT13(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data; }
+public void Set(int index, in T13 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T13 GetT13(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;
+}
+public ref readonly T13 ReadT13(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;
 public bool HasT13(int index) => UnsafeUtility.ReadArrayElement<Component<T13>>(this.regs[13].value, this.indexes[index]).state > 0;
 public long GetVersionT13(int index) => UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).version;
 public void RemoveT14(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T14 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[14].value, this.indexes[index], component); }
-public ref T14 GetT14(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data;}
-public ref readonly T14 ReadT14(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data; }
+public void Set(int index, in T14 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T14 GetT14(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data;
+}
+public ref readonly T14 ReadT14(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data;
 public bool HasT14(int index) => UnsafeUtility.ReadArrayElement<Component<T14>>(this.regs[14].value, this.indexes[index]).state > 0;
 public long GetVersionT14(int index) => UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).version;
 public void RemoveT15(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T15 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[15].value, this.indexes[index], component); }
-public ref T15 GetT15(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).data;}
-public ref readonly T15 ReadT15(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).data; }
+public void Set(int index, in T15 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T15 GetT15(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).data;
+}
+public ref readonly T15 ReadT15(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).data;
 public bool HasT15(int index) => UnsafeUtility.ReadArrayElement<Component<T15>>(this.regs[15].value, this.indexes[index]).state > 0;
 public long GetVersionT15(int index) => UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).version;
 
@@ -3488,6 +4720,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -3495,6 +4729,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -3548,19 +4784,8 @@ this.regs[16] = new Ptr() { value = regT16.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -3689,9 +4914,8 @@ this.regs[16] = new Ptr() { value = regT16.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -3704,105 +4928,275 @@ this.regs[16] = new Ptr() { value = regT16.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T3 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[3].value, this.indexes[index], component); }
-public ref T3 GetT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;}
-public ref readonly T3 ReadT3(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data; }
+public void Set(int index, in T3 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T3 GetT3(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
+}
+public ref readonly T3 ReadT3(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
 public bool HasT3(int index) => UnsafeUtility.ReadArrayElement<Component<T3>>(this.regs[3].value, this.indexes[index]).state > 0;
 public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T4 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[4].value, this.indexes[index], component); }
-public ref T4 GetT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;}
-public ref readonly T4 ReadT4(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data; }
+public void Set(int index, in T4 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T4 GetT4(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
+}
+public ref readonly T4 ReadT4(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
 public bool HasT4(int index) => UnsafeUtility.ReadArrayElement<Component<T4>>(this.regs[4].value, this.indexes[index]).state > 0;
 public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T5 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[5].value, this.indexes[index], component); }
-public ref T5 GetT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;}
-public ref readonly T5 ReadT5(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data; }
+public void Set(int index, in T5 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T5 GetT5(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
+}
+public ref readonly T5 ReadT5(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
 public bool HasT5(int index) => UnsafeUtility.ReadArrayElement<Component<T5>>(this.regs[5].value, this.indexes[index]).state > 0;
 public long GetVersionT5(int index) => UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).version;
 public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T6 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[6].value, this.indexes[index], component); }
-public ref T6 GetT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;}
-public ref readonly T6 ReadT6(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data; }
+public void Set(int index, in T6 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T6 GetT6(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
+}
+public ref readonly T6 ReadT6(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
 public bool HasT6(int index) => UnsafeUtility.ReadArrayElement<Component<T6>>(this.regs[6].value, this.indexes[index]).state > 0;
 public long GetVersionT6(int index) => UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).version;
 public void RemoveT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T7 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[7].value, this.indexes[index], component); }
-public ref T7 GetT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;}
-public ref readonly T7 ReadT7(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data; }
+public void Set(int index, in T7 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T7 GetT7(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
+}
+public ref readonly T7 ReadT7(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
 public bool HasT7(int index) => UnsafeUtility.ReadArrayElement<Component<T7>>(this.regs[7].value, this.indexes[index]).state > 0;
 public long GetVersionT7(int index) => UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).version;
 public void RemoveT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T8 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[8].value, this.indexes[index], component); }
-public ref T8 GetT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;}
-public ref readonly T8 ReadT8(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data; }
+public void Set(int index, in T8 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T8 GetT8(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
+}
+public ref readonly T8 ReadT8(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
 public bool HasT8(int index) => UnsafeUtility.ReadArrayElement<Component<T8>>(this.regs[8].value, this.indexes[index]).state > 0;
 public long GetVersionT8(int index) => UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).version;
 public void RemoveT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T9 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[9].value, this.indexes[index], component); }
-public ref T9 GetT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;}
-public ref readonly T9 ReadT9(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data; }
+public void Set(int index, in T9 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T9 GetT9(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
+}
+public ref readonly T9 ReadT9(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
 public bool HasT9(int index) => UnsafeUtility.ReadArrayElement<Component<T9>>(this.regs[9].value, this.indexes[index]).state > 0;
 public long GetVersionT9(int index) => UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).version;
 public void RemoveT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T10 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[10].value, this.indexes[index], component); }
-public ref T10 GetT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;}
-public ref readonly T10 ReadT10(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data; }
+public void Set(int index, in T10 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T10 GetT10(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
+}
+public ref readonly T10 ReadT10(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
 public bool HasT10(int index) => UnsafeUtility.ReadArrayElement<Component<T10>>(this.regs[10].value, this.indexes[index]).state > 0;
 public long GetVersionT10(int index) => UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).version;
 public void RemoveT11(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T11 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[11].value, this.indexes[index], component); }
-public ref T11 GetT11(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;}
-public ref readonly T11 ReadT11(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data; }
+public void Set(int index, in T11 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T11 GetT11(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;
+}
+public ref readonly T11 ReadT11(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;
 public bool HasT11(int index) => UnsafeUtility.ReadArrayElement<Component<T11>>(this.regs[11].value, this.indexes[index]).state > 0;
 public long GetVersionT11(int index) => UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).version;
 public void RemoveT12(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T12 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[12].value, this.indexes[index], component); }
-public ref T12 GetT12(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;}
-public ref readonly T12 ReadT12(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data; }
+public void Set(int index, in T12 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T12 GetT12(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;
+}
+public ref readonly T12 ReadT12(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;
 public bool HasT12(int index) => UnsafeUtility.ReadArrayElement<Component<T12>>(this.regs[12].value, this.indexes[index]).state > 0;
 public long GetVersionT12(int index) => UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).version;
 public void RemoveT13(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T13 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[13].value, this.indexes[index], component); }
-public ref T13 GetT13(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;}
-public ref readonly T13 ReadT13(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data; }
+public void Set(int index, in T13 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T13 GetT13(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;
+}
+public ref readonly T13 ReadT13(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;
 public bool HasT13(int index) => UnsafeUtility.ReadArrayElement<Component<T13>>(this.regs[13].value, this.indexes[index]).state > 0;
 public long GetVersionT13(int index) => UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).version;
 public void RemoveT14(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T14 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[14].value, this.indexes[index], component); }
-public ref T14 GetT14(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data;}
-public ref readonly T14 ReadT14(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data; }
+public void Set(int index, in T14 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T14 GetT14(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data;
+}
+public ref readonly T14 ReadT14(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data;
 public bool HasT14(int index) => UnsafeUtility.ReadArrayElement<Component<T14>>(this.regs[14].value, this.indexes[index]).state > 0;
 public long GetVersionT14(int index) => UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).version;
 public void RemoveT15(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T15 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[15].value, this.indexes[index], component); }
-public ref T15 GetT15(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).data;}
-public ref readonly T15 ReadT15(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).data; }
+public void Set(int index, in T15 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T15 GetT15(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).data;
+}
+public ref readonly T15 ReadT15(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).data;
 public bool HasT15(int index) => UnsafeUtility.ReadArrayElement<Component<T15>>(this.regs[15].value, this.indexes[index]).state > 0;
 public long GetVersionT15(int index) => UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).version;
 public void RemoveT16(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T16>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T16 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T16>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[16].value, this.indexes[index], component); }
-public ref T16 GetT16(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T16>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]).data;}
-public ref readonly T16 ReadT16(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]).data; }
+public void Set(int index, in T16 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T16>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T16 GetT16(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T16>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]).data;
+}
+public ref readonly T16 ReadT16(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]).data;
 public bool HasT16(int index) => UnsafeUtility.ReadArrayElement<Component<T16>>(this.regs[16].value, this.indexes[index]).state > 0;
 public long GetVersionT16(int index) => UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]).version;
 
@@ -3822,6 +5216,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -3829,6 +5225,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -3884,19 +5282,8 @@ this.regs[17] = new Ptr() { value = regT17.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -4031,9 +5418,8 @@ this.regs[17] = new Ptr() { value = regT17.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -4046,111 +5432,291 @@ this.regs[17] = new Ptr() { value = regT17.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T3 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[3].value, this.indexes[index], component); }
-public ref T3 GetT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;}
-public ref readonly T3 ReadT3(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data; }
+public void Set(int index, in T3 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T3 GetT3(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
+}
+public ref readonly T3 ReadT3(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
 public bool HasT3(int index) => UnsafeUtility.ReadArrayElement<Component<T3>>(this.regs[3].value, this.indexes[index]).state > 0;
 public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T4 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[4].value, this.indexes[index], component); }
-public ref T4 GetT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;}
-public ref readonly T4 ReadT4(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data; }
+public void Set(int index, in T4 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T4 GetT4(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
+}
+public ref readonly T4 ReadT4(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
 public bool HasT4(int index) => UnsafeUtility.ReadArrayElement<Component<T4>>(this.regs[4].value, this.indexes[index]).state > 0;
 public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T5 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[5].value, this.indexes[index], component); }
-public ref T5 GetT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;}
-public ref readonly T5 ReadT5(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data; }
+public void Set(int index, in T5 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T5 GetT5(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
+}
+public ref readonly T5 ReadT5(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
 public bool HasT5(int index) => UnsafeUtility.ReadArrayElement<Component<T5>>(this.regs[5].value, this.indexes[index]).state > 0;
 public long GetVersionT5(int index) => UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).version;
 public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T6 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[6].value, this.indexes[index], component); }
-public ref T6 GetT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;}
-public ref readonly T6 ReadT6(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data; }
+public void Set(int index, in T6 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T6 GetT6(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
+}
+public ref readonly T6 ReadT6(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
 public bool HasT6(int index) => UnsafeUtility.ReadArrayElement<Component<T6>>(this.regs[6].value, this.indexes[index]).state > 0;
 public long GetVersionT6(int index) => UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).version;
 public void RemoveT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T7 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[7].value, this.indexes[index], component); }
-public ref T7 GetT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;}
-public ref readonly T7 ReadT7(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data; }
+public void Set(int index, in T7 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T7 GetT7(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
+}
+public ref readonly T7 ReadT7(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
 public bool HasT7(int index) => UnsafeUtility.ReadArrayElement<Component<T7>>(this.regs[7].value, this.indexes[index]).state > 0;
 public long GetVersionT7(int index) => UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).version;
 public void RemoveT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T8 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[8].value, this.indexes[index], component); }
-public ref T8 GetT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;}
-public ref readonly T8 ReadT8(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data; }
+public void Set(int index, in T8 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T8 GetT8(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
+}
+public ref readonly T8 ReadT8(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
 public bool HasT8(int index) => UnsafeUtility.ReadArrayElement<Component<T8>>(this.regs[8].value, this.indexes[index]).state > 0;
 public long GetVersionT8(int index) => UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).version;
 public void RemoveT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T9 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[9].value, this.indexes[index], component); }
-public ref T9 GetT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;}
-public ref readonly T9 ReadT9(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data; }
+public void Set(int index, in T9 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T9 GetT9(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
+}
+public ref readonly T9 ReadT9(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
 public bool HasT9(int index) => UnsafeUtility.ReadArrayElement<Component<T9>>(this.regs[9].value, this.indexes[index]).state > 0;
 public long GetVersionT9(int index) => UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).version;
 public void RemoveT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T10 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[10].value, this.indexes[index], component); }
-public ref T10 GetT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;}
-public ref readonly T10 ReadT10(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data; }
+public void Set(int index, in T10 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T10 GetT10(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
+}
+public ref readonly T10 ReadT10(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
 public bool HasT10(int index) => UnsafeUtility.ReadArrayElement<Component<T10>>(this.regs[10].value, this.indexes[index]).state > 0;
 public long GetVersionT10(int index) => UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).version;
 public void RemoveT11(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T11 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[11].value, this.indexes[index], component); }
-public ref T11 GetT11(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;}
-public ref readonly T11 ReadT11(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data; }
+public void Set(int index, in T11 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T11 GetT11(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;
+}
+public ref readonly T11 ReadT11(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;
 public bool HasT11(int index) => UnsafeUtility.ReadArrayElement<Component<T11>>(this.regs[11].value, this.indexes[index]).state > 0;
 public long GetVersionT11(int index) => UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).version;
 public void RemoveT12(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T12 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[12].value, this.indexes[index], component); }
-public ref T12 GetT12(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;}
-public ref readonly T12 ReadT12(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data; }
+public void Set(int index, in T12 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T12 GetT12(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;
+}
+public ref readonly T12 ReadT12(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;
 public bool HasT12(int index) => UnsafeUtility.ReadArrayElement<Component<T12>>(this.regs[12].value, this.indexes[index]).state > 0;
 public long GetVersionT12(int index) => UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).version;
 public void RemoveT13(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T13 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[13].value, this.indexes[index], component); }
-public ref T13 GetT13(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;}
-public ref readonly T13 ReadT13(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data; }
+public void Set(int index, in T13 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T13 GetT13(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;
+}
+public ref readonly T13 ReadT13(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;
 public bool HasT13(int index) => UnsafeUtility.ReadArrayElement<Component<T13>>(this.regs[13].value, this.indexes[index]).state > 0;
 public long GetVersionT13(int index) => UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).version;
 public void RemoveT14(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T14 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[14].value, this.indexes[index], component); }
-public ref T14 GetT14(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data;}
-public ref readonly T14 ReadT14(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data; }
+public void Set(int index, in T14 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T14 GetT14(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data;
+}
+public ref readonly T14 ReadT14(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data;
 public bool HasT14(int index) => UnsafeUtility.ReadArrayElement<Component<T14>>(this.regs[14].value, this.indexes[index]).state > 0;
 public long GetVersionT14(int index) => UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).version;
 public void RemoveT15(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T15 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[15].value, this.indexes[index], component); }
-public ref T15 GetT15(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).data;}
-public ref readonly T15 ReadT15(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).data; }
+public void Set(int index, in T15 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T15 GetT15(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).data;
+}
+public ref readonly T15 ReadT15(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).data;
 public bool HasT15(int index) => UnsafeUtility.ReadArrayElement<Component<T15>>(this.regs[15].value, this.indexes[index]).state > 0;
 public long GetVersionT15(int index) => UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).version;
 public void RemoveT16(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T16>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T16 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T16>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[16].value, this.indexes[index], component); }
-public ref T16 GetT16(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T16>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]).data;}
-public ref readonly T16 ReadT16(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]).data; }
+public void Set(int index, in T16 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T16>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T16 GetT16(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T16>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]).data;
+}
+public ref readonly T16 ReadT16(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]).data;
 public bool HasT16(int index) => UnsafeUtility.ReadArrayElement<Component<T16>>(this.regs[16].value, this.indexes[index]).state > 0;
 public long GetVersionT16(int index) => UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]).version;
 public void RemoveT17(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T17>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T17 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T17>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[17].value, this.indexes[index], component); }
-public ref T17 GetT17(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T17>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T17>>(this.regs[17].value, this.indexes[index]).data;}
-public ref readonly T17 ReadT17(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T17>>(this.regs[17].value, this.indexes[index]).data; }
+public void Set(int index, in T17 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T17>>(this.regs[17].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T17>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T17 GetT17(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T17>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T17>>(this.regs[17].value, this.indexes[index]).data;
+}
+public ref readonly T17 ReadT17(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T17>>(this.regs[17].value, this.indexes[index]).data;
 public bool HasT17(int index) => UnsafeUtility.ReadArrayElement<Component<T17>>(this.regs[17].value, this.indexes[index]).state > 0;
 public long GetVersionT17(int index) => UnsafeUtility.ArrayElementAsRef<Component<T17>>(this.regs[17].value, this.indexes[index]).version;
 
@@ -4170,6 +5736,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -4177,6 +5745,8 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -4234,19 +5804,8 @@ this.regs[18] = new Ptr() { value = regT18.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -4387,9 +5946,8 @@ this.regs[18] = new Ptr() { value = regT18.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
@@ -4402,117 +5960,307 @@ this.regs[18] = new Ptr() { value = regT18.components.GetUnsafePtr(), };
     }
     #region API
     public void RemoveT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T0 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[0].value, this.indexes[index], component); }
-public ref T0 GetT0(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;}
-public ref readonly T0 ReadT0(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data; }
+public void Set(int index, in T0 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T0 GetT0(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
+}
+public ref readonly T0 ReadT0(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).data;
 public bool HasT0(int index) => UnsafeUtility.ReadArrayElement<Component<T0>>(this.regs[0].value, this.indexes[index]).state > 0;
 public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T1 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[1].value, this.indexes[index], component); }
-public ref T1 GetT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;}
-public ref readonly T1 ReadT1(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data; }
+public void Set(int index, in T1 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T1 GetT1(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
+}
+public ref readonly T1 ReadT1(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).data;
 public bool HasT1(int index) => UnsafeUtility.ReadArrayElement<Component<T1>>(this.regs[1].value, this.indexes[index]).state > 0;
 public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T2 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[2].value, this.indexes[index], component); }
-public ref T2 GetT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;}
-public ref readonly T2 ReadT2(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data; }
+public void Set(int index, in T2 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T2 GetT2(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
+}
+public ref readonly T2 ReadT2(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).data;
 public bool HasT2(int index) => UnsafeUtility.ReadArrayElement<Component<T2>>(this.regs[2].value, this.indexes[index]).state > 0;
 public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T3 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[3].value, this.indexes[index], component); }
-public ref T3 GetT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;}
-public ref readonly T3 ReadT3(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data; }
+public void Set(int index, in T3 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T3 GetT3(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
+}
+public ref readonly T3 ReadT3(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).data;
 public bool HasT3(int index) => UnsafeUtility.ReadArrayElement<Component<T3>>(this.regs[3].value, this.indexes[index]).state > 0;
 public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T4 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[4].value, this.indexes[index], component); }
-public ref T4 GetT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;}
-public ref readonly T4 ReadT4(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data; }
+public void Set(int index, in T4 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T4 GetT4(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
+}
+public ref readonly T4 ReadT4(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).data;
 public bool HasT4(int index) => UnsafeUtility.ReadArrayElement<Component<T4>>(this.regs[4].value, this.indexes[index]).state > 0;
 public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T5 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[5].value, this.indexes[index], component); }
-public ref T5 GetT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;}
-public ref readonly T5 ReadT5(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data; }
+public void Set(int index, in T5 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T5 GetT5(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
+}
+public ref readonly T5 ReadT5(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).data;
 public bool HasT5(int index) => UnsafeUtility.ReadArrayElement<Component<T5>>(this.regs[5].value, this.indexes[index]).state > 0;
 public long GetVersionT5(int index) => UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]).version;
 public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T6 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[6].value, this.indexes[index], component); }
-public ref T6 GetT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;}
-public ref readonly T6 ReadT6(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data; }
+public void Set(int index, in T6 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T6 GetT6(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
+}
+public ref readonly T6 ReadT6(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).data;
 public bool HasT6(int index) => UnsafeUtility.ReadArrayElement<Component<T6>>(this.regs[6].value, this.indexes[index]).state > 0;
 public long GetVersionT6(int index) => UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]).version;
 public void RemoveT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T7 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[7].value, this.indexes[index], component); }
-public ref T7 GetT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;}
-public ref readonly T7 ReadT7(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data; }
+public void Set(int index, in T7 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T7 GetT7(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
+}
+public ref readonly T7 ReadT7(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).data;
 public bool HasT7(int index) => UnsafeUtility.ReadArrayElement<Component<T7>>(this.regs[7].value, this.indexes[index]).state > 0;
 public long GetVersionT7(int index) => UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]).version;
 public void RemoveT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T8 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[8].value, this.indexes[index], component); }
-public ref T8 GetT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;}
-public ref readonly T8 ReadT8(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data; }
+public void Set(int index, in T8 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T8 GetT8(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
+}
+public ref readonly T8 ReadT8(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).data;
 public bool HasT8(int index) => UnsafeUtility.ReadArrayElement<Component<T8>>(this.regs[8].value, this.indexes[index]).state > 0;
 public long GetVersionT8(int index) => UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]).version;
 public void RemoveT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T9 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[9].value, this.indexes[index], component); }
-public ref T9 GetT9(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;}
-public ref readonly T9 ReadT9(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data; }
+public void Set(int index, in T9 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T9 GetT9(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T9>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
+}
+public ref readonly T9 ReadT9(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).data;
 public bool HasT9(int index) => UnsafeUtility.ReadArrayElement<Component<T9>>(this.regs[9].value, this.indexes[index]).state > 0;
 public long GetVersionT9(int index) => UnsafeUtility.ArrayElementAsRef<Component<T9>>(this.regs[9].value, this.indexes[index]).version;
 public void RemoveT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T10 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[10].value, this.indexes[index], component); }
-public ref T10 GetT10(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;}
-public ref readonly T10 ReadT10(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data; }
+public void Set(int index, in T10 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T10 GetT10(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T10>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
+}
+public ref readonly T10 ReadT10(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).data;
 public bool HasT10(int index) => UnsafeUtility.ReadArrayElement<Component<T10>>(this.regs[10].value, this.indexes[index]).state > 0;
 public long GetVersionT10(int index) => UnsafeUtility.ArrayElementAsRef<Component<T10>>(this.regs[10].value, this.indexes[index]).version;
 public void RemoveT11(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T11 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[11].value, this.indexes[index], component); }
-public ref T11 GetT11(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;}
-public ref readonly T11 ReadT11(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data; }
+public void Set(int index, in T11 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T11 GetT11(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T11>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;
+}
+public ref readonly T11 ReadT11(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).data;
 public bool HasT11(int index) => UnsafeUtility.ReadArrayElement<Component<T11>>(this.regs[11].value, this.indexes[index]).state > 0;
 public long GetVersionT11(int index) => UnsafeUtility.ArrayElementAsRef<Component<T11>>(this.regs[11].value, this.indexes[index]).version;
 public void RemoveT12(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T12 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[12].value, this.indexes[index], component); }
-public ref T12 GetT12(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;}
-public ref readonly T12 ReadT12(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data; }
+public void Set(int index, in T12 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T12 GetT12(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T12>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;
+}
+public ref readonly T12 ReadT12(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).data;
 public bool HasT12(int index) => UnsafeUtility.ReadArrayElement<Component<T12>>(this.regs[12].value, this.indexes[index]).state > 0;
 public long GetVersionT12(int index) => UnsafeUtility.ArrayElementAsRef<Component<T12>>(this.regs[12].value, this.indexes[index]).version;
 public void RemoveT13(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T13 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[13].value, this.indexes[index], component); }
-public ref T13 GetT13(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;}
-public ref readonly T13 ReadT13(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data; }
+public void Set(int index, in T13 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T13 GetT13(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T13>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;
+}
+public ref readonly T13 ReadT13(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).data;
 public bool HasT13(int index) => UnsafeUtility.ReadArrayElement<Component<T13>>(this.regs[13].value, this.indexes[index]).state > 0;
 public long GetVersionT13(int index) => UnsafeUtility.ArrayElementAsRef<Component<T13>>(this.regs[13].value, this.indexes[index]).version;
 public void RemoveT14(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T14 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[14].value, this.indexes[index], component); }
-public ref T14 GetT14(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data;}
-public ref readonly T14 ReadT14(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data; }
+public void Set(int index, in T14 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T14 GetT14(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T14>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data;
+}
+public ref readonly T14 ReadT14(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).data;
 public bool HasT14(int index) => UnsafeUtility.ReadArrayElement<Component<T14>>(this.regs[14].value, this.indexes[index]).state > 0;
 public long GetVersionT14(int index) => UnsafeUtility.ArrayElementAsRef<Component<T14>>(this.regs[14].value, this.indexes[index]).version;
 public void RemoveT15(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T15 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[15].value, this.indexes[index], component); }
-public ref T15 GetT15(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).data;}
-public ref readonly T15 ReadT15(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).data; }
+public void Set(int index, in T15 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T15 GetT15(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T15>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).data;
+}
+public ref readonly T15 ReadT15(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).data;
 public bool HasT15(int index) => UnsafeUtility.ReadArrayElement<Component<T15>>(this.regs[15].value, this.indexes[index]).state > 0;
 public long GetVersionT15(int index) => UnsafeUtility.ArrayElementAsRef<Component<T15>>(this.regs[15].value, this.indexes[index]).version;
 public void RemoveT16(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T16>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T16 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T16>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[16].value, this.indexes[index], component); }
-public ref T16 GetT16(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T16>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]).data;}
-public ref readonly T16 ReadT16(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]).data; }
+public void Set(int index, in T16 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T16>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T16 GetT16(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T16>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]).data;
+}
+public ref readonly T16 ReadT16(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]).data;
 public bool HasT16(int index) => UnsafeUtility.ReadArrayElement<Component<T16>>(this.regs[16].value, this.indexes[index]).state > 0;
 public long GetVersionT16(int index) => UnsafeUtility.ArrayElementAsRef<Component<T16>>(this.regs[16].value, this.indexes[index]).version;
 public void RemoveT17(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T17>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T17 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T17>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[17].value, this.indexes[index], component); }
-public ref T17 GetT17(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T17>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T17>>(this.regs[17].value, this.indexes[index]).data;}
-public ref readonly T17 ReadT17(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T17>>(this.regs[17].value, this.indexes[index]).data; }
+public void Set(int index, in T17 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T17>>(this.regs[17].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T17>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T17 GetT17(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T17>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T17>>(this.regs[17].value, this.indexes[index]).data;
+}
+public ref readonly T17 ReadT17(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T17>>(this.regs[17].value, this.indexes[index]).data;
 public bool HasT17(int index) => UnsafeUtility.ReadArrayElement<Component<T17>>(this.regs[17].value, this.indexes[index]).state > 0;
 public long GetVersionT17(int index) => UnsafeUtility.ArrayElementAsRef<Component<T17>>(this.regs[17].value, this.indexes[index]).version;
 public void RemoveT18(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T18>.burstTypeId.Data, code = 2, }); }
-public void Set(int index, in T18 component) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T18>.burstTypeId.Data, code = 1, }); UnsafeUtility.WriteArrayElement(this.regs[18].value, this.indexes[index], component); }
-public ref T18 GetT18(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T18>.burstTypeId.Data, code = 1, }); return ref UnsafeUtility.ArrayElementAsRef<Component<T18>>(this.regs[18].value, this.indexes[index]).data;}
-public ref readonly T18 ReadT18(int index) { return ref UnsafeUtility.ArrayElementAsRef<Component<T18>>(this.regs[18].value, this.indexes[index]).data; }
+public void Set(int index, in T18 component) {
+    var entityId = this.indexes[index];
+    ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T18>>(this.regs[18].value, this.indexes[index]);
+    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+        this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T18>.burstTypeId.Data, code = 1, });
+        componentData.data = component;
+    }
+}
+public ref T18 GetT18(int index) {
+    this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T18>.burstTypeId.Data, code = 1, });
+    return ref UnsafeUtility.ArrayElementAsRef<Component<T18>>(this.regs[18].value, this.indexes[index]).data;
+}
+public ref readonly T18 ReadT18(int index) => ref UnsafeUtility.ArrayElementAsRef<Component<T18>>(this.regs[18].value, this.indexes[index]).data;
 public bool HasT18(int index) => UnsafeUtility.ReadArrayElement<Component<T18>>(this.regs[18].value, this.indexes[index]).state > 0;
 public long GetVersionT18(int index) => UnsafeUtility.ArrayElementAsRef<Component<T18>>(this.regs[18].value, this.indexes[index]).version;
 

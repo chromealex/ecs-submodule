@@ -29,7 +29,7 @@ namespace ME.ECS {
     public struct EntityVersions {
 
         [ME.ECS.Serializer.SerializeField]
-        private BufferArray<ushort> values;
+        private NativeBufferArray<ushort> values;
         private static ushort defaultValue;
 
         public EntityVersions(int capacity) {
@@ -52,7 +52,7 @@ namespace ME.ECS {
 
         public void Recycle() {
 
-            PoolArray<ushort>.Recycle(ref this.values);
+            PoolArrayNative<ushort>.Recycle(ref this.values);
 
         }
 
@@ -61,7 +61,7 @@ namespace ME.ECS {
         #endif
         public void Validate(int capacity) {
 
-            ArrayUtils.Resize(capacity, ref this.values);
+            NativeArrayUtils.Resize(capacity, ref this.values);
 
         }
 
@@ -71,13 +71,13 @@ namespace ME.ECS {
         public void Validate(in Entity entity) {
 
             var id = entity.id;
-            ArrayUtils.Resize(id, ref this.values, true);
+            NativeArrayUtils.Resize(id, ref this.values, true);
 
         }
 
         public void CopyFrom(EntityVersions other) {
 
-            ArrayUtils.Copy(in other.values, ref this.values);
+            NativeArrayUtils.Copy(in other.values, ref this.values);
 
         }
 
@@ -86,7 +86,7 @@ namespace ME.ECS {
         #endif
         public ref ushort Get(int entityId) {
 
-            return ref this.values.arr[entityId];
+            return ref this.values[entityId];
 
         }
 
@@ -97,7 +97,7 @@ namespace ME.ECS {
 
             var id = entity.id;
             if (id >= this.values.Length) return ref EntityVersions.defaultValue;
-            return ref this.values.arr[id];
+            return ref this.values[id];
 
         }
 
@@ -107,7 +107,7 @@ namespace ME.ECS {
         public void Increment(in Entity entity) {
 
             unchecked {
-                ++this.values.arr[entity.id];
+                ++this.values[entity.id];
             }
 
             #if ENTITY_VERSION_INCREMENT_ACTIONS
@@ -123,7 +123,7 @@ namespace ME.ECS {
         public void Increment(int entityId) {
 
             unchecked {
-                ++this.values.arr[entityId];
+                ++this.values[entityId];
             }
 
             #if ENTITY_VERSION_INCREMENT_ACTIONS
@@ -138,7 +138,7 @@ namespace ME.ECS {
         #endif
         public void Reset(in Entity entity) {
 
-            this.values.arr[entity.id] = default;
+            this.values[entity.id] = default;
 
         }
 
@@ -148,7 +148,7 @@ namespace ME.ECS {
         public void Reset(int entityId) {
 
             this.Validate(entityId);
-            this.values.arr[entityId] = default;
+            this.values[entityId] = default;
 
         }
 
@@ -157,7 +157,7 @@ namespace ME.ECS {
         #endif
         public void Reset(int fromId, int toId) {
 
-            System.Array.Clear(this.values.arr, fromId, toId - fromId);
+            NativeArrayUtils.Clear(this.values, fromId, toId - fromId);
 
         }
 

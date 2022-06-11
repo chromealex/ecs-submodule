@@ -11,6 +11,8 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
     [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
     public int Count => this.Length;
+    public Tick tick;
+    private EntityVersions entityVersions;
     public FilterBag(Filter filter, Unity.Collections.Allocator allocator) {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
@@ -18,6 +20,8 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
+        this.tick = world.GetCurrentTick();
+        this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
         var filterArr = filter.ToList(allocator);
         this.indexes = filterArr;
@@ -37,19 +41,8 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
-    public void BeginForEachIndex(int chunkIndex) {
-        
-        this.componentOps.BeginForEachIndex(chunkIndex);
-        
-    }
-
-    public void EndForEachIndex() {
-        
-        this.componentOps.EndForEachIndex();
-        
-    }
-
+    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -76,9 +69,8 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
-    public int GetEntityId(int index) => this.entities[this.indexes[index]].id;
+    public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
     public void Revert() => this.Dispose();
     private void Dispose() {
