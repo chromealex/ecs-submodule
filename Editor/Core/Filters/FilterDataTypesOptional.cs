@@ -6,8 +6,8 @@ namespace ME.ECSEditor {
     using UnityEngine;
     using UnityEngine.UIElements;
     
-    [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.FilterDataTypes))]
-    public class FilterDataTypesEditor : UnityEditor.PropertyDrawer {
+    [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.FilterDataTypesOptional))]
+    public class FilterDataTypesOptionalEditor : UnityEditor.PropertyDrawer {
 
         private const float headerHeight = 22f;
         private const float miniHeight = 16f;
@@ -15,7 +15,7 @@ namespace ME.ECSEditor {
         private const float editButtonHeight = 40f;
         private const float marginBottom = 10f;
 
-        private Rect DrawArray(UnityEngine.Rect position, SerializedProperty property, string name, ComponentDataTypeAttribute.Type drawType) {
+        private Rect DrawArray(UnityEngine.Rect position, SerializedProperty property, string name, ComponentDataTypeAttribute.Type drawType, string subName = null) {
             
             var list = new System.Collections.Generic.List<System.Type>();
             var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
@@ -27,8 +27,12 @@ namespace ME.ECSEditor {
                 var size = with.arraySize;
                 for (int i = 0; i < size; ++i) {
 
-                    var registry = with.GetArrayElementAtIndex(i);
-                    FilterDataTypesEditor.GetTypeFromManagedReferenceFullTypeName(registry.managedReferenceFullTypename, out var type);
+                    var registryBase = with.GetArrayElementAtIndex(i);
+                    var registry = registryBase;
+                    if (subName != null) {
+                        registry = registry.FindPropertyRelative(subName);
+                    }
+                    FilterDataTypesOptionalEditor.GetTypeFromManagedReferenceFullTypeName(registry.managedReferenceFullTypename, out var type);
 
                     if (type == null) {
 
@@ -40,11 +44,44 @@ namespace ME.ECSEditor {
                     list.Add(type);
                     usedComponents.Add(type);
 
-                    position.height = FilterDataTypesEditor.lineHeight;
+                    position.height = FilterDataTypesOptionalEditor.lineHeight;
 
                     var backRect = EditorGUI.IndentedRect(position);
                     backRect.x -= 8f;
                     backRect.width += 8f;
+                    
+                    var optional = registryBase.FindPropertyRelative("optional");
+                    if (optional != null) {
+
+                        if (Unity.Collections.LowLevel.Unsafe.UnsafeUtility.IsBlittable(type) == true) {
+
+                            const float optionalWidth = 30f;
+                            var labelStyle = new GUIStyle(EditorStyles.miniLabel);
+                            labelStyle.alignment = TextAnchor.MiddleRight;
+                            labelStyle.padding = new RectOffset(0, (int)optionalWidth, 0, 0);
+                            EditorGUI.LabelField(backRect, "Check Data Equals", labelStyle);
+                            var optionalRect = backRect;
+                            optionalRect.x += optionalRect.width - optionalWidth;
+                            optionalRect.width = optionalWidth;
+                            optional.boolValue = EditorGUI.Toggle(optionalRect, optional.boolValue);
+
+                        } else {
+
+                            var labelStyle = new GUIStyle(EditorStyles.miniLabel);
+                            labelStyle.alignment = TextAnchor.MiddleRight;
+                            EditorGUI.LabelField(backRect, new GUIContent("Not Blittable \u24D8", "Type is not blittable, so you cannot use `Check Data Equals` option. Make type blittable to have this option."), labelStyle);
+                            optional.boolValue = false;
+
+                        }
+
+                        if (optional.boolValue == true) {
+                            drawType = ComponentDataTypeAttribute.Type.WithData;
+                        } else {
+                            drawType = ComponentDataTypeAttribute.Type.NoData;
+                        }
+
+                    }
+
                     if (drawType == ComponentDataTypeAttribute.Type.WithData) {
 
                         var copy = registry.Copy();
@@ -59,11 +96,14 @@ namespace ME.ECSEditor {
 
                             } while (copy.NextVisible(false) == true);
                             --EditorGUI.indentLevel;
-                            backRect.height += 4f;
+                            backRect.height += 8f;
                         }
 
                     } else if (drawType == ComponentDataTypeAttribute.Type.NoData) { }
                     EditorGUI.DrawRect(backRect, new Color(0f, 0f, 0f, i % 2 == 0 ? 0.2f : 0.15f));
+                    var separator = backRect;
+                    separator.height = 1f;
+                    EditorGUI.DrawRect(separator, new Color(1f, 1f, 1f, 0.05f));
                     
                     {
                         var componentName = GUILayoutExt.GetStringCamelCaseSpace(type.Name);
@@ -88,6 +128,7 @@ namespace ME.ECSEditor {
 
                             } while (copy.NextVisible(false) == true);
                             --EditorGUI.indentLevel;
+                            position.y += 8f;
                         }
 
                     } else if (drawType == ComponentDataTypeAttribute.Type.NoData) { }
@@ -114,6 +155,9 @@ namespace ME.ECSEditor {
                         list.Add(addType);
                         ++with.arraySize;
                         var item = with.GetArrayElementAtIndex(with.arraySize - 1);
+                        if (subName != null) {
+                            item = item.FindPropertyRelative(subName);
+                        }
                         item.managedReferenceValue = (IComponentBase)System.Activator.CreateInstance(addType);
 
                     }
@@ -122,7 +166,7 @@ namespace ME.ECSEditor {
                 }, showRuntime: true);
             }
 
-            position.y += FilterDataTypesEditor.editButtonHeight;
+            position.y += FilterDataTypesOptionalEditor.editButtonHeight;
             return position;
 
         }
@@ -144,13 +188,13 @@ namespace ME.ECSEditor {
             }
             
             var h = 0f;
-            h += FilterDataTypesEditor.headerHeight;
+            h += FilterDataTypesOptionalEditor.headerHeight;
             
-            h += FilterDataTypesEditor.miniHeight;
-            h += this.GetArrayHeight(property, "with", drawType);
+            h += FilterDataTypesOptionalEditor.miniHeight;
+            h += this.GetArrayHeight(property, "with", drawType, "data");
             h += editButtonHeight;
             
-            h += FilterDataTypesEditor.miniHeight;
+            h += FilterDataTypesOptionalEditor.miniHeight;
             h += this.GetArrayHeight(property, "without", ComponentDataTypeAttribute.Type.NoData);
             h += editButtonHeight;
             
@@ -158,7 +202,7 @@ namespace ME.ECSEditor {
             
         }
 
-        private float GetArrayHeight(SerializedProperty property, string name, ComponentDataTypeAttribute.Type drawType) {
+        private float GetArrayHeight(SerializedProperty property, string name, ComponentDataTypeAttribute.Type drawType, string subName = null) {
 
             var h = 0f;
             var with = property.FindPropertyRelative(name);
@@ -167,9 +211,25 @@ namespace ME.ECSEditor {
                 var size = with.arraySize;
                 for (int i = 0; i < size; ++i) {
 
-                    var registry = with.GetArrayElementAtIndex(i);
+                    var registryBase = with.GetArrayElementAtIndex(i);
+                    var registry = registryBase;
+                    if (subName != null) {
+                        registry = registry.FindPropertyRelative(subName);
+                    }
                     
-                    h += FilterDataTypesEditor.lineHeight;
+                    h += FilterDataTypesOptionalEditor.lineHeight;
+                    
+                    var optional = registryBase.FindPropertyRelative("optional");
+                    if (optional != null) {
+
+                        if (optional.boolValue == true) {
+                            drawType = ComponentDataTypeAttribute.Type.WithData;
+                        } else {
+                            drawType = ComponentDataTypeAttribute.Type.NoData;
+                        }
+
+                    }
+                    
                     if (drawType == ComponentDataTypeAttribute.Type.WithData) {
 
                         var copy = registry.Copy();
@@ -243,14 +303,14 @@ namespace ME.ECSEditor {
             EditorGUI.DrawRect(contentRect, new Color(1f, 1f, 1f, alphaBack));
 
             var backRect = EditorGUI.IndentedRect(position);
-            position.height = FilterDataTypesEditor.headerHeight;
+            position.height = FilterDataTypesOptionalEditor.headerHeight;
             EditorGUI.DrawRect(EditorGUI.IndentedRect(position), new Color(1f, 1f, 1f, alphaBack));
             position.x += 8f;
             position.width -= 8f;
             EditorGUI.LabelField(position, label, EditorStyles.boldLabel);
-            position.y += FilterDataTypesEditor.headerHeight;
+            position.y += FilterDataTypesOptionalEditor.headerHeight;
             
-            position.height = FilterDataTypesEditor.miniHeight;
+            position.height = FilterDataTypesOptionalEditor.miniHeight;
             {
                 backRect.y = position.y;
                 backRect.height = position.height;
@@ -260,10 +320,10 @@ namespace ME.ECSEditor {
                 }
             }
 
-            position.y += FilterDataTypesEditor.miniHeight;
-            position = this.DrawArray(position, property, "with", drawType);
+            position.y += FilterDataTypesOptionalEditor.miniHeight;
+            position = this.DrawArray(position, property, "with", drawType, "data");
             
-            position.height = FilterDataTypesEditor.miniHeight;
+            position.height = FilterDataTypesOptionalEditor.miniHeight;
             {
                 backRect.y = position.y;
                 backRect.height = position.height;
@@ -272,7 +332,7 @@ namespace ME.ECSEditor {
                     EditorGUI.LabelField(position, "Exclude:", EditorStyles.miniLabel);
                 }
             }
-            position.y += FilterDataTypesEditor.miniHeight;
+            position.y += FilterDataTypesOptionalEditor.miniHeight;
             position = this.DrawArray(position, property, "without", ComponentDataTypeAttribute.Type.NoData);
             
         }

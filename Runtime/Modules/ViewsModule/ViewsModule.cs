@@ -441,7 +441,7 @@ namespace ME.ECS.Views {
     /// </summary>
     [ComponentGroup("Views", GroupColor.Magenta, -900)]
     [ComponentOrder(1)]
-    public struct ViewComponent : IComponent {
+    public struct ViewComponent : IComponent, IComponentRuntime {
 
         public ViewInfo viewInfo;
         public uint seed;

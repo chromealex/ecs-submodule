@@ -398,18 +398,20 @@ namespace ME.ECSEditor {
  
 	    }
 
-	    public static void DrawAddComponentMenu(Rect rect, System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool showRuntime) {
+	    public static void DrawAddComponentMenu(Rect rect, System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool showRuntime, string caption = "Edit Components") {
 		    
             GUIStyle style = new GUIStyle(GUI.skin.button);
             style.fontSize = 12;
-            style.fixedWidth = 130f;
-            style.fixedHeight = 23f;
+            style.fixedWidth = 180f;
+            style.fixedHeight = 28f;
 
             var offset = (rect.width - style.fixedWidth) * 0.5f;
+            var h = rect.height;
             rect.width = style.fixedWidth;
             rect.height = style.fixedHeight;
             rect.x += offset;
-            if (GUI.Button(rect, "Edit Components", style)) {
+            rect.y += (h - rect.height) * 0.5f;
+            if (GUI.Button(rect, caption, style)) {
                 
                 rect.y += 26f;
                 rect.x += rect.width;

@@ -92,7 +92,7 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="priority"></param>
-        public void UpdatePriority(T obj, int priority) {
+        public void UpdatePriority(T obj, sfloat priority) {
             var i = 0;
             for (; i <= this.heapSize; i++) {
                 var node = this.queue[i];

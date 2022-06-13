@@ -1,0 +1,20 @@
+{
+    "name": "ME.ECS.Essentials.GOAP",
+    "rootNamespace": "",
+    "references": [
+        "ME.ECS",
+        "ME.ECS.FPMath",
+        "Unity.Collections",
+        "Unity.Burst",
+        "ME.Pools"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

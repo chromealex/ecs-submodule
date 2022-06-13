@@ -1,18 +1,30 @@
 namespace ME.ECS {
 
     using Collections;
+
+    public interface IComponentsBlittable {
+
+        
+
+    }
     
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public partial class StructComponentsBlittable<TComponent> : StructComponentsBase<TComponent> where TComponent : struct, IComponentBase {
+    public partial class StructComponentsBlittable<TComponent> : StructComponentsBase<TComponent>, IComponentsBlittable where TComponent : struct, IComponentBase {
 
         [ME.ECS.Serializer.SerializeField]
         internal NativeBufferArraySliced<Component<TComponent>> components;
         [ME.ECS.Serializer.SerializeField]
         private long maxVersion;
+
+        public override UnsafeData CreateObjectUnsafe(in Entity entity) {
+            
+            return new UnsafeData().SetAsUnmanaged(this.components[entity.id].data);
+
+        }
 
         public override void Recycle() {
             

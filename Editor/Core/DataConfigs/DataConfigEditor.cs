@@ -384,6 +384,7 @@ namespace ME.ECSEditor {
             var it = iterator.Copy();
             var props = new System.Collections.Generic.List<SerializedProperty>();
             do {
+                if (it.depth < depth) continue;
                 props.Add(it.Copy());
             } while (it.NextVisible(false));
 
@@ -420,6 +421,7 @@ namespace ME.ECSEditor {
                 if (string.IsNullOrEmpty(elementPath) == false) {
 
                     iterator = iteratorNext.FindPropertyRelative(elementPath);
+                    if (iterator == null) iterator = iteratorNext;
 
                 } else {
 

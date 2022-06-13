@@ -122,6 +122,10 @@ namespace ME.ECS {
 
         public abstract int GetCustomHash();
 
+        public virtual UnsafeData CreateObjectUnsafe(in Entity entity) {
+            throw new System.Exception("Object must be unmanaged to use CreateObjectUnsafe");
+        }
+
     }
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -668,7 +672,7 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<StructRegistryBase> list;
         [ME.ECS.Serializer.SerializeField]
-        internal EntitiesIndexer entitiesIndexer;
+        public EntitiesIndexer entitiesIndexer;
         [ME.ECS.Serializer.SerializeField]
         private bool isCreated;
 

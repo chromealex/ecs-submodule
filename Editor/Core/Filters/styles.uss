@@ -1,0 +1,7 @@
+.container {
+    flex-direction: row;
+    padding: 10px;
+    justify-content: center;
+    margin-top: 4px;
+    margin-left: -15px;
+}

@@ -20,7 +20,8 @@ namespace ME.ECSEditor {
 
         public readonly static System.Collections.Generic.List<ComponentDataProperty> lastDraw = new System.Collections.Generic.List<ComponentDataProperty>();
 
-        private const float lineHeight = 22f;
+        private const float headerHeight = 22f;
+        private const float lineHeight = 26f;
         private const float editButtonHeight = 40f;
 
         private ComponentDataTypeAttribute GetAttr() {
@@ -40,6 +41,8 @@ namespace ME.ECSEditor {
             }
             
             var h = 0f;
+            h += headerHeight;
+            
             var with = property.FindPropertyRelative("component");
             FilterDataTypesEditor.GetTypeFromManagedReferenceFullTypeName(with.managedReferenceFullTypename, out var type);
             if (type == null) {
@@ -55,7 +58,7 @@ namespace ME.ECSEditor {
                     if (with.NextVisible(with.hasChildren) == true) {
                         do {
 
-                            if (with.depth < initDepth) break;
+                            if (with.depth <= initDepth) break;
                             h += EditorGUI.GetPropertyHeight(with, true);
 
                         } while (with.NextVisible(false) == true);
@@ -74,6 +77,51 @@ namespace ME.ECSEditor {
         public override void OnGUI(UnityEngine.Rect position, SerializedProperty property, UnityEngine.GUIContent label) {
 
             ComponentDataEditor.lastDraw.Clear();
+            
+            const float pixel = 0.5f;
+            const float pixel2 = 1f;
+            const float alpha = 0.1f;
+            const float alphaBack = 0.1f;
+            const float alphaBackContent = 0.15f;
+            
+            var contentRect = EditorGUI.IndentedRect(position);
+            var lineRect = EditorGUI.IndentedRect(position);
+            var lineRectLeft = lineRect;
+            lineRectLeft.width = pixel;
+            lineRectLeft.height -= pixel2;
+            lineRectLeft.y += pixel;
+            var lineRectRight = lineRect;
+            lineRectRight.x += lineRectRight.width;
+            lineRectRight.height -= pixel2;
+            lineRectRight.y += pixel;
+            lineRectRight.width = pixel;
+            var lineRectTop = lineRect;
+            lineRectTop.height = pixel;
+            lineRectTop.width -= pixel2;
+            lineRectTop.x += pixel;
+            var lineRectBottom = lineRect;
+            lineRectBottom.y += lineRectBottom.height;
+            lineRectBottom.height = pixel;
+            lineRectBottom.width -= pixel2;
+            lineRectBottom.x += pixel;
+            EditorGUI.DrawRect(lineRectLeft, new Color(1f, 1f, 1f, alpha));
+            EditorGUI.DrawRect(lineRectRight, new Color(1f, 1f, 1f, alpha));
+            EditorGUI.DrawRect(lineRectTop, new Color(1f, 1f, 1f, alpha));
+            EditorGUI.DrawRect(lineRectBottom, new Color(1f, 1f, 1f, alpha));
+
+            contentRect.x += pixel;
+            contentRect.width -= pixel2;
+            contentRect.y += pixel;
+            contentRect.height -= pixel2;
+            EditorGUI.DrawRect(contentRect, new Color(0f, 0f, 0f, alphaBackContent));
+
+            //var backRect = EditorGUI.IndentedRect(position);
+            position.height = headerHeight;
+            EditorGUI.DrawRect(EditorGUI.IndentedRect(position), new Color(1f, 1f, 1f, alphaBack));
+            position.x += 8f;
+            position.width -= 8f;
+            EditorGUI.LabelField(position, label, EditorStyles.boldLabel);
+            position.y += headerHeight;
             
             var drawType = ComponentDataTypeAttribute.Type.WithData;
             if (this.GetAttr() is ComponentDataTypeAttribute attr) {
@@ -115,9 +163,10 @@ namespace ME.ECSEditor {
                                 //var componentName = GUILayoutExt.GetStringCamelCaseSpace(type.Name);
                                 var initDepth = with.depth;
                                 if (with.NextVisible(with.hasChildren) == true) {
+                                    ++EditorGUI.indentLevel;
                                     do {
 
-                                        if (with.depth < initDepth) break;
+                                        if (with.depth <= initDepth) break;
 
                                         ComponentDataEditor.lastDraw.Add(new ComponentDataProperty() {
                                             position = position,
@@ -135,6 +184,7 @@ namespace ME.ECSEditor {
                                         }
 
                                     } while (with.NextVisible(false) == true);
+                                    --EditorGUI.indentLevel;
                                 }
 
                             }
@@ -164,6 +214,7 @@ namespace ME.ECSEditor {
             }
             {
                 var obj = property.serializedObject;
+                position.height = editButtonHeight;
                 GUILayoutExt.DrawAddComponentMenu(position, usedComponents, (addType, isUsed) => {
                     
                     obj.Update();
@@ -193,7 +244,7 @@ namespace ME.ECSEditor {
                     }
                     obj.ApplyModifiedProperties();
 
-                }, showRuntime: true);
+                }, showRuntime: true, caption: "Change Component");
             }
 
         }

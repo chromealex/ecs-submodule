@@ -23,19 +23,19 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         private BufferArray<HashSetCopyable<int>> data;
 
-        public void Initialize(int capacity) {
+        internal void Initialize(int capacity) {
 
             if (this.data.isCreated == false) this.data = PoolArray<HashSetCopyable<int>>.Spawn(capacity);
 
         }
 
-        public void Validate(int entityId) {
+        internal void Validate(int entityId) {
 
             ArrayUtils.Resize(entityId, ref this.data);
 
         }
 
-        public int GetCount(int entityId) {
+        public readonly int GetCount(int entityId) {
 
             var arr = this.data.arr[entityId];
             if (arr == null) return 0;
@@ -44,7 +44,7 @@ namespace ME.ECS {
 
         }
 
-        public bool Has(int entityId, int componentId) {
+        public readonly bool Has(int entityId, int componentId) {
 
             var arr = this.data.arr[entityId];
             if (arr == null) return false;
@@ -53,13 +53,13 @@ namespace ME.ECS {
 
         }
         
-        public HashSetCopyable<int> Get(int entityId) {
+        public readonly HashSetCopyable<int> Get(int entityId) {
 
             return this.data[entityId];
 
         }
 
-        public void Set(int entityId, int componentId) {
+        internal void Set(int entityId, int componentId) {
 
             ref var item = ref this.data[entityId];
             if (item == null) item = PoolHashSetCopyable<int>.Spawn(64);
@@ -67,27 +67,27 @@ namespace ME.ECS {
 
         }
 
-        public void Remove(int entityId, int componentId) {
+        internal void Remove(int entityId, int componentId) {
             
             ref var item = ref this.data[entityId];
             if (item != null) item.Remove(componentId);
             
         }
 
-        public void RemoveAll(int entityId) {
+        internal void RemoveAll(int entityId) {
             
             ref var item = ref this.data[entityId];
             if (item != null) item.Clear();
             
         }
 
-        public void CopyFrom(in EntitiesIndexer other) {
+        internal void CopyFrom(in EntitiesIndexer other) {
             
             ArrayUtils.Copy(other.data, ref this.data, new CopyItem());
             
         }
 
-        public void Recycle() {
+        internal void Recycle() {
             
             ArrayUtils.Recycle(ref this.data, new CopyItem());
             
