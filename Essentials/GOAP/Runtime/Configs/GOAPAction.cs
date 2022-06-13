@@ -25,6 +25,8 @@ namespace ME.ECS.Essentials.GOAP {
             }
             
         }
+
+        public virtual float GetCost(in Entity agent) => this.cost;
         
         public virtual bool IsDone(in Entity agent) => true;
         

@@ -53,9 +53,18 @@ namespace ME.ECS.Essentials.GOAP.Systems {
                 var plan = Planner.GetPlan(this.world, actions, goal, entity);
                 if (plan.planStatus == PathStatus.Success) {
 
+                    var idx = 0;
+                    var prevPlan = entity.Read<GOAPEntityPrevPlan>();
+                    if (plan.actions[0].data.groupId == prevPlan.groupId &&
+                        plan.actions[0].data.id == prevPlan.nextActionIdx) {
+
+                        ++idx;
+
+                    }
+                    
                     entity.Set(new GOAPEntityPlan() {
-                        groupId = plan.actions[0].data.groupId,
-                        nextActionIdx = plan.actions[0].data.id,
+                        groupId = plan.actions[idx].data.groupId,
+                        nextActionIdx = plan.actions[idx].data.id,
                     });
 
                 }
