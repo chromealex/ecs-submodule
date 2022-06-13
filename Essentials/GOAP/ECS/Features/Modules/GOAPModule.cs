@@ -61,7 +61,7 @@ namespace ME.ECS.Essentials.GOAP.Modules {
 
         }
 
-        public Unity.Collections.NativeArray<Action> GetGroupActions(GOAPGroupId groupId, Unity.Collections.Allocator allocator) {
+        public Unity.Collections.NativeArray<Action> GetGroupActions(in Entity entity, GOAPGroupId groupId, Unity.Collections.Allocator allocator) {
             
             if (this.groupIdToGroup.TryGetValue(groupId, out var group) == true) {
                 
@@ -69,7 +69,7 @@ namespace ME.ECS.Essentials.GOAP.Modules {
                 for (int i = 0; i < group.actions.Length; ++i) {
 
                     var goapAction = group.actions[i];
-                    arr[i] = new Action(groupId, goapAction, allocator);
+                    arr[i] = new Action(entity, groupId, goapAction, allocator);
 
                 }
                 return arr;

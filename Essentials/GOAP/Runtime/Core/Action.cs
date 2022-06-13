@@ -54,11 +54,11 @@ namespace ME.ECS.Essentials.GOAP {
         // For planner
         internal Data data;
 
-        public Action(GOAPGroupId groupId, GOAPAction goapAction, Allocator allocator) {
+        public Action(in Entity agent, GOAPGroupId groupId, GOAPAction goapAction, Allocator allocator) {
             
             this.data = new Data() {
                 groupId = groupId,
-                cost = goapAction.cost,
+                cost = goapAction.GetCost(in agent),
                 preconditions = goapAction.GetPreconditions(allocator),
                 effects = goapAction.GetEffects(allocator),
             };

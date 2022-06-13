@@ -48,7 +48,7 @@ namespace ME.ECS.Essentials.GOAP.Systems {
 
                 }
                 
-                var actions = module.GetGroupActions(entity.Read<GOAPEntityGroup>().groupId, Unity.Collections.Allocator.TempJob);
+                var actions = module.GetGroupActions(in entity, entity.Read<GOAPEntityGroup>().groupId, Unity.Collections.Allocator.TempJob);
                 
                 var plan = Planner.GetPlan(this.world, actions, goal, entity);
                 if (plan.planStatus == PathStatus.Success) {
