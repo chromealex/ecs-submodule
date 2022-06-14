@@ -110,7 +110,7 @@ namespace ME.ECS.Essentials.GOAP {
 
                 for (int j = 0; j < preconditions.hasComponents.Length; ++j) {
 
-                    if (this.hasComponents[i] == preconditions.hasComponents[j]) return true;
+                    if (this.hasComponents[i] == preconditions.hasComponents[j].typeId) return true;
 
                 }
 

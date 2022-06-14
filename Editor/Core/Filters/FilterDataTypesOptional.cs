@@ -36,7 +36,7 @@ namespace ME.ECSEditor {
 
                     if (type == null) {
 
-                        Debug.Log("Not found: " + registry.managedReferenceFullTypename + ", " + registry.managedReferenceFieldTypename);
+                        Debug.LogError("Not found: " + registry.managedReferenceFullTypename + ", " + registry.managedReferenceFieldTypename);
                         continue;
 
                     }
@@ -53,7 +53,9 @@ namespace ME.ECSEditor {
                     var optional = registryBase.FindPropertyRelative("optional");
                     if (optional != null) {
 
-                        if (Unity.Collections.LowLevel.Unsafe.UnsafeUtility.IsBlittable(type) == true) {
+                        var hasFields = type.GetFields().Length > 0;
+
+                        if (hasFields == true && Unity.Collections.LowLevel.Unsafe.UnsafeUtility.IsBlittable(type) == true) {
 
                             const float optionalWidth = 30f;
                             var labelStyle = new GUIStyle(EditorStyles.miniLabel);
@@ -65,11 +67,15 @@ namespace ME.ECSEditor {
                             optionalRect.width = optionalWidth;
                             optional.boolValue = EditorGUI.Toggle(optionalRect, optional.boolValue);
 
-                        } else {
+                        } else if (hasFields == true) {
 
                             var labelStyle = new GUIStyle(EditorStyles.miniLabel);
                             labelStyle.alignment = TextAnchor.MiddleRight;
                             EditorGUI.LabelField(backRect, new GUIContent("Not Blittable \u24D8", "Type is not blittable, so you cannot use `Check Data Equals` option. Make type blittable to have this option."), labelStyle);
+                            optional.boolValue = false;
+
+                        } else {
+                            
                             optional.boolValue = false;
 
                         }
@@ -195,7 +201,7 @@ namespace ME.ECSEditor {
             h += editButtonHeight;
             
             h += FilterDataTypesOptionalEditor.miniHeight;
-            h += this.GetArrayHeight(property, "without", ComponentDataTypeAttribute.Type.NoData);
+            h += this.GetArrayHeight(property, "without", drawType, "data");
             h += editButtonHeight;
             
             return h + marginBottom;
@@ -333,7 +339,7 @@ namespace ME.ECSEditor {
                 }
             }
             position.y += FilterDataTypesOptionalEditor.miniHeight;
-            position = this.DrawArray(position, property, "without", ComponentDataTypeAttribute.Type.NoData);
+            position = this.DrawArray(position, property, "without", drawType, "data");
             
         }
         

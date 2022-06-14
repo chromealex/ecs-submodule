@@ -14,6 +14,7 @@ namespace ME.ECS.Essentials.GOAP {
     public struct Plan {
 
         public PathStatus planStatus;
+        public float cost;
         public BufferArray<Action> actions;
 
         public void Dispose() {

@@ -11,6 +11,7 @@ namespace ME.ECS.Essentials.GOAP {
 
             var plan = new Plan() {
                 planStatus = PathStatus.NotCalculated,
+                cost = 0f,
             };
 
             plan.planStatus = PathStatus.Processing;
@@ -58,6 +59,7 @@ namespace ME.ECS.Essentials.GOAP {
                 }
                 bestPath.actions.Dispose();
 
+                plan.cost = bestPath.cost;
                 plan.planStatus = PathStatus.Success;
 
             } else {
@@ -119,7 +121,8 @@ namespace ME.ECS.Essentials.GOAP {
 
                     var action = this.temp[i];
                     if (action.preconditions.Has(this.entityState) == true &&
-                        action.preconditions.HasData(this.entityStateData) == true) {
+                        action.preconditions.HasData(this.entityStateData) == true &&
+                        action.preconditions.HasNoData(this.entityStateData) == true) {
 
                         // We have found start action
                         var result = Planner.Traverse(bestPath.cost, this.temp, this.goal, action, this.entityState);

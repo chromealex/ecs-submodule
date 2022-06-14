@@ -1084,10 +1084,11 @@ namespace ME.ECS.FiltersArchetype {
                 this.UpdateFilters();
             }
 
-            var onChanged = filter.data.onChanged;
+            var filterStaticData = Worlds.current.GetFilterStaticData(filter.id);
+            var onChanged = filterStaticData.data.onChanged;
             var changedTracked = onChanged.Count;
             
-            var connectedFilters = filter.data.connectedFilters;
+            var connectedFilters = filterStaticData.data.connectedFilters;
             var connectedTracked = connectedFilters.Count;
 
             var count = 0;
@@ -1178,6 +1179,7 @@ namespace ME.ECS.FiltersArchetype {
             if (this.isArchetypesDirty == true) {
 
                 this.isArchetypesDirty = false;
+                var world = Worlds.current;
                 for (int idx = 0, cnt = this.filters.Count; idx < cnt; ++idx) {
                     
                     ref var item = ref this.filters[idx];
@@ -1185,13 +1187,14 @@ namespace ME.ECS.FiltersArchetype {
                         
                         if (item.archetypes.Contains(archId) == true) continue;
                         
+                        var filterStaticData = world.GetFilterStaticData(item.id);
                         ref var arch = ref this.allArchetypes[archId];
-                        if (arch.HasAll(item.data.contains) == true &&
-                            arch.HasNotAll(item.data.notContains) == true &&
-                            arch.HasAnyPair(item.data.anyPair2) == true &&
-                            arch.HasAnyPair(item.data.anyPair3) == true &&
-                            arch.HasAnyPair(item.data.anyPair4) == true &&
-                            FiltersArchetypeStorage.CheckLambdas(in arch, item.data.lambdas) == true) {
+                        if (arch.HasAll(filterStaticData.data.contains) == true &&
+                            arch.HasNotAll(filterStaticData.data.notContains) == true &&
+                            arch.HasAnyPair(filterStaticData.data.anyPair2) == true &&
+                            arch.HasAnyPair(filterStaticData.data.anyPair3) == true &&
+                            arch.HasAnyPair(filterStaticData.data.anyPair4) == true &&
+                            FiltersArchetypeStorage.CheckLambdas(in arch, filterStaticData.data.lambdas) == true) {
 
                             item.archetypes.Add(archId);
                             item.archetypesList.Add(archId);
@@ -1250,19 +1253,21 @@ namespace ME.ECS.FiltersArchetype {
 
             filterData = default;
 
+            var world = Worlds.current;
             for (int i = 0, cnt = this.filters.Count; i < cnt; ++i) {
 
                 var filter = this.filters[i];
-                if (FiltersArchetypeStorage.IsEquals(filter.data.contains, filterBuilder.data.contains) == true &&
-                    FiltersArchetypeStorage.IsEquals(filter.data.notContains, filterBuilder.data.notContains) == true &&
-                    FiltersArchetypeStorage.IsEquals(filter.data.notContainsShared, filterBuilder.data.notContainsShared) == true &&
-                    FiltersArchetypeStorage.IsEquals(filter.data.containsShared, filterBuilder.data.containsShared) == true &&
-                    FiltersArchetypeStorage.IsEquals(filter.data.onChanged, filterBuilder.data.onChanged) == true &&
-                    FiltersArchetypeStorage.IsEquals(filter.data.anyPair2, filterBuilder.data.anyPair2) == true &&
-                    FiltersArchetypeStorage.IsEquals(filter.data.anyPair3, filterBuilder.data.anyPair3) == true &&
-                    FiltersArchetypeStorage.IsEquals(filter.data.anyPair4, filterBuilder.data.anyPair4) == true &&
-                    FiltersArchetypeStorage.IsEquals(filter.data.connectedFilters, filterBuilder.data.connectedFilters) == true &&
-                    FiltersArchetypeStorage.IsEquals(filter.data.lambdas, filterBuilder.data.lambdas) == true) {
+                var filterStaticData = world.GetFilterStaticData(filter.id);
+                if (FiltersArchetypeStorage.IsEquals(filterStaticData.data.contains, filterBuilder.data.contains) == true &&
+                    FiltersArchetypeStorage.IsEquals(filterStaticData.data.notContains, filterBuilder.data.notContains) == true &&
+                    FiltersArchetypeStorage.IsEquals(filterStaticData.data.notContainsShared, filterBuilder.data.notContainsShared) == true &&
+                    FiltersArchetypeStorage.IsEquals(filterStaticData.data.containsShared, filterBuilder.data.containsShared) == true &&
+                    FiltersArchetypeStorage.IsEquals(filterStaticData.data.onChanged, filterBuilder.data.onChanged) == true &&
+                    FiltersArchetypeStorage.IsEquals(filterStaticData.data.anyPair2, filterBuilder.data.anyPair2) == true &&
+                    FiltersArchetypeStorage.IsEquals(filterStaticData.data.anyPair3, filterBuilder.data.anyPair3) == true &&
+                    FiltersArchetypeStorage.IsEquals(filterStaticData.data.anyPair4, filterBuilder.data.anyPair4) == true &&
+                    FiltersArchetypeStorage.IsEquals(filterStaticData.data.connectedFilters, filterBuilder.data.connectedFilters) == true &&
+                    FiltersArchetypeStorage.IsEquals(filterStaticData.data.lambdas, filterBuilder.data.lambdas) == true) {
 
                     filterData = filter;
                     return true;

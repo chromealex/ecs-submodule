@@ -6,7 +6,7 @@ namespace ME.ECS.Essentials.GOAP {
     public class GOAPGroup : ScriptableObject {
 
         public GOAPAction[] actions;
-        public GOAPGoal goal;
+        public GOAPGoal[] goals;
 
         internal void Dispose() {
 

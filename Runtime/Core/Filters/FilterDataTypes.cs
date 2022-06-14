@@ -17,8 +17,7 @@ namespace ME.ECS {
         }
         
         public Optional[] with;
-        [SerializeReference]
-        public IComponentBase[] without;
+        public Optional[] without;
 
         public bool Has(in Entity entity) {
             
@@ -29,7 +28,7 @@ namespace ME.ECS {
             }
             
             foreach (var comp in this.without) {
-                if (ComponentTypesRegistry.allTypeId.TryGetValue(comp.GetType(), out var dataIndex) == true) {
+                if (ComponentTypesRegistry.allTypeId.TryGetValue(comp.data.GetType(), out var dataIndex) == true) {
                     if (Worlds.current.HasDataBit(in entity, dataIndex) == true) return false;
                 }
             }
@@ -47,7 +46,7 @@ namespace ME.ECS {
             }
             
             foreach (var comp in this.without) {
-                if (ComponentTypesRegistry.allTypeId.TryGetValue(comp.GetType(), out var dataIndex) == true) {
+                if (ComponentTypesRegistry.allTypeId.TryGetValue(comp.data.GetType(), out var dataIndex) == true) {
                     Worlds.current.RemoveData(in entity, dataIndex);
                 }
             }

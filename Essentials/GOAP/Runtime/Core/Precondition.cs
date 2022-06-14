@@ -9,20 +9,16 @@ namespace ME.ECS.Essentials.GOAP {
         public FilterDataTypesOptional filter;
 
     }
-    
+
     public struct PreconditionBuilder {
 
-        internal ListCopyable<int> with;
-        internal ListCopyable<int> without;
-        internal ListCopyable<byte> withData;
-        internal ListCopyable<UnsafeData> withDataValues;
+        internal ListCopyable<FilterDataItem> with;
+        internal ListCopyable<FilterDataItem> without;
 
         public PreconditionBuilder With<T>() where T : struct, IComponent {
 
             this.Validate();
-            this.with.Add(AllComponentTypes<T>.typeId);
-            this.withData.Add(0);
-            this.withDataValues.Add(default);
+            this.with.Add(FilterDataItem.Create(AllComponentTypes<T>.typeId, 0, default));
             return this;
 
         }
@@ -30,7 +26,7 @@ namespace ME.ECS.Essentials.GOAP {
         public PreconditionBuilder Without<T>() where T : struct, IComponent {
 
             this.Validate();
-            this.without.Add(AllComponentTypes<T>.typeId);
+            this.without.Add(FilterDataItem.Create(AllComponentTypes<T>.typeId, 0, default));
             return this;
 
         }
@@ -38,10 +34,8 @@ namespace ME.ECS.Essentials.GOAP {
         public Precondition Push(Allocator allocator) {
 
             var result = new Precondition() {
-                hasComponents = new SpanArray<int>(this.with, allocator),
-                hasNoComponents = new SpanArray<int>(this.without, allocator),
-                hasComponentsData = new SpanArray<byte>(this.withData, allocator),
-                hasComponentsDataValues = new SpanArray<UnsafeData>(this.withDataValues, allocator),
+                hasComponents = new SpanArray<FilterDataItem>(this.with, allocator),
+                hasNoComponents = new SpanArray<FilterDataItem>(this.without, allocator),
             };
             this.Dispose();
             return result;
@@ -50,19 +44,15 @@ namespace ME.ECS.Essentials.GOAP {
 
         private void Dispose() {
             
-            if (this.with != null) PoolListCopyable<int>.Recycle(ref this.with);
-            if (this.without != null) PoolListCopyable<int>.Recycle(ref this.without);
-            if (this.withData != null) PoolListCopyable<byte>.Recycle(ref this.withData);
-            if (this.withDataValues != null) PoolListCopyable<UnsafeData>.Recycle(ref this.withDataValues);
+            if (this.with != null) PoolListCopyable<FilterDataItem>.Recycle(ref this.with);
+            if (this.without != null) PoolListCopyable<FilterDataItem>.Recycle(ref this.without);
             
         }
         
         internal PreconditionBuilder Validate() {
 
-            if (this.with == null) this.with = PoolListCopyable<int>.Spawn(10);
-            if (this.without == null) this.without = PoolListCopyable<int>.Spawn(10);
-            if (this.withData == null) this.withData = PoolListCopyable<byte>.Spawn(10);
-            if (this.withDataValues == null) this.withDataValues = PoolListCopyable<UnsafeData>.Spawn(10);
+            if (this.with == null) this.with = PoolListCopyable<FilterDataItem>.Spawn(10);
+            if (this.without == null) this.without = PoolListCopyable<FilterDataItem>.Spawn(10);
             return this;
 
         }
@@ -71,17 +61,13 @@ namespace ME.ECS.Essentials.GOAP {
 
     public struct Precondition {
 
-        internal SpanArray<int> hasComponents;
-        internal SpanArray<int> hasNoComponents;
-        internal SpanArray<byte> hasComponentsData;
-        internal SpanArray<UnsafeData> hasComponentsDataValues;
+        internal SpanArray<FilterDataItem> hasComponents;
+        internal SpanArray<FilterDataItem> hasNoComponents;
 
         public Precondition(Precondition other, Allocator allocator) {
             
-            this.hasComponents = new SpanArray<int>(other.hasComponents, allocator);
-            this.hasNoComponents = new SpanArray<int>(other.hasNoComponents, allocator);
-            this.hasComponentsData = new SpanArray<byte>(other.hasComponentsData, allocator);
-            this.hasComponentsDataValues = SpanArray<UnsafeData>.Copy<UnsafeDataCopy>(other.hasComponentsDataValues, allocator);
+            this.hasComponents = new SpanArray<FilterDataItem>(other.hasComponents, allocator);
+            this.hasNoComponents = new SpanArray<FilterDataItem>(other.hasNoComponents, allocator);
             
         }
         
@@ -94,27 +80,33 @@ namespace ME.ECS.Essentials.GOAP {
                 var type = component.data.GetType();
                 if (ComponentTypesRegistry.allTypeId.TryGetValue(type, out var index) == true) {
 
-                    builder.with.Add(index);
                     var withData = component.optional;
-                    builder.withData.Add((byte)(withData == true ? 1 : 0));
+                    UnsafeData unsafeData = default;
                     if (withData == true) {
                         var obj = new UnsafeData();
                         var setMethod = UnsafeData.setMethodInfo.MakeGenericMethod(type);
-                        obj = (UnsafeData)setMethod.Invoke(obj, new object[] { component.data });
-                        builder.withDataValues.Add(obj);
-                    } else {
-                        builder.withDataValues.Add(default);
+                        unsafeData = (UnsafeData)setMethod.Invoke(obj, new object[] { component.data });
                     }
-
+                    builder.with.Add(FilterDataItem.Create(index, (byte)(withData == true ? 1 : 0), unsafeData));
+                    
                 }
             }
 
-            foreach (var component in data.filter.without) {
+            for (var i = 0; i < data.filter.without.Length; ++i) {
 
-                if (ComponentTypesRegistry.allTypeId.TryGetValue(component.GetType(), out var index) == true) {
+                var component = data.filter.without[i];
+                var type = component.data.GetType();
+                if (ComponentTypesRegistry.allTypeId.TryGetValue(type, out var index) == true) {
 
-                    builder.without.Add(index);
-
+                    var withData = component.optional;
+                    UnsafeData unsafeData = default;
+                    if (withData == true) {
+                        var obj = new UnsafeData();
+                        var setMethod = UnsafeData.setMethodInfo.MakeGenericMethod(type);
+                        unsafeData = (UnsafeData)setMethod.Invoke(obj, new object[] { component.data });
+                    }
+                    builder.without.Add(FilterDataItem.Create(index, (byte)(withData == true ? 1 : 0), unsafeData));
+                    
                 }
 
             }
@@ -131,12 +123,33 @@ namespace ME.ECS.Essentials.GOAP {
 
         internal bool HasData(NativeHashSet<UnsafeData> entityStateData) {
             
-            for (int i = 0; i < this.hasComponentsData.Length; ++i) {
+            for (int i = 0; i < this.hasComponents.Length; ++i) {
 
-                if (this.hasComponentsData[i] == 1) {
+                if (this.hasComponents[i].hasData == 1) {
 
-                    var ptr = this.hasComponentsDataValues[i];
+                    var ptr = this.hasComponents[i].data;
                     if (entityStateData.Contains(ptr) == false) {
+
+                        return false;
+
+                    }
+
+                }
+                
+            }
+
+            return true;
+
+        }
+
+        internal bool HasNoData(NativeHashSet<UnsafeData> entityStateData) {
+            
+            for (int i = 0; i < this.hasNoComponents.Length; ++i) {
+
+                if (this.hasNoComponents[i].hasData == 1) {
+
+                    var ptr = this.hasNoComponents[i].data;
+                    if (entityStateData.Contains(ptr) == true) {
 
                         return false;
 
@@ -155,14 +168,14 @@ namespace ME.ECS.Essentials.GOAP {
             // we need to check if we have all components in hasComponents array in entityState
             for (int i = 0; i < this.hasComponents.Length; ++i) {
 
-                var component = this.hasComponents[i];
+                var component = this.hasComponents[i].typeId;
                 if (entityState.Contains(component) == false) return false;
 
             }
 
             for (int i = 0; i < this.hasNoComponents.Length; ++i) {
 
-                var component = this.hasNoComponents[i];
+                var component = this.hasNoComponents[i].typeId;
                 if (entityState.Contains(component) == true) return false;
 
             }
@@ -194,7 +207,7 @@ namespace ME.ECS.Essentials.GOAP {
             
             for (int i = 0; i < this.hasComponents.Length; ++i) {
 
-                var component = this.hasComponents[i];
+                var component = this.hasComponents[i].typeId;
                 if (entityState.Contains(component) == false &&
                     this.HasInAction(temp, in parentAction, component) == false) {
 
@@ -206,7 +219,7 @@ namespace ME.ECS.Essentials.GOAP {
             
             for (int i = 0; i < this.hasNoComponents.Length; ++i) {
 
-                var component = this.hasNoComponents[i];
+                var component = this.hasNoComponents[i].typeId;
                 if (entityState.Contains(component) == true ||
                     this.HasInAction(temp, in parentAction, component) == true) {
 
@@ -223,8 +236,6 @@ namespace ME.ECS.Essentials.GOAP {
         internal void Dispose() {
             this.hasComponents.Dispose();
             this.hasNoComponents.Dispose();
-            this.hasComponentsData.Dispose();
-            this.hasComponentsDataValues.Dispose();
         }
 
     }

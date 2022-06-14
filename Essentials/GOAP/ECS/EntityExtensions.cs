@@ -24,16 +24,16 @@ namespace ME.ECS.Essentials.GOAP {
 
         public static void SetGOAPGroup(this in Entity entity, GOAPGroupId groupId) {
 
-            var module = Worlds.current.GetModule<GOAPModule>();
+            //var module = Worlds.current.GetModule<GOAPModule>();
             entity.Set(new GOAPEntityGroup() {
                 groupId = groupId,
             });
-            var group = module.GetGroupById(groupId);
-            if (group.goal != null) {
+            /*var group = module.GetGroupById(groupId);
+            if (group.goals != null) {
                 entity.Set(new GOAPEntityGoal() {
                     goal = Goal.Create(group.goal.data),
                 });
-            }
+            }*/
 
         }
 

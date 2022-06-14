@@ -22,6 +22,7 @@ namespace ME.ECS {
 
         public struct Enumerator : IEnumerator<Entity> {
 
+            public FilterStaticData filterStaticData;
             public FilterData filterData;
             public int index;
             public int archIndex;
@@ -35,14 +36,14 @@ namespace ME.ECS {
             #endif
             public bool MoveNext() {
 
-                if (FiltersArchetype.FiltersArchetypeStorage.CheckStaticShared(this.filterData.data.containsShared, this.filterData.data.notContainsShared) == false) {
+                if (FiltersArchetype.FiltersArchetypeStorage.CheckStaticShared(this.filterStaticData.data.containsShared, this.filterStaticData.data.notContainsShared) == false) {
                     return false;
                 }
 
-                var onChanged = this.filterData.data.onChanged;
+                var onChanged = this.filterStaticData.data.onChanged;
                 var changedTracked = onChanged.Count;
                 
-                var connectedFilters = this.filterData.data.connectedFilters;
+                var connectedFilters = this.filterStaticData.data.connectedFilters;
                 var connectedTracked = connectedFilters.Count;
 
                 while (true) {
@@ -198,14 +199,17 @@ namespace ME.ECS {
         #endif
         public Enumerator GetEnumerator() {
 
-            ref var filters = ref Worlds.current.currentState.filters;
+            var world = Worlds.current;
+            ref var filters = ref world.currentState.filters;
             filters.UpdateFilters();
             ++filters.forEachMode;
+            var filterStaticData = world.GetFilterStaticData(this.id);
             var filterData = filters.GetFilter(this.id);
             return new Enumerator() {
                 index = -1,
                 archIndex = 0,
                 filterData = filterData,
+                filterStaticData = filterStaticData,
                 arr = filterData.archetypes.Count > 0 ? filterData.storage.allArchetypes[filterData.archetypesList[0]].entitiesArr : default,
                 archetypes = filterData.archetypesList,
                 allArchetypes = filterData.storage.allArchetypes,
@@ -406,6 +410,12 @@ namespace ME.ECS {
 
     }
 
+    public struct FilterStaticData {
+
+        internal FilterInternalData data;
+
+    }
+
     [Il2Cpp(Option.NullChecks, false)]
     [Il2Cpp(Option.ArrayBoundsChecks, false)]
     [Il2Cpp(Option.DivideByZeroChecks, false)]
@@ -444,8 +454,6 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         public int id;
         [ME.ECS.Serializer.SerializeField]
-        internal FilterInternalData data;
-        [ME.ECS.Serializer.SerializeField]
         internal HashSetCopyable<int> archetypes;
         [ME.ECS.Serializer.SerializeField]
         internal List<int> archetypesList;
@@ -458,7 +466,6 @@ namespace ME.ECS {
         public void CopyFrom(FilterData other) {
 
             this.id = other.id;
-            this.data.CopyFrom(other.data);
             ArrayUtils.Copy(other.archetypes, ref this.archetypes);
             ArrayUtils.Copy(other.archetypesList, ref this.archetypesList);
             this.isAlive = other.isAlive;
@@ -472,7 +479,6 @@ namespace ME.ECS {
 
             this.id = 0;
             this.isAlive = false;
-            this.data.Recycle();
             PoolHashSetCopyable<int>.Recycle(ref this.archetypes);
             PoolList<int>.Recycle(ref this.archetypesList);
 
@@ -488,7 +494,7 @@ namespace ME.ECS {
         internal string ToEditorTypesString() {
 
             var str = string.Empty;
-            foreach (var c in this.data.contains) {
+            foreach (var c in Worlds.current.GetFilterStaticData(this.id).data.contains) {
                 var type = string.Empty;
                 foreach (var t in ComponentTypesRegistry.typeId) {
                     if (t.Value == c) {
@@ -500,7 +506,7 @@ namespace ME.ECS {
                 str += $"W<{type}>";
             }
 
-            foreach (var c in this.data.notContains) {
+            foreach (var c in Worlds.current.GetFilterStaticData(this.id).data.notContains) {
                 var type = string.Empty;
                 foreach (var t in ComponentTypesRegistry.typeId) {
                     if (t.Value == c) {
@@ -519,7 +525,7 @@ namespace ME.ECS {
         public string[] GetAllNames() {
 
             return new string[] {
-                this.data.name,
+                Worlds.current.GetFilterStaticData(this.id).data.name,
             };
 
         }
@@ -752,7 +758,6 @@ namespace ME.ECS {
         
         internal ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage => Worlds.current.currentState.filters;
 
-        [ME.ECS.Serializer.SerializeField]
         internal FilterInternalData data;
 
         public FilterBuilder WithLambda<T, TComponent>() where T : struct, ILambda<TComponent> where TComponent : struct, IStructComponent {
@@ -947,10 +952,10 @@ namespace ME.ECS {
             }
 
             var nextId = this.storage.filters.Count + 1;
+            Worlds.current.SetFilterStaticData(nextId, this.data);
             filterData = new FilterData() {
                 id = nextId,
                 isAlive = true,
-                data = this.data,
                 archetypes = PoolHashSetCopyable<int>.Spawn(),
                 archetypesList = PoolList<int>.Spawn(64),
             };

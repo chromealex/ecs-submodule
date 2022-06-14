@@ -5,6 +5,8 @@ namespace ME.ECS.Essentials.GOAP {
     [CreateAssetMenu(menuName = "ME.ECS/Addons/GOAP/Actions/Default", order = -1)]
     public class GOAPAction : ScriptableObject {
 
+        [Tooltip("Larger cost means longer action")]
+        [Min(0f)]
         public float cost = 1f;
         public PreconditionsData preconditions;
         public EffectsData effects;
