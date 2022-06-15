@@ -38,7 +38,7 @@
 }
 
 .entity-container-item-label {
-    
+
 }
 
 .entity-container-item-value {
@@ -193,7 +193,7 @@
 }
 
 .property-field {
-    -unity-font-style: bold;
+    /*-unity-font-style: bold;*/
     align-self: stretch;
     min-height: 30px;
     justify-content: center;
@@ -220,10 +220,27 @@
     background-color: rgba(255, 255, 255, 0.05);
 }
 
+.element .inner-element.property-field .unity-foldout .unity-foldout {
+    border-color: rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    border-width: 1px;
+    border-top-width: 0px;
+}
+
+.element .inner-element.property-field .unity-foldout .unity-foldout .unity-foldout__toggle {
+    margin: 0px;
+    padding: 4px;
+}
+
+.element .inner-element.property-field .unity-foldout .unity-foldout .unity-foldout__content {
+    padding-top: 6px;
+    margin-left: 16px;
+}
+
 .comment {
     font-size: 10px;
     padding-right: 4px;
-    padding-left: 15px;
+    padding-left: 7px;
     margin-top: -4px;
     margin-bottom: 4px;
     white-space: normal;
@@ -240,4 +257,12 @@
     margin-top: 10px;
     margin-bottom: 10px;
     align-self: center;
+}
+
+.element .inner-element.property-field .unity-imgui-container {
+    margin-top: 6px;
+    padding-bottom: 6px;
+    border-color: rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    border-bottom-width: 1px;
 }

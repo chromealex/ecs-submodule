@@ -532,14 +532,17 @@ namespace ME.ECSEditor {
                 } else {
                     
                     var label = GUILayoutExt.GetStringCamelCaseSpace(type.Name);
+                    #if UNITY_2021_OR_NEWER
+					// Because of a bug with PropertyField label
                     if (iterator.hasVisibleChildren == true) {
 
                         var childs = iterator.Copy();
                         //var height = EditorUtilities.GetPropertyHeight(childs, true, new GUIContent(label));
                         var cnt = EditorUtilities.GetPropertyChildCount(childs);
-                        if (cnt == 1 /*&& height <= 22f*/) iterator.NextVisible(true);
+                        if (cnt == 1) iterator.NextVisible(true);
 
                     }
+                    #endif
 
                     var propertyField = new PropertyField(iterator.Copy(), label);
                     propertyField.BindProperty(iterator);

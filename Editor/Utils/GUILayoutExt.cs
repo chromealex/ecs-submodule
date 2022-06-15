@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.CodeDom.Compiler;
 using ME.ECS.Mathematics;
+using System.Text.RegularExpressions;
 
 namespace ME.ECSEditor {
     
@@ -1484,7 +1485,15 @@ namespace ME.ECSEditor {
         public static string GetStringCamelCaseSpace(string caption) {
 
 	        if (string.IsNullOrEmpty(caption) == true) return string.Empty;
-	        var str = System.Text.RegularExpressions.Regex.Replace(caption, "[A-Z]", " $0").Trim();
+	        var str = Regex.Replace( 
+		        Regex.Replace( 
+			        caption, 
+			        @"(\P{Ll})(\P{Ll}\p{Ll})", 
+			        "$1 $2" 
+		        ), 
+		        @"(\p{Ll})(\P{Ll})", 
+		        "$1 $2" 
+	        ).Trim();
 	        return char.ToUpper(str[0]) + str.Substring(1);
 
         }
