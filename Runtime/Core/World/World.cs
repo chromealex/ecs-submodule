@@ -1285,8 +1285,14 @@ namespace ME.ECS {
             if (this.currentState != null && this.currentState != state) WorldUtilities.ReleaseState<TState>(ref this.currentState);
             this.currentState = state;
             state.Initialize(this, freeze: false, restore: true);
-            
-            this.structComponentsNoState.SetEntityCapacity(state.storage.AliveCount + state.storage.DeadCount);
+
+            if (state.storage.nextEntityId > 0) {
+                this.structComponentsNoState.SetEntityCapacity(state.storage.nextEntityId);
+                ComponentsInitializerWorld.Init(state.storage.cache[state.storage.nextEntityId - 1]);
+            } else {
+                this.structComponentsNoState.SetEntityCapacity(state.storage.AliveCount + state.storage.DeadCount);
+            }
+
             this.structComponentsNoState.Merge();
 
         }

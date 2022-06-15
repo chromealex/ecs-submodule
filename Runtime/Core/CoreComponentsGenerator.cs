@@ -11,8 +11,11 @@ namespace ME.ECS {
             WorldUtilities.InitComponentTypeId<IsEntityOneShot>(true, isOneShot: true);
             WorldUtilities.InitComponentTypeId<IsEntityEmptyOneShot>(true, isOneShot: true);
             WorldUtilities.InitComponentTypeId<ME.ECS.Views.ViewComponent>(false, isBlittable: true);
+            WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveData>(false, isBlittable: true);
+            WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveSortedListData>(false, isBlittable: true);
             WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveListNode>(false, isBlittable: true);
             WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveHashSetBucket>(false, isBlittable: true);
+            WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveHashSetData>(false, isBlittable: true);
             
             ME.ECS.DataConfigs.DataConfig.InitTypeId();
             TransformComponentsInitializer.InitTypeId();
@@ -27,8 +30,11 @@ namespace ME.ECS {
             noStateStructComponentsContainer.Validate<IsEntityOneShot>(true);
             noStateStructComponentsContainer.Validate<IsEntityEmptyOneShot>(true);
             structComponentsContainer.ValidateBlittable<ME.ECS.Views.ViewComponent>(false);
+            structComponentsContainer.ValidateBlittable<ME.ECS.Collections.IntrusiveData>(false);
+            structComponentsContainer.ValidateBlittable<ME.ECS.Collections.IntrusiveSortedListData>(false);
             structComponentsContainer.ValidateBlittable<ME.ECS.Collections.IntrusiveListNode>(false);
             structComponentsContainer.ValidateBlittable<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
+            structComponentsContainer.ValidateBlittable<ME.ECS.Collections.IntrusiveHashSetData>(false);
 
             ME.ECS.DataConfigs.DataConfig.Init(ref structComponentsContainer);
             TransformComponentsInitializer.Init(ref structComponentsContainer);

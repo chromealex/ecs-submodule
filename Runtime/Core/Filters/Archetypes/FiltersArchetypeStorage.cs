@@ -507,7 +507,7 @@ namespace ME.ECS.FiltersArchetype {
         [ME.ECS.Serializer.SerializeField]
         private int aliveCount;
         [ME.ECS.Serializer.SerializeField]
-        private int nextEntityId;
+        internal int nextEntityId;
         [ME.ECS.Serializer.SerializeField]
         internal bool isCreated;
 
