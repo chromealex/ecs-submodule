@@ -9,6 +9,12 @@ namespace ME.ECS {
     }
     
     public interface ILoadableSync {}
+
+    public interface ISystemConstructLate {
+
+        void OnConstructLate();
+
+    }
     
     public interface ISystemBase : IContext {
         
