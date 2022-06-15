@@ -3,149 +3,206 @@ namespace ME.ECSEditor {
 
     using ME.ECS;
     using UnityEditor;
-    using UnityEngine;
     using UnityEngine.UIElements;
+    using UnityEditor.UIElements;
+    using System.Collections.Generic;
     
     [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.FilterDataTypesOptional))]
     public class FilterDataTypesOptionalEditor : UnityEditor.PropertyDrawer {
 
-        private const float headerHeight = 22f;
-        private const float miniHeight = 16f;
-        private const float lineHeight = 26f;
-        private const float editButtonHeight = 40f;
-        private const float marginBottom = 10f;
+        private ComponentDataTypeAttribute GetAttr() {
 
-        private Rect DrawArray(UnityEngine.Rect position, SerializedProperty property, string name, ComponentDataTypeAttribute.Type drawType, string subName = null) {
-            
-            var list = new System.Collections.Generic.List<System.Type>();
-            var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
+            var attrs = this.fieldInfo.GetCustomAttributes(typeof(ComponentDataTypeAttribute), true);
+            return (attrs.Length == 1 ? (ComponentDataTypeAttribute)attrs[0] : null);
+
+        }
+
+        public virtual ComponentDataTypeAttribute.Type GetDefaultDrawType() {
+
+            return ComponentDataTypeAttribute.Type.WithData;
+
+        }
+
+        public virtual string GetSubName() {
+
+            return "data";
+
+        }
+
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
+
+            var attr = this.GetAttr();
+            var drawType = this.GetDefaultDrawType();
+            if (attr != null) {
+
+                drawType = attr.type;
+
+            }
+
+            var container = new VisualElement();
+            container.styleSheets.Add(EditorUtilities.Load<StyleSheet>("Editor/Core/Filters/styles.uss", isRequired: true));
+            container.AddToClassList("filter-data-container");
+            var header = new Label(property.displayName);
+            header.AddToClassList("header");
+            container.Add(header);
+
+            var contentContainer = new VisualElement();
+            contentContainer.AddToClassList("content");
             {
-                //var backStyle = new GUIStyle(EditorStyles.label);
-                //backStyle.normal.background = Texture2D.whiteTexture;
-                
-                var with = property.FindPropertyRelative(name);
-                var size = with.arraySize;
-                for (int i = 0; i < size; ++i) {
-
-                    var registryBase = with.GetArrayElementAtIndex(i);
-                    var registry = registryBase;
-                    if (subName != null) {
-                        registry = registry.FindPropertyRelative(subName);
-                    }
-                    FilterDataTypesOptionalEditor.GetTypeFromManagedReferenceFullTypeName(registry.managedReferenceFullTypename, out var type);
-
-                    if (type == null) {
-
-                        Debug.LogError("Not found: " + registry.managedReferenceFullTypename + ", " + registry.managedReferenceFieldTypename);
-                        continue;
-
-                    }
-                    
-                    list.Add(type);
-                    usedComponents.Add(type);
-
-                    position.height = FilterDataTypesOptionalEditor.lineHeight;
-
-                    var backRect = EditorGUI.IndentedRect(position);
-                    backRect.x -= 8f;
-                    backRect.width += 8f;
-                    
-                    var optional = registryBase.FindPropertyRelative("optional");
-                    if (optional != null) {
-
-                        var hasFields = type.GetFields().Length > 0;
-
-                        if (hasFields == true && Unity.Collections.LowLevel.Unsafe.UnsafeUtility.IsBlittable(type) == true) {
-
-                            const float optionalWidth = 30f;
-                            var labelStyle = new GUIStyle(EditorStyles.miniLabel);
-                            labelStyle.alignment = TextAnchor.MiddleRight;
-                            labelStyle.padding = new RectOffset(0, (int)optionalWidth, 0, 0);
-                            EditorGUI.LabelField(backRect, "Check Data Equals", labelStyle);
-                            var optionalRect = backRect;
-                            optionalRect.x += optionalRect.width - optionalWidth;
-                            optionalRect.width = optionalWidth;
-                            optional.boolValue = EditorGUI.Toggle(optionalRect, optional.boolValue);
-
-                        } else if (hasFields == true) {
-
-                            var labelStyle = new GUIStyle(EditorStyles.miniLabel);
-                            labelStyle.alignment = TextAnchor.MiddleRight;
-                            EditorGUI.LabelField(backRect, new GUIContent("Not Blittable \u24D8", "Type is not blittable, so you cannot use `Check Data Equals` option. Make type blittable to have this option."), labelStyle);
-                            optional.boolValue = false;
-
-                        } else {
-                            
-                            optional.boolValue = false;
-
-                        }
-
-                        if (optional.boolValue == true) {
-                            drawType = ComponentDataTypeAttribute.Type.WithData;
-                        } else {
-                            drawType = ComponentDataTypeAttribute.Type.NoData;
-                        }
-
-                    }
-
-                    if (drawType == ComponentDataTypeAttribute.Type.WithData) {
-
-                        var copy = registry.Copy();
-                        var initDepth = copy.depth;
-                        if (copy.NextVisible(copy.hasChildren) == true) {
-                            ++EditorGUI.indentLevel;
-                            do {
-
-                                if (copy.depth <= initDepth) break;
-                                var h = EditorGUI.GetPropertyHeight(copy, true);
-                                backRect.height += h;
-
-                            } while (copy.NextVisible(false) == true);
-                            --EditorGUI.indentLevel;
-                            backRect.height += 8f;
-                        }
-
-                    } else if (drawType == ComponentDataTypeAttribute.Type.NoData) { }
-                    EditorGUI.DrawRect(backRect, new Color(0f, 0f, 0f, i % 2 == 0 ? 0.2f : 0.15f));
-                    var separator = backRect;
-                    separator.height = 1f;
-                    EditorGUI.DrawRect(separator, new Color(1f, 1f, 1f, 0.05f));
-                    
-                    {
-                        var componentName = GUILayoutExt.GetStringCamelCaseSpace(type.Name);
-                        EditorGUI.LabelField(position, componentName, EditorStyles.boldLabel);
-                    }
-
-                    position.y += lineHeight;
-
-                    if (drawType == ComponentDataTypeAttribute.Type.WithData) {
-
-                        var copy = registry.Copy();
-                        var initDepth = copy.depth;
-                        if (copy.NextVisible(copy.hasChildren) == true) {
-                            ++EditorGUI.indentLevel;
-                            do {
-
-                                if (copy.depth <= initDepth) break;
-                                var h = EditorGUI.GetPropertyHeight(copy, true);
-                                position.height = h;
-                                EditorGUI.PropertyField(position, copy, true);
-                                position.y += h;
-
-                            } while (copy.NextVisible(false) == true);
-                            --EditorGUI.indentLevel;
-                            position.y += 8f;
-                        }
-
-                    } else if (drawType == ComponentDataTypeAttribute.Type.NoData) { }
-
-                }
+                var list = new List<System.Type>();
+                var usedComponents = new HashSet<System.Type>();
+                var content = new VisualElement();
+                content.AddToClassList("content-include");
+                this.Redraw("Include:", "with", this.GetSubName(), content, property, usedComponents, list, drawType);
+                contentContainer.Add(content);
             }
             {
-                var obj = property.serializedObject;
-                position.height = editButtonHeight;
-                GUILayoutExt.DrawAddComponentMenu(position, usedComponents, (addType, isUsed) => {
+                var list = new List<System.Type>();
+                var usedComponents = new HashSet<System.Type>();
+                var content = new VisualElement();
+                content.AddToClassList("content-exclude");
+                this.Redraw("Exclude:", "without", this.GetSubName(), content, property, usedComponents, list, drawType);
+                contentContainer.Add(content);
+            }
+            container.Add(contentContainer);
+
+            return container;
+
+        }
+        
+        private void Redraw(string caption, string name, string subName, VisualElement container, SerializedProperty property, HashSet<System.Type> usedComponents, List<System.Type> list, ComponentDataTypeAttribute.Type drawType) {
+
+            container.Clear();
+
+            var captionLabel = new Label(caption);
+            captionLabel.AddToClassList("caption-header");
+            captionLabel.AddToClassList("caption-header-" + name);
+            container.Add(captionLabel);
+            
+            var compType = typeof(IComponentBase);
+
+            var subProperty = property.FindPropertyRelative(name);
+            var size = subProperty.arraySize;
+            for (int i = 0; i < size; ++i) {
+
+                var registryBase = subProperty.GetArrayElementAtIndex(i);
+                var registry = registryBase;
+                if (subName != null) {
+                    registry = registry.FindPropertyRelative(subName);
+                }
+
+                FilterDataTypesEditor.GetTypeFromManagedReferenceFullTypeName(registry.managedReferenceFullTypename, out var type);
+
+                var dataContainer = new VisualElement();
+                dataContainer.AddToClassList("data-container");
+                dataContainer.AddToClassList(i % 2 == 0 ? "odd" : "even");
+
+                var hor = new VisualElement();
+                hor.AddToClassList("data-container-layout");
+                dataContainer.Add(hor);
+                
+                var optional = registryBase.FindPropertyRelative("optional");
+                if (optional != null) {
+
+                    var hasFields = type.GetFields().Length > 0;
+
+                    if (hasFields == true && Unity.Collections.LowLevel.Unsafe.UnsafeUtility.IsBlittable(type) == true) {
+
+                        var obj = property.serializedObject;
+                        var toggle = new Toggle("Check Data Equals");
+                        toggle.AddToClassList("toggle-equals");
+                        toggle.value = optional.boolValue;
+                        toggle.RegisterValueChangedCallback(evt => {
+                            obj.Update();
+                            var prop = obj.FindProperty(property.propertyPath);
+                            optional.boolValue = evt.newValue;
+                            obj.ApplyModifiedProperties();
+                            this.Redraw(caption, name, subName, container, prop, usedComponents, list, drawType);
+                        });
+                        hor.Add(toggle);
+                        
+                    } else if (hasFields == true) {
+
+                        var label = new Label("Not Blittable \u24D8");
+                        label.AddToClassList("toggle-equals");
+                        label.tooltip = "Type is not blittable, so you cannot use `Check Data Equals` option. Make type blittable to have this option.";
+                        hor.Add(label);
+                        optional.boolValue = false;
+
+                    } else {
+                            
+                        optional.boolValue = false;
+
+                    }
+
+                    if (optional.boolValue == true) {
+                        drawType = ComponentDataTypeAttribute.Type.WithData;
+                    } else {
+                        drawType = ComponentDataTypeAttribute.Type.NoData;
+                    }
                     
+                }
+                
+                if (type != null) {
+
+                    usedComponents.Add(type);
+
+                    {
+                        var label = GUILayoutExt.GetStringCamelCaseSpace(type.Name);
+                        var noDataLabel = new Label(label);
+                        noDataLabel.AddToClassList("data-label");
+                        hor.Add(noDataLabel);
+                    }
+
+                    if (drawType == ComponentDataTypeAttribute.Type.WithData) {
+
+                        var copy = registry.Copy();
+                        var initDepth = copy.depth;
+                        if (copy.NextVisible(copy.hasChildren) == true) {
+                            do {
+
+                                if (copy.depth <= initDepth) break;
+                                var prop = new PropertyField(copy);
+                                prop.AddToClassList("data");
+                                prop.Bind(registry.serializedObject);
+                                prop.RegisterValueChangeCallback((changed) => {
+
+                                    var obj = changed.changedProperty.serializedObject;
+                                    if (obj.targetObject is IValidateEditor validateEditor) {
+
+                                        obj.ApplyModifiedProperties();
+                                        obj.Update();
+                                        validateEditor.OnValidateEditor();
+                                        EditorUtility.SetDirty(obj.targetObject);
+                                        obj.ApplyModifiedProperties();
+                                        obj.Update();
+
+                                    }
+
+                                });
+                                dataContainer.Add(prop);
+
+                            } while (copy.NextVisible(false) == true);
+                        }
+                        
+                    }
+
+                } else {
+
+                    var noDataLabel = new Label("Unknown is missing.");
+                    noDataLabel.AddToClassList("no-data-label");
+                    hor.Add(noDataLabel);
+                    
+                }
+                
+                container.Add(dataContainer);
+
+            }
+
+            {
+                var obj = property.serializedObject;
+                var button = GUILayoutExt.DrawAddComponentMenu(container, usedComponents, (addType, isUsed) => {
+
                     obj.Update();
                     var prop = obj.FindProperty(property.propertyPath);
                     var with = prop.FindPropertyRelative(name);
@@ -164,198 +221,30 @@ namespace ME.ECSEditor {
                         if (subName != null) {
                             item = item.FindPropertyRelative(subName);
                         }
+
                         item.managedReferenceValue = (IComponentBase)System.Activator.CreateInstance(addType);
 
                     }
+
+                    if (obj.targetObject is IValidateEditor validateEditor) {
+
+                        obj.ApplyModifiedProperties();
+                        obj.Update();
+                        validateEditor.OnValidateEditor();
+                        EditorUtility.SetDirty(obj.targetObject);
+                        obj.ApplyModifiedProperties();
+                        obj.Update();
+
+                    }
+
                     obj.ApplyModifiedProperties();
 
-                }, showRuntime: true);
+                    this.Redraw(caption, name, subName, container, prop, usedComponents, list, drawType);
+
+                }, showRuntime: true, caption: "Edit Components", where: (type) => { return compType.IsAssignableFrom(type); });
+                container.Add(button);
             }
 
-            position.y += FilterDataTypesOptionalEditor.editButtonHeight;
-            return position;
-
-        }
-        
-        private ComponentDataTypeAttribute GetAttr() {
-
-            var attrs = this.fieldInfo.GetCustomAttributes(typeof(ComponentDataTypeAttribute), true);
-            return (attrs.Length == 1 ? (ComponentDataTypeAttribute)attrs[0] : null);
-
-        }
-
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
-
-            var drawType = ComponentDataTypeAttribute.Type.NoData;
-            if (this.GetAttr() is ComponentDataTypeAttribute attr) {
-
-                drawType = attr.type;
-
-            }
-            
-            var h = 0f;
-            h += FilterDataTypesOptionalEditor.headerHeight;
-            
-            h += FilterDataTypesOptionalEditor.miniHeight;
-            h += this.GetArrayHeight(property, "with", drawType, "data");
-            h += editButtonHeight;
-            
-            h += FilterDataTypesOptionalEditor.miniHeight;
-            h += this.GetArrayHeight(property, "without", drawType, "data");
-            h += editButtonHeight;
-            
-            return h + marginBottom;
-            
-        }
-
-        private float GetArrayHeight(SerializedProperty property, string name, ComponentDataTypeAttribute.Type drawType, string subName = null) {
-
-            var h = 0f;
-            var with = property.FindPropertyRelative(name);
-            if (with != null && with.isArray == true) {
-
-                var size = with.arraySize;
-                for (int i = 0; i < size; ++i) {
-
-                    var registryBase = with.GetArrayElementAtIndex(i);
-                    var registry = registryBase;
-                    if (subName != null) {
-                        registry = registry.FindPropertyRelative(subName);
-                    }
-                    
-                    h += FilterDataTypesOptionalEditor.lineHeight;
-                    
-                    var optional = registryBase.FindPropertyRelative("optional");
-                    if (optional != null) {
-
-                        if (optional.boolValue == true) {
-                            drawType = ComponentDataTypeAttribute.Type.WithData;
-                        } else {
-                            drawType = ComponentDataTypeAttribute.Type.NoData;
-                        }
-
-                    }
-                    
-                    if (drawType == ComponentDataTypeAttribute.Type.WithData) {
-
-                        var copy = registry.Copy();
-                        var initDepth = copy.depth;
-                        if (copy.NextVisible(copy.hasChildren) == true) {
-                            do {
-
-                                if (copy.depth <= initDepth) break;
-                                h += EditorGUI.GetPropertyHeight(copy, true);
-
-                            } while (copy.NextVisible(false) == true);
-
-                            h += 8f;
-                        }
-
-                    } else if (drawType == ComponentDataTypeAttribute.Type.NoData) { }
-
-                }
-
-            }
-
-            return h;
-
-        }
-
-        public override void OnGUI(UnityEngine.Rect position, SerializedProperty property, UnityEngine.GUIContent label) {
-
-            position.height -= marginBottom;
-            
-            var drawType = ComponentDataTypeAttribute.Type.NoData;
-            if (this.GetAttr() is ComponentDataTypeAttribute attr) {
-
-                drawType = attr.type;
-
-            }
-
-            const float pixel = 0.5f;
-            const float pixel2 = 1f;
-            const float alpha = 0.1f;
-            const float alphaBack = 0.02f;
-            
-            var contentRect = EditorGUI.IndentedRect(position);
-            var lineRect = EditorGUI.IndentedRect(position);
-            var lineRectLeft = lineRect;
-            lineRectLeft.width = pixel;
-            lineRectLeft.height -= pixel2;
-            lineRectLeft.y += pixel;
-            var lineRectRight = lineRect;
-            lineRectRight.x += lineRectRight.width;
-            lineRectRight.height -= pixel2;
-            lineRectRight.y += pixel;
-            lineRectRight.width = pixel;
-            var lineRectTop = lineRect;
-            lineRectTop.height = pixel;
-            lineRectTop.width -= pixel2;
-            lineRectTop.x += pixel;
-            var lineRectBottom = lineRect;
-            lineRectBottom.y += lineRectBottom.height;
-            lineRectBottom.height = pixel;
-            lineRectBottom.width -= pixel2;
-            lineRectBottom.x += pixel;
-            EditorGUI.DrawRect(lineRectLeft, new Color(1f, 1f, 1f, alpha));
-            EditorGUI.DrawRect(lineRectRight, new Color(1f, 1f, 1f, alpha));
-            EditorGUI.DrawRect(lineRectTop, new Color(1f, 1f, 1f, alpha));
-            EditorGUI.DrawRect(lineRectBottom, new Color(1f, 1f, 1f, alpha));
-
-            contentRect.x += pixel;
-            contentRect.width -= pixel2;
-            contentRect.y += pixel;
-            contentRect.height -= pixel2;
-            EditorGUI.DrawRect(contentRect, new Color(1f, 1f, 1f, alphaBack));
-
-            var backRect = EditorGUI.IndentedRect(position);
-            position.height = FilterDataTypesOptionalEditor.headerHeight;
-            EditorGUI.DrawRect(EditorGUI.IndentedRect(position), new Color(1f, 1f, 1f, alphaBack));
-            position.x += 8f;
-            position.width -= 8f;
-            EditorGUI.LabelField(position, label, EditorStyles.boldLabel);
-            position.y += FilterDataTypesOptionalEditor.headerHeight;
-            
-            position.height = FilterDataTypesOptionalEditor.miniHeight;
-            {
-                backRect.y = position.y;
-                backRect.height = position.height;
-                EditorGUI.DrawRect(backRect, new Color(0f, 0f, 0f, 0.1f));
-                using (new GUILayoutExt.GUIColorUsing(new Color(1f, 1f, 1f, 0.5f))) {
-                    EditorGUI.LabelField(position, "Include:", EditorStyles.miniLabel);
-                }
-            }
-
-            position.y += FilterDataTypesOptionalEditor.miniHeight;
-            position = this.DrawArray(position, property, "with", drawType, "data");
-            
-            position.height = FilterDataTypesOptionalEditor.miniHeight;
-            {
-                backRect.y = position.y;
-                backRect.height = position.height;
-                EditorGUI.DrawRect(backRect, new Color(0f, 0f, 0f, 0.1f));
-                using (new GUILayoutExt.GUIColorUsing(new Color(1f, 1f, 1f, 0.5f))) {
-                    EditorGUI.LabelField(position, "Exclude:", EditorStyles.miniLabel);
-                }
-            }
-            position.y += FilterDataTypesOptionalEditor.miniHeight;
-            position = this.DrawArray(position, property, "without", drawType, "data");
-            
-        }
-        
-        internal static bool GetTypeFromManagedReferenceFullTypeName(string managedReferenceFullTypename, out System.Type managedReferenceInstanceType)
-        {
-            managedReferenceInstanceType = null;
-
-            var parts = managedReferenceFullTypename.Split(' ');
-            if (parts.Length == 2)
-            {
-                var assemblyPart = parts[0];
-                var nsClassnamePart = parts[1];
-                managedReferenceInstanceType = System.Type.GetType($"{nsClassnamePart}, {assemblyPart}");
-            }
-
-            return managedReferenceInstanceType != null;
         }
 
     }

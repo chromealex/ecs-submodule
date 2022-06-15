@@ -11,7 +11,7 @@ namespace ME.ECS.Essentials.GOAP {
 
     public interface ISetTarget : IComponent {
 
-        void SetTarget(float3 pos);
+        void SetTarget(in Entity target);
 
     }
     
@@ -41,7 +41,7 @@ namespace ME.ECS.Essentials.GOAP {
             if (obj.IsAlive() == true) {
                 
                 var comp = this.moveComponent.component;
-                comp.SetTarget(obj.GetPosition());
+                comp.SetTarget(in obj);
                 this.moveComponent.Apply(in agent);
                 
             }

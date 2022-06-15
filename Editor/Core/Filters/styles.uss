@@ -1,7 +1,183 @@
-.container {
+/*
+    Common
+ */
+
+.add-component-button {
+    border-radius: 5px;
+    height: 28px;
+    width: 230px;
+    align-self: center;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    background-color: #444;
+}
+
+/*
+    ComponentData, ComponentData<T>
+ */
+
+.component-data-container {
+    border-radius: 5px;
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.component-data-container .header {
+    -unity-font-style: bold;
+    padding: 5px 10px 5px 10px;
+}
+
+.component-data-container .content {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+.component-data-container .data-label {
+    margin: 10px;
+    -unity-font-style: bold;
+}
+
+.component-data-container .data {
+    margin: 10px;
+    -unity-font-style: bold;
+}
+
+.component-data-container .no-data-label {
+    margin: 10px;
+    margin-bottom: 2px;
+}
+
+.component-data-container .no-data-type-container {
+    margin: 10px;
+    margin-top: 2px;
     flex-direction: row;
-    padding: 10px;
-    justify-content: center;
-    margin-top: 4px;
-    margin-left: -15px;
+}
+
+.component-data-container .no-data-type-required-label {
+    align-self: flex-start;
+}
+
+.component-data-container .no-data-type-required {
+    align-self: flex-start;
+    color: coral;
+}
+
+.component-data-container .button-container {
+    margin: 10px;
+    margin-top: 2px;
+}
+
+/*
+    FilterDataTypes, FilterDataTypesOptional
+ */
+.filter-data-container {
+    border-radius: 5px;
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.05);
+    margin-bottom: 4px;
+}
+
+.filter-data-container .content {
+    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.filter-data-container .header {
+    -unity-font-style: bold;
+    padding: 5px 10px 5px 10px;
+}
+
+.filter-data-container .caption-header {
+    -unity-font-style: bold;
+    font-size: 8px;
+    padding: 3px 10px 3px 10px;
+    color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(0, 0, 0, 0.2);
+    border-top-width: 1px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.filter-data-container .caption-header-with {
+    background-color: rgba(0, 255, 0, 0.02);
+}
+.filter-data-container .caption-header-without {
+    background-color: rgba(255, 0, 0, 0.02);
+}
+
+.filter-data-container .data-container {
+    border-width: 1px;
+    border-radius: 5px;
+    border-color: rgba(0, 0, 0, 0.1);
+}
+.filter-data-container .data-container-layout {
+    flex-direction: row-reverse;
+    align-items: flex-start;
+    align-self: stretch;
+}
+.filter-data-container .data-container.even {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+.filter-data-container .data-container.odd {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.filter-data-container .toggle-equals {
+    -unity-font-style: bold;
+    font-size: 8px;
+    margin-right: 6px;
+    align-self: stretch;
+    -unity-text-align: middle-right;
+}
+
+.filter-data-container .toggle-equals Label {
+    min-width: 50px;
+    -unity-text-align: middle-right;
+}
+
+.filter-data-container .data-label {
+    padding: 5px 10px 5px 10px;
+    -unity-font-style: bold;
+    flex-grow: 1;
+}
+
+.filter-data-container .data {
+    margin: 10px;
+    -unity-font-style: normal;
+}
+
+.filter-data-container .data IMGUIContainer {
+    margin-left: 0;
+}
+
+.filter-data-container .data Foldout {
+    padding-left: 10px;
+    -unity-font-style: normal;
+}
+
+.filter-data-container .no-data-label {
+    margin: 10px;
+    margin-bottom: 2px;
+}
+
+.filter-data-container .no-data-type-container {
+    margin: 10px;
+    margin-top: 2px;
+    flex-direction: row;
+}
+
+.filter-data-container .no-data-type-required-label {
+    align-self: flex-start;
+}
+
+.filter-data-container .no-data-type-required {
+    align-self: flex-start;
+    color: coral;
+}
+
+.filter-data-container .button-container {
+    margin: 10px;
+    margin-top: 2px;
 }

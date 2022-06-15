@@ -1,20 +1,13 @@
-
-using System.Linq;
-
 namespace ME.ECSEditor {
 
     using ME.ECS;
     using UnityEditor;
-    using UnityEngine;
+    using UnityEngine.UIElements;
+    using UnityEditor.UIElements;
+    using System.Collections.Generic;
 
     [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.ComponentData<>))]
     public class ComponentDataGenericEditor : UnityEditor.PropertyDrawer {
-
-        public readonly static System.Collections.Generic.List<ComponentDataProperty> lastDraw = new System.Collections.Generic.List<ComponentDataProperty>();
-
-        private const float headerHeight = 22f;
-        private const float lineHeight = 26f;
-        private const float editButtonHeight = 40f;
 
         private ComponentDataTypeAttribute GetAttr() {
 
@@ -22,247 +15,141 @@ namespace ME.ECSEditor {
             return (attrs.Length == 1 ? (ComponentDataTypeAttribute)attrs[0] : null);
 
         }
-        
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
 
-            var drawType = ComponentDataTypeAttribute.Type.WithData;
-            if (this.GetAttr() is ComponentDataTypeAttribute attr) {
+        public virtual System.Type GetGenericType() {
 
-                drawType = attr.type;
+            return this.fieldInfo.FieldType.GetGenericArguments()[0];
 
-            }
-            
-            var h = 0f;
-            h += headerHeight;
-            
-            var with = property.FindPropertyRelative("component");
-            FilterDataTypesEditor.GetTypeFromManagedReferenceFullTypeName(with.managedReferenceFullTypename, out var type);
-            if (type == null) {
-                
-                h += ComponentDataGenericEditor.lineHeight;
-                h += ComponentDataGenericEditor.lineHeight;
-                
-            } else {
-
-                h += ComponentDataGenericEditor.lineHeight;
-                if (drawType == ComponentDataTypeAttribute.Type.WithData) {
-
-                    var initDepth = with.depth;
-                    if (with.NextVisible(with.hasChildren) == true) {
-                        do {
-
-                            if (with.depth <= initDepth) break;
-                            h += EditorGUI.GetPropertyHeight(with, true);
-
-                        } while (with.NextVisible(false) == true);
-                    }
-
-                } else if (drawType == ComponentDataTypeAttribute.Type.NoData) {
-                    
-                }
-
-            }
-
-            return h + editButtonHeight;
-            
         }
 
-        public override void OnGUI(UnityEngine.Rect position, SerializedProperty property, UnityEngine.GUIContent label) {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
 
-            ComponentDataEditor.lastDraw.Clear();
-            
-            const float pixel = 0.5f;
-            const float pixel2 = 1f;
-            const float alpha = 0.1f;
-            const float alphaBack = 0.1f;
-            const float alphaBackContent = 0.15f;
-            
-            var contentRect = EditorGUI.IndentedRect(position);
-            var lineRect = EditorGUI.IndentedRect(position);
-            var lineRectLeft = lineRect;
-            lineRectLeft.width = pixel;
-            lineRectLeft.height -= pixel2;
-            lineRectLeft.y += pixel;
-            var lineRectRight = lineRect;
-            lineRectRight.x += lineRectRight.width;
-            lineRectRight.height -= pixel2;
-            lineRectRight.y += pixel;
-            lineRectRight.width = pixel;
-            var lineRectTop = lineRect;
-            lineRectTop.height = pixel;
-            lineRectTop.width -= pixel2;
-            lineRectTop.x += pixel;
-            var lineRectBottom = lineRect;
-            lineRectBottom.y += lineRectBottom.height;
-            lineRectBottom.height = pixel;
-            lineRectBottom.width -= pixel2;
-            lineRectBottom.x += pixel;
-            EditorGUI.DrawRect(lineRectLeft, new Color(1f, 1f, 1f, alpha));
-            EditorGUI.DrawRect(lineRectRight, new Color(1f, 1f, 1f, alpha));
-            EditorGUI.DrawRect(lineRectTop, new Color(1f, 1f, 1f, alpha));
-            EditorGUI.DrawRect(lineRectBottom, new Color(1f, 1f, 1f, alpha));
-
-            contentRect.x += pixel;
-            contentRect.width -= pixel2;
-            contentRect.y += pixel;
-            contentRect.height -= pixel2;
-            EditorGUI.DrawRect(contentRect, new Color(0f, 0f, 0f, alphaBackContent));
-
-            //var backRect = EditorGUI.IndentedRect(position);
-            position.height = headerHeight;
-            EditorGUI.DrawRect(EditorGUI.IndentedRect(position), new Color(1f, 1f, 1f, alphaBack));
-            position.x += 8f;
-            position.width -= 8f + 8f;
-            EditorGUI.LabelField(position, label, EditorStyles.boldLabel);
-            position.y += headerHeight;
-
-            var compType = this.fieldInfo.FieldType.GetGenericArguments()[0];
-
+            var usedComponents = new HashSet<System.Type>();
+            var attr = this.GetAttr();
             var drawType = ComponentDataTypeAttribute.Type.WithData;
-            if (this.GetAttr() is ComponentDataTypeAttribute attr) {
+            if (attr != null) {
 
                 drawType = attr.type;
 
             }
 
+            var container = new VisualElement();
+            container.styleSheets.Add(EditorUtilities.Load<StyleSheet>("Editor/Core/Filters/styles.uss", isRequired: true));
+            container.AddToClassList("component-data-container");
+            var header = new Label(property.displayName);
+            header.AddToClassList("header");
+            container.Add(header);
+
+            var content = new VisualElement();
+            content.AddToClassList("content");
+            this.Redraw(content, property, usedComponents, drawType);
+            container.Add(content);
+            
+            return container;
+
+        }
+        
+        private void Redraw(VisualElement container, SerializedProperty property, HashSet<System.Type> usedComponents, ComponentDataTypeAttribute.Type drawType) {
+
+            container.Clear();
+            
             var name = "component";
-            var usedComponents = new System.Collections.Generic.HashSet<System.Type>();
-            {
-                var backStyle = new GUIStyle(EditorStyles.label);
-                backStyle.normal.background = Texture2D.whiteTexture;
+            var data = property.FindPropertyRelative(name);
+            FilterDataTypesEditor.GetTypeFromManagedReferenceFullTypeName(data.managedReferenceFullTypename, out var type);
 
-                var with = property.FindPropertyRelative(name);
-                FilterDataTypesEditor.GetTypeFromManagedReferenceFullTypeName(with.managedReferenceFullTypename, out var type);
+            var compType = this.GetGenericType();
+            if (type != null) {
 
-                position.height = ComponentDataGenericEditor.lineHeight;
-                if (type == null) {
+                usedComponents.Add(type);
+                
+                if (drawType == ComponentDataTypeAttribute.Type.WithData) {
 
-                    //Debug.Log("Not found: " + with.managedReferenceFullTypename + ", " + with.managedReferenceFieldTypename);
-                    EditorGUI.LabelField(position, $"Component is not defined.");
-                    position.y += ComponentDataGenericEditor.lineHeight;
-                    
-                    EditorGUI.LabelField(position, $"Required type: {compType}.", EditorStyles.boldLabel);
-                    position.y += ComponentDataGenericEditor.lineHeight;
+                    var prop = new PropertyField(data);
+                    prop.Bind(data.serializedObject);
+                    prop.RegisterValueChangeCallback((changed) => {
+                        
+                        var obj = changed.changedProperty.serializedObject;
+                        if (obj.targetObject is IValidateEditor validateEditor) {
 
-                } else {
-
-                    usedComponents.Add(type);
-                    
-                    EditorGUI.LabelField(position, type.Name, EditorStyles.boldLabel);
-                    position.y += ComponentDataGenericEditor.lineHeight;
-
-                    if (drawType == ComponentDataTypeAttribute.Type.WithData) {
-
-                        using (new GUILayoutExt.GUIBackgroundAlphaUsing(0.5f)) {
-
-                            var isDirty = false;
-                            {
-                                //var componentName = GUILayoutExt.GetStringCamelCaseSpace(type.Name);
-                                var initDepth = with.depth;
-                                if (with.NextVisible(with.hasChildren) == true) {
-                                    ++EditorGUI.indentLevel;
-                                    do {
-
-                                        if (with.depth <= initDepth) break;
-
-                                        ComponentDataEditor.lastDraw.Add(new ComponentDataProperty() {
-                                            position = position,
-                                            property = with.propertyPath,
-                                            so = with.serializedObject,
-                                        });
-
-                                        EditorGUI.BeginChangeCheck();
-                                        EditorGUI.PropertyField(position, with, true);
-                                        position.y += EditorGUI.GetPropertyHeight(with, true);
-                                        if (EditorGUI.EndChangeCheck() == true) {
-
-                                            isDirty = true;
-
-                                        }
-
-                                    } while (with.NextVisible(false) == true);
-                                    --EditorGUI.indentLevel;
-                                }
-
-                            }
-
-                            if (isDirty == true) {
-
-                                var obj = property.serializedObject;
-                                if (obj.targetObject is IValidateEditor validateEditor) {
-
-                                    obj.ApplyModifiedProperties();
-                                    obj.Update();
-                                    validateEditor.OnValidateEditor();
-                                    EditorUtility.SetDirty(obj.targetObject);
-                                    obj.ApplyModifiedProperties();
-                                    obj.Update();
-
-                                }
-
-                            }
+                            obj.ApplyModifiedProperties();
+                            obj.Update();
+                            validateEditor.OnValidateEditor();
+                            EditorUtility.SetDirty(obj.targetObject);
+                            obj.ApplyModifiedProperties();
+                            obj.Update();
 
                         }
 
-                    }
+                    });
+                    prop.AddToClassList("data");
+                    container.Add(prop);
+                    
+                } else {
+                    
+                    var noDataLabel = new Label(type.Name);
+                    noDataLabel.AddToClassList("data-label");
+                    container.Add(noDataLabel);
+
+                }
+            
+            } else {
+            
+                var noDataLabel = new Label("Component is not defined.");
+                noDataLabel.AddToClassList("no-data-label");
+                container.Add(noDataLabel);
+                var dataType = new VisualElement();
+                dataType.AddToClassList("no-data-type-container");
+                {
+                    var componentRequiredLabel = new Label("Required type:");
+                    componentRequiredLabel.AddToClassList("no-data-type-required-label");
+                    dataType.Add(componentRequiredLabel);
+                    var componentRequiredType = new Label(compType.Name);
+                    componentRequiredType.AddToClassList("no-data-type-required");
+                    dataType.Add(componentRequiredType);
+                }
+                container.Add(dataType);
+
+            }
+            
+            var obj = property.serializedObject;
+            var button = GUILayoutExt.DrawAddComponentMenu(container, usedComponents, (addType, isUsed) => {
+                
+                obj.Update();
+                var prop = obj.FindProperty(property.propertyPath);
+                var with = prop.FindPropertyRelative(name);
+                if (isUsed == true) {
+
+                    usedComponents.Remove(addType);
+                    with.managedReferenceValue = null;
+
+                } else {
+
+                    usedComponents.Add(addType);
+                    with.managedReferenceValue = (IComponentBase)System.Activator.CreateInstance(addType);
 
                 }
 
-            }
-            {
-                var obj = property.serializedObject;
-                position.height = editButtonHeight;
-                GUILayoutExt.DrawAddComponentMenu(position, usedComponents, (addType, isUsed) => {
+                if (obj.targetObject is IValidateEditor validateEditor) {
                     
-                    obj.Update();
-                    var prop = obj.FindProperty(property.propertyPath);
-                    var with = prop.FindPropertyRelative(name);
-                    if (isUsed == true) {
-
-                        usedComponents.Remove(addType);
-                        with.managedReferenceValue = null;
-
-                    } else {
-
-                        usedComponents.Add(addType);
-                        with.managedReferenceValue = (IComponentBase)System.Activator.CreateInstance(addType);
-
-                    }
-
-                    if (obj.targetObject is IValidateEditor validateEditor) {
-                        
-                        obj.ApplyModifiedProperties();
-                        obj.Update();
-                        validateEditor.OnValidateEditor();
-                        EditorUtility.SetDirty(obj.targetObject);
-                        obj.ApplyModifiedProperties();
-                        obj.Update();
-                        
-                    }
                     obj.ApplyModifiedProperties();
+                    obj.Update();
+                    validateEditor.OnValidateEditor();
+                    EditorUtility.SetDirty(obj.targetObject);
+                    obj.ApplyModifiedProperties();
+                    obj.Update();
+                    
+                }
+                obj.ApplyModifiedProperties();
+                
+                this.Redraw(container, prop, usedComponents, drawType);
 
-                }, showRuntime: true, caption: "Change Component", where: (type) => {
+            }, showRuntime: true, caption: "Change Component", where: (type) => {
 
-                    return compType.IsAssignableFrom(type);
+                return compType.IsAssignableFrom(type);
 
-                });
-            }
-
-        }
-        
-        internal static bool GetTypeFromManagedReferenceFullTypeName(string managedReferenceFullTypename, out System.Type managedReferenceInstanceType)
-        {
-            managedReferenceInstanceType = null;
-
-            var parts = managedReferenceFullTypename.Split(' ');
-            if (parts.Length == 2)
-            {
-                var assemblyPart = parts[0];
-                var nsClassnamePart = parts[1];
-                managedReferenceInstanceType = System.Type.GetType($"{nsClassnamePart}, {assemblyPart}");
-            }
-
-            return managedReferenceInstanceType != null;
+            });
+            container.Add(button);
+            
         }
 
     }

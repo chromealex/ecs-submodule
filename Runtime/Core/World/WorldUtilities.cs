@@ -11,6 +11,8 @@ namespace ME.ECS {
     #endif
     public static class WorldUtilities {
 
+        private static readonly System.Reflection.MethodInfo setComponentTypeIdMethodInfo = typeof(WorldUtilities).GetMethod(nameof(WorldUtilities.SetComponentTypeId));
+
         public static bool IsMainThread() {
 
             return Unity.Jobs.LowLevel.Unsafe.JobsUtility.IsExecutingJob == false && Worlds.current.mainThread == System.Threading.Thread.CurrentThread;
@@ -270,6 +272,16 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void SetComponentTypeIdByType(System.Type type) {
+
+            var generic = WorldUtilities.setComponentTypeIdMethodInfo.MakeGenericMethod(type);
+            generic.Invoke(obj: null, parameters: null);
+
+        }
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif

@@ -170,7 +170,9 @@ namespace ME.ECS {
 
             foreach (var component in data.with) {
 
-                if (ComponentTypesRegistry.allTypeId.TryGetValue(component.GetType(), out var index) == true) {
+                var type = component.GetType();
+                WorldUtilities.SetComponentTypeIdByType(type);
+                if (ComponentTypesRegistry.typeId.TryGetValue(type, out var index) == true) {
 
                     dataInternal.contains.Add(index);
 
@@ -180,7 +182,9 @@ namespace ME.ECS {
 
             foreach (var component in data.without) {
 
-                if (ComponentTypesRegistry.allTypeId.TryGetValue(component.GetType(), out var index) == true) {
+                var type = component.GetType();
+                WorldUtilities.SetComponentTypeIdByType(type);
+                if (ComponentTypesRegistry.typeId.TryGetValue(type, out var index) == true) {
 
                     dataInternal.notContains.Add(index);
 
