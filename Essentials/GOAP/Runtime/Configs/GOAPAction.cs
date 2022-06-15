@@ -13,9 +13,27 @@ namespace ME.ECS.Essentials.GOAP {
 
         private Precondition? preconditionCache;
         private Effect? effectsCache;
+        private bool isInitialized;
 
-        internal void Dispose() {
+        internal void DoAwake() {
 
+            if (this.isInitialized == false) {
+
+                this.isInitialized = true;
+                this.OnAwake();
+
+            }
+
+        }
+        
+        protected virtual void OnAwake() {
+            
+        }
+        
+        protected internal virtual void Dispose() {
+
+            this.isInitialized = false;
+            
             if (this.preconditionCache.HasValue == true) {
                 this.preconditionCache.Value.Dispose();
                 this.preconditionCache = null;

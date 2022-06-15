@@ -91,6 +91,7 @@ namespace ME.ECS.Essentials.GOAP.Modules {
             id = ++this.nextGroupId;
             this.groupToGroupId.Add(group, id);
             this.groupIdToGroup.Add(id, group);
+            group.DoAwake();
 
             return id;
 

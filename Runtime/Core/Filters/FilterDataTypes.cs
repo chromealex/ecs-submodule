@@ -105,6 +105,36 @@ namespace ME.ECS {
         [SerializeReference]
         public IComponentBase component;
 
+        public bool Apply(in Entity entity) {
+            
+            if (ComponentTypesRegistry.allTypeId.TryGetValue(this.component.GetType(), out var dataIndex) == true) {
+                Worlds.current.SetData(in entity, this.component, dataIndex);
+                return true;
+            }
+
+            return false;
+
+        }
+
+    }
+
+    [System.Serializable]
+    public struct ComponentData<T> where T : class, IComponentBase {
+
+        [SerializeReference]
+        public T component;
+
+        public bool Apply(in Entity entity) {
+            
+            if (ComponentTypesRegistry.allTypeId.TryGetValue(this.component.GetType(), out var dataIndex) == true) {
+                Worlds.current.SetData(in entity, this.component, dataIndex);
+                return true;
+            }
+
+            return false;
+            
+        }
+
     }
 
     public class ComponentDataTypeAttribute : PropertyAttribute {

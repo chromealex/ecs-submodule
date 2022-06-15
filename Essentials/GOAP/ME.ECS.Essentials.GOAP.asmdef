@@ -6,7 +6,8 @@
         "ME.ECS.FPMath",
         "Unity.Collections",
         "Unity.Burst",
-        "ME.Pools"
+        "ME.Pools",
+        "Unity.Mathematics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

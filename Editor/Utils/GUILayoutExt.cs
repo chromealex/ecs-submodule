@@ -399,7 +399,7 @@ namespace ME.ECSEditor {
  
 	    }
 
-	    public static void DrawAddComponentMenu(Rect rect, System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool showRuntime, string caption = "Edit Components") {
+	    public static void DrawAddComponentMenu(Rect rect, System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool showRuntime, string caption = "Edit Components", System.Predicate<System.Type> where = null) {
 		    
             GUIStyle style = new GUIStyle(GUI.skin.button);
             style.fontSize = 12;
@@ -451,16 +451,17 @@ namespace ME.ECSEditor {
                 rect.y = v2.y;
                 rect.width = 230f;
                 rect.height = 320f;
-                
+
+                var count = 0;
                 var popup = new Popup() {
 	                title = "Components",
 	                autoHeight = false,
 	                screenRect = rect,
 	                searchText = string.Empty,
 	                separator = '.',
-	                
                 };
                 var arr = showRuntime == true ? GUILayoutExt.allStructComponents : GUILayoutExt.allStructComponentsWithoutRuntime;
+                if (where != null) arr = arr.Where(x => where.Invoke(x)).ToArray();
                 foreach (var type in arr) {
 
 	                var isUsed = usedComponents.Contains(type);
@@ -511,9 +512,17 @@ namespace ME.ECSEditor {
 	                
 	                if (isUsed == true) popup.Item("Used." + type.Name, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect, searchable: false);
 	                popup.Item(fixName, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect);
+	                ++count;
 
                 }
-                popup.Show();
+
+                if (count == 0) {
+
+	                EditorWindow.focusedWindow.ShowNotification(new GUIContent("There are no components of this type"), 1f);
+
+                } else {
+	                popup.Show();
+                }
 
             }
  
