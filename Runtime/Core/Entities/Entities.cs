@@ -129,9 +129,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity CopyFrom(this in Entity entity, in Entity fromEntity) {
+        public static Entity CopyFrom(this in Entity entity, in Entity fromEntity, bool copyHierarchy = true) {
 
-            Worlds.currentWorld.CopyFrom(in fromEntity, in entity);
+            Worlds.currentWorld.CopyFrom(in fromEntity, in entity, copyHierarchy);
             return entity;
 
         }
@@ -408,7 +408,7 @@ namespace ME.ECS {
 
                 } else {
                     
-                    entity.Set(source.Read<TComponent>());
+                    entity.Set(c);
 
                 }
 

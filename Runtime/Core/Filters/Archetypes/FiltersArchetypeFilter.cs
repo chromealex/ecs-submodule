@@ -412,6 +412,7 @@ namespace ME.ECS {
 
     public struct FilterStaticData {
 
+        public bool isCreated;
         internal FilterInternalData data;
 
     }

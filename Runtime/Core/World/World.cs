@@ -1337,7 +1337,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void CopyFrom(in Entity from, in Entity to) {
+        public void CopyFrom(in Entity from, in Entity to, bool copyHierarchy = true) {
 
             #if WORLD_EXCEPTIONS
             if (from.IsAlive() == false) {
@@ -1366,6 +1366,23 @@ namespace ME.ECS {
                 this.currentState.structComponents.CopyFrom(in from, in to);
                 this.currentState.storage.archetypes.CopyFrom(in from, in to);
                 this.UpdateFilters(in to);
+                
+                // Copy hierarchy data
+                to.Remove<ME.ECS.Transform.Container>();
+                if (from.TryRead(out ME.ECS.Transform.Container container) == true) {
+                    to.SetParent(container.entity);
+                }
+
+                if (copyHierarchy == true) {
+
+                    var nodes = from.Read<ME.ECS.Transform.Nodes>();
+                    foreach (var child in nodes.items) {
+                        var newChild = new Entity(EntityFlag.None);
+                        newChild.CopyFrom(child);
+                        newChild.SetParent(to);
+                    }
+
+                }
             }
 
         }

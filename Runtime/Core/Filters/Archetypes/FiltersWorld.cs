@@ -187,6 +187,7 @@ namespace ME.ECS {
 
             ArrayUtils.Resize(id, ref this.filtersStaticData, true);
             this.filtersStaticData.arr[id] = new FilterStaticData() {
+                isCreated = true,
                 data = data,
             };
 

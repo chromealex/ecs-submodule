@@ -1258,6 +1258,8 @@ namespace ME.ECS.FiltersArchetype {
 
                 var filter = this.filters[i];
                 var filterStaticData = world.GetFilterStaticData(filter.id);
+                if (filterStaticData.isCreated == false) continue;
+                
                 if (FiltersArchetypeStorage.IsEquals(filterStaticData.data.contains, filterBuilder.data.contains) == true &&
                     FiltersArchetypeStorage.IsEquals(filterStaticData.data.notContains, filterBuilder.data.notContains) == true &&
                     FiltersArchetypeStorage.IsEquals(filterStaticData.data.notContainsShared, filterBuilder.data.notContainsShared) == true &&
