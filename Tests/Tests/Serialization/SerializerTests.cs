@@ -36,6 +36,8 @@ namespace ME.ECS.Tests {
         [NUnit.Framework.TestAttribute]
         public void PerformanceTest() {
 
+            Pools.current = new PoolImplementation(true);
+            
             var l = System.Linq.Enumerable.Range(1, 100).Select(x => new Person { age = x, firstName = "Windows", lastName = "Server", sex = Person.Sex.Female }).ToArray();
             var test = new PerfStruct() {
                 data = l,
@@ -76,6 +78,7 @@ namespace ME.ECS.Tests {
 
         [NUnit.Framework.TestAttribute]
         public void BufferArraySerialization() {
+            Pools.current = new PoolImplementation(true);
             var test = new TestDataBufferArray {
                 viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23, DestroyViewBehaviour.DestroyWithEntity),
                 bufferComponents = new ME.ECS.Collections.BufferArray<object>(new object[] {
@@ -131,7 +134,7 @@ namespace ME.ECS.Tests {
 
         [NUnit.Framework.TestAttribute]
         public void UnsafeData() {
-            
+            Pools.current = new PoolImplementation(true);
             var source = new TestUnmanagedData() {
                 a = 123,
                 b = 234.567f,
@@ -165,6 +168,8 @@ namespace ME.ECS.Tests {
 
         [NUnit.Framework.TestAttribute]
         public void NativeBufferArraySerialization() {
+            Pools.current = new PoolImplementation(true);
+            
             var test = new TestDataNativeBufferArray {
                 viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23, DestroyViewBehaviour.DestroyWithEntity),
                 buffer = new ME.ECS.Collections.NativeBufferArray<MyStruct>(new[] {
@@ -202,6 +207,8 @@ namespace ME.ECS.Tests {
 
 		void DictionarySerializationTest1()
 		{
+            Pools.current = new PoolImplementation(true);
+            
 			var test = new TestDataDictionary
 			{
 				someDict = new System.Collections.Generic.Dictionary<object, object>
@@ -219,6 +226,8 @@ namespace ME.ECS.Tests {
 
 		void DictionarySerializationTest2()
 		{
+            Pools.current = new PoolImplementation(true);
+            
 			var dic1 = new System.Collections.Generic.Dictionary<ETestEnum, string>();
 
 			dic1.Add(ETestEnum.Second, "Second");
@@ -237,6 +246,8 @@ namespace ME.ECS.Tests {
 
 		void DictionarySerializationTest3()
 		{
+            Pools.current = new PoolImplementation(true);
+            
 			var test_dic = new System.Collections.Generic.Dictionary<ETestEnum, string>();
 
 			test_dic.Add(ETestEnum.Second, "Second");
@@ -257,6 +268,8 @@ namespace ME.ECS.Tests {
 
         [NUnit.Framework.TestAttribute]
         public void ArraysSerialization() {
+            Pools.current = new PoolImplementation(true);
+            
             var test = new TestDataArray {
                 buffer = new object[] { 1, 3, 5, 7, 9 },
                 buffer2 = new object[] {
@@ -271,8 +284,7 @@ namespace ME.ECS.Tests {
                 },
                 buffer4 = new object[,] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 } }
             };
-
-
+            
             var bytes   = Serializer.Pack(test);
             var testRes = Serializer.Unpack<TestDataArray>(bytes);
 
@@ -284,6 +296,8 @@ namespace ME.ECS.Tests {
 
         [NUnit.Framework.TestAttribute]
         public void WorldSerialization() {
+            
+            Pools.current = new PoolImplementation(true);
             
             World CreateWorld() {
 
