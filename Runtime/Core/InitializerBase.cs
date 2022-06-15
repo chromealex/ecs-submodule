@@ -142,14 +142,14 @@ namespace ME.ECS {
         public WorldDebugSettings worldDebugSettings = WorldDebugSettings.Default;
         public EndOfBaseClass endOfBaseClass;
 
-        protected void Initialize(World world) {
+        protected void Initialize(World world, bool callLateInitialization = true) {
 
             world.SetSettings(this.worldSettings);
             world.SetDebugSettings(this.worldDebugSettings);
             world.TryInitializeDefaults();
 
             // Initialize features
-            this.InitializeFeatures(world);
+            this.InitializeFeatures(world, callLateInitialization);
             
             // Initialize scene
             this.InitializeScene(world);
@@ -186,9 +186,9 @@ namespace ME.ECS {
 
         }
 
-        protected void InitializeFeatures(World world) {
+        protected void InitializeFeatures(World world, bool callLateInitialization) {
 
-            this.featuresListCategories.Initialize(world);
+            this.featuresListCategories.Initialize(world, callLateInitialization);
 
         }
 
