@@ -81,7 +81,7 @@
 
 .filter-data-container .content {
     border-radius: 5px;
-    background-color: rgba(0, 0, 0, 0.1);
+    padding: 2px;
 }
 
 .filter-data-container .header {
@@ -110,13 +110,19 @@
 }
 
 .filter-data-container .content-include {
-    background-color: rgba(0, 255, 0, 0.02);
-    border-radius: 5px;
+    background-color: rgba(0, 255, 0, 0.03);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
 }
 
 .filter-data-container .content-exclude {
-    background-color: rgba(255, 0, 0, 0.02);
-    border-radius: 5px;
+    background-color: rgba(255, 0, 0, 0.03);
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
 
 .filter-data-container .data-container-layout {
