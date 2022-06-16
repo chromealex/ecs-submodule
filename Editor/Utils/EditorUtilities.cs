@@ -125,6 +125,24 @@ namespace ME.ECSEditor {
 
         }
 
+        public static T Load<T>(string path, out string filePath) where T : Object {
+
+            foreach (var searchPath in EditorUtilities.searchPaths) {
+
+                var data = UnityEditor.AssetDatabase.LoadAssetAtPath<T>($"{searchPath}{path}");
+                //var data = UnityEditor.Experimental.EditorResources.Load<T>($"{searchPath}{path}", false);
+                if (data != null) {
+                    filePath = $"{searchPath}{path}";
+                    return data;
+                }
+
+            }
+            
+            filePath = default;
+            return null;
+
+        }
+
     }
     
     public static class SerializedPropertyExtensions {

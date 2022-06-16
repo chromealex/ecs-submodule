@@ -23,8 +23,7 @@ namespace ME.ECSEditor {
             managedReferenceInstanceType = null;
 
             var parts = managedReferenceFullTypename.Split(' ');
-            if (parts.Length == 2)
-            {
+            if (parts.Length == 2) {
                 var assemblyPart = parts[0];
                 var nsClassnamePart = parts[1];
                 managedReferenceInstanceType = System.Type.GetType($"{nsClassnamePart}, {assemblyPart}");

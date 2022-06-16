@@ -67,7 +67,8 @@ namespace ME.ECS.Essentials.GOAP.Systems {
                     if (goalData.Has(in entity) == true) {
 
                         // All events have done
-                        entity.Remove<GOAPEntityGroup>();
+                        // Should we remove GOAP group after that?
+                        //entity.Remove<GOAPEntityGroup>();
                         continue;
 
                     }

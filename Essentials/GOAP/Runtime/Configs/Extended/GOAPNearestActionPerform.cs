@@ -18,7 +18,11 @@ namespace ME.ECS.Essentials.GOAP {
     [CreateAssetMenu(menuName = "ME.ECS/Addons/GOAP/Actions/Perform Nearest")]
     public class GOAPNearestActionPerform : GOAPActionPerform {
 
+        [Tooltip("Nearest object to find")]
         public FilterDataTypes nearestFilter;
+        [ComponentDataTypeAttribute(ComponentDataTypeAttribute.Type.WithData)]
+        [Tooltip("Apply this filter on object which GOAP has found")]
+        public FilterDataTypes applyOnNearest;
         [ComponentDataType(ComponentDataTypeAttribute.Type.NoData)]
         public ComponentData<ISetTarget> moveComponent;
         
@@ -42,6 +46,7 @@ namespace ME.ECS.Essentials.GOAP {
                 
                 var comp = this.moveComponent.component;
                 comp.SetTarget(in obj);
+                this.applyOnNearest.Apply(in obj);
                 this.moveComponent.Apply(in agent);
                 
             }

@@ -1,4 +1,6 @@
 ﻿
+using System.Reflection;
+
 namespace ME.ECSEditor {
 
     using ME.ECS;
@@ -29,6 +31,18 @@ namespace ME.ECSEditor {
 
         }
 
+        private string GetTooltip(SerializedProperty property) {
+            
+            #if UNITY_2021_3_OR_NEWER || UNITY_2022_1_OR_NEWER
+            var text = property.tooltip;
+            #else
+            var text = this.fieldInfo.GetCustomAttribute<UnityEngine.TooltipAttribute>(false)?.tooltip;
+            #endif
+
+            return text;
+            
+        }
+
         public override VisualElement CreatePropertyGUI(SerializedProperty property) {
 
             var attr = this.GetAttr();
@@ -43,9 +57,10 @@ namespace ME.ECSEditor {
             container.styleSheets.Add(EditorUtilities.Load<StyleSheet>("Editor/Core/Filters/styles.uss", isRequired: true));
             container.AddToClassList("filter-data-container");
             var header = new Label(property.displayName);
+            header.tooltip = this.GetTooltip(property);
             header.AddToClassList("header");
             container.Add(header);
-
+            
             var contentContainer = new VisualElement();
             contentContainer.AddToClassList("content");
             {
