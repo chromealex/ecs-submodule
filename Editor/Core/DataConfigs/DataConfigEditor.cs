@@ -378,15 +378,17 @@ namespace ME.ECSEditor {
             var source = obj.Copy();
             SerializedProperty iterator = obj;
             if (iterator.NextVisible(true) == false) return;
+            var depth = iterator.depth;
             if (iterator.NextVisible(true) == false) return;
 
-            var depth = iterator.depth;
-            var it = iterator.Copy();
             var props = new System.Collections.Generic.List<SerializedProperty>();
+            var it = iterator.Copy();
             do {
                 if (it.depth < depth) continue;
                 props.Add(it.Copy());
             } while (it.NextVisible(false));
+            
+            if (props.Count == 0) return;
 
             props = props.OrderBy(x => {
                 var val = x.GetValue();
