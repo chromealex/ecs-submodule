@@ -23,8 +23,10 @@ namespace ME.ECS.Essentials.GOAP {
         [ComponentDataTypeAttribute(ComponentDataTypeAttribute.Type.WithData)]
         [Tooltip("Apply this filter on object which GOAP has found")]
         public FilterDataTypes applyOnNearest;
+        [Tooltip("Apply this component on agent")]
+        [UnityEngine.Serialization.FormerlySerializedAsAttribute("moveComponent")]
         [ComponentDataType(ComponentDataTypeAttribute.Type.NoData)]
-        public ComponentData<ISetTarget> moveComponent;
+        public ComponentData<ISetTarget> applyOnAgent;
         
         private Filter filter;
 
@@ -44,10 +46,10 @@ namespace ME.ECS.Essentials.GOAP {
             var obj = this.GetNearest(in agent);
             if (obj.IsAlive() == true) {
                 
-                var comp = this.moveComponent.component;
+                var comp = this.applyOnAgent.component;
                 comp.SetTarget(in obj);
                 this.applyOnNearest.Apply(in obj);
-                this.moveComponent.Apply(in agent);
+                this.applyOnAgent.Apply(in agent);
                 
             }
 
