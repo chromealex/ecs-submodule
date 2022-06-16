@@ -134,7 +134,7 @@ namespace ME.ECS.Collections {
             
             if (this.data == Entity.Null) {
                 this.data = new Entity(EntityFlag.None);
-                this.data.ValidateData<IntrusiveHashSetData>();
+                this.data.ValidateDataBlittable<IntrusiveHashSetData>();
                 this.data.Set(new IntrusiveHashSetData());
             }
             
