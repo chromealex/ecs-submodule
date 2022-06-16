@@ -79,6 +79,10 @@ namespace ME.ECSEditor {
             captionLabel.AddToClassList("caption-header-" + name);
             container.Add(captionLabel);
             
+            var innerContainer = new VisualElement();
+            innerContainer.AddToClassList("inner-container");
+            container.Add(innerContainer);
+            
             var compType = typeof(IComponentBase);
 
             var subProperty = property.FindPropertyRelative(name);
@@ -195,7 +199,7 @@ namespace ME.ECSEditor {
                     
                 }
                 
-                container.Add(dataContainer);
+                innerContainer.Add(dataContainer);
 
             }
 
@@ -242,7 +246,7 @@ namespace ME.ECSEditor {
                     this.Redraw(caption, name, subName, container, prop, usedComponents, list, drawType);
 
                 }, showRuntime: true, caption: "Edit Components", where: (type) => { return compType.IsAssignableFrom(type); });
-                container.Add(button);
+                innerContainer.Add(button);
             }
 
         }

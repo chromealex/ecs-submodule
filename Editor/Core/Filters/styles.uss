@@ -101,10 +101,28 @@
 }
 
 .filter-data-container .caption-header-with {
-    background-color: rgba(0, 255, 0, 0.02);
 }
 .filter-data-container .caption-header-without {
+}
+
+.filter-data-container .inner-container {
+    padding: 2px;
+}
+
+.filter-data-container .content-include {
+    background-color: rgba(0, 255, 0, 0.02);
+    border-radius: 5px;
+}
+
+.filter-data-container .content-exclude {
     background-color: rgba(255, 0, 0, 0.02);
+    border-radius: 5px;
+}
+
+.filter-data-container .data-container-layout {
+    flex-direction: row-reverse;
+    align-items: flex-start;
+    align-self: stretch;
 }
 
 .filter-data-container .data-container {
@@ -112,16 +130,12 @@
     border-radius: 5px;
     border-color: rgba(0, 0, 0, 0.1);
 }
-.filter-data-container .data-container-layout {
-    flex-direction: row-reverse;
-    align-items: flex-start;
-    align-self: stretch;
-}
 .filter-data-container .data-container.even {
-    background-color: rgba(255, 255, 255, 0.03);
+    background-color: rgba(50, 50, 50, 1.05);
 }
 .filter-data-container .data-container.odd {
-    background-color: rgba(255, 255, 255, 0.02);
+    background-color: rgba(52, 52, 52, 1.02);
+    border-bottom-color: rgba(255, 255, 255, 0.05);
 }
 
 .filter-data-container .toggle-equals {
