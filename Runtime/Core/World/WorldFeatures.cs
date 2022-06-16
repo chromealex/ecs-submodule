@@ -292,15 +292,20 @@ namespace ME.ECS {
             
             Filter.RegisterInject(this.InjectFilter);
             this.OnConstructLate();
-            // Update systems
-            foreach (var system in this.systemGroup.runtimeSystem.allSystems) {
 
-                if (system is ISystemConstructLate systemConstructLate) {
+            if (this.systemGroup.runtimeSystem.allSystems != null) {
 
-                    systemConstructLate.OnConstructLate();
+                // Update systems
+                foreach (var system in this.systemGroup.runtimeSystem.allSystems) {
 
-                }
+                    if (system is ISystemConstructLate systemConstructLate) {
+
+                        systemConstructLate.OnConstructLate();
+
+                    }
                 
+                }
+
             }
             Filter.UnregisterInject(this.InjectFilter);
             
