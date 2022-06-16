@@ -389,7 +389,9 @@ namespace ME.ECSEditor {
             } while (it.NextVisible(false));
 
             props = props.OrderBy(x => {
-                var groupAttr = x.GetValue().GetType().GetCustomAttribute<ComponentGroupAttribute>(true);
+                var val = x.GetValue();
+                if (val == null) return 0;
+                var groupAttr = val.GetType().GetCustomAttribute<ComponentGroupAttribute>(true);
                 if (groupAttr != null) {
 
                     return groupAttr.order;
@@ -399,7 +401,9 @@ namespace ME.ECSEditor {
                 return 0;
             }).ThenBy(x => {
                 
-                var orderAttr = x.GetValue().GetType().GetCustomAttribute<ComponentOrderAttribute>(true);
+                var val = x.GetValue();
+                if (val == null) return 0;
+                var orderAttr = val.GetType().GetCustomAttribute<ComponentOrderAttribute>(true);
                 if (orderAttr != null) {
 
                     return orderAttr.order;
@@ -436,7 +440,8 @@ namespace ME.ECSEditor {
 
                 if (drawGroups == true) {
 
-                    var groupAttr = iterator.GetValue().GetType().GetCustomAttribute<ComponentGroupAttribute>(true);
+                    var val = iterator.GetValue();
+                    var groupAttr = val == null ? null : val.GetType().GetCustomAttribute<ComponentGroupAttribute>(true);
                     if (groupAttr != null) {
 
                         if (groupAttr.name != curGroup) {
