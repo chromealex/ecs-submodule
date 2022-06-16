@@ -6,6 +6,7 @@ namespace ME.ECS.Essentials.GOAP {
     [System.Serializable]
     public struct EffectsData {
 
+        [FilterDataTypesLabelsAttribute("Entity should receive", "Entity should not receive")]
         public FilterDataTypes filter;
 
     }

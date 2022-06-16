@@ -6,6 +6,7 @@ namespace ME.ECS.Essentials.GOAP {
     [System.Serializable]
     public struct PreconditionsData {
 
+        [FilterDataTypesLabelsAttribute("Entity has", "Entity has no")]
         public FilterDataTypesOptional filter;
 
     }

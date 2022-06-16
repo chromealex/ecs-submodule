@@ -135,6 +135,17 @@ namespace ME.ECS {
             
         }
 
+        public bool Remove(in Entity entity) {
+            
+            if (ComponentTypesRegistry.allTypeId.TryGetValue(this.component.GetType(), out var dataIndex) == true) {
+                Worlds.current.RemoveData(in entity, dataIndex);
+                return true;
+            }
+
+            return false;
+            
+        }
+
     }
 
     public class ComponentDataTypeAttribute : PropertyAttribute {
@@ -152,6 +163,20 @@ namespace ME.ECS {
             
             this.type = type;
             
+        }
+        
+    }
+
+    public class FilterDataTypesLabelsAttribute : PropertyAttribute {
+
+        public string include;
+        public string exclude;
+        
+        public FilterDataTypesLabelsAttribute(string include = "Include", string exclude = "Exclude") {
+
+            this.include = include;
+            this.exclude = exclude;
+
         }
         
     }

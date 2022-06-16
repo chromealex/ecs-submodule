@@ -93,7 +93,7 @@
     -unity-font-style: bold;
     font-size: 8px;
     padding: 3px 10px 3px 10px;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.6);
     border-color: rgba(0, 0, 0, 0.2);
     border-top-width: 1px;
     border-top-left-radius: 5px;

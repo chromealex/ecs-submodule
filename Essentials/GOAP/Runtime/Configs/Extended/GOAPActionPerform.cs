@@ -6,11 +6,15 @@ namespace ME.ECS.Essentials.GOAP {
     public class GOAPActionPerform : GOAPAction {
 
         [ComponentDataTypeAttribute(ComponentDataTypeAttribute.Type.WithData)]
+        [FilterDataTypesLabelsAttribute("Add", "Remove")]
         public FilterDataTypes onBegin;
+        
         [ComponentDataTypeAttribute(ComponentDataTypeAttribute.Type.NoData)]
         [Tooltip("This action will perform while entity will not match this filter")]
         public FilterDataTypes performWhileNot;
+        
         [ComponentDataTypeAttribute(ComponentDataTypeAttribute.Type.WithData)]
+        [FilterDataTypesLabelsAttribute("Add", "Remove")]
         public FilterDataTypes onComplete;
 
         public override bool IsDone(in Entity agent) {

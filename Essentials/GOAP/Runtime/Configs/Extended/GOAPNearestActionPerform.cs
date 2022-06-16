@@ -22,6 +22,7 @@ namespace ME.ECS.Essentials.GOAP {
         public FilterDataTypes nearestFilter;
         [ComponentDataTypeAttribute(ComponentDataTypeAttribute.Type.WithData)]
         [Tooltip("Apply this filter on object which GOAP has found")]
+        [FilterDataTypesLabelsAttribute("Add", "Remove")]
         public FilterDataTypes applyOnNearest;
         [Tooltip("Apply this component on agent")]
         [UnityEngine.Serialization.FormerlySerializedAsAttribute("moveComponent")]
@@ -53,6 +54,14 @@ namespace ME.ECS.Essentials.GOAP {
                 
             }
 
+        }
+
+        public override void OnComplete(in Entity agent) {
+            
+            base.OnComplete(in agent);
+
+            this.applyOnAgent.Remove(in agent);
+            
         }
 
         private Entity GetNearest(in Entity agent) {

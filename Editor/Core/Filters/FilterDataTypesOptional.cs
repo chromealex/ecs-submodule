@@ -53,6 +53,9 @@ namespace ME.ECSEditor {
 
             }
 
+            var labels = this.fieldInfo.GetCustomAttribute<FilterDataTypesLabelsAttribute>();
+            if (labels == null) labels = new FilterDataTypesLabelsAttribute();
+
             var container = new VisualElement();
             container.styleSheets.Add(EditorUtilities.Load<StyleSheet>("Editor/Core/Filters/styles.uss", isRequired: true));
             container.AddToClassList("filter-data-container");
@@ -68,7 +71,7 @@ namespace ME.ECSEditor {
                 var usedComponents = new HashSet<System.Type>();
                 var content = new VisualElement();
                 content.AddToClassList("content-include");
-                this.Redraw("Include:", "with", this.GetSubName(), content, property, usedComponents, list, drawType);
+                this.Redraw(labels.include.ToUpper(), "with", this.GetSubName(), content, property, usedComponents, list, drawType);
                 contentContainer.Add(content);
             }
             {
@@ -76,7 +79,7 @@ namespace ME.ECSEditor {
                 var usedComponents = new HashSet<System.Type>();
                 var content = new VisualElement();
                 content.AddToClassList("content-exclude");
-                this.Redraw("Exclude:", "without", this.GetSubName(), content, property, usedComponents, list, drawType);
+                this.Redraw(labels.exclude.ToUpper(), "without", this.GetSubName(), content, property, usedComponents, list, drawType);
                 contentContainer.Add(content);
             }
             container.Add(contentContainer);
