@@ -1,8 +1,7 @@
-﻿using System.Reflection;
-
-#if ENABLE_IL2CPP
+﻿#if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
+using System.Reflection;
 
 namespace ME.ECS {
 
