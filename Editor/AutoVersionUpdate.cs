@@ -41,22 +41,28 @@ namespace ME.ECSEditor {
                 
             }
 
-            UnityEditor.Compilation.CompilationPipeline.assemblyCompilationFinished += (string assemblyPath, UnityEditor.Compilation.CompilerMessage[] messages) => {
+            if (found == true) {
 
-                var assembly = AutoVersionUpdate.assemblies.FirstOrDefault(a => a.outputPath == assemblyPath);
-                foreach (var src in assembly.sourceFiles) {
+                UnityEditor.Compilation.CompilationPipeline.assemblyCompilationFinished += (string assemblyPath, UnityEditor.Compilation.CompilerMessage[] messages) => {
 
-                    if (src == assetReimport) {
+                    var assembly = AutoVersionUpdate.assemblies.FirstOrDefault(a => a.outputPath == assemblyPath);
+                    if (assembly == null) return;
 
-                        UpdatePackageVersion();
-                        break;
+                    foreach (var src in assembly.sourceFiles) {
+
+                        if (src == assetReimport) {
+
+                            AutoVersionUpdate.UpdatePackageVersion();
+                            break;
+
+                        }
 
                     }
-                    
-                }
 
-            };
-            
+                };
+
+            }
+
         }
 
         private static void UpdatePackageVersion() {
