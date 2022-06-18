@@ -15,12 +15,15 @@
 /*
     ComponentData, ComponentData<T>
  */
-
-.component-data-container {
+.filter-data-container, .component-data-container {
     border-radius: 5px;
     border-width: 1px;
-    border-color: rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
     background-color: rgba(0, 0, 0, 0.05);
+    margin-bottom: 4px;
+}
+
+.component-data-container {
 }
 
 .component-data-container .header {
@@ -31,6 +34,8 @@
 .component-data-container .content {
     background-color: rgba(0, 0, 0, 0.1);
     border-radius: 5px;
+    border-top-width: 1px;
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .component-data-container .data-label {
@@ -72,11 +77,6 @@
     FilterDataTypes, FilterDataTypesOptional
  */
 .filter-data-container {
-    border-radius: 5px;
-    border-width: 1px;
-    border-color: rgba(0, 0, 0, 0.2);
-    background-color: rgba(0, 0, 0, 0.05);
-    margin-bottom: 4px;
 }
 
 .filter-data-container .content {
@@ -94,7 +94,7 @@
     font-size: 8px;
     padding: 3px 10px 3px 10px;
     color: rgba(255, 255, 255, 0.6);
-    border-color: rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
     border-top-width: 1px;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
