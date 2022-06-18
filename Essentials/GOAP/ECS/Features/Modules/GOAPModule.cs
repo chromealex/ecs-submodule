@@ -65,11 +65,12 @@ namespace ME.ECS.Essentials.GOAP.Modules {
             
             if (this.groupIdToGroup.TryGetValue(groupId, out var group) == true) {
                 
-                var arr = new Unity.Collections.NativeArray<Action>(group.actions.Length, allocator);
+                var arr = new Unity.Collections.NativeList<Action>(group.actions.Length, allocator);
                 for (int i = 0; i < group.actions.Length; ++i) {
 
                     var goapAction = group.actions[i];
-                    arr[i] = new Action(entity, groupId, goapAction, allocator);
+                    if (goapAction.CanRunPrepare(in entity) == false) continue;
+                    arr.Add(new Action(entity, groupId, goapAction, allocator));
 
                 }
                 return arr;
