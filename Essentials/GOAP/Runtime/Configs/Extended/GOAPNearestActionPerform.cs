@@ -38,8 +38,14 @@ namespace ME.ECS.Essentials.GOAP {
             Filter.CreateFromData(this.nearestFilter).Push(ref this.filter);
             
         }
-        
-        public override void PerformBegin(in ME.ECS.Entity agent) {
+
+        public override bool CanRunPrepare(in Entity agent) {
+
+            return this.filter.Count > 0;
+            
+        }
+
+        public override void PerformBegin(in Entity agent) {
         
             base.PerformBegin(in agent);
 
