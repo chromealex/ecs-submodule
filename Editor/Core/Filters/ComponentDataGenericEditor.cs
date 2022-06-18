@@ -61,10 +61,12 @@ namespace ME.ECSEditor {
             if (type != null) {
 
                 usedComponents.Add(type);
-                
-                if (drawType == ComponentDataTypeAttribute.Type.WithData) {
 
-                    var prop = new PropertyField(data);
+                var nameType = GUILayoutExt.GetStringCamelCaseSpace(type.Name);
+                if (drawType == ComponentDataTypeAttribute.Type.WithData &&
+                    type.GetFields().Length > 0) {
+
+                    var prop = new PropertyField(data, nameType);
                     prop.Bind(data.serializedObject);
                     prop.RegisterValueChangeCallback((changed) => {
                         
@@ -86,7 +88,7 @@ namespace ME.ECSEditor {
                     
                 } else {
                     
-                    var noDataLabel = new Label(type.Name);
+                    var noDataLabel = new Label(nameType);
                     noDataLabel.AddToClassList("data-label");
                     container.Add(noDataLabel);
 
@@ -99,7 +101,7 @@ namespace ME.ECSEditor {
                 container.Add(noDataLabel);
                 var dataType = new VisualElement();
                 dataType.AddToClassList("no-data-type-container");
-                {
+                if (compType != typeof(IComponentBase)) {
                     var componentRequiredLabel = new Label("Required type:");
                     componentRequiredLabel.AddToClassList("no-data-type-required-label");
                     dataType.Add(componentRequiredLabel);
@@ -124,6 +126,7 @@ namespace ME.ECSEditor {
 
                 } else {
 
+                    usedComponents.Clear();
                     usedComponents.Add(addType);
                     with.managedReferenceValue = (IComponentBase)System.Activator.CreateInstance(addType);
 

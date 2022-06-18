@@ -10,12 +10,6 @@ namespace ME.ECSEditor {
 
         private static UnityEditor.Compilation.Assembly[] assemblies;
         
-        static AutoVersionUpdate() {
-            
-            AutoVersionUpdate.assemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies();
-            
-        }
-        
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths) {
 
             // Check if mac os x
@@ -26,6 +20,8 @@ namespace ME.ECSEditor {
             // Check if its me ;)
             var dir = System.IO.Directory.Exists("/Users/aleksandrfeer/Projects");
             if (dir == false) return;
+
+            if (AutoVersionUpdate.assemblies == null) AutoVersionUpdate.assemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies();
             
             var assetReimport = string.Empty;
             var found = false;

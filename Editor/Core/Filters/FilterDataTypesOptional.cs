@@ -168,6 +168,7 @@ namespace ME.ECSEditor {
                 if (type != null) {
 
                     usedComponents.Add(type);
+                    list.Add(type);
 
                     {
                         var label = GUILayoutExt.GetStringCamelCaseSpace(type.Name);
