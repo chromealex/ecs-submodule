@@ -160,7 +160,7 @@ namespace ME.ECS.Views {
 
             } else {
 
-                UnityObjectUtils.Destroy(instance.gameObject);
+                if (instance != null) UnityObjectUtils.Destroy(instance.gameObject);
 
             }
 

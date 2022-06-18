@@ -40,7 +40,7 @@ namespace ME.ECS.Essentials.GOAP {
         }
 
         public override bool CanRunPrepare(in Entity agent) {
-
+            
             return this.filter.Count > 0;
             
         }

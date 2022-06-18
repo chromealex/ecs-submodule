@@ -249,26 +249,27 @@ namespace ME.ECS {
 
         }
 
+        /// <summary>
+        /// Fast copy raw data from filter 
+        /// </summary>
+        /// <param name="allocator"></param>
+        /// <returns></returns>
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
         public Unity.Collections.NativeArray<Entity> ToArray(Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
-            
-            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
-            var result = new Unity.Collections.NativeArray<Entity>(filterData.storage.Count(filterData), allocator);
-            var k = 0;
-            foreach (var archId in filterData.archetypes) {
 
-                var arch = filterData.storage.allArchetypes[archId];
-                for (int i = 0, count = arch.entitiesArr.Count; i < count; ++i) {
-                    
-                    result[k++] = filterData.storage.GetEntityById(arch.entitiesArr[i]);
-                    
-                }
-                
+            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            var result = new Unity.Collections.NativeList<Entity>(filterData.archetypes.Count * 10, allocator);
+            foreach (var entity in this) {
+                result.Add(entity);
             }
 
-            return result;
+            if (result.Length == 0) {
+                result.Dispose();
+                return new Unity.Collections.NativeArray<Entity>(0, allocator);
+            }
+            return result.AsArray();
 
         }
         
@@ -281,32 +282,22 @@ namespace ME.ECS {
             max = int.MinValue;
             var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
             var result = new Unity.Collections.NativeList<Entity>(filterData.archetypes.Count * 10, allocator);
-            foreach (var archId in filterData.archetypes) {
-
-                var arch = filterData.storage.allArchetypes[archId];
-                for (int i = 0, count = arch.entitiesArr.Count; i < count; ++i) {
-                    
-                    var e = arch.entitiesArr[i];
-                    if (e < min) {
-                        min = e;
-                    }
-
-                    if (e > max) {
-                        max = e;
-                    }
-                    result.Add(filterData.storage.GetEntityById(e));
-                    
+            foreach (var entity in this) {
+                if (entity.id < min) {
+                    min = entity.id;
                 }
-                
-            }
 
-            #if UNITY_EDITOR
-            var res = result.ToArray(allocator);
-            result.Dispose();
-            return res;
-            #else
+                if (entity.id > max) {
+                    max = entity.id;
+                }
+                result.Add(entity);
+            }
+            
+            if (result.Length == 0) {
+                result.Dispose();
+                return new Unity.Collections.NativeArray<Entity>(0, allocator);
+            }
             return result.AsArray();
-            #endif
 
         }
 
@@ -317,26 +308,17 @@ namespace ME.ECS {
 
             min = int.MaxValue;
             max = int.MinValue;
-            //Worlds.current.currentState.filters.UpdateFilters();
             var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
             var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count * 10, allocator);
-            foreach (var archId in filterData.archetypesList) {
-
-                var arch = filterData.storage.allArchetypes[archId];
-                for (int i = 0, count = arch.entitiesArr.Count; i < count; ++i) {
-                    
-                    var e = arch.entitiesArr[i];
-                    if (e < min) {
-                        min = e;
-                    }
-
-                    if (e > max) {
-                        max = e;
-                    }
-                    result.Add(e);
-                    
+            foreach (var entity in this) {
+                if (entity.id < min) {
+                    min = entity.id;
                 }
-                
+
+                if (entity.id > max) {
+                    max = entity.id;
+                }
+                result.Add(entity.id);
             }
 
             return result;
@@ -349,17 +331,9 @@ namespace ME.ECS {
         public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator) {
 
             var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
-            //Worlds.current.currentState.filters.UpdateFilters();
             var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count * 10, allocator);
-            foreach (var archId in filterData.archetypesList) {
-
-                var arch = filterData.storage.allArchetypes[archId];
-                var arr = arch.entitiesArr.innerArray;
-                var temp = new Unity.Collections.NativeArray<int>(arch.entitiesArr.Count, Unity.Collections.Allocator.Temp);
-                Unity.Collections.NativeArray<int>.Copy(arr.arr, temp, arch.entitiesArr.Count);
-                result.AddRange(temp);
-                temp.Dispose();
-                
+            foreach (var entity in this) {
+                result.Add(entity.id);
             }
 
             return result;

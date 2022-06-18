@@ -44,8 +44,10 @@ namespace ME.ECS.Essentials.GOAP.Systems {
         public void AdvanceTick(in float deltaTime) {
 
             var module = this.world.GetModule<GOAPModule>();
-            foreach (var entity in this.filter) {
+            var arr = this.filter.ToArray(Unity.Collections.Allocator.Temp);
+            for (int k = 0; k < arr.Length; ++k) {
 
+                var entity = arr[k];
                 var group = module.GetGroupById(entity.Read<GOAPEntityGroup>().groupId);
                 if (group.goals == null ||
                     group.goals.Length == 0) {
@@ -111,11 +113,28 @@ namespace ME.ECS.Essentials.GOAP.Systems {
 
                 // Choose the right plan to go if we have one
                 if (resultGoal.isCreated == true) {
-                    entity.Set(resultGoal.plan);
+
+                    ref var prevPlan = ref entity.Get<ME.ECS.Essentials.GOAP.GOAPEntityPrevPlan>();
+                    var plan = resultGoal.plan;
+                    if (prevPlan.groupId != plan.groupId ||
+                        prevPlan.nextActionIdx != plan.nextActionIdx) {
+                    
+                        prevPlan.groupId = plan.groupId;
+                        prevPlan.nextActionIdx = plan.nextActionIdx;
+
+                        plan.nextAction.PerformBegin(in entity);
+
+                    }
+
+                    UnityEngine.Debug.Log("Set plan: " + entity);
+                    entity.Set(plan);
+
                 }
                 
             }
-        
+
+            arr.Dispose();
+
         }
 
     }

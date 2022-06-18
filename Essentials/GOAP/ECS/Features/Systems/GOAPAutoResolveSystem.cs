@@ -45,15 +45,15 @@ namespace ME.ECS.Essentials.GOAP.Systems {
             var action = plan.nextAction;
             if (action != null) {
 
-                if (prevPlan.groupId != plan.groupId ||
-                    prevPlan.nextActionIdx != plan.nextActionIdx) {
-                    
-                    prevPlan.groupId = plan.groupId;
-                    prevPlan.nextActionIdx = plan.nextActionIdx;
-
-                    action.PerformBegin(in entity);
-
-                }
+                // if (prevPlan.groupId != plan.groupId ||
+                //     prevPlan.nextActionIdx != plan.nextActionIdx) {
+                //     
+                //     prevPlan.groupId = plan.groupId;
+                //     prevPlan.nextActionIdx = plan.nextActionIdx;
+                //
+                //     action.PerformBegin(in entity);
+                //
+                // }
                 
                 action.Perform(in entity);
                 if (action.IsDone(in entity) == true) {
