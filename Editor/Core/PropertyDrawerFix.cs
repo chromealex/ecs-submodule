@@ -20,10 +20,11 @@ public class DefaultEditor : UnityEditor.Editor {
             do {
 
                 var field = iterator.GetField();
-                if (field != null && field.GetCustomAttribute<NonReorderableAttribute>() == null) {
+                if (iterator.isArray == true && field != null && field.GetCustomAttribute<NonReorderableAttribute>() == null) {
                     
                     // Draw default array
                     var copy = iterator.Copy();
+                    var singleType = field.FieldType.GetElementType();
                     
                     var subContainer = new VisualElement();
                     subContainer.AddToClassList("default-array-container");
@@ -34,6 +35,35 @@ public class DefaultEditor : UnityEditor.Editor {
                         foldout.style.unityFontStyleAndWeight = new StyleEnum<FontStyle>(FontStyle.Bold);
                         foldout.value = true;
                         foldout.text = copy.displayName;
+                        var toggle = foldout.Q(className: "unity-toggle");
+                        {
+                            toggle.RegisterCallback<DragEnterEvent>((evt) => {
+                                if (this.HasDragForType(DragAndDrop.objectReferences, singleType) == false) return;
+                                toggle.AddToClassList("default-toggle-drag-over");
+                            });
+                            toggle.RegisterCallback<DragLeaveEvent>((evt) => {
+                                toggle.RemoveFromClassList("default-toggle-drag-over");
+                            });
+                            toggle.RegisterCallback<DragUpdatedEvent>((evt) => {
+                                DragAndDrop.visualMode = DragAndDropVisualMode.Generic;
+                            });
+                            toggle.RegisterCallback<DragPerformEvent>((evt) => {
+                                toggle.RemoveFromClassList("default-toggle-drag-over");
+                                if (DragAndDrop.objectReferences.Length > 0) {
+                                    if (this.HasDragForType(DragAndDrop.objectReferences, singleType) == false) return;
+                                    copy.serializedObject.Update();
+                                    var cnt = copy.arraySize;
+                                    copy.arraySize += DragAndDrop.objectReferences.Length;
+                                    for (int i = 0; i < DragAndDrop.objectReferences.Length; ++i) {
+                                        var prop = copy.GetArrayElementAtIndex(cnt + i);
+                                        prop.objectReferenceValue = DragAndDrop.objectReferences[i];
+                                    }
+
+                                    copy.serializedObject.ApplyModifiedProperties();
+                                }
+                                DragAndDrop.AcceptDrag();
+                            });
+                        }
                         subContainer.Add(foldout);
 
                         {
@@ -85,6 +115,20 @@ public class DefaultEditor : UnityEditor.Editor {
 
         return container;
         
+    }
+
+    private bool HasDragForType(Object[] objectReferences, System.Type fieldType) {
+
+        for (int i = 0; i < objectReferences.Length; ++i) {
+
+            var obj = objectReferences[i];
+            var type = obj.GetType();
+            if (fieldType.IsAssignableFrom(type) == true) return true;
+
+        }
+
+        return false;
+
     }
 
 }

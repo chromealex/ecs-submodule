@@ -12,16 +12,25 @@
     background-color: #444;
 }
 
-/*
-    ComponentData, ComponentData<T>
- */
 .filter-data-container, .component-data-container {
     border-radius: 5px;
     border-width: 1px;
     border-color: rgba(255, 255, 255, 0.1);
     background-color: rgba(0, 0, 0, 0.05);
-    margin-bottom: 4px;
+    margin-bottom: 10px;
+    margin-top: 4px;
 }
+
+.foldout-description {
+    font-size: 10px;
+    -unity-font-style: normal;
+    align-self: center;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/*
+    ComponentData, ComponentData<T>
+ */
 
 .component-data-container {
 }
@@ -111,18 +120,12 @@
 
 .filter-data-container .content-include {
     background-color: rgba(0, 255, 0, 0.03);
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
+    border-radius: 5px 5px 0px 0px;
 }
 
 .filter-data-container .content-exclude {
     background-color: rgba(255, 0, 0, 0.03);
-    border-top-left-radius: 0px;
-    border-top-right-radius: 0px;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
+    border-radius: 0px 0px 5px 5px;
 }
 
 .filter-data-container .data-container-layout {
@@ -200,4 +203,17 @@
 .filter-data-container .button-container {
     margin: 10px;
     margin-top: 2px;
+}
+
+.filter-data-container .header .unity-foldout__content {
+    margin: 0px;
+    padding: 0px;
+}
+
+.filter-data-container .header.unity-foldout {
+    padding: 0px;
+}
+
+.filter-data-container .header.unity-foldout .unity-toggle__input {
+    padding: 2px 14px;
 }
