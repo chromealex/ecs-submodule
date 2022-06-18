@@ -5,9 +5,16 @@ using Unity.Jobs;
 
 namespace ME.ECS.Essentials.GOAP {
 
+    public struct ActionTemp {
+
+        public Action action;
+        public bool canRun;
+
+    }
+
     public struct Planner {
 
-        public static Plan GetPlan(World world, NativeArray<Action> actions, Goal goal, in Entity entity) {
+        public static Plan GetPlan(World world, NativeArray<ActionTemp> actions, Goal goal, in Entity entity) {
 
             var plan = new Plan() {
                 planStatus = PathStatus.NotCalculated,
@@ -33,29 +40,31 @@ namespace ME.ECS.Essentials.GOAP {
                 }
             }
             
-            var temp = new NativeArray<Action.Data>(actions.Length, Allocator.TempJob);
+            var graph = new NativeArray<Action.Data>(actions.Length, Allocator.TempJob);
             for (int i = 0; i < actions.Length; ++i) {
 
                 ref var action = ref actions.GetRef(i);
-                action.data.id = i;
-                action.data.parent = -1;
+                action.action.data.id = i;
+                action.action.data.parent = -1;
 
             }
 
             for (int i = 0; i < actions.Length; ++i) {
 
                 ref var action = ref actions.GetRef(i);
-                action.BuildNeighbours(actions);
-                temp[i] = action.data;
+                if (action.canRun == true) {
+                    action.action.BuildNeighbours(actions);
+                    graph[i] = action.action.data;
+                }
 
             }
 
-            var bestPath = Planner.GetBestPath(temp, goal, entityState, entityStateData);
+            var bestPath = Planner.GetBestPath(graph, goal, entityState, entityStateData);
             if (bestPath.pathStatus == PathStatus.Success) {
 
                 plan.actions = PoolArray<Action>.Spawn(bestPath.actions.Length);
                 for (int i = 0; i < plan.actions.Length; ++i) {
-                    plan.actions[i] = actions[bestPath.actions[i]];
+                    plan.actions[i] = actions[bestPath.actions[i]].action;
                 }
                 bestPath.actions.Dispose();
 
@@ -73,7 +82,7 @@ namespace ME.ECS.Essentials.GOAP {
                 item.Dispose();
             }
             entityStateData.Dispose();
-            temp.Dispose();
+            graph.Dispose();
 
             return plan;
 

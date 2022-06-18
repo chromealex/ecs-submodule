@@ -71,19 +71,20 @@ namespace ME.ECS.Essentials.GOAP {
             
         }
         
-        internal void BuildNeighbours(NativeArray<Action> availableActions) {
+        internal void BuildNeighbours(NativeArray<ActionTemp> availableActions) {
 
             var temp = PoolListCopyable<int>.Spawn(availableActions.Length);
 
             for (int i = 0; i < availableActions.Length; ++i) {
 
                 var action = availableActions[i];
-                if (action.data.id == this.data.id) continue;
+                if (action.canRun == false) continue;
+                if (action.action.data.id == this.data.id) continue;
 
                 // if action has effects which gives us any of precondition list
-                if (this.data.effects.HasAny(action.data.preconditions) == true) {
+                if (this.data.effects.HasAny(action.action.data.preconditions) == true) {
 
-                    temp.Add(action.data.id);
+                    temp.Add(action.action.data.id);
 
                 }
 

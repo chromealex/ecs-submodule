@@ -103,7 +103,7 @@ namespace ME.ECS.Essentials.GOAP.Systems {
                     plan.Dispose();
 
                     for (int i = 0; i < actions.Length; ++i) {
-                        actions[i].Dispose();
+                        actions[i].action.Dispose();
                     }
                     actions.Dispose();
 
