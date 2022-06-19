@@ -28,6 +28,13 @@
     color: rgba(255, 255, 255, 0.4);
 }
 
+.description {
+    font-size: 10px;
+    -unity-font-style: normal;
+    color: rgba(255, 255, 255, 0.4);
+    padding: 2px 14px;
+}
+
 /*
     ComponentData, ComponentData<T>
  */
