@@ -181,4 +181,16 @@ namespace ME.ECS {
         
     }
 
+    public class DescriptionAttribute : PropertyAttribute {
+
+        public string text;
+
+        public DescriptionAttribute(string text) {
+            
+            this.text = text;
+            
+        }
+
+    }
+
 }

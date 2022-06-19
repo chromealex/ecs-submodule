@@ -18,14 +18,13 @@ namespace ME.ECS.Essentials.GOAP {
     [CreateAssetMenu(menuName = "ME.ECS/Addons/GOAP/Actions/Perform Nearest")]
     public class GOAPNearestActionPerform : GOAPActionPerform {
 
-        [Tooltip("Nearest object to find")]
+        [Description("Find nearest object by this filter.")]
         public FilterDataTypes nearestFilter;
         [ComponentDataTypeAttribute(ComponentDataTypeAttribute.Type.WithData)]
-        [Tooltip("Apply this filter on object which GOAP has found")]
+        [Tooltip("Apply this data on object which GOAP has found")]
         [FilterDataTypesLabelsAttribute("Add", "Remove")]
         public FilterDataTypes applyOnNearest;
         [Tooltip("Apply this component on agent")]
-        [UnityEngine.Serialization.FormerlySerializedAsAttribute("moveComponent")]
         [ComponentDataType(ComponentDataTypeAttribute.Type.NoData)]
         public ComponentData<ISetTarget> applyOnAgent;
         
@@ -57,10 +56,13 @@ namespace ME.ECS.Essentials.GOAP {
                 comp.SetTarget(in obj);
                 this.applyOnNearest.Apply(in obj);
                 this.applyOnAgent.Apply(in agent);
-                
+                this.OnNearestFound(in agent, in obj);
+
             }
 
         }
+        
+        public virtual void OnNearestFound(in Entity agent, in Entity nearest) {}
 
         public override void OnComplete(in Entity agent) {
             
