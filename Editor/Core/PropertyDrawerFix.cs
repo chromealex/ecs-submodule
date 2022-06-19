@@ -89,6 +89,9 @@ public class DefaultEditor : UnityEditor.Editor {
                             var list = new UnityEditorInternal.ReorderableList(this.serializedObject, copy);
                             list.headerHeight = 0f;
                             list.drawHeaderCallback = (rect) => { };
+                            list.elementHeightCallback = (index) => {
+                                return EditorGUI.GetPropertyHeight(copy.GetArrayElementAtIndex(index), true);
+                            };
                             var edit = list.GetType().GetField("m_IsEditable", BindingFlags.Instance | BindingFlags.NonPublic);
                             edit.SetValue(list, true);
 
