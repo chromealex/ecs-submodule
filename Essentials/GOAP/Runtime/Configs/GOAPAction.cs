@@ -15,13 +15,17 @@ namespace ME.ECS.Essentials.GOAP {
         private Effect? effectsCache;
         private bool isInitialized;
 
+        private GOAPFeature feature;
+
         internal void DoAwake() {
 
             if (this.isInitialized == false) {
 
                 this.isInitialized = true;
+                
+                Worlds.current.GetFeature(out this.feature);
+                
                 this.OnAwake();
-
             }
 
         }
@@ -53,15 +57,18 @@ namespace ME.ECS.Essentials.GOAP {
         public virtual bool IsDone(in Entity agent) => true;
         
         public virtual void PerformBegin(in Entity agent) {
-            UnityEngine.Debug.Log("PerformBegin: " + agent + " :: " + this);
+            if(this.feature.showDebug)
+                UnityEngine.Debug.Log("PerformBegin: " + agent + " :: " + this);
         }
 
         public virtual void Perform(in Entity agent) {
-            UnityEngine.Debug.Log("Perform: " + agent + " :: " + this);
+            if(this.feature.showDebug)
+                UnityEngine.Debug.Log("Perform: " + agent + " :: " + this);
         }
 
         public virtual void OnComplete(in Entity agent) {
-            UnityEngine.Debug.Log("OnComplete: " + agent + " :: " + this);
+            if(this.feature.showDebug)
+                UnityEngine.Debug.Log("OnComplete: " + agent + " :: " + this);
         }
 
         public Precondition GetPreconditions(Unity.Collections.Allocator allocator) {

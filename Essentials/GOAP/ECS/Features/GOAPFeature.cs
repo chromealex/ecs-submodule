@@ -14,7 +14,10 @@ namespace ME.ECS.Essentials.GOAP {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class GOAPFeature : Feature {
+    public sealed class GOAPFeature : Feature
+    {
+
+        public bool showDebug;
 
         protected override void OnConstruct() {
 

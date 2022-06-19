@@ -13,20 +13,28 @@ namespace ME.ECS.Essentials.GOAP {
 
         void SetTarget(in Entity target);
 
+        Entity GetTarget();
+
     }
     
     [CreateAssetMenu(menuName = "ME.ECS/Addons/GOAP/Actions/Perform Nearest")]
     public class GOAPNearestActionPerform : GOAPActionPerform {
 
-        [Description("Find nearest object by this filter.")]
+        [Tooltip("Nearest object to find")]
         public FilterDataTypes nearestFilter;
         [ComponentDataTypeAttribute(ComponentDataTypeAttribute.Type.WithData)]
-        [Tooltip("Apply this data on object which GOAP has found")]
+        [Tooltip("Apply this filter on object which GOAP has found")]
         [FilterDataTypesLabelsAttribute("Add", "Remove")]
         public FilterDataTypes applyOnNearest;
         [Tooltip("Apply this component on agent")]
+        [UnityEngine.Serialization.FormerlySerializedAsAttribute("moveComponent")]
         [ComponentDataType(ComponentDataTypeAttribute.Type.NoData)]
         public ComponentData<ISetTarget> applyOnAgent;
+        
+        [ComponentDataType(ComponentDataTypeAttribute.Type.NoData)]
+        public ComponentData<ISetTarget> readNearestFromAgent;
+        [FilterDataTypesLabelsAttribute("Add", "Remove")]
+        public FilterDataTypes applyOnNearestFromAgent;
         
         private Filter filter;
 
@@ -48,6 +56,17 @@ namespace ME.ECS.Essentials.GOAP {
         
             base.PerformBegin(in agent);
 
+            if (readNearestFromAgent.TryRead(in agent, out var nearestComponent) == true) {
+                
+                var nearestObj = nearestComponent.GetTarget();
+                if (nearestObj.IsAlive() == true) {
+                    
+                    this.applyOnNearestFromAgent.Apply(nearestObj);
+                    
+                }
+                
+            }
+
             // Find nearest object and set it as target
             var obj = this.GetNearest(in agent);
             if (obj.IsAlive() == true) {
@@ -56,19 +75,16 @@ namespace ME.ECS.Essentials.GOAP {
                 comp.SetTarget(in obj);
                 this.applyOnNearest.Apply(in obj);
                 this.applyOnAgent.Apply(in agent);
-                this.OnNearestFound(in agent, in obj);
-
+                
             }
 
         }
-        
-        public virtual void OnNearestFound(in Entity agent, in Entity nearest) {}
 
         public override void OnComplete(in Entity agent) {
             
             base.OnComplete(in agent);
-
-            this.applyOnAgent.Remove(in agent);
+            
+            // this.applyOnAgent.Remove(in agent);
             
         }
 
