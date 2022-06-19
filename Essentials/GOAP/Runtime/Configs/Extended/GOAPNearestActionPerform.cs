@@ -12,7 +12,6 @@ namespace ME.ECS.Essentials.GOAP {
     public interface ISetTarget : IComponent {
 
         void SetTarget(in Entity target);
-
         Entity GetTarget();
 
     }
@@ -29,6 +28,11 @@ namespace ME.ECS.Essentials.GOAP {
         [Tooltip("Apply this component on agent")]
         [ComponentDataType(ComponentDataTypeAttribute.Type.NoData)]
         public ComponentData<ISetTarget> applyOnAgent;
+        
+        [ComponentDataType(ComponentDataTypeAttribute.Type.NoData)]
+        public ComponentData<ISetTarget> readNearestFromAgent;
+        [FilterDataTypesLabelsAttribute("Add", "Remove")]
+        public FilterDataTypes applyOnNearestFromAgent;
         
         private Filter filter;
 
@@ -50,7 +54,7 @@ namespace ME.ECS.Essentials.GOAP {
         
             base.PerformBegin(in agent);
 
-            if (readNearestFromAgent.TryRead(in agent, out var nearestComponent) == true) {
+            if (this.readNearestFromAgent.TryRead(in agent, out var nearestComponent) == true) {
                 
                 var nearestObj = nearestComponent.GetTarget();
                 if (nearestObj.IsAlive() == true) {

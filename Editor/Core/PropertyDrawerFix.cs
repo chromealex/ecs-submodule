@@ -20,7 +20,10 @@ public class DefaultEditor : UnityEditor.Editor {
             do {
 
                 var field = iterator.GetField();
-                if (iterator.isArray == true && field != null && field.GetCustomAttribute<NonReorderableAttribute>() == null) {
+                if ((field == null || field.FieldType != typeof(string)) &&
+                    iterator.isArray == true &&
+                    field != null &&
+                    field.GetCustomAttribute<NonReorderableAttribute>() == null) {
                     
                     // Draw default array
                     var copy = iterator.Copy();
