@@ -126,7 +126,8 @@ namespace ME.ECS.Essentials.GOAP.Systems {
 
                     }
 
-                    UnityEngine.Debug.Log("Set plan: " + entity);
+                    if(this.feature.showDebug)
+                        UnityEngine.Debug.Log("Set plan: " + entity);
                     entity.Set(plan);
 
                 }

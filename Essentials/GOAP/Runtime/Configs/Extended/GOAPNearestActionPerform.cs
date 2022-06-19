@@ -13,6 +13,8 @@ namespace ME.ECS.Essentials.GOAP {
 
         void SetTarget(in Entity target);
 
+        Entity GetTarget();
+
     }
     
     [CreateAssetMenu(menuName = "ME.ECS/Addons/GOAP/Actions/Perform Nearest")]
@@ -48,6 +50,17 @@ namespace ME.ECS.Essentials.GOAP {
         
             base.PerformBegin(in agent);
 
+            if (readNearestFromAgent.TryRead(in agent, out var nearestComponent) == true) {
+                
+                var nearestObj = nearestComponent.GetTarget();
+                if (nearestObj.IsAlive() == true) {
+                    
+                    this.applyOnNearestFromAgent.Apply(nearestObj);
+                    
+                }
+                
+            }
+
             // Find nearest object and set it as target
             var obj = this.GetNearest(in agent);
             if (obj.IsAlive() == true) {
@@ -61,14 +74,14 @@ namespace ME.ECS.Essentials.GOAP {
             }
 
         }
-        
+
         public virtual void OnNearestFound(in Entity agent, in Entity nearest) {}
 
         public override void OnComplete(in Entity agent) {
             
             base.OnComplete(in agent);
-
-            this.applyOnAgent.Remove(in agent);
+            
+            // this.applyOnAgent.Remove(in agent);
             
         }
 
