@@ -29,7 +29,7 @@ namespace ME.ECS.Essentials.Input.Input.Systems {
 
         void IUpdate.Update(in float deltaTime) {
             
-            this.feature.Execute();
+            this.feature.Execute(deltaTime);
             
         }
         
