@@ -2,127 +2,118 @@ using UnityEngine;
 
 namespace ME.ECS.Essentials.GOAP {
 
+    [System.Flags]
     public enum ActionEvent {
 
-        PerformBegin,
-        Perform,
-        PerformComplete,
-        CanRunPrepare,
-        GetCost,
-        IsDone,
-        OnAwake,
-        OnDispose,
+        None = 0,
+        PerformBegin = 1 << 0,
+        Perform = 1 << 1,
+        PerformComplete = 1 << 2,
+        CanRunPrepare = 1 << 3,
+        GetCost = 1 << 4,
+        IsDone = 1 << 5,
+        OnAwake = 1 << 6,
+        OnDispose = 1 << 7,
 
     }
     
     [System.Serializable]
     public struct ModuleGroup {
 
-        public ActionEvent actionEvent;
-        [SerializeReference]
-        public GOAPActionModule[] items;
+        public void Run(GOAPActionModule[] items, in Entity agent, ActionEvent evt) {
 
-        public void Run(in Entity agent, ActionEvent evt) {
+            for (int i = 0; i < items.Length; ++i) {
 
-            if (this.actionEvent == evt) {
+                var item = items[i];
+                if (item == null) continue;
 
-                for (int i = 0; i < this.items.Length; ++i) {
+                switch (evt) {
+                    
+                    case ActionEvent.PerformBegin:
+                        if ((item.requiredEvents & evt) != 0) item.PerformBegin(in agent);
+                        break;
 
-                    var item = this.items[i];
-                    if (item == null) continue;
+                    case ActionEvent.Perform:
+                        if ((item.requiredEvents & evt) != 0) item.Perform(in agent);
+                        break;
 
-                    switch (evt) {
-                        
-                        case ActionEvent.PerformBegin:
-                            item.PerformBegin(in agent);
-                            break;
+                    case ActionEvent.PerformComplete:
+                        if ((item.requiredEvents & evt) != 0) item.OnComplete(in agent);
+                        break;
 
-                        case ActionEvent.Perform:
-                            item.Perform(in agent);
-                            break;
+                    case ActionEvent.OnAwake:
+                        if ((item.requiredEvents & evt) != 0) item.OnAwake();
+                        break;
 
-                        case ActionEvent.PerformComplete:
-                            item.OnComplete(in agent);
-                            break;
-
-                        case ActionEvent.OnAwake:
-                            item.OnAwake();
-                            break;
-
-                        case ActionEvent.OnDispose:
-                            item.OnDispose();
-                            break;
-
-                    }
+                    case ActionEvent.OnDispose:
+                        if ((item.requiredEvents & evt) != 0) item.OnDispose();
+                        break;
 
                 }
-                
+
             }
-            
+
         }
 
-        public bool RunBool(in Entity agent, ActionEvent evt, out bool result) {
+        public bool RunBool(GOAPActionModule[] items, in Entity agent, ActionEvent evt, out bool result) {
 
             result = false;
-            if (this.actionEvent == evt) {
+            var found = false;
+            for (int i = 0; i < items.Length; ++i) {
 
-                var found = false;
-                for (int i = 0; i < this.items.Length; ++i) {
+                var item = items[i];
+                if (item == null) continue;
 
-                    var item = this.items[i];
-                    if (item == null) continue;
-
-                    switch (evt) {
-                        
-                        case ActionEvent.IsDone:
+                switch (evt) {
+                    
+                    case ActionEvent.IsDone:
+                        if ((item.requiredEvents & evt) != 0) {
                             result = item.IsDone(in agent);
                             found = true;
-                            break;
+                        }
 
-                        case ActionEvent.CanRunPrepare:
+                        break;
+
+                    case ActionEvent.CanRunPrepare:
+                        if ((item.requiredEvents & evt) != 0) {
                             result = item.CanRunPrepare(in agent);
                             found = true;
-                            break;
+                        }
 
-                    }
+                        break;
 
                 }
 
-                return found;
-
             }
 
-            return false;
+            return found;
 
         }
 
-        public bool RunFloat(in Entity agent, ActionEvent evt, out float result) {
+        public bool RunFloat(GOAPActionModule[] items, in Entity agent, ActionEvent evt, out float result) {
 
             result = 0f;
-            if (this.actionEvent == evt) {
+            var found = false;
+            for (int i = 0; i < items.Length; ++i) {
 
-                var found = false;
-                for (int i = 0; i < this.items.Length; ++i) {
+                var item = items[i];
+                if (item == null) continue;
 
-                    var item = this.items[i];
-                    if (item == null) continue;
-
-                    switch (evt) {
-                        
-                        case ActionEvent.GetCost:
+                switch (evt) {
+                    
+                    case ActionEvent.GetCost:
+                        if ((item.requiredEvents & evt) != 0) {
                             result = item.GetCost(in agent);
                             found = true;
-                            break;
+                        }
 
-                    }
+                        break;
 
                 }
 
-                return found;
-
             }
 
-            return false;
+            return found;
 
         }
 
@@ -130,6 +121,8 @@ namespace ME.ECS.Essentials.GOAP {
     
     [System.Serializable]
     public abstract class GOAPActionModule {
+
+        public virtual ActionEvent requiredEvents => ActionEvent.None;
 
         public virtual void Perform(in Entity agent) {
         }
@@ -163,36 +156,22 @@ namespace ME.ECS.Essentials.GOAP {
     [CreateAssetMenu(menuName = "ME.ECS/Addons/GOAP/Actions/Generic", order = -1)]
     public class GOAPGenericAction : GOAPAction {
 
-        public ModuleGroup[] items;
+        [SerializeReference]
+        [SerializeReferenceButton]
+        public GOAPActionModule[] items;
 
         private void DoActions(in Entity agent, ActionEvent evt) {
-            for (int i = 0; i < this.items.Length; ++i) {
-                this.items[i].Run(in agent, evt);
-            }
+            new ModuleGroup().Run(this.items, in agent, evt);
         }
 
         private bool DoActionsBool(in Entity agent, ActionEvent evt, out bool result) {
             result = default;
-            var found = false;
-            for (int i = 0; i < this.items.Length; ++i) {
-                if (this.items[i].RunBool(in agent, evt, out result) == true) {
-                    found = true;
-                }
-            }
-
-            return found;
+            return new ModuleGroup().RunBool(this.items, in agent, evt, out result) == true;
         }
 
         private bool DoActionsFloat(in Entity agent, ActionEvent evt, out float result) {
             result = default;
-            var found = false;
-            for (int i = 0; i < this.items.Length; ++i) {
-                if (this.items[i].RunFloat(in agent, evt, out result) == true) {
-                    found = true;
-                }
-            }
-
-            return found;
+            return new ModuleGroup().RunFloat(this.items, in agent, evt, out result);
         }
 
         public override void Perform(in Entity agent) {

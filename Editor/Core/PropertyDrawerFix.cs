@@ -15,6 +15,15 @@ public class DefaultEditor : UnityEditor.Editor {
         container.AddToClassList("default-container");
 
         var iterator = this.serializedObject.GetIterator();
+        DrawFields(iterator, container);
+
+        return container;
+        
+    }
+
+    public static void DrawFields(SerializedProperty iterator, VisualElement container) {
+
+        var so = iterator.serializedObject;
         if (iterator.NextVisible(true)) {
             
             do {
@@ -41,7 +50,7 @@ public class DefaultEditor : UnityEditor.Editor {
                         var toggle = foldout.Q(className: "unity-toggle");
                         {
                             toggle.RegisterCallback<DragEnterEvent>((evt) => {
-                                if (this.HasDragForType(DragAndDrop.objectReferences, singleType) == false) return;
+                                if (HasDragForType(DragAndDrop.objectReferences, singleType) == false) return;
                                 toggle.AddToClassList("default-toggle-drag-over");
                             });
                             toggle.RegisterCallback<DragLeaveEvent>((evt) => {
@@ -53,7 +62,7 @@ public class DefaultEditor : UnityEditor.Editor {
                             toggle.RegisterCallback<DragPerformEvent>((evt) => {
                                 toggle.RemoveFromClassList("default-toggle-drag-over");
                                 if (DragAndDrop.objectReferences.Length > 0) {
-                                    if (this.HasDragForType(DragAndDrop.objectReferences, singleType) == false) return;
+                                    if (HasDragForType(DragAndDrop.objectReferences, singleType) == false) return;
                                     copy.serializedObject.Update();
                                     var cnt = copy.arraySize;
                                     copy.arraySize += DragAndDrop.objectReferences.Length;
@@ -86,11 +95,14 @@ public class DefaultEditor : UnityEditor.Editor {
                         }
 
                         {
-                            var list = new UnityEditorInternal.ReorderableList(this.serializedObject, copy);
+                            var list = new UnityEditorInternal.ReorderableList(so, copy);
                             list.headerHeight = 0f;
                             list.drawHeaderCallback = (rect) => { };
                             list.elementHeightCallback = (index) => {
                                 return EditorGUI.GetPropertyHeight(copy.GetArrayElementAtIndex(index), true);
+                            };
+                            list.drawElementCallback = (rect, index, active, focused) => {
+                                EditorGUI.PropertyField(rect, copy.GetArrayElementAtIndex(index), true);
                             };
                             var edit = list.GetType().GetField("m_IsEditable", BindingFlags.Instance | BindingFlags.NonPublic);
                             edit.SetValue(list, true);
@@ -105,7 +117,7 @@ public class DefaultEditor : UnityEditor.Editor {
                     var propertyField = new PropertyField(iterator.Copy()) { name = "PropertyField:" + iterator.propertyPath };
                     container.Add(propertyField);
                     
-                    if (iterator.propertyPath == "m_Script" && this.serializedObject.targetObject != null) {
+                    if (iterator.propertyPath == "m_Script" && so.targetObject != null) {
                         // I'm not sure about this line
                         // because I every time I want to change script - I need to use Debug Mode. Why? ;)
                         // So just change the color, but leave it enabled
@@ -118,12 +130,10 @@ public class DefaultEditor : UnityEditor.Editor {
             } while (iterator.NextVisible(false));
             
         }
-
-        return container;
         
     }
-
-    private bool HasDragForType(Object[] objectReferences, System.Type fieldType) {
+    
+    private static bool HasDragForType(Object[] objectReferences, System.Type fieldType) {
 
         for (int i = 0; i < objectReferences.Length; ++i) {
 
