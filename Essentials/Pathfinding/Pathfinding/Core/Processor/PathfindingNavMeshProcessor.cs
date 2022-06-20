@@ -4,6 +4,69 @@ using UnityEngine;
 namespace ME.ECS.Pathfinding {
 
     public struct PathfindingNavMeshProcessor : IPathfindingProcessor {
+        
+        private struct Cache {
+
+            private struct Entry {
+
+                public Tick tick;
+                public int hash;
+
+                public Vector3 from;
+                public Vector3 to;
+                public int constraintKey;
+                public Path path;
+
+            }
+            
+            private const int maxCacheSize = 20;
+            private static Entry[] pool = new Entry[Cache.maxCacheSize];
+            private static int currentIndex = 0;
+
+            public static bool Get(in Vector3 from, in Vector3 to, int constraintKey, in NavMeshGraph graph, out Path path) {
+
+                path = default;
+
+                var hash = graph.lastGraphUpdateHash;
+                var tick = Worlds.currentWorld.GetCurrentTick();
+
+                for (int i = 0; i < Cache.pool.Length; i++) {
+                    ref readonly var entry = ref Cache.pool[i];
+
+                    if (entry.hash == hash && entry.tick == tick) {
+                        if (entry.from == from && entry.to == to && entry.constraintKey == constraintKey) {
+                            path = Path.Clone(entry.path);
+
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+
+            public static void Set(in Vector3 from, in Vector3 to, int constraintKey, in NavMeshGraph graph, in Path path) {
+                
+                if (path.result == PathCompleteState.Complete) {
+
+                    ref var entry = ref Cache.pool[Cache.currentIndex];
+                    
+                    entry.hash = graph.lastGraphUpdateHash;
+                    entry.tick = Worlds.currentWorld.GetCurrentTick();
+                    entry.from = from;
+                    entry.to = to;
+                    entry.constraintKey = constraintKey;
+                    
+                    entry.path.Recycle();
+                    entry.path = Path.Clone(path);
+
+                    Cache.currentIndex = (Cache.currentIndex + 1) % Cache.maxCacheSize;
+
+                }
+                
+            }
+
+        }
 
         private struct PathInternal {
 
@@ -136,10 +199,15 @@ namespace ME.ECS.Pathfinding {
 
         public Path Run<TMod>(LogLevel pathfindingLogLevel, Vector3 fromPoint, Vector3 toPoint, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0,
                               bool burstEnabled = true, bool cacheEnabled = false) where TMod : struct, IPathModifier {
-
-            var path = new Path();
-            var pathResult = new PathInternal();
+            
             var navMeshGraph = (NavMeshGraph)graph;
+
+            if (Cache.Get(fromPoint, toPoint, constraint.GetKey(), navMeshGraph, out var path) == true) {
+                return path;
+            }
+
+            var pathResult = new PathInternal();
+            
 
             var areas = -1;
             if (constraint.checkArea == true) {
@@ -229,6 +297,9 @@ namespace ME.ECS.Pathfinding {
                     }
 
                 }
+                
+                Cache.Set(fromPoint, toPoint, constraint.GetKey(), navMeshGraph, path);
+                
                 results.Dispose();
                 query.Dispose();
                 return path;
@@ -395,6 +466,8 @@ namespace ME.ECS.Pathfinding {
             }
 
             query.Dispose();
+            
+            Cache.Set(fromPoint, toPoint, constraint.GetKey(), navMeshGraph, path);
 
             return path;
 
