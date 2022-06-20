@@ -6,7 +6,8 @@ namespace ME.ECS.Essentials.GOAP {
     [System.Serializable]
     public struct PreconditionsData {
 
-        [FilterDataTypesLabelsAttribute("Entity has", "Entity has no")]
+        [FilterDataTypesFoldoutAttribute(false)]
+        [Description("Data that entity should have before this action has been started.")]
         public FilterDataTypesOptional filter;
 
     }

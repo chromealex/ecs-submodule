@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 
@@ -26,4 +25,3 @@ namespace ME.ECS.Essentials.GOAP.Editor {
     }
 
 }
-#endif

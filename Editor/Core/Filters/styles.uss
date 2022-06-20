@@ -9,7 +9,7 @@
     align-self: center;
     margin-top: 8px;
     margin-bottom: 8px;
-    background-color: #444;
+    background-color: rgba(128, 128, 128, 0.5);
 }
 
 .filter-data-container, .component-data-container {
@@ -23,6 +23,7 @@
 
 .foldout-description {
     font-size: 10px;
+    padding-right: 8px;
     -unity-font-style: normal;
     align-self: center;
     color: rgba(255, 255, 255, 0.4);
@@ -149,10 +150,10 @@
     border-color: rgba(0, 0, 0, 0.1);
 }
 .filter-data-container .data-container.even {
-    background-color: rgba(50, 50, 50, 1.05);
+    background-color: rgba(50, 50, 50, 0.05);
 }
 .filter-data-container .data-container.odd {
-    background-color: rgba(52, 52, 52, 1.02);
+    background-color: rgba(52, 52, 52, 0.02);
     border-bottom-color: rgba(255, 255, 255, 0.05);
 }
 
