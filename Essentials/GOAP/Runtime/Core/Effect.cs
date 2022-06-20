@@ -7,7 +7,7 @@ namespace ME.ECS.Essentials.GOAP {
     public struct EffectsData {
 
         [FilterDataTypesLabelsAttribute("Entity should receive", "Entity should not receive")]
-        public FilterDataTypes filter;
+        public FilterDataTypesOptional filter;
 
     }
 

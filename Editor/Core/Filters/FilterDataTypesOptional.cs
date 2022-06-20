@@ -168,7 +168,7 @@ namespace ME.ECSEditor {
                 dataContainer.Add(hor);
                 
                 var optional = registryBase.FindPropertyRelative("optional");
-                if (optional != null) {
+                if (optional != null && type != null) {
 
                     var hasFields = type.GetFields().Length > 0;
 
@@ -256,7 +256,18 @@ namespace ME.ECSEditor {
 
                 } else {
 
-                    var noDataLabel = new Label("Unknown is missing.");
+                    if (string.IsNullOrEmpty(registry.managedReferenceFullTypename) == true) {
+                        
+                        var obj = property.serializedObject;
+                        obj.Update();
+                        subProperty.DeleteArrayElementAtIndex(i);
+                        obj.ApplyModifiedProperties();
+                        --size;
+                        continue;
+                        
+                    }
+                    
+                    var noDataLabel = new Label($"Component {registry.managedReferenceFullTypename} is missing");
                     noDataLabel.AddToClassList("no-data-label");
                     hor.Add(noDataLabel);
                     

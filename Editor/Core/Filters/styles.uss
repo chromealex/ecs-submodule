@@ -35,6 +35,13 @@
     padding: 2px 14px;
 }
 
+.no-data-label {
+    margin: 10px;
+    -unity-font-style: normal;
+    -unity-text-align: middle-left;
+    width: 100%;
+}
+
 /*
     ComponentData, ComponentData<T>
  */
@@ -62,11 +69,6 @@
 .component-data-container .data {
     margin: 10px;
     -unity-font-style: bold;
-}
-
-.component-data-container .no-data-label {
-    margin: 10px;
-    margin-bottom: 2px;
 }
 
 .component-data-container .no-data-type-container {
@@ -185,11 +187,6 @@
 .filter-data-container .data Foldout {
     padding-left: 10px;
     -unity-font-style: normal;
-}
-
-.filter-data-container .no-data-label {
-    margin: 10px;
-    margin-bottom: 2px;
 }
 
 .filter-data-container .no-data-type-container {

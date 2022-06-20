@@ -16,6 +16,10 @@ namespace ME.ECS.Essentials.GOAP.DefaultModules {
 
         [Description("Find nearest object by this filter.")]
         public FilterDataTypes nearestFilter;
+        [ComponentDataTypeAttribute(ComponentDataTypeAttribute.Type.WithData)]
+        [Tooltip("Apply this data on object which GOAP has found")]
+        [FilterDataTypesLabelsAttribute("Add", "Remove")]
+        public FilterDataTypes applyOnNearest;
         [Tooltip("Apply this component on agent")]
         [ComponentDataType(ComponentDataTypeAttribute.Type.NoData)]
         public ComponentData<ISetTarget> applyOnAgent;
@@ -46,13 +50,15 @@ namespace ME.ECS.Essentials.GOAP.DefaultModules {
                 
                 var comp = this.applyOnAgent.component;
                 comp.SetTarget(in obj);
-                //this.applyOnNearest.Apply(in obj);
+                this.applyOnNearest.Apply(in obj);
                 this.applyOnAgent.Apply(in agent);
-                //this.OnNearestFound(in agent, in obj);
+                this.OnNearestFound(in agent, in obj);
 
             }
 
         }
+        
+        protected virtual void OnNearestFound(in Entity agent, in Entity obj) {}
 
         private Entity GetNearestEntity(in Entity agent) {
 
