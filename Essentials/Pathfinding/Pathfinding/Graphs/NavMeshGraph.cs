@@ -65,6 +65,8 @@ namespace ME.ECS.Pathfinding {
         private ME.ECS.Collections.DictionaryCopyable<Key<Entity, int>, NavMeshBuildSource> buildSourcesEntities;
         [System.NonSerializedAttribute]
         private List<NavMeshBuildSource> tempSources;
+        
+        public int lastGraphUpdateHash { get; private set;  }
 
         public bool drawMesh;
         
@@ -198,6 +200,15 @@ namespace ME.ECS.Pathfinding {
             this.tempSources.Clear();
             if (this.buildSources != null) this.tempSources.AddRange(this.buildSources);
             if (sources != null) this.tempSources.AddRange(sources);
+
+
+            var hash = 0;
+            for (int i = 0; i < this.tempSources.Count; i++) {
+                hash ^= this.tempSources[i].transform.GetHashCode();
+            }
+
+            this.lastGraphUpdateHash = hash;
+            
             if (NavMeshBuilder.UpdateNavMeshData(this.navMeshData, this.buildSettings, this.tempSources, bounds) == false) {
 
                 return false;
