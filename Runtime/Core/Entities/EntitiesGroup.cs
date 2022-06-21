@@ -86,7 +86,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArray<Component<T>> Read<T>() where T : struct, IComponentBase {
+        public SparseSet<Component<T>> Read<T>() where T : struct, IComponentBase {
 
             return this.Get<T>();
 
@@ -95,14 +95,14 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArray<Component<T>> Get<T>() where T : struct, IComponentBase {
+        public SparseSet<Component<T>> Get<T>() where T : struct, IComponentBase {
             
             var typeId = WorldUtilities.GetAllComponentTypeId<T>();
             var world = Worlds.current;
             ref var container = ref world.GetStructComponents();
             var reg = (StructComponents<T>)container.list[typeId];
             reg.Merge();
-            return reg.components.data;
+            return reg.components;
 
         }
 
@@ -173,6 +173,13 @@ namespace ME.ECS {
 
                 }
 
+                for (int i = group.fromId; i <= group.toId; ++i) {
+                    
+                    this.InstantiateView(sourceId, in this.world.GetEntityById(i));
+                    
+                }
+
+                /*
                 var components = group.Read<ViewComponent>();
                 for (int i = group.fromId, k = 0; i <= group.toId; ++i, ++k) {
                     
@@ -192,7 +199,7 @@ namespace ME.ECS {
 
                     }
 
-                }
+                }*/
                 
                 this.isRequestsDirty = true;
 
@@ -351,13 +358,15 @@ namespace ME.ECS {
             var componentIndex = ComponentTypes<TComponent>.typeId;
             ref var archetypes = ref this.world.currentState.storage.archetypes;
             if (group.copyMode == true) {
-                for (int i = group.fromId; i <= group.toId; ++i) {
+                this.components.Set(group.fromId, group.toId, in data);
+                /*for (int i = group.fromId; i <= group.toId; ++i) {
                     this.components.data[i] = data;
-                }
+                }*/
                 if (componentIndex >= 0 && setBits == true) archetypes.Set(in group, componentIndex);
             } else {
                 for (int i = group.fromId; i <= group.toId; ++i) {
-                    this.components.data[i] = data;
+                    //this.components.data[i] = data;
+                    this.components.Set(i, in data);
                     if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
@@ -378,13 +387,15 @@ namespace ME.ECS {
             var componentIndex = ComponentTypes<TComponent>.typeId;
             ref var archetypes = ref this.world.currentState.storage.archetypes;
             if (group.copyMode == true) {
-                for (int i = group.fromId; i <= group.toId; ++i) {
+                this.components.Set(group.fromId, group.toId, in data);
+                /*for (int i = group.fromId; i <= group.toId; ++i) {
                     this.components.data[i] = data;
-                }
+                }*/
                 if (componentIndex >= 0 && setBits == true) archetypes.Set(in group, componentIndex);
             } else {
                 for (int i = group.fromId; i <= group.toId; ++i) {
-                    this.components.data[i] = data;
+                    //this.components.data[i] = data;
+                    this.components.Set(i, in data);
                     if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
@@ -397,7 +408,8 @@ namespace ME.ECS {
         #endif
         public override void Remove(in EntitiesGroup group, bool setBits = true) {
 
-            System.Array.Clear(this.components.data.arr, group.fromId, group.Length);
+            //System.Array.Clear(this.components.data.arr, group.fromId, group.Length);
+            this.components.Remove(group.fromId, group.Length);
 
             if (setBits == true) {
                 

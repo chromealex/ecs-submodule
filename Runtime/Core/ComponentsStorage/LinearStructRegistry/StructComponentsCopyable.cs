@@ -105,12 +105,19 @@ namespace ME.ECS {
 
             }
 
-            for (int i = 0; i < this.components.Length; ++i) {
+            var sparse = this.components.GetSparse();
+            for (int i = 0; i < sparse.Length; ++i) {
+
+                ref var bucket = ref this.components.GetDense(sparse[i]);
+                if (bucket.state > 0) bucket.data.OnRecycle();
+
+            }
+            /*for (int i = 0; i < this.components.Length; ++i) {
                 
                 ref var bucket = ref this.components[i];
                 if (bucket.state > 0) bucket.data.OnRecycle();
                 
-            }
+            }*/
             
             base.OnRecycle();
             

@@ -876,9 +876,60 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void CopyWithIndex<T, TCopy>(SparseSet<T> fromArr, ref SparseSet<T> arr, TCopy copy)
+            where TCopy : IArrayElementCopyWithIndex<T> where T : struct {
+
+            if (fromArr.isCreated == false) {
+
+                if (arr.isCreated == true) arr.Dispose();
+                arr = default;
+                return;
+
+            }
+
+            if (arr.isCreated == false || fromArr.Length != arr.Length) {
+
+                if (arr.isCreated == true) arr.Dispose();
+                arr = new SparseSet<T>(fromArr.Length);
+
+            }
+
+            arr = arr.CopyFrom(in fromArr, copy);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T>(in ME.ECS.Collections.BufferArraySliced<T> fromArr, ref ME.ECS.Collections.BufferArraySliced<T> arr) where T : struct {
 
             arr = arr.CopyFrom(in fromArr);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Copy<T>(in ME.ECS.Collections.SparseSet<T> fromArr, ref ME.ECS.Collections.SparseSet<T> arr) where T : struct {
+
+            if (fromArr.isCreated == false) {
+
+                if (arr.isCreated == true) arr.Dispose();
+                arr = default;
+                return;
+
+            }
+
+            if (arr.isCreated == false || fromArr.Length != arr.Length) {
+
+                if (arr.isCreated == true) arr.Dispose();
+                arr = new SparseSet<T>(fromArr, fromArr.Length);
+
+            } else {
+
+                arr = arr.CopyFrom(in fromArr);
+
+            }
 
         }
 
@@ -1145,6 +1196,26 @@ namespace ME.ECS {
 
             arr = arr.Resize(index, resizeWithOffset, out var result);
             return result;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static bool Resize<T>(int index, ref SparseSet<T> arr, bool resizeWithOffset = false) where T : struct {
+
+            if (index < arr.Length) return false;
+
+            var offset = (resizeWithOffset == true ? 2 : 1);
+            if (arr.isCreated == false) {
+
+                arr = new SparseSet<T>(index * offset + 1);
+
+            }
+
+            var newLength = index + 1;
+            arr.Validate(newLength);
+            return true;
 
         }
 

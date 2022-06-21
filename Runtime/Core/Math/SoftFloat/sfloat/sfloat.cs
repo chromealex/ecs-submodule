@@ -116,6 +116,7 @@ public struct sfloat : IEquatable<sfloat>, IComparable<sfloat>, IComparable, IFo
     /// <param name="exponent">Exponent of the number</param>
     /// <param name="mantissa">Mantissa (significand) of the number</param>
     /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static sfloat FromParts(bool sign, uint exponent, uint mantissa)
     {
         return FromRaw((sign ? SignMask : 0) | ((exponent & 0xff) << MantissaBits) | (mantissa & ((1 << MantissaBits) - 1)));
@@ -144,6 +145,7 @@ public struct sfloat : IEquatable<sfloat>, IComparable<sfloat>, IComparable, IFo
     /// <summary>
     /// Converts an sfloat number to an integer
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator int(sfloat f)
     {
         if (f.Exponent < 0)
@@ -160,6 +162,7 @@ public struct sfloat : IEquatable<sfloat>, IComparable<sfloat>, IComparable, IFo
     /// <summary>
     /// Creates an sfloat number from an integer
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator sfloat(int value)
     {
         if (value == 0)
@@ -225,6 +228,7 @@ public struct sfloat : IEquatable<sfloat>, IComparable<sfloat>, IComparable, IFo
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static sfloat operator -(sfloat f) => new sfloat(f.rawValue ^ 0x80000000);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static sfloat InternalAdd(sfloat f1, sfloat f2)
     {
         byte rawExp1 = f1.RawExponent;
@@ -325,6 +329,7 @@ public struct sfloat : IEquatable<sfloat>, IComparable<sfloat>, IComparable, IFo
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static sfloat operator +(sfloat f1, sfloat f2)
     {
         return f1.RawExponent - f2.RawExponent >= 0 ? InternalAdd(f1, f2) : InternalAdd(f2, f1);
@@ -333,6 +338,7 @@ public struct sfloat : IEquatable<sfloat>, IComparable<sfloat>, IComparable, IFo
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static sfloat operator -(sfloat f1, sfloat f2) => f1 + (-f2);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static sfloat operator *(sfloat f1, sfloat f2)
     {
         int man1;
@@ -548,6 +554,7 @@ public struct sfloat : IEquatable<sfloat>, IComparable<sfloat>, IComparable, IFo
         return new sfloat(raw);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static sfloat operator /(sfloat f1, sfloat f2)
     {
         if (f1.IsNaN() || f2.IsNaN())
@@ -806,6 +813,7 @@ public struct sfloat : IEquatable<sfloat>, IComparable<sfloat>, IComparable, IFo
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(sfloat f1, sfloat f2)
     {
         if (f1.RawExponent != 255)

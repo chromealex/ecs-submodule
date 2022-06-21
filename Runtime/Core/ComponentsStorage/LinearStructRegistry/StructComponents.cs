@@ -1,7 +1,7 @@
 namespace ME.ECS {
 
     using Collections;
-    
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -10,7 +10,7 @@ namespace ME.ECS {
     public partial class StructComponents<TComponent> : StructComponentsBase<TComponent> where TComponent : struct, IComponentBase {
 
         [ME.ECS.Serializer.SerializeField]
-        internal BufferArraySliced<Component<TComponent>> components;
+        internal SparseSet<Component<TComponent>> components;
         [ME.ECS.Serializer.SerializeField]
         private long maxVersion;
 
@@ -250,6 +250,8 @@ namespace ME.ECS {
                     this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
 
                 }
+                
+                this.components.Remove(index);
 
                 return true;
 

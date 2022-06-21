@@ -97,13 +97,19 @@ namespace ME.ECSEditor.Tools {
 
             private ME.ECS.StructRegistryBase CreateDisposable() {
                 
-                var components = new Component<TestDisposableComponent>[3] {
-                    new Component<TestDisposableComponent>() { data = new TestDisposableComponent() { data = 1 }, state = 1 },
-                    new Component<TestDisposableComponent>() { data = new TestDisposableComponent() { data = 2 }, state = 1 },
-                    new Component<TestDisposableComponent>() { data = new TestDisposableComponent() { data = 3 }, state = 1 }, 
-                };
+                /*var components = new Component<TestCopyableComponent>[3] {
+                    new Component<TestCopyableComponent>() { data = new TestCopyableComponent() { data = 1 }, state = 1 },
+                    new Component<TestCopyableComponent>() { data = new TestCopyableComponent() { data = 2 }, state = 1 },
+                    new Component<TestCopyableComponent>() { data = new TestCopyableComponent() { data = 3 }, state = 1 },
+                };*/
+                var set = new ME.ECS.Collections.SparseSet<Component<TestDisposableComponent>>();
+                set.Validate(10);
+                set.Set(1, new Component<TestDisposableComponent>() { data = new TestDisposableComponent() { data = 1 }, state = 1 });
+                set.Set(2, new Component<TestDisposableComponent>() { data = new TestDisposableComponent() { data = 2 }, state = 1 });
+                set.Set(3, new Component<TestDisposableComponent>() { data = new TestDisposableComponent() { data = 3 }, state = 1 });
                 var baseComponentsReg = new ME.ECS.StructComponentsDisposable<TestDisposableComponent>() {
-                    components = new ME.ECS.Collections.BufferArraySliced<Component<TestDisposableComponent>>(new ME.ECS.Collections.BufferArray<Component<TestDisposableComponent>>(components, components.Length)),
+                    components = set,
+                    //components = new ME.ECS.Collections.BufferArraySliced<Component<TestDisposableComponent>>(new ME.ECS.Collections.BufferArray<Component<TestDisposableComponent>>(components, components.Length)),
                 };
 
                 return baseComponentsReg;
@@ -112,13 +118,19 @@ namespace ME.ECSEditor.Tools {
 
             private ME.ECS.StructRegistryBase CreateCopyable() {
                 
-                var components = new Component<TestCopyableComponent>[3] {
+                /*var components = new Component<TestCopyableComponent>[3] {
                     new Component<TestCopyableComponent>() { data = new TestCopyableComponent() { data = 1 }, state = 1 },
                     new Component<TestCopyableComponent>() { data = new TestCopyableComponent() { data = 2 }, state = 1 },
                     new Component<TestCopyableComponent>() { data = new TestCopyableComponent() { data = 3 }, state = 1 },
-                };
+                };*/
+                var set = new ME.ECS.Collections.SparseSet<Component<TestCopyableComponent>>();
+                set.Validate(10);
+                set.Set(1, new Component<TestCopyableComponent>() { data = new TestCopyableComponent() { data = 1 }, state = 1 });
+                set.Set(2, new Component<TestCopyableComponent>() { data = new TestCopyableComponent() { data = 2 }, state = 1 });
+                set.Set(3, new Component<TestCopyableComponent>() { data = new TestCopyableComponent() { data = 3 }, state = 1 });
                 var baseComponentsReg = new ME.ECS.StructComponentsCopyable<TestCopyableComponent>() {
-                    components = new ME.ECS.Collections.BufferArraySliced<Component<TestCopyableComponent>>(new ME.ECS.Collections.BufferArray<Component<TestCopyableComponent>>(components, components.Length)),
+                    components = set,
+                    //components = new ME.ECS.Collections.BufferArraySliced<Component<TestCopyableComponent>>(new ME.ECS.Collections.BufferArray<Component<TestCopyableComponent>>(components, components.Length)),
                 };
 
                 return baseComponentsReg;
@@ -127,11 +139,17 @@ namespace ME.ECSEditor.Tools {
 
             private ME.ECS.StructRegistryBase CreateDefault() {
                 
-                var components = new Component<TestComponent>[3] {
+                /*var components = new Component<TestComponent>[3] {
                     new Component<TestComponent>() { data = new TestComponent() { data = 1 }, state = 1 },
                     new Component<TestComponent>() { data = new TestComponent() { data = 2 }, state = 1 },
                     new Component<TestComponent>() { data = new TestComponent() { data = 3 }, state = 1 },
-                };
+                };*/
+                
+                var set = new ME.ECS.Collections.SparseSet<Component<TestComponent>>();
+                set.Validate(10);
+                set.Set(1, new Component<TestComponent>() { data = new TestComponent() { data = 1 }, state = 1 });
+                set.Set(2, new Component<TestComponent>() { data = new TestComponent() { data = 2 }, state = 1 });
+                set.Set(3, new Component<TestComponent>() { data = new TestComponent() { data = 3 }, state = 1 });
 
                 var shared = new ME.ECS.Collections.DictionaryCopyable<uint, ME.ECS.StructComponents<TestComponent>.SharedGroupData>();
                 shared.Add(10, new ME.ECS.StructComponents<TestComponent>.SharedGroupData() {
@@ -140,7 +158,8 @@ namespace ME.ECSEditor.Tools {
                 });
                 
                 var baseComponentsReg = new ME.ECS.StructComponents<TestComponent>() {
-                    components = new ME.ECS.Collections.BufferArraySliced<Component<TestComponent>>(new ME.ECS.Collections.BufferArray<Component<TestComponent>>(components, components.Length)),
+                    components = set,
+                    //components = new ME.ECS.Collections.BufferArraySliced<Component<TestComponent>>(new ME.ECS.Collections.BufferArray<Component<TestComponent>>(components, components.Length)),
                     sharedGroups = new ME.ECS.StructComponents<TestComponent>.SharedGroups() {
                         sharedGroups = shared,
                     },

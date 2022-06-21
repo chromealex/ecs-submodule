@@ -389,6 +389,16 @@
             }
         }
 
+        public T Pop() {
+
+            var idx = this.Count - 1;
+            var item = this.innerArray.arr[idx];
+            this.innerArray.arr[idx] = default;
+            --this.Count;
+            return item;
+
+        }
+
     }
 
 }

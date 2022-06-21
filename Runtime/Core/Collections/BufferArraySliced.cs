@@ -57,6 +57,43 @@ namespace ME.ECS.Collections {
 
         }
 
+        public BufferArraySliced<T> PopLast(out T result) {
+
+            var index = this.Length - 1;
+            var data = this.data;
+            if (index >= data.Length) {
+
+                // Look into tails
+                var tails = this.tails;
+                var arr = tails.arr;
+                index -= data.Length;
+                for (int i = 0, length = tails.Length; i < length; ++i) {
+
+                    ref var tail = ref arr[i];
+                    var len = tail.Length;
+                    if (index < len) {
+                        
+                        result = tail.arr[index];
+                        tail.arr[index] = default;
+                        tail = new BufferArray<T>(tail.arr, tail.Length - 1);
+                        return new BufferArraySliced<T>(this.data, tails);
+                        
+                    }
+                    index -= len;
+
+                }
+
+            }
+
+            {
+                result = data.arr[index];
+                data.arr[index] = default;
+                var newData = new BufferArray<T>(data.arr, data.Length - 1);
+                return new BufferArraySliced<T>(newData, this.tails);
+            }
+
+        }
+
         public ref T this[int index] {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             get {
