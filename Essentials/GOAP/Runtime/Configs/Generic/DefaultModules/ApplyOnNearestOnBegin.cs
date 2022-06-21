@@ -9,8 +9,8 @@ using UnityEngine;
 
 namespace ME.ECS.Essentials.GOAP.DefaultModules {
 
-    [SerializedReferenceCaption("Default/Apply on Nearest")]
-    public class ApplyOnNearest : GOAPActionModule {
+    [SerializedReferenceCaption("Default/Apply on Nearest (On Begin)")]
+    public class ApplyOnNearestOnBegin : GOAPActionModule {
 
         public override ActionEvent requiredEvents => ActionEvent.PerformBegin;
 

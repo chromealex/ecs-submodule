@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace ME.ECS.Essentials.GOAP.DefaultModules {
 
-    [SerializedReferenceCaption("Default/Filter on Begin")]
+    [SerializedReferenceCaption("Default/Apply on Agent (On Begin)")]
     public class FilterOnBegin : GOAPActionModule {
 
         public override ActionEvent requiredEvents => ActionEvent.PerformBegin;
