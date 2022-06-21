@@ -160,6 +160,11 @@ namespace ME.ECS.Essentials.GOAP {
         [SerializeReferenceButton]
         public GOAPActionModule[] items;
 
+        protected override void OnAwake() {
+            base.OnAwake();
+            this.DoActions(Entity.Null, ActionEvent.OnAwake);
+        }
+        
         private void DoActions(in Entity agent, ActionEvent evt) {
             new ModuleGroup().Run(this.items, in agent, evt);
         }
