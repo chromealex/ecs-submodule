@@ -27,18 +27,6 @@ namespace ME.ECS.Mathematics
         public static implicit operator Vector2Int(int2 v)     { return new Vector2Int(v.x, v.y); }
         public static implicit operator int2(Vector2Int v)     { return new int2(v.x, v.y); }
     }
-    
-    public partial struct int3
-    {
-        public static implicit operator Vector3Int(int3 v)     { return new Vector3Int(v.x, v.y, v.z); }
-        public static implicit operator int3(Vector3Int v)     { return new int3(v.x, v.y, v.z); }
-    }
-
-    public partial struct int2
-    {
-        public static implicit operator Vector2Int(int2 v)     { return new Vector2Int(v.x, v.y); }
-        public static implicit operator int2(Vector2Int v)     { return new int2(v.x, v.y); }
-    }
 
     public partial struct int3
     {
