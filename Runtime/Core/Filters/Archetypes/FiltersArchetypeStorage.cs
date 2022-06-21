@@ -1080,11 +1080,15 @@ namespace ME.ECS.FiltersArchetype {
         #endif
         public int Count(FilterData filter) {
 
+            var filterStaticData = Worlds.current.GetFilterStaticData(filter.id);
+            if (FiltersArchetype.FiltersArchetypeStorage.CheckStaticShared(filterStaticData.data.containsShared, filterStaticData.data.notContainsShared) == false) {
+                return 0;
+            }
+
             if (this.forEachMode == 0) {
                 this.UpdateFilters();
             }
 
-            var filterStaticData = Worlds.current.GetFilterStaticData(filter.id);
             var onChanged = filterStaticData.data.onChanged;
             var changedTracked = onChanged.Count;
             
