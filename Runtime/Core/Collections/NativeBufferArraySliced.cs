@@ -41,9 +41,9 @@ namespace ME.ECS.Collections {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public NativeBufferArraySliced<T> Resize(int index, bool withOffset, out bool result) {
+        public NativeBufferArraySliced<T> Resize(int index, bool resizeWithOffset, out bool result) {
 
-            result = NativeArrayUtils.Resize(index, ref this.data, withOffset);
+            result = NativeArrayUtils.Resize(index, ref this.data, resizeWithOffset);
             return this;
 
         }
