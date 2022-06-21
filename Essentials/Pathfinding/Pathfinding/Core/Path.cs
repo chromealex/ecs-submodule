@@ -47,6 +47,36 @@ namespace ME.ECS.Pathfinding {
 
         }
 
+        public static Path Clone(in Path other) {
+            
+            var path = new Path {
+                result = other.result,
+                graph = other.graph,
+                cacheEnabled = other.cacheEnabled,
+            };
+
+            if (other.nodes != null) {
+                path.nodes = PoolListCopyable<Node>.Spawn(other.nodes.Count);
+                path.nodes.AddRange(other.nodes);
+            }
+
+            if (other.nodesModified != null) {
+                path.nodesModified = PoolListCopyable<Node>.Spawn(other.nodesModified.Count);
+                path.nodesModified.AddRange(other.nodesModified);
+            }
+            
+            if (other.flowField.arr != null) {
+                path.flowField = BufferArray<byte>.From(other.flowField);
+            }
+            
+            if (other.navMeshPoints != null) {
+                path.navMeshPoints = PoolListCopyable<Vector3>.Spawn(other.navMeshPoints.Count);
+                path.navMeshPoints.AddRange(other.navMeshPoints);
+            }
+
+            return path;
+        }
+
     }
 
 }
