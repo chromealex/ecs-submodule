@@ -13,8 +13,8 @@ namespace ME.ECS.Pathfinding {
                 public Tick tick;
                 public int hash;
 
-                public Vector3 from;
-                public Vector3 to;
+                public float3 from;
+                public float3 to;
                 public int constraintKey;
                 public Path path;
 
@@ -24,7 +24,7 @@ namespace ME.ECS.Pathfinding {
             private static Entry[] pool = new Entry[Cache.maxCacheSize];
             private static int currentIndex = 0;
 
-            public static bool Get(in Vector3 from, in Vector3 to, int constraintKey, in NavMeshGraph graph, out Path path) {
+            public static bool Get(in float3 from, in float3 to, int constraintKey, in NavMeshGraph graph, out Path path) {
 
                 path = default;
 
@@ -35,7 +35,7 @@ namespace ME.ECS.Pathfinding {
                     ref readonly var entry = ref Cache.pool[i];
 
                     if (entry.hash == hash && entry.tick == tick) {
-                        if (entry.from == from && entry.to == to && entry.constraintKey == constraintKey) {
+                        if (math.all(entry.from == from) && math.all(entry.to == to) && entry.constraintKey == constraintKey) {
                             path = Path.Clone(entry.path);
 
                             return true;
@@ -46,7 +46,7 @@ namespace ME.ECS.Pathfinding {
                 return false;
             }
 
-            public static void Set(in Vector3 from, in Vector3 to, int constraintKey, in NavMeshGraph graph, in Path path) {
+            public static void Set(in float3 from, in float3 to, int constraintKey, in NavMeshGraph graph, in Path path) {
                 
                 if (path.result == PathCompleteState.Complete) {
 
