@@ -129,9 +129,9 @@ namespace ME.ECS.Essentials.GOAP {
                 for (int i = 0; i < this.temp.Length; ++i) {
 
                     var action = this.temp[i];
-                    if (action.preconditions.Has(this.entityState) == true &&
-                        action.preconditions.HasData(this.entityStateData) == true &&
-                        action.preconditions.HasNoData(this.entityStateData) == true) {
+                    if (action.conditions.Has(this.entityState) == true &&
+                        action.conditions.HasData(this.entityStateData) == true &&
+                        action.conditions.HasNoData(this.entityStateData) == true) {
 
                         // We have found start action
                         var result = Planner.Traverse(bestPath.cost, this.temp, this.goal, action, this.entityState);

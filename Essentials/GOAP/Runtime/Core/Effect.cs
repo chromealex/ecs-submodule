@@ -106,13 +106,13 @@ namespace ME.ECS.Essentials.GOAP {
             
         }
         
-        internal bool HasAny(Precondition preconditions) {
+        internal bool HasAny(Condition conditions) {
 
             for (int i = 0; i < this.hasComponents.Length; ++i) {
 
-                for (int j = 0; j < preconditions.hasComponents.Length; ++j) {
+                for (int j = 0; j < conditions.hasComponents.Length; ++j) {
 
-                    if (this.hasComponents[i] == preconditions.hasComponents[j].typeId) return true;
+                    if (this.hasComponents[i] == conditions.hasComponents[j].typeId) return true;
 
                 }
 

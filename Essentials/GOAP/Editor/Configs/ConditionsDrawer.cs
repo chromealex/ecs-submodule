@@ -6,8 +6,8 @@ using ME.ECSEditor;
 
 namespace ME.ECS.Essentials.GOAP.Editor {
 
-    [CustomPropertyDrawer(typeof(PreconditionsData))]
-    public class PreconditionsDrawer : PropertyDrawer {
+    [CustomPropertyDrawer(typeof(ConditionsData))]
+    public class ConditionsDrawer : PropertyDrawer {
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             
@@ -28,7 +28,7 @@ namespace ME.ECS.Essentials.GOAP.Editor {
                 elem.AddToClassList("right-content");
                 layout.Add(elem);
                 
-                var description = new Label("Preconditions");
+                var description = new Label("Conditions");
                 description.AddToClassList("header");
                 elem.Add(description);
                 
