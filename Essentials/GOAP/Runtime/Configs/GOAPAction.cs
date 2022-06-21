@@ -8,10 +8,10 @@ namespace ME.ECS.Essentials.GOAP {
         [Tooltip("Larger cost means longer action")]
         [Min(0f)]
         public float cost = 1f;
-        public PreconditionsData preconditions;
+        [UnityEngine.Serialization.FormerlySerializedAsAttribute("preconditions")] public ConditionsData conditions;
         public EffectsData effects;
 
-        private Precondition? preconditionCache;
+        private Condition? conditionCache;
         private Effect? effectsCache;
         private bool isInitialized;
 
@@ -38,9 +38,9 @@ namespace ME.ECS.Essentials.GOAP {
 
             this.isInitialized = false;
             
-            if (this.preconditionCache.HasValue == true) {
-                this.preconditionCache.Value.Dispose();
-                this.preconditionCache = null;
+            if (this.conditionCache.HasValue == true) {
+                this.conditionCache.Value.Dispose();
+                this.conditionCache = null;
             }
 
             if (this.effectsCache.HasValue == true) {
@@ -71,15 +71,15 @@ namespace ME.ECS.Essentials.GOAP {
                 UnityEngine.Debug.Log("OnComplete: " + agent + " :: " + this);
         }
 
-        public Precondition GetPreconditions(Unity.Collections.Allocator allocator) {
+        public Condition GetPreconditions(Unity.Collections.Allocator allocator) {
 
-            if (this.preconditionCache.HasValue == false) {
+            if (this.conditionCache.HasValue == false) {
                 
-                this.preconditionCache = Precondition.CreateFromData(this.preconditions).Push(Unity.Collections.Allocator.Persistent);
+                this.conditionCache = Condition.CreateFromData(this.conditions).Push(Unity.Collections.Allocator.Persistent);
                 
             }
 
-            return new Precondition(this.preconditionCache.Value, allocator);
+            return new Condition(this.conditionCache.Value, allocator);
 
         }
 

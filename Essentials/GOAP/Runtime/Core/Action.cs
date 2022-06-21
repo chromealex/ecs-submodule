@@ -17,11 +17,11 @@ namespace ME.ECS.Essentials.GOAP {
             // Public
             public GOAPGroupId groupId;
             public float cost;
-            public Precondition preconditions;
+            public Condition conditions;
             public Effect effects;
 
             internal readonly bool HasPreconditions(NativeArray<Action.Data> temp, in Action.Data parentAction, NativeHashSet<int> entityState) {
-                return this.preconditions.Has(temp, in parentAction, entityState);
+                return this.conditions.Has(temp, in parentAction, entityState);
             }
 
             internal readonly SpanArray<int> GetNeighbours() {
@@ -43,7 +43,7 @@ namespace ME.ECS.Essentials.GOAP {
 
             public void Dispose() {
                 
-                this.preconditions.Dispose();
+                this.conditions.Dispose();
                 this.effects.Dispose();
                 this.neighbours.Dispose();
                 
@@ -59,7 +59,7 @@ namespace ME.ECS.Essentials.GOAP {
             this.data = new Data() {
                 groupId = groupId,
                 cost = goapAction.GetCost(in agent),
-                preconditions = goapAction.GetPreconditions(allocator),
+                conditions = goapAction.GetPreconditions(allocator),
                 effects = goapAction.GetEffects(allocator),
             };
 
@@ -82,7 +82,7 @@ namespace ME.ECS.Essentials.GOAP {
                 if (action.action.data.id == this.data.id) continue;
 
                 // if action has effects which gives us any of precondition list
-                if (this.data.effects.HasAny(action.action.data.preconditions) == true) {
+                if (this.data.effects.HasAny(action.action.data.conditions) == true) {
 
                     temp.Add(action.action.data.id);
 

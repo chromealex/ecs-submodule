@@ -9,7 +9,7 @@
     align-self: center;
     margin-top: 8px;
     margin-bottom: 8px;
-    background-color: #444;
+    background-color: rgba(128, 128, 128, 0.5);
 }
 
 .filter-data-container, .component-data-container {
@@ -23,6 +23,7 @@
 
 .foldout-description {
     font-size: 10px;
+    padding-right: 8px;
     -unity-font-style: normal;
     align-self: center;
     color: rgba(255, 255, 255, 0.4);
@@ -33,6 +34,13 @@
     -unity-font-style: normal;
     color: rgba(255, 255, 255, 0.4);
     padding: 2px 14px;
+}
+
+.no-data-label {
+    margin: 10px;
+    -unity-font-style: normal;
+    -unity-text-align: middle-left;
+    width: 100%;
 }
 
 /*
@@ -62,11 +70,6 @@
 .component-data-container .data {
     margin: 10px;
     -unity-font-style: bold;
-}
-
-.component-data-container .no-data-label {
-    margin: 10px;
-    margin-bottom: 2px;
 }
 
 .component-data-container .no-data-type-container {
@@ -147,10 +150,10 @@
     border-color: rgba(0, 0, 0, 0.1);
 }
 .filter-data-container .data-container.even {
-    background-color: rgba(50, 50, 50, 1.05);
+    background-color: rgba(50, 50, 50, 0.05);
 }
 .filter-data-container .data-container.odd {
-    background-color: rgba(52, 52, 52, 1.02);
+    background-color: rgba(52, 52, 52, 0.02);
     border-bottom-color: rgba(255, 255, 255, 0.05);
 }
 
@@ -185,11 +188,6 @@
 .filter-data-container .data Foldout {
     padding-left: 10px;
     -unity-font-style: normal;
-}
-
-.filter-data-container .no-data-label {
-    margin: 10px;
-    margin-bottom: 2px;
 }
 
 .filter-data-container .no-data-type-container {

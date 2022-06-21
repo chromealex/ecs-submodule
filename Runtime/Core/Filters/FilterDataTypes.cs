@@ -199,7 +199,19 @@ namespace ME.ECS {
         }
         
     }
-    
+
+    public class FilterDataTypesFoldoutAttribute : PropertyAttribute {
+
+        public bool foldout;
+        
+        public FilterDataTypesFoldoutAttribute(bool foldout) {
+
+            this.foldout = foldout;
+
+        }
+        
+    }
+
     public class DescriptionAttribute : PropertyAttribute {
 
         public string text;
