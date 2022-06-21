@@ -103,6 +103,7 @@ namespace ME.ECS.Collections {
         }
 
         public void ClearAndBulkInsert(NativeArray<QuadElement<T>> incomingElements, int incomingElementsLength) {
+
             // Always have to clear before bulk insert as otherwise the lookup and node allocations need to account
             // for existing data.
             this.Clear();

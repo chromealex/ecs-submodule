@@ -108,16 +108,17 @@ namespace ME.ECS.Pathfinding {
 
         private struct CopyGraph : IArrayElementCopy<Graph> {
 
-            public void Copy(Graph @from, ref Graph to) {
+            public void Copy(in Graph @from, ref Graph to) {
                 
                 to.CopyFrom(from);
                 
             }
 
-            public void Recycle(Graph item) {
+            public void Recycle(ref Graph item) {
 
                 item.Recycle();
-                
+                item = null;
+
             }
 
         }

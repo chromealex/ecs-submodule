@@ -443,6 +443,27 @@ namespace ME.ECS.Collections {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public BufferArray<T> Clamp(int length) {
+
+            var delta = this.Length - length;
+            if (delta > 0) System.Array.Clear(this.arr, length, delta);
+            return new BufferArray<T>(this.arr, length);
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public BufferArray<T> Clamp<TCopy>(int length, TCopy copy) where TCopy : IArrayElementCopy<T> {
+
+            for (int i = length; i < this.Length; ++i) {
+                
+                copy.Recycle(ref this.arr[i]);
+                
+            }
+            return new BufferArray<T>(this.arr, length);
+
+        }
+
     }
 
 }

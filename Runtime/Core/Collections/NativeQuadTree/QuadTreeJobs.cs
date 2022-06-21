@@ -47,6 +47,11 @@ namespace ME.ECS.Collections {
         
         public static void PrepareTick(in AABB2D mapSize, NativeArray<QuadElement<T>> items, int itemsCount) {
             
+            if (itemsCount > items.Length) {
+                itemsCount = items.Length;
+                UnityEngine.Debug.LogWarningFormat("ClearAndBulkInsert: {0} > {1}", itemsCount, items.Length);
+            }
+
             if (NativeQuadTreeUtils<T>.tempTree.isCreated == true) {
                 throw new System.Exception("Temp tree collection must been disposed");
             }

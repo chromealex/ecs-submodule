@@ -44,26 +44,11 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void RecycleWithIndex<T, TCopy>(ref Unity.Collections.NativeArray<T> item, TCopy copy) where TCopy : IArrayElementCopyWithIndex<T> where T : struct {
+        public static void Recycle<T, TCopy>(ref Unity.Collections.NativeArray<T> item, TCopy copy) where TCopy : IArrayElementCopy<T> where T : struct {
 
             for (int i = 0; i < item.Length; ++i) {
 
-                copy.Recycle(i, ref item.GetRef(i));
-
-            }
-
-            item.Dispose();
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static void RecycleWithIndex<T, TCopy>(ref NativeBufferArraySliced<T> item, TCopy copy) where TCopy : IArrayElementCopyWithIndex<T> where T : struct {
-
-            for (int i = 0; i < item.Length; ++i) {
-
-                copy.Recycle(i, ref item[i]);
+                copy.Recycle(ref item.GetRef(i));
 
             }
 
@@ -75,11 +60,11 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public static void CopyWithIndex<T, TCopy>(Unity.Collections.NativeArray<T> fromArr, ref Unity.Collections.NativeArray<T> arr, TCopy copy)
-            where TCopy : IArrayElementCopyWithIndex<T> where T : struct {
+            where TCopy : IArrayElementCopy<T> where T : struct {
 
             if (fromArr.IsCreated == false) {
 
-                if (arr.IsCreated == true) NativeArrayUtils.RecycleWithIndex(ref arr, copy);
+                if (arr.IsCreated == true) NativeArrayUtils.Recycle(ref arr, copy);
                 arr = default;
                 return;
 
@@ -87,14 +72,14 @@ namespace ME.ECS {
 
             if (arr.IsCreated == false || fromArr.Length != arr.Length) {
 
-                if (arr.IsCreated == true) NativeArrayUtils.RecycleWithIndex(ref arr, copy);
+                if (arr.IsCreated == true) NativeArrayUtils.Recycle(ref arr, copy);
                 arr = new Unity.Collections.NativeArray<T>(fromArr.Length, Unity.Collections.Allocator.Persistent);
 
             }
 
             for (int i = 0; i < fromArr.Length; ++i) {
 
-                copy.Copy(i, fromArr[i], ref arr.GetRef(i));
+                copy.Copy(fromArr[i], ref arr.GetRef(i));
 
             }
 
@@ -103,12 +88,12 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void CopyWithIndex<T, TCopy>(NativeBufferArraySliced<T> fromArr, ref NativeBufferArraySliced<T> arr, TCopy copy)
-            where TCopy : IArrayElementCopyWithIndex<T> where T : struct {
+        public static void Copy<T, TCopy>(NativeBufferArraySliced<T> fromArr, ref NativeBufferArraySliced<T> arr, TCopy copy)
+            where TCopy : IArrayElementCopy<T> where T : struct {
 
             if (fromArr.isCreated == false) {
 
-                if (arr.isCreated == true) NativeArrayUtils.RecycleWithIndex(ref arr, copy);
+                if (arr.isCreated == true) NativeArrayUtils.Recycle(ref arr, copy);
                 arr = default;
                 return;
 
@@ -116,14 +101,18 @@ namespace ME.ECS {
 
             if (arr.isCreated == false || fromArr.Length != arr.Length) {
 
-                if (arr.isCreated == true) NativeArrayUtils.RecycleWithIndex(ref arr, copy);
-                arr = new NativeBufferArraySliced<T>(fromArr.Length);
-
+                if (arr.isCreated == false) {
+                    NativeArrayUtils.Recycle(ref arr, copy);
+                } else {
+                    // Resize
+                    arr.Resize(fromArr.Length - 1, resizeWithOffset: false, out _);
+                }
+                
             }
 
             for (int i = 0; i < fromArr.Length; ++i) {
 
-                copy.Copy(i, fromArr[i], ref arr[i]);
+                copy.Copy(fromArr[i], ref arr[i]);
 
             }
 

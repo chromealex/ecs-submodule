@@ -30,7 +30,7 @@ namespace ME.ECS.FiltersArchetype {
                 #if INLINE_METHODS
                 [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
                 #endif
-                public void Copy(Archetype @from, ref Archetype to) {
+                public void Copy(in Archetype @from, ref Archetype to) {
 
                     to.CopyFrom(in from);
 
@@ -39,9 +39,10 @@ namespace ME.ECS.FiltersArchetype {
                 #if INLINE_METHODS
                 [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
                 #endif
-                public void Recycle(Archetype item) {
+                public void Recycle(ref Archetype item) {
 
                     item.Recycle();
+                    item = default;
 
                 }
 

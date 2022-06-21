@@ -265,7 +265,7 @@ namespace ME.ECS.Collections {
 
             public TValue copy;
 
-            public void Copy(Slot @from, ref Slot to) {
+            public void Copy(in Slot @from, ref Slot to) {
                 
                 this.copy.Copy(from.value, ref to.value);
                 to.next = from.next;
@@ -273,10 +273,11 @@ namespace ME.ECS.Collections {
 
             }
 
-            public void Recycle(Slot item) {
+            public void Recycle(ref Slot item) {
                 
-                this.copy.Recycle(item.value);
-                
+                this.copy.Recycle(ref item.value);
+                item = default;
+
             }
 
         }
@@ -320,7 +321,8 @@ namespace ME.ECS.Collections {
             
             foreach (var item in this) {
 
-                copy.Recycle(item);
+                var k = item;
+                copy.Recycle(ref k);
 
             }
 

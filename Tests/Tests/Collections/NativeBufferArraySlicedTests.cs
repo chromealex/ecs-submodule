@@ -5,6 +5,7 @@ namespace ME.ECS.Tests {
 
     using Collections;
     
+    #if !BUFFER_SLICED_DISABLED
     public class NativeBufferArraySlicedTests {
 
         public struct TestData {
@@ -91,5 +92,6 @@ namespace ME.ECS.Tests {
         }
 
     }
+    #endif
 
 }

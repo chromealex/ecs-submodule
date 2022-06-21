@@ -5,6 +5,58 @@
 
 namespace ME.ECS.Collections {
 
+    #if BUFFER_SLICED_DISABLED
+    [System.Serializable]
+    public struct NativeBufferArraySliced<T> : IBufferArraySliced where T : struct {
+
+        public NativeBufferArray<T> data;
+
+        public bool isCreated => this.data.isCreated;
+        
+        public int Length {
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            get => this.data.Length;
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public NativeBufferArraySliced<T> Merge() => this;
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public readonly unsafe void* GetUnsafePtr() {
+            return this.data.GetUnsafePtr();
+        }
+        
+        public ref T this[int index] {
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            get => ref this.data[index];
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public NativeBufferArraySliced<T> Dispose() {
+
+            this.data.Dispose();
+            this.data = default;
+            return default;
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public NativeBufferArraySliced<T> Resize(int index, bool withOffset, out bool result) {
+
+            result = NativeArrayUtils.Resize(index, ref this.data, withOffset);
+            return this;
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void CopyFrom(NativeBufferArraySliced<T> other) {
+            
+            NativeArrayUtils.Copy(other.data, ref this.data);
+            
+        }
+
+    }
+    #else
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
@@ -20,6 +72,7 @@ namespace ME.ECS.Collections {
         public int tailsLength;
         public bool isCreated;
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public readonly unsafe void* GetUnsafePtr() {
             return this.data.GetUnsafePtr();
         }
@@ -103,12 +156,12 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public NativeBufferArraySliced<T> CopyFrom<TCopy>(in NativeBufferArraySliced<T> other, in TCopy copy) where TCopy : IArrayElementCopyWithIndex<T> {
+        public NativeBufferArraySliced<T> CopyFrom<TCopy>(in NativeBufferArraySliced<T> other, in TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             ref var data = ref this.data;
             this.isCreated = other.isCreated;
             //var tails = this.tails;
-            NativeArrayUtils.CopyWithIndex(other.data, ref data, copy);
+            NativeArrayUtils.Copy(other.data, ref data, copy);
             //ArrayUtils.Copy(other.tails, ref tails, new ArrayCopy<TCopy>() { elementCopy = copy });
             return this;
 
@@ -230,5 +283,6 @@ namespace ME.ECS.Collections {
         }
 
     }
+    #endif
 
 }

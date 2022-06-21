@@ -238,7 +238,8 @@ namespace ME.ECS {
 
                     foreach (var kv in this.sharedGroups) {
                         
-                        copy.Recycle(kv.Value);
+                        var item = kv.Value;
+                        copy.Recycle(ref item);
                         
                     }
                     #if MULTITHREAD_SUPPORT
@@ -482,16 +483,18 @@ namespace ME.ECS {
 
         private struct ElementCopy : IArrayElementCopy<SharedGroupData> {
 
-            public void Copy(SharedGroupData @from, ref SharedGroupData to) {
+            public void Copy(in SharedGroupData @from, ref SharedGroupData to) {
                 
                 to.data = from.data;
                 ArrayUtils.Copy(from.states, ref to.states);
                 
             }
 
-            public void Recycle(SharedGroupData item) {
+            public void Recycle(ref SharedGroupData item) {
                 
                 PoolArray<bool>.Recycle(ref item.states);
+                item.data = default;
+                item = default;
                 
             }
 
@@ -1277,15 +1280,16 @@ namespace ME.ECS {
 
         private struct CopyTask : IArrayElementCopy<NextTickTask> {
 
-            public void Copy(NextTickTask @from, ref NextTickTask to) {
+            public void Copy(in NextTickTask @from, ref NextTickTask to) {
 
                 to.CopyFrom(from);
 
             }
 
-            public void Recycle(NextTickTask item) {
+            public void Recycle(ref NextTickTask item) {
 
                 item.Recycle();
+                item = default;
 
             }
 
@@ -1293,7 +1297,7 @@ namespace ME.ECS {
 
         private struct CopyRegistry : IArrayElementCopy<StructRegistryBase> {
 
-            public void Copy(StructRegistryBase @from, ref StructRegistryBase to) {
+            public void Copy(in StructRegistryBase @from, ref StructRegistryBase to) {
 
                 if (from == null && to == null) return;
 
@@ -1315,9 +1319,10 @@ namespace ME.ECS {
 
             }
 
-            public void Recycle(StructRegistryBase item) {
+            public void Recycle(ref StructRegistryBase item) {
 
                 PoolRegistries.Recycle(item);
+                item = default;
 
             }
 

@@ -139,11 +139,11 @@ namespace ME.ECS.Collections {
         }*/
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public BufferArraySliced<T> CopyFrom<TCopy>(in BufferArraySliced<T> other, in TCopy copy) where TCopy : IArrayElementCopyWithIndex<T> {
+        public BufferArraySliced<T> CopyFrom<TCopy>(in BufferArraySliced<T> other, in TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             var data = this.data;
             //var tails = this.tails;
-            ArrayUtils.CopyWithIndex(other.data, ref data, copy);
+            ArrayUtils.Copy(other.data, ref data, copy);
             //ArrayUtils.Copy(other.tails, ref tails, new ArrayCopy<TCopy>() { elementCopy = copy });
             return new BufferArraySliced<T>(data);
 

@@ -412,7 +412,7 @@ namespace ME.ECS {
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
-            public void Copy(FilterData @from, ref FilterData to) {
+            public void Copy(in FilterData @from, ref FilterData to) {
 
                 to.CopyFrom(from);
 
@@ -421,9 +421,10 @@ namespace ME.ECS {
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
-            public void Recycle(FilterData item) {
+            public void Recycle(ref FilterData item) {
 
                 item.Recycle();
+                item = default;
 
             }
 

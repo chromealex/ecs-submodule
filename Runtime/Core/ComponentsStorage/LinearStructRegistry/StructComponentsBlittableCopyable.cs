@@ -80,7 +80,7 @@ namespace ME.ECS {
 
             var _other = (StructComponentsBlittable<TComponent>)other;
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
-            NativeArrayUtils.CopyWithIndex(_other.components, ref this.components, new StructComponentsCopyable<TComponent>.CopyItem());
+            NativeArrayUtils.Copy(_other.components, ref this.components, new StructComponentsCopyable<TComponent>.CopyItem());
 
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(_other.sharedGroups, new StructComponentsCopyable<TComponent>.ElementCopy());
             

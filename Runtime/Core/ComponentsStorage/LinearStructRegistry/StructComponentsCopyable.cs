@@ -13,12 +13,12 @@ namespace ME.ECS {
 
         }
 
-        internal struct CopyItem : IArrayElementCopyWithIndex<Component<TComponent>> {
+        internal struct CopyItem : IArrayElementCopy<Component<TComponent>> {
 
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
-            public void Copy(int index, Component<TComponent> @from, ref Component<TComponent> to) {
+            public void Copy(in Component<TComponent> @from, ref Component<TComponent> to) {
 
                 var hasFrom = (from.state > 0);
                 var hasTo = (to.state > 0);
@@ -43,7 +43,7 @@ namespace ME.ECS {
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
-            public void Recycle(int index, ref Component<TComponent> item) {
+            public void Recycle(ref Component<TComponent> item) {
 
                 item.data.OnRecycle();
                 item = default;
@@ -54,16 +54,17 @@ namespace ME.ECS {
 
         internal struct ElementCopy : IArrayElementCopy<SharedGroupData> {
 
-            public void Copy(SharedGroupData @from, ref SharedGroupData to) {
+            public void Copy(in SharedGroupData @from, ref SharedGroupData to) {
                 
                 to.data.CopyFrom(from.data);
                 
             }
 
-            public void Recycle(SharedGroupData item) {
+            public void Recycle(ref SharedGroupData item) {
                 
                 item.data.OnRecycle();
-                
+                item = default;
+
             }
 
         }
@@ -133,7 +134,7 @@ namespace ME.ECS {
 
             var _other = (StructComponents<TComponent>)other;
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
-            ArrayUtils.CopyWithIndex(_other.components, ref this.components, new CopyItem());
+            ArrayUtils.Copy(_other.components, ref this.components, new CopyItem());
 
             if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(_other.sharedGroups, new ElementCopy());
             
