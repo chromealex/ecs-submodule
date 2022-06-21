@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace ME.ECS.Essentials.GOAP.DefaultModules {
 
-    [SerializedReferenceCaption("Default/Filter on Complete")]
+    [SerializedReferenceCaption("Default/Apply on Agent (On Complete)")]
     public class FilterOnComplete : GOAPActionModule {
 
         public override ActionEvent requiredEvents => ActionEvent.PerformComplete;

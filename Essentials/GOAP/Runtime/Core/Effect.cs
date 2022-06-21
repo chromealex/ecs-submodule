@@ -78,7 +78,7 @@ namespace ME.ECS.Essentials.GOAP {
             var builder = Effect.Create();
             foreach (var component in data.filter.with) {
 
-                if (ComponentTypesRegistry.allTypeId.TryGetValue(component.GetType(), out var index) == true) {
+                if (ComponentTypesRegistry.allTypeId.TryGetValue(component.data.GetType(), out var index) == true) {
 
                     builder.with.Add(index);
 
@@ -88,7 +88,7 @@ namespace ME.ECS.Essentials.GOAP {
 
             foreach (var component in data.filter.without) {
 
-                if (ComponentTypesRegistry.allTypeId.TryGetValue(component.GetType(), out var index) == true) {
+                if (ComponentTypesRegistry.allTypeId.TryGetValue(component.data.GetType(), out var index) == true) {
 
                     builder.without.Add(index);
 
