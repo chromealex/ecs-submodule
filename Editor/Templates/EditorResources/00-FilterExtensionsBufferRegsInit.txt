@@ -1,4 +1,3 @@
-var regT#INDEX# = (StructComponents<T#INDEX#>)world.currentState.structComponents.list.arr[WorldUtilities.GetAllComponentTypeId<T#INDEX#>()];
+var regT#INDEX# = (StructComponentsBlittable<T#INDEX#>)allRegs[AllComponentTypes<T#INDEX#>.typeId];
 regT#INDEX#.Merge();
-var tempT#INDEX# = new Unity.Collections.NativeArray<Component<T#INDEX#>>(size, allocator);
-NativeArrayUtils.CopyUnmanaged(regT#INDEX#.components.data.arr, min, ref tempT#INDEX#, 0, size);
+this.regs[#INDEX#] = new Ptr() { value = regT#INDEX#.components.GetUnsafePtr(), };

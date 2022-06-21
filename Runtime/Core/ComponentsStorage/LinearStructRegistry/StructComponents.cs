@@ -14,9 +14,24 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         private long maxVersion;
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        protected override StructRegistryBase SpawnInstance() {
+
+            return PoolRegistries.Spawn<TComponent>();
+
+        }
+
         public override bool IsNeedToDispose() {
 
             return false;
+
+        }
+
+        public override void Recycle() {
+            
+            PoolRegistries.Recycle(this);
 
         }
 

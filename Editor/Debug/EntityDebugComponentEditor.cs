@@ -409,7 +409,8 @@ namespace ME.ECSEditor {
                                                               
                                                                  this.fieldsCacheComponents.Add(index, propElement);
                                                               
-                                                             });
+                                                             },
+                                                             drawGroups: true);
 
             /*
             this.fieldsCacheComponents.Clear();

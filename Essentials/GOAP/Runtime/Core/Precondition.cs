@@ -1,0 +1,245 @@
+namespace ME.ECS.Essentials.GOAP {
+
+    using ME.ECS.Collections;
+    using Unity.Collections;
+
+    [System.Serializable]
+    public struct PreconditionsData {
+
+        [FilterDataTypesFoldoutAttribute(false)]
+        [Description("Data that entity should have before this action has been started.")]
+        public FilterDataTypesOptional filter;
+
+    }
+
+    public struct PreconditionBuilder {
+
+        internal ListCopyable<FilterDataItem> with;
+        internal ListCopyable<FilterDataItem> without;
+
+        public PreconditionBuilder With<T>() where T : struct, IComponent {
+
+            this.Validate();
+            this.with.Add(FilterDataItem.Create(AllComponentTypes<T>.typeId, 0, default));
+            return this;
+
+        }
+
+        public PreconditionBuilder Without<T>() where T : struct, IComponent {
+
+            this.Validate();
+            this.without.Add(FilterDataItem.Create(AllComponentTypes<T>.typeId, 0, default));
+            return this;
+
+        }
+
+        public Precondition Push(Allocator allocator) {
+
+            var result = new Precondition() {
+                hasComponents = new SpanArray<FilterDataItem>(this.with, allocator),
+                hasNoComponents = new SpanArray<FilterDataItem>(this.without, allocator),
+            };
+            this.Dispose();
+            return result;
+            
+        }
+
+        private void Dispose() {
+            
+            if (this.with != null) PoolListCopyable<FilterDataItem>.Recycle(ref this.with);
+            if (this.without != null) PoolListCopyable<FilterDataItem>.Recycle(ref this.without);
+            
+        }
+        
+        internal PreconditionBuilder Validate() {
+
+            if (this.with == null) this.with = PoolListCopyable<FilterDataItem>.Spawn(10);
+            if (this.without == null) this.without = PoolListCopyable<FilterDataItem>.Spawn(10);
+            return this;
+
+        }
+
+    }
+
+    public struct Precondition {
+
+        internal SpanArray<FilterDataItem> hasComponents;
+        internal SpanArray<FilterDataItem> hasNoComponents;
+
+        public Precondition(Precondition other, Allocator allocator) {
+            
+            this.hasComponents = new SpanArray<FilterDataItem>(other.hasComponents, allocator);
+            this.hasNoComponents = new SpanArray<FilterDataItem>(other.hasNoComponents, allocator);
+            
+        }
+        
+        public static PreconditionBuilder CreateFromData(PreconditionsData data) {
+
+            var builder = Precondition.Create();
+            for (var i = 0; i < data.filter.with.Length; ++i) {
+                
+                var component = data.filter.with[i];
+                var type = component.data.GetType();
+                if (ComponentTypesRegistry.allTypeId.TryGetValue(type, out var index) == true) {
+
+                    var withData = component.optional;
+                    UnsafeData unsafeData = default;
+                    if (withData == true) {
+                        var obj = new UnsafeData();
+                        var setMethod = UnsafeData.setMethodInfo.MakeGenericMethod(type);
+                        unsafeData = (UnsafeData)setMethod.Invoke(obj, new object[] { component.data });
+                    }
+                    builder.with.Add(FilterDataItem.Create(index, (byte)(withData == true ? 1 : 0), unsafeData));
+                    
+                }
+            }
+
+            for (var i = 0; i < data.filter.without.Length; ++i) {
+
+                var component = data.filter.without[i];
+                var type = component.data.GetType();
+                if (ComponentTypesRegistry.allTypeId.TryGetValue(type, out var index) == true) {
+
+                    var withData = component.optional;
+                    UnsafeData unsafeData = default;
+                    if (withData == true) {
+                        var obj = new UnsafeData();
+                        var setMethod = UnsafeData.setMethodInfo.MakeGenericMethod(type);
+                        unsafeData = (UnsafeData)setMethod.Invoke(obj, new object[] { component.data });
+                    }
+                    builder.without.Add(FilterDataItem.Create(index, (byte)(withData == true ? 1 : 0), unsafeData));
+                    
+                }
+
+            }
+            
+            return builder;
+
+        }
+
+        public static PreconditionBuilder Create() {
+            
+            return new PreconditionBuilder().Validate();
+            
+        }
+
+        internal bool HasData(NativeHashSet<UnsafeData> entityStateData) {
+            
+            for (int i = 0; i < this.hasComponents.Length; ++i) {
+
+                if (this.hasComponents[i].hasData == 1) {
+
+                    var ptr = this.hasComponents[i].data;
+                    if (entityStateData.Contains(ptr) == false) {
+
+                        return false;
+
+                    }
+
+                }
+                
+            }
+
+            return true;
+
+        }
+
+        internal bool HasNoData(NativeHashSet<UnsafeData> entityStateData) {
+            
+            for (int i = 0; i < this.hasNoComponents.Length; ++i) {
+
+                if (this.hasNoComponents[i].hasData == 1) {
+
+                    var ptr = this.hasNoComponents[i].data;
+                    if (entityStateData.Contains(ptr) == true) {
+
+                        return false;
+
+                    }
+
+                }
+                
+            }
+
+            return true;
+
+        }
+
+        internal bool Has(NativeHashSet<int> entityState) {
+
+            // we need to check if we have all components in hasComponents array in entityState
+            for (int i = 0; i < this.hasComponents.Length; ++i) {
+
+                var component = this.hasComponents[i].typeId;
+                if (entityState.Contains(component) == false) return false;
+
+            }
+
+            for (int i = 0; i < this.hasNoComponents.Length; ++i) {
+
+                var component = this.hasNoComponents[i].typeId;
+                if (entityState.Contains(component) == true) return false;
+
+            }
+
+            return true;
+
+        }
+
+        internal readonly bool HasInAction(NativeArray<Action.Data> temp, in Action.Data parentAction, int component) {
+
+            var action = parentAction;
+            if (action.effects.Has(component) == true) return true;
+            while (action.parent != -1) {
+
+                action = temp[action.parent];
+                if (action.effects.Has(component) == true) return true;
+
+            }
+
+            return false;
+
+        }
+
+        internal readonly bool Has(NativeArray<Action.Data> temp, in Action.Data parentAction, NativeHashSet<int> entityState) {
+
+            // burst runtime check if we can traverse this node
+            // we need to check if we have all components in hasComponents array somewhere in runtimeState or in entityState
+            // and hasNoComponents not contained in entityState or in parent action's effects
+            
+            for (int i = 0; i < this.hasComponents.Length; ++i) {
+
+                var component = this.hasComponents[i].typeId;
+                if (entityState.Contains(component) == false &&
+                    this.HasInAction(temp, in parentAction, component) == false) {
+
+                    return false;
+                    
+                }
+
+            }
+            
+            for (int i = 0; i < this.hasNoComponents.Length; ++i) {
+
+                var component = this.hasNoComponents[i].typeId;
+                if (entityState.Contains(component) == true ||
+                    this.HasInAction(temp, in parentAction, component) == true) {
+
+                    return false;
+                    
+                }
+
+            }
+            
+            return true;
+
+        }
+
+        internal void Dispose() {
+            this.hasComponents.Dispose();
+            this.hasNoComponents.Dispose();
+        }
+
+    }
+
+}

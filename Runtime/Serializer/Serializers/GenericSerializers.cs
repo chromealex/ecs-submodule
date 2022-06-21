@@ -54,7 +54,7 @@ namespace ME.ECS.Serializer {
             
         }
 
-        public object Unpack(Packer packer, System.Type rootType) {
+        [INLINE(256)] public object Unpack(Packer packer, System.Type rootType) {
             
             var instance = System.Activator.CreateInstance(rootType);
             var fields = rootType.GetCachedFields();
@@ -84,7 +84,7 @@ namespace ME.ECS.Serializer {
 
         }
         
-        public void Unpack<T>(Packer packer, T objectToOverwrite) where T : class {
+        [INLINE(256)] public void Unpack<T>(Packer packer, T objectToOverwrite) where T : class {
 
             var fields   = typeof(T).GetCachedFields();
             for (int i = 0; i < fields.Length; ++i) {

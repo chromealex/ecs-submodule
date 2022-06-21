@@ -3,19 +3,11 @@
 #endif
 
 #if FIXED_POINT_MATH
-using MATH = ME.ECS.fpmath;
-using FLOAT = ME.ECS.fp;
-using FLOAT2 = ME.ECS.fp2;
-using FLOAT3 = ME.ECS.fp3;
-using FLOAT4 = ME.ECS.fp4;
-using QUATERNION = ME.ECS.fpquaternion;
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
 #else
-using MATH = Unity.Mathematics.math;
-using FLOAT = System.Single;
-using FLOAT2 = UnityEngine.Vector2;
-using FLOAT3 = UnityEngine.Vector3;
-using FLOAT4 = UnityEngine.Vector4;
-using QUATERNION = UnityEngine.Quaternion;
+using Unity.Mathematics;
+using tfloat = System.Single;
 #endif
 
 namespace ME.ECS {
@@ -58,6 +50,9 @@ namespace ME.ECS {
 
     public struct ComponentTypes<TComponent> {
 
+        public static readonly Unity.Burst.SharedStatic<int> burstTypeId = Unity.Burst.SharedStatic<int>.GetOrCreate<ComponentTypes<TComponent>, int>();
+        public static readonly Unity.Burst.SharedStatic<byte> burstIsFilterVersioned = Unity.Burst.SharedStatic<byte>.GetOrCreate<ComponentTypes<TComponent>, byte>();
+        public static readonly Unity.Burst.SharedStatic<byte> burstIsFilterLambda = Unity.Burst.SharedStatic<byte>.GetOrCreate<ComponentTypes<TComponent>, byte>();
         public static int typeId = -1;
         public static bool isFilterVersioned = false;
         public static bool isFilterLambda = false;
@@ -72,11 +67,14 @@ namespace ME.ECS {
     
     public struct AllComponentTypes<TComponent> {
 
+        public static readonly Unity.Burst.SharedStatic<int> burstTypeId = Unity.Burst.SharedStatic<int>.GetOrCreate<AllComponentTypes<TComponent>, int>();
+        public static readonly Unity.Burst.SharedStatic<byte> burstIsVersionedNoState = Unity.Burst.SharedStatic<byte>.GetOrCreate<AllComponentTypes<TComponent>, byte>();
         public static int typeId = -1;
         public static bool isTag = false;
         public static bool isVersioned = false;
         public static bool isVersionedNoState = false;
         public static bool isSimple = false;
+        public static bool isBlittable = false;
         public static bool isCopyable = false;
         public static bool isShared = false;
         public static bool isDisposable = false;
@@ -131,9 +129,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity CopyFrom(this in Entity entity, in Entity fromEntity) {
+        public static Entity CopyFrom(this in Entity entity, in Entity fromEntity, bool copyHierarchy = true) {
 
-            Worlds.currentWorld.CopyFrom(in fromEntity, in entity);
+            Worlds.currentWorld.CopyFrom(in fromEntity, in entity, copyHierarchy);
             return entity;
 
         }
@@ -164,6 +162,26 @@ namespace ME.ECS {
         public static Entity ValidateDataCopyable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructCopyable<TComponent> {
 
             Worlds.currentWorld.ValidateDataCopyable<TComponent>(in entity, isTag);
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity ValidateDataBlittable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase {
+
+            Worlds.currentWorld.ValidateDataBlittable<TComponent>(in entity, isTag);
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity ValidateDataBlittableCopyable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructCopyable<TComponent> {
+
+            Worlds.currentWorld.ValidateDataBlittableCopyable<TComponent>(in entity, isTag);
             return entity;
 
         }
@@ -292,7 +310,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity SetTimer(this in Entity entity, int index, FLOAT time) {
+        public static Entity SetTimer(this in Entity entity, int index, tfloat time) {
 
             Worlds.currentWorld.SetTimer(in entity, index, time);
             return entity;
@@ -302,7 +320,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static float ReadTimer(this in Entity entity, int index) {
+        public static tfloat ReadTimer(this in Entity entity, int index) {
 
             return Worlds.currentWorld.ReadTimer(in entity, index);
 
@@ -311,7 +329,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static ref float GetTimer(this in Entity entity, int index) {
+        public static ref tfloat GetTimer(this in Entity entity, int index) {
 
             return ref Worlds.currentWorld.GetTimer(in entity, index);
 
@@ -385,11 +403,12 @@ namespace ME.ECS {
 
                 if (AllComponentTypes<TComponent>.isTag == true) {
 
-                    entity.Set<TComponent>();
+                    TComponent data = default;
+                    entity.Set(data);
 
                 } else {
                     
-                    entity.Set(source.Read<TComponent>());
+                    entity.Set(c);
 
                 }
 
@@ -498,7 +517,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity Set<TComponent>(this in Entity entity, in TComponent data, ComponentLifetime lifetime, FLOAT customLifetime) where TComponent : unmanaged, IStructComponent {
+        public static Entity Set<TComponent>(this in Entity entity, in TComponent data, ComponentLifetime lifetime, tfloat customLifetime) where TComponent : unmanaged, IStructComponent {
 
             Worlds.currentWorld.SetData(in entity, in data, lifetime, customLifetime);
             return entity;
@@ -526,9 +545,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static ref TComponent GetShared<TComponent>(this in Entity entity, uint groupId = 0u, bool createIfNotExists = true) where TComponent : struct, IComponentShared {
+        public static ref TComponent GetShared<TComponent>(this in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
 
-            return ref Worlds.currentWorld.GetSharedData<TComponent>(in entity, groupId, createIfNotExists);
+            return ref Worlds.currentWorld.GetSharedData<TComponent>(in entity, groupId);
             
         }
 
@@ -568,6 +587,7 @@ namespace ME.ECS {
 
         public const ushort GENERATION_ZERO = 0;
         public static readonly Entity Empty = new Entity(0, Entity.GENERATION_ZERO);
+        public static readonly Entity Null = new Entity(0, Entity.GENERATION_ZERO);
 
         #if MESSAGE_PACK_SUPPORT
         [MessagePack.Key(0)]
@@ -630,7 +650,7 @@ namespace ME.ECS {
         #endif
         public static ref Entity Create(string name = null) {
 
-            return ref Worlds.currentWorld.AddEntity(name);
+            return ref Worlds.current.AddEntity(name);
 
         }
 
@@ -639,7 +659,29 @@ namespace ME.ECS {
         #endif
         public Entity(string name) {
 
-            ref var entity = ref Worlds.currentWorld.AddEntity(name);
+            ref var entity = ref Worlds.current.AddEntity(name);
+            this.id = entity.id;
+            this.generation = entity.generation;
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Entity(string name, EntityFlag flags) {
+
+            ref var entity = ref Worlds.current.AddEntity(name, flags);
+            this.id = entity.id;
+            this.generation = entity.generation;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Entity(EntityFlag flags) {
+
+            ref var entity = ref Worlds.current.AddEntity(null, flags);
             this.id = entity.id;
             this.generation = entity.generation;
 

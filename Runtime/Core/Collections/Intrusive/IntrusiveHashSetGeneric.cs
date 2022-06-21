@@ -4,12 +4,6 @@
 
 namespace ME.ECS.Collections {
 
-    public struct IntrusiveHashSetBucketGeneric<T> : IComponent where T : struct, System.IEquatable<T> {
-
-        public IntrusiveListGeneric<T> list;
-
-    }
-
     public interface IIntrusiveHashSetGeneric<T> where T : struct, System.IEquatable<T> {
 
         int Count { get; }
@@ -107,16 +101,51 @@ namespace ME.ECS.Collections {
         }
 
         [ME.ECS.Serializer.SerializeField]
-        private StackArray10<Entity> buckets;
-        [ME.ECS.Serializer.SerializeField]
-        private int count;
+        private Entity data;
+        
+        private StackArray10<Entity> buckets {
+            readonly get {
+                if (this.data == Entity.Null) return new StackArray10<Entity>(10);
+                return this.data.Read<IntrusiveHashSetData>().buckets;
+            }
+            set {
+                this.ValidateData();
+                this.data.Get<IntrusiveHashSetData>().buckets = value;
+            }
+        }
+        
+        private int count {
+            readonly get {
+                if (this.data == Entity.Null) return 0;
+                return this.data.Read<IntrusiveHashSetData>().count;   
+            }
+            set {
+                this.ValidateData();
+                this.data.Get<IntrusiveHashSetData>().count = value;
+            }
+        }
 
-        public int Count => this.count;
+        public readonly int Count => this.count;
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public Enumerator GetEnumerator() {
+        private void ValidateData() {
+
+            IntrusiveHashSetGeneric<T>.InitializeComponents();
+            
+            if (this.data == Entity.Null) {
+                this.data = new Entity(EntityFlag.None);
+                this.data.ValidateDataBlittable<IntrusiveHashSetData>();
+                this.data.Set(new IntrusiveHashSetData());
+            }
+            
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public readonly Enumerator GetEnumerator() {
 
             return new Enumerator(this);
 
@@ -129,7 +158,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArray<T> ToArray() {
+        public readonly BufferArray<T> ToArray() {
 
             var arr = PoolArray<T>.Spawn(this.count);
             var i = 0;
@@ -151,9 +180,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public bool Contains(in T entityData) {
-
-            IntrusiveHashSetGeneric<T>.Initialize(ref this);
+        public readonly bool Contains(in T entityData) {
 
             var bucket = (entityData.GetHashCode() & 0x7fffffff) % this.buckets.Length;
             var bucketEntity = this.buckets[bucket];
@@ -196,12 +223,15 @@ namespace ME.ECS.Collections {
             if (Worlds.isInDeInitialization == true) return;
             
             this.Clear();
-            for (int i = 0; i < this.buckets.Length; ++i) {
+            var buckets = this.buckets;
+            for (int i = 0; i < buckets.Length; ++i) {
                 
-                if (this.buckets[i].IsAlive() == true) this.buckets[i].Destroy();
-                this.buckets[i] = default;
+                if (buckets[i].IsAlive() == true) buckets[i].Destroy();
+                buckets[i] = default;
 
             }
+
+            this.buckets = buckets;
 
         }
 
@@ -268,18 +298,18 @@ namespace ME.ECS.Collections {
             IntrusiveHashSetGeneric<T>.InitializeComponents();
             IntrusiveHashSetGeneric<T>.Initialize(ref this);
 
-            var bucket = (entityData.GetHashCode() & 0x7fffffff) % this.buckets.Length;
-            var bucketEntity = this.buckets[bucket];
+            var buckets = this.buckets;
+            var bucket = (entityData.GetHashCode() & 0x7fffffff) % buckets.Length;
+            var bucketEntity = buckets[bucket];
             if (bucketEntity.IsAlive() == false) {
-
-                bucketEntity = this.buckets[bucket] = new Entity("IntrusiveHashSetBucketGeneric<T>");
+                bucketEntity = buckets[bucket] = new Entity(EntityFlag.None);
                 bucketEntity.ValidateData<IntrusiveHashSetBucketGeneric<T>>();
-
             }
 
             ref var bucketList = ref bucketEntity.Get<IntrusiveHashSetBucketGeneric<T>>();
             bucketList.list.Add(entityData);
             ++this.count;
+            this.buckets = buckets;
 
         }
 
@@ -290,15 +320,13 @@ namespace ME.ECS.Collections {
         /// <param name="element"></param>
         /// <param name="output"></param>
         /// <returns></returns>
-        public bool Get(int hashcode, T element, out T output) {
-
-            IntrusiveHashSetGeneric<T>.Initialize(ref this);
+        public readonly bool Get(int hashcode, T element, out T output) {
 
             var bucket = (hashcode & 0x7fffffff) % this.buckets.Length;
             var bucketEntity = this.buckets[bucket];
             if (bucketEntity.IsAlive() == true) {
 
-                ref var bucketList = ref bucketEntity.Get<IntrusiveHashSetBucketGeneric<T>>();
+                ref readonly var bucketList = ref bucketEntity.Read<IntrusiveHashSetBucketGeneric<T>>();
                 foreach (var item in bucketList.list) {
 
                     if (element.Equals(item) == true) {
@@ -329,6 +357,7 @@ namespace ME.ECS.Collections {
 
         private static void InitializeComponents() {
 
+            IntrusiveComponents.Initialize();
             WorldUtilities.InitComponentTypeId<IntrusiveHashSetBucketGeneric<T>>();
             ComponentInitializer.Init(ref Worlds.currentWorld.GetStructComponents());
 

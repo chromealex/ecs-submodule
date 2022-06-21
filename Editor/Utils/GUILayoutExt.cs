@@ -4,6 +4,8 @@ using System;
 using System.IO;
 using System.Linq;
 using System.CodeDom.Compiler;
+using ME.ECS.Mathematics;
+using System.Text.RegularExpressions;
 
 namespace ME.ECSEditor {
     
@@ -397,18 +399,20 @@ namespace ME.ECSEditor {
  
 	    }
 
-	    public static void DrawAddComponentMenu(Rect rect, System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool showRuntime) {
+	    public static void DrawAddComponentMenu(Rect rect, System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool showRuntime, string caption = "Edit Components", System.Predicate<System.Type> where = null) {
 		    
             GUIStyle style = new GUIStyle(GUI.skin.button);
             style.fontSize = 12;
-            style.fixedWidth = 130f;
-            style.fixedHeight = 23f;
+            style.fixedWidth = 180f;
+            style.fixedHeight = 28f;
 
             var offset = (rect.width - style.fixedWidth) * 0.5f;
+            var h = rect.height;
             rect.width = style.fixedWidth;
             rect.height = style.fixedHeight;
             rect.x += offset;
-            if (GUI.Button(rect, "Edit Components", style)) {
+            rect.y += (h - rect.height) * 0.5f;
+            if (GUI.Button(rect, caption, style)) {
                 
                 rect.y += 26f;
                 rect.x += rect.width;
@@ -447,16 +451,17 @@ namespace ME.ECSEditor {
                 rect.y = v2.y;
                 rect.width = 230f;
                 rect.height = 320f;
-                
+
+                var count = 0;
                 var popup = new Popup() {
 	                title = "Components",
 	                autoHeight = false,
 	                screenRect = rect,
 	                searchText = string.Empty,
 	                separator = '.',
-	                
                 };
                 var arr = showRuntime == true ? GUILayoutExt.allStructComponents : GUILayoutExt.allStructComponentsWithoutRuntime;
+                if (where != null) arr = arr.Where(x => where.Invoke(x)).ToArray();
                 foreach (var type in arr) {
 
 	                var isUsed = usedComponents.Contains(type);
@@ -507,26 +512,34 @@ namespace ME.ECSEditor {
 	                
 	                if (isUsed == true) popup.Item("Used." + type.Name, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect, searchable: false);
 	                popup.Item(fixName, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect);
+	                ++count;
 
                 }
-                popup.Show();
+
+                if (count == 0) {
+
+	                EditorWindow.focusedWindow.ShowNotification(new GUIContent("There are no components of this type"), 1f);
+
+                } else {
+	                popup.Show();
+                }
 
             }
  
 	    }
 
-	    public static void DrawAddComponentMenu(System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool showRuntime) {
+	    public static void DrawAddComponentMenu(System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool showRuntime, string caption = "Edit Components", System.Predicate<System.Type> where = null) {
 		    
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             GUIStyle style = new GUIStyle(GUI.skin.button);
             style.fontSize = 12;
             style.fixedWidth = 230;
-            style.fixedHeight = 23;
+            style.fixedHeight = 28;
  
             var rect = GUILayoutUtility.GetLastRect();
  
-            if (GUILayout.Button("Edit Components", style)) {
+            if (GUILayout.Button(caption, style)) {
                 
                 rect.y += 26f;
                 rect.x += rect.width;
@@ -574,6 +587,8 @@ namespace ME.ECSEditor {
 	                
                 };
                 var arr = showRuntime == true ? GUILayoutExt.allStructComponents : GUILayoutExt.allStructComponentsWithoutRuntime;
+                if (where != null) arr = arr.Where(x => where.Invoke(x)).ToArray();
+                var count = 0;
                 foreach (var type in arr) {
 
 	                var isUsed = usedComponents.Contains(type);
@@ -624,14 +639,143 @@ namespace ME.ECSEditor {
 	                
 	                if (isUsed == true) popup.Item("Used." + type.Name, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect, searchable: false);
 	                popup.Item(fixName, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect);
+	                ++count;
 
                 }
-                popup.Show();
+                
+                if (count == 0) {
+
+	                EditorWindow.focusedWindow.ShowNotification(new GUIContent("There are no components of this type"), 1f);
+
+                } else {
+	                popup.Show();
+                }
+
 
             }
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
  
+	    }
+	    
+	    public static UnityEngine.UIElements.Button DrawAddComponentMenu(UnityEngine.UIElements.VisualElement container, System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool showRuntime, string caption = "Edit Components", System.Predicate<System.Type> where = null) {
+		    
+		    var button = new UnityEngine.UIElements.Button();
+		    button.text = caption;
+		    button.RegisterCallback<UnityEngine.UIElements.ClickEvent>(evt => {
+			    
+			    if (GUILayoutExt.allStructComponents == null) {
+
+	                GUILayoutExt.allStructComponents = AppDomain.CurrentDomain.GetAssemblies()
+	                                                            .SelectMany(x => x.GetTypes())
+	                                                            .Where(x => 
+		                                                                   x.IsValueType == true &&
+		                                                                   typeof(IComponentBase).IsAssignableFrom(x) == true
+	                                                            )
+	                                                            .ToArray();
+
+                }
+
+                if (GUILayoutExt.allStructComponentsWithoutRuntime == null) {
+
+	                GUILayoutExt.allStructComponentsWithoutRuntime = AppDomain.CurrentDomain.GetAssemblies()
+	                                                                          .SelectMany(x => x.GetTypes())
+	                                                                          .Where(x => 
+		                                                                                 x.IsValueType == true &&
+		                                                                                 typeof(IComponentBase).IsAssignableFrom(x) == true &&
+		                                                                                 typeof(IComponentRuntime).IsAssignableFrom(x) == false
+	                                                                          )
+	                                                                          .ToArray();
+
+                }
+
+                var rect = button.worldBound;
+                rect.y += button.resolvedStyle.height;
+                var v2 = GUIUtility.GUIToScreenPoint(new Vector2(rect.x, rect.y));
+                rect.x = v2.x;
+                rect.y = v2.y;
+                rect.height = 320f;
+                
+                var popup = new Popup() {
+	                title = "Components",
+	                autoHeight = false,
+	                screenRect = rect,
+	                searchText = string.Empty,
+	                separator = '.',
+	                
+                };
+                var arr = showRuntime == true ? GUILayoutExt.allStructComponents : GUILayoutExt.allStructComponentsWithoutRuntime;
+                if (where != null) arr = arr.Where(x => where.Invoke(x)).ToArray();
+                var count = 0;
+                foreach (var type in arr) {
+
+	                var isUsed = usedComponents.Contains(type);
+
+	                var addType = type;
+	                var name = type.FullName;
+	                var fixName = string.Empty;
+
+	                if (name.StartsWith("ME.ECS") == true) {
+		                
+		                var spName = name.Split('.');
+		                var p1 = spName[spName.Length - 2];
+		                var p2 = spName[spName.Length - 1];
+		                if (p1 == p2) {
+			                
+			                fixName = "ECS." + p2;
+
+		                } else {
+
+			                fixName = "ECS." + p1 + "." + p2;
+
+		                }
+
+	                } else {
+
+		                //var spName = name.Split('.');
+		                //var component = spName[spName.Length - 1];
+		                var spName = name.Split(new[] { ".Features." }, StringSplitOptions.RemoveEmptyEntries);
+		                //var rootName = spName[0];
+		                name = spName[spName.Length - 1];
+		                /*spName = name.Split(new[] { ".Components." }, StringSplitOptions.RemoveEmptyEntries);
+		                var feature = spName[0];
+						fixName = rootName + "." + feature + "." + component;*/
+		                fixName = name;
+
+	                }
+	                
+	                System.Action<PopupWindowAnim.PopupItem> onItemSelect = (item) => {
+		                
+		                isUsed = usedComponents.Contains(type);
+		                onAdd.Invoke(addType, isUsed);
+		                
+		                isUsed = usedComponents.Contains(type);
+		                var tex = isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0];
+		                item.image = tex;
+		                
+	                };
+	                
+	                if (isUsed == true) popup.Item("Used." + type.Name, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect, searchable: false);
+	                popup.Item(fixName, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect);
+	                ++count;
+
+                }
+                
+                if (count == 0) {
+
+	                EditorWindow.focusedWindow.ShowNotification(new GUIContent("There are no components of this type"), 1f);
+
+                } else {
+	                
+	                popup.Show();
+	                
+                }
+			    
+		    });
+		    button.AddToClassList("add-component-button");
+
+		    return button;
+
 	    }
 
 	    public static void DrawAddComponentMenu(Entity entity, System.Collections.Generic.HashSet<System.Type> usedComponents, IStructComponentsContainer componentsStructStorage) {
@@ -1481,7 +1625,15 @@ namespace ME.ECSEditor {
         public static string GetStringCamelCaseSpace(string caption) {
 
 	        if (string.IsNullOrEmpty(caption) == true) return string.Empty;
-	        var str = System.Text.RegularExpressions.Regex.Replace(caption, "[A-Z]", " $0").Trim();
+	        var str = Regex.Replace( 
+		        Regex.Replace( 
+			        caption, 
+			        @"(\P{Ll})(\P{Ll}\p{Ll})", 
+			        "$1 $2" 
+		        ), 
+		        @"(\p{Ll})(\P{Ll})", 
+		        "$1 $2" 
+	        ).Trim();
 	        return char.ToUpper(str[0]) + str.Substring(1);
 
         }
@@ -1509,10 +1661,11 @@ namespace ME.ECSEditor {
 	        if (type == typeof(Vector3)) return true;
 	        if (type == typeof(Vector4)) return true;
 	        if (type == typeof(Quaternion)) return true;
-            if (type == typeof(fp)) return true;
-            if (type == typeof(fp3)) return true;
-	        if (type == typeof(fp4)) return true;
-	        if (type == typeof(fp2)) return true;
+            if (type == typeof(sfloat)) return true;
+            if (type == typeof(ME.ECS.Mathematics.quaternion)) return true;
+            if (type == typeof(ME.ECS.Mathematics.float2)) return true;
+            if (type == typeof(ME.ECS.Mathematics.float3)) return true;
+	        if (type == typeof(ME.ECS.Mathematics.float4)) return true;
 	        return false;
 
         }
@@ -1732,27 +1885,27 @@ namespace ME.ECSEditor {
 
 	            }
 
-            }  else if (type == typeof(fp2)) {
+            }  else if (type == typeof(ME.ECS.Mathematics.float2)) {
 
 	            if (typeCheckOnly == false) {
 
-		            value = (fp2)EditorGUILayout.Vector2Field(caption, (fp2)value);
+		            value = (ME.ECS.Mathematics.float2)EditorGUILayout.Vector2Field(caption, (Vector2)(ME.ECS.Mathematics.float2)value);
 
 	            }
 
-            } else if (type == typeof(fp3)) {
+            } else if (type == typeof(ME.ECS.Mathematics.float3)) {
 
                 if (typeCheckOnly == false) {
 
-                    value = (fp3)EditorGUILayout.Vector3Field(caption, (fp3)value);
+                    value = (ME.ECS.Mathematics.float3)EditorGUILayout.Vector3Field(caption, (Vector3)(ME.ECS.Mathematics.float3)value);
 
                 }
 
-            } else if (type == typeof(fp4)) {
+            } else if (type == typeof(ME.ECS.Mathematics.float4)) {
 
                 if (typeCheckOnly == false) {
 
-                    value = (fp4)EditorGUILayout.Vector4Field(caption, (fp4)value);
+                    value = (ME.ECS.Mathematics.float4)EditorGUILayout.Vector4Field(caption, (Vector4)(ME.ECS.Mathematics.float4)value);
 
                 }
 
@@ -1772,19 +1925,19 @@ namespace ME.ECSEditor {
 
 	            }
 
-            } else if (type == typeof(fpquaternion)) {
+            } else if (type == typeof(ME.ECS.Mathematics.quaternion)) {
 
 	            if (typeCheckOnly == false) {
 
-		            value = (fpquaternion)Quaternion.Euler(EditorGUILayout.Vector3Field(caption, ((fpquaternion)value).eulerAngles));
+		            value = (ME.ECS.Mathematics.quaternion)Quaternion.Euler(EditorGUILayout.Vector3Field(caption, (Vector3)((ME.ECS.Mathematics.quaternion)value).ToEuler()));
 
 	            }
 
-            } else if (type == typeof(fp)) {
+            } else if (type == typeof(sfloat)) {
 
 	            if (typeCheckOnly == false) {
 
-		            value = (fp)EditorGUILayout.FloatField(caption, (float)(fp)value);
+		            value = (sfloat)EditorGUILayout.FloatField(caption, (float)(sfloat)value);
 
 	            }
 

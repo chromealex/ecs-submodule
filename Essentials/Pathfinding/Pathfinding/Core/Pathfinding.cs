@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ME.ECS.Mathematics;
 
 namespace ME.ECS.Pathfinding {
     
@@ -10,8 +11,8 @@ namespace ME.ECS.Pathfinding {
     public struct PathTask {
 
         public Entity entity;
-        public Vector3 from;
-        public Vector3 to;
+        public float3 from;
+        public float3 to;
         public bool alignToGraphNodes;
         public Constraint constraint;
         public bool burstEnabled;
@@ -24,10 +25,10 @@ namespace ME.ECS.Pathfinding {
 
         public long graphMask;
         
-        public Vector3 center;
+        public float3 center;
         
         public bool checkSize;
-        public Vector3 size;
+        public float3 size;
         
         public bool checkRadius;
         public float radius;
@@ -42,15 +43,15 @@ namespace ME.ECS.Pathfinding {
 
             if (this.checkRadius == true) {
 
-                return new Bounds(this.center, new Vector3(this.radius * 2f, this.radius * 2f, this.radius * 2f));
+                return new Bounds((Vector3)this.center, new Vector3(this.radius * 2f, this.radius * 2f, this.radius * 2f));
 
             } else if (this.checkSize == true) {
 
-                return new Bounds(this.center, this.size);
+                return new Bounds((Vector3)this.center, (Vector3)this.size);
 
             }
 
-            return new Bounds(this.center, Vector3.zero);
+            return new Bounds((Vector3)this.center, Vector3.zero);
 
         }
 
@@ -254,19 +255,19 @@ namespace ME.ECS.Pathfinding {
             
         }
 
-        public Vector3 ClampPosition(Vector3 worldPosition, Constraint constraint) {
+        public float3 ClampPosition(float3 worldPosition, Constraint constraint) {
             
-            Vector3 nearest = default;
+            float3 nearest = default;
             if (this.graphs != null) {
 
-                float dist = fp.MaxValue;
+                sfloat dist = sfloat.MaxValue;
                 for (int i = 0; i < this.graphs.Count; ++i) {
 
                     if (constraint.graphMask >= 0 && (constraint.graphMask & (1 << this.graphs[i].index)) == 0) continue;
 
                     if (this.graphs[i].ClampPosition(worldPosition, constraint, out var node) == true) {
 
-                        var d = (node - worldPosition).sqrMagnitude;
+                        var d = math.distancesq(node, worldPosition);
                         if (d < dist) {
 
                             dist = d;
@@ -284,18 +285,18 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        public NodeInfo GetNearest(Vector3 worldPosition, Constraint constraint) {
+        public NodeInfo GetNearest(float3 worldPosition, Constraint constraint) {
 
             NodeInfo nearest = default;
             if (this.graphs != null) {
 
-                float dist = fp.MaxValue;
+                sfloat dist = sfloat.MaxValue;
                 for (int i = 0; i < this.graphs.Count; ++i) {
 
                     if (constraint.graphMask >= 0 && (constraint.graphMask & (1 << this.graphs[i].index)) == 0) continue;
                     
                     var node = this.graphs[i].GetNearest(worldPosition, constraint);
-                    var d = (node.worldPosition - worldPosition).sqrMagnitude;
+                    var d = math.distancesq(node.worldPosition, worldPosition);
                     if (d < dist) {
 
                         dist = d;
@@ -311,66 +312,66 @@ namespace ME.ECS.Pathfinding {
 
         }
 
-        public Path CalculatePath(Vector3 from, Vector3 to) {
+        public Path CalculatePath(float3 from, float3 to) {
 
             var constraint = Constraint.Default;
             return this.CalculatePath(from, to, constraint);
             
         }
 
-        public Path CalculatePath(Vector3 from, Vector3 to, Constraint constraint) {
+        public Path CalculatePath(float3 from, float3 to, Constraint constraint) {
 
             return this.CalculatePath(from, to, constraint, new PathModifierEmpty());
             
         }
 
-        public Path CalculatePath<TMod>(Vector3 from, Vector3 to, TMod pathModifier) where TMod : struct, IPathModifier {
+        public Path CalculatePath<TMod>(float3 from, float3 to, TMod pathModifier) where TMod : struct, IPathModifier {
 
             var constraint = Constraint.Default;
             return this.CalculatePath(from, to, constraint, pathModifier);
             
         }
 
-        public Path CalculatePath<TMod>(Vector3 from, Vector3 to, Constraint constraint, TMod pathModifier, int threadIndex = 0, bool cacheEnabled = false, bool burstEnabled = false) where TMod : struct, IPathModifier {
+        public Path CalculatePath<TMod>(float3 from, float3 to, Constraint constraint, TMod pathModifier, int threadIndex = 0, bool cacheEnabled = false, bool burstEnabled = false) where TMod : struct, IPathModifier {
 
             var graph = this.GetNearest(from, constraint).graph;
             return this.CalculatePath_INTERNAL(Pathfinding.defaultProcessor, from, to, constraint, graph, pathModifier, threadIndex, cacheEnabled: cacheEnabled, burstEnabled: burstEnabled);
             
         }
 
-        public Path CalculatePath<TMod>(Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool cacheEnabled = false) where TMod : struct, IPathModifier {
+        public Path CalculatePath<TMod>(float3 from, float3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool cacheEnabled = false) where TMod : struct, IPathModifier {
 
             return this.CalculatePath_INTERNAL(Pathfinding.defaultProcessor, from, to, constraint, graph, pathModifier, threadIndex, cacheEnabled: cacheEnabled);
 
         }
 
-        public Path CalculatePath<TProcessor>(Vector3 from, Vector3 to, Constraint constraint) where TProcessor : struct, IPathfindingProcessor {
+        public Path CalculatePath<TProcessor>(float3 from, float3 to, Constraint constraint) where TProcessor : struct, IPathfindingProcessor {
 
             return this.CalculatePath<PathModifierEmpty, TProcessor>(from, to, constraint, new PathModifierEmpty());
             
         }
 
-        public Path CalculatePath<TMod, TProcessor>(Vector3 from, Vector3 to, TMod pathModifier) where TMod : struct, IPathModifier where TProcessor : struct, IPathfindingProcessor {
+        public Path CalculatePath<TMod, TProcessor>(float3 from, float3 to, TMod pathModifier) where TMod : struct, IPathModifier where TProcessor : struct, IPathfindingProcessor {
 
             var constraint = Constraint.Default;
             return this.CalculatePath<TMod, TProcessor>(from, to, constraint, pathModifier);
             
         }
 
-        public Path CalculatePath<TMod, TProcessor>(Vector3 from, Vector3 to, Constraint constraint, TMod pathModifier, int threadIndex = 0) where TMod : struct, IPathModifier where TProcessor : struct, IPathfindingProcessor {
+        public Path CalculatePath<TMod, TProcessor>(float3 from, float3 to, Constraint constraint, TMod pathModifier, int threadIndex = 0) where TMod : struct, IPathModifier where TProcessor : struct, IPathfindingProcessor {
 
             var graph = this.GetNearest(from, constraint).graph;
             return this.CalculatePath<TMod, TProcessor>(from, to, constraint, graph, pathModifier, threadIndex);
             
         }
 
-        public Path CalculatePath<TMod, TProcessor>(Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool burstEnabled = false) where TMod : struct, IPathModifier where TProcessor : struct, IPathfindingProcessor {
+        public Path CalculatePath<TMod, TProcessor>(float3 from, float3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool burstEnabled = false) where TMod : struct, IPathModifier where TProcessor : struct, IPathfindingProcessor {
 
             return this.CalculatePath_INTERNAL(new TProcessor(), from, to, constraint, graph, pathModifier, threadIndex, burstEnabled);
 
         }
 
-        internal Path CalculatePath_INTERNAL<TMod, TProcessor>(TProcessor processor, Vector3 from, Vector3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool burstEnabled = true, bool cacheEnabled = false) where TMod : struct, IPathModifier where TProcessor : IPathfindingProcessor {
+        internal Path CalculatePath_INTERNAL<TMod, TProcessor>(TProcessor processor, float3 from, float3 to, Constraint constraint, Graph graph, TMod pathModifier, int threadIndex = 0, bool burstEnabled = true, bool cacheEnabled = false) where TMod : struct, IPathModifier where TProcessor : IPathfindingProcessor {
 
             return processor.Run(this.logLevel, from, to, constraint, graph, pathModifier, threadIndex, burstEnabled, cacheEnabled);
 
@@ -513,7 +514,7 @@ namespace ME.ECS.Pathfinding {
 
         }
         
-        public PathTask CalculatePathTask(Entity entity, Vector3 requestFrom, Vector3 requestTo, bool alignToGraphNodes, Constraint constraint, bool burstEnabled, bool cacheEnabled) {
+        public PathTask CalculatePathTask(Entity entity, float3 requestFrom, float3 requestTo, bool alignToGraphNodes, Constraint constraint, bool burstEnabled, bool cacheEnabled) {
 
             return new PathTask() {
                 entity = entity,

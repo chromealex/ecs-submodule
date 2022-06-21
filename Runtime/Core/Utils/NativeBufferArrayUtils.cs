@@ -137,10 +137,8 @@ namespace ME.ECS {
 
             }
 
-            var newArr = arr.arr;
-            NativeArrayUtils.Copy(fromArr.arr, ref newArr, fromArr.Length);
-            arr = new NativeBufferArray<T>(newArr, fromArr.Length);
-
+            Unity.Collections.NativeArray<T>.Copy(fromArr.arr, 0, arr.arr, 0, fromArr.Length);
+            
         }
 
         #if INLINE_METHODS
@@ -163,9 +161,7 @@ namespace ME.ECS {
 
             }
 
-            var newArr = arr.arr;
-            NativeArrayUtils.Copy(fromArr, sourceIndex, ref newArr, destIndex, length);
-            arr = new NativeBufferArray<T>(newArr, fromArr.Length);
+            Unity.Collections.NativeArray<T>.Copy(fromArr.arr, sourceIndex, arr.arr, destIndex, length);
 
         }
         
@@ -189,9 +185,7 @@ namespace ME.ECS {
 
             }
 
-            var newArr = arr.arr;
-            NativeArrayUtils.Copy(fromArr.arr, sourceIndex, ref newArr, destIndex, length);
-            arr = new NativeBufferArray<T>(newArr, fromArr.Length);
+            Unity.Collections.NativeArray<T>.Copy(fromArr.arr, sourceIndex, arr.arr, destIndex, length);
 
         }
 

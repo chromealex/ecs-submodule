@@ -1,4 +1,5 @@
 ﻿
+using ME.ECS.Collections;
 using Unity.Jobs;
 
 namespace ME.ECS.Tests {
@@ -18,20 +19,14 @@ namespace ME.ECS.Tests {
         } 
 
         [Unity.Burst.BurstCompileAttribute(Unity.Burst.FloatPrecision.High, Unity.Burst.FloatMode.Deterministic, CompileSynchronously = true)]
-        public struct FilterBagJobTest : Unity.Jobs.IJob, IBurst {
+        public struct FilterBagJobTest : IJobParallelForFilterBag<ME.ECS.Buffers.FilterBag<TestData, TestData2>> {
 
-            public Buffers.FilterBag<TestData, TestData2> data;
-
-            public void Execute() {
-
-                for (int i = 0; i < this.data.Length; ++i) {
-
-                    ref var comp = ref this.data.GetT0(i);
-                    comp.a += 1;
-                    
-                    this.data.RemoveT1(i);
-
-                }
+            public void Execute(ref ME.ECS.Buffers.FilterBag<TestData, TestData2> bag, int index) {
+                
+                ref var comp = ref bag.GetT0(index);
+                comp.a += 1;
+                
+                bag.RemoveT1(index);
                 
             }
 
@@ -59,23 +54,29 @@ namespace ME.ECS.Tests {
             public void AdvanceTick(in float deltaTime) {
 
                 {
+                    var a = this.testEntity.Read<TestData>().a;
+                    
                     var sw = System.Diagnostics.Stopwatch.StartNew();
                     sw.Start();
+                    var bag = new ME.ECS.Buffers.FilterBag<TestData, TestData2>(this.filter, Unity.Collections.Allocator.TempJob);
                     var job = new FilterBagJobTest() {
-                        data = new Buffers.FilterBag<TestData, TestData2>(this.filter, Unity.Collections.Allocator.TempJob),
                     };
-                    var handle = job.Schedule();
+                    var handle = job.Schedule(bag);
                     handle.Complete();
                     sw.Stop();
                     var step1 = sw.ElapsedMilliseconds;
 
                     sw = System.Diagnostics.Stopwatch.StartNew();
                     sw.Start();
-                    job.data.Push();
+                    bag.Push();
 
                     sw.Stop();
                     UnityEngine.Debug.Log(step1 + "ms, " + sw.ElapsedMilliseconds + "ms. Entities: " + this.filter.Count + ": " + this.testEntity + " has data: " +
                                           this.testEntity.Read<TestData>().a);
+                    
+                    UnityEngine.Assertions.Assert.IsTrue(this.testEntity.Read<TestData>().a == a + 1);
+                    UnityEngine.Assertions.Assert.IsTrue(this.testEntity.Has<TestData2>() == false);
+
                 }
 
                 /*{
@@ -99,12 +100,13 @@ namespace ME.ECS.Tests {
             TestsHelper.Do((w) => {
                 
                 ref var str = ref w.GetStructComponents();
+                ref var str2 = ref w.GetNoStateStructComponents();
                 CoreComponentsInitializer.InitTypeId();
-                CoreComponentsInitializer.Init(ref str);
-                WorldUtilities.InitComponentTypeId<TestData>();
-                WorldUtilities.InitComponentTypeId<TestData2>();
-                str.Validate<TestData>();
-                str.Validate<TestData2>();
+                CoreComponentsInitializer.Init(ref str, ref str2);
+                WorldUtilities.InitComponentTypeId<TestData>(isBlittable: true);
+                WorldUtilities.InitComponentTypeId<TestData2>(isBlittable: true);
+                str.ValidateBlittable<TestData>();
+                str.ValidateBlittable<TestData2>();
                 
             }, (w) => {
                 
@@ -128,6 +130,8 @@ namespace ME.ECS.Tests {
                     ent.Destroy();
 
                 }
+                
+                w.UpdateFilters(Entity.Empty);
 
             }, from: 0, to: 10);
 

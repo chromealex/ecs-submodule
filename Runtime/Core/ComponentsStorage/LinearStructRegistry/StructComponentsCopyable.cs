@@ -7,7 +7,13 @@ namespace ME.ECS {
     #endif
     public sealed class StructComponentsCopyable<TComponent> : StructComponents<TComponent> where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
 
-        private struct CopyItem : IArrayElementCopyWithIndex<Component<TComponent>> {
+        public override void Recycle() {
+            
+            PoolRegistries.Recycle(this);
+
+        }
+
+        internal struct CopyItem : IArrayElementCopyWithIndex<Component<TComponent>> {
 
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -42,6 +48,22 @@ namespace ME.ECS {
                 item.data.OnRecycle();
                 item = default;
 
+            }
+
+        }
+
+        internal struct ElementCopy : IArrayElementCopy<SharedGroupData> {
+
+            public void Copy(SharedGroupData @from, ref SharedGroupData to) {
+                
+                to.data.CopyFrom(from.data);
+                
+            }
+
+            public void Recycle(SharedGroupData item) {
+                
+                item.data.OnRecycle();
+                
             }
 
         }
@@ -92,22 +114,6 @@ namespace ME.ECS {
             
             base.OnRecycle();
             
-        }
-
-        private struct ElementCopy : IArrayElementCopy<SharedGroupData> {
-
-            public void Copy(SharedGroupData @from, ref SharedGroupData to) {
-                
-                to.data.CopyFrom(from.data);
-                
-            }
-
-            public void Recycle(SharedGroupData item) {
-                
-                item.data.OnRecycle();
-                
-            }
-
         }
 
         #if INLINE_METHODS

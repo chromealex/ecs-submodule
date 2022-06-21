@@ -120,7 +120,22 @@ namespace ME.ECS {
 
     }*/
 
-    public unsafe struct UnsafeData {
+    public struct UnsafeDataCopy : IArrayElementCopy<UnsafeData> {
+
+        public void Copy(UnsafeData @from, ref UnsafeData to) {
+            to.CopyFrom(in from);
+        }
+
+        public void Recycle(UnsafeData item) {
+            item.Dispose();
+        }
+
+    }
+
+    public unsafe struct UnsafeData : System.IEquatable<UnsafeData> {
+
+        public static System.Reflection.MethodInfo setMethodInfo = typeof(UnsafeData)
+                                                                   .GetMethod("Set", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
 
         public System.IntPtr data;
         public int sizeOf;
@@ -130,7 +145,16 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public UnsafeData Set<T>(T data) where T : struct {
+        public UnsafeData Set<T>(T data) where T : unmanaged {
+
+            return this.SetAsUnmanaged(data);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        internal UnsafeData SetAsUnmanaged<T>(T data) where T : struct {
 
             this.typeId = AllComponentTypes<T>.typeId;
             
@@ -172,12 +196,15 @@ namespace ME.ECS {
         #endif
         public void CopyFrom(in UnsafeData other) {
 
-            if (this.typeId != other.typeId) {
+            if (this.typeId != other.typeId ||
+                other.data == System.IntPtr.Zero) {
                 
                 this.Dispose();
                 
             }
-            
+
+            if (other.data == System.IntPtr.Zero) return;
+
             this.typeId = other.typeId;
             this.sizeOf = other.sizeOf;
             this.alignOf = other.alignOf;
@@ -191,6 +218,103 @@ namespace ME.ECS {
         public void Dispose() {
             
             if (this.data != System.IntPtr.Zero) {
+
+                this.typeId = default;
+                this.sizeOf = default;
+                this.alignOf = default;
+                NativeArrayUtils.Dispose(ref this.data);
+                
+            }
+            
+        }
+
+        public bool Equals(UnsafeData other) {
+            return this.sizeOf == other.sizeOf &&
+                   this.alignOf == other.alignOf &&
+                   this.typeId == other.typeId &&
+                   this.EqualsData(this.data, other.data);
+        }
+
+        private bool EqualsData(System.IntPtr ptr1, System.IntPtr ptr2) {
+
+            for (int i = 0; i < this.sizeOf; ++i) {
+                if (System.Runtime.InteropServices.Marshal.ReadByte(ptr1 + i) != System.Runtime.InteropServices.Marshal.ReadByte(ptr2 + i)) {
+                    return false;
+                }
+            }
+            return true;
+
+        }
+
+        public override bool Equals(object obj) {
+            return obj is UnsafeData other && this.Equals(other);
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                var hashCode = this.data.GetHashCode();
+                hashCode = (hashCode * 397) ^ this.sizeOf;
+                hashCode = (hashCode * 397) ^ this.alignOf;
+                hashCode = (hashCode * 397) ^ this.typeId;
+                return hashCode;
+            }
+        }
+
+    }
+
+    public unsafe struct UnsafeDataPtr {
+
+        public void* data;
+        public int sizeOf;
+        public int alignOf;
+        public int typeId;
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public UnsafeDataPtr Set<T>(T data) where T : unmanaged {
+
+            this.typeId = AllComponentTypes<T>.typeId;
+            
+            if (this.data != null) {
+                
+                NativeArrayUtils.Dispose(ref this.data);
+                
+            }
+
+            this.sizeOf = UnsafeUtility.SizeOf<T>();
+            this.alignOf = UnsafeUtility.AlignOf<T>();
+            this.data = UnsafeUtility.Malloc(this.sizeOf, this.alignOf, Unity.Collections.Allocator.Persistent);
+            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.WriteArrayElement((void*)this.data, 0, data);
+            
+            return this;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref T Get<T>() where T : struct {
+
+            return ref Unity.Collections.LowLevel.Unsafe.UnsafeUtility.ArrayElementAsRef<T>((void*)this.data, 0);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public T Read<T>() where T : struct {
+
+            return Unity.Collections.LowLevel.Unsafe.UnsafeUtility.ReadArrayElement<T>((void*)this.data, 0);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Dispose() {
+            
+            if (this.data != null) {
 
                 this.typeId = default;
                 this.sizeOf = default;

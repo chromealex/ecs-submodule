@@ -125,6 +125,24 @@ namespace ME.ECSEditor {
 
         }
 
+        public static T Load<T>(string path, out string filePath) where T : Object {
+
+            foreach (var searchPath in EditorUtilities.searchPaths) {
+
+                var data = UnityEditor.AssetDatabase.LoadAssetAtPath<T>($"{searchPath}{path}");
+                //var data = UnityEditor.Experimental.EditorResources.Load<T>($"{searchPath}{path}", false);
+                if (data != null) {
+                    filePath = $"{searchPath}{path}";
+                    return data;
+                }
+
+            }
+            
+            filePath = default;
+            return null;
+
+        }
+
     }
     
     public static class SerializedPropertyExtensions {
@@ -155,6 +173,17 @@ namespace ME.ECSEditor {
     // any data types and with arbitrarily deeply-pathed properties.
     public static class SerializedPropertyExtensionsValueGetSet
     {
+        public static FieldInfo GetField(this UnityEditor.SerializedProperty property)
+        {
+            string propertyPath = property.propertyPath;
+            object value = property.serializedObject.targetObject;
+            int i = 0;
+            MemberInfo memberInfo = null;
+            while (NextPathComponent(propertyPath, ref i, out var token))
+                value = GetPathComponentValue(value, token, out memberInfo);
+            return memberInfo as FieldInfo;
+        }
+        
         /// (Extension) Get the value of the serialized property.
         public static object GetValue(this UnityEditor.SerializedProperty property)
         {
@@ -162,7 +191,7 @@ namespace ME.ECSEditor {
             object value = property.serializedObject.targetObject;
             int i = 0;
             while (NextPathComponent(propertyPath, ref i, out var token))
-                value = GetPathComponentValue(value, token);
+                value = GetPathComponentValue(value, token, out _);
             return value;
         }
         
@@ -188,7 +217,7 @@ namespace ME.ECSEditor {
             NextPathComponent(propertyPath, ref i, out var deferredToken);
             while (NextPathComponent(propertyPath, ref i, out var token))
             {
-                container = GetPathComponentValue(container, deferredToken);
+                container = GetPathComponentValue(container, deferredToken, out _);
                 deferredToken = token;
             }
             Debug.Assert(!container.GetType().IsValueType, $"Cannot use SerializedObject.SetValue on a struct object, as the result will be set on a temporary.  Either change {container.GetType().Name} to a class, or use SetValue with a parent member.");
@@ -251,12 +280,12 @@ namespace ME.ECSEditor {
             return true;
         }
 
-        static object GetPathComponentValue(object container, PropertyPathComponent component)
-        {
+        static object GetPathComponentValue(object container, PropertyPathComponent component, out MemberInfo memberInfo) {
+            memberInfo = null;
             if (component.propertyName == null)
                 return ((IList)container)[component.elementIndex];
             else
-                return GetMemberValue(container, component.propertyName);
+                return GetMemberValue(container, component.propertyName, out memberInfo);
         }
         
         static void SetPathComponentValue(object container, PropertyPathComponent component, object value)
@@ -267,14 +296,14 @@ namespace ME.ECSEditor {
                 SetMemberValue(container, component.propertyName, value);
         }
 
-        static object GetMemberValue(object container, string name)
-        {
+        static object GetMemberValue(object container, string name, out MemberInfo memberInfo) {
+            memberInfo = default;
             if (container == null)
                 return null;
             var type = container.GetType();
             var members = type.GetMember(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-            for (int i = 0; i < members.Length; ++i)
-            {
+            for (int i = 0; i < members.Length; ++i) {
+                memberInfo = members[i];
                 if (members[i] is FieldInfo field)
                     return field.GetValue(container);
                 else if (members[i] is PropertyInfo property)

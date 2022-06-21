@@ -1,0 +1,35 @@
+/*
+    Common
+ */
+
+.layout-container {
+    flex-direction: row;
+    margin-top: 10px;
+    margin-bottom: 4px;
+}
+
+.icon {
+    width: 32px;
+    height: 32px;
+    opacity: 0.5;
+}
+
+.header {
+    -unity-font-style: bold;
+}
+
+.right-content {
+    padding-left: 10px;
+    width: 100%;
+}
+
+.effects-container {
+    border-color: rgba(255, 255, 255, 0.1);
+    border-bottom-width: 1px;
+    margin-bottom: 10px;
+    margin-left: -10px;
+}
+
+.preconditions-container {
+    margin-left: -10px;
+}

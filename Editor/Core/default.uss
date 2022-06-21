@@ -1,0 +1,25 @@
+/*
+    Common
+ */
+
+.default-array-arraysize {
+    width: 50px;
+}
+
+.default-array-container .unity-toggle {
+    flex-direction: row;
+    border-width: 1px;
+}
+
+.default-array-container .unity-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.default-container .script-field {
+    opacity: 0.5;
+}
+
+.default-array-container .unity-toggle.default-toggle-drag-over {
+    border-color: #1a73e8;
+    border-width: 1px;
+}

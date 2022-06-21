@@ -78,14 +78,14 @@ namespace ME.ECS.Tests {
 
             TestsHelper.Do((w) => {
                 
-                WorldUtilities.InitComponentTypeId<TestComponent>(false, true);
-                WorldUtilities.InitComponentTypeId<TestSecondComponent>(false, true);
-                WorldUtilities.InitComponentTypeId<TestConnectComponent>(false, true);
+                WorldUtilities.InitComponentTypeId<TestComponent>(false, true, true);
+                WorldUtilities.InitComponentTypeId<TestSecondComponent>(false, true, true);
+                WorldUtilities.InitComponentTypeId<TestConnectComponent>(false, true, true);
                 ComponentsInitializerWorld.Setup((e) => {
                             
-                    e.ValidateData<TestComponent>();
-                    e.ValidateData<TestSecondComponent>();
-                    e.ValidateData<TestConnectComponent>();
+                    e.ValidateDataBlittable<TestComponent>();
+                    e.ValidateDataBlittable<TestSecondComponent>();
+                    e.ValidateDataBlittable<TestConnectComponent>();
                             
                 });
                 

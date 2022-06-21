@@ -5,7 +5,7 @@ namespace ME.ECS {
 
         public System.Collections.Generic.List<FeaturesListCategory> items = new System.Collections.Generic.List<FeaturesListCategory>();
 
-        public void Initialize(World world) {
+        public void Initialize(World world, bool callLateInitialization) {
 
             for (int i = 0; i < this.items.Count; ++i) {
                 
@@ -19,10 +19,14 @@ namespace ME.ECS {
                 
             }
 
-            for (int i = 0; i < this.items.Count; ++i) {
-                
-                this.items[i].features.InitializeLate(world);
-                
+            if (callLateInitialization == true) {
+
+                for (int i = 0; i < this.items.Count; ++i) {
+
+                    this.items[i].features.InitializeLate(world);
+
+                }
+
             }
 
         }
@@ -288,6 +292,21 @@ namespace ME.ECS {
             
             Filter.RegisterInject(this.InjectFilter);
             this.OnConstructLate();
+
+            if (this.systemGroup.runtimeSystem.allSystems != null) {
+
+                // Update systems
+                foreach (var system in this.systemGroup.runtimeSystem.allSystems) {
+
+                    if (system is ISystemConstructLate systemConstructLate) {
+
+                        systemConstructLate.OnConstructLate();
+
+                    }
+                
+                }
+
+            }
             Filter.UnregisterInject(this.InjectFilter);
             
         }

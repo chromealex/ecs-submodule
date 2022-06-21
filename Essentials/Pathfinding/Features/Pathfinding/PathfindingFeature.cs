@@ -1,4 +1,6 @@
-﻿
+﻿using ME.ECS.Mathematics;
+using UnityEngine;
+
 namespace ME.ECS.Pathfinding.Features {
 
     using Collections;
@@ -74,7 +76,7 @@ namespace ME.ECS.Pathfinding.Features {
             
         }
 
-        public void SetPathFlowField(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 from, UnityEngine.Vector3 to, bool alignToGraphNodes, bool cacheEnabled) {
+        public void SetPathFlowField(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, float3 from, float3 to, bool alignToGraphNodes, bool cacheEnabled) {
 
             if (alignToGraphNodes == true) {
                 
@@ -92,7 +94,7 @@ namespace ME.ECS.Pathfinding.Features {
             
         }
 
-        public void SetPathNavMesh(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 from, UnityEngine.Vector3 to) {
+        public void SetPathNavMesh(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, float3 from, float3 to) {
 
             /*if (entity.Has<ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh>() == true) {
                 ref var oldPath = ref entity.Get<ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh>();
@@ -107,17 +109,17 @@ namespace ME.ECS.Pathfinding.Features {
 
         }
 
-        public void SetPathAstar(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, UnityEngine.Vector3 from, UnityEngine.Vector3 to, bool alignToGraphNodes) {
+        public void SetPathAstar(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, float3 from, float3 to, bool alignToGraphNodes) {
             
             this.SetPathAstar(in entity, path.nodesModified, path.result, constraint, from, to, alignToGraphNodes);
             
         }
 
-        public void SetPathAstar(in Entity entity, ListCopyable<Node> nodes, PathCompleteState result, Constraint constraint, UnityEngine.Vector3 from, UnityEngine.Vector3 to, bool alignToGraphNodes) {
+        public void SetPathAstar(in Entity entity, ListCopyable<Node> nodes, PathCompleteState result, Constraint constraint, float3 from, float3 to, bool alignToGraphNodes) {
 
             //entity.Remove<ME.ECS.Pathfinding.Features.Pathfinding.Components.Path>();
 
-            var vPath = PoolListCopyable<UnityEngine.Vector3>.Spawn(nodes.Count);
+            var vPath = PoolListCopyable<float3>.Spawn(nodes.Count);
             for (var i = 0; i < nodes.Count; ++i) {
 
                 var node = nodes[i];
@@ -130,7 +132,7 @@ namespace ME.ECS.Pathfinding.Features {
                 var currentPos = from;
                 var a = vPath[0];
                 var b = vPath[1];
-                var target = a + UnityEngine.Vector3.Project(currentPos - a, b - a);
+                var target = a + (float3)UnityEngine.Vector3.Project((Vector3)currentPos - (Vector3)a, (Vector3)b - (Vector3)a);
                 vPath[0] = target;
 
             }
@@ -152,22 +154,22 @@ namespace ME.ECS.Pathfinding.Features {
 
             if (this.usePathSmoothing == true) {
                 var newPath = PathSmoothingUtils.Bezier(vPath, this.bezierCurveSubdivisions, this.bezierTangentLength);
-                PoolListCopyable<UnityEngine.Vector3>.Recycle(ref vPath);
+                PoolListCopyable<float3>.Recycle(ref vPath);
                 vPath = newPath;
             }
 
             entity.Set(new ME.ECS.Pathfinding.Features.PathfindingAstar.Components.Path() {
                 result = result,
-                path = ME.ECS.Collections.BufferArray<UnityEngine.Vector3>.From(vPath),
+                path = ME.ECS.Collections.BufferArray<float3>.From(vPath),
                 nodes = ME.ECS.Collections.BufferArray<ME.ECS.Pathfinding.Node>.From(nodes),
             });
             entity.Set(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
                 
-            PoolListCopyable<UnityEngine.Vector3>.Recycle(ref vPath);
+            PoolListCopyable<float3>.Recycle(ref vPath);
 
         }
 
-        public ME.ECS.Pathfinding.Path CalculatePath(UnityEngine.Vector3 from, UnityEngine.Vector3 to, Constraint constraint, bool cacheEnabled = false) {
+        public ME.ECS.Pathfinding.Path CalculatePath(float3 from, float3 to, Constraint constraint, bool cacheEnabled = false) {
             
             if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Read<PathfindingInstance>().pathfinding == null) return default;
             return this.pathfindingEntity.Read<PathfindingInstance>().pathfinding.CalculatePath(from, to, constraint, new ME.ECS.Pathfinding.PathCornersModifier(), cacheEnabled: cacheEnabled);
@@ -202,28 +204,28 @@ namespace ME.ECS.Pathfinding.Features {
 
         }
         
-        public UnityEngine.Vector3 ClampPosition(UnityEngine.Vector3 worldPosition) {
+        public float3 ClampPosition(float3 worldPosition) {
 
             if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Read<PathfindingInstance>().pathfinding == null) return default;
             return this.pathfindingEntity.Read<PathfindingInstance>().pathfinding.ClampPosition(worldPosition, Constraint.Default);
 
         }
 
-        public UnityEngine.Vector3 ClampPosition(UnityEngine.Vector3 worldPosition, Constraint constraint) {
+        public float3 ClampPosition(float3 worldPosition, Constraint constraint) {
             
             if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Read<PathfindingInstance>().pathfinding == null) return default;
             return this.pathfindingEntity.Read<PathfindingInstance>().pathfinding.ClampPosition(worldPosition, constraint);
             
         }
 
-        public NodeInfo GetNearest(UnityEngine.Vector3 worldPosition) {
+        public NodeInfo GetNearest(float3 worldPosition) {
 
             if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Read<PathfindingInstance>().pathfinding == null) return default;
             return this.pathfindingEntity.Read<PathfindingInstance>().pathfinding.GetNearest(worldPosition, Constraint.Default);
 
         }
 
-        public NodeInfo GetNearest(UnityEngine.Vector3 worldPosition, Constraint constraint) {
+        public NodeInfo GetNearest(float3 worldPosition, Constraint constraint) {
             
             if (this.pathfindingEntity.IsAlive() == false || this.pathfindingEntity.Read<PathfindingInstance>().pathfinding == null) return default;
             return this.pathfindingEntity.Read<PathfindingInstance>().pathfinding.GetNearest(worldPosition, constraint);

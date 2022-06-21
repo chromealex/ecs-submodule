@@ -1,12 +1,13 @@
 ﻿using ME.ECS;
+using ME.ECS.Mathematics;
 
 namespace ME.ECS.Pathfinding.Features.PathfindingFlowField.Components {
 
     public struct PathFlowField : IStructCopyable<PathFlowField> {
 
         public ME.ECS.Collections.BufferArray<byte> flowField;
-        public UnityEngine.Vector3 from;
-        public UnityEngine.Vector3 to;
+        public float3 from;
+        public float3 to;
         public bool cacheEnabled;
 
         public void CopyFrom(in PathFlowField other) {

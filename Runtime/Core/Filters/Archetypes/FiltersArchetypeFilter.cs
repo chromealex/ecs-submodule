@@ -22,6 +22,7 @@ namespace ME.ECS {
 
         public struct Enumerator : IEnumerator<Entity> {
 
+            public FilterStaticData filterStaticData;
             public FilterData filterData;
             public int index;
             public int archIndex;
@@ -35,14 +36,14 @@ namespace ME.ECS {
             #endif
             public bool MoveNext() {
 
-                if (FiltersArchetype.FiltersArchetypeStorage.CheckStaticShared(this.filterData.data.containsShared, this.filterData.data.notContainsShared) == false) {
+                if (FiltersArchetype.FiltersArchetypeStorage.CheckStaticShared(this.filterStaticData.data.containsShared, this.filterStaticData.data.notContainsShared) == false) {
                     return false;
                 }
 
-                var onChanged = this.filterData.data.onChanged;
+                var onChanged = this.filterStaticData.data.onChanged;
                 var changedTracked = onChanged.Count;
                 
-                var connectedFilters = this.filterData.data.connectedFilters;
+                var connectedFilters = this.filterStaticData.data.connectedFilters;
                 var connectedTracked = connectedFilters.Count;
 
                 while (true) {
@@ -169,7 +170,9 @@ namespace ME.ECS {
 
             foreach (var component in data.with) {
 
-                if (ComponentTypesRegistry.allTypeId.TryGetValue(component.GetType(), out var index) == true) {
+                var type = component.GetType();
+                WorldUtilities.SetComponentTypeIdByType(type);
+                if (ComponentTypesRegistry.typeId.TryGetValue(type, out var index) == true) {
 
                     dataInternal.contains.Add(index);
 
@@ -179,7 +182,9 @@ namespace ME.ECS {
 
             foreach (var component in data.without) {
 
-                if (ComponentTypesRegistry.allTypeId.TryGetValue(component.GetType(), out var index) == true) {
+                var type = component.GetType();
+                WorldUtilities.SetComponentTypeIdByType(type);
+                if (ComponentTypesRegistry.typeId.TryGetValue(type, out var index) == true) {
 
                     dataInternal.notContains.Add(index);
 
@@ -198,14 +203,17 @@ namespace ME.ECS {
         #endif
         public Enumerator GetEnumerator() {
 
-            ref var filters = ref Worlds.current.currentState.filters;
+            var world = Worlds.current;
+            ref var filters = ref world.currentState.filters;
             filters.UpdateFilters();
             ++filters.forEachMode;
+            var filterStaticData = world.GetFilterStaticData(this.id);
             var filterData = filters.GetFilter(this.id);
             return new Enumerator() {
                 index = -1,
                 archIndex = 0,
                 filterData = filterData,
+                filterStaticData = filterStaticData,
                 arr = filterData.archetypes.Count > 0 ? filterData.storage.allArchetypes[filterData.archetypesList[0]].entitiesArr : default,
                 archetypes = filterData.archetypesList,
                 allArchetypes = filterData.storage.allArchetypes,
@@ -241,26 +249,27 @@ namespace ME.ECS {
 
         }
 
+        /// <summary>
+        /// Fast copy raw data from filter 
+        /// </summary>
+        /// <param name="allocator"></param>
+        /// <returns></returns>
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
         public Unity.Collections.NativeArray<Entity> ToArray(Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
-            
-            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
-            var result = new Unity.Collections.NativeArray<Entity>(filterData.storage.Count(filterData), allocator);
-            var k = 0;
-            foreach (var archId in filterData.archetypes) {
 
-                var arch = filterData.storage.allArchetypes[archId];
-                for (int i = 0, count = arch.entitiesArr.Count; i < count; ++i) {
-                    
-                    result[k++] = filterData.storage.GetEntityById(arch.entitiesArr[i]);
-                    
-                }
-                
+            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            var result = new Unity.Collections.NativeList<Entity>(filterData.archetypes.Count * 10, allocator);
+            foreach (var entity in this) {
+                result.Add(entity);
             }
 
-            return result;
+            if (result.Length == 0) {
+                result.Dispose();
+                return new Unity.Collections.NativeArray<Entity>(0, allocator);
+            }
+            return result.AsArray();
 
         }
         
@@ -273,61 +282,58 @@ namespace ME.ECS {
             max = int.MinValue;
             var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
             var result = new Unity.Collections.NativeList<Entity>(filterData.archetypes.Count * 10, allocator);
-            foreach (var archId in filterData.archetypes) {
-
-                var arch = filterData.storage.allArchetypes[archId];
-                for (int i = 0, count = arch.entitiesArr.Count; i < count; ++i) {
-                    
-                    var e = arch.entitiesArr[i];
-                    if (e < min) {
-                        min = e;
-                    }
-
-                    if (e > max) {
-                        max = e;
-                    }
-                    result.Add(filterData.storage.GetEntityById(e));
-                    
+            foreach (var entity in this) {
+                if (entity.id < min) {
+                    min = entity.id;
                 }
-                
-            }
 
-            #if UNITY_EDITOR
-            var res = result.ToArray(allocator);
-            result.Dispose();
-            return res;
-            #else
+                if (entity.id > max) {
+                    max = entity.id;
+                }
+                result.Add(entity);
+            }
+            
+            if (result.Length == 0) {
+                result.Dispose();
+                return new Unity.Collections.NativeArray<Entity>(0, allocator);
+            }
             return result.AsArray();
-            #endif
 
         }
 
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        public Unity.Collections.NativeList<Entity> ToList(Unity.Collections.Allocator allocator, out int min, out int max) {
+        public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator, out int min, out int max) {
 
             min = int.MaxValue;
             max = int.MinValue;
             var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
-            var result = new Unity.Collections.NativeList<Entity>(filterData.archetypes.Count * 10, allocator);
-            foreach (var archId in filterData.archetypes) {
-
-                var arch = filterData.storage.allArchetypes[archId];
-                for (int i = 0, count = arch.entitiesArr.Count; i < count; ++i) {
-                    
-                    var e = arch.entitiesArr[i];
-                    if (e < min) {
-                        min = e;
-                    }
-
-                    if (e > max) {
-                        max = e;
-                    }
-                    result.Add(filterData.storage.GetEntityById(e));
-                    
+            var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count * 10, allocator);
+            foreach (var entity in this) {
+                if (entity.id < min) {
+                    min = entity.id;
                 }
-                
+
+                if (entity.id > max) {
+                    max = entity.id;
+                }
+                result.Add(entity.id);
+            }
+
+            return result;
+
+        }
+
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator) {
+
+            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count * 10, allocator);
+            foreach (var entity in this) {
+                result.Add(entity.id);
             }
 
             return result;
@@ -382,6 +388,13 @@ namespace ME.ECS {
 
     }
 
+    public struct FilterStaticData {
+
+        public bool isCreated;
+        internal FilterInternalData data;
+
+    }
+
     [Il2Cpp(Option.NullChecks, false)]
     [Il2Cpp(Option.ArrayBoundsChecks, false)]
     [Il2Cpp(Option.DivideByZeroChecks, false)]
@@ -420,8 +433,6 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         public int id;
         [ME.ECS.Serializer.SerializeField]
-        internal FilterInternalData data;
-        [ME.ECS.Serializer.SerializeField]
         internal HashSetCopyable<int> archetypes;
         [ME.ECS.Serializer.SerializeField]
         internal List<int> archetypesList;
@@ -434,7 +445,6 @@ namespace ME.ECS {
         public void CopyFrom(FilterData other) {
 
             this.id = other.id;
-            this.data.CopyFrom(other.data);
             ArrayUtils.Copy(other.archetypes, ref this.archetypes);
             ArrayUtils.Copy(other.archetypesList, ref this.archetypesList);
             this.isAlive = other.isAlive;
@@ -448,7 +458,6 @@ namespace ME.ECS {
 
             this.id = 0;
             this.isAlive = false;
-            this.data.Recycle();
             PoolHashSetCopyable<int>.Recycle(ref this.archetypes);
             PoolList<int>.Recycle(ref this.archetypesList);
 
@@ -464,7 +473,7 @@ namespace ME.ECS {
         internal string ToEditorTypesString() {
 
             var str = string.Empty;
-            foreach (var c in this.data.contains) {
+            foreach (var c in Worlds.current.GetFilterStaticData(this.id).data.contains) {
                 var type = string.Empty;
                 foreach (var t in ComponentTypesRegistry.typeId) {
                     if (t.Value == c) {
@@ -476,7 +485,7 @@ namespace ME.ECS {
                 str += $"W<{type}>";
             }
 
-            foreach (var c in this.data.notContains) {
+            foreach (var c in Worlds.current.GetFilterStaticData(this.id).data.notContains) {
                 var type = string.Empty;
                 foreach (var t in ComponentTypesRegistry.typeId) {
                     if (t.Value == c) {
@@ -495,7 +504,7 @@ namespace ME.ECS {
         public string[] GetAllNames() {
 
             return new string[] {
-                this.data.name,
+                Worlds.current.GetFilterStaticData(this.id).data.name,
             };
 
         }
@@ -728,7 +737,6 @@ namespace ME.ECS {
         
         internal ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage => Worlds.current.currentState.filters;
 
-        [ME.ECS.Serializer.SerializeField]
         internal FilterInternalData data;
 
         public FilterBuilder WithLambda<T, TComponent>() where T : struct, ILambda<TComponent> where TComponent : struct, IStructComponent {
@@ -746,6 +754,7 @@ namespace ME.ECS {
             WorldUtilities.SetComponentTypeId<TComponent>();
 
             ComponentTypes<TComponent>.isFilterLambda = true;
+            ComponentTypes<TComponent>.burstIsFilterLambda.Data = 1;
 
             var key = ComponentTypes<TComponent>.typeId;
             {
@@ -922,10 +931,10 @@ namespace ME.ECS {
             }
 
             var nextId = this.storage.filters.Count + 1;
+            Worlds.current.SetFilterStaticData(nextId, this.data);
             filterData = new FilterData() {
                 id = nextId,
                 isAlive = true,
-                data = this.data,
                 archetypes = PoolHashSetCopyable<int>.Spawn(),
                 archetypesList = PoolList<int>.Spawn(64),
             };

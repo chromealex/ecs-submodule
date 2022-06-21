@@ -1,6 +1,7 @@
 ﻿#if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
+using Unity.Jobs;
 
 #if GAMEOBJECT_VIEWS_MODULE_SUPPORT
 namespace ME.ECS {
@@ -36,6 +37,28 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
     public sealed partial class World {
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void AssignView(UnityEngine.GameObject sceneSource, Entity entity, DestroyViewBehaviour destroyViewBehaviour) {
+
+            if (sceneSource.TryGetComponent(out IView component) == true) {
+
+                this.AssignView(component, entity, destroyViewBehaviour);
+
+            }
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void AssignView(MonoBehaviourViewBase sceneSource, Entity entity, DestroyViewBehaviour destroyViewBehaviour) {
+            
+            this.AssignView((IView)sceneSource, entity, destroyViewBehaviour);
+            
+        }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -157,7 +180,6 @@ namespace ME.ECS.Views.Providers {
 
     using ME.ECS;
     using ME.ECS.Views;
-    using Unity.Jobs;
     using UnityEngine.Jobs;
     using Collections;
 
@@ -268,24 +290,23 @@ namespace ME.ECS.Views.Providers {
         /// <summary>
         /// Time to get ready this instance to be used again after it has been despawned.
         /// </summary>
-        public virtual float cacheTimeout => this.defaultParameters.useCacheTimeout == true ? this.defaultParameters.cacheTimeout : Worlds.currentWorld.GetTimeFromTick(Worlds.currentWorld.GetModule<ME.ECS.StatesHistory.IStatesHistoryModuleBase>().GetCacheSize());
+        public virtual float cacheTimeout => this.defaultParameters.useCacheTimeout == true ? this.defaultParameters.cacheTimeout : (float)Worlds.currentWorld.GetTimeFromTick(Worlds.currentWorld.GetModule<ME.ECS.StatesHistory.IStatesHistoryModuleBase>().GetCacheSize());
         /// <summary>
         /// Time to despawn view before it has been pooled.
         /// </summary>
         public virtual float despawnDelay => (this.defaultParameters.useDespawnTime == true ? this.defaultParameters.despawnTime : 0f);
 
         public World world { get; private set; }
-        public virtual Entity entity { get; private set; }
         public uint entityVersion { get; set; }
-        public ViewId prefabSourceId { get; private set; }
-        public Tick creationTick { get; private set; }
+        public virtual Entity entity => this.info.entity;
+        public ViewId prefabSourceId => this.info.prefabSourceId;
+        public Tick creationTick => this.info.creationTick;
+        public ViewInfo info { get; private set; }
 
         void IViewBaseInternal.Setup(World world, ViewInfo viewInfo) {
 
             this.world = world;
-            this.entity = viewInfo.entity;
-            this.prefabSourceId = viewInfo.prefabSourceId;
-            this.creationTick = viewInfo.creationTick;
+            this.info = viewInfo;
 
         }
 

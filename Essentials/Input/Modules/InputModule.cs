@@ -1,4 +1,11 @@
-﻿
+﻿#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
+#else
+using Unity.Mathematics;
+using tfloat = System.Single;
+#endif
+
 namespace ME.ECS.Essentials.Input.Input.Modules {
     
     #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -10,20 +17,20 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
         
         private InputFeature feature;
 
-        private UnityEngine.Vector3 pressWorldPos;
+        private float3 pressWorldPos;
         private bool isPressed;
         private bool dragBegin;
-        private UnityEngine.Vector3 lastDragPos;
+        private float3 lastDragPos;
         
-        private UnityEngine.Vector3 pressWorldPosClick;
+        private float3 pressWorldPosClick;
         private bool sendClickWaiter;
         private int clicksCount;
         private float prevPressedTime;
 
         private bool isPitchDown;
 
-        private UnityEngine.Vector3 gesturePitchPointer1LastPos;
-        private UnityEngine.Vector3 gesturePitchPointer2LastPos;
+        private float3 gesturePitchPointer1LastPos;
+        private float3 gesturePitchPointer2LastPos;
 
         public World world { get; set; }
         
@@ -49,7 +56,7 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                 var dt = UnityEngine.Time.realtimeSinceStartup - this.prevPressedTime;
                 if (hasWorldPos == true &&
                     dt <= this.feature.doubleClickThreshold &&
-                    ((this.pressWorldPosClick - worldPos).sqrMagnitude <= this.feature.doubleClickMaxDistance * this.feature.doubleClickMaxDistance)) {
+                    (math.distancesq(this.pressWorldPosClick, worldPos) <= this.feature.doubleClickMaxDistance * this.feature.doubleClickMaxDistance)) {
 
                     var data = this.feature.RaiseMarkerCallback(new InputPointerData(0, this.pressWorldPosClick, InputEventType.PointerDoubleClick));
                     this.world.AddMarker(new Markers.InputPointerDoubleClick() {
@@ -109,8 +116,8 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
                         this.feature.GetWorldPointer(1, out var wp2) == true) {
 
                         if (forceMove == true ||
-                            (this.gesturePitchPointer1LastPos - wp1).sqrMagnitude >= this.feature.gesturePitchMinDragThreshold ||
-                            (this.gesturePitchPointer2LastPos - wp2).sqrMagnitude >= this.feature.gesturePitchMinDragThreshold) {
+                            (math.distancesq(this.gesturePitchPointer1LastPos, wp1) >= this.feature.gesturePitchMinDragThreshold) ||
+                            (math.distancesq(this.gesturePitchPointer2LastPos, wp2) >= this.feature.gesturePitchMinDragThreshold)) {
 
                             this.world.AddMarker(new Markers.InputGesturePitchMove() {
                                 pointer1 = new InputPointerData(0, wp1, InputEventType.PointerDragMove),
@@ -156,7 +163,8 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
 
                     if (this.feature.GetWorldPointer(out var worldPos) == true) {
 
-                        if (this.dragBegin == false && (worldPos - this.pressWorldPos).sqrMagnitude >= this.feature.dragBeginThreshold * this.feature.dragBeginThreshold) {
+                        if (this.dragBegin == false &&
+                            math.distancesq(worldPos, this.pressWorldPos) >= this.feature.dragBeginThreshold * this.feature.dragBeginThreshold) {
 
                             this.dragBegin = true;
                             var data = this.feature.RaiseMarkerCallback(new InputPointerData(pointerId, this.pressWorldPos, InputEventType.PointerDragBegin));
@@ -174,7 +182,7 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
 
                     if (this.feature.GetWorldPointer(out var worldPos) == true) {
 
-                        if ((this.lastDragPos - worldPos).sqrMagnitude > this.feature.dragMoveThreshold * this.feature.dragMoveThreshold) {
+                        if (math.distancesq(this.lastDragPos, worldPos) > this.feature.dragMoveThreshold * this.feature.dragMoveThreshold) {
 
                             var data = this.feature.RaiseMarkerCallback(new InputPointerData(pointerId, worldPos, InputEventType.PointerDragMove) { pressWorldPosition = this.pressWorldPos });
                             this.world.AddMarker(new Markers.InputPointerDragMove() {
@@ -231,7 +239,7 @@ namespace ME.ECS.Essentials.Input.Input.Modules {
 
                             var dt = UnityEngine.Time.realtimeSinceStartup - this.prevPressedTime;
                             if (dt <= this.feature.doubleClickThreshold &&
-                                ((this.pressWorldPosClick - worldPos).sqrMagnitude <= this.feature.doubleClickMaxDistance * this.feature.doubleClickMaxDistance)) {
+                                (math.distancesq(this.pressWorldPosClick, worldPos) <= this.feature.doubleClickMaxDistance * this.feature.doubleClickMaxDistance)) {
 
                                 {
                                     var data = this.feature.RaiseMarkerCallback(new InputPointerData(pointerId, worldPos, InputEventType.PointerClick));

@@ -215,7 +215,7 @@ namespace ME.ECS.Collections {
             #endif
             get {
                 int i = this.FindEntry(key);
-                if (i >= 0) return this.entries[i].value;
+                if (i >= 0) return this.entries.arr[i].value;
                 ThrowHelper.ThrowKeyNotFoundException();
                 return default(TValue);
             }
@@ -233,7 +233,7 @@ namespace ME.ECS.Collections {
         public ref TValue GetValue(TKey key) {
             int i = this.FindEntry(key);
             if (i >= 0) {
-                return ref this.entries[i].value;
+                return ref this.entries.arr[i].value;
             }
             
             return ref this.Insert(key, default, false);
@@ -247,7 +247,7 @@ namespace ME.ECS.Collections {
             int i = this.FindEntry(key);
             if (i >= 0) {
                 exist = true;
-                return ref this.entries[i].value;
+                return ref this.entries.arr[i].value;
             }
 
             exist = false;
@@ -287,7 +287,7 @@ namespace ME.ECS.Collections {
 
         public void Clear() {
             if (this.count > 0) {
-                for (int i = 0; i < this.buckets.Length; i++) this.buckets[i] = -1;
+                for (int i = 0; i < this.buckets.Length; i++) this.buckets.arr[i] = -1;
                 ArrayUtils.Clear(this.entries);
                 this.freeList = -1;
                 this.count = 0;
@@ -303,13 +303,13 @@ namespace ME.ECS.Collections {
         public bool ContainsValue(TValue value) {
             if (value == null) {
                 for (int i = 0; i < this.count; i++) {
-                    if (this.entries[i].hashCode >= 0 && this.entries[i].value == null) return true;
+                    if (this.entries.arr[i].hashCode >= 0 && this.entries.arr[i].value == null) return true;
                 }
             }
             else {
                 EqualityComparer<TValue> c = EqualityComparer<TValue>.Default;
                 for (int i = 0; i < this.count; i++) {
-                    if (this.entries[i].hashCode >= 0 && c.Equals(this.entries[i].value, value)) return true;
+                    if (this.entries.arr[i].hashCode >= 0 && c.Equals(this.entries.arr[i].value, value)) return true;
                 }
             }
             return false;
@@ -344,9 +344,10 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private int FindEntry(TKey key) {
             if (this.buckets.isCreated == true) {
-                int hashCode = key.GetHashCode() & 0x7FFFFFFF;
-                for (int i = this.buckets[hashCode % this.buckets.Length]; i >= 0; i = this.entries[i].next) {
-                    if (this.entries[i].hashCode == hashCode && this.entries[i].key == key) return i;
+                int hashCode = key & 0x7FFFFFFF;
+                for (int i = this.buckets.arr[hashCode % this.buckets.Length]; i >= 0; i = this.entries.arr[i].next) {
+                    var item = this.entries.arr[i];
+                    if (item.key == key) return i;
                 }
             }
             return -1;
@@ -355,7 +356,7 @@ namespace ME.ECS.Collections {
         private void Initialize(int capacity) {
             int size = HashHelpers.GetPrime(capacity);
             this.buckets = PoolArray<int>.Spawn(size);
-            for (int i = 0; i < this.buckets.Length; i++) this.buckets[i] = -1;
+            for (int i = 0; i < this.buckets.Length; i++) this.buckets.arr[i] = -1;
             this.entries = PoolArray<Entry>.Spawn(size);
             this.freeList = -1;
         }
@@ -366,16 +367,16 @@ namespace ME.ECS.Collections {
                 this.Initialize(0);
             }
 
-            var hashCode = key.GetHashCode() & 0x7FFFFFFF;
+            var hashCode = key & 0x7FFFFFFF;
             var targetBucket = hashCode % this.buckets.Length;
 
-            for (var i = this.buckets[targetBucket]; i >= 0; i = this.entries[i].next) {
-                if (this.entries[i].hashCode == hashCode && this.entries[i].key == key) {
+            for (var i = this.buckets.arr[targetBucket]; i >= 0; i = this.entries.arr[i].next) {
+                if (this.entries.arr[i].key == key) {
                     if (add) {
                         throw new ArgumentException();
                     }
 
-                    copy.Copy(value, ref this.entries[i].value);
+                    copy.Copy(value, ref this.entries.arr[i].value);
                     this.version++;
                     return;
                 }
@@ -388,7 +389,7 @@ namespace ME.ECS.Collections {
             int index;
             if (this.freeCount > 0) {
                 index = this.freeList;
-                this.freeList = this.entries[index].next;
+                this.freeList = this.entries.arr[index].next;
                 this.freeCount--;
             } else {
                 if (this.count == this.entries.Length) {
@@ -400,11 +401,12 @@ namespace ME.ECS.Collections {
                 this.count++;
             }
 
-            this.entries[index].hashCode = hashCode;
-            this.entries[index].next = this.buckets[targetBucket];
-            this.entries[index].key = key;
-            copy.Copy(value, ref this.entries[index].value);
-            this.buckets[targetBucket] = index;
+            ref var item = ref this.entries.arr[index];
+            item.hashCode = hashCode;
+            item.next = this.buckets.arr[targetBucket];
+            item.key = key;
+            copy.Copy(value, ref item.value);
+            this.buckets.arr[targetBucket] = index;
             this.version++;
 
         }
@@ -412,22 +414,22 @@ namespace ME.ECS.Collections {
         private ref TValue Insert(TKey key, TValue value, bool add) {
         
             if (this.buckets.isCreated == false) this.Initialize(0);
-            int hashCode = key.GetHashCode() & 0x7FFFFFFF;
+            int hashCode = key & 0x7FFFFFFF;
             int targetBucket = hashCode % this.buckets.Length;
  
 #if FEATURE_RANDOMIZED_STRING_HASHING
             int collisionCount = 0;
 #endif
  
-            for (int i = this.buckets[targetBucket]; i >= 0; i = this.entries[i].next) {
-                if (this.entries[i].hashCode == hashCode && this.entries[i].key == key) {
+            for (int i = this.buckets.arr[targetBucket]; i >= 0; i = this.entries.arr[i].next) {
+                if (this.entries.arr[i].key == key) {
                     if (add) { 
                         ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_AddingDuplicate);
                     }
 
-                    this.entries[i].value = value;
+                    this.entries.arr[i].value = value;
                     this.version++;
-                    return ref this.entries[i].value;
+                    return ref this.entries.arr[i].value;
                 } 
  
 #if FEATURE_RANDOMIZED_STRING_HASHING
@@ -437,7 +439,7 @@ namespace ME.ECS.Collections {
             int index;
             if (this.freeCount > 0) {
                 index = this.freeList;
-                this.freeList = this.entries[index].next;
+                this.freeList = this.entries.arr[index].next;
                 this.freeCount--;
             }
             else {
@@ -450,11 +452,12 @@ namespace ME.ECS.Collections {
                 this.count++;
             }
 
-            this.entries[index].hashCode = hashCode;
-            this.entries[index].next = this.buckets[targetBucket];
-            this.entries[index].key = key;
-            this.entries[index].value = value;
-            this.buckets[targetBucket] = index;
+            ref var item = ref this.entries.arr[index];
+            item.hashCode = hashCode;
+            item.next = this.buckets.arr[targetBucket];
+            item.key = key;
+            item.value = value;
+            this.buckets.arr[targetBucket] = index;
             this.version++;
  
 #if FEATURE_RANDOMIZED_STRING_HASHING
@@ -480,7 +483,7 @@ namespace ME.ECS.Collections {
  
 #endif
 
-            return ref this.entries[index].value;
+            return ref this.entries.arr[index].value;
 
         }
  
@@ -494,20 +497,20 @@ namespace ME.ECS.Collections {
             ArrayUtils.Resize(newSize - 1, ref this.buckets);
             ArrayUtils.Resize(newSize - 1, ref this.entries);
             
-            for (int i = 0; i < this.buckets.Length; i++) this.buckets[i] = -1;
+            for (int i = 0; i < this.buckets.Length; i++) this.buckets.arr[i] = -1;
 
             if(forceNewHashCodes) {
                 for (int i = 0; i < this.count; i++) {
-                    if(this.entries[i].hashCode != -1) {
-                        this.entries[i].hashCode = (this.entries[i].key.GetHashCode() & 0x7FFFFFFF);
+                    if(this.entries.arr[i].hashCode != -1) {
+                        this.entries.arr[i].hashCode = (this.entries.arr[i].key & 0x7FFFFFFF);
                     }
                 }
             }
             for (int i = 0; i < this.count; i++) {
-                if (this.entries[i].hashCode >= 0) {
-                    int bucket = this.entries[i].hashCode % newSize;
-                    this.entries[i].next = this.buckets[bucket];
-                    this.buckets[bucket] = i;
+                if (this.entries.arr[i].hashCode >= 0) {
+                    int bucket = this.entries.arr[i].hashCode % newSize;
+                    this.entries.arr[i].next = this.buckets.arr[bucket];
+                    this.buckets.arr[bucket] = i;
                 }
             }
         }
@@ -515,22 +518,22 @@ namespace ME.ECS.Collections {
         public bool Remove(TKey key) {
             
             if (this.buckets.isCreated == true) {
-                int hashCode = key.GetHashCode() & 0x7FFFFFFF;
+                int hashCode = key & 0x7FFFFFFF;
                 int bucket = hashCode % this.buckets.Length;
                 int last = -1;
-                for (int i = this.buckets[bucket]; i >= 0; last = i, i = this.entries[i].next) {
-                    if (this.entries[i].hashCode == hashCode && this.entries[i].key == key) {
+                for (int i = this.buckets.arr[bucket]; i >= 0; last = i, i = this.entries.arr[i].next) {
+                    if (this.entries.arr[i].key == key) {
                         if (last < 0) {
-                            this.buckets[bucket] = this.entries[i].next;
+                            this.buckets.arr[bucket] = this.entries.arr[i].next;
                         }
                         else {
-                            this.entries[last].next = this.entries[i].next;
+                            this.entries.arr[last].next = this.entries.arr[i].next;
                         }
 
-                        this.entries[i].hashCode = -1;
-                        this.entries[i].next = this.freeList;
-                        this.entries[i].key = default(TKey);
-                        this.entries[i].value = default(TValue);
+                        this.entries.arr[i].hashCode = -1;
+                        this.entries.arr[i].next = this.freeList;
+                        this.entries.arr[i].key = default(TKey);
+                        this.entries.arr[i].value = default(TValue);
                         this.freeList = i;
                         this.freeCount++;
                         this.version++;
@@ -544,7 +547,7 @@ namespace ME.ECS.Collections {
         public bool TryGetValue(TKey key, out TValue value) {
             int i = this.FindEntry(key);
             if (i >= 0) {
-                value = this.entries[i].value;
+                value = this.entries.arr[i].value;
                 return true;
             }
             value = default(TValue);
@@ -558,7 +561,7 @@ namespace ME.ECS.Collections {
         internal TValue GetValueOrDefault(TKey key) {
             int i = this.FindEntry(key);
             if (i >= 0) {
-                return this.entries[i].value;
+                return this.entries.arr[i].value;
             }
             return default(TValue);
         }
@@ -657,7 +660,7 @@ namespace ME.ECS.Collections {
                 if( DictionaryInt<TValue>.IsCompatibleKey(key)) {                
                     int i = this.FindEntry((TKey)key);
                     if (i >= 0) { 
-                        return this.entries[i].value;                
+                        return this.entries.arr[i].value;                
                     }
                 }
                 return null;

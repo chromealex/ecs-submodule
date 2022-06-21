@@ -19,7 +19,7 @@ namespace ME.ECSEditor {
             
             var items = property.FindPropertyRelative("items");
             EditorGUI.PropertyField(position, items, new GUIContent("Features"), true);
-
+            
         }
 
     }
@@ -65,7 +65,7 @@ namespace ME.ECSEditor {
             var backStyle = new GUIStyle("RL Header");
             if (UnityEngine.Event.current.type == UnityEngine.EventType.Repaint) backStyle.Draw(headerRect, false, false, false, false);
             header.stringValue = EditorGUI.TextField(captionRect, string.Empty, header.stringValue, EditorStyles.boldLabel);
-            
+
         }
 
     }

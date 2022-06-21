@@ -24,7 +24,7 @@ namespace ME.ECS {
             var arrSize = PoolArray<T>.GetSize(length);
             var arr = new Unity.Collections.NativeArray<T>(arrSize, allocator);
             var size = (realSize == true ? arr.Length : length);
-            var buffer = new NativeBufferArray<T>(arr, length, realSize == true ? arr.Length : -1);
+            var buffer = new NativeBufferArray<T>(arr, length/*, realSize == true ? arr.Length : -1*/);
             NativeArrayUtils.Clear(buffer, 0, size);
 
             return buffer;

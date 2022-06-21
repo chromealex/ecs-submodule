@@ -2,6 +2,7 @@
 #define INLINE_METHODS
 #endif
 
+using Unity.Jobs;
 #if PARTICLES_VIEWS_MODULE_SUPPORT
 namespace ME.ECS {
 
@@ -142,7 +143,6 @@ namespace ME.ECS.Views {
 
 namespace ME.ECS.Views.Providers {
 
-    using Unity.Jobs;
     using Collections;
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -319,18 +319,17 @@ namespace ME.ECS.Views.Providers {
         }
 
         public World world { get; private set; }
-        public Entity entity { get; private set; }
+        public Entity entity => this.info.entity;
+        public ViewId prefabSourceId => this.info.prefabSourceId;
+        public Tick creationTick => this.info.creationTick;
         public uint entityVersion { get; set; }
-        public ViewId prefabSourceId { get; private set; }
-        public Tick creationTick { get; private set; }
+        public ViewInfo info { get; private set; }
 
         void IViewBaseInternal.Setup(World world, ViewInfo viewInfo) {
 
             this.world = world;
-            this.entity = viewInfo.entity;
-            this.prefabSourceId = viewInfo.prefabSourceId;
-            this.creationTick = viewInfo.creationTick;
-
+            this.info = viewInfo;
+            
         }
 
         void IView.DoInitialize() {
@@ -361,10 +360,8 @@ namespace ME.ECS.Views.Providers {
         public sealed override void DoCopyFrom(ParticleViewBase source) {
 
             var sourceView = (T)source;
-            this.entity = sourceView.entity;
-            this.prefabSourceId = sourceView.prefabSourceId;
-            this.creationTick = sourceView.creationTick;
-
+            this.info = sourceView.info;
+            
             this.CopyFrom((T)source);
 
         }
@@ -500,7 +497,7 @@ namespace ME.ECS.Views.Providers {
         internal struct NullState {}
 
         private System.Collections.Generic.Dictionary<long, ParticleSystemItem> psItems;
-        private PoolInternalBase pool;
+        private DictionaryCopyable<ViewId, PoolInternalBase> pools;
         private BufferArray<UnityEngine.ParticleSystem.Particle> particles;
         private BufferArray<UnityEngine.ParticleSystem.Particle> particlesStatic;
         private int maxParticlesMain = 1000;
@@ -510,7 +507,7 @@ namespace ME.ECS.Views.Providers {
         public override void OnConstruct() {
 
             this.psItems = PoolDictionary<long, ParticleSystemItem>.Spawn(100);
-            this.pool = new PoolInternalBase(typeof(ParticleViewBase));
+            this.pools = PoolDictionaryCopyable<ViewId, PoolInternalBase>.Spawn(100);
 
             UnityEngine.ParticleSystem particleSystem;
             UnityEngine.ParticleSystemRenderer particleSystemRenderer;
@@ -535,7 +532,7 @@ namespace ME.ECS.Views.Providers {
             UnityObjectUtils.Destroy(this.mainParticleSystem);
             this.mainParticleSystem = null;
 
-            this.pool = null;
+            PoolDictionaryCopyable<ViewId, PoolInternalBase>.Recycle(ref this.pools);
             PoolDictionary<long, ParticleSystemItem>.Recycle(ref this.psItems);
 
         }
@@ -590,7 +587,14 @@ namespace ME.ECS.Views.Providers {
 
             var prefabSource = (ParticleViewBase)prefab;
 
-            var obj = this.pool.Spawn(new NullState());
+            if (this.pools.TryGetValue(prefabSourceId, out var pool) == false) {
+                
+                pool = new PoolInternalBase(typeof(ParticleViewBase));
+                this.pools.Add(prefabSourceId, pool);
+                
+            }
+            
+            var obj = pool.Spawn(new NullState());
             if (obj == null) {
 
                 obj = System.Activator.CreateInstance(prefab.GetType());
@@ -598,7 +602,7 @@ namespace ME.ECS.Views.Providers {
             }
 
             var particleViewBase = (ParticleViewBase)obj;
-            particleViewBase.items = new ParticleViewBase.Item[prefabSource.items.Length]; //PoolArray<ParticleViewBase.Item>.Spawn(prefabSource.items.Length);
+            particleViewBase.items = new ParticleViewBase.Item[prefabSource.items.Length];
             for (int i = 0; i < particleViewBase.items.Length; ++i) {
 
                 particleViewBase.items[i] = prefabSource.items[i];
@@ -704,7 +708,15 @@ namespace ME.ECS.Views.Providers {
 
             }
 
-            this.pool.Recycle(instance);
+            var prefabSourceId = instance.info.prefabSourceId;
+            if (this.pools.TryGetValue(prefabSourceId, out var pool) == false) {
+                
+                pool = new PoolInternalBase(typeof(ParticleViewBase));
+                this.pools.Add(prefabSourceId, pool);
+                
+            }
+
+            pool.Recycle(instance);
             instance = null;
 
             return true;
@@ -730,7 +742,7 @@ namespace ME.ECS.Views.Providers {
 
         }
 
-        private struct Job : Unity.Jobs.IJobParallelFor {
+        private struct Job : IJobParallelFor {
 
             public float deltaTime;
 

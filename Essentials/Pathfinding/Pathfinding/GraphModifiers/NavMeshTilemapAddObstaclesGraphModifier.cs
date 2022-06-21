@@ -24,7 +24,7 @@ namespace ME.ECS.Pathfinding {
         public override void ApplyBeforeConnections(Graph graph) {
 
             var navMeshGraph = graph as NavMeshGraph;
-            var graphBounds = new Bounds(navMeshGraph.graphCenter, navMeshGraph.size);
+            var graphBounds = new Bounds((Vector3)navMeshGraph.graphCenter, navMeshGraph.size);
             var graphHeightMin = navMeshGraph.minHeight;
             var graphHeightMax = navMeshGraph.maxHeight;
             var cache = PoolDictionary<int, Item>.Spawn(100);
@@ -98,7 +98,7 @@ namespace ME.ECS.Pathfinding {
             
         }
 
-        public bool GetHeight(NavMeshGraph graph, Vector3 worldPosition, out float height) {
+        public bool GetHeight(NavMeshGraph graph, Vector3 worldPosition, out sfloat height) {
 
             height = 0f;
 
@@ -125,10 +125,10 @@ namespace ME.ECS.Pathfinding {
             
         }
 
-        public void GetMinMaxHeight(out float min, out float max) {
+        public void GetMinMaxHeight(out sfloat min, out sfloat max) {
 
-            min = fp.MaxValue;
-            max = fp.MinValue;
+            min = sfloat.MaxValue;
+            max = sfloat.MinValue;
 
             for (int i = 0; i < this.items.Length; ++i) {
 

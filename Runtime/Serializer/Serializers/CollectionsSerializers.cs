@@ -7,8 +7,8 @@ namespace ME.ECS.Serializer {
 
         [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.Int16Array;
         [INLINE(256)] public System.Type GetTypeSerialized() => typeof(System.Int16[]);
-        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (System.Int16[])obj);
-        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<System.Int16>(packer);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArrayPrimitives(packer, (System.Int16[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArrayPrimitives<System.Int16>(packer);
         
     }
 
@@ -16,8 +16,8 @@ namespace ME.ECS.Serializer {
 
         [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.Int32Array;
         [INLINE(256)] public System.Type GetTypeSerialized() => typeof(System.Int32[]);
-        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (System.Int32[])obj);
-        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<System.Int32>(packer);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArrayPrimitives(packer, (System.Int32[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArrayPrimitives<System.Int32>(packer);
         
     }
 
@@ -25,8 +25,8 @@ namespace ME.ECS.Serializer {
 
         [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.Int64Array;
         [INLINE(256)] public System.Type GetTypeSerialized() => typeof(System.Int64[]);
-        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (System.Int64[])obj);
-        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<System.Int64>(packer);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArrayPrimitives(packer, (System.Int64[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArrayPrimitives<System.Int64>(packer);
         
     }
 
@@ -34,8 +34,8 @@ namespace ME.ECS.Serializer {
 
         [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.UInt16Array;
         [INLINE(256)] public System.Type GetTypeSerialized() => typeof(System.UInt16[]);
-        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (System.UInt16[])obj);
-        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<System.UInt16>(packer);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArrayPrimitives(packer, (System.UInt16[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArrayPrimitives<System.UInt16>(packer);
         
     }
 
@@ -43,8 +43,8 @@ namespace ME.ECS.Serializer {
 
         [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.UInt32Array;
         [INLINE(256)] public System.Type GetTypeSerialized() => typeof(System.UInt32[]);
-        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (System.UInt32[])obj);
-        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<System.UInt32>(packer);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArrayPrimitives(packer, (System.UInt32[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArrayPrimitives<System.UInt32>(packer);
         
     }
 
@@ -52,8 +52,8 @@ namespace ME.ECS.Serializer {
 
         [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.UInt64Array;
         [INLINE(256)] public System.Type GetTypeSerialized() => typeof(System.UInt64[]);
-        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (System.UInt64[])obj);
-        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<System.UInt64>(packer);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArrayPrimitives(packer, (System.UInt64[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArrayPrimitives<System.UInt64>(packer);
         
     }
 
@@ -61,8 +61,8 @@ namespace ME.ECS.Serializer {
 
         [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.FloatArray;
         [INLINE(256)] public System.Type GetTypeSerialized() => typeof(float[]);
-        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (float[])obj);
-        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<float>(packer);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArrayPrimitives(packer, (float[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArrayPrimitives<float>(packer);
         
     }
 
@@ -70,8 +70,8 @@ namespace ME.ECS.Serializer {
 
         [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.DoubleArray;
         [INLINE(256)] public System.Type GetTypeSerialized() => typeof(double[]);
-        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (double[])obj);
-        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<double>(packer);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArrayPrimitives(packer, (double[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArrayPrimitives<double>(packer);
         
     }
 
@@ -79,8 +79,8 @@ namespace ME.ECS.Serializer {
 
         [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.SByteArray;
         [INLINE(256)] public System.Type GetTypeSerialized() => typeof(sbyte[]);
-        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArray(packer, (sbyte[])obj);
-        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArray<sbyte>(packer);
+        [INLINE(256)] public void Pack(Packer packer, object obj) => Serializer.PackBlittableArrayPrimitives(packer, (sbyte[])obj);
+        [INLINE(256)] public object Unpack(Packer packer) => Serializer.UnpackBlittableArrayPrimitives<sbyte>(packer);
         
     }
 

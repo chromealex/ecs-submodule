@@ -6,6 +6,7 @@
         "ME.ECS",
         "ME.Pools",
         "ME.ECS.IL2CPP",
+        "ME.ECS.FPMath",
         "Unity.Collections"
     ],
     "includePlatforms": [],

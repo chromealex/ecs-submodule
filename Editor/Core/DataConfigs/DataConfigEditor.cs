@@ -328,7 +328,7 @@ namespace ME.ECSEditor {
         public static void BuildInspectorProperties(IEditorContainer editor, System.Collections.Generic.HashSet<System.Type> usedComponents, SerializedProperty obj,
                                                     UnityEngine.UIElements.VisualElement container, bool noFields, System.Action<int, PropertyField> onBuild = null) {
 
-            BuildInspectorPropertiesElement(string.Empty, editor, usedComponents, obj, container, noFields, onBuild);
+            BuildInspectorPropertiesElement(string.Empty, editor, usedComponents, obj, container, noFields, onBuild, true);
 
         }
 
@@ -370,29 +370,109 @@ namespace ME.ECSEditor {
 
         }
 
-        public static void BuildInspectorPropertiesElement(string elementPath, IEditorContainer editor, System.Collections.Generic.HashSet<System.Type> usedComponents, SerializedProperty obj, UnityEngine.UIElements.VisualElement container, bool noFields, System.Action<int, PropertyField> onBuild = null) {
+        public static void BuildInspectorPropertiesElement(string elementPath, IEditorContainer editor, System.Collections.Generic.HashSet<System.Type> usedComponents, SerializedProperty obj, UnityEngine.UIElements.VisualElement container, bool noFields, System.Action<int, PropertyField> onBuild = null, bool drawGroups = false) {
 
+            var curGroup = string.Empty;
             obj = obj.Copy();
             container.Clear();
             var source = obj.Copy();
             SerializedProperty iterator = obj;
             if (iterator.NextVisible(true) == false) return;
-            if (iterator.NextVisible(true) == false) return;
             var depth = iterator.depth;
+            if (iterator.NextVisible(true) == false) return;
+
+            var props = new System.Collections.Generic.List<SerializedProperty>();
+            var it = iterator.Copy();
+            do {
+                if (it.depth < depth) continue;
+                props.Add(it.Copy());
+            } while (it.NextVisible(false));
+            
+            if (props.Count == 0) return;
+
+            props = props.OrderBy(x => {
+                var val = x.GetValue();
+                if (val == null) return 0;
+                var groupAttr = val.GetType().GetCustomAttribute<ComponentGroupAttribute>(true);
+                if (groupAttr != null) {
+
+                    return groupAttr.order;
+
+                }
+
+                return 0;
+            }).ThenBy(x => {
+                
+                var val = x.GetValue();
+                if (val == null) return 0;
+                var orderAttr = val.GetType().GetCustomAttribute<ComponentOrderAttribute>(true);
+                if (orderAttr != null) {
+
+                    return orderAttr.order;
+
+                }
+
+                return 0;
+
+            }).ToList();
+            
             var i = 0;
-            var iteratorNext = iterator.Copy();
+            //var iteratorNext = iterator.Copy();
+            SerializedProperty iteratorNext = null;
+            Foldout header = null;
             do {
 
+                iteratorNext = props[i];
+                
                 if (string.IsNullOrEmpty(elementPath) == false) {
 
                     iterator = iteratorNext.FindPropertyRelative(elementPath);
+                    if (iterator == null) iterator = iteratorNext;
 
                 } else {
 
                     iterator = iteratorNext;
 
                 }
-                if (iterator.propertyType != SerializedPropertyType.ManagedReference) continue;
+
+                if (iterator.propertyType != SerializedPropertyType.ManagedReference) {
+                    ++i;
+                    continue;
+                }
+
+                if (drawGroups == true) {
+
+                    var val = iterator.GetValue();
+                    var groupAttr = val == null ? null : val.GetType().GetCustomAttribute<ComponentGroupAttribute>(true);
+                    if (groupAttr != null) {
+
+                        if (groupAttr.name != curGroup) {
+
+                            curGroup = groupAttr.name;
+                            var key = $"ME.ECS.Foldouts.EntityDebugComponent.Group.{curGroup}";
+                            var bColor = groupAttr.color;
+                            bColor.a = 0.1f;
+                            // Draw header
+                            header = new Foldout();
+                            header.SetValueWithoutNotify(EditorPrefs.GetBool(key, false));
+                            header.text = curGroup;
+                            header.AddToClassList("header-group");
+                            var backColor = header.style.backgroundColor;
+                            backColor.value = bColor;
+                            header.style.backgroundColor = backColor;
+                            container.Add(header);
+
+                            header.RegisterValueChangedCallback(evt => { EditorPrefs.SetBool(key, evt.newValue); });
+
+                        }
+
+                    } else {
+
+                        header = null;
+
+                    }
+
+                }
 
                 var element = new VisualElement();
                 element.AddToClassList("element");
@@ -459,15 +539,18 @@ namespace ME.ECSEditor {
                 } else {
                     
                     var label = GUILayoutExt.GetStringCamelCaseSpace(type.Name);
+                    #if UNITY_2021_OR_NEWER
+					// Because of a bug with PropertyField label
                     if (iterator.hasVisibleChildren == true) {
 
                         var childs = iterator.Copy();
                         //var height = EditorUtilities.GetPropertyHeight(childs, true, new GUIContent(label));
                         var cnt = EditorUtilities.GetPropertyChildCount(childs);
-                        if (cnt == 1 /*&& height <= 22f*/) iterator.NextVisible(true);
+                        if (cnt == 1) iterator.NextVisible(true);
 
                     }
-                    
+                    #endif
+
                     var propertyField = new PropertyField(iterator.Copy(), label);
                     propertyField.BindProperty(iterator);
                     onBuild?.Invoke(i, propertyField);
@@ -508,11 +591,20 @@ namespace ME.ECSEditor {
                     }
 
                 }
-                
-                container.Add(element);
+
+                if (header == null) {
+
+                    container.Add(element);
+
+                } else {
+                    
+                    header.contentContainer.Add(element);
+                    
+                }
+
                 ++i;
 
-            } while (iteratorNext.NextVisible(false) == true && depth <= iteratorNext.depth);
+            } while (/*iteratorNext.NextVisible(false) == true*/i < props.Count /*&& depth <= iteratorNext.depth*/);
             
         }
 

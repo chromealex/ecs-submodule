@@ -20,11 +20,11 @@ namespace ME.ECS.Serializer {
             var buffer = (ME.ECS.Collections.IBufferArray)obj;
             var arr = buffer.GetArray();
             if (arr == null) {
-                
+
                 packer.WriteByte((byte)TypeValue.Null);
                 Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(arrayType));
                 Int32Serializer.PackDirect(packer, packer.GetMetaTypeId(obj.GetType().GenericTypeArguments[0]));
-                
+
             } else {
 
                 packer.WriteByte((byte)TypeValue.ObjectArray);
@@ -50,7 +50,7 @@ namespace ME.ECS.Serializer {
             int typeId = -1;
             object p1 = null;
             object p2 = null;
-            
+
             var type = packer.ReadByte();
             if (type == (byte)TypeValue.Null) {
 
@@ -83,8 +83,10 @@ namespace ME.ECS.Serializer {
 
             var arrayType = packer.GetMetaType(arrayTypeId);
             var constructedType = arrayType.MakeGenericType(packer.GetMetaType(typeId));
+
             var instance = (ME.ECS.Collections.IBufferArray)System.Activator.CreateInstance(constructedType,
-                                                                                            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic,
+                                                                                            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public |
+                                                                                            System.Reflection.BindingFlags.NonPublic,
                                                                                             null, new object[] {
                                                                                                 p1, p2, -1,
                                                                                             }, System.Globalization.CultureInfo.InvariantCulture);

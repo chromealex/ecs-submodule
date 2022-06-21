@@ -234,13 +234,7 @@ namespace ME.ECSEditor {
                         res = res.Replace("#DATABUFFER_OPS#", dataBufferOpsOutput);
                         res = res.Replace("#DATABUFFER_DATA#", dataBufferDataOutput);
                         res = res.Replace("#REGS_INIT#", regsInitOutput);
-                        res = res.Replace("#REGS_FILL#", regsInitFillOutput);
-                        res = res.Replace("#PUSH_REGS_INIT#", pushRegsInitOutput);
                         res = res.Replace("#PUSH_OPS#", pushOpsOutput);
-                        
-                        res = res.Replace("#REGS_DISPOSE#", regsDisposeOutput);
-                        res = res.Replace("#JOB_INIT_ITEMS#", regsJobInitOutput);
-                        res = res.Replace("#JOB_FILL_ITEMS#", regsJobFillOutput);
                         
                         res = res.Replace("#INDEX#", j.ToString());
                         buffers += $"{res}\n";

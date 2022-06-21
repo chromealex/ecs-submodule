@@ -5,19 +5,19 @@ namespace ME.ECS {
     
         public static void InitTypeId() {
             
-            WorldUtilities.InitComponentTypeId<ME.ECS.Camera.Camera>(isVersioned: true, isSimple: true);
+            WorldUtilities.InitComponentTypeId<ME.ECS.Camera.Camera>(isVersioned: true, isSimple: true, isBlittable: true);
             
         }
 
         public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
     
-            structComponentsContainer.Validate<ME.ECS.Camera.Camera>();
+            structComponentsContainer.ValidateBlittable<ME.ECS.Camera.Camera>();
 
         }
     
         public static void Init(in Entity entity) {
 
-            entity.ValidateData<ME.ECS.Camera.Camera>();
+            entity.ValidateDataBlittable<ME.ECS.Camera.Camera>();
             
         }
 

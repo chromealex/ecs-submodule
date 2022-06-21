@@ -2,6 +2,7 @@
 #define INLINE_METHODS
 #endif
 
+using Unity.Jobs;
 #if DRAWMESH_VIEWS_MODULE_SUPPORT
 namespace ME.ECS {
 
@@ -145,7 +146,6 @@ namespace ME.ECS.Views {
 
 namespace ME.ECS.Views.Providers {
 
-    using Unity.Jobs;
     using Collections;
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -271,17 +271,16 @@ namespace ME.ECS.Views.Providers {
         }
 
         public World world { get; private set; }
-        public Entity entity { get; private set; }
         public uint entityVersion { get; set; }
-        public ViewId prefabSourceId { get; private set; }
-        public Tick creationTick { get; private set; }
+        public Entity entity => this.info.entity;
+        public ViewId prefabSourceId => this.info.prefabSourceId;
+        public Tick creationTick => this.info.creationTick;
+        public ViewInfo info { get; private set; }
 
         void IViewBaseInternal.Setup(World world, ViewInfo viewInfo) {
 
             this.world = world;
-            this.entity = viewInfo.entity;
-            this.prefabSourceId = viewInfo.prefabSourceId;
-            this.creationTick = viewInfo.creationTick;
+            this.info = viewInfo;
 
         }
 
@@ -313,9 +312,7 @@ namespace ME.ECS.Views.Providers {
         public sealed override void DoCopyFrom(DrawMeshViewBase source) {
 
             var sourceView = (T)source;
-            this.entity = sourceView.entity;
-            this.prefabSourceId = sourceView.prefabSourceId;
-            this.creationTick = sourceView.creationTick;
+            this.info = sourceView.info;
 
             this.CopyFrom((T)source);
 
@@ -365,27 +362,34 @@ namespace ME.ECS.Views.Providers {
         internal struct NullState {}
 
         private System.Collections.Generic.Dictionary<long, DrawMeshSystemItem> psItems;
-        private PoolInternalBase pool;
+        private DictionaryCopyable<ViewId, PoolInternalBase> pools;
         private BufferArray<UnityEngine.Matrix4x4> matrices;
         private int maxMatrices = 1000;
 
         public override void OnConstruct() {
 
             this.psItems = PoolDictionary<long, DrawMeshSystemItem>.Spawn(100);
-            this.pool = new PoolInternalBase(typeof(DrawMeshViewBase));
+            this.pools = PoolDictionaryCopyable<ViewId, PoolInternalBase>.Spawn(100);
 
         }
 
         public override void OnDeconstruct() {
 
-            this.pool = null;
+            PoolDictionaryCopyable<ViewId, PoolInternalBase>.Recycle(ref this.pools);
             PoolDictionary<long, DrawMeshSystemItem>.Recycle(ref this.psItems);
 
         }
 
         public override IView Spawn(IView prefab, ViewId prefabSourceId, in Entity targetEntity) {
+            
+            if (this.pools.TryGetValue(prefabSourceId, out var pool) == false) {
+                
+                pool = new PoolInternalBase(typeof(DrawMeshViewBase));
+                this.pools.Add(prefabSourceId, pool);
+                
+            }
 
-            var obj = this.pool.Spawn(new NullState());
+            var obj = pool.Spawn(new NullState());
             if (obj == null) {
 
                 obj = System.Activator.CreateInstance(prefab.GetType());
@@ -408,8 +412,7 @@ namespace ME.ECS.Views.Providers {
 
                 ref var source = ref prefabSource.items.arr[i];
                 key = source.itemData.GetKey();
-                DrawMeshSystemItem psItem;
-                if (this.psItems.TryGetValue(key, out psItem) == false) {
+                if (this.psItems.TryGetValue(key, out var psItem) == false) {
 
                     psItem = source.itemData;
                     this.psItems.Add(key, psItem);
@@ -433,7 +436,15 @@ namespace ME.ECS.Views.Providers {
 
             }
 
-            this.pool.Recycle(instance);
+            var prefabSourceId = instance.info.prefabSourceId;
+            if (this.pools.TryGetValue(prefabSourceId, out var pool) == false) {
+                
+                pool = new PoolInternalBase(typeof(DrawMeshViewBase));
+                this.pools.Add(prefabSourceId, pool);
+                
+            }
+
+            pool.Recycle(instance);
             instance = null;
 
             return true;
@@ -454,7 +465,7 @@ namespace ME.ECS.Views.Providers {
 
         }
 
-        private struct Job : Unity.Jobs.IJobParallelFor {
+        private struct Job : IJobParallelFor {
 
             public float deltaTime;
 

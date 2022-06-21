@@ -5,7 +5,8 @@
         "ME.ECS",
         "Unity.Addressables",
         "Unity.ResourceManager",
-        "ME.ECS.IL2CPP"
+        "ME.ECS.IL2CPP",
+        "ME.Pools"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

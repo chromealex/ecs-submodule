@@ -10,6 +10,7 @@ namespace ME.ECS.Collections {
         TValue this[TKey key] { get; set; }
 
         bool Add(in TKey key, in TValue value);
+        void Set(in TKey key, in TValue value);
         bool RemoveKey(in TKey key);
         bool TryGetValue(in TKey key, out TValue value);
         bool ContainsKey(in TKey key);
@@ -98,10 +99,10 @@ namespace ME.ECS.Collections {
         [ME.ECS.Serializer.SerializeField]
         private IntrusiveHashSetGeneric<Entry> keys;
 
-        public int Count => this.keys.Count;
+        public readonly int Count => this.keys.Count;
 
         public TValue this[TKey key] {
-            get {
+            readonly get {
                 if (this.TryGetValue(in key, out var value) == true) {
                     return value;
                 }
@@ -116,7 +117,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public Enumerator GetEnumerator() {
+        public readonly Enumerator GetEnumerator() {
 
             return new Enumerator(this);
 
@@ -129,7 +130,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArray<Entry> ToArray() {
+        public readonly BufferArray<Entry> ToArray() {
 
             var arr = PoolArray<Entry>.Spawn(this.Count);
             var i = 0;
@@ -186,7 +187,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public bool ContainsKey(in TKey key) {
+        public readonly bool ContainsKey(in TKey key) {
 
             return this.keys.Contains(new Entry() { key = key });
 
@@ -247,7 +248,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public bool TryGetValue(in TKey key, out TValue value) {
+        public readonly bool TryGetValue(in TKey key, out TValue value) {
 
             if (this.keys.Get(key.GetHashCode(), new Entry() { key = key }, out var result) == true) {
 

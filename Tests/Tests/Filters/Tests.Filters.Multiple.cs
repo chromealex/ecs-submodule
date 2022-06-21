@@ -132,10 +132,10 @@ namespace ME.ECS.Tests {
                 ref var str = ref w.GetStructComponents();
                 CoreComponentsInitializer.InitTypeId();
                 CoreComponentsInitializer.Init(ref str);
-                WorldUtilities.InitComponentTypeId<TestData>();
-                WorldUtilities.InitComponentTypeId<TestData2>();
-                str.Validate<TestData>();
-                str.Validate<TestData2>();
+                WorldUtilities.InitComponentTypeId<TestData>(isBlittable: true);
+                WorldUtilities.InitComponentTypeId<TestData2>(isBlittable: true);
+                str.ValidateBlittable<TestData>();
+                str.ValidateBlittable<TestData2>();
                 
             }, (w) => {
                 

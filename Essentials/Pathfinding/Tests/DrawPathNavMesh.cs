@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ME.ECS;
 using UnityEngine;
+using ME.ECS.Mathematics;
 
 public class DrawPathNavMesh : MonoBehaviour {
 
@@ -23,19 +24,19 @@ public class DrawPathNavMesh : MonoBehaviour {
 
         var cons = ME.ECS.Pathfinding.Constraint.Empty;
         cons.graphMask = this.constraint.graphMask;
-        var graph = this.pathfinding.GetNearest(this.transform.position, this.constraint).graph;
-        var path = this.pathfinding.CalculatePath<ME.ECS.Pathfinding.PathModifierEmpty, ME.ECS.Pathfinding.PathfindingNavMeshProcessor>(this.transform.position, this.to.position, this.constraint, graph, new ME.ECS.Pathfinding.PathModifierEmpty(), burstEnabled: this.useBurst);
+        var graph = this.pathfinding.GetNearest((float3)this.transform.position, this.constraint).graph;
+        var path = this.pathfinding.CalculatePath<ME.ECS.Pathfinding.PathModifierEmpty, ME.ECS.Pathfinding.PathfindingNavMeshProcessor>((float3)this.transform.position, (float3)this.to.position, this.constraint, graph, new ME.ECS.Pathfinding.PathModifierEmpty(), burstEnabled: this.useBurst);
         if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete ||
             path.result == ME.ECS.Pathfinding.PathCompleteState.CompletePartial) {
 
-            var fromNode = graph.GetNearest(this.transform.position, this.constraint);
-            var toNode = graph.GetNearest(this.to.position, this.constraint);
+            var fromNode = graph.GetNearest((float3)this.transform.position, this.constraint);
+            var toNode = graph.GetNearest((float3)this.to.position, this.constraint);
 
             Gizmos.color = Color.green;
-            Gizmos.DrawLine(fromNode.worldPosition, fromNode.worldPosition + Vector3.up * 10f);
+            Gizmos.DrawLine((Vector3)fromNode.worldPosition, (Vector3)fromNode.worldPosition + Vector3.up * 10f);
 
             Gizmos.color = Color.red;
-            Gizmos.DrawLine(toNode.worldPosition, toNode.worldPosition + Vector3.up * 10f);
+            Gizmos.DrawLine((Vector3)toNode.worldPosition, (Vector3)toNode.worldPosition + Vector3.up * 10f);
 
             {
 

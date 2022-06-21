@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
+#else
+using Unity.Mathematics;
+using tfloat = System.Single;
+#endif
+using System.Collections;
 using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
 namespace ME.ECS.Serializer {
@@ -135,7 +142,7 @@ namespace ME.ECS.Serializer {
 
     public struct TickSerializer : ITypeSerializer {
 
-        [INLINE(256)] public byte GetTypeValue() => 151;
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.Tick;
         [INLINE(256)] public System.Type GetTypeSerialized() => typeof(Tick);
 
         [INLINE(256)] public void Pack(Packer packer, object obj) {
@@ -154,7 +161,7 @@ namespace ME.ECS.Serializer {
 
     public struct ViewIdSerializer : ITypeSerializer {
 
-        [INLINE(256)] public byte GetTypeValue() => 152;
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.ViewId;
         [INLINE(256)] public System.Type GetTypeSerialized() => typeof(ViewId);
 
         [INLINE(256)] public static void PackDirect(Packer packer, ViewId obj) {
@@ -185,7 +192,7 @@ namespace ME.ECS.Serializer {
 
     public struct RPCIdSerializer : ITypeSerializer {
 
-        [INLINE(256)] public byte GetTypeValue() => 153;
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.RPCId;
         [INLINE(256)] public System.Type GetTypeSerialized() => typeof(RPCId);
 
         [INLINE(256)] public void Pack(Packer packer, object obj) {
@@ -198,6 +205,96 @@ namespace ME.ECS.Serializer {
 
             return (RPCId)Int32Serializer.UnpackDirect(packer);
             
+        }
+
+    }
+
+    public struct NextTickTaskSerializer : ITypeSerializer {
+
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.NextTickTask;
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(StructComponentsContainer.NextTickTask);
+
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
+
+            var task = (StructComponentsContainer.NextTickTask)obj;
+            Int32Serializer.PackDirect(packer, task.entity.id);
+            UInt16Serializer.PackDirect(packer, task.entity.generation);
+            ByteSerializer.PackDirect(packer, (byte)task.lifetime);
+            ByteSerializer.PackDirect(packer, (byte)task.storageType);
+            #if FIXED_POINT_MATH
+            FPSerializer.PackDirect(packer, task.secondsLifetime);
+            #else
+            FloatSerializer.PackDirect(packer, task.secondsLifetime);
+            #endif
+            UnsafeDataSerializer.PackDirect(packer, task.data);
+            
+        }
+
+        [INLINE(256)] public object Unpack(Packer packer) {
+
+            var task = new StructComponentsContainer.NextTickTask();
+            var entityId = Int32Serializer.UnpackDirect(packer);
+            var generation = UInt16Serializer.UnpackDirect(packer);
+            task.entity = new Entity(entityId, generation);
+            task.lifetime = (ComponentLifetime)ByteSerializer.UnpackDirect(packer);
+            task.storageType = (StorageType)ByteSerializer.UnpackDirect(packer);
+            #if FIXED_POINT_MATH
+            task.secondsLifetime = FPSerializer.UnpackDirect(packer);
+            #else
+            task.secondsLifetime = FloatSerializer.UnpackDirect(packer);
+            #endif
+            task.data = UnsafeDataSerializer.UnpackDirect(packer);
+            return task;
+            
+        }
+
+    }
+
+    public struct UnsafeDataSerializer : ITypeSerializer {
+
+        [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.UnsafeData;
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(UnsafeData);
+
+        [INLINE(256)] public void Pack(Packer packer, object obj) {
+
+            UnsafeDataSerializer.PackDirect(packer, (UnsafeData)obj);
+            
+        }
+
+        [INLINE(256)] public object Unpack(Packer packer) {
+
+            return UnsafeDataSerializer.UnpackDirect(packer);
+            
+        }
+
+        [INLINE(256)] public static void PackDirect(Packer packer, UnsafeData data) {
+            
+            Int32Serializer.PackDirect(packer, data.sizeOf);
+            if (data.sizeOf == 0) return;
+            
+            Int32Serializer.PackDirect(packer, data.alignOf);
+            Int32Serializer.PackDirect(packer, data.typeId);
+            var buffer = packer.GetBufferToWrite(data.sizeOf);
+            var pos = packer.GetPositionAndMove(data.sizeOf);
+            System.Runtime.InteropServices.Marshal.Copy(data.data, buffer, pos, data.sizeOf);
+
+        }
+
+        [INLINE(256)] public static unsafe UnsafeData UnpackDirect(Packer packer) {
+            
+            var data = new UnsafeData();
+            data.sizeOf = Int32Serializer.UnpackDirect(packer);
+            if (data.sizeOf == 0) return data;
+            
+            data.alignOf = Int32Serializer.UnpackDirect(packer);
+            data.typeId = Int32Serializer.UnpackDirect(packer);
+            var buffer = packer.GetBuffer();
+            var pos = packer.GetPositionAndMove(data.sizeOf);
+            var intPtrV = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.Malloc(data.sizeOf, data.alignOf, Unity.Collections.Allocator.Persistent);//System.Runtime.InteropServices.Marshal.AllocHGlobal(data.sizeOf);
+            data.data = (System.IntPtr)intPtrV;
+            System.Runtime.InteropServices.Marshal.Copy(buffer, pos, data.data, data.sizeOf);
+            return data;
+
         }
 
     }
@@ -216,6 +313,8 @@ namespace ME.ECS.Serializer {
             ser.Add(new DisposeSentinelSerializer());
             ser.Add(new GenericIntDictionarySerializer());
             ser.Add(new GenericULongDictionarySerializer());
+            ser.Add(new NextTickTaskSerializer());
+            ser.Add(new UnsafeDataSerializer());
             return ser;
 
         }

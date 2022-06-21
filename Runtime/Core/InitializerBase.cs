@@ -142,17 +142,53 @@ namespace ME.ECS {
         public WorldDebugSettings worldDebugSettings = WorldDebugSettings.Default;
         public EndOfBaseClass endOfBaseClass;
 
-        protected void Initialize(World world) {
+        protected void Initialize(World world, bool callLateInitialization = true) {
 
             world.SetSettings(this.worldSettings);
             world.SetDebugSettings(this.worldDebugSettings);
-            this.InitializeFeatures(world);
+            world.TryInitializeDefaults();
+
+            // Initialize features
+            this.InitializeFeatures(world, callLateInitialization);
             
+            // Initialize scene
+            this.InitializeScene(world);
+
         }
 
-        protected void InitializeFeatures(World world) {
+        private void InitializeScene(World world) {
 
-            this.featuresListCategories.Initialize(world);
+            var sceneEntityViews = InitializerBase.FindObjectsOfType<ME.ECS.Views.Providers.SceneViewInitializer>();
+            var list = PoolList<ME.ECS.Views.Providers.SceneViewInitializer>.Spawn(sceneEntityViews.Length);
+            for (int i = 0; i < sceneEntityViews.Length; ++i) {
+
+                var view = sceneEntityViews[i];
+                if (view != null) {
+
+                    var parent = view.GetComponentsInParent<ME.ECS.Views.Providers.SceneViewInitializer>(true);
+                    if (parent.Length <= 1) {
+
+                        list.Add(view);
+
+                    }
+
+                }
+
+            }
+            for (int i = 0; i < list.Count; ++i) {
+
+                var view = list[i];
+                ((ME.ECS.Views.Providers.ISceneView)view).Initialize(world);
+                
+            }
+            
+            PoolList<ME.ECS.Views.Providers.SceneViewInitializer>.Recycle(ref list);
+
+        }
+
+        protected void InitializeFeatures(World world, bool callLateInitialization) {
+
+            this.featuresListCategories.Initialize(world, callLateInitialization);
 
         }
 

@@ -1,3 +1,11 @@
+#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
+#else
+using Unity.Mathematics;
+using tfloat = System.Single;
+#endif
+
 namespace ME.ECS {
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -7,7 +15,7 @@ namespace ME.ECS {
     #endif
     public struct Timers {
 
-        public ME.ECS.Collections.DictionaryCopyable<long, float> values;
+        public ME.ECS.Collections.DictionaryCopyable<long, tfloat> values;
         public ME.ECS.Collections.HashSetCopyable<int> indexes;
 
         #if INLINE_METHODS
@@ -15,7 +23,7 @@ namespace ME.ECS {
         #endif
         public void Initialize() {
 
-            if (this.values == null) this.values = PoolDictionaryCopyable<long, float>.Spawn(10);
+            if (this.values == null) this.values = PoolDictionaryCopyable<long, tfloat>.Spawn(10);
             if (this.indexes == null) this.indexes = PoolHashSetCopyable<int>.Spawn();
 
         }
@@ -25,7 +33,7 @@ namespace ME.ECS {
         #endif
         public void Dispose() {
         
-            PoolDictionaryCopyable<long, float>.Recycle(ref this.values);
+            PoolDictionaryCopyable<long, tfloat>.Recycle(ref this.values);
             PoolHashSetCopyable<int>.Recycle(ref this.indexes);
             
         }
@@ -52,9 +60,10 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Update(float deltaTime) {
+        public unsafe void Update(tfloat deltaTime) {
 
-            var temp = PoolList<long>.Spawn(10);
+            var tempList = stackalloc long[this.values.Count];
+            var k = 0;
             foreach (var value in this.values) {
 
                 var key = value.Key;
@@ -62,25 +71,22 @@ namespace ME.ECS {
                 val -= deltaTime;
                 if (val <= 0f) {
 
-                    temp.Add(key);
+                    tempList[k++] = key;
 
                 }
 
             }
 
-            foreach (var key in temp) {
-                
-                this.values.Remove(key);
-
+            for (int i = 0; i < k; ++i) {
+                this.values.Remove(tempList[i]);
             }
-            PoolList<long>.Recycle(ref temp);
             
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Set(in Entity entity, int index, float time) {
+        public void Set(in Entity entity, int index, tfloat time) {
 
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -108,7 +114,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public float Read(in Entity entity, int index) {
+        public tfloat Read(in Entity entity, int index) {
             
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {
@@ -132,7 +138,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref float Get(in Entity entity, int index) {
+        public ref tfloat Get(in Entity entity, int index) {
             
             #if WORLD_EXCEPTIONS
             if (entity.IsAlive() == false) {

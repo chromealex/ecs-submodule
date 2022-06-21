@@ -23,7 +23,7 @@ namespace ME.ECS.Serializer {
 
     public enum TypeValue : byte {
 
-        Null = 200,
+        Null = 199,
         PackerObject = 255,
         Meta = 254,
         MetaType = 253,
@@ -83,6 +83,12 @@ namespace ME.ECS.Serializer {
         UInt64Array = 207,
         FloatArray = 206,
         DoubleArray = 205,
+        
+        Tick = 204,
+        ViewId = 203,
+        RPCId = 202,
+        NextTickTask = 201,
+        UnsafeData = 200,
 
     }
 
@@ -343,7 +349,6 @@ namespace ME.ECS.Serializer {
             var serializers = new Serializers();
 
             serializers.Add(new GenericSerializer());
-            serializers.Add(new FPSerializer());
 
             serializers.Add(new ByteSerializer());
             serializers.Add(new SByteSerializer());
@@ -370,24 +375,28 @@ namespace ME.ECS.Serializer {
             serializers.Add(new UInt64ArraySerializer());
             serializers.Add(new SByteArraySerializer());
 
+            serializers.Add(new ByteArraySerializer());
+            serializers.Add(new ObjectArraySerializer());
+            serializers.Add(new GenericListSerializer());
+            serializers.Add(new GenericDictionarySerializer());
+
+            #if UNITY
+            serializers.Add(new FPSerializer());
+
             serializers.Add(new Vector2IntSerializer());
             serializers.Add(new Vector3IntSerializer());
             serializers.Add(new Vector2Serializer());
             serializers.Add(new Vector3Serializer());
             serializers.Add(new Vector4Serializer());
             serializers.Add(new QuaternionSerializer());
-
-            serializers.Add(new ByteArraySerializer());
-            serializers.Add(new ObjectArraySerializer());
-            serializers.Add(new GenericListSerializer());
-            serializers.Add(new GenericDictionarySerializer());
-
+            
             serializers.Add(new Int2Serializer());
             serializers.Add(new Int3Serializer());
             serializers.Add(new Float2Serializer());
             serializers.Add(new Float3Serializer());
             serializers.Add(new Float4Serializer());
             serializers.Add(new QuaternionMathSerializer());
+            #endif
 
             return serializers;
 
@@ -398,8 +407,7 @@ namespace ME.ECS.Serializer {
 
             var packer = new Packer(staticSerializers, new SerializerStream(Serializer.BUFFER_CAPACITY));
 
-            var serializer = new GenericSerializer();
-            serializer.Pack(packer, obj, typeof(T));
+            packer.PackInternal(obj, typeof(T));
 
             var result = packer.ToArray();
             packer.Dispose();
@@ -412,8 +420,7 @@ namespace ME.ECS.Serializer {
 
             var packer = Serializer.SetupDefaultPacker(staticSerializers, bytes);
 
-            var serializer = new GenericSerializer();
-            var result = (T)serializer.Unpack(packer, typeof(T));
+            var result = (T)packer.UnpackInternal();
             packer.Dispose();
             return result;
 
@@ -462,8 +469,7 @@ namespace ME.ECS.Serializer {
             byte[] bytes = null;
             var packer = new Packer(allSerializers, new SerializerStream(capacity));
 
-            var serializer = new GenericSerializer();
-            serializer.Pack(packer, obj, typeof(T));
+            packer.PackInternal(obj, typeof(T));
 
             bytes = packer.ToArray();
             packer.Dispose();
@@ -504,8 +510,7 @@ namespace ME.ECS.Serializer {
 
             var packer = Serializer.SetupDefaultPacker(allSerializers, bytes);
 
-            var serializer = new GenericSerializer();
-            var instance = (T)serializer.Unpack(packer, typeof(T));
+            var instance = packer.UnpackInternal<T>();
             allSerializers.Dispose();
             packer.Dispose();
             return instance;
@@ -567,7 +572,7 @@ namespace ME.ECS.Serializer {
             fixed (byte* ptr = buffer) {
                 *(T*)(ptr + pos) = data;
             }
-
+            
         }
 
         [INLINE(256)]
@@ -579,6 +584,81 @@ namespace ME.ECS.Serializer {
                 return *(T*)(ptr + pos);
             }
 
+        }
+        
+        [INLINE(256)]
+        public static unsafe void PackSingle(Packer packer, float value) {
+            
+            var pos = packer.GetPositionAndMove(4);
+            var buffer = packer.GetBuffer();
+            if (pos % 4 == 0) {
+                fixed (byte* ptr = buffer) {
+                    *(float*)(ptr + pos) = value;
+                }
+            } else {
+                uint num = *(uint*)(&value);
+                buffer[pos] = (byte)num;
+                buffer[pos + 1] = (byte)(num >> 8);
+                buffer[pos + 2] = (byte)(num >> 16);
+                buffer[pos + 3] = (byte)(num >> 24);
+            }
+
+        }
+
+        public static unsafe float UnpackSingle(Packer packer) {
+            
+            var pos = packer.GetPositionAndMove(4);
+            var buffer = packer.GetBuffer();
+            if (pos % 4 == 0) {
+                fixed (byte* ptr = buffer) {
+                    return *(float*)(ptr + pos);
+                }
+            } else {
+                uint num = (uint)((int)buffer[pos] | (int)buffer[pos + 1] << 8 | (int)buffer[pos + 2] << 16 | (int)buffer[pos + 3] << 24);
+                return *(float*)(&num);
+            }
+            
+        }
+
+        [INLINE(256)]
+        public static unsafe void PackDouble(Packer packer, double value) {
+            
+            var pos = packer.GetPositionAndMove(8);
+            var buffer = packer.GetBuffer();
+            if (pos % 8 == 0) {
+                fixed (byte* ptr = buffer)
+                {
+                    *(double*)(ptr + pos) = value;
+                }
+            } else {
+                ulong num = (ulong)(*(long*)(&value));
+                buffer[pos] = (byte)num;
+                buffer[pos + 1] = (byte)(num >> 8);
+                buffer[pos + 2] = (byte)(num >> 16);
+                buffer[pos + 3] = (byte)(num >> 24);
+                buffer[pos + 4] = (byte)(num >> 32);
+                buffer[pos + 5] = (byte)(num >> 40);
+                buffer[pos + 6] = (byte)(num >> 48);
+                buffer[pos + 7] = (byte)(num >> 56);
+            }
+
+        }
+
+        [INLINE(256)]
+        public static unsafe double UnpackDouble(Packer packer) {
+            
+            var pos = packer.GetPositionAndMove(8);
+            var buffer = packer.GetBuffer();
+            if (pos % 8 == 0) {
+                fixed (byte* ptr = buffer) {
+                    return *(double*)(ptr + pos);
+                }
+            } else {
+                uint num = (uint)((int)buffer[pos] | (int)buffer[pos + 1] << 8 | (int)buffer[pos + 2] << 16 | (int)buffer[pos + 3] << 24);
+                ulong num2 = (ulong)((int)buffer[pos + 4] | (int)buffer[pos + 5] << 8 | (int)buffer[pos + 6] << 16 | (int)buffer[pos + 7] << 24) << 32 | (ulong)num;
+                return *(double*)(&num2);
+            }
+            
         }
 
         [INLINE(256)]
@@ -596,7 +676,7 @@ namespace ME.ECS.Serializer {
         }
 
         [INLINE(256)]
-        public static unsafe void PackBlittableArray<T>(Packer packer, T[] arr) where T : unmanaged {
+        public static unsafe void PackBlittableArrayPrimitives<T>(Packer packer, T[] arr) where T : unmanaged {
 
             Int32Serializer.PackDirect(packer, arr.Length);
             var writeSize = arr.Length * sizeof(T);
@@ -607,7 +687,7 @@ namespace ME.ECS.Serializer {
         }
 
         [INLINE(256)]
-        public static unsafe T[] UnpackBlittableArray<T>(Packer packer) where T : unmanaged {
+        public static unsafe T[] UnpackBlittableArrayPrimitives<T>(Packer packer) where T : unmanaged {
 
             var length = Int32Serializer.UnpackDirect(packer);
             var arr = new T[length];
@@ -765,7 +845,7 @@ namespace ME.ECS.Serializer {
             var pos = this.stream.Position;
             this.AddCapacity(bytes);
             this.stream.Position = pos + bytes;
-            return (int)pos;
+            return pos;
 
         }
 

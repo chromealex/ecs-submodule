@@ -2,6 +2,8 @@
 #define INLINE_METHODS
 #endif
 
+using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
+
 namespace ME.ECS.Collections {
 
     using System;
@@ -1152,23 +1154,22 @@ namespace ME.ECS.Collections {
 
             private HashSetCopyable<T> set;
             private int index;
-            private int version;
+            //private int version;
             //private T current;
 
+            [INLINE(256)]
             internal Enumerator(HashSetCopyable<T> set) {
                 this.set = set;
                 this.index = 0;
-                this.version = set.m_version;
+                //this.version = set.m_version;
                 //this.current = default(T);
             }
 
+            [INLINE(256)]
             public void Dispose() { }
 
+            [INLINE(256)]
             public bool MoveNext() {
-                if (this.version != this.set.m_version) {
-                    throw new InvalidOperationException();
-                }
-
                 while (this.index < this.set.m_lastIndex) {
                     if (this.set.m_slots.arr[this.index].hashCode >= 0) {
                         //this.current = this.set.m_slots.arr[this.index].value;
@@ -1185,6 +1186,7 @@ namespace ME.ECS.Collections {
             }
 
             public ref T Current {
+                [INLINE(256)]
                 get {
                     return ref this.set.m_slots.arr[this.index - 1].value;
                 }

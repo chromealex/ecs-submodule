@@ -1,15 +1,17 @@
+using ME.ECS.Mathematics;
+
 namespace ME.ECS.DataConfigGenerator.DataParsers {
 
     public struct Fp4Parser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
-            return typeof(fp4) == fieldType;
+            return typeof(float4) == fieldType;
         }
 
         public bool Parse(string data, System.Type fieldType, out object result) {
             
             var prs = data.Split(';');
-            result = new fp4(float.Parse(prs[0]), float.Parse(prs[1]), float.Parse(prs[2]), float.Parse(prs[3]));
+            result = new float4(float.Parse(prs[0]), float.Parse(prs[1]), float.Parse(prs[2]), float.Parse(prs[3]));
             return true;
 
         }
@@ -19,13 +21,13 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
     public struct Fp3Parser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
-            return typeof(fp3) == fieldType;
+            return typeof(float3) == fieldType;
         }
 
         public bool Parse(string data, System.Type fieldType, out object result) {
             
             var prs = data.Split(';');
-            result = new fp3(float.Parse(prs[0]), float.Parse(prs[1]), float.Parse(prs[2]));
+            result = new float3(float.Parse(prs[0]), float.Parse(prs[1]), float.Parse(prs[2]));
             return true;
 
         }
@@ -35,13 +37,13 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
     public struct Fp2Parser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
-            return typeof(fp2) == fieldType;
+            return typeof(float2) == fieldType;
         }
 
         public bool Parse(string data, System.Type fieldType, out object result) {
             
             var prs = data.Split(';');
-            result = new fp2(float.Parse(prs[0]), float.Parse(prs[1]));
+            result = new float2(float.Parse(prs[0]), float.Parse(prs[1]));
             return true;
 
         }
@@ -51,12 +53,12 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
     public struct FpQuaternionParser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
-            return typeof(fpquaternion) == fieldType;
+            return typeof(quaternion) == fieldType;
         }
         public bool Parse(string data, System.Type fieldType, out object result) {
             
             var prs = data.Split(';');
-            result = fpquaternion.Euler(new fp3(float.Parse(prs[0]), float.Parse(prs[1]), float.Parse(prs[2])));
+            result = quaternion.Euler(new float3(float.Parse(prs[0]), float.Parse(prs[1]), float.Parse(prs[2])));
             return true;
 
         }
@@ -66,13 +68,13 @@ namespace ME.ECS.DataConfigGenerator.DataParsers {
     public struct FpParser : IParser, IDefaultParser {
 
         public bool IsValid(System.Type fieldType) {
-            return typeof(fp) == fieldType;
+            return typeof(sfloat) == fieldType;
         }
 
         public bool Parse(string data, System.Type fieldType, out object result) {
             
             var prs = data.Split(';');
-            result = (fp)(float.Parse(prs[0]));
+            result = (sfloat)(float.Parse(prs[0]));
             return true;
 
         }

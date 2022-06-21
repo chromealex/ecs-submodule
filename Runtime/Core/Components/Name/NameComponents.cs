@@ -1,6 +1,7 @@
 ﻿namespace ME.ECS.Name {
     
-    [ComponentOrder(-1000)]
+    [ComponentGroup(typeof(NameComponentConstants.GroupInfo))]
+    [ComponentOrder(1)]
     public struct Name : IComponent, IVersioned {
 
         public string value;

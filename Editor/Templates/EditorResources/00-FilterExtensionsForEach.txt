@@ -13,6 +13,26 @@ namespace ME.ECS {
     using Unity.Collections.LowLevel.Unsafe;
     using System.Runtime.InteropServices;
 
+    public interface IFilterBag {
+        int Count { get; }
+        void BeginForEachIndex(int chunkIndex);
+        void EndForEachIndex();
+    }
+
+    public unsafe struct Ptr {
+
+        public void* value;
+
+    }
+
+    public struct Op {
+
+        public int entityIndex;
+        public int componentId; // -1 = entity
+        public byte code; // 1 - change, 2 - remove
+
+    }
+    
     namespace Buffers {
 
         #CONTENT_BUFFERS#

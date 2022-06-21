@@ -11,6 +11,8 @@ namespace ME.ECS {
     #endif
     public static class WorldUtilities {
 
+        private static readonly System.Reflection.MethodInfo setComponentTypeIdMethodInfo = typeof(WorldUtilities).GetMethod(nameof(WorldUtilities.SetComponentTypeId));
+
         public static bool IsMainThread() {
 
             return Unity.Jobs.LowLevel.Unsafe.JobsUtility.IsExecutingJob == false && Worlds.current.mainThread == System.Threading.Thread.CurrentThread;
@@ -199,10 +201,12 @@ namespace ME.ECS {
         private static void CacheAllComponentTypeId<TComponent>() {
             
             AllComponentTypes<TComponent>.typeId = ++AllComponentTypesCounter.counter;
+            AllComponentTypes<TComponent>.burstTypeId.Data = AllComponentTypes<TComponent>.typeId;
             ComponentTypesRegistry.allTypeId.Add(typeof(TComponent), AllComponentTypes<TComponent>.typeId);
 
             ComponentTypesRegistry.reset += () => {
 
+                AllComponentTypes<TComponent>.burstTypeId.Data = -1;
                 AllComponentTypes<TComponent>.typeId = -1;
                 AllComponentTypes<TComponent>.isTag = false;
 
@@ -261,10 +265,23 @@ namespace ME.ECS {
         #endif
         public static void SetComponentAsFilterVersioned<TComponent>(bool state) {
 
-            if (state == true) ComponentTypes<TComponent>.isFilterVersioned = state;
+            if (state == true) {
+                ComponentTypes<TComponent>.isFilterVersioned = state;
+                ComponentTypes<TComponent>.burstIsFilterVersioned.Data = 1;
+            }
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void SetComponentTypeIdByType(System.Type type) {
+
+            var generic = WorldUtilities.setComponentTypeIdMethodInfo.MakeGenericMethod(type);
+            generic.Invoke(obj: null, parameters: null);
+
+        }
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -273,11 +290,13 @@ namespace ME.ECS {
             if (ComponentTypes<TComponent>.typeId < 0) {
 
                 ComponentTypes<TComponent>.typeId = ++ComponentTypesCounter.counter;
+                ComponentTypes<TComponent>.burstTypeId.Data = ComponentTypes<TComponent>.typeId;
                 ComponentTypesRegistry.typeId.Add(typeof(TComponent), ComponentTypes<TComponent>.typeId);
 
                 ComponentTypesRegistry.reset += () => {
 
                     ComponentTypes<TComponent>.typeId = -1;
+                    ComponentTypes<TComponent>.burstTypeId.Data = -1;
 
                 };
 
@@ -324,6 +343,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void SetComponentAsBlittable<TComponent>() {
+
+            AllComponentTypes<TComponent>.isBlittable = true;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void SetComponentAsVersioned<TComponent>() {
 
             AllComponentTypes<TComponent>.isVersioned = true;
@@ -355,6 +383,7 @@ namespace ME.ECS {
         public static void SetComponentAsVersionedNoState<TComponent>() {
 
             AllComponentTypes<TComponent>.isVersionedNoState = true;
+            AllComponentTypes<TComponent>.burstIsVersionedNoState.Data = 1;
 
         }
 
@@ -379,11 +408,12 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static bool InitComponentTypeId<TComponent>(bool isTag = false, bool isSimple = false, bool isCopyable = false, bool isDisposable = false, bool isVersioned = false, bool isVersionedNoState = false, bool isShared = false, bool isOneShot = false) {
+        public static bool InitComponentTypeId<TComponent>(bool isTag = false, bool isSimple = false, bool isBlittable = false, bool isCopyable = false, bool isDisposable = false, bool isVersioned = false, bool isVersionedNoState = false, bool isShared = false, bool isOneShot = false) {
 
             var isNew = (AllComponentTypes<TComponent>.typeId == -1);
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
             if (isSimple == true) WorldUtilities.SetComponentAsSimple<TComponent>();
+            if (isBlittable == true) WorldUtilities.SetComponentAsBlittable<TComponent>();
             if (isVersioned == true) WorldUtilities.SetComponentAsVersioned<TComponent>();
             if (isVersionedNoState == true) WorldUtilities.SetComponentAsVersionedNoState<TComponent>();
             if (isCopyable == true) WorldUtilities.SetComponentAsCopyable<TComponent>();
