@@ -4,7 +4,7 @@ namespace ME.ECS.Essentials.GOAP {
     using Unity.Collections;
 
     [System.Serializable]
-    public struct PreconditionsData {
+    public struct ConditionsData {
 
         [FilterDataTypesFoldoutAttribute(false)]
         [Description("Data that entity should have before this action has been started.")]
@@ -12,12 +12,12 @@ namespace ME.ECS.Essentials.GOAP {
 
     }
 
-    public struct PreconditionBuilder {
+    public struct ConditionBuilder {
 
         internal ListCopyable<FilterDataItem> with;
         internal ListCopyable<FilterDataItem> without;
 
-        public PreconditionBuilder With<T>() where T : struct, IComponent {
+        public ConditionBuilder With<T>() where T : struct, IComponent {
 
             this.Validate();
             this.with.Add(FilterDataItem.Create(AllComponentTypes<T>.typeId, 0, default));
@@ -25,7 +25,7 @@ namespace ME.ECS.Essentials.GOAP {
 
         }
 
-        public PreconditionBuilder Without<T>() where T : struct, IComponent {
+        public ConditionBuilder Without<T>() where T : struct, IComponent {
 
             this.Validate();
             this.without.Add(FilterDataItem.Create(AllComponentTypes<T>.typeId, 0, default));
@@ -33,9 +33,9 @@ namespace ME.ECS.Essentials.GOAP {
 
         }
 
-        public Precondition Push(Allocator allocator) {
+        public Condition Push(Allocator allocator) {
 
-            var result = new Precondition() {
+            var result = new Condition() {
                 hasComponents = new SpanArray<FilterDataItem>(this.with, allocator),
                 hasNoComponents = new SpanArray<FilterDataItem>(this.without, allocator),
             };
@@ -51,7 +51,7 @@ namespace ME.ECS.Essentials.GOAP {
             
         }
         
-        internal PreconditionBuilder Validate() {
+        internal ConditionBuilder Validate() {
 
             if (this.with == null) this.with = PoolListCopyable<FilterDataItem>.Spawn(10);
             if (this.without == null) this.without = PoolListCopyable<FilterDataItem>.Spawn(10);
@@ -61,21 +61,21 @@ namespace ME.ECS.Essentials.GOAP {
 
     }
 
-    public struct Precondition {
+    public struct Condition {
 
         internal SpanArray<FilterDataItem> hasComponents;
         internal SpanArray<FilterDataItem> hasNoComponents;
 
-        public Precondition(Precondition other, Allocator allocator) {
+        public Condition(Condition other, Allocator allocator) {
             
             this.hasComponents = new SpanArray<FilterDataItem>(other.hasComponents, allocator);
             this.hasNoComponents = new SpanArray<FilterDataItem>(other.hasNoComponents, allocator);
             
         }
         
-        public static PreconditionBuilder CreateFromData(PreconditionsData data) {
+        public static ConditionBuilder CreateFromData(ConditionsData data) {
 
-            var builder = Precondition.Create();
+            var builder = Condition.Create();
             for (var i = 0; i < data.filter.with.Length; ++i) {
                 
                 var component = data.filter.with[i];
@@ -117,9 +117,9 @@ namespace ME.ECS.Essentials.GOAP {
 
         }
 
-        public static PreconditionBuilder Create() {
+        public static ConditionBuilder Create() {
             
-            return new PreconditionBuilder().Validate();
+            return new ConditionBuilder().Validate();
             
         }
 

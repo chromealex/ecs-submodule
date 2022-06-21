@@ -64,10 +64,12 @@ namespace ME.ECSEditor {
             
             var toggle = foldout.Q(className: "unity-foldout__toggle");
             if (toggle != null) {
+                
                 var label = foldout.Q(className: "foldout-description") as Label ?? new Label();
                 label.text = $"{withLabel}: {property.FindPropertyRelative("with").arraySize}, {withoutLabel}: {property.FindPropertyRelative("without").arraySize}";
                 label.AddToClassList("foldout-description");
                 toggle.Add(label);
+                
             }
         }
 
