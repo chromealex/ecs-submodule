@@ -33,6 +33,55 @@ namespace ME.ECS {
 
     }
     
+    public struct Ops {
+
+        public int Length => this.items.Length;
+        private Unity.Collections.NativeArray<Op> items;
+        private Unity.Collections.NativeArray<bool> exist;
+        
+        public Ops(int length) {
+            
+            this.items = new Unity.Collections.NativeArray<Op>(length, Unity.Collections.Allocator.Temp);
+            this.exist = new Unity.Collections.NativeArray<bool>(length, Unity.Collections.Allocator.Temp);
+            
+        }
+
+        public void Write(Op op) {
+            
+            this.items[op.entityIndex] = op;
+            this.exist[op.entityIndex] = true;
+
+        }
+
+        public bool Read(int index, out Op op) {
+
+            if (this.exist[index] == true) {
+                op = this.items[index];
+                return true;
+            }
+
+            op = default;
+            return false;
+
+        }
+
+        public void BeginForEachIndex(int index) {
+            
+        }
+
+        public void EndForEachIndex() {
+            
+        }
+
+        public void Dispose() {
+
+            this.items.Dispose();
+            this.exist.Dispose();
+
+        }
+
+    }
+    
     namespace Buffers {
 
         #CONTENT_BUFFERS#

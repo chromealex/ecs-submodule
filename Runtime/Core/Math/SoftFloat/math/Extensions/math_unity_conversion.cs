@@ -22,6 +22,18 @@ namespace ME.ECS.Mathematics
         public static explicit operator Vector4(float4 v)     { return new Vector4((float)v.x, (float)v.y, (float)v.z, (float)v.w); }
     }
 
+    public partial struct int2
+    {
+        public static implicit operator Vector2Int(int2 v)     { return new Vector2Int(v.x, v.y); }
+        public static implicit operator int2(Vector2Int v)     { return new int2(v.x, v.y); }
+    }
+
+    public partial struct int3
+    {
+        public static implicit operator Vector3Int(int3 v)     { return new Vector3Int(v.x, v.y, v.z); }
+        public static implicit operator int3(Vector3Int v)     { return new int3(v.x, v.y, v.z); }
+    }
+
     public partial struct quaternion
     {
         public static explicit operator Quaternion(quaternion q)  { return new Quaternion((float)q.value.x, (float)q.value.y, (float)q.value.z, (float)q.value.w); }

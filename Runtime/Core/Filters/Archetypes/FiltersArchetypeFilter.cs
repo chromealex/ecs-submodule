@@ -269,7 +269,9 @@ namespace ME.ECS {
                 result.Dispose();
                 return new Unity.Collections.NativeArray<Entity>(0, allocator);
             }
-            return result.AsArray();
+            var res = new Unity.Collections.NativeArray<Entity>(result.AsArray(), allocator);
+            result.Dispose();
+            return res;
 
         }
         
@@ -297,7 +299,9 @@ namespace ME.ECS {
                 result.Dispose();
                 return new Unity.Collections.NativeArray<Entity>(0, allocator);
             }
-            return result.AsArray();
+            var res = new Unity.Collections.NativeArray<Entity>(result.AsArray(), allocator);
+            result.Dispose();
+            return res;
 
         }
 

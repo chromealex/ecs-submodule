@@ -8,8 +8,7 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -27,12 +26,10 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(#INDEX#, allocator);
-            this.stream = new Unity.Collections.NativeStream(#INDEX# * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             #REGS_INIT#
         }
@@ -50,11 +47,9 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -62,7 +57,6 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
                     #PUSH_OPS#
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -76,7 +70,7 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;

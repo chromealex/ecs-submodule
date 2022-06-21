@@ -63,7 +63,7 @@ namespace ME.ECS.Collections {
 
             if (NativeQuadTreeUtils<T>.jobHandle.IsCompleted == false) NativeQuadTreeUtils<T>.jobHandle.Complete();
             NativeQuadTreeUtils<T>.jobHandle = default;
-            NativeQuadTreeUtils<T>.tempTree.Dispose();
+            if (NativeQuadTreeUtils<T>.tempTree.isCreated == true) NativeQuadTreeUtils<T>.tempTree.Dispose();
 
         }
 

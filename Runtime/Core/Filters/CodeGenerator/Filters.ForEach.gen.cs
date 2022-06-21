@@ -33,6 +33,55 @@ namespace ME.ECS {
 
     }
     
+    public struct Ops {
+
+        public int Length => this.items.Length;
+        private Unity.Collections.NativeArray<Op> items;
+        private Unity.Collections.NativeArray<bool> exist;
+        
+        public Ops(int length) {
+            
+            this.items = new Unity.Collections.NativeArray<Op>(length, Unity.Collections.Allocator.Temp);
+            this.exist = new Unity.Collections.NativeArray<bool>(length, Unity.Collections.Allocator.Temp);
+            
+        }
+
+        public void Write(Op op) {
+            
+            this.items[op.entityIndex] = op;
+            this.exist[op.entityIndex] = true;
+
+        }
+
+        public bool Read(int index, out Op op) {
+
+            if (this.exist[index] == true) {
+                op = this.items[index];
+                return true;
+            }
+
+            op = default;
+            return false;
+
+        }
+
+        public void BeginForEachIndex(int index) {
+            
+        }
+
+        public void EndForEachIndex() {
+            
+        }
+
+        public void Dispose() {
+
+            this.items.Dispose();
+            this.exist.Dispose();
+
+        }
+
+    }
+    
     namespace Buffers {
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -45,8 +94,7 @@ public unsafe struct FilterBag<T0> : IFilterBag  where T0:unmanaged,IComponentBa
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -64,12 +112,10 @@ public unsafe struct FilterBag<T0> : IFilterBag  where T0:unmanaged,IComponentBa
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(1, allocator);
-            this.stream = new Unity.Collections.NativeStream(1 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -89,11 +135,9 @@ this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -107,7 +151,6 @@ this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -121,7 +164,7 @@ this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -157,8 +200,7 @@ public unsafe struct FilterBag<T0,T1> : IFilterBag  where T0:unmanaged,IComponen
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -176,12 +218,10 @@ public unsafe struct FilterBag<T0,T1> : IFilterBag  where T0:unmanaged,IComponen
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(2, allocator);
-            this.stream = new Unity.Collections.NativeStream(2 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -203,11 +243,9 @@ this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -227,7 +265,6 @@ this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -241,7 +278,7 @@ this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -293,8 +330,7 @@ public unsafe struct FilterBag<T0,T1,T2> : IFilterBag  where T0:unmanaged,ICompo
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -312,12 +348,10 @@ public unsafe struct FilterBag<T0,T1,T2> : IFilterBag  where T0:unmanaged,ICompo
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(3, allocator);
-            this.stream = new Unity.Collections.NativeStream(3 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -341,11 +375,9 @@ this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -371,7 +403,6 @@ this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -385,7 +416,7 @@ this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -453,8 +484,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3> : IFilterBag  where T0:unmanaged,ICo
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -472,12 +502,10 @@ public unsafe struct FilterBag<T0,T1,T2,T3> : IFilterBag  where T0:unmanaged,ICo
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(4, allocator);
-            this.stream = new Unity.Collections.NativeStream(4 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -503,11 +531,9 @@ this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -539,7 +565,6 @@ this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -553,7 +578,7 @@ this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -637,8 +662,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4> : IFilterBag  where T0:unmanaged,
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -656,12 +680,10 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4> : IFilterBag  where T0:unmanaged,
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(5, allocator);
-            this.stream = new Unity.Collections.NativeStream(5 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -689,11 +711,9 @@ this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -731,7 +751,6 @@ this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -745,7 +764,7 @@ this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -845,8 +864,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5> : IFilterBag  where T0:unmanag
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -864,12 +882,10 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5> : IFilterBag  where T0:unmanag
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(6, allocator);
-            this.stream = new Unity.Collections.NativeStream(6 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -899,11 +915,9 @@ this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -947,7 +961,6 @@ this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -961,7 +974,7 @@ this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -1077,8 +1090,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6> : IFilterBag  where T0:unma
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -1096,12 +1108,10 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6> : IFilterBag  where T0:unma
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(7, allocator);
-            this.stream = new Unity.Collections.NativeStream(7 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -1133,11 +1143,9 @@ this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -1187,7 +1195,6 @@ this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -1201,7 +1208,7 @@ this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -1333,8 +1340,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7> : IFilterBag  where T0:u
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -1352,12 +1358,10 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7> : IFilterBag  where T0:u
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(8, allocator);
-            this.stream = new Unity.Collections.NativeStream(8 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -1391,11 +1395,9 @@ this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -1451,7 +1453,6 @@ this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -1465,7 +1466,7 @@ this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -1613,8 +1614,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8> : IFilterBag  where T
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -1632,12 +1632,10 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8> : IFilterBag  where T
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(9, allocator);
-            this.stream = new Unity.Collections.NativeStream(9 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -1673,11 +1671,9 @@ this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -1739,7 +1735,6 @@ this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -1753,7 +1748,7 @@ this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -1917,8 +1912,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> : IFilterBag  wher
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -1936,12 +1930,10 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> : IFilterBag  wher
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(10, allocator);
-            this.stream = new Unity.Collections.NativeStream(10 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -1979,11 +1971,9 @@ this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -2051,7 +2041,6 @@ this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -2065,7 +2054,7 @@ this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -2245,8 +2234,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> : IFilterBag  
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -2264,12 +2252,10 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> : IFilterBag  
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(11, allocator);
-            this.stream = new Unity.Collections.NativeStream(11 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -2309,11 +2295,9 @@ this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -2387,7 +2371,6 @@ this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -2401,7 +2384,7 @@ this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -2597,8 +2580,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> : IFilterB
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -2616,12 +2598,10 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> : IFilterB
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(12, allocator);
-            this.stream = new Unity.Collections.NativeStream(12 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -2663,11 +2643,9 @@ this.regs[11] = new Ptr() { value = regT11.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -2747,7 +2725,6 @@ this.regs[11] = new Ptr() { value = regT11.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -2761,7 +2738,7 @@ this.regs[11] = new Ptr() { value = regT11.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -2973,8 +2950,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> : IFil
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -2992,12 +2968,10 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> : IFil
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(13, allocator);
-            this.stream = new Unity.Collections.NativeStream(13 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -3041,11 +3015,9 @@ this.regs[12] = new Ptr() { value = regT12.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -3131,7 +3103,6 @@ this.regs[12] = new Ptr() { value = regT12.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -3145,7 +3116,7 @@ this.regs[12] = new Ptr() { value = regT12.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -3373,8 +3344,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> : 
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -3392,12 +3362,10 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> : 
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(14, allocator);
-            this.stream = new Unity.Collections.NativeStream(14 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -3443,11 +3411,9 @@ this.regs[13] = new Ptr() { value = regT13.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -3539,7 +3505,6 @@ this.regs[13] = new Ptr() { value = regT13.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -3553,7 +3518,7 @@ this.regs[13] = new Ptr() { value = regT13.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -3797,8 +3762,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -3816,12 +3780,10 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(15, allocator);
-            this.stream = new Unity.Collections.NativeStream(15 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -3869,11 +3831,9 @@ this.regs[14] = new Ptr() { value = regT14.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -3971,7 +3931,6 @@ this.regs[14] = new Ptr() { value = regT14.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -3985,7 +3944,7 @@ this.regs[14] = new Ptr() { value = regT14.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -4245,8 +4204,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -4264,12 +4222,10 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(16, allocator);
-            this.stream = new Unity.Collections.NativeStream(16 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -4319,11 +4275,9 @@ this.regs[15] = new Ptr() { value = regT15.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -4427,7 +4381,6 @@ this.regs[15] = new Ptr() { value = regT15.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -4441,7 +4394,7 @@ this.regs[15] = new Ptr() { value = regT15.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -4717,8 +4670,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -4736,12 +4688,10 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(17, allocator);
-            this.stream = new Unity.Collections.NativeStream(17 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -4793,11 +4743,9 @@ this.regs[16] = new Ptr() { value = regT16.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -4907,7 +4855,6 @@ this.regs[16] = new Ptr() { value = regT16.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -4921,7 +4868,7 @@ this.regs[16] = new Ptr() { value = regT16.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -5213,8 +5160,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -5232,12 +5178,10 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(18, allocator);
-            this.stream = new Unity.Collections.NativeStream(18 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -5291,11 +5235,9 @@ this.regs[17] = new Ptr() { value = regT17.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -5411,7 +5353,6 @@ this.regs[17] = new Ptr() { value = regT17.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -5425,7 +5366,7 @@ this.regs[17] = new Ptr() { value = regT17.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
@@ -5733,8 +5674,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream.Writer componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Unity.Collections.NativeStream stream;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -5752,12 +5692,10 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
-        this.stream = default;
         this.componentOps = default;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(19, allocator);
-            this.stream = new Unity.Collections.NativeStream(19 * this.Length, allocator);
-            this.componentOps = this.stream.AsWriter();
+            this.componentOps = new Ops(this.Length);
             var allRegs = world.currentState.structComponents.GetAllRegistries();
             var regT0 = (StructComponentsBlittable<T0>)allRegs[AllComponentTypes<T0>.typeId];
 regT0.Merge();
@@ -5813,11 +5751,9 @@ this.regs[18] = new Ptr() { value = regT18.components.GetUnsafePtr(), };
         #endif
         var world = Worlds.currentWorld;
         var allRegs = world.currentState.structComponents.GetAllRegistries();
-        var ops = this.stream.AsReader();
-        for (int k = 0; k < ops.ForEachCount; ++k) {
-            var cnt = ops.BeginForEachIndex(k);
-            for (int i = 0; i < cnt; ++i) {
-                var op = ops.Read<Op>();
+        var ops = this.componentOps;
+        for (int i = 0; i < ops.Length; ++i) {
+            if (ops.Read(i, out var op) == true) {
                 var entity = this.entities[this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
@@ -5939,7 +5875,6 @@ this.regs[18] = new Ptr() { value = regT18.components.GetUnsafePtr(), };
 }
                 }
             }
-            ops.EndForEachIndex();
         }
         this.Dispose();
         #if UNITY_EDITOR
@@ -5953,7 +5888,7 @@ this.regs[18] = new Ptr() { value = regT18.components.GetUnsafePtr(), };
     private void Dispose() {
         if (this.Length > 0) {
             this.regs.Dispose();
-            this.stream.Dispose();
+            this.componentOps.Dispose();
         }
         this.indexes.Dispose();
         this.entities = default;
