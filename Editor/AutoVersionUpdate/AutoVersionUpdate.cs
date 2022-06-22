@@ -48,7 +48,7 @@ namespace ME.ECSEditor {
                 }
 
                 var source = package.text;
-                var pattern = @"""version"":\s*""(?<major>\d{1,2}).(?<minor>\d{1,2}).(?<build>\d{1,2})""";
+                var pattern = @"""version"":\s*""(?<major>[0-9]+).(?<minor>[0-9]+).(?<build>[0-9]+)""";
                 var result = Regex.Replace(source, pattern, AutoVersionUpdateCompilation.UpBuild);
                 ChangeLogEditorWindow.Create(files, commitName, currentVersion, realPath, source, result);
                 
@@ -56,16 +56,19 @@ namespace ME.ECSEditor {
 
         }
 
-        public static void Callback(string ver, string realPath, string source, string text) {
+        public static void Callback(string sourceVersion, string ver, string realPath, string source, string text) {
+
+            var sourceVersionCheck = string.Join(".", sourceVersion.Split('.').Take(2).ToArray());
+            var verCheck = string.Join(".", ver.Split('.').Take(2).ToArray());
             
-            Debug.Log($"Version up to {ver}");
-            if (currentVersion.StartsWith(ver) == true) {
+            Debug.Log($"Version up {sourceVersion} => {ver}");
+            if (sourceVersionCheck == verCheck) {
                 // major/minor not changed
                 System.IO.File.WriteAllText(realPath, text);
             } else {
                 // version changed
                 newMajorMinorVersion = ver;
-                var pattern = @"""version"":\s*""(?<major>\d{1,2}).(?<minor>\d{1,2}).(?<build>\d{1,2})""";
+                var pattern = @"""version"":\s*""(?<major>[0-9]+).(?<minor>[0-9]+).(?<build>[0-9]+)""";
                 var newResult = Regex.Replace(source, pattern, AutoVersionUpdateCompilation.SetMajorMinorVersion);
                 System.IO.File.WriteAllText(realPath, newResult);
             }
@@ -74,7 +77,7 @@ namespace ME.ECSEditor {
 
         private static string newMajorMinorVersion;
         private static string SetMajorMinorVersion(System.Text.RegularExpressions.Match m) {
-            return @"""version"": """ + AutoVersionUpdateCompilation.newMajorMinorVersion + ".0";
+            return @"""version"": """ + AutoVersionUpdateCompilation.newMajorMinorVersion + @"""";
         } 
 
         private static string UpBuild(System.Text.RegularExpressions.Match m) {

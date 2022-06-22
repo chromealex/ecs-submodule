@@ -74,7 +74,7 @@ namespace ME.ECSEditor {
                 win.changedFilename = changedFilename + ": ";
                 win.version = version;
                 win.callback = (versionToChange) => {
-                    AutoVersionUpdateCompilation.Callback(versionToChange, realPath, source, result);
+                    AutoVersionUpdateCompilation.Callback(version, versionToChange, realPath, source, result);
                 };
                 win.nextMajorMinorVersion = nextMajorMinor;
                 win.majorMinorVersion = majorMinor;
@@ -146,7 +146,8 @@ namespace ME.ECSEditor {
                 if (GUILayout.Button($"ADD AND UP VERSION TO {this.nextMajorMinorVersion}", GUILayout.MinWidth(100f), GUILayout.Height(40f)) == true) {
 
                     this.majorMinorVersion = this.nextMajorMinorVersion;
-                    this.Commit();
+                    this.version = this.majorMinorVersion + ".0";
+                    this.Commit(addDate: true);
                     this.Close();
 
                 }
@@ -157,7 +158,7 @@ namespace ME.ECSEditor {
             
         }
 
-        private void Commit() {
+        private void Commit(bool addDate = false) {
 
             if (string.IsNullOrEmpty(this.message) == false &&
                 this.message != this.changedFilename) {
@@ -185,7 +186,7 @@ namespace ME.ECSEditor {
 
                                     lineIndex = i;
                                     versionFound = true;
-
+                                    
                                 }
 
                             }
@@ -243,6 +244,12 @@ namespace ME.ECSEditor {
                     }
 
                 } else if (lineIndex == -1) {
+
+                    if (addDate == true) {
+                        
+                        lines.Insert(0, System.DateTime.UtcNow.ToString("dd/MM/yyyy"));
+                        
+                    }
 
                     // Add version header
                     lines.Insert(0, "");
