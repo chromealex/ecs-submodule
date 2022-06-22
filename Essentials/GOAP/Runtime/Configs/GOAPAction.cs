@@ -1,3 +1,12 @@
+#if FIXED_POINT_MATH
+using math = ME.ECS.Mathematics.math;
+using float3 = ME.ECS.Mathematics.float3;
+using tfloat = sfloat;
+#else
+using math = Unity.Mathematics.math;
+using float3 = Unity.Mathematics.float3;
+using tfloat = System.Single;
+#endif
 using UnityEngine;
 
 namespace ME.ECS.Essentials.GOAP {
@@ -52,7 +61,7 @@ namespace ME.ECS.Essentials.GOAP {
 
         public virtual bool CanRunPrepare(in Entity agent) => true;
 
-        public virtual float GetCost(in Entity agent) => this.cost;
+        public virtual tfloat GetCost(in Entity agent) => this.cost;
         
         public virtual bool IsDone(in Entity agent) => true;
         
