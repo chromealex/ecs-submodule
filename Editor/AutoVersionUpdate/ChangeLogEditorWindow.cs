@@ -89,20 +89,20 @@ namespace ME.ECSEditor {
             
             GUILayoutExt.Box(4f, 4f, () => {
             
-                this.message = GUILayout.TextArea(this.message, this.fixedFontStyle, GUILayout.MinHeight(60f));
+                this.message = GUILayout.TextField(this.message, this.fixedFontStyle, GUILayout.MinHeight(60f));
 
                 GUILayout.Space(10f);
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
                 if (GUILayout.Button($"COMMIT TO {this.majorMinorVersion}", GUILayout.MinWidth(100f), GUILayout.Height(40f)) == true) {
 
-                    this.Close();
+                    this.Commit();
 
                 }
                 if (GUILayout.Button($"COMMIT AND UP VERSION TO {this.nextMajorMinorVersion}", GUILayout.MinWidth(100f), GUILayout.Height(40f)) == true) {
 
                     this.majorMinorVersion = this.nextMajorMinorVersion;
-                    this.Close();
+                    this.Commit();
 
                 }
                 GUILayout.FlexibleSpace();
@@ -112,12 +112,6 @@ namespace ME.ECSEditor {
             
         }
 
-        private void OnDestroy() {
-
-            this.Commit();
-
-        }
-        
         private void Commit() {
 
             if (string.IsNullOrEmpty(this.message) == false &&
