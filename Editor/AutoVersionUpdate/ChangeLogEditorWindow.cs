@@ -18,6 +18,7 @@ namespace ME.ECSEditor {
         private System.Action<string> callback;
         private string changeLogFile;
         private string changeLogFilePath;
+        private string commitName;
 
         private string changedFilename;
         private string message;
@@ -25,7 +26,7 @@ namespace ME.ECSEditor {
         private GUIStyle fixedFontStyle;
         private Font font;
         
-        public static void Create(string[] changedFilenames, string version, System.Action<string> callback) {
+        public static void Create(string[] changedFilenames, string commitName, string version, System.Action<string> callback) {
 
             var v = version.Split('.');
             var majorMinor = v[0] + "." + v[1];
@@ -36,6 +37,7 @@ namespace ME.ECSEditor {
                 var changedFilename = changedFilenames[i];
                 EditorUtilities.Load<TextAsset>("CHANGELOG.md", out var filePath);
                 var win = ChangeLogEditorWindow.CreateInstance<ChangeLogEditorWindow>();
+                win.commitName = (string.IsNullOrEmpty(commitName) == true ? string.Empty : " [" + commitName + "]");
                 win.message = changedFilename + ": ";
                 win.changedFilename = changedFilename + ": ";
                 win.version = version;
@@ -110,12 +112,6 @@ namespace ME.ECSEditor {
             
         }
 
-        private System.ReadOnlySpan<byte> GetBytes(string str) {
-            
-            return new System.ReadOnlySpan<byte>(System.Text.Encoding.UTF8.GetBytes(str));
-            
-        }
-
         private void OnDestroy() {
 
             this.Commit();
@@ -124,8 +120,11 @@ namespace ME.ECSEditor {
         
         private void Commit() {
 
-            if (string.IsNullOrEmpty(this.message) == false) {
+            if (string.IsNullOrEmpty(this.message) == false &&
+                this.message != this.changedFilename) {
 
+                this.message += this.commitName;
+                
                 var lines = this.changeLogFile.Split('\n').ToList();
                 var lineIndex = -1;
                 var versionFound = false;
@@ -164,15 +163,15 @@ namespace ME.ECSEditor {
                             line.StartsWith(linePrefix + this.changedFilename) == true) {
 
                             var resStr = this.message.Substring(this.changedFilename.Length, this.message.Length - this.changedFilename.Length);
-                            if (string.IsNullOrEmpty(resStr) == false) {
+                            if (string.IsNullOrEmpty(resStr.Trim()) == false) {
 
                                 var source = line.Substring(linePrefix.Length + this.changedFilename.Length, line.Length - this.changedFilename.Length - linePrefix.Length);
-                                if (string.IsNullOrEmpty(source) == false) {
-                                    lines[i] = "  * " + source;
+                                if (string.IsNullOrEmpty(source.Trim()) == false) {
+                                    lines[i] = "  * " + source.Trim();
                                     lines.Insert(i, linePrefix + this.changedFilename);
                                 }
 
-                                this.message = "  * " + resStr;
+                                this.message = "  * " + resStr.Trim();
                                 lineIndex = i;
                                 withPrefix = false;
                                 break;
