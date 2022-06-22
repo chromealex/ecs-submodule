@@ -32,8 +32,11 @@ namespace ME.ECSEditor {
             if (package != null) {
 
                 var files = new string[filepaths.Length];
+                var rootDir = System.IO.Path.GetDirectoryName(realPath);
                 for (int i = 0; i < filepaths.Length; ++i) {
-                    files[i] = System.IO.Path.GetFileNameWithoutExtension(filepaths[i]);
+                    var dir = System.IO.Path.GetDirectoryName(filepaths[i]).Substring(0, rootDir.Length);
+                    var splitted = dir.Split('/');
+                    files[i] = splitted[0] + "." + splitted[1]; //System.IO.Path.GetFileNameWithoutExtension(filepaths[i]);
                 }
 
                 var source = package.text;
