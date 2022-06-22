@@ -9,7 +9,8 @@
         "Unity.Burst",
         "ME.Pools",
         "Unity.Mathematics",
-        "ME.ECS.Essentials.GOAP"
+        "ME.ECS.Essentials.GOAP",
+        "UnityEngine.UIElementsModule"
     ],
     "includePlatforms": [
         "Editor"
