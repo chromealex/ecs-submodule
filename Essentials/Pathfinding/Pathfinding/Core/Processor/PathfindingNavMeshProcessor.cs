@@ -249,10 +249,10 @@ namespace ME.ECS.Pathfinding {
 
                     if (cornerCount >= 2) {
 
-                        path.navMeshPoints = PoolListCopyable<Vector3>.Spawn(cornerCount);
+                        path.navMeshPoints = PoolListCopyable<float3>.Spawn(cornerCount);
                         for (var i = 0; i < cornerCount; ++i) {
 
-                            path.navMeshPoints.Add(results[i].position);
+                            path.navMeshPoints.Add((float3)results[i].position);
 
                         }
 
@@ -382,10 +382,10 @@ namespace ME.ECS.Pathfinding {
 
                     if (cornerCount >= 2) {
 
-                        path.navMeshPoints = PoolListCopyable<Vector3>.Spawn(cornerCount);
+                        path.navMeshPoints = PoolListCopyable<float3>.Spawn(cornerCount);
                         for (var i = 0; i < cornerCount; ++i) {
 
-                            path.navMeshPoints.Add(results[i].position);
+                            path.navMeshPoints.Add((float3)results[i].position);
 
                         }
 

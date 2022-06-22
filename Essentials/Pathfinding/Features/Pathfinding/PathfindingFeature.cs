@@ -103,7 +103,7 @@ namespace ME.ECS.Pathfinding.Features {
             }*/
             entity.Set(new ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh() {
                 result = path.result,
-                path = new NativeDataBufferArray<UnityEngine.Vector3>(path.navMeshPoints.ToBufferArray()),
+                path = new NativeDataBufferArray<float3>(path.navMeshPoints.ToBufferArray()),
             });
             entity.Set(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
 

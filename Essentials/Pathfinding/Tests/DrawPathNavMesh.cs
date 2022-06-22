@@ -45,7 +45,7 @@ public class DrawPathNavMesh : MonoBehaviour {
                     Gizmos.color = Color.white;
                     var current = path.navMeshPoints[i - 1];
                     var next = path.navMeshPoints[i];
-                    Gizmos.DrawLine(current, next);
+                    Gizmos.DrawLine((Vector3)current, (Vector3)next);
 
                 }
 

@@ -120,11 +120,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public 
-            #if CSHARP_8_OR_NEWER
-            readonly
-            #endif
-            ref readonly NativeBufferArray<T> Read() {
+        public readonly ref readonly NativeBufferArray<T> Read() {
 
             return ref this.dataObject.Read();
 
