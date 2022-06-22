@@ -12,8 +12,11 @@ namespace ME.ECSEditor {
         internal static string currentVersion;
 
         internal static UnityEngine.Networking.UnityWebRequest request;
+        internal static bool isInitialized;
         
         static AutoVersionUpdateCompilation() {
+
+            EditorApplication.delayCall += () => SessionState.SetBool("AutoVersionUpdate.initialized", true);
 
             var con = SessionState.GetString("AutoVersionUpdate.Contributors", string.Empty);
             if (string.IsNullOrEmpty(con) == false) return;
@@ -34,29 +37,37 @@ namespace ME.ECSEditor {
                 var files = new string[filepaths.Length];
                 var rootDir = System.IO.Path.GetDirectoryName(realPath);
                 for (int i = 0; i < filepaths.Length; ++i) {
-                    var dir = System.IO.Path.GetDirectoryName(filepaths[i]).Substring(0, rootDir.Length);
+                    var d = System.IO.Path.GetDirectoryName(filepaths[i]);
+                    var dir = d.Substring(rootDir.Length, d.Length - rootDir.Length);
                     var splitted = dir.Split('/');
-                    files[i] = splitted[0] + "." + splitted[1]; //System.IO.Path.GetFileNameWithoutExtension(filepaths[i]);
+                    if (splitted.Length > 1) {
+                        files[i] = splitted[1] + "." + splitted[2]; //System.IO.Path.GetFileNameWithoutExtension(filepaths[i]);
+                    } else {
+                        files[i] = splitted[0];
+                    }
                 }
 
                 var source = package.text;
                 var pattern = @"""version"":\s*""(?<major>\d{1,2}).(?<minor>\d{1,2}).(?<build>\d{1,2})""";
                 var result = Regex.Replace(source, pattern, AutoVersionUpdateCompilation.UpBuild);
-                ChangeLogEditorWindow.Create(files, commitName, currentVersion, (ver) => {
+                ChangeLogEditorWindow.Create(files, commitName, currentVersion, realPath, source, result);
                 
-                    Debug.Log($"Version up to {ver}");
-                    if (currentVersion.StartsWith(ver) == true) {
-                        // major/minor not changed
-                        System.IO.File.WriteAllText(realPath, result);
-                    } else {
-                        // version changed
-                        newMajorMinorVersion = ver;
-                        var newResult = Regex.Replace(source, pattern, AutoVersionUpdateCompilation.SetMajorMinorVersion);
-                        System.IO.File.WriteAllText(realPath, newResult);
-                    }
+            }
 
-                });
-                
+        }
+
+        public static void Callback(string ver, string realPath, string source, string text) {
+            
+            Debug.Log($"Version up to {ver}");
+            if (currentVersion.StartsWith(ver) == true) {
+                // major/minor not changed
+                System.IO.File.WriteAllText(realPath, text);
+            } else {
+                // version changed
+                newMajorMinorVersion = ver;
+                var pattern = @"""version"":\s*""(?<major>\d{1,2}).(?<minor>\d{1,2}).(?<build>\d{1,2})""";
+                var newResult = Regex.Replace(source, pattern, AutoVersionUpdateCompilation.SetMajorMinorVersion);
+                System.IO.File.WriteAllText(realPath, newResult);
             }
 
         }
@@ -112,6 +123,8 @@ namespace ME.ECSEditor {
         
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths) {
 
+            if (SessionState.GetBool("AutoVersionUpdate.initialized", false) == false) return;
+            
             var username = UnityEditor.CloudProjectSettings.userName;
             if (IsUserEditor(username, out var commitName) == false) return;
             

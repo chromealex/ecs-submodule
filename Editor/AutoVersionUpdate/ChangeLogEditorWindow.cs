@@ -26,29 +26,63 @@ namespace ME.ECSEditor {
         private GUIStyle fixedFontStyle;
         private Font font;
         
-        public static void Create(string[] changedFilenames, string commitName, string version, System.Action<string> callback) {
+        [UnityEditor.Callbacks.DidReloadScripts]
+        private static void OnScriptsReloaded() {
+            
+            CreateAfterCompilation();
 
+        }
+
+        public static void Create(string[] changedFilenames, string commitName, string version, string realPath, string source, string result) {
+
+            SessionState.SetString("temp.realPath", realPath);
+            SessionState.SetString("temp.source", source);
+            SessionState.SetString("temp.result", result);
+            SessionState.SetString("temp.commitName", commitName);
+            SessionState.SetString("temp.version", version);
+            SessionState.SetInt("temp.file.length", changedFilenames.Length);
+            for (int i = 0; i < changedFilenames.Length; ++i) {
+                SessionState.SetString("temp.file." + i, changedFilenames[i]);
+            }
+
+        }
+        
+        public static void CreateAfterCompilation() {
+
+            var len = SessionState.GetInt("temp.file.length", 0);
+            if (len == 0) return;
+            SessionState.EraseInt("temp.file.length");
+            var realPath = SessionState.GetString("temp.realPath", string.Empty);
+            var source = SessionState.GetString("temp.source", string.Empty);
+            var result = SessionState.GetString("temp.result", string.Empty);
+            var commitName = SessionState.GetString("temp.commitName", string.Empty);
+            var version = SessionState.GetString("temp.version", string.Empty);
+            
             var v = version.Split('.');
             var majorMinor = v[0] + "." + v[1];
             var nextMajorMinor = v[0] + "." + (int.Parse(v[1]) + 1);
 
-            for (int i = 0; i < changedFilenames.Length; ++i) {
+            EditorUtilities.Load<TextAsset>("CHANGELOG.md", out var filePath);
+            for (int i = 0; i < len; ++i) {
 
-                var changedFilename = changedFilenames[i];
-                EditorUtilities.Load<TextAsset>("CHANGELOG.md", out var filePath);
+                var changedFilename = SessionState.GetString("temp.file." + i, string.Empty);
                 var win = ChangeLogEditorWindow.CreateInstance<ChangeLogEditorWindow>();
-                win.minSize = new Vector2(600f, 120f);
-                win.maxSize = new Vector2(600f, 120f);
+                win.titleContent = new GUIContent("CHANGE LOG");
+                win.position = new Rect(Screen.width * 0.5f - 300f, Screen.height * 0.5f - 60f, 600f, 120f);
                 win.commitName = (string.IsNullOrEmpty(commitName) == true ? string.Empty : " [" + commitName + "]");
                 win.message = changedFilename + ": ";
                 win.changedFilename = changedFilename + ": ";
                 win.version = version;
-                win.callback = callback;
+                win.callback = (versionToChange) => {
+                    AutoVersionUpdateCompilation.Callback(versionToChange, realPath, source, result);
+                };
                 win.nextMajorMinorVersion = nextMajorMinor;
                 win.majorMinorVersion = majorMinor;
                 win.changeLogFile = System.IO.File.ReadAllText(filePath);
                 win.changeLogFilePath = filePath;
-                win.ShowModal();
+                win.ShowPopup();
+                win.Repaint();
+                win.Focus();
 
             }
 
@@ -89,22 +123,31 @@ namespace ME.ECSEditor {
                 
             }
             
-            GUILayoutExt.Box(4f, 4f, () => {
+            GUILayoutExt.Padding(4f, 4f, () => {
             
                 this.message = GUILayout.TextField(this.message, this.fixedFontStyle, GUILayout.MinHeight(60f));
 
                 GUILayout.Space(10f);
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
-                if (GUILayout.Button($"COMMIT TO {this.majorMinorVersion}", GUILayout.MinWidth(100f), GUILayout.Height(40f)) == true) {
+                if (GUILayout.Button($"CLOSE", GUILayout.MinWidth(100f), GUILayout.Height(40f)) == true) {
 
-                    this.Commit();
+                    this.Close();
 
                 }
-                if (GUILayout.Button($"COMMIT AND UP VERSION TO {this.nextMajorMinorVersion}", GUILayout.MinWidth(100f), GUILayout.Height(40f)) == true) {
+                GUILayout.Space(2f);
+                if (GUILayout.Button($"ADD TO {this.majorMinorVersion}", GUILayout.MinWidth(100f), GUILayout.Height(40f)) == true) {
+
+                    this.Commit();
+                    this.Close();
+
+                }
+                GUILayout.Space(2f);
+                if (GUILayout.Button($"ADD AND UP VERSION TO {this.nextMajorMinorVersion}", GUILayout.MinWidth(100f), GUILayout.Height(40f)) == true) {
 
                     this.majorMinorVersion = this.nextMajorMinorVersion;
                     this.Commit();
+                    this.Close();
 
                 }
                 GUILayout.FlexibleSpace();
