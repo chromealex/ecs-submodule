@@ -11,6 +11,21 @@ namespace ME.ECSEditor {
         internal static UnityEditor.Compilation.Assembly[] assemblies;
         internal static string currentVersion;
 
+        internal static UnityEngine.Networking.UnityWebRequest request;
+        
+        static AutoVersionUpdateCompilation() {
+
+            var con = SessionState.GetString("AutoVersionUpdate.Contributors", string.Empty);
+            if (string.IsNullOrEmpty(con) == false) return;
+            
+            var url = "https://raw.githubusercontent.com/chromealex/ecs/master/Docs/contributors.txt";
+            //Debug.Log("Request contributors");
+            var www = UnityEngine.Networking.UnityWebRequest.Get(url);
+            www.SendWebRequest();
+            AutoVersionUpdateCompilation.request = www;
+
+        }
+
         internal static void UpdatePackageVersion(string[] filepaths) {
             
             var package = EditorUtilities.Load<TextAsset>("package.json", out var realPath);
@@ -60,17 +75,43 @@ namespace ME.ECSEditor {
     
     public class AutoVersionUpdate : AssetPostprocessor {
 
-        private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths) {
-
-            // Check if mac os x
-            #if !UNITY_EDITOR_OSX
-            return;
-            #endif
+        private static bool IsUserEditor(string username) {
             
             // Check if its me ;)
-            var dir = System.IO.Directory.Exists("/Users/aleksandrfeer/Projects");
-            if (dir == false) return;
+            //var dir = System.IO.Directory.Exists("/Users/aleksandrfeer/Projects");
+            //if (dir == true) return true;
 
+            var con = SessionState.GetString("AutoVersionUpdate.Contributors", string.Empty);
+            if (string.IsNullOrEmpty(con) == true) {
+                
+                if (AutoVersionUpdateCompilation.request.isDone == false) return false;
+                
+                var text = AutoVersionUpdateCompilation.request.downloadHandler.text;
+                SessionState.SetString("AutoVersionUpdate.Contributors", con);
+                
+                var splitted = text.Split('\n');
+                for (int i = 0; i < splitted.Length; ++i) {
+                    if (username == splitted[i]) return true;
+                }
+                
+            } else {
+                
+                var splitted = con.Split('\n');
+                for (int i = 0; i < splitted.Length; ++i) {
+                    if (username == splitted[i]) return true;
+                }
+
+            }
+
+            return false;
+
+        }
+        
+        private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths) {
+
+            var username = UnityEditor.CloudProjectSettings.userName;
+            if (IsUserEditor(username) == false) return;
+            
             if (AutoVersionUpdateCompilation.assemblies == null) AutoVersionUpdateCompilation.assemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies();
 
             var assetReimport = new System.Collections.Generic.List<string>();
