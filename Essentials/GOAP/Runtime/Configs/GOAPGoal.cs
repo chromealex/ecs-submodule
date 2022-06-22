@@ -12,6 +12,9 @@ namespace ME.ECS.Essentials.GOAP {
 
         public virtual float GetWeight(in Entity agent) {
 
+            //if agent has<HP>().value < 50% return float.Max
+            //if agent has<HP>().value < 20% return float.Max
+            //if agent has<ATTACKED>() return float.Max
             return this.weight;
 
         }
