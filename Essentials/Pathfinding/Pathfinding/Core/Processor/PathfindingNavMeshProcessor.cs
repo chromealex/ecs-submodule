@@ -1,4 +1,4 @@
-﻿using Unity.Jobs;
+using Unity.Jobs;
 using UnityEngine;
 using ME.ECS.Mathematics;
 
@@ -28,17 +28,18 @@ namespace ME.ECS.Pathfinding {
 
                 path = default;
 
-                var hash = graph.lastGraphUpdateHash;
-                var tick = Worlds.currentWorld.GetCurrentTick();
-
-                for (int i = 0; i < Cache.pool.Length; i++) {
-                    ref readonly var entry = ref Cache.pool[i];
-
-                    if (entry.hash == hash && entry.tick == tick) {
-                        if (math.all(entry.from == from) && math.all(entry.to == to) && entry.constraintKey == constraintKey) {
-                            path = Path.Clone(entry.path);
-
-                            return true;
+                if (Cache.GetTick(out var tick) == true && graph != null) {
+                    var hash = graph.lastGraphUpdateHash;
+                    
+                    for (int i = 0; i < Cache.pool.Length; i++) {
+                        ref readonly var entry = ref Cache.pool[i];
+    
+                        if (entry.hash == hash && entry.tick == tick) {
+                            if (math.all(entry.from == from) && math.all(entry.to == to) && entry.constraintKey == constraintKey) {
+                                path = Path.Clone(entry.path);
+    
+                                return true;
+                            }
                         }
                     }
                 }
@@ -48,12 +49,12 @@ namespace ME.ECS.Pathfinding {
 
             public static void Set(in float3 from, in float3 to, int constraintKey, in NavMeshGraph graph, in Path path) {
                 
-                if (path.result == PathCompleteState.Complete) {
+                if (path.result == PathCompleteState.Complete && Cache.GetTick(out var tick) == true && graph != null) {
 
                     ref var entry = ref Cache.pool[Cache.currentIndex];
                     
                     entry.hash = graph.lastGraphUpdateHash;
-                    entry.tick = Worlds.currentWorld.GetCurrentTick();
+                    entry.tick = tick;
                     entry.from = from;
                     entry.to = to;
                     entry.constraintKey = constraintKey;
@@ -65,6 +66,28 @@ namespace ME.ECS.Pathfinding {
 
                 }
                 
+            }
+
+            private static bool GetTick(out Tick tick) {
+                
+                tick = Tick.Invalid;
+                
+                var world = Worlds.currentWorld;
+
+                if (world != null) {
+                    var state = world.GetState();
+
+                    if (state != null) {
+                        tick = state.tick;
+                        return true;
+                    } else {
+                        UnityEngine.Debug.LogError("[Path Cache] world.GetState() == null");
+                    }
+                } else {
+                    UnityEngine.Debug.LogError("[Path Cache] Worlds.currentWorld == null");
+                }
+
+                return false;
             }
 
         }
