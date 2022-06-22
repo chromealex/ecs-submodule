@@ -1,4 +1,13 @@
-﻿using ME.ECS;
+﻿#if FIXED_POINT_MATH
+using math = ME.ECS.Mathematics.math;
+using float3 = ME.ECS.Mathematics.float3;
+using tfloat = sfloat;
+#else
+using math = Unity.Mathematics.math;
+using float3 = Unity.Mathematics.float3;
+using tfloat = System.Single;
+#endif
+using ME.ECS;
 
 namespace ME.ECS.Essentials.GOAP.Systems {
 
@@ -37,7 +46,7 @@ namespace ME.ECS.Essentials.GOAP.Systems {
 
             public bool isCreated;
             public GOAPEntityPlan plan;
-            public float h;
+            public tfloat h;
 
         }
         

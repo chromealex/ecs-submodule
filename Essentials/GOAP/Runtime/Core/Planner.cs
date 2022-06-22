@@ -1,3 +1,12 @@
+#if FIXED_POINT_MATH
+using math = ME.ECS.Mathematics.math;
+using float3 = ME.ECS.Mathematics.float3;
+using tfloat = sfloat;
+#else
+using math = Unity.Mathematics.math;
+using float3 = Unity.Mathematics.float3;
+using tfloat = System.Single;
+#endif
 using System.Collections.Generic;
 using ME.ECS.Collections;
 using Unity.Collections;
@@ -106,7 +115,7 @@ namespace ME.ECS.Essentials.GOAP {
 
         private struct Path {
 
-            public float cost;
+            public tfloat cost;
             public SpanArray<int> actions;
             public PathStatus pathStatus;
 
@@ -150,7 +159,7 @@ namespace ME.ECS.Essentials.GOAP {
 
         }
         
-        private static Path Traverse(float prevCost, NativeArray<Action.Data> temp, Goal goal, Action.Data startAction, NativeHashSet<int> entityState) {
+        private static Path Traverse(tfloat prevCost, NativeArray<Action.Data> temp, Goal goal, Action.Data startAction, NativeHashSet<int> entityState) {
 
             for (int i = 0; i < temp.Length; ++i) {
 

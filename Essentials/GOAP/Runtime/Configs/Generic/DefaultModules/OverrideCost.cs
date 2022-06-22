@@ -18,19 +18,22 @@ namespace ME.ECS.Essentials.GOAP.DefaultModules {
 	
 	[SerializedReferenceCaption("Default/Override Cost")]
 	public class OverrideCost : GOAPActionModule {
+        
 		public override ActionEvent requiredEvents => ActionEvent.GetCost;
 
 		[ComponentDataType(ComponentDataTypeAttribute.Type.NoData)]
 		public ComponentData<ITargetCost> readCostFromTarget;
 
-		public override float GetCost(in Entity agent) {
+		public override tfloat GetCost(in Entity agent) {
 
 			if (this.readCostFromTarget.TryRead(in agent, out var component) == true) {
 
 				return component.GetFactor(in agent) * base.GetCost(in agent);
+                
 			}
 
 			return base.GetCost(in agent);
+            
 		}
 
 	}
