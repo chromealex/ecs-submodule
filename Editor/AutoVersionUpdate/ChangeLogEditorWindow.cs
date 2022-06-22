@@ -37,6 +37,7 @@ namespace ME.ECSEditor {
                 var changedFilename = changedFilenames[i];
                 EditorUtilities.Load<TextAsset>("CHANGELOG.md", out var filePath);
                 var win = ChangeLogEditorWindow.CreateInstance<ChangeLogEditorWindow>();
+                win.minSize = new Vector2(300f, 120f);
                 win.commitName = (string.IsNullOrEmpty(commitName) == true ? string.Empty : " [" + commitName + "]");
                 win.message = changedFilename + ": ";
                 win.changedFilename = changedFilename + ": ";
