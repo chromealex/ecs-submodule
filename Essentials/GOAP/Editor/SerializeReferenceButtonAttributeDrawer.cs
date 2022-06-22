@@ -1,6 +1,4 @@
-﻿#if UNITY_EDITOR
-
-using System.Reflection;
+﻿using System.Reflection;
 using ME.ECSEditor;
 using UnityEditor; 
 using UnityEngine;
@@ -144,4 +142,3 @@ namespace ME.ECS.Essentials.GOAP {
     }
 
 }
-#endif
