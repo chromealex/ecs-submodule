@@ -8,55 +8,15 @@ namespace ME.ECSEditor {
     [InitializeOnLoad]
     public static class AutoVersionUpdateCompilation {
 
-        private static UnityEditor.Compilation.Assembly[] assemblies;
+        internal static UnityEditor.Compilation.Assembly[] assemblies;
 
-        static AutoVersionUpdateCompilation() {
-            UnityEditor.Compilation.CompilationPipeline.assemblyCompilationFinished += AssemblyCompilationFinished;
-        }
-
-        private static void AssemblyCompilationFinished(string assemblyPath, UnityEditor.Compilation.CompilerMessage[] messages) {
+        internal static void UpdatePackageVersion() {
             
-            // Check if mac os x
-            #if !UNITY_EDITOR_OSX
-            return;
-            #endif
-            
-            // Check if its me ;)
-            var dir = System.IO.Directory.Exists("/Users/aleksandrfeer/Projects");
-            if (dir == false) return;
-
-            var found = EditorPrefs.GetBool("LastCompilation.AutoVersionUpdate.Result", false);
-            var assetReimport = EditorPrefs.GetString("LastCompilation.AutoVersionUpdate.File", string.Empty);
-
-            if (AutoVersionUpdateCompilation.assemblies == null) AutoVersionUpdateCompilation.assemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies();
-            
-            if (found == true) {
-
-                var assembly = AutoVersionUpdateCompilation.assemblies.FirstOrDefault(a => a.outputPath == assemblyPath);
-                if (assembly == null) return;
-
-                foreach (var src in assembly.sourceFiles) {
-
-                    if (src == assetReimport) {
-
-                        AutoVersionUpdateCompilation.UpdatePackageVersion();
-                        break;
-
-                    }
-
-                }
-
-            }
-            
-        }
-
-        private static void UpdatePackageVersion() {
-
             var package = EditorUtilities.Load<TextAsset>("package.json", out var realPath);
             if (package != null) {
 
                 var source = package.text;
-                var pattern = @"""version"":\s*""(?<major>\d{1,2}).(?<minor>\d{1,2}).(?<build>\d{1|2|3|4})""";      
+                var pattern = @"""version"":\s*""(?<major>\d{1,2}).(?<minor>\d{1,2}).(?<build>\d{1,2})""";      
                 var result = Regex.Replace(source, pattern, AutoVersionUpdateCompilation.ReplaceEvaluator);
                 System.IO.File.WriteAllText(realPath, result);
 
@@ -87,22 +47,28 @@ namespace ME.ECSEditor {
             var dir = System.IO.Directory.Exists("/Users/aleksandrfeer/Projects");
             if (dir == false) return;
 
-            var assetReimport = string.Empty;
+            if (AutoVersionUpdateCompilation.assemblies == null) AutoVersionUpdateCompilation.assemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies();
+
+            //var assetReimport = string.Empty;
             var found = false;
             foreach (var asset in importedAssets) {
 
                 if (asset.EndsWith(".cs") == true) {
 
-                    assetReimport = asset;
-                    found = true;
-                    break;
+                    var assembly = AutoVersionUpdateCompilation.assemblies.FirstOrDefault(a => a.name.Contains("ME.ECS") == true && a.sourceFiles.Contains(asset) == true);
+                    if (assembly != null) {
+
+                        //assetReimport = asset;
+                        found = true;
+                        break;
+                    
+                    }
 
                 }
-                
+            
             }
-
-            EditorPrefs.SetBool("LastCompilation.AutoVersionUpdate.Result", found);
-            EditorPrefs.SetString("LastCompilation.AutoVersionUpdate.File", assetReimport);
+            
+            if (found == true) AutoVersionUpdateCompilation.UpdatePackageVersion();
             
         }
 
