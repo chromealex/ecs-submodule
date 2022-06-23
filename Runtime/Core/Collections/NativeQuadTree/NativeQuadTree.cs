@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 
@@ -123,6 +123,12 @@ namespace ME.ECS.Collections {
             var depthExtentsScaling = LookupTables.DepthLookup[this.maxDepth] / this.bounds.extents;
             for (var i = 0; i < incomingElementsLength; i++) {
                 var incPos = incomingElements[i].pos;
+
+                if (this.bounds.Contains(incPos) == false) {
+                    UnityEngine.Debug.LogError("NativeQuadTree element out of bounds");
+                    incPos = math.clamp(incPos, this.bounds.min, this.bounds.max);
+                }
+                
                 incPos -= this.bounds.center; // Offset by center
                 incPos.y = -incPos.y; // World -> array
                 var pos = (incPos + this.bounds.extents) * .5f; // Make positive
