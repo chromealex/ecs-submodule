@@ -26,15 +26,15 @@ namespace ME.ECS.Collections {
 
         }
 
-        public static void GetResults(in float2 position, tfloat radius, Unity.Collections.NativeList<QuadElement<Entity>> results) {
+        public static void GetResults(in float2 position, tfloat radius, Unity.Collections.NativeList<QuadElement<Entity>> results, bool jobEnable = false) {
 
-            NativeQuadTreeUtils<Entity>.GetResults(position, radius, results);
+            NativeQuadTreeUtils<Entity>.GetResults(position, radius, results, jobEnable);
 
         }
 
-        public static void GetResults(in float2 position, float2 size, Unity.Collections.NativeList<QuadElement<Entity>> results) {
+        public static void GetResults(in float2 position, float2 size, Unity.Collections.NativeList<QuadElement<Entity>> results, bool jobEnable = false) {
 
-            NativeQuadTreeUtils<Entity>.GetResults(position, size, results);
+            NativeQuadTreeUtils<Entity>.GetResults(position, size, results, jobEnable);
 
         }
 
@@ -72,32 +72,46 @@ namespace ME.ECS.Collections {
 
         }
 
-        public static void GetResults(in float2 position, tfloat radius, Unity.Collections.NativeList<QuadElement<T>> results) {
+        public static void GetResults(in float2 position, tfloat radius, Unity.Collections.NativeList<QuadElement<T>> results, bool jobEnable = false) {
 
             if (NativeQuadTreeUtils<T>.tempTree.isCreated == false) {
                 throw new System.Exception("Temp tree collection has been disposed");
             }
-            new QuadTreeJobs.QueryRadiusJob<T>() {
+
+            var job = new QuadTreeJobs.QueryRadiusJob<T>() {
                 quadTree = NativeQuadTreeUtils<T>.tempTree,
                 bounds = new AABB2D(position, new float2(radius, radius)),
                 radius = radius,
                 results = results,
-            }.Schedule(NativeQuadTreeUtils<T>.jobHandle).Complete();
-            NativeQuadTreeUtils<T>.jobHandle = default;
+            };
+
+            if (jobEnable == true) {
+                job.Schedule(NativeQuadTreeUtils<T>.jobHandle).Complete();
+                NativeQuadTreeUtils<T>.jobHandle = default;
+            } else {
+                job.Execute();
+            }
 
         }
 
-        public static void GetResults(in float2 position, in float2 size, Unity.Collections.NativeList<QuadElement<T>> results) {
+        public static void GetResults(in float2 position, in float2 size, Unity.Collections.NativeList<QuadElement<T>> results, bool jobEnable = false) {
 
             if (NativeQuadTreeUtils<T>.tempTree.isCreated == false) {
                 throw new System.Exception("Temp tree collection has been disposed");
             }
-            new QuadTreeJobs.QueryJob<T>() {
+
+            var job = new QuadTreeJobs.QueryJob<T>() {
                 quadTree = NativeQuadTreeUtils<T>.tempTree,
                 bounds = new AABB2D(position, size),
                 results = results,
-            }.Schedule(NativeQuadTreeUtils<T>.jobHandle).Complete();
-            NativeQuadTreeUtils<T>.jobHandle = default;
+            };
+            
+            if (jobEnable == true) {
+                job.Schedule(NativeQuadTreeUtils<T>.jobHandle).Complete();
+                NativeQuadTreeUtils<T>.jobHandle = default;
+            } else {
+                job.Execute();
+            }
 
         }
 
