@@ -94,6 +94,7 @@ public unsafe struct FilterBag<T0> : IFilterBag  where T0:unmanaged,IComponentBa
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -108,7 +109,7 @@ public unsafe struct FilterBag<T0> : IFilterBag  where T0:unmanaged,IComponentBa
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -157,6 +158,8 @@ this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -167,6 +170,7 @@ this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -200,6 +204,7 @@ public unsafe struct FilterBag<T0,T1> : IFilterBag  where T0:unmanaged,IComponen
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -214,7 +219,7 @@ public unsafe struct FilterBag<T0,T1> : IFilterBag  where T0:unmanaged,IComponen
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -271,6 +276,8 @@ this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -281,6 +288,7 @@ this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -330,6 +338,7 @@ public unsafe struct FilterBag<T0,T1,T2> : IFilterBag  where T0:unmanaged,ICompo
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -344,7 +353,7 @@ public unsafe struct FilterBag<T0,T1,T2> : IFilterBag  where T0:unmanaged,ICompo
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -409,6 +418,8 @@ this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -419,6 +430,7 @@ this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -484,6 +496,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3> : IFilterBag  where T0:unmanaged,ICo
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -498,7 +511,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3> : IFilterBag  where T0:unmanaged,ICo
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -571,6 +584,8 @@ this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -581,6 +596,7 @@ this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -662,6 +678,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4> : IFilterBag  where T0:unmanaged,
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -676,7 +693,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4> : IFilterBag  where T0:unmanaged,
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -757,6 +774,8 @@ this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -767,6 +786,7 @@ this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -864,6 +884,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5> : IFilterBag  where T0:unmanag
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -878,7 +899,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5> : IFilterBag  where T0:unmanag
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -967,6 +988,8 @@ this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -977,6 +1000,7 @@ this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -1090,6 +1114,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6> : IFilterBag  where T0:unma
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -1104,7 +1129,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6> : IFilterBag  where T0:unma
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -1201,6 +1226,8 @@ this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -1211,6 +1238,7 @@ this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -1340,6 +1368,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7> : IFilterBag  where T0:u
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -1354,7 +1383,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7> : IFilterBag  where T0:u
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -1459,6 +1488,8 @@ this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -1469,6 +1500,7 @@ this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -1614,6 +1646,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8> : IFilterBag  where T
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -1628,7 +1661,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8> : IFilterBag  where T
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -1741,6 +1774,8 @@ this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -1751,6 +1786,7 @@ this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -1912,6 +1948,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> : IFilterBag  wher
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -1926,7 +1963,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> : IFilterBag  wher
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -2047,6 +2084,8 @@ this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -2057,6 +2096,7 @@ this.regs[9] = new Ptr() { value = regT9.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -2234,6 +2274,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> : IFilterBag  
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -2248,7 +2289,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> : IFilterBag  
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -2377,6 +2418,8 @@ this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -2387,6 +2430,7 @@ this.regs[10] = new Ptr() { value = regT10.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -2580,6 +2624,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> : IFilterB
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -2594,7 +2639,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> : IFilterB
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -2731,6 +2776,8 @@ this.regs[11] = new Ptr() { value = regT11.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -2741,6 +2788,7 @@ this.regs[11] = new Ptr() { value = regT11.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -2950,6 +2998,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> : IFil
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -2964,7 +3013,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> : IFil
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -3109,6 +3158,8 @@ this.regs[12] = new Ptr() { value = regT12.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -3119,6 +3170,7 @@ this.regs[12] = new Ptr() { value = regT12.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -3344,6 +3396,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> : 
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -3358,7 +3411,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> : 
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -3511,6 +3564,8 @@ this.regs[13] = new Ptr() { value = regT13.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -3521,6 +3576,7 @@ this.regs[13] = new Ptr() { value = regT13.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -3762,6 +3818,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -3776,7 +3833,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -3937,6 +3994,8 @@ this.regs[14] = new Ptr() { value = regT14.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -3947,6 +4006,7 @@ this.regs[14] = new Ptr() { value = regT14.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -4204,6 +4264,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -4218,7 +4279,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -4387,6 +4448,8 @@ this.regs[15] = new Ptr() { value = regT15.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -4397,6 +4460,7 @@ this.regs[15] = new Ptr() { value = regT15.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -4670,6 +4734,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -4684,7 +4749,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -4861,6 +4926,8 @@ this.regs[16] = new Ptr() { value = regT16.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -4871,6 +4938,7 @@ this.regs[16] = new Ptr() { value = regT16.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -5160,6 +5228,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -5174,7 +5243,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -5359,6 +5428,8 @@ this.regs[17] = new Ptr() { value = regT17.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -5369,6 +5440,7 @@ this.regs[17] = new Ptr() { value = regT17.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API
@@ -5674,6 +5746,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
     public int Count => this.Length;
     public Tick tick;
@@ -5688,7 +5761,7 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14
         this.tick = world.GetCurrentTick();
         this.entityVersions = world.currentState.storage.versions;
         this.entities = world.currentState.storage.cache;
-        var filterArr = filter.ToList(allocator);
+        var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         this.regs = default;
@@ -5881,6 +5954,8 @@ this.regs[18] = new Ptr() { value = regT18.components.GetUnsafePtr(), };
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
+    
+    public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
     public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
@@ -5891,6 +5966,7 @@ this.regs[18] = new Ptr() { value = regT18.components.GetUnsafePtr(), };
             this.componentOps.Dispose();
         }
         this.indexes.Dispose();
+        this.entityToIndex.Dispose();
         this.entities = default;
     }
     #region API

@@ -55,7 +55,7 @@ namespace ME.ECS.Collections {
             if (NativeQuadTreeUtils<T>.tempTree.isCreated == true) {
                 throw new System.Exception("Temp tree collection must been disposed");
             }
-            NativeQuadTreeUtils<T>.tempTree = new NativeQuadTree<T>(mapSize, Unity.Collections.Allocator.TempJob);
+            NativeQuadTreeUtils<T>.tempTree = new NativeQuadTree<T>(mapSize, Unity.Collections.Allocator.TempJob, maxDepth: 8);
             NativeQuadTreeUtils<T>.jobHandle = new QuadTreeJobs.ClearJob<T>() {
                 quadTree = NativeQuadTreeUtils<T>.tempTree,
                 elements = items,

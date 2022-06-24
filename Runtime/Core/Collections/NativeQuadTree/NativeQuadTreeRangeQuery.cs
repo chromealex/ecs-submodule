@@ -106,8 +106,8 @@ namespace ME.ECS.Collections {
 
                                 var element = this.tree.elements[node.firstChildIndex + k];
                                 //UnsafeUtility.ReadArrayElement<QuadElement<T>>(tree.elements->Ptr, node.firstChildIndex + k);
-                                if (this.bounds.Contains(element.pos) == true &&
-                                    (this.checkRadius == false || math.distancesq(element.pos, this.bounds.center) <= this.radiusSqr)) {
+                                if ((this.checkRadius == false && this.bounds.Contains(element.pos) == true) ||
+                                     (this.checkRadius == true && math.distancesq(element.pos, this.bounds.center) <= this.radiusSqr)) {
                                     //UnsafeUtility.WriteArrayElement(this.fastResults->Ptr, this.count++, element);
                                     results[this.count++] = element;
                                 }

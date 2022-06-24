@@ -344,6 +344,30 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator, out Unity.Collections.NativeArray<int> idToIndex) {
+
+            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count * 10, allocator);
+            var max = -1;
+            foreach (var entity in this) {
+                result.Add(entity.id);
+                if (entity.id > max) max = entity.id;
+            }
+
+            idToIndex = new Unity.Collections.NativeArray<int>(max + 1, allocator);
+            for (int i = 0; i < result.Length; ++i) {
+                
+                idToIndex[result[i]] = i;
+                
+            }
+
+            return result;
+
+        }
+
         public bool Contains(in Entity entity) {
 
             var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
