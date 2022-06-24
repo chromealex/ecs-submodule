@@ -2177,6 +2177,24 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public UnsafeData ReadDataUnsafe(in Entity entity, int registryIndex) {
+
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            var reg = this.currentState.structComponents.list.arr[registryIndex];
+            return reg.CreateObjectUnsafe(in entity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ref TComponent GetData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
 
             #if WORLD_STATE_CHECK

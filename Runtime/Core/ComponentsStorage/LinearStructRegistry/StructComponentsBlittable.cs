@@ -4,8 +4,6 @@ namespace ME.ECS {
 
     public interface IComponentsBlittable {
 
-        
-
     }
     
     #if ECS_COMPILE_IL2CPP_OPTIONS
