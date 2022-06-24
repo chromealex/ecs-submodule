@@ -12,6 +12,7 @@ namespace ME.ECS {
     public static class WorldUtilities {
 
         private static readonly System.Reflection.MethodInfo setComponentTypeIdMethodInfo = typeof(WorldUtilities).GetMethod(nameof(WorldUtilities.SetComponentTypeId));
+        private static readonly System.Reflection.MethodInfo setComponentLambdaMethodInfo = typeof(WorldUtilities).GetMethod(nameof(WorldUtilities.SetComponentFilterLambda));
 
         public static bool IsMainThread() {
 
@@ -275,17 +276,37 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void SetComponentTypeIdByType(System.Type type) {
+        public static int SetComponentTypeIdByType(System.Type type) {
 
             var generic = WorldUtilities.setComponentTypeIdMethodInfo.MakeGenericMethod(type);
+            return (int)generic.Invoke(obj: null, parameters: null);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void SetComponentFilterLambdaByType(System.Type type) {
+
+            var generic = WorldUtilities.setComponentLambdaMethodInfo.MakeGenericMethod(type);
             generic.Invoke(obj: null, parameters: null);
 
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void SetComponentFilterLambda<TComponent>() {
+            
+            ComponentTypes<TComponent>.isFilterLambda = true;
+            ComponentTypes<TComponent>.burstIsFilterLambda.Data = 1;
+            
         }
         
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void SetComponentTypeId<TComponent>() {
+        public static int SetComponentTypeId<TComponent>() {
 
             if (ComponentTypes<TComponent>.typeId < 0) {
 
@@ -301,6 +322,8 @@ namespace ME.ECS {
                 };
 
             }
+
+            return ComponentTypes<TComponent>.typeId;
 
         }
 

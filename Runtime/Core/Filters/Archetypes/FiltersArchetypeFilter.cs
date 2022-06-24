@@ -191,10 +191,132 @@ namespace ME.ECS {
                 }
 
             }
-
+            
             return new FilterBuilder() {
                 data = dataInternal,
             };
+
+        }
+
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static FilterBuilder CreateFromData(FilterDataTypesOptional data) {
+
+            var dataInternal = FilterInternalData.Create();
+
+            foreach (var component in data.with) {
+
+                var type = component.data.GetType();
+                WorldUtilities.SetComponentTypeIdByType(type);
+                if (ComponentTypesRegistry.typeId.TryGetValue(type, out var index) == true) {
+
+                    dataInternal.contains.Add(index);
+                    if (component.optional == true) Filter.CreateFromDataLambda(ref dataInternal, index, type, component.data, new UnsafeDataCheckLambdaInclude());
+
+                }
+
+            }
+
+            foreach (var component in data.without) {
+
+                var type = component.data.GetType();
+                WorldUtilities.SetComponentTypeIdByType(type);
+                if (ComponentTypesRegistry.typeId.TryGetValue(type, out var index) == true) {
+
+                    if (component.optional == true) {
+                        Filter.CreateFromDataLambda(ref dataInternal, index, type, component.data, new UnsafeDataCheckLambdaExclude());
+                    } else {
+                        dataInternal.notContains.Add(index);
+                    }
+
+                }
+
+            }
+            
+            return new FilterBuilder() {
+                data = dataInternal,
+            };
+
+        }
+
+        private interface IEqualsChecker {
+
+            bool Execute(UnsafeData component, UnsafeData data);
+
+        }
+        
+        private struct UnsafeDataCheckLambdaInclude : IEqualsChecker {
+
+            public bool Execute(UnsafeData component, UnsafeData data) {
+
+                return data.Equals(component);
+
+            }
+
+        }
+
+        private struct UnsafeDataCheckLambdaExclude : IEqualsChecker {
+
+            public bool Execute(UnsafeData component, UnsafeData data) {
+
+                return data.Equals(component) == false;
+
+            }
+
+        }
+
+        private static void CreateFromDataLambda<T>(ref FilterInternalData data, int typeId, System.Type type, IComponentBase component, T equalsChecker) where T : struct, IEqualsChecker {
+
+            ComponentTypesRegistry.allTypeId.TryGetValue(type, out var globalTypeId);
+
+            var lambdaTypeId = WorldUtilities.SetComponentTypeIdByType(typeof(T));
+            
+            var obj = new UnsafeData();
+            var setMethod = UnsafeData.setMethodInfo.MakeGenericMethod(type);
+            var unsafeData = (UnsafeData)setMethod.Invoke(obj, new object[] { component });
+            
+            System.Action<Entity> setAction = (e) => {
+                if (new T().Execute(Worlds.current.ReadDataUnsafe(e, globalTypeId), unsafeData) == true) {
+                    Worlds.current.currentState.filters.Set(e, lambdaTypeId, true);
+                } else {
+                    Worlds.current.currentState.filters.Remove(e, lambdaTypeId, true);
+                }
+            };
+            System.Action<Entity> removeAction = (e) => {
+                Worlds.current.currentState.filters.Remove(e, lambdaTypeId, true);
+            };
+            
+            WorldUtilities.SetComponentFilterLambdaByType(type);
+
+            var key = typeId;
+            {
+                if (ComponentTypesLambda.itemsSet.TryGetValue(key, out var actions) == true) {
+
+                    actions += setAction;
+                    ComponentTypesLambda.itemsSet[key] = actions;
+
+                } else {
+
+                    ComponentTypesLambda.itemsSet.Add(key, setAction);
+
+                }
+            }
+
+            {
+                if (ComponentTypesLambda.itemsRemove.TryGetValue(key, out var actions) == true) {
+
+                    actions += removeAction;
+                    ComponentTypesLambda.itemsRemove[key] = actions;
+
+                } else {
+
+                    ComponentTypesLambda.itemsRemove.Add(key, removeAction);
+
+                }
+            }
+
+            data.lambdas.Add(lambdaTypeId);
 
         }
 
@@ -304,6 +426,30 @@ namespace ME.ECS {
             return res;
 
         }
+        
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator, out Unity.Collections.NativeArray<int> idToIndex) {
+
+            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count * 10, allocator);
+            var max = -1;
+            foreach (var entity in this) {
+                result.Add(entity.id);
+                if (entity.id > max) max = entity.id;
+            }
+
+            idToIndex = new Unity.Collections.NativeArray<int>(max + 1, allocator);
+            for (int i = 0; i < result.Length; ++i) {
+                
+                idToIndex[result[i]] = i;
+                
+            }
+
+            return result;
+
+        }
 
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -338,30 +484,6 @@ namespace ME.ECS {
             var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count * 10, allocator);
             foreach (var entity in this) {
                 result.Add(entity.id);
-            }
-
-            return result;
-
-        }
-
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
-        public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator, out Unity.Collections.NativeArray<int> idToIndex) {
-
-            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
-            var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count * 10, allocator);
-            var max = -1;
-            foreach (var entity in this) {
-                result.Add(entity.id);
-                if (entity.id > max) max = entity.id;
-            }
-
-            idToIndex = new Unity.Collections.NativeArray<int>(max + 1, allocator);
-            for (int i = 0; i < result.Length; ++i) {
-                
-                idToIndex[result[i]] = i;
-                
             }
 
             return result;

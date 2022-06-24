@@ -19,7 +19,7 @@ namespace ME.ECS.Essentials.GOAP.DefaultModules {
         public bool distanceDependant;
 
         [Description("Find nearest object by this filter.")]
-        public FilterDataTypes nearestFilter;
+        public FilterDataTypesOptional nearestFilter;
         [Tooltip("Apply this component on agent")]
         [ComponentDataType(ComponentDataTypeAttribute.Type.NoData)]
         public ComponentData<ISetTarget> applyOnAgent;
