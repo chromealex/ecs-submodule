@@ -263,7 +263,8 @@ namespace ME.ECS.Pathfinding {
                     pathResults = pathResults,
                     results = results,
                 };
-                job.Schedule().Complete();
+                job.Run();
+                
                 var pathStatus = (UnityEngine.Experimental.AI.PathQueryStatus)pathResults[0];
                 var cornerCount = pathResults[1];
                 pathResults.Dispose();

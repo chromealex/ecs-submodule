@@ -91,7 +91,7 @@ namespace ME.ECS.Collections {
                                 throw new IndexOutOfRangeException($"{node.firstChildIndex} [0..{this.tree.elements.Length}]");
                             }
 
-                            results.Resize(math.max(results.Length * 2, this.count + node.count), NativeArrayOptions.ClearMemory);
+                            results.Resize(math.max(results.Length * 2, this.count + node.count), NativeArrayOptions.UninitializedMemory);
                             var dest = (void*)((IntPtr)results.GetUnsafePtr() + this.count * UnsafeUtility.SizeOf<QuadElement<T>>());
                             UnsafeUtility.MemCpy(dest, source, node.count * UnsafeUtility.SizeOf<QuadElement<T>>());
                             
@@ -101,7 +101,7 @@ namespace ME.ECS.Collections {
                             
                         } else {
 
-                            results.Resize(math.max(results.Length * 2, this.count + node.count), NativeArrayOptions.ClearMemory);
+                            results.Resize(math.max(results.Length * 2, this.count + node.count), NativeArrayOptions.UninitializedMemory);
                             for (var k = 0; k < node.count; ++k) {
 
                                 var element = this.tree.elements[node.firstChildIndex + k];

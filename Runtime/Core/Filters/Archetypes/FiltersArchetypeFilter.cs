@@ -25,6 +25,7 @@ namespace ME.ECS {
             public FilterStaticData filterStaticData;
             public FilterData filterData;
             public int index;
+            public int maxIndex;
             public int archIndex;
             public ListCopyable<int> arr;
             private Entity current;
@@ -52,6 +53,7 @@ namespace ME.ECS {
                         return false;
                     }
 
+                    if (this.maxIndex >= 0 && this.index >= this.maxIndex) return false;
                     ++this.index;
                     ref var arch = ref this.allArchetypes[this.archetypes[this.archIndex]];
                     if (this.index >= arch.entitiesArr.Count) {
@@ -320,6 +322,34 @@ namespace ME.ECS {
 
         }
 
+        public struct FilterRange {
+
+            public int from;
+            public int to;
+
+            public FilterRange(int from, int to) {
+
+                this.from = from;
+                this.to = to;
+
+            }
+
+            public int GetFrom() {
+
+                if (this.from < 0) return -1;
+                return this.from - 1;
+
+            }
+
+            public int GetTo() {
+                
+                if (this.to < 0) return -1;
+                return this.to;
+
+            }
+
+        }
+
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
@@ -331,8 +361,10 @@ namespace ME.ECS {
             ++filters.forEachMode;
             var filterStaticData = world.GetFilterStaticData(this.id);
             var filterData = filters.GetFilter(this.id);
+            var range = this.GetRange(world, in filterStaticData);
             return new Enumerator() {
-                index = -1,
+                index = range.GetFrom(),
+                maxIndex = range.GetTo(),
                 archIndex = 0,
                 filterData = filterData,
                 filterStaticData = filterStaticData,
@@ -340,6 +372,26 @@ namespace ME.ECS {
                 archetypes = filterData.archetypesList,
                 allArchetypes = filterData.storage.allArchetypes,
             };
+
+        }
+
+        private FilterRange GetRange(World world, in FilterStaticData data) {
+
+            if (data.data.withinTicks > 0) {
+
+                var currentTick = world.GetCurrentTick();
+                var count = this.Count;
+                var withinTicks = data.data.withinTicks;
+                var target = currentTick % withinTicks;
+                var range = (Tick)ME.ECS.Mathematics.math.ceil((sfloat)count / (sfloat)withinTicks);
+                var from = target * range;
+                var to = (target + 1) * range;
+                
+                return new FilterRange(from, to);
+
+            }
+
+            return new FilterRange(-1, -1);
 
         }
 
@@ -804,6 +856,8 @@ namespace ME.ECS {
 
         [ME.ECS.Serializer.SerializeField]
         internal ListCopyable<ConnectInfo> connectedFilters;
+
+        public Tick withinTicks;
         
         public void CopyFrom(FilterInternalData other) {
 
@@ -819,6 +873,7 @@ namespace ME.ECS {
             ArrayUtils.Copy(other.onChanged, ref this.onChanged);
             ArrayUtils.Copy(other.lambdas, ref this.lambdas);
             ArrayUtils.Copy(other.connectedFilters, ref this.connectedFilters);
+            this.withinTicks = other.withinTicks;
 
         }
 
@@ -836,6 +891,7 @@ namespace ME.ECS {
             PoolListCopyable<int>.Recycle(ref this.onChanged);
             PoolListCopyable<int>.Recycle(ref this.lambdas);
             PoolListCopyable<ConnectInfo>.Recycle(ref this.connectedFilters);
+            this.withinTicks = default;
 
         }
 
@@ -853,6 +909,7 @@ namespace ME.ECS {
                 onChanged = PoolListCopyable<int>.Spawn(4),
                 lambdas = PoolListCopyable<int>.Spawn(4),
                 connectedFilters = PoolListCopyable<ConnectInfo>.Spawn(0),
+                withinTicks = Tick.Zero,
             };
 
         }
@@ -1008,6 +1065,13 @@ namespace ME.ECS {
 
             WorldUtilities.SetComponentTypeId<T>();
             if (this.data.notContains.Contains(ComponentTypes<T>.typeId) == false) this.data.notContains.Add(ComponentTypes<T>.typeId);
+            return this;
+
+        }
+
+        public FilterBuilder WithinTicks(Tick ticks) {
+
+            this.data.withinTicks = ticks;
             return this;
 
         }
