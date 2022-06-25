@@ -47,6 +47,8 @@ namespace ME.ECS {
                 var connectedFilters = this.filterStaticData.data.connectedFilters;
                 var connectedTracked = connectedFilters.Count;
 
+                var currentState = Worlds.current.currentState;
+                
                 while (true) {
                     
                     if (this.archIndex >= this.archetypes.Count) {
@@ -54,6 +56,7 @@ namespace ME.ECS {
                     }
 
                     if (this.maxIndex >= 0 && this.index >= this.maxIndex) return false;
+                    
                     ++this.index;
                     ref var arch = ref this.allArchetypes[this.archetypes[this.archIndex]];
                     if (this.index >= arch.entitiesArr.Count) {
@@ -69,7 +72,13 @@ namespace ME.ECS {
                     }
 
                     var entityId = this.arr[this.index];
-                    if (Worlds.current.currentState.storage.IsDeadPrepared(entityId) == true) return false;
+                    if (this.filterStaticData.data.withinType == WithinType.GroupByEntityId) {
+
+                        if (entityId % this.filterStaticData.data.withinTicks == currentState.tick % this.filterStaticData.data.withinTicks) continue;
+
+                    }
+
+                    if (currentState.storage.IsDeadPrepared(entityId) == true) continue;
                     this.current = this.filterData.storage.GetEntityById(entityId);
 
                     if (connectedTracked > 0) {
@@ -93,7 +102,7 @@ namespace ME.ECS {
                         var hasChanged = false;
                         for (int i = 0, cnt = changedTracked; i < cnt; ++i) {
                             var typeId = onChanged[i];
-                            var reg = Worlds.current.currentState.structComponents.list.arr[typeId];
+                            var reg = currentState.structComponents.list.arr[typeId];
                             if (reg.HasChanged(entityId) == true) {
                                 hasChanged = true;
                                 break;
@@ -377,7 +386,7 @@ namespace ME.ECS {
 
         private FilterRange GetRange(World world, in FilterStaticData data) {
 
-            if (data.data.withinTicks > 0) {
+            if (data.data.withinTicks > 0 && data.data.withinType == WithinType.GroupByChunk) {
 
                 var currentTick = world.GetCurrentTick();
                 var count = this.Count;
@@ -750,6 +759,13 @@ namespace ME.ECS {
 
     }
 
+    public enum WithinType {
+
+        GroupByChunk,
+        GroupByEntityId,
+
+    }
+
     [Il2Cpp(Option.NullChecks, false)]
     [Il2Cpp(Option.ArrayBoundsChecks, false)]
     [Il2Cpp(Option.DivideByZeroChecks, false)]
@@ -858,6 +874,7 @@ namespace ME.ECS {
         internal ListCopyable<ConnectInfo> connectedFilters;
 
         public Tick withinTicks;
+        public WithinType withinType;
         
         public void CopyFrom(FilterInternalData other) {
 
@@ -874,6 +891,7 @@ namespace ME.ECS {
             ArrayUtils.Copy(other.lambdas, ref this.lambdas);
             ArrayUtils.Copy(other.connectedFilters, ref this.connectedFilters);
             this.withinTicks = other.withinTicks;
+            this.withinType = other.withinType;
 
         }
 
@@ -1069,9 +1087,10 @@ namespace ME.ECS {
 
         }
 
-        public FilterBuilder WithinTicks(Tick ticks) {
+        public FilterBuilder WithinTicks(Tick ticks, WithinType groupBy = WithinType.GroupByChunk) {
 
             this.data.withinTicks = ticks;
+            this.data.withinType = groupBy;
             return this;
 
         }

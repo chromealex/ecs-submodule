@@ -3,6 +3,7 @@
   * fix index out of range actions if planner has one action
   * Job replaced with static burst method
 * Runtime.Core: 
+  * Filter::WithinTicks() groupBy parameter added to determine behvaiour how this filter needs to skip entities.
   * Filter WithinTicks method added into builder
   * CreateFromData now with lambda support
 * Runtime.Core: FilterBag GetIndexByEntityId methods added
