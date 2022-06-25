@@ -22,6 +22,7 @@ namespace ME.ECS {
 
         public struct Enumerator : IEnumerator<Entity> {
 
+            public bool isCreated;
             public FilterStaticData filterStaticData;
             public FilterData filterData;
             public int index;
@@ -37,10 +38,8 @@ namespace ME.ECS {
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
             public bool MoveNext() {
-
-                if (FiltersArchetype.FiltersArchetypeStorage.CheckStaticShared(this.filterStaticData.data.containsShared, this.filterStaticData.data.notContainsShared) == false) {
-                    return false;
-                }
+                
+                if (this.isCreated == false) return false;
 
                 var onChanged = this.filterStaticData.data.onChanged;
                 var changedTracked = onChanged.Count;
@@ -159,6 +158,38 @@ namespace ME.ECS {
                 }
 
             }
+
+        }
+
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Enumerator GetEnumerator() {
+
+            var world = Worlds.current;
+            ref var filters = ref world.currentState.filters;
+            filters.UpdateFilters();
+            var filterStaticData = world.GetFilterStaticData(this.id);
+            if (FiltersArchetype.FiltersArchetypeStorage.CheckStaticShared(filterStaticData.data.containsShared, filterStaticData.data.notContainsShared) == false) {
+                return new Enumerator();
+            }
+
+            ++filters.forEachMode;
+            
+            var filterData = filters.GetFilter(this.id);
+            var range = this.GetRange(world, in filterStaticData, out bool enableGroupByEntityId);
+            return new Enumerator() {
+                isCreated = true,
+                index = range.GetFrom(),
+                maxIndex = range.GetTo(),
+                archIndex = 0,
+                filterData = filterData,
+                filterStaticData = filterStaticData,
+                arr = filterData.archetypes.Count > 0 ? filterData.storage.allArchetypes[filterData.archetypesList[0]].entitiesArr : default,
+                archetypes = filterData.archetypesList,
+                allArchetypes = filterData.storage.allArchetypes,
+                enableGroupByEntityId = enableGroupByEntityId,
+            };
 
         }
 
@@ -357,32 +388,6 @@ namespace ME.ECS {
                 return this.to;
 
             }
-
-        }
-
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
-        public Enumerator GetEnumerator() {
-
-            var world = Worlds.current;
-            ref var filters = ref world.currentState.filters;
-            filters.UpdateFilters();
-            ++filters.forEachMode;
-            var filterStaticData = world.GetFilterStaticData(this.id);
-            var filterData = filters.GetFilter(this.id);
-            var range = this.GetRange(world, in filterStaticData, out bool enableGroupByEntityId);
-            return new Enumerator() {
-                index = range.GetFrom(),
-                maxIndex = range.GetTo(),
-                archIndex = 0,
-                filterData = filterData,
-                filterStaticData = filterStaticData,
-                arr = filterData.archetypes.Count > 0 ? filterData.storage.allArchetypes[filterData.archetypesList[0]].entitiesArr : default,
-                archetypes = filterData.archetypesList,
-                allArchetypes = filterData.storage.allArchetypes,
-                enableGroupByEntityId = enableGroupByEntityId,
-            };
 
         }
 
@@ -956,6 +961,8 @@ namespace ME.ECS {
                 lambdas = PoolListCopyable<int>.Spawn(4),
                 connectedFilters = PoolListCopyable<ConnectInfo>.Spawn(0),
                 withinTicks = Tick.Zero,
+                withinType = WithinType.GroupByChunk,
+                withinMinChunkSize = 1,
             };
 
         }
@@ -1115,6 +1122,13 @@ namespace ME.ECS {
 
         }
 
+        /// <summary>
+        /// Filter will automatically range results and run partial enumeration depends on current tick
+        /// </summary>
+        /// <param name="ticks">How many ticks should passed to enumerate whole filter</param>
+        /// <param name="groupBy">Algorithm to filter entities</param>
+        /// <param name="minChunkSize">Minimum length of the filter to begin chunk filtering</param>
+        /// <returns></returns>
         public FilterBuilder WithinTicks(Tick ticks, WithinType groupBy = WithinType.GroupByChunk, int minChunkSize = 1) {
 
             this.data.withinTicks = ticks;

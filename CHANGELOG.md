@@ -3,6 +3,7 @@
   * fix index out of range actions if planner has one action
   * Job replaced with static burst method
 * Runtime.Core: 
+  * Filter::GetEnumerator() static shared data check moved to avoid multiple checks in MoveNext.
   * Filters WithinTicks minChunkSize parameter added
   * NativeQuadTree::GetResults alive entities check added
   * QuadTree UnsafeList* used instead of NativeArray

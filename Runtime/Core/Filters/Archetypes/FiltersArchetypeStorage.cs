@@ -1267,6 +1267,7 @@ namespace ME.ECS.FiltersArchetype {
                 
                 if (filterStaticData.data.withinTicks == filterBuilder.data.withinTicks &&
                     filterStaticData.data.withinType == filterBuilder.data.withinType &&
+                    filterStaticData.data.withinMinChunkSize == filterBuilder.data.withinMinChunkSize &&
                     FiltersArchetypeStorage.IsEquals(filterStaticData.data.contains, filterBuilder.data.contains) == true &&
                     FiltersArchetypeStorage.IsEquals(filterStaticData.data.notContains, filterBuilder.data.notContains) == true &&
                     FiltersArchetypeStorage.IsEquals(filterStaticData.data.notContainsShared, filterBuilder.data.notContainsShared) == true &&

@@ -107,10 +107,11 @@ namespace ME.ECS.Collections {
 
             if (jobEnable == true) {
                 job.Schedule(NativeQuadTreeUtils<T>.jobHandle).Complete();
-                NativeQuadTreeUtils<T>.jobHandle = default;
             } else {
+                NativeQuadTreeUtils<T>.jobHandle.Complete();
                 job.Execute();
             }
+            NativeQuadTreeUtils<T>.jobHandle = default;
 
         }
 
@@ -128,10 +129,11 @@ namespace ME.ECS.Collections {
             
             if (jobEnable == true) {
                 job.Schedule(NativeQuadTreeUtils<T>.jobHandle).Complete();
-                NativeQuadTreeUtils<T>.jobHandle = default;
             } else {
+                NativeQuadTreeUtils<T>.jobHandle.Complete();
                 job.Execute();
             }
+            NativeQuadTreeUtils<T>.jobHandle = default;
 
         }
 

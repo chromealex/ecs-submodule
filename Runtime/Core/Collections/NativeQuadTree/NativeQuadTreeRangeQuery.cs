@@ -84,7 +84,7 @@ namespace ME.ECS.Collections {
                     } else if (elementCount != 0) {
 
                         var node = this.tree.nodes[at]; //UnsafeUtility.ReadArrayElement<QuadNode>(tree.nodes->Ptr, at);
-                        if (contained == true) {
+                        /*if (contained == true) {
 
                             var source = (void*)((IntPtr)this.tree.elements->Ptr + node.firstChildIndex * UnsafeUtility.SizeOf<QuadElement<T>>());
                             if (node.firstChildIndex < 0 || node.firstChildIndex >= this.tree.elements->Length) {
@@ -99,7 +99,7 @@ namespace ME.ECS.Collections {
 
                             this.count += node.count;
                             
-                        } else {
+                        } else*/ {
                             
                             results.Resize(math.max(results.Length * 2, this.count + node.count), NativeArrayOptions.UninitializedMemory);
                             for (var k = 0; k < node.count; ++k) {
