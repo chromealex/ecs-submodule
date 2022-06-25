@@ -31,6 +31,7 @@ namespace ME.ECS {
             private Entity current;
             public ListCopyable<FiltersArchetype.FiltersArchetypeStorage.Archetype> allArchetypes;
             public List<int> archetypes;
+            public bool enableGroupByEntityId;
 
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -72,7 +73,7 @@ namespace ME.ECS {
                     }
 
                     var entityId = this.arr[this.index];
-                    if (this.filterStaticData.data.withinType == WithinType.GroupByEntityId) {
+                    if (this.filterStaticData.data.withinType == WithinType.GroupByEntityId && this.enableGroupByEntityId == true) {
 
                         if (entityId % this.filterStaticData.data.withinTicks != currentState.tick % this.filterStaticData.data.withinTicks) continue;
 
@@ -370,7 +371,7 @@ namespace ME.ECS {
             ++filters.forEachMode;
             var filterStaticData = world.GetFilterStaticData(this.id);
             var filterData = filters.GetFilter(this.id);
-            var range = this.GetRange(world, in filterStaticData);
+            var range = this.GetRange(world, in filterStaticData, out bool enableGroupByEntityId);
             return new Enumerator() {
                 index = range.GetFrom(),
                 maxIndex = range.GetTo(),
@@ -380,16 +381,24 @@ namespace ME.ECS {
                 arr = filterData.archetypes.Count > 0 ? filterData.storage.allArchetypes[filterData.archetypesList[0]].entitiesArr : default,
                 archetypes = filterData.archetypesList,
                 allArchetypes = filterData.storage.allArchetypes,
+                enableGroupByEntityId = enableGroupByEntityId,
             };
 
         }
 
-        private FilterRange GetRange(World world, in FilterStaticData data) {
+        private FilterRange GetRange(World world, in FilterStaticData data, out bool enableGroupByEntityId) {
 
+            enableGroupByEntityId = false;
             if (data.data.withinTicks > 0 && data.data.withinType == WithinType.GroupByChunk) {
 
-                var currentTick = world.GetCurrentTick();
                 var count = this.Count;
+                if (data.data.withinMinChunkSize <= count) {
+
+                    return new FilterRange(-1, -1);
+
+                }
+
+                var currentTick = world.GetCurrentTick();
                 var withinTicks = data.data.withinTicks;
                 var target = currentTick % withinTicks;
                 var range = (Tick)ME.ECS.Mathematics.math.ceil((sfloat)count / (sfloat)withinTicks);
@@ -397,6 +406,21 @@ namespace ME.ECS {
                 var to = (target + 1) * range;
                 
                 return new FilterRange(from, to);
+
+            } else if (data.data.withinType == WithinType.GroupByEntityId) {
+
+                if (data.data.withinMinChunkSize > 1) {
+
+                    var count = this.Count;
+                    if (data.data.withinMinChunkSize > count) {
+                        enableGroupByEntityId = true;
+                    }
+                    
+                } else {
+                    
+                    enableGroupByEntityId = true;
+
+                }
 
             }
 
@@ -875,6 +899,7 @@ namespace ME.ECS {
 
         public Tick withinTicks;
         public WithinType withinType;
+        public int withinMinChunkSize;
         
         public void CopyFrom(FilterInternalData other) {
 
@@ -892,6 +917,7 @@ namespace ME.ECS {
             ArrayUtils.Copy(other.connectedFilters, ref this.connectedFilters);
             this.withinTicks = other.withinTicks;
             this.withinType = other.withinType;
+            this.withinMinChunkSize = other.withinMinChunkSize;
 
         }
 
@@ -910,6 +936,8 @@ namespace ME.ECS {
             PoolListCopyable<int>.Recycle(ref this.lambdas);
             PoolListCopyable<ConnectInfo>.Recycle(ref this.connectedFilters);
             this.withinTicks = default;
+            this.withinType = default;
+            this.withinMinChunkSize = default;
 
         }
 
@@ -1087,10 +1115,11 @@ namespace ME.ECS {
 
         }
 
-        public FilterBuilder WithinTicks(Tick ticks, WithinType groupBy = WithinType.GroupByChunk) {
+        public FilterBuilder WithinTicks(Tick ticks, WithinType groupBy = WithinType.GroupByChunk, int minChunkSize = 1) {
 
             this.data.withinTicks = ticks;
             this.data.withinType = groupBy;
+            this.data.withinMinChunkSize = minChunkSize;
             return this;
 
         }
