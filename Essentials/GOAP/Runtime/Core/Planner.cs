@@ -106,7 +106,7 @@ namespace ME.ECS.Essentials.GOAP {
                 entityState = entityState,
                 entityStateData = entityStateData,
                 result = result,
-            }.Schedule().Complete();
+            }.Run();
             var res = result[0];
             result.Dispose();
             return res;
