@@ -1,5 +1,7 @@
 # Version 2.5
-* Essentials.GOAP: Job replaced with static burst method
+* Essentials.GOAP: 
+  * fix index out of range actions if planner has one action
+  * Job replaced with static burst method
 * Runtime.Core: 
   * Filter WithinTicks method added into builder
   * CreateFromData now with lambda support

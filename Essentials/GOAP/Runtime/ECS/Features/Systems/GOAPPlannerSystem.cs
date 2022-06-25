@@ -99,7 +99,7 @@ namespace ME.ECS.Essentials.GOAP.Systems {
                         }
 
                         var h = plan.cost * (1f / w);
-                        if (h < resultGoal.h) {
+                        if (h < resultGoal.h && idx < plan.actions.Length) {
                             resultGoal = new GoalTemp() {
                                 isCreated = true,
                                 plan = new GOAPEntityPlan() {
