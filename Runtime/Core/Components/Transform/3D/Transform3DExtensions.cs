@@ -21,9 +21,9 @@ namespace ME.ECS {
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalPosition(this in Entity child, in float3 position) => Worlds.currentWorld.SetData(in child, new Position() { value = position });
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalRotation(this in Entity child, in quaternion rotation) => Worlds.currentWorld.SetData(in child, rotation.ToRotationStruct());
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalScale(this in Entity child, in float3 scale) => Worlds.currentWorld.SetData(in child, scale.ToScaleStruct());
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float3 GetLocalPosition(this in Entity child) => child.Read<Position>().ToVector3();
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static quaternion GetLocalRotation(this in Entity child) => child.Read<Rotation>().ToQuaternion();
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float3 GetLocalScale(this in Entity child) => child.Read<Scale>().ToVector3();
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float3 GetLocalPosition(this in Entity child) => child.Read<Position>().value;
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static quaternion GetLocalRotation(this in Entity child) => child.Read<Rotation>().value;
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float3 GetLocalScale(this in Entity child) => child.Read<Scale>().value;
         
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static Position ToPositionStruct(this in float3 v) => new Position() { value = v };
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float3 ToVector3(this in Position v) => v.value;

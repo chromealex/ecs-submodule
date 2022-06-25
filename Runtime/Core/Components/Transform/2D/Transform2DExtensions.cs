@@ -21,9 +21,9 @@ namespace ME.ECS {
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalPosition2D(this in Entity child, in float2 position) => Worlds.currentWorld.SetData(in child, new Position2D() { value = position });
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalRotation2D(this in Entity child, tfloat rotation) => Worlds.currentWorld.SetData(in child, rotation.ToRotationStruct());
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalScale2D(this in Entity child, in float2 scale) => Worlds.currentWorld.SetData(in child, scale.ToScaleStruct());
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float2 GetLocalPosition2D(this in Entity child) => child.Read<Position2D>().ToVector2();
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static tfloat GetLocalRotation2D(this in Entity child) => child.Read<Rotation2D>().ToQuaternion2D();
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float2 GetLocalScale2D(this in Entity child) => child.Read<Scale2D>().ToVector2();
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float2 GetLocalPosition2D(this in Entity child) => child.Read<Position2D>().value;
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static tfloat GetLocalRotation2D(this in Entity child) => child.Read<Rotation2D>().value;
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float2 GetLocalScale2D(this in Entity child) => child.Read<Scale2D>().value;
         
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static Position2D ToPositionStruct(this in float2 v) => new Position2D() { value = v };
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float2 ToVector2(this in Position2D v) => v.value;

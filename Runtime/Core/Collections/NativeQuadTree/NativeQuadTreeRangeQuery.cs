@@ -86,9 +86,6 @@ namespace ME.ECS.Collections {
                         var node = this.tree.nodes[at]; //UnsafeUtility.ReadArrayElement<QuadNode>(tree.nodes->Ptr, at);
                         if (contained == true) {
 
-                            var marker = new Unity.Profiling.ProfilerMarker("QuadTree::RecursiveRangeQuery::contained");
-                            marker.Begin();
-                            
                             var source = (void*)((IntPtr)this.tree.elements->Ptr + node.firstChildIndex * UnsafeUtility.SizeOf<QuadElement<T>>());
                             if (node.firstChildIndex < 0 || node.firstChildIndex >= this.tree.elements->Length) {
                                 throw new IndexOutOfRangeException($"{node.firstChildIndex} [0..{this.tree.elements->Length}]");
@@ -102,12 +99,7 @@ namespace ME.ECS.Collections {
 
                             this.count += node.count;
                             
-                            marker.End();
-                            
                         } else {
-                            
-                            var marker = new Unity.Profiling.ProfilerMarker("QuadTree::RecursiveRangeQuery::not-contained");
-                            marker.Begin();
                             
                             results.Resize(math.max(results.Length * 2, this.count + node.count), NativeArrayOptions.UninitializedMemory);
                             for (var k = 0; k < node.count; ++k) {
@@ -121,8 +113,6 @@ namespace ME.ECS.Collections {
                                 }
                                 
                             }
-
-                            marker.End();
 
                         }
                         
