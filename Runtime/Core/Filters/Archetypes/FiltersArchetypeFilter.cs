@@ -74,7 +74,7 @@ namespace ME.ECS {
                     var entityId = this.arr[this.index];
                     if (this.filterStaticData.data.withinType == WithinType.GroupByEntityId) {
 
-                        if (entityId % this.filterStaticData.data.withinTicks == currentState.tick % this.filterStaticData.data.withinTicks) continue;
+                        if (entityId % this.filterStaticData.data.withinTicks != currentState.tick % this.filterStaticData.data.withinTicks) continue;
 
                     }
 
