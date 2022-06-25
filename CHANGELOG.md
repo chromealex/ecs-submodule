@@ -3,6 +3,8 @@
   * fix index out of range actions if planner has one action
   * Job replaced with static burst method
 * Runtime.Core: 
+  * NativeQuadTree::GetResults alive entities check added
+  * QuadTree UnsafeList* used instead of NativeArray
   * Filter::WithinTicks() groupBy parameter added to determine behvaiour how this filter needs to skip entities.
   * Filter WithinTicks method added into builder
   * CreateFromData now with lambda support

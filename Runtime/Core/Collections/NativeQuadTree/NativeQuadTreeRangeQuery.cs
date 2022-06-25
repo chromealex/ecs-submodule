@@ -86,9 +86,12 @@ namespace ME.ECS.Collections {
                         var node = this.tree.nodes[at]; //UnsafeUtility.ReadArrayElement<QuadNode>(tree.nodes->Ptr, at);
                         if (contained == true) {
 
-                            var source = (void*)((IntPtr)this.tree.elements.GetUnsafePtr() + node.firstChildIndex * UnsafeUtility.SizeOf<QuadElement<T>>());
-                            if (node.firstChildIndex < 0 || node.firstChildIndex >= this.tree.elements.Length) {
-                                throw new IndexOutOfRangeException($"{node.firstChildIndex} [0..{this.tree.elements.Length}]");
+                            var marker = new Unity.Profiling.ProfilerMarker("QuadTree::RecursiveRangeQuery::contained");
+                            marker.Begin();
+                            
+                            var source = (void*)((IntPtr)this.tree.elements->Ptr + node.firstChildIndex * UnsafeUtility.SizeOf<QuadElement<T>>());
+                            if (node.firstChildIndex < 0 || node.firstChildIndex >= this.tree.elements->Length) {
+                                throw new IndexOutOfRangeException($"{node.firstChildIndex} [0..{this.tree.elements->Length}]");
                             }
 
                             results.Resize(math.max(results.Length * 2, this.count + node.count), NativeArrayOptions.UninitializedMemory);
@@ -99,13 +102,18 @@ namespace ME.ECS.Collections {
 
                             this.count += node.count;
                             
+                            marker.End();
+                            
                         } else {
-
+                            
+                            var marker = new Unity.Profiling.ProfilerMarker("QuadTree::RecursiveRangeQuery::not-contained");
+                            marker.Begin();
+                            
                             results.Resize(math.max(results.Length * 2, this.count + node.count), NativeArrayOptions.UninitializedMemory);
                             for (var k = 0; k < node.count; ++k) {
 
-                                var element = this.tree.elements[node.firstChildIndex + k];
-                                //UnsafeUtility.ReadArrayElement<QuadElement<T>>(tree.elements->Ptr, node.firstChildIndex + k);
+                                //var element = this.tree.elements[node.firstChildIndex + k];
+                                var element = UnsafeUtility.ReadArrayElement<QuadElement<T>>(this.tree.elements->Ptr, node.firstChildIndex + k);
                                 if ((this.checkRadius == false && this.bounds.Contains(element.pos) == true) ||
                                      (this.checkRadius == true && math.distancesq(element.pos, this.bounds.center) <= this.radiusSqr)) {
                                     //UnsafeUtility.WriteArrayElement(this.fastResults->Ptr, this.count++, element);
@@ -113,11 +121,15 @@ namespace ME.ECS.Collections {
                                 }
                                 
                             }
-                            
+
+                            marker.End();
+
                         }
                         
                     }
-                    
+
+                    if (contained == true) break;
+
                 }
                 
             }

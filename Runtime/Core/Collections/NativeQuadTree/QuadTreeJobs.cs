@@ -30,11 +30,31 @@ namespace ME.ECS.Collections {
 
             NativeQuadTreeUtils<Entity>.GetResults(position, radius, results, jobEnable);
 
+            for (int i = results.Length - 1; i >= 0; --i) {
+
+                if (results[i].element.IsAlive() == false) {
+                    
+                    results.RemoveAtSwapBack(i);
+                    
+                }
+                
+            }
+
         }
 
         public static void GetResults(in float2 position, float2 size, Unity.Collections.NativeList<QuadElement<Entity>> results, bool jobEnable = false) {
 
             NativeQuadTreeUtils<Entity>.GetResults(position, size, results, jobEnable);
+
+            for (int i = results.Length - 1; i >= 0; --i) {
+
+                if (results[i].element.IsAlive() == false) {
+                    
+                    results.RemoveAtSwapBack(i);
+                    
+                }
+                
+            }
 
         }
 
