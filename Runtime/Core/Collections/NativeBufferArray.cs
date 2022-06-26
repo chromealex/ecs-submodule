@@ -460,6 +460,27 @@ namespace ME.ECS.Collections {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public NativeBufferArray<T> Clamp(int length) {
+
+            var delta = this.Length - length;
+            if (delta > 0) NativeArrayUtils.Clear(this.arr, length, delta);
+            return new NativeBufferArray<T>(this.arr, length);
+
+        }
+        
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public NativeBufferArray<T> Clamp<TCopy>(int length, TCopy copy) where TCopy : IArrayElementCopy<T> {
+
+            for (int i = length; i < this.Length; ++i) {
+                
+                copy.Recycle(ref this.arr.GetRef(i));
+                
+            }
+            return new NativeBufferArray<T>(this.arr, length);
+
+        }
+        
     }
 
 }

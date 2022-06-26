@@ -169,13 +169,13 @@ namespace ME.ECS {
             var world = Worlds.current;
             ref var filters = ref world.currentState.filters;
             filters.UpdateFilters();
+            ++filters.forEachMode;
+
             var filterStaticData = world.GetFilterStaticData(this.id);
             if (FiltersArchetype.FiltersArchetypeStorage.CheckStaticShared(filterStaticData.data.containsShared, filterStaticData.data.notContainsShared) == false) {
                 return new Enumerator();
             }
 
-            ++filters.forEachMode;
-            
             var filterData = filters.GetFilter(this.id);
             var range = this.GetRange(world, in filterStaticData, out bool enableGroupByEntityId);
             return new Enumerator() {
