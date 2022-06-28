@@ -2,54 +2,7 @@ namespace ME.ECS.Collections {
 
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
-
-    public struct MemBlockArray<T> where T : unmanaged {
-
-        public MemPtr ptr;
-        public int Length;
-
-        public MemBlockArray(ref MemoryAllocator allocator, int length) {
-
-            this.ptr = allocator.AllocArray<T>(length);
-            this.Length = length;
-
-        }
-
-        public void Dispose(ref MemoryAllocator allocator) {
-
-            allocator.Free(this.ptr);
-            this.ptr = default;
-
-        }
-
-        public ref T this[in MemoryAllocator allocator, int index] => ref allocator.RefArray<T>(this.ptr, index);
-
-        public bool Resize(ref MemoryAllocator allocator, int newLength) {
-
-            if (newLength <= this.Length) {
-
-                return false;
-                
-            }
-            
-            this.ptr = allocator.ReallocArray<T>(this.ptr, newLength);
-            return true;
-
-        }
-        
-    }
-    
-    public struct Block {
-
-        public int index;
-        public int size;
-        
-        // next ptr to data[] (MemPtr)
-        public int next;
-        // prev ptr to data[] (MemPtr)
-        public int prev;
-
-    }
+    using Unity.Collections.LowLevel.Unsafe;
 
     /// <summary>
     /// Pointer to MemoryAllocator::data (index)
@@ -57,29 +10,93 @@ namespace ME.ECS.Collections {
     public readonly struct MemPtr {
 
         public readonly int value;
+        public readonly bool isValid;
 
         internal MemPtr(int value) {
             this.value = value;
+            this.isValid = true;
+        }
+
+        public bool IsValid() => this.isValid;
+
+    }
+
+    public enum AllocatorType {
+
+        Invalid = 0,
+        Persistent,
+        Temp,
+
+    }
+
+    [UnityEditor.InitializeOnLoadAttribute]
+    public static class StaticAllocators {
+
+        private static readonly Destructor finalize = new Destructor();
+
+        private static MemoryAllocator persistent;
+        private static MemoryAllocator temp;
+
+        public static ref MemoryAllocator GetAllocator(AllocatorType type) {
+
+            switch (type) {
+                case AllocatorType.Persistent: return ref StaticAllocators.persistent;
+                case AllocatorType.Temp: return ref StaticAllocators.temp;
+            }
+            
+            throw new System.Exception($"Allocator type {type} is unknown");
+            
+        }
+        
+        static StaticAllocators() {
+            
+            // 4 MB of persistent memory + no max size
+            StaticAllocators.persistent = new MemoryAllocator().Initialize(4 * 1024 * 1024, -1);
+            
+            // 256 KB of temp memory + max size = 256 KB
+            StaticAllocators.temp = new MemoryAllocator().Initialize(256 * 1024, 256 * 1024);
+            
+        }
+
+        private sealed class Destructor {
+            ~Destructor() {
+                StaticAllocators.persistent.Dispose();
+                StaticAllocators.temp.Dispose();
+            }
         }
 
     }
     
     public unsafe struct MemoryAllocator {
 
-        private ListCopyable<Block> free;
+        private struct Block {
+
+            public int index;
+            public long size;
+        
+            // next ptr to data[] (MemPtr)
+            public int next;
+            // prev ptr to data[] (MemPtr)
+            public int prev;
+
+        }
+
         private ListCopyable<Block> allocated;
+        private ListCopyable<Block> free;
         private DictionaryInt<int> allocatedIndex;
         private DictionaryInt<int> freeIndex;
         private System.IntPtr data;
-        private int maxSize;
-        private int length;
+        private long maxSize;
+        private long length;
+        private bool isValid;
         
-        public void Initialize(int initialSize, int maxSize = -1) {
-            
-            this.free = new ListCopyable<Block>();
-            this.allocated = new ListCopyable<Block>();
-            this.allocatedIndex = new DictionaryInt<int>();
-            this.freeIndex = new DictionaryInt<int>();
+        public MemoryAllocator Initialize(long initialSize, long maxSize = -1L) {
+
+            const int capacity = 100;
+            this.allocated = PoolListCopyable<Block>.Spawn(capacity);
+            this.free = PoolListCopyable<Block>.Spawn(capacity);
+            this.allocatedIndex = PoolDictionaryInt<int>.Spawn(capacity);
+            this.freeIndex = PoolDictionaryInt<int>.Spawn(capacity);
             
             var ptr = new Block() {
                 index = 0,
@@ -89,14 +106,22 @@ namespace ME.ECS.Collections {
             };
             this.free.Add(ptr);
             this.maxSize = maxSize;
-            this.data = Marshal.AllocHGlobal(initialSize);
+            this.data = (System.IntPtr)UnsafeUtility.Malloc(initialSize, UnsafeUtility.AlignOf<byte>(), Unity.Collections.Allocator.Persistent);
+            UnsafeUtility.MemClear((void*)this.data, initialSize);
             this.length = initialSize;
+            this.isValid = true;
+
+            return this;
 
         }
 
         public void Dispose() {
             
-            Marshal.FreeHGlobal(this.data);
+            PoolListCopyable<Block>.Recycle(ref this.allocated);
+            PoolListCopyable<Block>.Recycle(ref this.free);
+            PoolDictionaryInt<int>.Recycle(ref this.allocatedIndex);
+            PoolDictionaryInt<int>.Recycle(ref this.freeIndex);
+            UnsafeUtility.Free((void*)this.data, Unity.Collections.Allocator.Persistent);
             this = default;
 
         }
@@ -114,19 +139,19 @@ namespace ME.ECS.Collections {
                 } else if (this.data != System.IntPtr.Zero &&
                            other.data == System.IntPtr.Zero) {
                     // dispose current data
-                    Marshal.FreeHGlobal(this.data);
+                    UnsafeUtility.Free((void*)this.data, Unity.Collections.Allocator.Persistent);
                 } else if (this.data == System.IntPtr.Zero &&
                            other.data != System.IntPtr.Zero) {
                     // create current data and copy from other.data
-                    this.data = Marshal.AllocHGlobal(other.length);
-                    Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemCpy(
+                    this.data = (System.IntPtr)UnsafeUtility.Malloc(other.length, 0, Unity.Collections.Allocator.Persistent);
+                    UnsafeUtility.MemCpy(
                         (void*)this.data,
                         (void*)other.data,
                         other.length
                         );
                 } else {
                     // copy data
-                    Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemCpy(
+                    UnsafeUtility.MemCpy(
                         (void*)this.data,
                         (void*)other.data,
                         other.length
@@ -138,20 +163,49 @@ namespace ME.ECS.Collections {
 
         }
 
+        [MethodImpl(256)]
+        public readonly ref T Ref<T>(MemPtr ptr) where T : unmanaged {
+
+            var offset = ptr.value;
+            if (offset >= this.length) {
+                throw new System.OverflowException();
+            }
+            return ref UnsafeUtility.AsRef<T>((void*)(this.data + offset));
+
+        }
+
+        [MethodImpl(256)]
+        public readonly ref T RefUnmanaged<T>(MemPtr ptr) where T : struct {
+
+            var offset = ptr.value;
+            if (offset >= this.length) {
+                throw new System.OverflowException();
+            }
+            return ref UnsafeUtility.AsRef<T>((void*)(this.data + ptr.value));
+
+        }
+
+        [MethodImpl(256)]
         public readonly ref T RefArray<T>(MemPtr ptr, int index) where T : unmanaged {
 
             var size = sizeof(T);
-            return ref Unity.Collections.LowLevel.Unsafe.UnsafeUtility.AsRef<T>((void*)(this.data + ptr.value + size * index));
+            var offset = ptr.value + size * index;
+            if (offset >= this.length) {
+                throw new System.OverflowException();
+            }
+            return ref UnsafeUtility.AsRef<T>((void*)(this.data + offset));
 
         }
 
-        public MemPtr ReallocArray<T>(MemPtr ptr, int newLength) where T : unmanaged {
+        [MethodImpl(256)]
+        public MemPtr ReAllocArray<T>(MemPtr ptr, int newLength, Unity.Collections.NativeArrayOptions options = Unity.Collections.NativeArrayOptions.ClearMemory) where T : unmanaged {
             
             var size = sizeof(T);
-            return this.Realloc(ptr, size * newLength);
+            return this.ReAlloc(ptr, size * newLength, options);
             
         }
 
+        [MethodImpl(256)]
         public MemPtr AllocArray<T>(int length) where T : unmanaged {
 
             var size = sizeof(T);
@@ -159,13 +213,50 @@ namespace ME.ECS.Collections {
 
         }
 
+        [MethodImpl(256)]
         public MemPtr Alloc<T>() where T : unmanaged {
 
             var size = sizeof(T);
             return this.Alloc(size);
 
         }
-        
+
+        [MethodImpl(256)]
+        public readonly ref T RefArrayUnmanaged<T>(MemPtr ptr, int index) where T : struct {
+
+            var size = UnsafeUtility.SizeOf<T>();
+            var offset = ptr.value + size * index;
+            if (offset >= this.length) {
+                throw new System.OverflowException();
+            }
+            return ref UnsafeUtility.AsRef<T>((void*)(this.data + offset));
+
+        }
+
+        [MethodImpl(256)]
+        public MemPtr ReAllocArrayUnmanaged<T>(MemPtr ptr, int newLength, Unity.Collections.NativeArrayOptions options = Unity.Collections.NativeArrayOptions.ClearMemory) where T : struct {
+            
+            var size = UnsafeUtility.SizeOf<T>();
+            return this.ReAlloc(ptr, size * newLength, options);
+            
+        }
+
+        [MethodImpl(256)]
+        public MemPtr AllocArrayUnmanaged<T>(int length) where T : struct {
+
+            var size = UnsafeUtility.SizeOf<T>();
+            return this.Alloc(size * length);
+
+        }
+
+        [MethodImpl(256)]
+        public MemPtr AllocUnmanaged<T>() where T : struct {
+
+            var size = UnsafeUtility.SizeOf<T>();
+            return this.Alloc(size);
+
+        }
+
         public bool Free(MemPtr ptr) {
 
             if (this.allocatedIndex.TryGetValue(ptr.value, out var idx) == true) {
@@ -212,82 +303,106 @@ namespace ME.ECS.Collections {
 
         }
 
-        public MemPtr Realloc(MemPtr ptr, int size) {
+        public MemPtr ReAlloc(MemPtr ptr, int size, Unity.Collections.NativeArrayOptions options) {
 
-            var prevLength = 0;
+            if (ptr.IsValid() == false) {
+                return this.Alloc(size, options: options);
+            }
+
+            var prevLength = 0L;
             if (this.allocatedIndex.TryGetValue(ptr.value, out var idx) == true) {
 
                 ref var pointer = ref this.allocated.innerArray.arr[idx];
                 // if we have the next block and its free
-                /*if (pointer.next != -1 && this.IsFree(pointer.next, out var nextBlock, out var nextIdx) == true) {
+                if (pointer.next != -1 && this.IsFree(pointer.next, out var nextBlock, out var nextIdx) == true) {
                     // use next block size
-                    if (nextBlock.size + pointer.size >= size) {
-                        if (nextBlock.size + pointer.size == size) {
-                            // size matched
-                            // resize current pointer
-                            pointer.size += nextBlock.size;
-                            pointer.next = nextBlock.next;
-                            nextBlock.prev = pointer.index;
-                            // remove free block
-                            this.RemoveAtFast(this.free, nextIdx, this.freeIndex, nextBlock.index);
-                        } else {
-                            // required size is less
+                    if (nextBlock.size + pointer.size > size) {
+                        {
+                            this.freeIndex.Remove(nextBlock.index);
+                            nextBlock.index += (int)(size - pointer.size);
+                            nextBlock.size = size - pointer.size;
+                            this.free.innerArray.arr[nextIdx] = nextBlock;
+                            this.freeIndex[nextBlock.index] = nextIdx;
+                            
+                            pointer.size = size;
                         }
                         // return the same pointer back
                         return ptr;
-                    } else {
-                        // TODO: check next free block
                     }
-                }*/
+                }
 
                 prevLength = pointer.size;
 
             }
 
-            var newPtr = this.Alloc(size);
+            var newPtr = this.Alloc(size, options: options);
             this.MemCopy(newPtr, 0, ptr, 0, prevLength);
             this.Free(ptr);
             return newPtr;
 
         }
 
-        public void MemCopy(MemPtr dest, int destOffset, MemPtr source, int sourceOffset, int length) {
+        [MethodImpl(256)]
+        public void MemCopy(MemPtr dest, int destOffset, MemPtr source, int sourceOffset, long length) {
 
-            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemCpy(
+            UnsafeUtility.MemCpy(
                 (void*)(this.data + dest.value + destOffset),
                 (void*)(this.data + source.value + sourceOffset),
                 length);
             
         }
 
-        public void MemClear(MemPtr dest, int destOffset, int length) {
+        [MethodImpl(256)]
+        public void MemClear(MemPtr dest, int destOffset, long length) {
 
-            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemClear(
+            UnsafeUtility.MemClear(
                 (void*)(this.data + dest.value + destOffset),
                 length);
             
         }
 
-        public MemPtr Alloc(int size) {
+        public void Prepare(long size) {
 
+            int headPointerIdx = -1;
+            Block headBlock = default;
+            for (int i = 0, cnt = this.free.Count; i < cnt; ++i) {
+
+                var ptr = this.free.innerArray.arr[i];
+                if (size < ptr.size) {
+
+                    return;
+
+                }
+                
+                if (ptr.next == -1) {
+                    headBlock = ptr;
+                    headPointerIdx = i;
+                }
+
+            }
+            
+            this.Reallocate_INTERNAL(size, headPointerIdx, in headBlock);
+            
+        }
+
+        public MemPtr Alloc(long size, bool throwExceptionOnOverflow = false, Unity.Collections.NativeArrayOptions options = Unity.Collections.NativeArrayOptions.ClearMemory) {
+
+            UnityEngine.Assertions.Assert.IsTrue(size > 0L);
+            
             // lookup for free pointers with required size
             int headPointerIdx = -1;
             Block headBlock = default;
-            for (int i = 0; i < this.free.Count; ++i) {
+            for (int i = 0, cnt = this.free.Count; i < cnt; ++i) {
 
                 var ptr = this.free.innerArray.arr[i];
-                if (size <= ptr.size) {
+                if (size < ptr.size) {
 
                     var memPtr = new MemPtr(ptr.index);
-                    if (ptr.size == size) {
-                        // if we alloc all block
-                        //ptr.isFree = false;
-                        this.RemoveAtFast(this.free, i, this.freeIndex, ptr.index);
-                    } else {
+                    {
                         // if block is not full
                         // create new free pointer
                         var freePointer = new Block() {
-                            index = ptr.index + size,
+                            index = ptr.index + (int)size,
                             size = ptr.size - size,
                             next = ptr.next,
                             prev = ptr.index,
@@ -299,15 +414,19 @@ namespace ME.ECS.Collections {
                         //ptr.isFree = false;
                         ptr.next = freePointer.index;
                         ptr.size = size;
-                        ptr.next = freePointer.index;
                     }
                     
                     this.allocatedIndex[ptr.index] = this.allocated.Count;
                     this.allocated.Add(ptr);
                     
+                    if (options == Unity.Collections.NativeArrayOptions.ClearMemory) {
+                        this.MemClear(memPtr, 0, size);
+                    }
+
                     return memPtr;
 
                 }
+                
                 if (ptr.next == -1) {
                     headBlock = ptr;
                     headPointerIdx = i;
@@ -315,20 +434,70 @@ namespace ME.ECS.Collections {
 
             }
 
+            if (throwExceptionOnOverflow == true) {
+                throw new System.OutOfMemoryException($"Overflow with size: {size}");
+            }
+
+            this.Reallocate_INTERNAL(size, headPointerIdx, in headBlock);
+            
+            return this.Alloc(size, throwExceptionOnOverflow: true);
+
+        }
+
+        [MethodImplAttribute(256)]
+        private void Reallocate_INTERNAL(long size, int headPointerIdx, in Block headBlock) {
+            
+            UnityEngine.Assertions.Assert.IsTrue(headPointerIdx >= 0);
+            UnityEngine.Assertions.Assert.IsTrue(headBlock.size > 0);
+
             // no free pointers found
             // re-alloc data with required size
             // use headPointer to resize data
             //headPointer.isFree = false;
-            var newSize = this.length - headBlock.index + size * 2;
-            if (this.maxSize > 0 && newSize > this.maxSize) {
-                throw new System.OutOfMemoryException($"Size: {newSize}/{this.maxSize}");
+            long sizeWithOffset;
+            {
+                if (this.length >= int.MaxValue / 2) {
+                    sizeWithOffset = size * 2;
+                } else {
+                    sizeWithOffset = (size >= this.length ? size : this.length) * 3L;
+                    if (sizeWithOffset % 2L == 0) {
+                        sizeWithOffset /= 2L;
+                    } else {
+                        sizeWithOffset += 1L;
+                        sizeWithOffset /= 2L;
+                    }
+                }
             }
 
-            this.data = System.Runtime.InteropServices.Marshal.ReAllocHGlobal(this.data, (System.IntPtr)newSize);
-
-            this.free.innerArray.arr[headPointerIdx].size = newSize;
+            var newSize = headBlock.index + headBlock.size + sizeWithOffset;
             
-            return this.Alloc(size);
+            if (newSize > int.MaxValue) {
+                throw new System.OutOfMemoryException($"Size max: {int.MaxValue}, prev size: {this.length}, trying to allocate: {size}");
+            }
+
+            if (this.maxSize > 0L && newSize > this.maxSize) {
+                throw new System.OutOfMemoryException($"Size: {newSize}/{this.maxSize}");
+            }
+            
+            if (newSize < 0L) {
+                throw new System.OutOfMemoryException($"Internal error while allocating {newSize}:{sizeWithOffset} bytes (requested size: {size}, length: {this.length}, headBlock.index: {headBlock.index}, headBlock.size: {headBlock.size})");
+            }
+
+            if (newSize <= this.length) {
+                throw new System.OutOfMemoryException($"Internal error while allocating {newSize}:{sizeWithOffset} bytes (requested size: {size}, length: {this.length}, headBlock.index: {headBlock.index}, headBlock.size: {headBlock.size})");
+            }
+            
+            UnityEngine.Debug.Log($"RE_ALLOC: {this.length} -> {newSize}, requested {size}, free head size: {headBlock.size}");
+            var newData = UnsafeUtility.Malloc(newSize, 0, Unity.Collections.Allocator.Persistent);
+            if (this.data != System.IntPtr.Zero) {
+                UnsafeUtility.MemCpy(newData, (void*)this.data, this.length);
+                UnsafeUtility.Free((void*)this.data, Unity.Collections.Allocator.Persistent);
+            }
+            
+            this.length = newSize;
+            this.data = (System.IntPtr)newData;
+            var newBlockSize = newSize - headBlock.index;
+            this.free.innerArray.arr[headPointerIdx].size = newBlockSize;
 
         }
 
@@ -367,6 +536,15 @@ namespace ME.ECS.Collections {
             return true;
 
         }
+
+        [MethodImplAttribute(256)]
+        public void* GetUnsafePtr(in MemPtr ptr) {
+
+            return (void*)(this.data + ptr.value);
+
+        }
+
+        public bool IsValid() => this.isValid;
 
     }
 
