@@ -406,7 +406,11 @@ namespace ME.ECS {
                 var currentTick = world.GetCurrentTick();
                 var withinTicks = data.data.withinTicks;
                 var target = currentTick % withinTicks;
+                #if FIXED_POINT_MATH
                 var range = (Tick)ME.ECS.Mathematics.math.ceil((sfloat)count / (sfloat)withinTicks);
+                #else
+                var range = (Tick)Unity.Mathematics.math.ceil(count / (float)withinTicks);
+                #endif
                 var from = target * range;
                 var to = (target + 1) * range;
                 

@@ -1,8 +1,10 @@
 # Version 2.5
+* Tests.Tests: MemoryAllocator tests added
 * Essentials.GOAP: 
   * fix index out of range actions if planner has one action
   * Job replaced with static burst method
 * Runtime.Core: 
+  * Custom MemoryAllocator implemented
   * NativeBufferArray resize/copy performance improvements
   * Filter::GetEnumerator() static shared data check moved to avoid multiple checks in MoveNext.
   * Filters WithinTicks minChunkSize parameter added
