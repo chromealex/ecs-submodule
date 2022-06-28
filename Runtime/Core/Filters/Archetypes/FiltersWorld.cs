@@ -46,18 +46,6 @@ namespace ME.ECS {
 
             }
 
-            if (freeze == false) {
-
-                if (this.sharedEntity.generation == 0 && this.sharedEntityInitialized == false) {
-
-                    // Create shared entity which should store shared components
-                    this.sharedEntity = this.AddEntity();
-
-                }
-                this.sharedEntityInitialized = true;
-
-            }
-
             if (restore == true) {
 
                 this.BeginRestoreEntities();

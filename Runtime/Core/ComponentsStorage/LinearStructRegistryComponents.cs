@@ -507,7 +507,7 @@ namespace ME.ECS {
                 var view = from.Read<ME.ECS.Views.ViewComponent>();
                 if (view.viewInfo.entity == from) {
 
-                    to.InstantiateView(view.viewInfo.prefabSourceId);
+                    to.ReplaceView(view.viewInfo.prefabSourceId);
 
                 }
 
@@ -1426,6 +1426,19 @@ namespace ME.ECS {
 
                 //componentsContainer = new StructComponentsContainer();
                 componentsContainer.Initialize(freeze);
+
+            }
+
+            if (freeze == false) {
+
+                if (this.sharedEntity.generation == 0 && this.sharedEntityInitialized == false) {
+
+                    // Create shared entity which should store shared components
+                    this.sharedEntity = this.AddEntity();
+
+                }
+
+                this.sharedEntityInitialized = true;
 
             }
 
