@@ -73,7 +73,8 @@ namespace ME.ECS.Collections {
             }
 
             if (NativeQuadTreeUtils<T>.tempTree.isCreated == true) {
-                throw new System.Exception("Temp tree collection must been disposed");
+                UnityEngine.Debug.LogError("Temp tree collection must been disposed");
+                NativeQuadTreeUtils<T>.EndTick();
             }
             //UnityEngine.Debug.Log("PrepareTick: " + Worlds.current.GetCurrentTick());
             NativeQuadTreeUtils<T>.tempTree = new NativeQuadTree<T>(mapSize, Unity.Collections.Allocator.TempJob, maxDepth: 4);
