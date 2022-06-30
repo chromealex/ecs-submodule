@@ -1,10 +1,16 @@
-namespace ME.ECS.Collections {
+namespace ME.ECS.Collections.V2 {
+
+    using word_t = System.UIntPtr;
+    using size_t = System.Int64;
+    using ptr = System.Int64;
+    using MemPtr = System.IntPtr;
 
     public struct MemArray<T> where T : struct {
 
         private MemPtr ptr;
         public int Length;
         private readonly AllocatorType allocator;
+        public bool isCreated => this.ptr != MemPtr.Zero;
         
         public MemArray(int length, AllocatorType allocator) {
 
@@ -34,7 +40,7 @@ namespace ME.ECS.Collections {
             }
             
             var memoryAllocator = StaticAllocators.GetAllocator(this.allocator);
-            this.ptr = memoryAllocator.ReAllocArrayUnmanaged<T>(this.ptr, newLength, Unity.Collections.NativeArrayOptions.ClearMemory);
+            this.ptr = memoryAllocator.ReAllocArrayUnmanaged<T>(this.ptr, newLength, ClearOptions.ClearMemory);
             this.Length = newLength;
             return true;
 
@@ -42,7 +48,6 @@ namespace ME.ECS.Collections {
         
     }
 
-    [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(MemArrayAllocator<>))]
     public class MemArrayAllocatorProxy<T> where T : struct {
 
         private MemArrayAllocator<T> arr;
@@ -68,10 +73,12 @@ namespace ME.ECS.Collections {
 
     }
 
+    [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(MemArrayAllocatorProxy<>))]
     public struct MemArrayAllocator<T> where T : struct {
 
         private MemPtr ptr;
         public int Length;
+        public bool isCreated => this.ptr != MemPtr.Zero;
 
         public MemArrayAllocator(ref MemoryAllocator allocator, int length) {
 
@@ -87,6 +94,10 @@ namespace ME.ECS.Collections {
 
         }
 
+        public MemPtr GetMemPtr() {
+            return this.ptr;
+        }
+
         public unsafe void* GetUnsafePtr(ref MemoryAllocator allocator) {
 
             return allocator.GetUnsafePtr(this.ptr);
@@ -95,7 +106,7 @@ namespace ME.ECS.Collections {
 
         public ref T this[in MemoryAllocator allocator, int index] => ref allocator.RefArrayUnmanaged<T>(this.ptr, index);
 
-        public bool Resize(ref MemoryAllocator allocator, int newLength, Unity.Collections.NativeArrayOptions options = Unity.Collections.NativeArrayOptions.ClearMemory) {
+        public bool Resize(ref MemoryAllocator allocator, int newLength, ClearOptions options = ClearOptions.ClearMemory) {
 
             if (newLength <= this.Length) {
 

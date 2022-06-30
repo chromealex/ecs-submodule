@@ -234,6 +234,15 @@
             
         }
 
+        public void RemoveAtFast(int index, out T moved) {
+            
+            this.Count--;
+            moved = this.innerArray.arr[this.Count];
+            this.innerArray.arr[index] = moved;
+            this.innerArray.arr[this.Count] = default;
+            
+        }
+
         public BufferArray<T> GetArray() {
 
             return this.innerArray;

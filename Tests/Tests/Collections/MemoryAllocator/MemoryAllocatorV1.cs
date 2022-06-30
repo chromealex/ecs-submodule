@@ -1,9 +1,10 @@
 using System.Linq;
 using Unity.Jobs;
 
-namespace ME.ECS.Tests.MemoryAllocator {
+namespace ME.ECS.Tests.MemoryAllocator.V1 {
 
     using ME.ECS.Collections;
+    using ME.ECS.Collections.V1;
     
     public struct TestData {
 
@@ -20,7 +21,7 @@ namespace ME.ECS.Tests.MemoryAllocator {
         [NUnit.Framework.TestAttribute]
         public void Alloc() {
 
-            var memBlock = new Collections.MemoryAllocator();
+            var memBlock = new MemoryAllocator();
             memBlock.Initialize(1000, 2000);
 
             var bytes100 = memBlock.Alloc(100);
@@ -45,7 +46,7 @@ namespace ME.ECS.Tests.MemoryAllocator {
         [NUnit.Framework.TestAttribute]
         public void Free() {
 
-            var memBlock = new Collections.MemoryAllocator();
+            var memBlock = new MemoryAllocator();
             memBlock.Initialize(1000, 2000);
 
             var bytes100 = memBlock.Alloc(100);
@@ -60,14 +61,14 @@ namespace ME.ECS.Tests.MemoryAllocator {
         [NUnit.Framework.TestAttribute]
         public void ReAlloc() {
 
-            var memBlock = new Collections.MemoryAllocator();
+            var memBlock = new MemoryAllocator();
             memBlock.Initialize(1000, 2000);
 
             var bytes100 = memBlock.Alloc(100);
             var bytes100_2 = memBlock.Alloc(150);
             var bytes100_3 = memBlock.Alloc(100);
             memBlock.Free(bytes100_2);
-            memBlock.ReAlloc(bytes100, 200, Unity.Collections.NativeArrayOptions.ClearMemory);
+            memBlock.ReAlloc(bytes100, 200, ClearOptions.ClearMemory);
             
             memBlock.Dispose();
 
@@ -76,10 +77,10 @@ namespace ME.ECS.Tests.MemoryAllocator {
         [NUnit.Framework.TestAttribute]
         public void CopyFrom() {
 
-            var memBlock = new Collections.MemoryAllocator();
+            var memBlock = new MemoryAllocator();
             memBlock.Initialize(1000, 2000);
 
-            var memBlock2 = new Collections.MemoryAllocator();
+            var memBlock2 = new MemoryAllocator();
             memBlock2.Initialize(1000, 2000);
 
             var arr = new MemArrayAllocator<TestData>(ref memBlock, 100);
@@ -110,7 +111,7 @@ namespace ME.ECS.Tests.MemoryAllocator {
         [NUnit.Framework.TestAttribute]
         public void LargeAlloc() {
 
-            var memBlock = new Collections.MemoryAllocator();
+            var memBlock = new MemoryAllocator();
             memBlock.Initialize(1_000, -1);
 
             memBlock.Prepare(10_000 * 10_000);
@@ -170,7 +171,7 @@ namespace ME.ECS.Tests.MemoryAllocator {
         [NUnit.Framework.TestAttribute]
         public void AllocArray() {
 
-            var memBlock = new Collections.MemoryAllocator();
+            var memBlock = new MemoryAllocator();
             memBlock.Initialize(1000, -1);
 
             var arr = new MemArrayAllocator<TestData>(ref memBlock, 100);
@@ -190,7 +191,7 @@ namespace ME.ECS.Tests.MemoryAllocator {
         [NUnit.Framework.TestAttribute]
         public void ResizeArray() {
 
-            var memBlock = new Collections.MemoryAllocator();
+            var memBlock = new MemoryAllocator();
             memBlock.Initialize(1000, -1);
 
             var arr = new MemArrayAllocator<TestData>(ref memBlock, 100);
@@ -212,15 +213,15 @@ namespace ME.ECS.Tests.MemoryAllocator {
 
     }
     
-    public class MemoryAllocator {
+    public class MemoryAllocatorTests {
 
         [NUnit.Framework.TestAttribute]
         public void Perf() {
 
-            var memBlock = new Collections.MemoryAllocator();
+            var memBlock = new MemoryAllocator();
             memBlock.Initialize(100_000_000);
 
-            var list = new ME.ECS.Collections.MemPtr[10_000];
+            var list = new MemPtr[10_000];
             var sw = System.Diagnostics.Stopwatch.StartNew();
             sw.Start();
             for (int i = 0; i < 10_000; ++i) {
@@ -247,10 +248,10 @@ namespace ME.ECS.Tests.MemoryAllocator {
         [NUnit.Framework.TestAttribute]
         public void Perf2() {
 
-            var memBlock = new Collections.MemoryAllocator();
+            var memBlock = new MemoryAllocator();
             memBlock.Initialize(100_000_000);
 
-            var list = new ME.ECS.Collections.MemPtr[10_000];
+            var list = new MemPtr[10_000];
             var sw = System.Diagnostics.Stopwatch.StartNew();
             sw.Start();
             for (int i = 0; i < 10_000; ++i) {
@@ -303,7 +304,7 @@ namespace ME.ECS.Tests.MemoryAllocator {
         [NUnit.Framework.TestAttribute]
         public void PerfGC() {
 
-            var memBlock = new Collections.MemoryAllocator();
+            var memBlock = new MemoryAllocator();
             memBlock.Initialize(100_000);
 
             var list = new TestObj[10_000];
