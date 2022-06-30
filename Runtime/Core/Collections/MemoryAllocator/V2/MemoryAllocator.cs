@@ -46,7 +46,7 @@ namespace ME.ECS.Collections.V2 {
 
     }
 
-    public unsafe class MemoryAllocatorProxyDebugger {
+    public class MemoryAllocatorProxyDebugger {
 
         private MemoryAllocator allocator;
         
@@ -88,7 +88,7 @@ namespace ME.ECS.Collections.V2 {
 
         private const size_t BLOCK_HEADER_SIZE = sizeof(size_t) + sizeof(int) + sizeof(ptr) + sizeof(ptr);
 
-        public enum SearchMode {
+        private enum SearchMode {
 
             FirstFit,
             NextFit,
@@ -122,8 +122,8 @@ namespace ME.ECS.Collections.V2 {
         
         // [Block][Block]...
         // [Block:
-        //   Block Header
-        //   Block Data
+        //   Header
+        //   Data
         // ]
         private void* data;
         private long currentSize;
@@ -163,7 +163,7 @@ namespace ME.ECS.Collections.V2 {
             var newData = this.AllocData_INTERNAL(size);
             if (this.data != null) {
                 UnsafeUtility.MemCpy(newData, this.data, this.currentSize);
-                this.data_free_to_os(this.data);
+                this.FreeData_INTERNAL(this.data);
             }
 
             this.data = newData;
@@ -226,7 +226,7 @@ namespace ME.ECS.Collections.V2 {
 
         }
 
-        private void data_free_to_os(void* ptr) {
+        private void FreeData_INTERNAL(void* ptr) {
             
             UnsafeUtility.Free(ptr, Allocator.Persistent);
             
@@ -235,7 +235,9 @@ namespace ME.ECS.Collections.V2 {
         public MemoryAllocator Initialize(size_t initialSize, size_t maxSize = -1L) {
 
             this.maxSize = maxSize;
-            this.freeList = new ListCopyable<long>();
+            // May be we need to use bidirectional list instead of one-dir,
+            // so we don't need to be use freeList heap list at all
+            this.freeList = PoolListCopyable<long>.Spawn(10);
             this.heapStart = 0L;
             // start from offset = 1 because 0 is nullptr
             this.top = 1L;
@@ -248,7 +250,8 @@ namespace ME.ECS.Collections.V2 {
 
         public void Dispose() {
 
-            this.data_free_to_os(this.data);
+            PoolListCopyable<long>.Recycle(ref this.freeList);
+            this.FreeData_INTERNAL(this.data);
             this = default;
 
         }
@@ -257,7 +260,7 @@ namespace ME.ECS.Collections.V2 {
 
             if (this.currentSize != other.currentSize) {
                 
-                this.data_free_to_os(this.data);
+                this.FreeData_INTERNAL(this.data);
                 this.data = this.AllocData_INTERNAL(other.currentSize);
 
             }
@@ -429,6 +432,8 @@ namespace ME.ECS.Collections.V2 {
 
             }
             ref var block = ref this.GetBlock((ptr)ptr);
+            
+            // TODO: Implement the faster realloc
             // try to find fast way to realloc
             /*if (block.nextBlockPtr != 0L) {
                 // we just need to check next block
