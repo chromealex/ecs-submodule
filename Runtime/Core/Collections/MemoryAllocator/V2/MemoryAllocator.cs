@@ -136,7 +136,7 @@ namespace ME.ECS.Collections.V2 {
 
         private SearchMode searchMode;
 
-        private void* data_alloc_from_os(size_t size) {
+        private void* AllocData_INTERNAL(size_t size) {
 
             // we need to add 1L to the size to skip first byte
             var data = UnsafeUtility.Malloc(size + 1L, UnsafeUtility.AlignOf<byte>(), Allocator.Persistent);
@@ -149,7 +149,7 @@ namespace ME.ECS.Collections.V2 {
             
         }
 
-        private ref Block realloc_data(size_t size, ClearOptions options) {
+        private ref Block ReAllocData_INTERNAL(size_t size, ClearOptions options) {
 
             size += BLOCK_HEADER_SIZE;
 
@@ -160,7 +160,7 @@ namespace ME.ECS.Collections.V2 {
             
             //UnityEngine.Debug.Log($"realloc_data: {this.currentSize} => {size}");
             
-            var newData = this.data_alloc_from_os(size);
+            var newData = this.AllocData_INTERNAL(size);
             if (this.data != null) {
                 UnsafeUtility.MemCpy(newData, this.data, this.currentSize);
                 this.data_free_to_os(this.data);
@@ -240,7 +240,7 @@ namespace ME.ECS.Collections.V2 {
             // start from offset = 1 because 0 is nullptr
             this.top = 1L;
             this.searchMode = SearchMode.FreeList;
-            this.realloc_data(initialSize, ClearOptions.UninitializedMemory);
+            this.ReAllocData_INTERNAL(initialSize, ClearOptions.UninitializedMemory);
             
             return this;
 
@@ -258,7 +258,7 @@ namespace ME.ECS.Collections.V2 {
             if (this.currentSize != other.currentSize) {
                 
                 this.data_free_to_os(this.data);
-                this.data = this.data_alloc_from_os(other.currentSize);
+                this.data = this.AllocData_INTERNAL(other.currentSize);
 
             }
             
@@ -276,15 +276,15 @@ namespace ME.ECS.Collections.V2 {
         // Base
         //
         
-        private size_t align(size_t x) {
+        private static size_t Align(size_t x) {
             return (x + sizeof(word_t) - 1) & ~(sizeof(word_t) - 1);
         }
         
-        private bool canSplit(ref Block block, size_t size) {
+        private static bool CanSplit(ref Block block, size_t size) {
             return block.dataSize >= size;
         }
 
-        private void split(ref Block block, size_t size) {
+        private void Split(ref Block block, size_t size) {
             var targetSize = block.dataSize - size;
             if (targetSize > 0) {
                 // create free block
@@ -312,10 +312,10 @@ namespace ME.ECS.Collections.V2 {
             }
         }
 
-        private ref Block listAllocate(ref Block block, size_t size) {
+        private ref Block ListAllocate(ref Block block, size_t size) {
             // Split the larger block, reusing the free part.
-            if (this.canSplit(ref block, size)) {
-                this.split(ref block, size);
+            if (MemoryAllocator.CanSplit(ref block, size)) {
+                this.Split(ref block, size);
             }
 
             block.freeIndex = 0;
@@ -332,7 +332,7 @@ namespace ME.ECS.Collections.V2 {
 
         public MemPtr Alloc(size_t size, ClearOptions options) {
 
-            size = this.align(size);
+            size = MemoryAllocator.Align(size);
 
             // ---------------------------------------------------------
             // 1. Search for a free block in the free-list:
@@ -340,7 +340,7 @@ namespace ME.ECS.Collections.V2 {
             // Traverse the blocks list, searching for a block of
             // the appropriate size
 
-            if (this.find_block(size, out var block) == true) {
+            if (this.FindBlock(size, out var block) == true) {
                 return block.GetMemPtr();
             }
 
@@ -349,7 +349,7 @@ namespace ME.ECS.Collections.V2 {
             // No block found, request to map more memory from the OS,
             // bumping the program break (brk).
             var newSize = this.currentSize + size;
-            ref var freeBlock = ref this.realloc_data(newSize, options);
+            ref var freeBlock = ref this.ReAllocData_INTERNAL(newSize, options);
 
             // Now we have enough data size to allocate,
             // so just run Alloc method again
@@ -365,11 +365,11 @@ namespace ME.ECS.Collections.V2 {
             return ref UnsafeUtility.AsRef<T>((void*)((ptr)this.data + ptr + BLOCK_HEADER_SIZE + offset));
         }
 
-        private bool canCoalesce(ref Block block) {
+        private bool CanCoalesce(ref Block block) {
             return block.nextBlockPtr != 0L && this.GetBlock(block.nextBlockPtr).freeIndex > 0;
         }
 
-        private ref Block coalesce(ref Block block) {
+        private ref Block Coalesce(ref Block block) {
 
             if (block.nextBlockPtr == this.top) {
                 this.top = block.blockHeadPtr;
@@ -392,8 +392,8 @@ namespace ME.ECS.Collections.V2 {
         public bool Free(MemPtr ptr) {
             ref var block = ref this.GetBlock((ptr)ptr);
             if (block.freeIndex != 0) return false;
-            if (this.canCoalesce(ref block) == true) {
-                block = this.coalesce(ref block);
+            if (this.CanCoalesce(ref block) == true) {
+                block = this.Coalesce(ref block);
             }
             block.freeIndex = 1;
             if (this.searchMode == SearchMode.FreeList) {
@@ -528,7 +528,7 @@ namespace ME.ECS.Collections.V2 {
         }
 
         public void Prepare(size_t size) {
-            this.realloc_data(size, ClearOptions.UninitializedMemory);
+            this.ReAllocData_INTERNAL(size, ClearOptions.UninitializedMemory);
         }
 
         public void* GetUnsafePtr(in MemPtr ptr) {
@@ -540,14 +540,13 @@ namespace ME.ECS.Collections.V2 {
         // Algorithms
         // 
         
-        private bool find_block(size_t size, out Block block) {
+        private bool FindBlock(size_t size, out Block block) {
 
-            // TODO add other algorithms
-            return this.free_list(size, out block);
+            return this.FreeListAlgorithm(size, out block);
 
         }
 
-        private bool free_list(size_t size, out Block block) {
+        private bool FreeListAlgorithm(size_t size, out Block block) {
 
             block = default;
             for (int i = 0, len = this.freeList.Count; i < len; ++i) {
@@ -559,7 +558,7 @@ namespace ME.ECS.Collections.V2 {
                 }
                 
                 this.freeList.RemoveAtFast(i);
-                block = this.listAllocate(ref b, size);
+                block = this.ListAllocate(ref b, size);
                 return true;
 
             }
@@ -569,7 +568,7 @@ namespace ME.ECS.Collections.V2 {
         }
         
         /*
-        private bool first_fit(size_t size, ref Block found) {
+        private bool FirstFitAlgorithm(size_t size, ref Block found) {
 
             var blockIdx = this.heapStart;
             while (blockIdx != 0) {
@@ -581,7 +580,7 @@ namespace ME.ECS.Collections.V2 {
                 }
 
                 // Found the block:
-                found = this.listAllocate(ref block, size);
+                found = this.ListAllocate(ref block, size);
                 return true;
             }
 
