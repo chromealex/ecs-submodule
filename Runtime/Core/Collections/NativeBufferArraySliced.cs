@@ -296,20 +296,6 @@ namespace ME.ECS.Collections {
 
         }
 
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public NativeBufferArraySliced<T> Clamp<TCopy>(int length, TCopy copy) where TCopy : IArrayElementCopy<T> {
-
-            var newArr = this.Merge();
-            for (int i = length; i < this.Length; ++i) {
-                
-                copy.Recycle(ref newArr[i]);
-                
-            }
-            
-            return new NativeBufferArraySliced<T>(new NativeBufferArray<T>(newArr.data.arr, length));
-
-        }
-
     }
     #endif
 
