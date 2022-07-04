@@ -43,11 +43,11 @@ namespace ME.ECS {
 			
 		}
 
-		public static StructComponentsBlittableCopyable<T> SpawnBlittableCopyable<T>() where T : struct, IComponentBase, IStructCopyable<T> {
+		/*public static StructComponentsBlittableCopyable<T> SpawnBlittableCopyable<T>() where T : struct, IComponentBase, IStructCopyable<T> {
 
 			return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsBlittableCopyable<T>(), null);
 			
-		}
+		}*/
 
 		public static void Recycle<T>(T dic) where T : StructRegistryBase {
 

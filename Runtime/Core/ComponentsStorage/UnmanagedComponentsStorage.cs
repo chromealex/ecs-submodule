@@ -2,357 +2,146 @@ using ME.ECS.Collections;
 using ME.ECS.Extensions;
 
 namespace ME.ECS {
-
-    using System.Runtime.CompilerServices;
-    using Unity.Collections.LowLevel.Unsafe;
-
-    #if ECS_COMPILE_IL2CPP_OPTIONS
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-    #endif
-    public static unsafe class MemUtilsCuts {
-
-        //[MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        public static T mcall<T>(void* methodPtr) {
-            
-            return System.Runtime.InteropServices.Marshal.GetDelegateForFunctionPointer<T>((System.IntPtr)methodPtr);
-
-        }
     
-        //[MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        public static ref T mref<T>(void* ptr) where T : struct => ref UnsafeUtility.AsRef<T>(ptr);
-
-        //[MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        public static void free(ref void* ptr, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
-            
-            //UnsafeUtility.Free(ptr, allocator);
-            System.Runtime.InteropServices.Marshal.FreeHGlobal((System.IntPtr)ptr);
-            ptr = null;
-            
-        }
-
-        public static void free<T>(ref T* ptr, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : unmanaged {
-            
-            //UnsafeUtility.Free(ptr, allocator);
-            System.Runtime.InteropServices.Marshal.FreeHGlobal((System.IntPtr)ptr);
-            ptr = null;
-            
-        }
-
-        //[MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        public static void* pnew<T>(ref T source, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : struct {
-
-            return MemUtils.CreateFromStruct(ref source, allocator);
-
-        }
-
-        public static void* pnew<T>(Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : struct {
-
-            return MemUtils.CreateFromStruct<T>(allocator);
-
-        }
-
-        public static void* pnew<T>(ref void* ptr, ref T source, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : struct {
-
-            return MemUtils.CreateFromStruct(ref ptr, ref source, allocator);
-
-        }
-
-        //[MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        public static T* tnew<T>(ref T* ptr, ref T source, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : unmanaged {
-
-            return MemUtils.Create(ref ptr, ref source, allocator);
-
-        }
-
-        public static T* tnew<T>(ref T source, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : unmanaged {
-
-            return MemUtils.Create(ref source, allocator);
-
-        }
-
-        public static T* tnew<T>(Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : unmanaged {
-
-            return MemUtils.Create<T>(allocator);
-
-        }
-
-    }
-
-    #if ECS_COMPILE_IL2CPP_OPTIONS
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-    #endif
-    public static unsafe class MemUtils {
-
-        //[MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        public static T* Create<T>(ref T* ptr, ref T source, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : unmanaged {
-
-            var size = UnsafeUtility.SizeOf<T>();
-            ptr = (T*)System.Runtime.InteropServices.Marshal.AllocHGlobal(size);
-            //ptr = (T*)UnsafeUtility.Malloc(UnsafeUtility.SizeOf<T>(), UnsafeUtility.AlignOf<T>(), allocator);
-            UnsafeUtility.CopyStructureToPtr(ref source, ptr);
-            return ptr;
-
-        }
-
-        public static T* Create<T>(ref T source, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : unmanaged {
-
-            var size = UnsafeUtility.SizeOf<T>();
-            var ptr = (T*)System.Runtime.InteropServices.Marshal.AllocHGlobal(size);
-            //var ptr = UnsafeUtility.Malloc(UnsafeUtility.SizeOf<T>(), UnsafeUtility.AlignOf<T>(), allocator);
-            UnsafeUtility.CopyStructureToPtr(ref source, ptr);
-            return ptr;
-
-        }
-
-        public static T* Create<T>(Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : unmanaged {
-
-            var size = UnsafeUtility.SizeOf<T>();
-            var ptr = (T*)System.Runtime.InteropServices.Marshal.AllocHGlobal(size);
-            //var ptr = UnsafeUtility.Malloc(size, UnsafeUtility.AlignOf<T>(), allocator);
-            UnsafeUtility.MemClear(ptr, size);
-            return ptr;
-
-        }
-
-        //[MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        public static void* CreateFromStruct<T>(ref T source, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : struct {
-
-            var size = UnsafeUtility.SizeOf<T>();
-            var ptr = (void*)System.Runtime.InteropServices.Marshal.AllocHGlobal(size);
-            //var ptr = UnsafeUtility.Malloc(UnsafeUtility.SizeOf<T>(), UnsafeUtility.AlignOf<T>(), allocator);
-            UnsafeUtility.CopyStructureToPtr(ref source, ptr);
-            return ptr;
-
-        }
-        public static void* CreateFromStruct<T>(Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : struct {
-
-            var size = UnsafeUtility.SizeOf<T>();
-            //var ptr = (void*)System.Runtime.InteropServices.Marshal.AllocHGlobal(size);
-            var ptr = UnsafeUtility.Malloc(size, UnsafeUtility.AlignOf<T>(), allocator);
-            UnsafeUtility.MemClear(ptr, size);
-            return ptr;
-
-        }
-
-        public static void* CreateFromStruct<T>(ref void* ptr, ref T source, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) where T : struct {
-
-            var size = UnsafeUtility.SizeOf<T>();
-            ptr = (void*)System.Runtime.InteropServices.Marshal.AllocHGlobal(size);
-            //ptr = UnsafeUtility.Malloc(UnsafeUtility.SizeOf<T>(), UnsafeUtility.AlignOf<T>(), allocator);
-            UnsafeUtility.CopyStructureToPtr(ref source, ptr);
-            return ptr;
-
-        }
-
-        //[MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        public static ref T Ref<T>(void* ptr) where T : struct => ref UnsafeUtility.AsRef<T>(ptr);
-
-    }
-    
-}
-
-namespace ME.ECS {
-    
-    using Unity.Collections.LowLevel.Unsafe;
-    using System.Runtime.InteropServices;
     using Collections;
-    using static MemUtilsCuts;
+    using MemPtr = System.Int64;
 
-    [StructLayout(LayoutKind.Sequential)]
-    public struct StructComponentsItem<T> where T : struct {
+    public struct UnmanagedComponentsStorage {
 
-        private NativeBufferArray<bool> dataExists;
-        private NativeBufferArray<T> data;
+        [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+        public struct Item<T> where T : struct, IComponentBase {
 
-        public bool Has(int entityId) {
+            public Collections.V2.MemArraySlicedAllocator<Component<T>> components;
+            public long maxVersion;
 
-            return this.dataExists[entityId];
+            public void Merge(ref Collections.V2.MemoryAllocator allocator) {
 
-        }
+                this.components.Merge(ref allocator);
 
-        public ref T Get(int entityId) {
-
-            this.dataExists[entityId] = true;
-            return ref this.data[entityId];
-
-        }
-
-        public ref readonly T Read(int entityId) {
-
-            return ref this.data[entityId];
-
-        }
-
-        public void Set(int entityId, T data) {
-            
-            this.data[entityId] = data;
-            this.dataExists[entityId] = true;
-
-        }
-
-        public bool Remove(int entityId) {
-            
-            ref var state = ref this.dataExists[entityId];
-            var prevState = state;
-            this.data[entityId] = default;
-            state = false;
-            return prevState;
-
-        }
-
-        public void Validate(int entityId) {
-
-            var mode = Unity.Collections.NativeLeakDetection.Mode;
-            Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled; 
-            NativeArrayUtils.Resize(entityId, ref this.data);
-            NativeArrayUtils.Resize(entityId, ref this.dataExists);
-            Unity.Collections.NativeLeakDetection.Mode = mode;
-
-        }
-
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct StructComponentsItemUnknown {
-
-        public NativeBufferArray<bool> dataExists;
-        public NativeBufferArray<byte> data;
-        
-        public void Dispose() {
-
-            if (this.data.isCreated == true) {
-                this.data.Dispose();
             }
 
-            if (this.dataExists.isCreated == true) {
-                this.dataExists.Dispose();
+            public void Validate(ref Collections.V2.MemoryAllocator allocator, int entityId) {
+
+                this.components.Resize(ref allocator, entityId + 1, out _);
+
+            }
+
+            public void Replace(in UnmanagedComponentsStorage storage, ref Component<T> bucket, in T data) {
+
+                bucket.data = data;
+
+            }
+
+            public byte CopyFromState(ref Collections.V2.MemoryAllocator allocator, int from, int to) {
+
+                ref var bucket = ref this.components[in allocator, from];
+                this.components[in allocator, to] = bucket;
+                return bucket.state;
+
+            }
+
+            public void UpdateVersion(in UnmanagedComponentsStorage storage, in Entity entity) {
+                
+                if (AllComponentTypes<T>.isVersioned == true) {
+                    var v = (long)Worlds.current.GetCurrentTick();
+                    ref var data = ref this.components[in storage.allocator, entity.id];
+                    data.version = v;
+                    this.maxVersion = (v > this.maxVersion ? v : this.maxVersion);
+                }
+
+            }
+            
+            public void UpdateVersion(ref Component<T> bucket) {
+
+                if (AllComponentTypes<T>.isVersioned == true) {
+                    bucket.version = Worlds.current.GetCurrentTick();
+                    this.maxVersion = (bucket.version > this.maxVersion ? bucket.version : this.maxVersion);
+                }
+
+            }
+
+            public void RemoveData(in Entity entity, ref Component<T> bucket) {
+
+                bucket.data = default;
+
             }
 
         }
 
-    }
+        public Collections.V2.MemoryAllocator allocator;
+        public Collections.V2.MemArrayAllocator<MemPtr> items;
 
-    public unsafe struct UnmanagedComponentsStorage {
+        public void Initialize() {
 
-        public NativeBufferArray<System.IntPtr> list;
-        
-        public void Initialize() { }
+            // Use 512 KB by default
+            this.allocator.Initialize(512 * 1024 * 2 * 20, -1);
+
+        }
 
         public void Dispose() {
+            
+            this.allocator.Dispose();
+            
+        }
 
-            for (int i = 0; i < this.list.Length; ++i) {
+        public void CopyFrom(in UnmanagedComponentsStorage other) {
+            
+            this.allocator.CopyFrom(in other.allocator);
+            this.items = other.items;
 
-                var ptr = (void*)this.list[i];
-                if (ptr == null) continue;
-                ref var item = ref mref<StructComponentsItemUnknown>(ptr);
-                item.Dispose();
+        }
+        
+        public byte CopyFromState<T>(in Entity from, in Entity to) where T : struct, IComponentBase {
 
+            ref var reg = ref this.GetRegistry<T>();
+            /*var ptr = this.items[in this.allocator, typeId];
+            var size = Component.HEADER_SIZE + Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>();
+            var addrFrom = ptr.value + from.id * size;
+            var addrTo = ptr.value + to.id * size;
+            this.allocator.MemCopy(new MemPtr(addrTo), 0, new MemPtr(addrFrom), 0, size);*/
+            return reg.CopyFromState(ref this.allocator, from.id, to.id);
+
+        }
+        
+        public ref Item<T> GetRegistry<T>() where T : struct, IComponentBase {
+
+            var typeId = AllComponentTypes<T>.typeId;
+            var ptr = this.items[in this.allocator, typeId];
+            return ref this.allocator.Ref<Item<T>>(ptr);
+
+        }
+
+        public void ValidateTypeId<T>(int typeId) where T : struct, IComponentBase {
+
+            //UnityEngine.Debug.Log("ValidateTypeId: " + typeId + " :: length: " + this.items.Length);
+            this.items.Resize(ref this.allocator, AllComponentTypesCounter.counter + 1);
+
+        }
+
+        public void Validate<T>(int entityId) where T : struct, IComponentBase {
+
+            var typeId = AllComponentTypes<T>.typeId;
+            //UnityEngine.Debug.Log("Validate: " + typeId + " :: length: " + this.items.Length);
+            this.items.Resize(ref this.allocator, typeId + 1);
+            var ptr = this.items[in this.allocator, typeId];
+            if (ptr == 0L) {
+                ptr = this.items[in this.allocator, typeId] = this.allocator.Alloc<Item<T>>();
+                //var data = new MemArrayAllocatorProxy<MemPtr>(ref this.allocator, this.items);
             }
-            if (this.list.isCreated == true) this.list.Dispose();
+            //UnityEngine.Debug.Log("Allocator.Ref<>: " + ptr);
+            var item = this.allocator.Ref<Item<T>>(ptr);
+            item.Validate(ref this.allocator, entityId);
+            this.allocator.Ref<Item<T>>(ptr) = item;
 
         }
 
-        public void RemoveAll(int entityId) {
+        public void Merge<T>() where T : struct, IComponentBase {
 
-            var entId = ArrayUtils.AssumePositive(entityId);
-            for (int i = 0; i < this.list.Length; ++i) {
-                
-                var ptr = (void*)this.list[i];
-                if (ptr == null) continue;
-                ref var item = ref mref<StructComponentsItemUnknown>(ptr);
-                item.dataExists[entId] = false;
-
-            }
+            var typeId = AllComponentTypes<T>.typeId;
+            var ptr = this.items[in this.allocator, typeId];
+            if (ptr == 0L) return;
+            this.allocator.Ref<Item<T>>(ptr).Merge(ref this.allocator);
             
-        }
-
-        public void Validate<T>(int entityId) where T : struct {
-
-            var entId = ArrayUtils.AssumePositive(entityId);
-            var id = WorldUtilities.GetAllComponentTypeId<T>();
-            NativeArrayUtils.Resize(id, ref this.list);
-            
-            for (int i = 0; i < this.list.Length; ++i) {
-
-                var ptr = (void*)this.list[i];
-                if (ptr == null) continue;
-                ref var item = ref mref<StructComponentsItem<T>>(ptr);
-                item.Validate(entId);
-
-            }
-
-        }
-
-        public void Validate<T>() where T : struct {
-
-            var id = WorldUtilities.GetAllComponentTypeId<T>();
-            NativeArrayUtils.Resize(id, ref this.list);
-
-            if (this.list[id] == System.IntPtr.Zero) {
-
-                this.list[id] = (System.IntPtr)pnew<StructComponentsItem<T>>();
-                
-            }
-            
-        }
-
-        public bool Remove<T>(int entityId) where T : struct {
-
-            var entId = ArrayUtils.AssumePositive(entityId);
-            var id = WorldUtilities.GetAllComponentTypeId<T>();
-            //this.Validate<T>(entId);
-            var ptr = this.list[id];
-            ref var item = ref mref<StructComponentsItem<T>>((void*)ptr);
-            return item.Remove(entId);
-
-        }
-
-        public bool Has<T>(int entityId) where T : struct {
-
-            var entId = ArrayUtils.AssumePositive(entityId);
-            var id = WorldUtilities.GetAllComponentTypeId<T>();
-            //this.Validate<T>(entId);
-            var ptr = this.list[id];
-            ref var item = ref mref<StructComponentsItem<T>>((void*)ptr);
-            return item.Has(entId);
-
-        }
-
-        public void Set<T>(int entityId, T data) where T : struct {
-
-            var entId = ArrayUtils.AssumePositive(entityId);
-            var id = WorldUtilities.GetAllComponentTypeId<T>();
-            //this.Validate<T>(entId);
-            var ptr = this.list[id];
-            ref var item = ref mref<StructComponentsItem<T>>((void*)ptr);
-            item.Set(entId, data);
-
-        }
-
-        public ref T Get<T>(int entityId) where T : struct {
-            
-            var entId = ArrayUtils.AssumePositive(entityId);
-            var id = WorldUtilities.GetAllComponentTypeId<T>();
-            //this.Validate<T>(entId);
-            var ptr = this.list[id];
-            ref var item = ref mref<StructComponentsItem<T>>((void*)ptr);
-            return ref item.Get(entId);
-
-        }
-
-        public ref readonly T Read<T>(int entityId) where T : struct {
-            
-            var entId = ArrayUtils.AssumePositive(entityId);
-            var id = WorldUtilities.GetAllComponentTypeId<T>();
-            //this.Validate<T>(entId);
-            var ptr = this.list[id];
-            ref var item = ref mref<StructComponentsItem<T>>((void*)ptr);
-            return ref item.Read(entId);
-
         }
 
     }

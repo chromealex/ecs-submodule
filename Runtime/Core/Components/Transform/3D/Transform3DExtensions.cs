@@ -69,6 +69,7 @@ namespace ME.ECS {
 
             } else {
 
+                if (child.id == 987) UnityEngine.Debug.Log("Transform SET POS: " + child + " :: " + position);
                 child.SetLocalPosition(position);
 
             }

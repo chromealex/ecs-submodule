@@ -13,14 +13,18 @@ namespace ME.ECS {
     #endif
     public partial class StructComponentsBlittable<TComponent> : StructComponentsBase<TComponent>, IComponentsBlittable where TComponent : struct, IComponentBase {
 
-        [ME.ECS.Serializer.SerializeField]
-        internal NativeBufferArraySliced<Component<TComponent>> components;
-        [ME.ECS.Serializer.SerializeField]
-        private long maxVersion;
+        //[ME.ECS.Serializer.SerializeField]
+        //internal NativeBufferArraySliced<Component<TComponent>> components;
+        //[ME.ECS.Serializer.SerializeField]
+        //private long maxVersion;
 
+        private ref UnmanagedComponentsStorage unmanagedStorage => ref this.world.currentState.structComponents.unmanagedComponentsStorage;
+        
         public override UnsafeData CreateObjectUnsafe(in Entity entity) {
             
-            return new UnsafeData().SetAsUnmanaged(this.components[entity.id].data);
+            ref var storage = ref this.unmanagedStorage;
+            ref var reg = ref storage.GetRegistry<TComponent>();
+            return new UnsafeData().SetAsUnmanaged(reg.components[in storage.allocator, entity.id].data);
 
         }
 
@@ -41,7 +45,9 @@ namespace ME.ECS {
         #endif
         public override long GetVersion(in Entity entity) {
 
-            return this.components[entity.id].version;
+            ref var storage = ref this.unmanagedStorage;
+            ref var reg = ref storage.GetRegistry<TComponent>();
+            return reg.components[in storage.allocator, entity.id].version;
 
         }
 
@@ -50,7 +56,9 @@ namespace ME.ECS {
         #endif
         public override long GetVersion(int entityId) {
 
-            return this.components[entityId].version;
+            ref var storage = ref this.unmanagedStorage;
+            ref var reg = ref storage.GetRegistry<TComponent>();
+            return reg.components[in storage.allocator, entityId].version;
 
         }
 
@@ -61,7 +69,9 @@ namespace ME.ECS {
 
             // Set as changed only if saved version is equals to current tick
             // So we have a change in this component at current tick
-            return this.components[entityId].version == (long)Worlds.current.GetCurrentTick();
+            ref var storage = ref this.unmanagedStorage;
+            ref var reg = ref storage.GetRegistry<TComponent>();
+            return reg.components[in storage.allocator, entityId].version == (long)Worlds.current.GetCurrentTick();
 
         }
 
@@ -70,9 +80,12 @@ namespace ME.ECS {
             var hash = 0;
             if (typeof(TComponent) == typeof(ME.ECS.Transform.Position)) {
 
-                for (int i = 0; i < this.components.Length; ++i) {
+                ref var storage = ref this.unmanagedStorage;
+                ref var reg = ref storage.GetRegistry<TComponent>();
+                
+                for (int i = 0; i < reg.components.Length; ++i) {
 
-                    var p = (ME.ECS.Transform.Position)(object)this.components[i].data;
+                    var p = (ME.ECS.Transform.Position)(object)reg.components[in storage.allocator, i].data;
                     hash ^= (int)(p.value.x * 100000f);
                     hash ^= (int)(p.value.y * 100000f);
                     hash ^= (int)(p.value.z * 100000f);
@@ -90,12 +103,12 @@ namespace ME.ECS {
         #endif
         public override void UpdateVersion(in Entity entity) {
 
-            if (AllComponentTypes<TComponent>.isVersioned == true) {
+            /*if (AllComponentTypes<TComponent>.isVersioned == true) {
                 var v = (long)this.world.GetCurrentTick();
                 ref var data = ref this.components[entity.id];
                 data.version = v;
                 this.maxVersion = (v > this.maxVersion ? v : this.maxVersion);
-            }
+            }*/
 
         }
 
@@ -104,10 +117,10 @@ namespace ME.ECS {
         #endif
         public override void UpdateVersion(ref Component<TComponent> bucket) {
 
-            if (AllComponentTypes<TComponent>.isVersioned == true) {
+            /*if (AllComponentTypes<TComponent>.isVersioned == true) {
                 bucket.version = this.world.GetCurrentTick();
                 this.maxVersion = (bucket.version > this.maxVersion ? bucket.version : this.maxVersion);
-            }
+            }*/
 
         }
 
@@ -116,7 +129,8 @@ namespace ME.ECS {
         #endif
         public override void Merge() {
 
-            this.components = this.components.Merge();
+            //this.components = this.components.Merge();
+            this.unmanagedStorage.Merge<TComponent>();
 
         }
 
@@ -131,8 +145,8 @@ namespace ME.ECS {
 
         public override void OnRecycle() {
 
-            this.components = this.components.Dispose();
-            this.maxVersion = default;
+            //this.components = this.components.Dispose();
+            //this.maxVersion = default;
             base.OnRecycle();
             
         }
@@ -142,9 +156,10 @@ namespace ME.ECS {
         #endif
         public override bool Validate(int capacity) {
 
-            this.components = this.components.Resize(capacity, true, out var resized);
-            base.Validate(capacity);
-            return resized;
+            //this.components = this.components.Resize(capacity, true, out var resized);
+            //return resized;
+            this.unmanagedStorage.Validate<TComponent>(capacity);
+            return base.Validate(capacity);
 
         }
 
@@ -153,9 +168,9 @@ namespace ME.ECS {
         #endif
         public override bool Validate(in Entity entity) {
 
-            this.components = this.components.Resize(entity.id, true, out var resized);
-            base.Validate(entity);
-            return resized;
+            //this.components = this.components.Resize(entity.id, true, out var resized);
+            this.unmanagedStorage.Validate<TComponent>(entity.id);
+            return base.Validate(entity);
 
         }
 
@@ -170,7 +185,11 @@ namespace ME.ECS {
             #endif
 
             var index = entity.id;
-            ref var bucket = ref this.components[index];
+            
+            ref var storage = ref this.unmanagedStorage;
+            ref var reg = ref storage.GetRegistry<TComponent>();
+            ref var bucket = ref reg.components[in storage.allocator, entity.id];
+            //ref var bucket = ref this.components[index];
             if (bucket.state > 0) {
 
                 return bucket.data;
@@ -191,7 +210,9 @@ namespace ME.ECS {
             }
             #endif
 
-            return DataBlittableBufferUtils.PushSet_INTERNAL(this.world, in entity, this, buffer.Read<TComponent>(), storageType);
+            ref var storage = ref this.unmanagedStorage;
+            ref var reg = ref storage.GetRegistry<TComponent>();
+            return DataBlittableBufferAllocatorUtils.PushSet_INTERNAL(this.world, in entity, ref storage, ref reg, buffer.Read<TComponent>(), storageType);
 
         }
 
@@ -205,13 +226,25 @@ namespace ME.ECS {
             }
             #endif
 
-            return DataBlittableBufferUtils.PushSet_INTERNAL(this.world, in entity, this, (TComponent)data, storageType);
+            ref var storage = ref this.unmanagedStorage;
+            ref var reg = ref storage.GetRegistry<TComponent>();
+            return DataBlittableBufferAllocatorUtils.PushSet_INTERNAL(this.world, in entity, ref storage, ref reg, (TComponent)data, storageType);
             
         }
 
         public override bool RemoveObject(in Entity entity, StorageType storageType) {
 
-            return DataBlittableBufferUtils.PushRemove_INTERNAL(this.world, in entity, this, storageType);
+            #if WORLD_EXCEPTIONS
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            #endif
+
+            ref var storage = ref this.unmanagedStorage;
+            ref var reg = ref storage.GetRegistry<TComponent>();
+            return DataBlittableBufferAllocatorUtils.PushRemove_INTERNAL(this.world, in entity, ref storage, ref reg, storageType);
 
         }
 
@@ -238,7 +271,9 @@ namespace ME.ECS {
         #endif
         public override bool Has(in Entity entity) {
 
-            return this.components[entity.id].state > 0;
+            ref var storage = ref this.unmanagedStorage;
+            ref var reg = ref storage.GetRegistry<TComponent>();
+            return reg.components[in storage.allocator, entity.id].state > 0;
 
         }
 
@@ -247,9 +282,12 @@ namespace ME.ECS {
         #endif
         public override bool Remove(in Entity entity, bool clearAll = false) {
 
+            ref var storage = ref this.unmanagedStorage;
+            ref var reg = ref storage.GetRegistry<TComponent>();
+            
             var index = entity.id;
-            if (index >= this.components.Length) return false;
-            ref var bucket = ref this.components[index];
+            if (index >= reg.components.Length) return false;
+            ref var bucket = ref reg.components[in storage.allocator, index];
             if (bucket.state > 0) {
 
                 this.RemoveData(in entity, ref bucket);
@@ -271,18 +309,19 @@ namespace ME.ECS {
 
         protected override byte CopyFromState(in Entity from, in Entity to) {
 
-            ref var bucket = ref this.components[from.id];
-            this.components[to.id] = bucket;
-            return bucket.state;
+            //ref var bucket = ref this.components[from.id];
+            //this.components[to.id] = bucket;
+            //return bucket.state;
+            return this.unmanagedStorage.CopyFromState<TComponent>(in from, in to);
 
         }
         
         public override void CopyFrom(StructRegistryBase other) {
 
             base.CopyFrom(other);
-            var _other = (StructComponentsBlittable<TComponent>)other;
-            NativeArrayUtils.Copy(in _other.components, ref this.components);
-            this.maxVersion = _other.maxVersion;
+            //var _other = (StructComponentsBlittable<TComponent>)other;
+            //NativeArrayUtils.Copy(in _other.components, ref this.components);
+            //this.maxVersion = _other.maxVersion;
 
         }
         

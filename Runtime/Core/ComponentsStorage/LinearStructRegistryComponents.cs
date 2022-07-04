@@ -25,6 +25,7 @@ namespace ME.ECS {
 
     }
 
+    [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
     public struct Component<TComponent> where TComponent : struct, IComponentBase {
 
         public TComponent data;
@@ -682,6 +683,9 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         private ListCopyable<int> dirtyMap;
 
+        [ME.ECS.Serializer.SerializeField]
+        internal UnmanagedComponentsStorage unmanagedComponentsStorage;
+
         public bool IsCreated() {
 
             return this.isCreated;
@@ -698,7 +702,9 @@ namespace ME.ECS {
 
             ArrayUtils.Resize(100, ref this.list, false);
             this.isCreated = true;
-
+            
+            this.unmanagedComponentsStorage.Initialize();
+            
         }
 
         public void Merge() {
@@ -1007,9 +1013,8 @@ namespace ME.ECS {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             this.ValidateBlittable<TComponent>(code, isTag);
-            var reg = (StructComponentsBlittable<TComponent>)this.list.arr[code];
-            reg.Validate(in entity);
-
+            this.unmanagedComponentsStorage.Validate<TComponent>(entity.id);//(StructComponentsBlittable<TComponent>)this.list.arr[code];
+            
         }
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -1022,6 +1027,8 @@ namespace ME.ECS {
         #endif
         private void ValidateBlittable<TComponent>(int code, bool isTag) where TComponent : struct, IComponentBase {
 
+            this.unmanagedComponentsStorage.ValidateTypeId<TComponent>(code);
+            
             if (ArrayUtils.WillResize(code, ref this.list) == true) {
 
                 ArrayUtils.Resize(code, ref this.list, true);
@@ -1059,10 +1066,11 @@ namespace ME.ECS {
         #endif
         public void ValidateBlittableCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
 
-            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
-            this.ValidateBlittableCopyable<TComponent>(code, isTag);
-            var reg = (StructComponentsBlittableCopyable<TComponent>)this.list.arr[code];
-            reg.Validate(in entity);
+            //var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            //this.ValidateBlittableCopyable<TComponent>(code, isTag);
+            //var reg = (StructComponentsBlittableCopyable<TComponent>)this.list.arr[code];
+            //reg.Validate(in entity);
+            throw new System.Exception("Not implemented");
 
         }
 
@@ -1076,6 +1084,8 @@ namespace ME.ECS {
         #endif
         private void ValidateBlittableCopyable<TComponent>(int code, bool isTag) where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
 
+            throw new System.Exception("Not implemented");
+            /*
             if (ArrayUtils.WillResize(code, ref this.list) == true) {
 
                 ArrayUtils.Resize(code, ref this.list, true);
@@ -1087,7 +1097,7 @@ namespace ME.ECS {
                 var instance = PoolRegistries.SpawnBlittableCopyable<TComponent>();
                 this.list.arr[code] = instance;
 
-            }
+            }*/
 
         }
         #endregion
@@ -1260,6 +1270,8 @@ namespace ME.ECS {
 
             if (this.dirtyMap != null) PoolListCopyable<int>.Recycle(ref this.dirtyMap);
 
+            this.unmanagedComponentsStorage.Dispose();
+            
             this.isCreated = default;
 
         }
@@ -1352,6 +1364,8 @@ namespace ME.ECS {
             //ArrayUtils.Copy(other.nextFrameTasks, ref this.nextFrameTasks, new CopyTask());
             //ArrayUtils.Copy(other.nextTickTasks, ref this.nextTickTasks, new CopyTask());
             ArrayUtils.Copy(other.list, ref this.list, new CopyRegistry());
+
+            this.unmanagedComponentsStorage.CopyFrom(in other.unmanagedComponentsStorage);
 
         }
 
@@ -1842,9 +1856,13 @@ namespace ME.ECS {
 
                 if (AllComponentTypes<TComponent>.isBlittable == true) {
 
-                    var regType = (StructComponentsBlittable<TComponent>)reg;
-                    ref var bucket = ref regType.components[entity.id];
-                    reg.UpdateVersion(ref bucket);
+                    ref var storage = ref this.currentState.structComponents.unmanagedComponentsStorage;
+                    ref var regType = ref storage.GetRegistry<TComponent>();
+                    regType.UpdateVersion(ref regType.components[in storage.allocator, entity.id]);
+
+                    //var regType = (StructComponentsBlittable<TComponent>)reg;
+                    //ref var bucket = ref regType.components[entity.id];
+                    //reg.UpdateVersion(ref bucket);
 
                 } else {
                 
@@ -1983,9 +2001,13 @@ namespace ME.ECS {
             
             if (AllComponentTypes<TComponent>.isBlittable == true) {
 
-                var regType = (StructComponentsBlittable<TComponent>)reg;
-                ref var bucket = ref regType.components[entity.id];
-                reg.UpdateVersion(ref bucket);
+                ref var storage = ref this.currentState.structComponents.unmanagedComponentsStorage;
+                ref var regType = ref storage.GetRegistry<TComponent>();
+                regType.UpdateVersion(ref regType.components[in storage.allocator, entity.id]);
+                
+                //var regType = (StructComponentsBlittable<TComponent>)reg;
+                //ref var bucket = ref regType.components[entity.id];
+                //reg.UpdateVersion(ref bucket);
 
             } else {
                 
@@ -2102,11 +2124,25 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isBlittable == true) {
                 
                 // Inline all manually
-                var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-                var c = reg.components[entity.id];
-                component = c.data;
-                return c.state > 0;
+                if (AllComponentTypes<TComponent>.isCopyable == true) {
 
+                    throw new System.Exception("Not implemented");
+                    //var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                    //var c = reg.components[entity.id];
+                    //component = c.data;
+                    //return c.state > 0;
+
+                } else {
+                    
+                    // Use custom allocator
+                    ref var storage = ref this.currentState.structComponents.unmanagedComponentsStorage;
+                    ref var reg = ref storage.GetRegistry<TComponent>();
+                    var c = reg.components[in storage.allocator, entity.id];
+                    component = c.data;
+                    return c.state > 0;
+                    
+                }
+                
             } else {
 
                 var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
@@ -2131,8 +2167,30 @@ namespace ME.ECS {
             }
             #endif
 
-            return this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId].Has(in entity);
+            if (AllComponentTypes<TComponent>.isBlittable == true) {
+                
+                // Inline all manually
+                if (AllComponentTypes<TComponent>.isCopyable == true) {
 
+                    throw new System.Exception("Not implemented");
+                    //var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                    //return ref reg.components[entity.id].data;
+
+                } else {
+                    
+                    // Use custom allocator
+                    ref var storage = ref this.currentState.structComponents.unmanagedComponentsStorage;
+                    ref var reg = ref storage.GetRegistry<TComponent>();
+                    return reg.components[in storage.allocator, entity.id].state > 0;
+                    
+                }
+                
+            } else {
+
+                return this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId].Has(in entity);
+
+            }
+            
         }
 
         #if INLINE_METHODS
@@ -2157,9 +2215,21 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isBlittable == true) {
                 
                 // Inline all manually
-                var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-                return ref reg.components[entity.id].data;
+                if (AllComponentTypes<TComponent>.isCopyable == true) {
 
+                    throw new System.Exception("Not implemented");
+                    //var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                    //return ref reg.components[entity.id].data;
+
+                } else {
+                    
+                    // Use custom allocator
+                    ref var storage = ref this.currentState.structComponents.unmanagedComponentsStorage;
+                    ref var reg = ref storage.GetRegistry<TComponent>();
+                    return ref reg.components[in storage.allocator, entity.id].data;
+                    
+                }
+                
             } else {
 
                 // Inline all manually
@@ -2235,9 +2305,21 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isBlittable == true) {
                 
                 // Inline all manually
-                var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-                return ref DataBlittableBufferUtils.PushGet_INTERNAL(this, in entity, reg, StorageType.Default);
+                if (AllComponentTypes<TComponent>.isCopyable == true) {
 
+                    throw new System.Exception("Not implemented");
+                    //var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                    //return ref DataBlittableBufferUtils.PushGet_INTERNAL(this, in entity, reg, StorageType.Default);
+                    
+                } else {
+                    
+                    // Use custom allocator
+                    ref var storage = ref this.currentState.structComponents.unmanagedComponentsStorage;
+                    ref var reg = ref storage.GetRegistry<TComponent>();
+                    return ref DataBlittableBufferAllocatorUtils.PushGet_INTERNAL(this, in entity, ref storage, ref reg, StorageType.Default);
+                    
+                }
+                
             } else {
 
                 // Inline all manually
@@ -2287,11 +2369,23 @@ namespace ME.ECS {
             #endif
 
             if (AllComponentTypes<TComponent>.isBlittable == true) {
-                
-                // Inline all manually
-                var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-                DataBlittableBufferUtils.PushSet_INTERNAL(this, in entity, reg, in data, StorageType.Default);
 
+                if (AllComponentTypes<TComponent>.isCopyable == true) {
+
+                    throw new System.Exception("Not implemented");
+                    // Inline all manually
+                    //var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                    //DataBlittableBufferUtils.PushSet_INTERNAL(this, in entity, reg, in data, StorageType.Default);
+
+                } else {
+                    
+                    // Use custom allocator
+                    ref var storage = ref this.currentState.structComponents.unmanagedComponentsStorage;
+                    ref var reg = ref storage.GetRegistry<TComponent>();
+                    DataBlittableBufferAllocatorUtils.PushSet_INTERNAL(this, in entity, ref storage, ref reg, in data, StorageType.Default);
+                    
+                }
+                
             } else {
 
                 // Inline all manually
@@ -2415,9 +2509,21 @@ namespace ME.ECS {
 
             if (AllComponentTypes<TComponent>.isBlittable == true) {
              
-                var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-                DataBlittableBufferUtils.PushRemove_INTERNAL(this, in entity, reg, StorageType.Default);
-   
+                if (AllComponentTypes<TComponent>.isCopyable == true) {
+
+                    throw new System.Exception("Not implemented");
+                    //var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                    //DataBlittableBufferUtils.PushRemove_INTERNAL(this, in entity, reg, StorageType.Default);
+                    
+                } else {
+                    
+                    // Use custom allocator
+                    ref var storage = ref this.currentState.structComponents.unmanagedComponentsStorage;
+                    ref var reg = ref storage.GetRegistry<TComponent>();
+                    DataBlittableBufferAllocatorUtils.PushRemove_INTERNAL(this, in entity, ref storage, ref reg, StorageType.Default);
+                    
+                }
+                
             } else {
 
                 var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];

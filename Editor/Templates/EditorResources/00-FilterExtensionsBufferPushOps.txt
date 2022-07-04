@@ -1,7 +1,9 @@
 if (op.componentId == AllComponentTypes<T#INDEX#>.typeId) {
     if (op.code == 1) {
-        DataBlittableBufferUtils.PushSet_INTERNAL(world, in entity, (StructComponentsBlittable<T#INDEX#>)allRegs[op.componentId], this.ReadT#INDEX#(op.entityIndex));
+        ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T#INDEX#>>(allRegs.items[in memAllocator, AllComponentTypes<T#INDEX#>.typeId]);
+        DataBlittableBufferAllocatorUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT#INDEX#(op.entityIndex));
     } else if (op.code == 2) {
-        DataBlittableBufferUtils.PushRemove_INTERNAL(world, in entity, (StructComponentsBlittable<T#INDEX#>)allRegs[op.componentId]);
+        ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T#INDEX#>>(allRegs.items[in memAllocator, AllComponentTypes<T#INDEX#>.typeId]);
+        DataBlittableBufferAllocatorUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
     }
 }

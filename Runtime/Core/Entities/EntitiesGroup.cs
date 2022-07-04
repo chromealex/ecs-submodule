@@ -428,21 +428,23 @@ namespace ME.ECS {
         #endif
         public override void SetObject(in EntitiesGroup group, IComponentBase component, bool setBits = true) {
             
+            ref var allocator = ref this.world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+            ref var reg = ref this.unmanagedStorage.GetRegistry<TComponent>();
             var data = new Component<TComponent>() {
                 data = (TComponent)component,
                 state = 1,
-                version = ++this.maxVersion + 1,
+                version = ++reg.maxVersion + 1,
             };
-            var componentIndex = ComponentTypes<TComponent>.typeId;
             ref var archetypes = ref this.world.currentState.storage.archetypes;
+            var componentIndex = AllComponentTypes<TComponent>.typeId;
             if (group.copyMode == true) {
                 for (int i = group.fromId; i <= group.toId; ++i) {
-                    this.components.data[i] = data;
+                    reg.components[in allocator, i] = data;
                 }
                 if (componentIndex >= 0 && setBits == true) archetypes.Set(in group, componentIndex);
             } else {
                 for (int i = group.fromId; i <= group.toId; ++i) {
-                    this.components.data[i] = data;
+                    reg.components[in allocator, i] = data;
                     if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
@@ -455,21 +457,23 @@ namespace ME.ECS {
         #endif
         public override void Set(in EntitiesGroup group, TComponent component, bool setBits = true) {
             
+            ref var allocator = ref this.world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+            ref var reg = ref this.unmanagedStorage.GetRegistry<TComponent>();
             var data = new Component<TComponent>() {
                 data = component,
                 state = 1,
-                version = ++this.maxVersion + 1,
+                version = ++reg.maxVersion + 1,
             };
-            var componentIndex = ComponentTypes<TComponent>.typeId;
             ref var archetypes = ref this.world.currentState.storage.archetypes;
+            var componentIndex = AllComponentTypes<TComponent>.typeId;
             if (group.copyMode == true) {
                 for (int i = group.fromId; i <= group.toId; ++i) {
-                    this.components.data[i] = data;
+                    reg.components[in allocator, i] = data;
                 }
                 if (componentIndex >= 0 && setBits == true) archetypes.Set(in group, componentIndex);
             } else {
                 for (int i = group.fromId; i <= group.toId; ++i) {
-                    this.components.data[i] = data;
+                    reg.components[in allocator, i] = data;
                     if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
@@ -482,11 +486,13 @@ namespace ME.ECS {
         #endif
         public override void Remove(in EntitiesGroup group, bool setBits = true) {
 
-            NativeArrayUtils.Clear(this.components.data.arr, group.fromId, group.Length);
-
+            ref var allocator = ref this.world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+            ref var reg = ref this.unmanagedStorage.GetRegistry<TComponent>();
+            reg.components.Clear(ref allocator, group.fromId, group.Length);
+            
             if (setBits == true) {
                 
-                var componentIndex = ComponentTypes<TComponent>.typeId;
+                var componentIndex = AllComponentTypes<TComponent>.typeId;
                 if (componentIndex >= 0) {
                     ref var archetypes = ref this.world.currentState.storage.archetypes;
                     if (group.copyMode == true) {
