@@ -234,10 +234,15 @@ namespace ME.ECS {
             if (arr.isCreated == false || fromArr.Length != arr.Length) {
 
                 if (arr.isCreated == false) {
-                    NativeArrayUtils.Recycle(ref arr, copy);
+                    arr = new NativeBufferArraySliced<T>(fromArr.Length);
                 } else {
-                    // Resize
-                    arr.Resize(fromArr.Length - 1, resizeWithOffset: false, out _);
+                    if (arr.Length > fromArr.Length) {
+                        // Clamp to fromArr.Length
+                        arr = arr.Clamp(fromArr.Length, copy);
+                    } else {
+                        // Length changed - resize
+                        arr.Resize(fromArr.Length - 1, resizeWithOffset: false, out _);
+                    }
                 }
                 
             }

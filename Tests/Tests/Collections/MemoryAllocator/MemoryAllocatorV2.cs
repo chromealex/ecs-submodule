@@ -9,11 +9,14 @@ namespace ME.ECS.Tests.MemoryAllocator.V2 {
     
     public struct TestData {
 
+        public byte b;
+        public float test;
         public int a;
         public MemPtr ptr;
 
-        public void Test(int a) {
+        public void Test(int a, float test) {
             this.a = a;
+            this.test = test;
         }
 
     }
@@ -21,17 +24,125 @@ namespace ME.ECS.Tests.MemoryAllocator.V2 {
     public class Base {
 
         [NUnit.Framework.TestAttribute]
+        public void AllocSteps() {
+
+            var memBlock = new MemoryAllocator();
+            memBlock.Initialize(10, -1);
+
+            for (int i = 2; i < 100; ++i) {
+
+                var typeId = i;
+
+                memBlock.Alloc(typeId + typeId * 20);
+
+            }
+
+            memBlock.Dispose();
+
+        }
+
+        [NUnit.Framework.TestAttribute]
+        public void AllocAndFree() {
+
+            var memBlock = new MemoryAllocator();
+            memBlock.Initialize(10, -1);
+
+            var list = new System.Collections.Generic.List<MemArrayAllocator<MemPtr>>();
+            for (int i = 2; i < 100; ++i) {
+
+                var typeId = i;
+
+                var arr = new MemArrayAllocator<MemPtr>();
+                arr.Resize(ref memBlock, typeId + 1);
+                list.Add(arr);
+                
+            }
+
+            for (int i = 0; i < list.Count; ++i) {
+                
+                list[i].Dispose(ref memBlock);
+                
+            }
+            
+            UnityEngine.Assertions.Assert.AreEqual(memBlock.freeList.Count, 98);
+
+            memBlock.Dispose();
+
+        }
+
+        [NUnit.Framework.TestAttribute]
+        public void AllocAndFreeReverse() {
+
+            var memBlock = new MemoryAllocator();
+            memBlock.Initialize(10, -1);
+
+            var list = new System.Collections.Generic.List<MemArrayAllocator<MemPtr>>();
+            for (int i = 2; i < 100; ++i) {
+
+                var typeId = i;
+
+                var arr = new MemArrayAllocator<MemPtr>();
+                arr.Resize(ref memBlock, typeId + 1);
+                list.Add(arr);
+                
+            }
+
+            for (int i = list.Count - 1; i >= 0; --i) {
+                
+                list[i].Dispose(ref memBlock);
+                
+            }
+            
+            UnityEngine.Assertions.Assert.AreEqual(memBlock.freeList.Count, 1);
+            UnityEngine.Assertions.Assert.AreEqual(memBlock.top, MemoryAllocator.ALLOCATOR_HEADER_SIZE);
+
+            memBlock.Dispose();
+
+        }
+
+        [NUnit.Framework.TestAttribute]
         public void AllocResize() {
 
             var memBlock = new MemoryAllocator();
-            memBlock.Initialize(150, 2000);
+            memBlock.Initialize(10, 2000);
 
-            var bytes100 = memBlock.Alloc(100);
-            var bytes100_1 = memBlock.Alloc(100);
+            for (int i = 2; i < 100; ++i) {
 
-            UnityEngine.Assertions.Assert.IsTrue(memBlock.Free(bytes100));
-            UnityEngine.Assertions.Assert.IsTrue(memBlock.Free(bytes100_1));
-            
+                var bytes100 = memBlock.Alloc(100);
+                var bytes100_1 = memBlock.Alloc(100);
+
+                UnityEngine.Assertions.Assert.IsTrue(memBlock.Free(bytes100));
+                UnityEngine.Assertions.Assert.IsTrue(memBlock.Free(bytes100_1));
+
+            }
+
+            var bytes100_2 = memBlock.Alloc(150);
+
+            memBlock.Dispose();
+
+        }
+
+        [NUnit.Framework.TestAttribute]
+        public void AllocResizeCache() {
+
+            var memBlock = new MemoryAllocator();
+            memBlock.Initialize(1, 2000);
+
+            var list = new System.Collections.Generic.List<MemPtr>();
+            for (int i = 2; i < 10; ++i) {
+
+                var len = i + 1;
+                var bytes100 = memBlock.Alloc(len * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<MemPtr>(), ClearOptions.UninitializedMemory);
+                list.Add(bytes100);
+
+            }
+
+            for (int i = 0; i < list.Count; ++i) {
+
+                UnityEngine.Assertions.Assert.IsTrue(memBlock.Free(list[i]));
+
+            }
+
             var bytes100_2 = memBlock.Alloc(150);
 
             memBlock.Dispose();
@@ -105,19 +216,21 @@ namespace ME.ECS.Tests.MemoryAllocator.V2 {
 
             var arr = new MemArrayAllocator<TestData>(ref memBlock, 100);
             for (int i = 0; i < 100; ++i) {
-                arr[in memBlock, i] = new TestData() { a = i };
+                arr[in memBlock, i] = new TestData() { a = i, test = 1.5f * i };
             }
             
             var arr2 = new MemArrayAllocator<TestData>(ref memBlock2, 200);
             for (int i = 0; i < 200; ++i) {
-                arr2[in memBlock2, i] = new TestData() { a = 100 + i };
+                arr2[in memBlock2, i] = new TestData() { a = 100 + i, test = 1.5f * i };
             }
             
             memBlock2.CopyFrom(memBlock);
             
             for (int i = 0; i < 100; ++i) {
                 UnityEngine.Assertions.Assert.AreEqual(arr[in memBlock, i].a, i);
+                UnityEngine.Assertions.Assert.AreEqual(arr[in memBlock, i].test, 1.5f * i);
                 UnityEngine.Assertions.Assert.AreEqual(arr[in memBlock2, i].a, arr[in memBlock, i].a);
+                UnityEngine.Assertions.Assert.AreEqual(arr[in memBlock2, i].test, arr[in memBlock, i].test);
             }
 
             memBlock.Dispose();
@@ -181,7 +294,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V2 {
                 }
 
                 ref var item = ref memBlock.Ref<TestData>(ptr);
-                item.Test(i);
+                item.Test(i, 1.5f * i);
                 
             }
 
@@ -200,7 +313,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V2 {
                 var arr = new TestData[0];
                 System.Array.Resize(ref arr, typeId + 1);
                 ref var ptr = ref arr[typeId];
-                ptr.Test(i);
+                ptr.Test(i, 1.5f * i);
                 
             }
 
@@ -313,22 +426,25 @@ namespace ME.ECS.Tests.MemoryAllocator.V2 {
             for (int i = 0; i < cnt; ++i) {
                 var ptr = memBlock.Alloc<TestData>();
                 memBlock.Ref<TestData>(ptr).a = i;
+                memBlock.Ref<TestData>(ptr).test = 1.5f * i;
                 memBlock.Ref<TestData>(ptr).ptr = ptr;
                 list[i] = memBlock.Ref<TestData>(ptr);
             }
 
-            list = list.OrderBy(x => UnityEngine.Random.value).ToArray();
+            var remList = list.OrderBy(x => UnityEngine.Random.value).ToArray();
 
             for (int i = 0; i < cnt / 2; ++i) {
-                var ptr = list[i].ptr;
+                var ptr = remList[i].ptr;
                 memBlock.Free(ptr);
-                list[i].ptr = MemPtr.Zero;
+                list[remList[i].a].ptr = MemPtr.Zero;
             }
 
             for (int i = 0; i < cnt; ++i) {
                 var ptr = list[i];
                 if (ptr.ptr != MemPtr.Zero) {
                     UnityEngine.Assertions.Assert.IsTrue(ptr.a >= 0 && ptr.a < cnt);
+                    UnityEngine.Assertions.Assert.AreEqual(i, ptr.a);
+                    UnityEngine.Assertions.Assert.AreEqual(1.5f * i, ptr.test);
                 }
             }
 
@@ -342,6 +458,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V2 {
             for (int i = 0; i < cnt; ++i) {
                 var ptr = list[i];
                 UnityEngine.Assertions.Assert.IsTrue(ptr.a >= 100 && ptr.a < cnt + 100);
+                UnityEngine.Assertions.Assert.AreEqual(i + 100, ptr.a);
             }
             
             memBlock.Dispose();

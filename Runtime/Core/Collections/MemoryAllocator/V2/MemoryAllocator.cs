@@ -3,7 +3,7 @@ namespace ME.ECS.Collections.V2 {
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Collections;
     
-    using word_t = System.UIntPtr;
+    using word_t = System.UInt64;
     using size_t = System.Int64;
     using ptr = System.Int64;
     using MemPtr = System.IntPtr;
@@ -86,7 +86,10 @@ namespace ME.ECS.Collections.V2 {
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(MemoryAllocatorProxyDebugger))]
     public unsafe partial struct MemoryAllocator : IMemoryAllocator<MemoryAllocator, MemPtr> {
 
-        private const size_t BLOCK_HEADER_SIZE = sizeof(size_t) + sizeof(int) + sizeof(ptr) + sizeof(ptr);
+        internal const size_t BLOCK_HEADER_SIZE = sizeof(size_t) + sizeof(ptr) + sizeof(ptr) + sizeof(int)
+                                                  // + paddings
+                                                  + sizeof(int) + sizeof(long) + sizeof(long) + sizeof(long) + sizeof(long);
+        internal const size_t ALLOCATOR_HEADER_SIZE = 64; //sizeof(word_t);
 
         private enum SearchMode {
 
@@ -96,26 +99,40 @@ namespace ME.ECS.Collections.V2 {
 
         }
         
-        [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Explicit)]
+        [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
         public struct Block {
 
-            [System.Runtime.InteropServices.FieldOffsetAttribute(0)]
             public size_t dataSize;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(sizeof(size_t))]
-            public int freeIndex;
-            [System.Runtime.InteropServices.FieldOffsetAttribute(sizeof(int) + sizeof(size_t))]
             public ptr nextBlockPtr; // next index block in data array
-            [System.Runtime.InteropServices.FieldOffsetAttribute(sizeof(int) + sizeof(size_t) + sizeof(size_t))]
             public ptr blockHeadPtr; // index in data array
+            public int freeIndex;
+            // do not use, just for alignment
+            private readonly int padding;
+            private readonly long padding1;
+            private readonly long padding2;
+            private readonly long padding3;
+            private readonly long padding4;
 
             public size_t fullSize => this.dataSize + BLOCK_HEADER_SIZE;
             public ptr blockDataPtr => this.blockHeadPtr + BLOCK_HEADER_SIZE;
             public ptr blockEndPtr => this.blockDataPtr + this.dataSize;
 
+            public override string ToString() {
+                
+                return $"B: {this.dataSize} head: {this.blockHeadPtr} next: {this.nextBlockPtr} end: {this.blockEndPtr} freeIndex: {this.freeIndex}";
+                
+            }
+
             public MemPtr GetMemPtr() {
 
                 return new MemPtr(this.blockHeadPtr);
 
+            }
+
+            public bool IsValid() {
+                return this.freeIndex == 0 &&
+                       this.dataSize > 0 &&
+                       (this.nextBlockPtr == 0 || this.nextBlockPtr > this.blockHeadPtr);
             }
 
         }
@@ -126,20 +143,20 @@ namespace ME.ECS.Collections.V2 {
         //   Data
         // ]
         private void* data;
-        private long currentSize;
-        private long allocatedSize;
-        private long maxSize;
+        private size_t currentSize;
+        private size_t allocatedSize;
+        private size_t maxSize;
 
         internal ptr heapStart;
-        private ptr top;
+        internal ptr top;
         internal ListCopyable<ptr> freeList;
 
         private SearchMode searchMode;
 
         private void* AllocData_INTERNAL(size_t size) {
 
-            // we need to add 1L to the size to skip first byte
-            var data = UnsafeUtility.Malloc(size + 1L, UnsafeUtility.AlignOf<byte>(), Allocator.Persistent);
+            // we need to add ALLOCATOR_HEADER_SIZE to the size to skip first byte
+            var data = UnsafeUtility.Malloc(size + ALLOCATOR_HEADER_SIZE, UnsafeUtility.AlignOf<byte>(), Allocator.Persistent);
             this.allocatedSize = size;
             if (data == null) {
                 throw new System.OutOfMemoryException();
@@ -149,80 +166,95 @@ namespace ME.ECS.Collections.V2 {
             
         }
 
-        private ref Block ReAllocData_INTERNAL(size_t size, ClearOptions options) {
+        private void ReAllocData_INTERNAL(size_t size, ClearOptions options) {
 
             size += BLOCK_HEADER_SIZE;
+            if (this.heapStart == 0L) {
+                size += ALLOCATOR_HEADER_SIZE;
+            }
 
             var dt = (size - this.currentSize) * 2;
             size += dt;
             var sizeWithOffset = this.currentSize * 2L;
             if (size < sizeWithOffset) size = sizeWithOffset;
+
+            size = Align(size);
             
-            //UnityEngine.Debug.Log($"realloc_data: {this.currentSize} => {size}");
-            
+            //UnityEngine.Debug.Log($"realloc_data: {this.currentSize} => {size} with top {this.top}");
+
             var newData = this.AllocData_INTERNAL(size);
-            if (this.data != null) {
+            if (this.heapStart != 0L) {
+                UnityEngine.Assertions.Assert.IsTrue(this.currentSize < size);
                 UnsafeUtility.MemCpy(newData, this.data, this.currentSize);
                 this.FreeData_INTERNAL(this.data);
-            }
-
-            this.data = newData;
-            
-            ref var topBlock = ref this.GetBlock(this.top);
-
-            var createNewBlock = true;
-            var ptr = this.top + topBlock.fullSize;
-            if (this.heapStart == 0L) {
-                // initialize first block
-                this.heapStart = this.top;
-                ptr = this.top;
-            } else {
+                this.data = newData;
+                // seek for last block
+                ref var topBlock = ref this.GetBlock(this.top);
                 if (topBlock.freeIndex > 0) {
-                    // top block not used - just resize this block
+                    // current top block is free,
+                    // so just resize it
                     var delta = size - this.currentSize;
-                    // we need to subtract 1L from the size to skip first byte
-                    this.currentSize = topBlock.blockEndPtr - 1L + delta;
+                    this.currentSize = topBlock.blockEndPtr + delta;
                     if (options == ClearOptions.ClearMemory) {
-                        this.MemClear((MemPtr)(topBlock.blockEndPtr - 1L), 0, delta);
+                        this.MemClear((MemPtr)topBlock.blockEndPtr, 0, delta);
                     }
-                    topBlock.dataSize += delta;
                     
-                    // we don't need to change top ptr
-                    ptr = this.top;
-                    createNewBlock = false;
+                    //UnityEngine.Debug.Log($"resize_top_block: {topBlock.dataSize} += {delta}, new size: {this.currentSize}");
+                    topBlock.dataSize += delta;
                 } else {
-                    topBlock.nextBlockPtr = ptr;
+                    // current top block is not free
+                    // create new empty block
+                    var block = new Block() {
+                        blockHeadPtr = topBlock.blockEndPtr,
+                        dataSize = size - this.currentSize - BLOCK_HEADER_SIZE,
+                        freeIndex = 1,
+                        nextBlockPtr = 0,
+                    };
+                    this.currentSize = block.blockEndPtr;
+                    // connect with current top
+                    topBlock.nextBlockPtr = block.blockHeadPtr;
+                    // set new block as top
+                    this.top = block.blockHeadPtr;
+                    
+                    if (this.searchMode == SearchMode.FreeList) {
+                        block.freeIndex = this.freeList.Count + 1;
+                        this.freeList.Add(this.top);
+                    }
+                
+                    if (options == ClearOptions.ClearMemory) {
+                        this.MemClear((MemPtr)block.blockDataPtr, 0L, block.dataSize);
+                    }
+                    
+                    this.GetBlock(this.top) = block;
+                    //UnityEngine.Debug.Log($"create_new_block: {block.dataSize}, block head ptr: {block.blockHeadPtr}, block data ptr: {block.blockDataPtr}, block end ptr: {block.blockEndPtr}");
                 }
-            }
+            } else {
+                this.data = newData;
+                // create first empty block
+                var block = new Block() {
+                    blockHeadPtr = this.top,
+                    dataSize = size - BLOCK_HEADER_SIZE - ALLOCATOR_HEADER_SIZE,
+                    freeIndex = 1,
+                    nextBlockPtr = 0,
+                };
+                this.currentSize = block.blockEndPtr;
+                this.heapStart = this.top;
 
-            ref var block = ref this.GetBlock(ptr);
-            if (createNewBlock == true) {
-
-                // create an empty block with size
-                block.dataSize = size - this.currentSize - BLOCK_HEADER_SIZE;
-                block.freeIndex = 1;
-                block.nextBlockPtr = 0;
-                block.blockHeadPtr = ptr;
-
-                this.top = ptr;
-                // we need to subtract 1L from the size to skip first byte
-                this.currentSize = block.blockEndPtr - 1L;
-
+                //UnityEngine.Debug.Log($"create_first_block: {block.dataSize}, block head ptr: {block.blockHeadPtr}, block data ptr: {block.blockDataPtr}, block end ptr: {block.blockEndPtr}");
+                
                 if (this.searchMode == SearchMode.FreeList) {
                     block.freeIndex = this.freeList.Count + 1;
-                    this.freeList.Add(ptr);
+                    this.freeList.Add(this.top);
                 }
-
+                
                 if (options == ClearOptions.ClearMemory) {
-                    this.MemClear((MemPtr)(block.blockDataPtr - 1L), 0L, block.dataSize);
+                    this.MemClear((MemPtr)block.blockDataPtr, 0L, block.dataSize);
                 }
-
+                
+                this.GetBlock(this.top) = block;
             }
 
             UnityEngine.Assertions.Assert.AreEqual(this.currentSize, this.allocatedSize);
-            //this.top += block.fullSize;
-
-            return ref block;
 
         }
 
@@ -237,12 +269,13 @@ namespace ME.ECS.Collections.V2 {
             this.maxSize = maxSize;
             // May be we need to use bidirectional list instead of one-dir,
             // so we don't need to be use freeList heap list at all
-            this.freeList = PoolListCopyable<long>.Spawn(10);
+            this.freeList = PoolListCopyable<ptr>.Spawn(10);
             this.heapStart = 0L;
-            // start from offset = 1 because 0 is nullptr
-            this.top = 1L;
+            // start from offset ALLOCATOR_HEADER_SIZE because ALLOCATOR_HEADER_SIZE is allocator system header
+            this.top = ALLOCATOR_HEADER_SIZE;
             this.searchMode = SearchMode.FreeList;
             this.ReAllocData_INTERNAL(initialSize, ClearOptions.UninitializedMemory);
+            UnsafeUtility.MemClear(this.data, ALLOCATOR_HEADER_SIZE);
             
             return this;
 
@@ -250,7 +283,7 @@ namespace ME.ECS.Collections.V2 {
 
         public void Dispose() {
 
-            PoolListCopyable<long>.Recycle(ref this.freeList);
+            PoolListCopyable<ptr>.Recycle(ref this.freeList);
             this.FreeData_INTERNAL(this.data);
             this = default;
 
@@ -266,6 +299,7 @@ namespace ME.ECS.Collections.V2 {
             }
             
             UnsafeUtility.MemCpy(this.data, other.data, other.currentSize);
+            this.allocatedSize = other.allocatedSize;
             this.currentSize = other.currentSize;
             this.heapStart = other.heapStart;
             this.maxSize = other.maxSize;
@@ -280,22 +314,28 @@ namespace ME.ECS.Collections.V2 {
         //
         
         private static size_t Align(size_t x) {
-            return (x + sizeof(word_t) - 1) & ~(sizeof(word_t) - 1);
+            var newSize = (x + sizeof(word_t) - 1) & ~(sizeof(word_t) - 1);
+            var align = newSize - x;
+            align = 1 << ((byte)(32 - Unity.Mathematics.math.lzcnt(Unity.Mathematics.math.max(1, align) - 1)));
+            var alignment = Unity.Mathematics.math.max(Unity.Jobs.LowLevel.Unsafe.JobsUtility.CacheLineSize, align);
+            return x + (alignment - x % alignment);
         }
         
         private static bool CanSplit(ref Block block, size_t size) {
-            return block.dataSize >= size;
+            return block.dataSize >= (size + BLOCK_HEADER_SIZE);
         }
 
-        private void Split(ref Block block, size_t size) {
-            var targetSize = block.dataSize - size;
-            if (targetSize > 0) {
+        private size_t Split(ref Block freeBlock, size_t size, ClearOptions options) {
+            // Calculate new free size
+            var newFreeSize = freeBlock.dataSize - size - BLOCK_HEADER_SIZE;
+            // Check if new size fits the new block
+            if (newFreeSize > 0) {
                 // create free block
                 var freePart = new Block {
-                    dataSize = targetSize - BLOCK_HEADER_SIZE,
+                    dataSize = newFreeSize,
                     freeIndex = 1,
-                    nextBlockPtr = block.nextBlockPtr,
-                    blockHeadPtr = block.blockHeadPtr + size + BLOCK_HEADER_SIZE,
+                    nextBlockPtr = freeBlock.nextBlockPtr,
+                    blockHeadPtr = freeBlock.blockHeadPtr + size + BLOCK_HEADER_SIZE,
                 };
                 if (freePart.blockHeadPtr > this.top) {
                     // move top if this is the last block
@@ -307,23 +347,31 @@ namespace ME.ECS.Collections.V2 {
                 }
                 // write free part
                 this.GetBlock(freePart.blockHeadPtr) = freePart;
-                // split current block, change it size
-                block.dataSize = size;
-                block.nextBlockPtr = freePart.blockHeadPtr;
+                // split current block, change its size
+                // mute free block to allocated block
+                freeBlock.dataSize = size;
+                freeBlock.nextBlockPtr = freePart.blockHeadPtr;
+                if (options == ClearOptions.ClearMemory) {
+                    this.MemClear((MemPtr)freeBlock.blockDataPtr, 0L, freeBlock.dataSize);
+                }
+            } else if (newFreeSize <= BLOCK_HEADER_SIZE) {
+                size += BLOCK_HEADER_SIZE;
             } else {
                 // if target size is zero - we don't need to create new free block
+                // nothing to do here
             }
+
+            return size;
         }
 
-        private ref Block ListAllocate(ref Block block, size_t size) {
+        private ref Block ListAllocate(ref Block block, size_t size, ClearOptions options) {
             // Split the larger block, reusing the free part.
-            if (MemoryAllocator.CanSplit(ref block, size)) {
-                this.Split(ref block, size);
+            if (MemoryAllocator.CanSplit(ref block, size) == true) {
+                size = this.Split(ref block, size, options);
             }
 
             block.freeIndex = 0;
             block.dataSize = size;
-
             return ref block;
         }
         
@@ -336,14 +384,14 @@ namespace ME.ECS.Collections.V2 {
         public MemPtr Alloc(size_t size, ClearOptions options) {
 
             size = MemoryAllocator.Align(size);
+            //UnityEngine.Debug.Log("MEM_ALLOC: " + size);
 
             // ---------------------------------------------------------
             // 1. Search for a free block in the free-list:
             //
             // Traverse the blocks list, searching for a block of
             // the appropriate size
-
-            if (this.FindBlock(size, out var block) == true) {
+            if (this.FindBlock(size, out var block, options) == true) {
                 return block.GetMemPtr();
             }
 
@@ -351,8 +399,8 @@ namespace ME.ECS.Collections.V2 {
             // 2. If block not found in the free list, request from OS:
             // No block found, request to map more memory from the OS,
             // bumping the program break (brk).
-            var newSize = this.currentSize + size;
-            ref var freeBlock = ref this.ReAllocData_INTERNAL(newSize, options);
+            var newSize = this.currentSize + size + BLOCK_HEADER_SIZE;
+            this.ReAllocData_INTERNAL(newSize, options);
 
             // Now we have enough data size to allocate,
             // so just run Alloc method again
@@ -383,21 +431,29 @@ namespace ME.ECS.Collections.V2 {
             block.dataSize += BLOCK_HEADER_SIZE + next.dataSize;
 
             if (this.searchMode == SearchMode.FreeList) {
-                this.freeList.RemoveAtFast(next.freeIndex - 1, out var movedPtr);
-                ref var moved = ref this.GetBlock(movedPtr);
-                moved.freeIndex = next.freeIndex;
+                this.RemoveFreeIndex(next.freeIndex - 1);
             }
 
             return ref block;
 
         }
 
+        private void RemoveFreeIndex(int index) {
+            
+            this.freeList.RemoveAtFast(index, out var movedPtr);
+            ref var moved = ref this.GetBlock(movedPtr);
+            moved.freeIndex = index + 1;
+            
+        }
+
         public bool Free(MemPtr ptr) {
+            if (ptr == MemPtr.Zero) return false;
+            if ((ptr)ptr % 64 != 0) return false;
             ref var block = ref this.GetBlock((ptr)ptr);
-            if (block.freeIndex != 0) return false;
-            if (this.CanCoalesce(ref block) == true) {
+            if (block.IsValid() == false) return false;
+            /*if (this.CanCoalesce(ref block) == true) {
                 block = this.Coalesce(ref block);
-            }
+            }*/
             block.freeIndex = 1;
             if (this.searchMode == SearchMode.FreeList) {
                 block.freeIndex = this.freeList.Count + 1;
@@ -411,17 +467,26 @@ namespace ME.ECS.Collections.V2 {
         }
 
         public readonly ref T RefUnmanaged<T>(MemPtr ptr) where T : struct {
+            if ((ptr)ptr + BLOCK_HEADER_SIZE >= this.allocatedSize) {
+                throw new System.ArgumentOutOfRangeException(nameof(ptr), ptr, $"pointer address is out of range {0}..{this.allocatedSize}");
+            }
+
+            if ((ptr)ptr % 64 != 0) {
+                throw new System.Exception("ptr is not aligned correctly");
+            }
             return ref UnsafeUtility.AsRef<T>((void*)((ptr)this.data + (ptr)ptr + BLOCK_HEADER_SIZE));
         }
 
         public MemPtr Alloc<T>() where T : unmanaged {
             var size = sizeof(T);
-            return this.Alloc(size);
+            var alignOf = UnsafeUtility.AlignOf<T>();
+            return this.Alloc(size + alignOf);
         }
 
         public MemPtr AllocUnmanaged<T>() where T : struct {
             var size = UnsafeUtility.SizeOf<T>();
-            return this.Alloc(size);
+            var alignOf = UnsafeUtility.AlignOf<T>();
+            return this.Alloc(size + alignOf);
         }
 
         public MemPtr ReAlloc(MemPtr ptr, size_t newSize, ClearOptions options) {
@@ -545,25 +610,27 @@ namespace ME.ECS.Collections.V2 {
         // Algorithms
         // 
         
-        private bool FindBlock(size_t size, out Block block) {
+        private bool FindBlock(size_t size, out Block block, ClearOptions options) {
 
-            return this.FreeListAlgorithm(size, out block);
+            return this.FreeListAlgorithm(size, out block, options);
 
         }
 
-        private bool FreeListAlgorithm(size_t size, out Block block) {
+        private bool FreeListAlgorithm(size_t size, out Block block, ClearOptions options) {
 
             block = default;
-            for (int i = 0, len = this.freeList.Count; i < len; ++i) {
+            for (int i = 0; i < this.freeList.Count; ++i) {
 
                 var ptr = this.freeList[i];
                 ref var b = ref this.GetBlock(ptr);
-                if (b.dataSize < size + BLOCK_HEADER_SIZE) {
+                if (b.dataSize < size) {
                     continue;
                 }
                 
-                this.freeList.RemoveAtFast(i);
-                block = this.ListAllocate(ref b, size);
+                UnityEngine.Assertions.Assert.IsTrue(b.freeIndex > 0);
+                
+                this.RemoveFreeIndex(i);
+                block = this.ListAllocate(ref b, size, options);
                 return true;
 
             }
