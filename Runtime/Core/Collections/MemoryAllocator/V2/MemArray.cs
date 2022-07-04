@@ -3,14 +3,14 @@ namespace ME.ECS.Collections.V2 {
     using word_t = System.UIntPtr;
     using size_t = System.Int64;
     using ptr = System.Int64;
-    using MemPtr = System.IntPtr;
+    using MemPtr = System.Int64;
 
     public struct MemArray<T> where T : struct {
 
         private MemPtr ptr;
         public int Length;
         private readonly AllocatorType allocator;
-        public bool isCreated => this.ptr != MemPtr.Zero;
+        public bool isCreated => this.ptr != 0L;
         
         public MemArray(int length, AllocatorType allocator) {
 
@@ -78,7 +78,7 @@ namespace ME.ECS.Collections.V2 {
 
         private MemPtr ptr;
         public int Length;
-        public bool isCreated => this.ptr != MemPtr.Zero;
+        public bool isCreated => this.ptr != 0L;
 
         public MemArrayAllocator(ref MemoryAllocator allocator, int length) {
 
@@ -104,7 +104,9 @@ namespace ME.ECS.Collections.V2 {
 
         }
 
-        public ref T this[in MemoryAllocator allocator, int index] => ref allocator.RefArrayUnmanaged<T>(this.ptr, index);
+        public ref T this[in MemoryAllocator allocator, int index] {
+            get => ref allocator.RefArrayUnmanaged<T>(this.ptr, index); 
+        }
 
         public bool Resize(ref MemoryAllocator allocator, int newLength, ClearOptions options = ClearOptions.ClearMemory) {
 

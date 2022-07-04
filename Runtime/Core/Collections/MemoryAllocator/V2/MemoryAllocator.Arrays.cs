@@ -2,7 +2,7 @@ namespace ME.ECS.Collections.V2 {
 
     using Unity.Collections.LowLevel.Unsafe;
     using ptr = System.Int64;
-    using MemPtr = System.IntPtr;
+    using MemPtr = System.Int64;
     
     public unsafe partial struct MemoryAllocator {
 

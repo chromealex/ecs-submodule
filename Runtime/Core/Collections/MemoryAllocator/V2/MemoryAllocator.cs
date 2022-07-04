@@ -6,7 +6,7 @@ namespace ME.ECS.Collections.V2 {
     using word_t = System.UInt64;
     using size_t = System.Int64;
     using ptr = System.Int64;
-    using MemPtr = System.IntPtr;
+    using MemPtr = System.Int64;
 
     [UnityEditor.InitializeOnLoadAttribute]
     public static class StaticAllocators {
@@ -86,9 +86,9 @@ namespace ME.ECS.Collections.V2 {
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(MemoryAllocatorProxyDebugger))]
     public unsafe partial struct MemoryAllocator : IMemoryAllocator<MemoryAllocator, MemPtr> {
 
-        internal const size_t BLOCK_HEADER_SIZE = sizeof(size_t) + sizeof(ptr) + sizeof(ptr) + sizeof(int)
+        internal const size_t BLOCK_HEADER_SIZE = sizeof(size_t) + sizeof(ptr) + sizeof(ptr) + sizeof(ptr) + sizeof(int)
                                                   // + paddings
-                                                  + sizeof(int) + sizeof(long) + sizeof(long) + sizeof(long) + sizeof(long);
+                                                  + sizeof(int) + sizeof(long) + sizeof(long) + sizeof(long);
         internal const size_t ALLOCATOR_HEADER_SIZE = 64; //sizeof(word_t);
 
         private enum SearchMode {
@@ -105,13 +105,13 @@ namespace ME.ECS.Collections.V2 {
             public size_t dataSize;
             public ptr nextBlockPtr; // next index block in data array
             public ptr blockHeadPtr; // index in data array
+            public ptr prevBlockPtr; // prev index block in data array
             public int freeIndex;
             // do not use, just for alignment
             private readonly int padding;
             private readonly long padding1;
             private readonly long padding2;
             private readonly long padding3;
-            private readonly long padding4;
 
             public size_t fullSize => this.dataSize + BLOCK_HEADER_SIZE;
             public ptr blockDataPtr => this.blockHeadPtr + BLOCK_HEADER_SIZE;
@@ -119,13 +119,13 @@ namespace ME.ECS.Collections.V2 {
 
             public override string ToString() {
                 
-                return $"B: {this.dataSize} head: {this.blockHeadPtr} next: {this.nextBlockPtr} end: {this.blockEndPtr} freeIndex: {this.freeIndex}";
+                return $"B: {this.dataSize} head: {this.blockHeadPtr} prev: {this.prevBlockPtr} next: {this.nextBlockPtr} end: {this.blockEndPtr} freeIndex: {this.freeIndex}";
                 
             }
 
             public MemPtr GetMemPtr() {
 
-                return new MemPtr(this.blockHeadPtr);
+                return (MemPtr)this.blockHeadPtr;
 
             }
 
@@ -208,7 +208,8 @@ namespace ME.ECS.Collections.V2 {
                         blockHeadPtr = topBlock.blockEndPtr,
                         dataSize = size - this.currentSize - BLOCK_HEADER_SIZE,
                         freeIndex = 1,
-                        nextBlockPtr = 0,
+                        nextBlockPtr = 0L,
+                        prevBlockPtr = topBlock.blockHeadPtr,
                     };
                     this.currentSize = block.blockEndPtr;
                     // connect with current top
@@ -235,7 +236,8 @@ namespace ME.ECS.Collections.V2 {
                     blockHeadPtr = this.top,
                     dataSize = size - BLOCK_HEADER_SIZE - ALLOCATOR_HEADER_SIZE,
                     freeIndex = 1,
-                    nextBlockPtr = 0,
+                    nextBlockPtr = 0L,
+                    prevBlockPtr = 0L,
                 };
                 this.currentSize = block.blockEndPtr;
                 this.heapStart = this.top;
@@ -266,6 +268,8 @@ namespace ME.ECS.Collections.V2 {
         
         public MemoryAllocator Initialize(size_t initialSize, size_t maxSize = -1L) {
 
+            if (Worlds.current == null) Worlds.current = new World();
+            if (Worlds.current.worldThread == null) Worlds.current.worldThread = System.Threading.Thread.CurrentThread;
             this.maxSize = maxSize;
             // May be we need to use bidirectional list instead of one-dir,
             // so we don't need to be use freeList heap list at all
@@ -335,6 +339,7 @@ namespace ME.ECS.Collections.V2 {
                     dataSize = newFreeSize,
                     freeIndex = 1,
                     nextBlockPtr = freeBlock.nextBlockPtr,
+                    prevBlockPtr = freeBlock.blockHeadPtr,
                     blockHeadPtr = freeBlock.blockHeadPtr + size + BLOCK_HEADER_SIZE,
                 };
                 if (freePart.blockHeadPtr > this.top) {
@@ -383,6 +388,10 @@ namespace ME.ECS.Collections.V2 {
 
         public MemPtr Alloc(size_t size, ClearOptions options) {
 
+            if (System.Threading.Thread.CurrentThread != Worlds.current.worldThread) {
+                throw new System.Exception();
+            }
+            
             size = MemoryAllocator.Align(size);
             //UnityEngine.Debug.Log("MEM_ALLOC: " + size);
 
@@ -409,10 +418,17 @@ namespace ME.ECS.Collections.V2 {
         }
 
         internal readonly ref Block GetBlock(ptr ptr) {
+            if (ptr <= 0L || ptr >= this.currentSize) {
+                throw new System.OverflowException("ptr: " + ptr);
+            }
+
             return ref UnsafeUtility.AsRef<Block>((void*)((ptr)this.data + ptr));
         }
-
+        
         internal readonly ref T GetBlockData<T>(ptr ptr, ptr offset) where T : struct {
+            if (ptr <= 0L || ptr + BLOCK_HEADER_SIZE + offset >= this.currentSize) {
+                throw new System.OverflowException("ptr: " + ptr + ", offset: " + offset);
+            }
             return ref UnsafeUtility.AsRef<T>((void*)((ptr)this.data + ptr + BLOCK_HEADER_SIZE + offset));
         }
 
@@ -420,7 +436,7 @@ namespace ME.ECS.Collections.V2 {
             return block.nextBlockPtr != 0L && this.GetBlock(block.nextBlockPtr).freeIndex > 0;
         }
 
-        private ref Block Coalesce(ref Block block) {
+        private void Coalesce(ref Block block, bool removeFromList = true) {
 
             if (block.nextBlockPtr == this.top) {
                 this.top = block.blockHeadPtr;
@@ -430,11 +446,14 @@ namespace ME.ECS.Collections.V2 {
             block.nextBlockPtr = next.nextBlockPtr;
             block.dataSize += BLOCK_HEADER_SIZE + next.dataSize;
 
-            if (this.searchMode == SearchMode.FreeList) {
-                this.RemoveFreeIndex(next.freeIndex - 1);
+            if (next.blockHeadPtr != 0L) {
+                ref var nextNext = ref this.GetBlock(next.blockHeadPtr);
+                nextNext.prevBlockPtr = block.blockHeadPtr;
             }
 
-            return ref block;
+            if (removeFromList == true && this.searchMode == SearchMode.FreeList) {
+                this.RemoveFreeIndex(next.freeIndex - 1);
+            }
 
         }
 
@@ -447,12 +466,15 @@ namespace ME.ECS.Collections.V2 {
         }
 
         public bool Free(MemPtr ptr) {
-            if (ptr == MemPtr.Zero) return false;
+            if (System.Threading.Thread.CurrentThread != Worlds.current.worldThread) {
+                throw new System.Exception();
+            }
+            if (ptr == 0L) return false;
             if ((ptr)ptr % 64 != 0) return false;
             ref var block = ref this.GetBlock((ptr)ptr);
             if (block.IsValid() == false) return false;
             if (this.CanCoalesce(ref block) == true) {
-                block = this.Coalesce(ref block);
+                this.Coalesce(ref block);
             }
             block.freeIndex = 1;
             if (this.searchMode == SearchMode.FreeList) {
@@ -467,12 +489,17 @@ namespace ME.ECS.Collections.V2 {
         }
 
         public readonly ref T RefUnmanaged<T>(MemPtr ptr) where T : struct {
-            if ((ptr)ptr + BLOCK_HEADER_SIZE >= this.allocatedSize) {
+            if ((ptr)ptr <= 0L || (ptr)ptr + BLOCK_HEADER_SIZE >= this.allocatedSize) {
                 throw new System.ArgumentOutOfRangeException(nameof(ptr), ptr, $"pointer address is out of range {0}..{this.allocatedSize}");
             }
 
             if ((ptr)ptr % 64 != 0) {
                 throw new System.Exception("ptr is not aligned correctly");
+            }
+
+            var block = this.GetBlock((ptr)ptr);
+            if (block.blockHeadPtr <= 0L || block.blockHeadPtr + block.dataSize >= this.allocatedSize) {
+                throw new OutOfBoundsException();
             }
             return ref UnsafeUtility.AsRef<T>((void*)((ptr)this.data + (ptr)ptr + BLOCK_HEADER_SIZE));
         }
@@ -491,13 +518,14 @@ namespace ME.ECS.Collections.V2 {
 
         public MemPtr ReAlloc(MemPtr ptr, size_t newSize, ClearOptions options) {
 
-            if (ptr == MemPtr.Zero) {
+            if (ptr == 0L) {
 
                 return this.Alloc(newSize, options);
 
             }
-            ref var block = ref this.GetBlock((ptr)ptr);
-            
+            var block = this.GetBlock((ptr)ptr);
+            if (newSize <= block.dataSize) return ptr;
+
             // TODO: Implement the faster realloc
             // try to find fast way to realloc
             /*if (block.nextBlockPtr != 0L) {
@@ -555,6 +583,8 @@ namespace ME.ECS.Collections.V2 {
 
         public void MemCopy(MemPtr dest, size_t destOffset, MemPtr source, size_t sourceOffset, size_t length) {
             
+            UnityEngine.Assertions.Assert.IsTrue(length > 0L);
+            
             if (dest == null) {
                 throw new System.NullReferenceException();
             }
@@ -573,6 +603,10 @@ namespace ME.ECS.Collections.V2 {
                 throw new System.OverflowException();
             }
 
+            if (offsetDest < 0L || offsetSrc < 0L) {
+                throw  new OutOfBoundsException();
+            }
+            
             UnsafeUtility.MemCpy(
                 (void*)((ptr)this.data + offsetDest),
                 (void*)((ptr)this.data + offsetSrc),
@@ -582,6 +616,8 @@ namespace ME.ECS.Collections.V2 {
 
         public void MemClear(MemPtr dest, size_t destOffset, size_t length) {
             
+            UnityEngine.Assertions.Assert.IsTrue(length > 0L);
+            
             if (dest == null) {
                 throw new System.NullReferenceException();
             }
@@ -589,6 +625,10 @@ namespace ME.ECS.Collections.V2 {
             var offsetDest = (ptr)dest + destOffset;
             if (offsetDest + length > this.currentSize) {
                 throw new System.OverflowException();
+            }
+
+            if (offsetDest < 0L) {
+                throw  new OutOfBoundsException();
             }
 
             UnsafeUtility.MemClear(

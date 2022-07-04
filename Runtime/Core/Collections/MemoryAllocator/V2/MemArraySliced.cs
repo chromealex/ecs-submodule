@@ -132,7 +132,7 @@ namespace ME.ECS.Collections.V2 {
             if (index >= this.Length) {
 
                 // Do we need any tail?
-                ref var tails = ref this.tails;
+                var tails = this.tails;
                 if (tails.isCreated == true) {
                     // Look into tails
                     var ptr = this.data.Length;
@@ -157,6 +157,7 @@ namespace ME.ECS.Collections.V2 {
                 tails.Resize(ref allocator, idx + 1, options);
                 var bucketSize = index + MemArraySlicedAllocator<T>.BUCKET_SIZE - size;
                 tails[in allocator, idx] = new MemArrayAllocator<T>(ref allocator, bucketSize);
+                this.tails = tails;
                 this.tailsLength += bucketSize;
                 result = true;
                 return this;
