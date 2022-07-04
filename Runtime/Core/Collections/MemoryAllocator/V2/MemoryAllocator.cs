@@ -451,9 +451,9 @@ namespace ME.ECS.Collections.V2 {
             if ((ptr)ptr % 64 != 0) return false;
             ref var block = ref this.GetBlock((ptr)ptr);
             if (block.IsValid() == false) return false;
-            /*if (this.CanCoalesce(ref block) == true) {
+            if (this.CanCoalesce(ref block) == true) {
                 block = this.Coalesce(ref block);
-            }*/
+            }
             block.freeIndex = 1;
             if (this.searchMode == SearchMode.FreeList) {
                 block.freeIndex = this.freeList.Count + 1;
