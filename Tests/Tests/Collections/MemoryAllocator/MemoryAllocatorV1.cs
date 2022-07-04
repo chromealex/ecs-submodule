@@ -152,7 +152,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V1 {
 
         }
 
-        [NUnit.Framework.TestAttribute]
+        /*[NUnit.Framework.TestAttribute]
         public void MemArrayStaticAllocator() {
 
             var arr = new MemArray<TestData>(100, AllocatorType.Persistent);
@@ -166,7 +166,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V1 {
 
             arr.Dispose();
 
-        }
+        }*/
 
         [NUnit.Framework.TestAttribute]
         public void AllocArray() {
