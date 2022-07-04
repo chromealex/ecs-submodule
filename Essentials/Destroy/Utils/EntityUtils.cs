@@ -1,6 +1,13 @@
 ﻿#if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
+#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
+#else
+using Unity.Mathematics;
+using tfloat = System.Single;
+#endif
 
 using ME.ECS;
 
@@ -27,7 +34,7 @@ namespace ME.ECS.Essentials {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void Destroy(this in Entity entity, float lifetime) {
+        public static void Destroy(this in Entity entity, tfloat lifetime) {
             
             entity.Set(new ME.ECS.Essentials.Destroy.Components.DestroyByTime() {
                 time = lifetime,
@@ -38,7 +45,7 @@ namespace ME.ECS.Essentials {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void SetDestroy(this in Entity entity, float lifetime) {
+        public static void SetDestroy(this in Entity entity, tfloat lifetime) {
             
             entity.Set(new ME.ECS.Essentials.Destroy.Components.DestroyByTime() {
                 time = lifetime,
@@ -58,7 +65,7 @@ namespace ME.ECS.Essentials {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void SetDestroyLifetime(this in Entity entity, float lifetime) {
+        public static void SetDestroyLifetime(this in Entity entity, tfloat lifetime) {
             
             entity.Set(new ME.ECS.Essentials.Destroy.Components.DestroyByTime() {
                 time = lifetime,
