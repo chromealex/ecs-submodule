@@ -224,6 +224,13 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("ENTITIES_GROUP_DISABLED", "Disable entities group storage and entities group API. Use this if you don't use this feature at all to speed up your runtime.", () => {
+                #if ENTITIES_GROUP_DISABLED
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
         };
         
         private bool settingsFoldOut {

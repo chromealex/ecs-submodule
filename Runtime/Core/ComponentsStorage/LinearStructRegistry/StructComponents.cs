@@ -11,8 +11,6 @@ namespace ME.ECS {
 
         [ME.ECS.Serializer.SerializeField]
         internal BufferArraySliced<Component<TComponent>> components;
-        [ME.ECS.Serializer.SerializeField]
-        private long maxVersion;
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -84,21 +82,8 @@ namespace ME.ECS {
                 var v = (long)this.world.GetCurrentTick();
                 ref var data = ref this.components[entity.id];
                 data.version = v;
-                this.maxVersion = (v > this.maxVersion ? v : this.maxVersion);
             }
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public override void UpdateVersion(ref Component<TComponent> bucket) {
-
-            if (AllComponentTypes<TComponent>.isVersioned == true) {
-                bucket.version = this.world.GetCurrentTick();
-                this.maxVersion = (bucket.version > this.maxVersion ? bucket.version : this.maxVersion);
-            }
-
+            
         }
 
         #if INLINE_METHODS
@@ -113,7 +98,6 @@ namespace ME.ECS {
         public override void OnRecycle() {
 
             this.components = this.components.Dispose();
-            this.maxVersion = default;
             base.OnRecycle();
             
         }
@@ -125,17 +109,6 @@ namespace ME.ECS {
 
             var resized = ArrayUtils.Resize(capacity, ref this.components, resizeWithOffset: true);
             base.Validate(capacity);
-            return resized;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public override bool Validate(in Entity entity) {
-
-            var resized = ArrayUtils.Resize(entity.id, ref this.components, true);
-            base.Validate(entity);
             return resized;
 
         }
@@ -263,7 +236,6 @@ namespace ME.ECS {
             base.CopyFrom(other);
             var _other = (StructComponents<TComponent>)other;
             ArrayUtils.Copy(in _other.components, ref this.components);
-            this.maxVersion = _other.maxVersion;
 
         }
         

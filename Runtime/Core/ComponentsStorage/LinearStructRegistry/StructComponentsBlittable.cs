@@ -139,17 +139,6 @@ namespace ME.ECS {
 
         }
 
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public override bool Validate(in Entity entity) {
-
-            this.components = this.components.Resize(entity.id, true, out var resized);
-            base.Validate(entity);
-            return resized;
-
-        }
-
         public override IComponentBase GetObject(Entity entity) {
 
             #if WORLD_EXCEPTIONS

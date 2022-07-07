@@ -1,3 +1,4 @@
+#if !ENTITIES_GROUP_DISABLED
 using ME.ECS.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 
@@ -349,7 +350,7 @@ namespace ME.ECS {
             var data = new Component<TComponent>() {
                 data = (TComponent)component,
                 state = 1,
-                version = ++this.maxVersion + 1,
+                version = 1,
             };
             var componentIndex = ComponentTypes<TComponent>.typeId;
             ref var archetypes = ref this.world.currentState.storage.archetypes;
@@ -376,7 +377,7 @@ namespace ME.ECS {
             var data = new Component<TComponent>() {
                 data = component,
                 state = 1,
-                version = ++this.maxVersion + 1,
+                version = 1,
             };
             var componentIndex = ComponentTypes<TComponent>.typeId;
             ref var archetypes = ref this.world.currentState.storage.archetypes;
@@ -556,3 +557,4 @@ namespace ME.ECS {
     }
 
 }
+#endif

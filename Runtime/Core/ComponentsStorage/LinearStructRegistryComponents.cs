@@ -61,6 +61,7 @@ namespace ME.ECS {
         public abstract bool HasChanged(int entityId);
 
         public abstract void UpdateVersion(in Entity entity);
+        
         #if !COMPONENTS_VERSION_NO_STATE_DISABLED
         public abstract void UpdateVersionNoState(in Entity entity);
         #endif
@@ -69,12 +70,12 @@ namespace ME.ECS {
         public abstract IComponentBase GetObject(Entity entity);
         public abstract bool SetObject(in Entity entity, IComponentBase data, StorageType storageType);
         public abstract bool SetObject(in Entity entity, UnsafeData buffer, StorageType storageType);
+        public abstract bool RemoveObject(in Entity entity, StorageType storageType);
         #if !SHARED_COMPONENTS_DISABLED
         public abstract System.Collections.Generic.ICollection<uint> GetSharedGroups(Entity entity);
         public abstract IComponentBase GetSharedObject(Entity entity, uint groupId);
         public abstract bool SetSharedObject(in Entity entity, IComponentBase data, uint groupId);
         #endif
-        public abstract bool RemoveObject(in Entity entity, StorageType storageType);
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -89,11 +90,6 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public abstract bool Validate(int capacity);
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public abstract bool Validate(in Entity entity);
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -365,7 +361,13 @@ namespace ME.ECS {
         
         public override int GetCustomHash() => 0;
 
-        public abstract void UpdateVersion(ref Component<TComponent> bucket);
+        public virtual void UpdateVersion(ref Component<TComponent> bucket) {
+            
+            if (AllComponentTypes<TComponent>.isVersioned == true) {
+                bucket.version = this.world.GetCurrentTick();
+            }
+
+        }
         
         #if !COMPONENTS_VERSION_NO_STATE_DISABLED
         public uint GetVersionNotStated(in Entity entity) {
@@ -440,34 +442,10 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(capacity, ref this.versionsNoState, true);
             #endif
             
-            this.world.currentState.storage.archetypes.Validate(capacity);
-            
-            return false;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public override bool Validate(in Entity entity) {
-
-            #if !SHARED_COMPONENTS_DISABLED
-            if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.Validate(ref this.sharedStorage, entity);
-            #endif
-            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(entity.id, ref this.versionsNoState, true);
-            #endif
-
             #if FILTERS_STORAGE_LEGACY
-            this.world.currentState.storage.archetypes.Validate(in entity);
-
-            if (ComponentTypes<TComponent>.typeId >= 0 && this.Has(in entity) == true) {
-
-                this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
-
-            }
+            this.world.currentState.storage.archetypes.Validate(capacity);
             #endif
-
+            
             return false;
 
         }
@@ -876,48 +854,6 @@ namespace ME.ECS {
             }
             #endif
 
-            /*if (this.nextTickTasks != null) {
-
-                var nullCnt = 0;
-                foreach (ref var task in this.nextTickTasks) {
-
-                    if (task.IsValid() == false) {
-                        
-                        ++nullCnt;
-                        continue;
-                        
-                    }
-                    
-                    if (task.entity == entity) {
-
-                        task.Recycle();
-                        task = default;
-                        ++nullCnt;
-
-                    }
-                    
-                }
-
-                if (nullCnt > 0 && nullCnt == this.nextTickTasks.Count) {
-                    
-                    this.nextTickTasks.Clear();
-                    
-                }
-
-            }*/
-
-            /*
-            for (int i = 0; i < this.list.Length; ++i) {
-
-                var item = this.list.arr[i];
-                if (item != null) {
-
-                    item.Remove(in entity, clearAll: true);
-
-                }
-
-            }*/
-            
             var list = this.entitiesIndexer.Get(entity.id);
             if (list != null) {
 
@@ -947,8 +883,7 @@ namespace ME.ECS {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             this.Validate<TComponent>(code, isTag);
-            var reg = (StructComponents<TComponent>)this.list.arr[code];
-            reg.Validate(in entity);
+            this.list.arr[code].Validate(entity.id);
 
         }
 
@@ -1014,8 +949,7 @@ namespace ME.ECS {
 
             var code = WorldUtilities.GetOneShotComponentTypeId<TComponent>();
             this.ValidateOneShot<TComponent>(code, isTag);
-            var reg = (StructComponentsOneShot<TComponent>)this.list.arr[code];
-            reg.Validate(in entity);
+            this.list.arr[code].Validate(entity.id);
 
         }
         
@@ -1069,7 +1003,7 @@ namespace ME.ECS {
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             this.ValidateBlittable<TComponent>(code, isTag);
             var reg = (StructComponentsBlittable<TComponent>)this.list.arr[code];
-            reg.Validate(in entity);
+            reg.Validate(entity.id);
 
         }
 
@@ -1122,8 +1056,7 @@ namespace ME.ECS {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             this.ValidateBlittableCopyable<TComponent>(code, isTag);
-            var reg = (StructComponentsBlittableCopyable<TComponent>)this.list.arr[code];
-            reg.Validate(in entity);
+            this.list.arr[code].Validate(entity.id);
 
         }
 
@@ -1176,8 +1109,7 @@ namespace ME.ECS {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             this.ValidateCopyable<TComponent>(code, isTag);
-            var reg = (StructComponentsCopyable<TComponent>)this.list.arr[code];
-            reg.Validate(in entity);
+            this.list.arr[code].Validate(entity.id);
 
         }
 
@@ -1230,8 +1162,7 @@ namespace ME.ECS {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             this.ValidateDisposable<TComponent>(code, isTag);
-            var reg = (StructComponentsDisposable<TComponent>)this.list.arr[code];
-            reg.Validate(in entity);
+            this.list.arr[code].Validate(entity.id);
 
         }
 
