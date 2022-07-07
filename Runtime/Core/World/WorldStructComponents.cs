@@ -135,13 +135,17 @@ namespace ME.ECS {
 
     public interface IVersionedNoState : IComponentBase { }
 
+    #if !SHARED_COMPONENTS_DISABLED
     public interface IComponentShared : IComponentBase { }
+    #endif
 
     public interface IComponentDisposable : IComponentBase {
 
         void OnDispose();
 
     }
+
+    public interface IComponentBlittable : IComponentBase { }
 
     public interface ICopyableBase { }
 

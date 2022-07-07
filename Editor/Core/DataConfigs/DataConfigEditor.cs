@@ -581,6 +581,7 @@ namespace ME.ECSEditor {
                         
                     }
 
+                    #if !SHARED_COMPONENTS_DISABLED
                     if (typeof(IComponentShared).IsAssignableFrom(type) == true) {
                         
                         var label = new UnityEngine.UIElements.Label("Shared");
@@ -589,6 +590,7 @@ namespace ME.ECSEditor {
                         element.Add(label);
                         
                     }
+                    #endif
 
                 }
 

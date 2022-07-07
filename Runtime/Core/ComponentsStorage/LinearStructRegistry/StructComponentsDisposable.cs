@@ -51,15 +51,16 @@ namespace ME.ECS {
 
         }
 
-        internal struct ElementCopy : IArrayElementCopy<SharedGroupData> {
+        #if !SHARED_COMPONENTS_DISABLED
+        internal struct ElementCopy : IArrayElementCopy<SharedDataStorage<TComponent>> {
 
-            public void Copy(in SharedGroupData @from, ref SharedGroupData to) {
+            public void Copy(in SharedDataStorage<TComponent> @from, ref SharedDataStorage<TComponent> to) {
                 
                 to.data = from.data;
                 
             }
 
-            public void Recycle(ref SharedGroupData item) {
+            public void Recycle(ref SharedDataStorage<TComponent> item) {
                 
                 item.data.OnDispose();
                 item = default;
@@ -67,6 +68,7 @@ namespace ME.ECS {
             }
 
         }
+        #endif
 
         public override bool IsNeedToDispose() {
 
@@ -85,15 +87,17 @@ namespace ME.ECS {
         
         public override void OnRecycle() {
 
-            if (this.sharedGroups.sharedGroups != null) {
+            #if !SHARED_COMPONENTS_DISABLED
+            if (this.sharedStorage.sharedGroups != null) {
 
-                foreach (var kv in this.sharedGroups.sharedGroups) {
+                foreach (var kv in this.sharedStorage.sharedGroups) {
 
                     kv.Value.data.OnDispose();
 
                 }
 
             }
+            #endif
 
             for (int i = 0; i < this.components.Length; ++i) {
                 
@@ -135,7 +139,9 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
             ArrayUtils.Copy(_other.components, ref this.components, new StructComponentsDisposable<TComponent>.CopyItem());
 
-            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(_other.sharedGroups, new StructComponentsDisposable<TComponent>.ElementCopy());
+            #if !SHARED_COMPONENTS_DISABLED
+            if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.CopyFrom(ref this.sharedStorage, _other.sharedStorage, new StructComponentsDisposable<TComponent>.ElementCopy());
+            #endif
             
         }
 

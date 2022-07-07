@@ -23,8 +23,10 @@ namespace ME.ECS {
         public ref ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage => ref this.filters;
         #endif
         
+        #if !ENTITY_TIMERS_DISABLED
         [ME.ECS.Serializer.SerializeField]
         public Timers timers;
+        #endif
         [ME.ECS.Serializer.SerializeField]
         public StructComponentsContainer structComponents;
         [ME.ECS.Serializer.SerializeField]
@@ -48,7 +50,9 @@ namespace ME.ECS {
             world.Register(ref this.storage, freeze, restore);
             #endif
             this.globalEvents.Initialize();
+            #if !ENTITY_TIMERS_DISABLED
             this.timers.Initialize();
+            #endif
             
         }
 
@@ -64,7 +68,9 @@ namespace ME.ECS {
             this.storage.CopyFrom(other.storage);
             #endif
             this.globalEvents.CopyFrom(in other.globalEvents);
+            #if !ENTITY_TIMERS_DISABLED
             this.timers.CopyFrom(in other.timers);
+            #endif
 
         }
 
@@ -74,7 +80,9 @@ namespace ME.ECS {
             this.randomState = default;
             this.sharedEntity = default;
             
+            #if !ENTITY_TIMERS_DISABLED
             this.timers.Dispose();
+            #endif
             this.globalEvents.DeInitialize();
             this.globalEvents = default;
             WorldUtilities.Release(ref this.filters);

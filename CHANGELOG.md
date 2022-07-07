@@ -4,6 +4,8 @@
   * fix index out of range actions if planner has one action
   * Job replaced with static burst method
 * Runtime.Core: 
+  * ENTITY_TIMERS_DISABLED define added
+  * SHARED_COMPONENTS_DISABLED define added
   * Disposable Components storage fix
   * [fix] Hierarchy clean up properly now
   * Transform hierarchy ToVectorStruct/ToQuaternionStruct/ToScaleStruct methods removed

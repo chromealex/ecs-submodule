@@ -42,15 +42,17 @@ namespace ME.ECS {
 
         public override void OnRecycle() {
 
-            if (this.sharedGroups.sharedGroups != null) {
+            #if !SHARED_COMPONENTS_DISABLED
+            if (this.sharedStorage.sharedGroups != null) {
 
-                foreach (var kv in this.sharedGroups.sharedGroups) {
+                foreach (var kv in this.sharedStorage.sharedGroups) {
 
                     kv.Value.data.OnRecycle();
 
                 }
 
             }
+            #endif
 
             for (int i = 0; i < this.components.Length; ++i) {
                 
@@ -82,7 +84,9 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
             NativeArrayUtils.Copy(_other.components, ref this.components, new StructComponentsCopyable<TComponent>.CopyItem());
 
-            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(_other.sharedGroups, new StructComponentsCopyable<TComponent>.ElementCopy());
+            #if !SHARED_COMPONENTS_DISABLED
+            if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.CopyFrom(ref this.sharedStorage, _other.sharedStorage, new StructComponentsCopyable<TComponent>.ElementCopy());
+            #endif
             
         }
 

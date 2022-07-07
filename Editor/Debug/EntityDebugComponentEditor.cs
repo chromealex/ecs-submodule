@@ -13,7 +13,9 @@ namespace ME.ECSEditor {
         public class TempDataObject : MonoBehaviour {
 
             public ME.ECS.Debug.EntityProxyDebugger.ComponentData[] components;
+            #if !SHARED_COMPONENTS_DISABLED
             public ME.ECS.Debug.EntityProxyDebugger.ComponentData[] sharedComponents;
+            #endif
 
         }
         
@@ -22,13 +24,16 @@ namespace ME.ECSEditor {
         private ME.ECS.Debug.EntityProxyDebugger debug;
 
         private readonly System.Collections.Generic.Dictionary<int, UnityEditor.UIElements.PropertyField> fieldsCacheComponents = new System.Collections.Generic.Dictionary<int, PropertyField>();
-        private readonly System.Collections.Generic.Dictionary<int, UnityEditor.UIElements.PropertyField> fieldsCacheSharedComponents = new System.Collections.Generic.Dictionary<int, PropertyField>();
         private VisualElement rootElement;
         private VisualElement componentsContainer;
-        private VisualElement sharedComponentsContainer;
         private VisualElement content;
         private bool componentsDirty;
+        
+        #if !SHARED_COMPONENTS_DISABLED
+        private readonly System.Collections.Generic.Dictionary<int, UnityEditor.UIElements.PropertyField> fieldsCacheSharedComponents = new System.Collections.Generic.Dictionary<int, PropertyField>();
         private bool sharedComponentsDirty;
+        private VisualElement sharedComponentsContainer;
+        #endif
         
         private VisualElement entityContainer;
         private VisualElement entityContainerWarning;
@@ -71,17 +76,21 @@ namespace ME.ECSEditor {
                 
                 this.debug.SetEntity(entity);
                 this.UpdateComponents();
+                #if !SHARED_COMPONENTS_DISABLED
                 this.UpdateSharedComponents();
+                #endif
 
                 if (this.componentsDirty == true) {
                     this.componentsDirty = false;
                     this.RegisterComponentsCallbacks();
                 }
                 
+                #if !SHARED_COMPONENTS_DISABLED
                 if (this.sharedComponentsDirty == true) {
                     this.sharedComponentsDirty = false;
                     this.RegisterSharedComponentsCallbacks();
                 }
+                #endif
                 
             } else {
                 
@@ -137,6 +146,7 @@ namespace ME.ECSEditor {
 
         }
 
+        #if !SHARED_COMPONENTS_DISABLED
         private void UpdateSharedComponents() {
             
             var components = this.debug.GetSharedComponentsList();
@@ -177,6 +187,7 @@ namespace ME.ECSEditor {
             this.temp.sharedComponents = components;
 
         }
+        #endif
 
         private void UpdateComponents() {
             
@@ -232,6 +243,7 @@ namespace ME.ECSEditor {
 
         }
 
+        #if !SHARED_COMPONENTS_DISABLED
         private void RegisterSharedComponentsCallbacks() {
             
             foreach (var item in this.fieldsCacheSharedComponents) {
@@ -242,6 +254,7 @@ namespace ME.ECSEditor {
             }
 
         }
+        #endif
 
         private void RegisterEvents(int index, PropertyField element, bool isShared) {
             
@@ -250,10 +263,13 @@ namespace ME.ECSEditor {
                     
                 var prop = (PropertyField)x;
                 prop.userData = index;
+                #if !SHARED_COMPONENTS_DISABLED
                 if (isShared == true) {
                     prop.UnregisterCallback<SerializedPropertyChangeEvent>(this.OnEventPropertyChangedShared);
                     prop.RegisterCallback<SerializedPropertyChangeEvent>(this.OnEventPropertyChangedShared);
-                } else {
+                } else
+                #endif
+                {
                     prop.UnregisterCallback<SerializedPropertyChangeEvent>(this.OnEventPropertyChanged);
                     prop.RegisterCallback<SerializedPropertyChangeEvent>(this.OnEventPropertyChanged);
                 }
@@ -270,6 +286,7 @@ namespace ME.ECSEditor {
             
         }
 
+        #if !SHARED_COMPONENTS_DISABLED
         private void OnEventPropertyChangedShared(SerializedPropertyChangeEvent evtProp) {
             
             var idx = (int)((PropertyField)evtProp.currentTarget).userData;
@@ -277,6 +294,7 @@ namespace ME.ECSEditor {
             this.debug.SetSharedComponent(comp.dataIndex, comp.data, comp.groupId);
             
         }
+        #endif
 
         public override VisualElement CreateInspectorGUI() {
             
@@ -289,7 +307,9 @@ namespace ME.ECSEditor {
 
                 this.debug = new ME.ECS.Debug.EntityProxyDebugger(target.entity, target.world);
                 this.temp.components = this.debug.GetComponentsList();
+                #if !SHARED_COMPONENTS_DISABLED
                 this.temp.sharedComponents = this.debug.GetSharedComponentsList();
+                #endif
                 container.schedule.Execute(this.Update).Every((long)(target.world.GetTickTime() * 1000f));
                 
                 var searchField = new ToolbarSearchField();
@@ -298,7 +318,9 @@ namespace ME.ECSEditor {
 
                     var search = evt.newValue.ToLower();
                     DataConfigEditor.Search(search, this.componentsContainer);
+                    #if !SHARED_COMPONENTS_DISABLED
                     DataConfigEditor.Search(search, this.sharedComponentsContainer);
+                    #endif
                 
                 });
                 container.Add(searchField);
@@ -378,9 +400,11 @@ namespace ME.ECSEditor {
             this.RebuildComponents(this.componentsContainer.contentContainer);
             container.Add(this.componentsContainer);
 
+            #if !SHARED_COMPONENTS_DISABLED
             this.sharedComponentsContainer = new VisualElement();
             this.RebuildSharedComponents(this.sharedComponentsContainer.contentContainer);
             container.Add(this.sharedComponentsContainer);
+            #endif
 
         }
 
@@ -432,6 +456,7 @@ namespace ME.ECSEditor {
             
         }
 
+        #if !SHARED_COMPONENTS_DISABLED
         private void RebuildSharedComponents(VisualElement container) {
             
             container.Clear();
@@ -461,6 +486,7 @@ namespace ME.ECSEditor {
             container.Add(element);
             
         }
+        #endif
 
         /*
         private static readonly System.Collections.Generic.Dictionary<World, WorldsViewerEditor.WorldEditor> worldEditors = new System.Collections.Generic.Dictionary<World, WorldsViewerEditor.WorldEditor>();

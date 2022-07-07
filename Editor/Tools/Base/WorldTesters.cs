@@ -82,7 +82,9 @@ namespace ME.ECSEditor.Tools {
 
             public object Fill(ITester tester, object instance, System.Type type) {
 
+                #if !SHARED_COMPONENTS_DISABLED
                 ME.ECS.AllComponentTypes<TestComponent>.isShared = true;
+                #endif
                 ME.ECS.AllComponentTypes<TestCopyableComponent>.isCopyable = true;
                 ME.ECS.AllComponentTypes<TestDisposableComponent>.isDisposable = true;
                 
@@ -133,17 +135,21 @@ namespace ME.ECSEditor.Tools {
                     new Component<TestComponent>() { data = new TestComponent() { data = 3 }, state = 1 },
                 };
 
-                var shared = new ME.ECS.Collections.DictionaryCopyable<uint, ME.ECS.StructComponents<TestComponent>.SharedGroupData>();
-                shared.Add(10, new ME.ECS.StructComponents<TestComponent>.SharedGroupData() {
+                #if !SHARED_COMPONENTS_DISABLED
+                var shared = new ME.ECS.Collections.DictionaryCopyable<uint, SharedDataStorage<TestComponent>>();
+                shared.Add(10, new SharedDataStorage<TestComponent>() {
                     data = new TestComponent() { data = 4, },
                     states = new ME.ECS.Collections.BufferArray<bool>(new bool[] { true, true, false }, 3),
                 });
+                #endif
                 
                 var baseComponentsReg = new ME.ECS.StructComponents<TestComponent>() {
                     components = new ME.ECS.Collections.BufferArraySliced<Component<TestComponent>>(new ME.ECS.Collections.BufferArray<Component<TestComponent>>(components, components.Length)),
-                    sharedGroups = new ME.ECS.StructComponents<TestComponent>.SharedGroups() {
+                    #if !SHARED_COMPONENTS_DISABLED
+                    sharedStorage = new SharedDataStorageGroup<TestComponent>() {
                         sharedGroups = shared,
                     },
+                    #endif
                 };
 
                 return baseComponentsReg;

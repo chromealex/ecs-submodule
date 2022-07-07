@@ -38,6 +38,7 @@ namespace ME.ECS.Debug {
             
         }
 
+        #if !SHARED_COMPONENTS_DISABLED
         public void SetSharedComponent(int index, IComponentBase data, uint groupId) {
             
             var world = this.world;
@@ -53,6 +54,7 @@ namespace ME.ECS.Debug {
             public IComponentBase data;
 
         }
+        #endif
 
         public string actor {
             get { return this.entity.ToString(); }
@@ -108,6 +110,7 @@ namespace ME.ECS.Debug {
             
         }
 
+        #if !SHARED_COMPONENTS_DISABLED
         public SharedGroup[] sharedComponents {
             
             get {
@@ -140,6 +143,7 @@ namespace ME.ECS.Debug {
             }
             
         }
+        #endif
 
         [System.Serializable]
         public struct ComponentData {
@@ -260,6 +264,7 @@ namespace ME.ECS.Debug {
 
         }
 
+        #if !SHARED_COMPONENTS_DISABLED
         public ComponentData[] GetSharedComponentsList() {
             
             if (this.alive == false) return new ComponentData[0];
@@ -292,6 +297,7 @@ namespace ME.ECS.Debug {
             return list.ToArray();
             
         }
+        #endif
 
     }
 

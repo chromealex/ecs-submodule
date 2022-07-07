@@ -639,6 +639,7 @@ namespace ME.ECSEditor {
                                 if (registry is StructComponents<ME.ECS.Views.ViewComponent>) continue;
                                 #endif
                                 
+                                #if !SHARED_COMPONENTS_DISABLED
                                 var groupIds = registry.GetSharedGroups(entityData);
                                 if (groupIds != null) {
 
@@ -664,9 +665,11 @@ namespace ME.ECSEditor {
                                     }
 
                                 }
+                                #endif
 
                             }
 
+                            #if !SHARED_COMPONENTS_DISABLED
                             var isFoldoutShared = world.IsFoldOutViews("Shared", entityData.id);
                             GUILayoutExt.FoldOut(ref isFoldoutShared, $"Shared Components ({sortedRegistries.Count})", () => {
 
@@ -693,6 +696,7 @@ namespace ME.ECSEditor {
 
                             });
                             world.SetFoldOutViews("Shared", entityData.id, isFoldoutShared);
+                            #endif
                             
                         }
                         #endregion

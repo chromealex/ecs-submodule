@@ -18,9 +18,11 @@ namespace ME.ECS {
 
         IComponentBase GetObject(Entity entity);
         bool SetObject(in Entity entity, IComponentBase data, StorageType storageType);
+        #if !SHARED_COMPONENTS_DISABLED
         IComponentBase GetSharedObject(Entity entity, uint groupId);
         bool SetSharedObject(in Entity entity, IComponentBase data, uint groupId);
         bool RemoveObject(in Entity entity, StorageType storageType);
+        #endif
         bool HasType(System.Type type);
 
     }
@@ -66,9 +68,11 @@ namespace ME.ECS {
         public abstract IComponentBase GetObject(Entity entity);
         public abstract bool SetObject(in Entity entity, IComponentBase data, StorageType storageType);
         public abstract bool SetObject(in Entity entity, UnsafeData buffer, StorageType storageType);
+        #if !SHARED_COMPONENTS_DISABLED
         public abstract System.Collections.Generic.ICollection<uint> GetSharedGroups(Entity entity);
         public abstract IComponentBase GetSharedObject(Entity entity, uint groupId);
         public abstract bool SetSharedObject(in Entity entity, IComponentBase data, uint groupId);
+        #endif
         public abstract bool RemoveObject(in Entity entity, StorageType storageType);
 
         #if INLINE_METHODS
@@ -95,10 +99,12 @@ namespace ME.ECS {
         #endif
         public abstract bool Has(in Entity entity);
 
+        #if !SHARED_COMPONENTS_DISABLED
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public abstract bool HasShared(in Entity entity, uint groupId);
+        #endif
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -127,6 +133,217 @@ namespace ME.ECS {
         }
 
     }
+    
+    #if !SHARED_COMPONENTS_DISABLED
+    public static class SharedGroupDataAPI<TComponent> where TComponent : struct, IComponentBase {
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Validate(ref SharedDataStorage<TComponent> sharedStorage, int entityId) {
+            
+            ArrayUtils.Resize(entityId, ref sharedStorage.states, true);
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void CopyFrom(in SharedDataStorage<TComponent> sharedStorage, in Entity from, in Entity to) {
+
+            sharedStorage.states.arr[to.id] = sharedStorage.states.arr[from.id];
+
+        }
+
+    }
+
+    internal static class SharedGroupsFalse {
+
+        internal static bool alwaysFalse;
+
+    }
+    
+    public static class SharedGroupsAPI<TComponent> where TComponent : struct, IComponentBase {
+
+        public static System.Collections.Generic.ICollection<uint> GetGroups(ref SharedDataStorageGroup<TComponent> sharedStorage) {
+            
+            if (sharedStorage.sharedGroups == null) return null;
+            return sharedStorage.sharedGroups.Keys;
+            
+        }
+
+        public static void Validate(ref SharedDataStorageGroup<TComponent> sharedStorage, in Entity entity) {
+            
+            Initialize(ref sharedStorage);
+
+        }
+
+        public static void Validate(ref SharedDataStorageGroup<TComponent> sharedStorage, int capacity) {
+            
+            Initialize(ref sharedStorage);
+            
+        }
+
+        public static void Initialize(ref SharedDataStorageGroup<TComponent> sharedStorage) {
+
+            if (sharedStorage.sharedGroups == null) {
+                
+                #if MULTITHREAD_SUPPORT
+                sharedStorage.sharedGroups = PoolCCDictionary<uint, SharedDataStorage<TComponent>>.Spawn(1);
+                #else
+                sharedStorage.sharedGroups = PoolDictionaryCopyable<uint, SharedDataStorage<TComponent>>.Spawn(1);
+                #endif
+
+            }
+
+        }
+
+        public static void OnRecycle(ref SharedDataStorageGroup<TComponent> sharedStorage) {
+
+            if (sharedStorage.sharedGroups != null) {
+                
+                #if MULTITHREAD_SUPPORT
+                PoolCCDictionary<uint, SharedDataStorage<TComponent>>.Recycle(ref this.sharedGroups);
+                #else
+                PoolDictionaryCopyable<uint, SharedDataStorage<TComponent>>.Recycle(ref sharedStorage.sharedGroups);
+                #endif
+                
+            }
+            
+        }
+
+        public static void CopyFrom<TElementCopy>(ref SharedDataStorageGroup<TComponent> sharedStorage, SharedDataStorageGroup<TComponent> other, TElementCopy copy) where TElementCopy : IArrayElementCopy<SharedDataStorage<TComponent>> {
+
+            if (sharedStorage.sharedGroups == null && other.sharedGroups == null) {
+
+                return;
+
+            } else if (sharedStorage.sharedGroups == null && other.sharedGroups != null) {
+
+                #if MULTITHREAD_SUPPORT
+                sharedStorage.sharedGroups = PoolCCDictionary<uint, SharedDataStorage<TComponent>>.Spawn(other.sharedGroups.Count);
+                #else
+                sharedStorage.sharedGroups = PoolDictionaryCopyable<uint, SharedDataStorage<TComponent>>.Spawn(other.sharedGroups.Count);
+                #endif
+
+            } else if (sharedStorage.sharedGroups != null && other.sharedGroups == null) {
+
+                foreach (var kv in sharedStorage.sharedGroups) {
+                    
+                    var item = kv.Value;
+                    copy.Recycle(ref item);
+                    
+                }
+                #if MULTITHREAD_SUPPORT
+                PoolCCDictionary<uint, SharedDataStorage<TComponent>>.Recycle(ref sharedStorage.sharedGroups);
+                #else
+                PoolDictionaryCopyable<uint, SharedDataStorage<TComponent>>.Recycle(ref sharedStorage.sharedGroups);
+                #endif
+                return;
+
+            }
+            
+            sharedStorage.sharedGroups.CopyFrom(other.sharedGroups, copy);
+            
+        }
+
+        public static void CopyFrom(ref SharedDataStorageGroup<TComponent> sharedStorage, in Entity from, in Entity to) {
+
+            foreach (var kv in sharedStorage.sharedGroups) {
+
+                SharedGroupDataAPI<TComponent>.CopyFrom(kv.Value, in from, in to);
+                
+            }
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static ref bool Has(ref SharedDataStorageGroup<TComponent> sharedStorage, int entityId, uint groupId) {
+
+            ref var group = ref sharedStorage.sharedGroups.Get(groupId);
+            if (entityId < group.states.Length) return ref group.states.arr[entityId];
+            SharedGroupsFalse.alwaysFalse = false;
+            return ref SharedGroupsFalse.alwaysFalse;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static ref TComponent Get(ref SharedDataStorageGroup<TComponent> sharedStorage, int entityId, uint groupId) {
+
+            return ref sharedStorage.sharedGroups.Get(groupId).data;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static ref SharedDataStorage<TComponent> GetGroup(ref SharedDataStorageGroup<TComponent> sharedStorage, uint groupId) {
+
+            return ref sharedStorage.sharedGroups.Get(groupId);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Set(ref SharedDataStorageGroup<TComponent> sharedStorage, int entityId, uint groupId, TComponent data) {
+
+            ref var group = ref sharedStorage.sharedGroups.Get(groupId);
+            SharedGroupDataAPI<TComponent>.Validate(ref group, entityId);
+            group.states.arr[entityId] = true;
+            group.data = data;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Set(ref SharedDataStorageGroup<TComponent> sharedStorage, int entityId, uint groupId) {
+
+            ref var group = ref sharedStorage.sharedGroups.Get(groupId);
+            SharedGroupDataAPI<TComponent>.Validate(ref group, entityId);
+            group.states.arr[entityId] = true;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Remove(ref SharedDataStorageGroup<TComponent> sharedStorage, int entityId, uint groupId) {
+
+            ref var group = ref sharedStorage.sharedGroups.Get(groupId);
+            SharedGroupDataAPI<TComponent>.Validate(ref group, entityId);
+            group.states.arr[entityId] = false;
+
+        }
+
+    }
+
+    public struct SharedDataStorage<TComponent> where TComponent : struct, IComponentBase {
+
+        [ME.ECS.Serializer.SerializeField]
+        internal BufferArray<bool> states;
+        [ME.ECS.Serializer.SerializeField]
+        internal TComponent data;
+
+    }
+
+    public struct SharedDataStorageGroup<TComponent> where TComponent : struct, IComponentBase {
+
+        #if MULTITHREAD_SUPPORT
+        [ME.ECS.Serializer.SerializeField]
+        internal CCDictionary<uint, SharedGroupData> sharedGroups;
+        #else
+        [ME.ECS.Serializer.SerializeField]
+        internal DictionaryCopyable<uint, SharedDataStorage<TComponent>> sharedGroups;
+        #endif
+
+    }
+    #endif
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
@@ -135,198 +352,13 @@ namespace ME.ECS {
     #endif
     public abstract partial class StructComponentsBase<TComponent> : StructRegistryBase where TComponent : struct, IComponentBase {
 
-        public struct SharedGroupData {
-
-            [ME.ECS.Serializer.SerializeField]
-            internal BufferArray<bool> states;
-            [ME.ECS.Serializer.SerializeField]
-            internal TComponent data;
-
-            #if INLINE_METHODS
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Validate(int entityId) {
-                
-                ArrayUtils.Resize(entityId, ref this.states, true);
-                
-            }
-
-            #if INLINE_METHODS
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void CopyFrom(in Entity from, in Entity to) {
-
-                this.states.arr[to.id] = this.states.arr[from.id];
-
-            }
-
-        }
-
-        public struct SharedGroups : ISharedGroups {
-
-            #if MULTITHREAD_SUPPORT
-            [ME.ECS.Serializer.SerializeField]
-            internal CCDictionary<uint, SharedGroupData> sharedGroups;
-            #else
-            [ME.ECS.Serializer.SerializeField]
-            internal DictionaryCopyable<uint, SharedGroupData> sharedGroups;
-            #endif
-            private static bool alwaysFalse;
-
-            public System.Collections.Generic.ICollection<uint> GetGroups() {
-                
-                if (this.sharedGroups == null) return null;
-                return this.sharedGroups.Keys;
-                
-            }
-
-            public void Validate(in Entity entity) {
-                
-                this.Initialize();
-
-            }
-
-            public void Validate(int capacity) {
-                
-                this.Initialize();
-                
-            }
-
-            public void Initialize() {
-
-                if (this.sharedGroups == null) {
-                    
-                    #if MULTITHREAD_SUPPORT
-                    this.sharedGroups = PoolCCDictionary<uint, SharedGroupData>.Spawn(1);
-                    #else
-                    this.sharedGroups = PoolDictionaryCopyable<uint, SharedGroupData>.Spawn(1);
-                    #endif
-
-                }
-
-            }
-
-            public void OnRecycle() {
-
-                if (this.sharedGroups != null) {
-                    
-                    #if MULTITHREAD_SUPPORT
-                    PoolCCDictionary<uint, SharedGroupData>.Recycle(ref this.sharedGroups);
-                    #else
-                    PoolDictionaryCopyable<uint, SharedGroupData>.Recycle(ref this.sharedGroups);
-                    #endif
-                    
-                }
-                
-            }
-
-            public void CopyFrom<TElementCopy>(SharedGroups other, TElementCopy copy) where TElementCopy : IArrayElementCopy<SharedGroupData> {
-
-                if (this.sharedGroups == null && other.sharedGroups == null) {
-
-                    return;
-
-                } else if (this.sharedGroups == null && other.sharedGroups != null) {
-
-                    #if MULTITHREAD_SUPPORT
-                    this.sharedGroups = PoolCCDictionary<uint, SharedGroupData>.Spawn(other.sharedGroups.Count);
-                    #else
-                    this.sharedGroups = PoolDictionaryCopyable<uint, SharedGroupData>.Spawn(other.sharedGroups.Count);
-                    #endif
-
-                } else if (this.sharedGroups != null && other.sharedGroups == null) {
-
-                    foreach (var kv in this.sharedGroups) {
-                        
-                        var item = kv.Value;
-                        copy.Recycle(ref item);
-                        
-                    }
-                    #if MULTITHREAD_SUPPORT
-                    PoolCCDictionary<uint, SharedGroupData>.Recycle(ref this.sharedGroups);
-                    #else
-                    PoolDictionaryCopyable<uint, SharedGroupData>.Recycle(ref this.sharedGroups);
-                    #endif
-                    return;
-
-                }
-                
-                this.sharedGroups.CopyFrom(other.sharedGroups, copy);
-                
-            }
-
-            public void CopyFrom(in Entity from, in Entity to) {
-
-                foreach (var kv in this.sharedGroups) {
-
-                    kv.Value.CopyFrom(in from, in to);
-
-                }
-                
-            }
-
-            #if INLINE_METHODS
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
-            public ref bool Has(int entityId, uint groupId) {
-
-                ref var group = ref this.sharedGroups.Get(groupId);
-                if (entityId < group.states.Length) return ref group.states.arr[entityId];
-                SharedGroups.alwaysFalse = false;
-                return ref SharedGroups.alwaysFalse;
-
-            }
-
-            #if INLINE_METHODS
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
-            public ref TComponent Get(int entityId, uint groupId) {
-
-                return ref this.sharedGroups.Get(groupId).data;
-
-            }
-
-            #if INLINE_METHODS
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Set(int entityId, uint groupId, TComponent data) {
-
-                ref var group = ref this.sharedGroups.Get(groupId);
-                group.Validate(entityId);
-                group.states.arr[entityId] = true;
-                group.data = data;
-
-            }
-
-            #if INLINE_METHODS
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Set(int entityId, uint groupId) {
-
-                ref var group = ref this.sharedGroups.Get(groupId);
-                group.Validate(entityId);
-                group.states.arr[entityId] = true;
-
-            }
-
-            #if INLINE_METHODS
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Remove(int entityId, uint groupId) {
-
-                ref var group = ref this.sharedGroups.Get(groupId);
-                group.Validate(entityId);
-                group.states.arr[entityId] = false;
-
-            }
-
-        }
-
         // We don't need to serialize this field
         internal BufferArray<uint> versionsNoState;
+        #if !SHARED_COMPONENTS_DISABLED
         // Shared data
         [ME.ECS.Serializer.SerializeField]
-        internal SharedGroups sharedGroups;
+        internal SharedDataStorageGroup<TComponent> sharedStorage;
+        #endif
         
         public override int GetCustomHash() => 0;
 
@@ -384,13 +416,17 @@ namespace ME.ECS {
         public override void OnRecycle() {
 
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) PoolArray<uint>.Recycle(ref this.versionsNoState);
-            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.OnRecycle();
+            #if !SHARED_COMPONENTS_DISABLED
+            if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.OnRecycle(ref this.sharedStorage);
+            #endif
             
         }
 
         public override bool Validate(int capacity) {
             
-            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.Validate(capacity);
+            #if !SHARED_COMPONENTS_DISABLED
+            if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.Validate(ref this.sharedStorage, capacity);
+            #endif
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(capacity, ref this.versionsNoState, true);
             
             this.world.currentState.storage.archetypes.Validate(capacity);
@@ -404,7 +440,9 @@ namespace ME.ECS {
         #endif
         public override bool Validate(in Entity entity) {
 
-            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.Validate(in entity);
+            #if !SHARED_COMPONENTS_DISABLED
+            if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.Validate(ref this.sharedStorage, entity);
+            #endif
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(entity.id, ref this.versionsNoState, true);
 
             #if FILTERS_STORAGE_LEGACY
@@ -427,16 +465,17 @@ namespace ME.ECS {
 
         }
 
+        #if !SHARED_COMPONENTS_DISABLED
         public override System.Collections.Generic.ICollection<uint> GetSharedGroups(Entity entity) {
 
-            return this.sharedGroups.GetGroups();
+            return SharedGroupsAPI<TComponent>.GetGroups(ref this.sharedStorage);
 
         }
 
         public override IComponentBase GetSharedObject(Entity entity, uint groupId) {
 
-            if (this.sharedGroups.Has(entity.id, groupId) == false) return null;
-            return this.sharedGroups.Get(entity.id, groupId);
+            if (SharedGroupsAPI<TComponent>.Has(ref this.sharedStorage, entity.id, groupId) == false) return null;
+            return SharedGroupsAPI<TComponent>.Get(ref this.sharedStorage, entity.id, groupId);
 
         }
 
@@ -450,7 +489,7 @@ namespace ME.ECS {
             }
             #endif
 
-            this.sharedGroups.Set(entity.id, groupId, (TComponent)data);
+            SharedGroupsAPI<TComponent>.Set(ref this.sharedStorage, entity.id, groupId, (TComponent)data);
             
             var componentIndex = ComponentTypes<TComponent>.typeId;
             if (componentIndex >= 0) this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
@@ -458,11 +497,6 @@ namespace ME.ECS {
             return true;
             
         }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public abstract void Replace(ref Component<TComponent> bucket, in TComponent data);
         
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -477,20 +511,27 @@ namespace ME.ECS {
             }
             #endif
 
-            return this.sharedGroups.Has(entity.id, groupId);
+            return SharedGroupsAPI<TComponent>.Has(ref this.sharedStorage, entity.id, groupId);
 
         }
+        #endif
 
-        private struct ElementCopy : IArrayElementCopy<SharedGroupData> {
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public abstract void Replace(ref Component<TComponent> bucket, in TComponent data);
+        
+        #if !SHARED_COMPONENTS_DISABLED
+        private struct ElementCopy : IArrayElementCopy<SharedDataStorage<TComponent>> {
 
-            public void Copy(in SharedGroupData @from, ref SharedGroupData to) {
+            public void Copy(in SharedDataStorage<TComponent> @from, ref SharedDataStorage<TComponent> to) {
                 
                 to.data = from.data;
                 ArrayUtils.Copy(from.states, ref to.states);
                 
             }
 
-            public void Recycle(ref SharedGroupData item) {
+            public void Recycle(ref SharedDataStorage<TComponent> item) {
                 
                 PoolArray<bool>.Recycle(ref item.states);
                 item.data = default;
@@ -499,6 +540,7 @@ namespace ME.ECS {
             }
 
         }
+        #endif
 
         public override void CopyFrom(in Entity from, in Entity to) {
 
@@ -529,7 +571,9 @@ namespace ME.ECS {
             }
             PoolListCopyable<StructComponentsContainer.NextTickTask>.Recycle(ref taskList);
             
-            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(in from, in to);
+            #if !SHARED_COMPONENTS_DISABLED
+            if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.CopyFrom(ref this.sharedStorage, in from, in to);
+            #endif
             if (this.CopyFromState(in from, in to) > 0) {
 
                 if (ComponentTypes<TComponent>.typeId >= 0) this.world.currentState.storage.archetypes.Set<TComponent>(in to);
@@ -548,7 +592,9 @@ namespace ME.ECS {
 
             var _other = (StructComponentsBase<TComponent>)other;
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
-            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(_other.sharedGroups, new ElementCopy());
+            #if !SHARED_COMPONENTS_DISABLED
+            if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.CopyFrom(ref this.sharedStorage, _other.sharedStorage, new ElementCopy());
+            #endif
             
         }
 
@@ -1214,6 +1260,7 @@ namespace ME.ECS {
             
         }
 
+        #if !SHARED_COMPONENTS_DISABLED
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -1230,6 +1277,7 @@ namespace ME.ECS {
             return reg.HasShared(in entity, groupId);
 
         }
+        #endif
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
@@ -1453,6 +1501,7 @@ namespace ME.ECS {
 
         }
 
+        #if !SHARED_COMPONENTS_DISABLED
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -1461,6 +1510,7 @@ namespace ME.ECS {
             return this.currentState.structComponents.HasSharedBit(in entity, bit, groupId);
 
         }
+        #endif
 
         public void ValidateData<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase {
 
@@ -1503,11 +1553,13 @@ namespace ME.ECS {
         #endif
         private void UseLifetimeStep(ComponentLifetime step, tfloat deltaTime) {
 
+            #if !ENTITY_TIMERS_DISABLED
             if (step == ComponentLifetime.NotifyAllSystemsBelow) {
                 
                 this.currentState.timers.Update(deltaTime);
                 
             }
+            #endif
         
             this.UseLifetimeStep(step, deltaTime, ref this.currentState.structComponents);
             this.UseLifetimeStep(step, deltaTime, ref this.structComponentsNoState);
@@ -1688,6 +1740,7 @@ namespace ME.ECS {
         #endregion
 
         #region SHARED
+        #if !SHARED_COMPONENTS_DISABLED
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -1727,7 +1780,7 @@ namespace ME.ECS {
                 
             }
             #endif
-            return ref reg.sharedGroups.Get(entity.id, groupId);
+            return ref SharedGroupsAPI<TComponent>.Get(ref reg.sharedStorage, entity.id, groupId);
 
         }
 
@@ -1757,7 +1810,7 @@ namespace ME.ECS {
 
             // Inline all manually
             var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            if (reg.sharedGroups.Has(entity.id, groupId) == false) return false;
+            if (SharedGroupsAPI<TComponent>.Has(ref reg.sharedStorage, entity.id, groupId) == false) return false;
             return true;
 
         }
@@ -1794,7 +1847,7 @@ namespace ME.ECS {
 
             // Inline all manually
             var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            ref var state = ref reg.sharedGroups.Has(entity.id, groupId);
+            ref var state = ref SharedGroupsAPI<TComponent>.Has(ref reg.sharedStorage, entity.id, groupId);
             var incrementVersion = (this.HasStep(WorldStep.LogicTick) == true || this.HasResetState() == false);
             if (state == false) {
 
@@ -1812,7 +1865,7 @@ namespace ME.ECS {
                 }
                 
                 incrementVersion = true;
-                reg.sharedGroups.Set(entity.id, groupId);
+                SharedGroupsAPI<TComponent>.Set(ref reg.sharedStorage, entity.id, groupId);
                 this.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<TComponent>.typeId);
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
@@ -1833,7 +1886,7 @@ namespace ME.ECS {
             if (incrementVersion == true) {
                 
                 // Increment versions for all entities stored this group
-                ref var states = ref reg.sharedGroups.sharedGroups.Get(groupId).states;
+                ref var states = ref SharedGroupsAPI<TComponent>.GetGroup(ref reg.sharedStorage, groupId).states;
                 for (int i = 0; i < states.Length; ++i) {
                     if (states.arr[i] == true) {
                         this.currentState.storage.versions.Increment(i);
@@ -1859,7 +1912,7 @@ namespace ME.ECS {
 
             }
 
-            return ref reg.sharedGroups.Get(entity.id, groupId);
+            return ref SharedGroupsAPI<TComponent>.Get(ref reg.sharedStorage, entity.id, groupId);
 
         }
 
@@ -1897,11 +1950,11 @@ namespace ME.ECS {
             }
 
             var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            ref var state = ref reg.sharedGroups.Has(entity.id, groupId);
+            ref var state = ref SharedGroupsAPI<TComponent>.Has(ref reg.sharedStorage, entity.id, groupId);
             if (state == true) {
                 
                 // Increment versions for all entities stored this group
-                ref var states = ref reg.sharedGroups.sharedGroups.Get(groupId).states;
+                ref var states = ref SharedGroupsAPI<TComponent>.GetGroup(ref reg.sharedStorage, groupId).states;
                 for (int i = 0; i < states.Length; ++i) {
                     if (states.arr[i] == true) {
                         this.currentState.storage.versions.Increment(i);
@@ -1948,10 +2001,10 @@ namespace ME.ECS {
             var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             if (AllComponentTypes<TComponent>.isTag == false) {
                 
-                reg.sharedGroups.Set(entity.id, groupId, data);
+                SharedGroupsAPI<TComponent>.Set(ref reg.sharedStorage, entity.id, groupId, data);
                 
                 // Increment versions for all entities stored this group
-                ref var states = ref reg.sharedGroups.sharedGroups.Get(groupId).states;
+                ref var states = ref SharedGroupsAPI<TComponent>.GetGroup(ref reg.sharedStorage, groupId).states;
                 for (int i = 0; i < states.Length; ++i) {
                     if (states.arr[i] == true) {
                         this.currentState.storage.versions.Increment(i);
@@ -1960,7 +2013,7 @@ namespace ME.ECS {
 
             }
             
-            ref var state = ref reg.sharedGroups.Has(entity.id, groupId);
+            ref var state = ref SharedGroupsAPI<TComponent>.Has(ref reg.sharedStorage, entity.id, groupId);
             if (state == false) {
 
                 state = true;
@@ -2039,9 +2092,11 @@ namespace ME.ECS {
             }
             
         }
+        #endif
         #endregion
 
         #region TIMERS
+        #if !ENTITY_TIMERS_DISABLED
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -2077,6 +2132,7 @@ namespace ME.ECS {
             return this.currentState.timers.Remove(in entity, index);
 
         }
+        #endif
         #endregion
 
         #region HAS/GET/SET/READ/REMOVE

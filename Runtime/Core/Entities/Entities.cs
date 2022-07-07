@@ -76,7 +76,9 @@ namespace ME.ECS {
         public static bool isSimple = false;
         public static bool isBlittable = false;
         public static bool isCopyable = false;
+        #if !SHARED_COMPONENTS_DISABLED
         public static bool isShared = false;
+        #endif
         public static bool isDisposable = false;
         public static bool isOneShot = false;
         public static bool isInHash = true;
@@ -307,6 +309,7 @@ namespace ME.ECS {
     #endif
     public static partial class EntityExtensionsV2 {
 
+        #if !ENTITY_TIMERS_DISABLED
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -343,6 +346,7 @@ namespace ME.ECS {
             return Worlds.currentWorld.RemoveTimer(in entity, index);
 
         }
+        #endif
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -524,6 +528,7 @@ namespace ME.ECS {
 
         }
 
+        #if !SHARED_COMPONENTS_DISABLED
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -570,6 +575,7 @@ namespace ME.ECS {
             return entity;
 
         }
+        #endif
         
     }
 

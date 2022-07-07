@@ -272,7 +272,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class StructComponentsOneShot<TComponent> : StructComponents<TComponent> where TComponent : struct, IComponentBase, IComponentOneShot {
+    public sealed class StructComponentsOneShot<TComponent> : StructComponents<TComponent> where TComponent : struct, IComponentOneShot {
 
         public override void Recycle() {
             

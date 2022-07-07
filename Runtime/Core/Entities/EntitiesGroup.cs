@@ -290,12 +290,15 @@ namespace ME.ECS {
                     }
                     if (this.structComponents[i] is IComponentStatic) continue;
 
+                    #if !SHARED_COMPONENTS_DISABLED
                     var isShared = (this.structComponents[i] is IComponentShared);
                     if (isShared == true) { // is shared?
 
                         throw new System.NotImplementedException("Set Shared for EntityGroups is not implemented");
 
-                    } else {
+                    } else
+                    #endif
+                    {
 
                         group.Set(this.structComponents[i], dataIndex);
 

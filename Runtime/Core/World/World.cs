@@ -1550,7 +1550,9 @@ namespace ME.ECS {
                 if (cleanUpHierarchy == true) ECSTransformHierarchy.OnEntityDestroy(in entity);
                 this.RemoveFromAllFilters(entity);
                 this.DestroyEntityPlugins(in entity);
+                #if !ENTITY_TIMERS_DISABLED
                 this.currentState.timers.OnEntityDestroy(in entity);
+                #endif
 
                 this.currentState.storage.IncrementGeneration(in entity);
 
