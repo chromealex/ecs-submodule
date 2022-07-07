@@ -29,7 +29,6 @@ namespace ME.ECS {
 
                 if (hasFrom == false && hasTo == true) {
                     
-                    from.data.OnRecycle();
                     to.data.OnRecycle();
                     
                 } else {

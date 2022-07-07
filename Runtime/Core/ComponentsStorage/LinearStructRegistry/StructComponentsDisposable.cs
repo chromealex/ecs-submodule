@@ -13,6 +13,61 @@ namespace ME.ECS {
 
         }
 
+        internal struct CopyItem : IArrayElementCopy<Component<TComponent>> {
+
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            public void Copy(in Component<TComponent> @from, ref Component<TComponent> to) {
+
+                var hasFrom = (from.state > 0);
+                var hasTo = (to.state > 0);
+                if (hasFrom == false && hasTo == false) return;
+
+                to.state = from.state;
+                to.version = from.version;
+
+                if (hasFrom == false && hasTo == true) {
+                    
+                    to.data.OnDispose();
+                    
+                } else {
+
+                    to.data = from.data;
+
+                }
+
+            }
+
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            public void Recycle(ref Component<TComponent> item) {
+
+                item.data.OnDispose();
+                item = default;
+
+            }
+
+        }
+
+        internal struct ElementCopy : IArrayElementCopy<SharedGroupData> {
+
+            public void Copy(in SharedGroupData @from, ref SharedGroupData to) {
+                
+                to.data = from.data;
+                
+            }
+
+            public void Recycle(ref SharedGroupData item) {
+                
+                item.data.OnDispose();
+                item = default;
+
+            }
+
+        }
+
         public override bool IsNeedToDispose() {
 
             return true;
@@ -71,6 +126,48 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public override void CopyFrom(StructRegistryBase other) {
+
+            var _other = (StructComponentsDisposable<TComponent>)other;
+            if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
+            ArrayUtils.Copy(_other.components, ref this.components, new StructComponentsDisposable<TComponent>.CopyItem());
+
+            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(_other.sharedGroups, new StructComponentsDisposable<TComponent>.ElementCopy());
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        protected override byte CopyFromState(in Entity @from, in Entity to) {
+            
+            ref var fromBucket = ref this.components[from.id];
+            ref var toBucket = ref this.components[to.id];
+            var hasFrom = (fromBucket.state > 0);
+            var hasTo = (toBucket.state > 0);
+            
+            toBucket.state = fromBucket.state;
+            if (hasFrom == true && hasTo == true) {
+
+                toBucket.data = fromBucket.data;
+                
+            } else if (hasFrom == true && hasTo == false) {
+                
+                toBucket.data = fromBucket.data;
+
+            } else if (hasFrom == false && hasTo == true) {
+                
+                toBucket.data.OnDispose();
+                
+            }
+            
+            return toBucket.state;
+            
+        }
+        
     }
 
 }
