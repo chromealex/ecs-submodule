@@ -5,7 +5,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class StructComponentsCopyable<TComponent> : StructComponents<TComponent> where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
+    public sealed class StructComponentsCopyable<TComponent> : StructComponents<TComponent> where TComponent : struct, IStructCopyable<TComponent> {
 
         public override void Recycle() {
             
