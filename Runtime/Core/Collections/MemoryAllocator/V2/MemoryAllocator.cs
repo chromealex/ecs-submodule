@@ -587,13 +587,13 @@ namespace ME.ECS.Collections.V2 {
             
             UnityEngine.Assertions.Assert.IsTrue(length > 0L);
             
-            if (dest == null) {
+            /*if (dest == null) {
                 throw new System.NullReferenceException();
             }
 
             if (source == null) {
                 throw new System.NullReferenceException();
-            }
+            }*/
 
             var offsetDest = (ptr)dest + destOffset;
             if (offsetDest + length >= this.currentSize) {
@@ -620,9 +620,9 @@ namespace ME.ECS.Collections.V2 {
             
             UnityEngine.Assertions.Assert.IsTrue(length > 0L);
             
-            if (dest == null) {
+            /*if (dest == null) {
                 throw new System.NullReferenceException();
-            }
+            }*/
             
             var offsetDest = (ptr)dest + destOffset;
             if (offsetDest + length > this.currentSize) {
