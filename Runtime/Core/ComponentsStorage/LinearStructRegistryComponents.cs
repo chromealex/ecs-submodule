@@ -1792,7 +1792,7 @@ namespace ME.ECS {
             // Inline all manually
             var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             #if WORLD_EXCEPTIONS
-            if (reg.sharedGroups.Has(entity.id, groupId) == false) {
+            if (reg.sharedStorage.Has(entity.id, groupId) == false) {
                 
                 EmptyDataException.Throw(entity);
                 
