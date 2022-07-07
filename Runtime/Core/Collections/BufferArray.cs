@@ -95,6 +95,27 @@ namespace ME.ECS.Collections {
 
     public static class BufferArrayExt {
     
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static BufferArray<T> Clamp<T>(this in BufferArray<T> src, int length) {
+
+            var delta = src.Length - length;
+            if (delta > 0) System.Array.Clear(src.arr, length, delta);
+            return new BufferArray<T>(src.arr, length);
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static BufferArray<T> Clamp<T, TCopy>(this in BufferArray<T> src, int length, TCopy copy) where TCopy : IArrayElementCopy<T> {
+
+            for (int i = length; i < src.Length; ++i) {
+                
+                copy.Recycle(ref src.arr[i]);
+                
+            }
+            return new BufferArray<T>(src.arr, length);
+
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -443,27 +464,6 @@ namespace ME.ECS.Collections {
             }
 
             return "BufferArray<>[" + this.Length + "]:\n" + content;
-
-        }
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public BufferArray<T> Clamp(int length) {
-
-            var delta = this.Length - length;
-            if (delta > 0) System.Array.Clear(this.arr, length, delta);
-            return new BufferArray<T>(this.arr, length);
-
-        }
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public BufferArray<T> Clamp<TCopy>(int length, TCopy copy) where TCopy : IArrayElementCopy<T> {
-
-            for (int i = length; i < this.Length; ++i) {
-                
-                copy.Recycle(ref this.arr[i]);
-                
-            }
-            return new BufferArray<T>(this.arr, length);
 
         }
 
