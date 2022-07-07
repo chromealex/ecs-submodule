@@ -4,6 +4,7 @@
   * fix index out of range actions if planner has one action
   * Job replaced with static burst method
 * Runtime.Core: 
+  * [fix] Hierarchy clean up properly now
   * Transform hierarchy ToVectorStruct/ToQuaternionStruct/ToScaleStruct methods removed
   * Custom MemoryAllocator implemented
   * NativeBufferArray resize/copy performance improvements

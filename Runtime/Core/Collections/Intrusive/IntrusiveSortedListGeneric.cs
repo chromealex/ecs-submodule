@@ -160,6 +160,14 @@ namespace ME.ECS.Collections {
             
         }
         
+        public void Dispose() {
+
+            this.Clear();
+            if (this.data != Entity.Null) this.data.Destroy();
+            this.data = Entity.Null;
+
+        }
+
         public IntrusiveSortedListGeneric(bool descending) {
 
             this = default;

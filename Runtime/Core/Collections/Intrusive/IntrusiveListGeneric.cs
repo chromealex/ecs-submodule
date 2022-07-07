@@ -151,6 +151,14 @@ namespace ME.ECS.Collections {
             
         }
 
+        public void Dispose() {
+
+            this.Clear();
+            if (this.data != Entity.Null) this.data.Destroy();
+            this.data = Entity.Null;
+
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif

@@ -124,6 +124,13 @@ namespace ME.ECS.Collections {
             
         }
         
+        public void Dispose() {
+
+            if (this.data != Entity.Null) this.data.Destroy();
+            this.data = Entity.Null;
+
+        }
+        
         public IntrusiveRingBufferGeneric(int capacity) {
 
             this = default;
