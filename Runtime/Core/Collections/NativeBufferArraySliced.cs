@@ -19,6 +19,13 @@ namespace ME.ECS.Collections {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public NativeBufferArraySliced(int length) {
+
+            this.data = new NativeBufferArray<T>(length);
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public NativeBufferArraySliced<T> Merge() => this;
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

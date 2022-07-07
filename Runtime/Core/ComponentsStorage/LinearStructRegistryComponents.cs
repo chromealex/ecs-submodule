@@ -57,7 +57,6 @@ namespace ME.ECS {
         public abstract int GetAllTypeBit();
         public abstract bool IsTag();
 
-        public abstract long GetVersion(in Entity entity);
         public abstract long GetVersion(int entityId);
         public abstract bool HasChanged(int entityId);
 
@@ -1663,7 +1662,7 @@ namespace ME.ECS {
 
             if (AllComponentTypes<TComponent>.isVersioned == false) return 0L;
             var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            return reg.GetVersion(in entity);
+            return reg.GetVersion(entity.id);
             
         }
 
@@ -1792,7 +1791,7 @@ namespace ME.ECS {
             // Inline all manually
             var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             #if WORLD_EXCEPTIONS
-            if (reg.sharedStorage.Has(entity.id, groupId) == false) {
+            if (SharedGroupsAPI<TComponent>.Has(ref reg.sharedStorage, entity.id, groupId) == false) {
                 
                 EmptyDataException.Throw(entity);
                 
