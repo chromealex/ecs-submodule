@@ -62,7 +62,9 @@ namespace ME.ECS {
         public abstract bool HasChanged(int entityId);
 
         public abstract void UpdateVersion(in Entity entity);
+        #if !COMPONENTS_VERSION_NO_STATE_DISABLED
         public abstract void UpdateVersionNoState(in Entity entity);
+        #endif
         
         public abstract bool HasType(System.Type type);
         public abstract IComponentBase GetObject(Entity entity);
@@ -352,8 +354,10 @@ namespace ME.ECS {
     #endif
     public abstract partial class StructComponentsBase<TComponent> : StructRegistryBase where TComponent : struct, IComponentBase {
 
+        #if !COMPONENTS_VERSION_NO_STATE_DISABLED
         // We don't need to serialize this field
         internal BufferArray<uint> versionsNoState;
+        #endif
         #if !SHARED_COMPONENTS_DISABLED
         // Shared data
         [ME.ECS.Serializer.SerializeField]
@@ -364,11 +368,13 @@ namespace ME.ECS {
 
         public abstract void UpdateVersion(ref Component<TComponent> bucket);
         
+        #if !COMPONENTS_VERSION_NO_STATE_DISABLED
         public uint GetVersionNotStated(in Entity entity) {
 
             return this.versionsNoState.arr[entity.id];
 
         }
+        #endif
 
         public override bool IsTag() {
 
@@ -388,6 +394,7 @@ namespace ME.ECS {
 
         }
 
+        #if !COMPONENTS_VERSION_NO_STATE_DISABLED
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -396,6 +403,7 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++this.versionsNoState.arr[entity.id];
 
         }
+        #endif
 
         public override StructRegistryBase Clone() {
 
@@ -415,7 +423,9 @@ namespace ME.ECS {
 
         public override void OnRecycle() {
 
+            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) PoolArray<uint>.Recycle(ref this.versionsNoState);
+            #endif
             #if !SHARED_COMPONENTS_DISABLED
             if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.OnRecycle(ref this.sharedStorage);
             #endif
@@ -427,7 +437,9 @@ namespace ME.ECS {
             #if !SHARED_COMPONENTS_DISABLED
             if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.Validate(ref this.sharedStorage, capacity);
             #endif
+            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(capacity, ref this.versionsNoState, true);
+            #endif
             
             this.world.currentState.storage.archetypes.Validate(capacity);
             
@@ -443,7 +455,9 @@ namespace ME.ECS {
             #if !SHARED_COMPONENTS_DISABLED
             if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.Validate(ref this.sharedStorage, entity);
             #endif
+            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(entity.id, ref this.versionsNoState, true);
+            #endif
 
             #if FILTERS_STORAGE_LEGACY
             this.world.currentState.storage.archetypes.Validate(in entity);
@@ -591,7 +605,9 @@ namespace ME.ECS {
         public override void CopyFrom(StructRegistryBase other) {
 
             var _other = (StructComponentsBase<TComponent>)other;
+            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
+            #endif
             #if !SHARED_COMPONENTS_DISABLED
             if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.CopyFrom(ref this.sharedStorage, _other.sharedStorage, new ElementCopy());
             #endif
@@ -1651,6 +1667,7 @@ namespace ME.ECS {
             
         }
 
+        #if !COMPONENTS_VERSION_NO_STATE_DISABLED
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -1669,6 +1686,7 @@ namespace ME.ECS {
             return reg.versionsNoState.arr[entity.id];
             
         }
+        #endif
 
         #region COMMON SHARED
         #if INLINE_METHODS

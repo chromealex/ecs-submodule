@@ -203,15 +203,22 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("SHARED_COMPONENTS_DISABLED", "Disable shared components storage and entity shared API. Use this if you don't use shared components at all to speed up your runtime.", () => {
+            new InitializerBase.DefineInfo("SHARED_COMPONENTS_DISABLED", "Disable shared components storage and entity shared API. Use this if you don't use this feature at all to speed up your runtime.", () => {
                 #if SHARED_COMPONENTS_DISABLED
                 return true;
                 #else
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("ENTITY_TIMERS_DISABLED", "Disable timers storage and entity timers API. Use this if you don't use timers at all to speed up your runtime.", () => {
+            new InitializerBase.DefineInfo("ENTITY_TIMERS_DISABLED", "Disable timers storage and entity timers API. Use this if you don't use this feature at all to speed up your runtime.", () => {
                 #if ENTITY_TIMERS_DISABLED
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("COMPONENTS_VERSION_NO_STATE_DISABLED", "Disable components version no state storage and entity no state API. Use this if you don't use this feature at all to speed up your runtime.", () => {
+                #if COMPONENTS_VERSION_NO_STATE_DISABLED
                 return true;
                 #else
                 return false;

@@ -402,6 +402,7 @@ namespace ME.ECS {
 
         }
 
+        #if !COMPONENTS_VERSION_NO_STATE_DISABLED
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -411,6 +412,7 @@ namespace ME.ECS {
             AllComponentTypes<TComponent>.burstIsVersionedNoState.Data = 1;
 
         }
+        #endif
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -439,7 +441,9 @@ namespace ME.ECS {
             if (isSimple == true) WorldUtilities.SetComponentAsSimple<TComponent>();
             if (isBlittable == true) WorldUtilities.SetComponentAsBlittable<TComponent>();
             if (isVersioned == true) WorldUtilities.SetComponentAsVersioned<TComponent>();
+            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
             if (isVersionedNoState == true) WorldUtilities.SetComponentAsVersionedNoState<TComponent>();
+            #endif
             if (isCopyable == true) WorldUtilities.SetComponentAsCopyable<TComponent>();
             #if !SHARED_COMPONENTS_DISABLED
             if (isShared == true) WorldUtilities.SetComponentAsShared<TComponent>();

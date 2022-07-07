@@ -4,6 +4,7 @@
   * fix index out of range actions if planner has one action
   * Job replaced with static burst method
 * Runtime.Core: 
+  * COMPONENTS_VERSION_NO_STATE_DISABLED define added
   * ENTITY_TIMERS_DISABLED define added
   * SHARED_COMPONENTS_DISABLED define added
   * Disposable Components storage fix

@@ -72,7 +72,9 @@ namespace ME.ECS {
         public static int typeId = -1;
         public static bool isTag = false;
         public static bool isVersioned = false;
+        #if !COMPONENTS_VERSION_NO_STATE_DISABLED
         public static bool isVersionedNoState = false;
+        #endif
         public static bool isSimple = false;
         public static bool isBlittable = false;
         public static bool isCopyable = false;
@@ -119,6 +121,7 @@ namespace ME.ECS {
 
         }
 
+        #if !COMPONENTS_VERSION_NO_STATE_DISABLED
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -127,6 +130,7 @@ namespace ME.ECS {
             return Worlds.currentWorld.GetDataVersionNoState<TComponent>(in entity);
 
         }
+        #endif
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

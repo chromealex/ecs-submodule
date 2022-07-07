@@ -91,7 +91,9 @@ namespace ME.ECS {
 
                 world.currentState.storage.versions.Increment(in entity);
                 reg.UpdateVersion(in entity);
+                #if !COMPONENTS_VERSION_NO_STATE_DISABLED
                 if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
+                #endif
                 if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
 
                 if (world.currentState.structComponents.entitiesIndexer.GetCount(entity.id) == 0 &&
@@ -163,7 +165,9 @@ namespace ME.ECS {
             
             world.currentState.storage.versions.Increment(in entity);
             reg.UpdateVersion(in entity);
+            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
             if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
+            #endif
             if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
 
             return ref bucket.data;
@@ -230,7 +234,9 @@ namespace ME.ECS {
             
             world.currentState.storage.versions.Increment(in entity);
             reg.UpdateVersion(in entity);
+            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
             if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
+            #endif
             if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
 
             return result;
@@ -267,7 +273,9 @@ namespace ME.ECS {
 
                 world.currentState.storage.versions.Increment(in entity);
                 reg.UpdateVersion(in entity);
+                #if !COMPONENTS_VERSION_NO_STATE_DISABLED
                 if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
+                #endif
                 if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
 
                 if (world.currentState.structComponents.entitiesIndexer.GetCount(entity.id) == 0 &&
@@ -339,7 +347,9 @@ namespace ME.ECS {
             
             world.currentState.storage.versions.Increment(in entity);
             reg.UpdateVersion(in entity);
+            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
             if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
+            #endif
             if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
 
             return ref bucket.data;
@@ -406,7 +416,9 @@ namespace ME.ECS {
             
             world.currentState.storage.versions.Increment(in entity);
             reg.UpdateVersion(in entity);
+            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
             if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
+            #endif
             if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
 
             return result;

@@ -133,10 +133,8 @@ namespace ME.ECS {
 
     public interface IVersioned : IComponentBase { }
 
+    #if !COMPONENTS_VERSION_NO_STATE_DISABLED
     public interface IVersionedNoState : IComponentBase { }
-
-    #if !SHARED_COMPONENTS_DISABLED
-    public interface IComponentShared : IComponentBase { }
     #endif
 
     public interface IComponentDisposable : IComponentBase {
@@ -144,8 +142,6 @@ namespace ME.ECS {
         void OnDispose();
 
     }
-
-    public interface IComponentBlittable : IComponentBase { }
 
     public interface ICopyableBase { }
 
@@ -160,11 +156,15 @@ namespace ME.ECS {
 
     }
 
+    #if !SHARED_COMPONENTS_DISABLED
+    public interface IComponentShared : IComponentBase { }
+
     public interface ISharedGroups {
 
         System.Collections.Generic.ICollection<uint> GetGroups();
 
     }
+    #endif
 
     public interface IStructComponentsContainer {
 
