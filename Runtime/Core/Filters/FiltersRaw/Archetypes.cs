@@ -120,6 +120,7 @@ namespace ME.ECS {
 
         }
 
+        #if !ENTITIES_GROUP_DISABLED
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -143,6 +144,7 @@ namespace ME.ECS {
             }
             
         }
+        #endif
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

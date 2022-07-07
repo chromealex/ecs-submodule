@@ -423,6 +423,7 @@ namespace ME.ECS.FiltersArchetype {
             #endif
             public void Remove(in Entity entity, int componentId) { }
 
+            #if !ENTITIES_GROUP_DISABLED
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
@@ -431,6 +432,7 @@ namespace ME.ECS.FiltersArchetype {
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
             public void Remove(in EntitiesGroup group, int componentId) { }
+            #endif
 
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -672,6 +674,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if !ENTITIES_GROUP_DISABLED
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public void Alloc(int count, ref EntitiesGroup group, Unity.Collections.Allocator allocator, bool copyMode) {
 
@@ -699,6 +702,7 @@ namespace ME.ECS.FiltersArchetype {
             group = new EntitiesGroup(from, from + count - 1, array, copyMode);
 
         }
+        #endif
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public ref Entity Alloc() {
@@ -867,6 +871,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if !ENTITIES_GROUP_DISABLED
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
@@ -892,6 +897,7 @@ namespace ME.ECS.FiltersArchetype {
             }
 
         }
+        #endif
 
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
