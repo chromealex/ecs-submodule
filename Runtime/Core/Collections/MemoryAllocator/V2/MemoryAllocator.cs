@@ -8,7 +8,9 @@ namespace ME.ECS.Collections.V2 {
     using ptr = System.Int64;
     using MemPtr = System.Int64;
 
-    [UnityEditor.InitializeOnLoadAttribute]
+    #if UNITY_EDITOR
+    [UnityEditor.InitializeOnLoad]
+    #endif
     public static class StaticAllocators {
 
         private static readonly Destructor finalize = new Destructor();
