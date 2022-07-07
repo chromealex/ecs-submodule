@@ -65,7 +65,7 @@ namespace ME.ECS {
     
     public static class DataBufferUtils {
 
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        //[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool PushRemove_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg, StorageType storageType = StorageType.Default) where T : struct, IComponentBase {
 
             var result = false;
@@ -107,7 +107,7 @@ namespace ME.ECS {
 
         }
 
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        //[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static ref T PushGet_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg, StorageType storageType = StorageType.Default) where T : struct, IComponentBase {
 
             ref var bucket = ref reg.components[entity.id];
@@ -170,7 +170,7 @@ namespace ME.ECS {
             
         }
 
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        //[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool PushSet_INTERNAL<T>(World world, in Entity entity, StructComponents<T> reg, in T data, StorageType storageType = StorageType.Default) where T : struct, IComponentBase {
 
             var result = false;
@@ -241,7 +241,7 @@ namespace ME.ECS {
     
     public static class DataBlittableBufferUtils {
 
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        //[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool PushRemove_INTERNAL<T>(World world, in Entity entity, StructComponentsBlittable<T> reg, StorageType storageType = StorageType.Default) where T : struct, IComponentBase {
 
             var result = false;
@@ -283,7 +283,7 @@ namespace ME.ECS {
 
         }
 
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        //[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static ref T PushGet_INTERNAL<T>(World world, in Entity entity, StructComponentsBlittable<T> reg, StorageType storageType = StorageType.Default) where T : struct, IComponentBase {
 
             ref var bucket = ref reg.components[entity.id];
@@ -346,7 +346,7 @@ namespace ME.ECS {
             
         }
 
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        //[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool PushSet_INTERNAL<T>(World world, in Entity entity, StructComponentsBlittable<T> reg, in T data, StorageType storageType = StorageType.Default) where T : struct, IComponentBase {
 
             var result = false;
