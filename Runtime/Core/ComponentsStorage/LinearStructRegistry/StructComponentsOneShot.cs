@@ -69,22 +69,9 @@ namespace ME.ECS {
         #endif
         public void RemoveDataOneShot<TComponent>(in Entity entity) where TComponent : struct, IComponentOneShot {
 
-            #if WORLD_STATE_CHECK
-            if (this.isActive == true && this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-                
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
+            
             var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[OneShotComponentTypes<TComponent>.typeId];
             DataBufferUtils.PushRemove_INTERNAL(this, in entity, reg, StorageType.NoState);
             
@@ -140,13 +127,7 @@ namespace ME.ECS {
         #endif
         public bool HasDataOneShot<TComponent>(in Entity entity) where TComponent : struct, IComponentOneShot {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             return this.structComponentsNoState.list.arr[OneShotComponentTypes<TComponent>.typeId].Has(in entity);
 
@@ -157,19 +138,8 @@ namespace ME.ECS {
         #endif
         public ref readonly TComponent ReadDataOneShot<TComponent>(in Entity entity) where TComponent : struct, IComponentOneShot {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            
-            if (AllComponentTypes<TComponent>.isTag == true) {
-
-                TagComponentException.Throw(entity);
-
-            }
-            #endif
+            E.IS_TAG<TComponent>(in entity);
+            E.IS_ALIVE(in entity);
 
             // Inline all manually
             var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[OneShotComponentTypes<TComponent>.typeId];
@@ -182,20 +152,10 @@ namespace ME.ECS {
         #endif
         public ref TComponent GetDataOneShot<TComponent>(in Entity entity) where TComponent : struct, IComponentOneShot {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            
-            if (AllComponentTypes<TComponent>.isTag == true) {
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
+            E.IS_TAG<TComponent>(in entity);
 
-                TagComponentException.Throw(entity);
-
-            }
-            #endif
-            
             var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[OneShotComponentTypes<TComponent>.typeId];
             return ref DataBufferUtils.PushGet_INTERNAL(this, in entity, reg, StorageType.NoState);
 
@@ -206,21 +166,8 @@ namespace ME.ECS {
         #endif
         public bool SetDataOneShot<TComponent>(in Entity entity, in TComponent data) where TComponent : struct, IComponentOneShot {
             
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
 
             var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[OneShotComponentTypes<TComponent>.typeId];
             return DataBufferUtils.PushSet_INTERNAL(this, in entity, reg, in data, StorageType.NoState);
@@ -231,23 +178,10 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public void SetEntityOneShot(in Entity entity) {
+
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
             
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
             var task = new StructComponentsContainer.NextTickTask {
                 lifetime = ComponentLifetime.NotifyAllSystemsBelow,
                 storageType = StorageType.NoState,

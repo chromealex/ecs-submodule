@@ -472,13 +472,7 @@ namespace ME.ECS {
 
         public override bool SetSharedObject(in Entity entity, IComponentBase data, uint groupId) {
             
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             SharedGroupsAPI<TComponent>.Set(ref this.sharedStorage, entity.id, groupId, (TComponent)data);
             
@@ -494,13 +488,7 @@ namespace ME.ECS {
         #endif
         public override bool HasShared(in Entity entity, uint groupId) {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.generation == 0) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             return SharedGroupsAPI<TComponent>.Has(ref this.sharedStorage, entity.id, groupId);
 
@@ -846,13 +834,7 @@ namespace ME.ECS {
         #endif
         public unsafe void RemoveAll(in Entity entity) {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             var list = this.entitiesIndexer.Get(entity.id);
             if (list != null) {
@@ -1583,13 +1565,7 @@ namespace ME.ECS {
         #endif
         public long GetDataVersion<TComponent>(in Entity entity) where TComponent : struct, IVersioned {
             
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             if (AllComponentTypes<TComponent>.isVersioned == false) return 0L;
             var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
@@ -1603,13 +1579,7 @@ namespace ME.ECS {
         #endif
         public uint GetDataVersionNoState<TComponent>(in Entity entity) where TComponent : struct, IVersionedNoState {
             
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             if (AllComponentTypes<TComponent>.isVersionedNoState == false) return 0u;
             var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
@@ -1694,19 +1664,8 @@ namespace ME.ECS {
         #endif
         public ref readonly TComponent ReadSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
             
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            
-            if (AllComponentTypes<TComponent>.isTag == true) {
-
-                TagComponentException.Throw(entity);
-
-            }
-            #endif
+            E.IS_ALIVE(in entity);
+            E.IS_TAG<TComponent>(in entity);
 
             if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
 
@@ -1737,13 +1696,7 @@ namespace ME.ECS {
         #endif
         public bool HasSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
             
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
 
@@ -1768,19 +1721,8 @@ namespace ME.ECS {
         #endif
         public ref TComponent GetSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            
-            if (AllComponentTypes<TComponent>.isTag == true) {
-
-                TagComponentException.Throw(entity);
-
-            }
-            #endif
+            E.IS_ALIVE(in entity);
+            E.IS_TAG<TComponent>(in entity);
 
             if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
 
@@ -1799,13 +1741,7 @@ namespace ME.ECS {
             var incrementVersion = (this.HasStep(WorldStep.LogicTick) == true || this.HasResetState() == false);
             if (state == false) {
 
-                #if WORLD_EXCEPTIONS
-                if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                    OutOfStateException.ThrowWorldStateCheck();
-
-                }
-                #endif
+                E.IS_LOGIC_STEP(this);
 
                 if (this.currentState.structComponents.entitiesIndexer.GetCount(entity.id) == 0 &&
                     (this.currentState.storage.flags.Get(entity.id) & (byte)EntityFlag.DestroyWithoutComponents) != 0) {
@@ -1869,22 +1805,10 @@ namespace ME.ECS {
         #endif
         public void RemoveSharedData<TComponent>(in Entity entity, uint groupId = 0u) where TComponent : struct, IComponentShared {
             
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-                
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
+            E.IS_TAG<TComponent>(in entity);
+            
             if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
 
                 ref readonly var sharedData = ref entity.Read<ME.ECS.DataConfigs.DataConfig.SharedData>();
@@ -1928,23 +1852,10 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public void SetSharedData<TComponent>(in Entity entity, in TComponent data, uint groupId = 0u) where TComponent : struct, IComponentShared {
-
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
+            
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
+            
             // Inline all manually
             var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             if (AllComponentTypes<TComponent>.isTag == false) {
@@ -2013,22 +1924,9 @@ namespace ME.ECS {
         
         public void SetSharedData(in Entity entity, in IComponentBase data, int dataIndex, uint groupId = 0u) {
             
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
+            
             // Inline all manually
             ref var reg = ref this.currentState.structComponents.list.arr[dataIndex];
             if (reg.SetSharedObject(entity, data, groupId) == true) {
@@ -2050,6 +1948,9 @@ namespace ME.ECS {
         #endif
         public void SetTimer(in Entity entity, int index, tfloat time) {
 
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
+            
             this.currentState.timers.Set(in entity, index, time);
 
         }
@@ -2059,6 +1960,9 @@ namespace ME.ECS {
         #endif
         public ref tfloat GetTimer(in Entity entity, int index) {
 
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
+
             return ref this.currentState.timers.Get(in entity, index);
 
         }
@@ -2067,6 +1971,8 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public tfloat ReadTimer(in Entity entity, int index) {
+            
+            E.IS_ALIVE(in entity);
 
             return this.currentState.timers.Read(in entity, index);
 
@@ -2076,6 +1982,9 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public bool RemoveTimer(in Entity entity, int index) {
+            
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
 
             return this.currentState.timers.Remove(in entity, index);
 
@@ -2089,19 +1998,8 @@ namespace ME.ECS {
         #endif
         public bool TryReadData<TComponent>(in Entity entity, out TComponent component) where TComponent : struct, IStructComponent {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            
-            if (AllComponentTypes<TComponent>.isTag == true) {
-
-                TagComponentException.Throw(entity);
-
-            }
-            #endif
+            E.IS_ALIVE(in entity);
+            E.IS_TAG<TComponent>(in entity);
 
             if (AllComponentTypes<TComponent>.isBlittable == true) {
                 
@@ -2127,13 +2025,7 @@ namespace ME.ECS {
         #endif
         public bool HasData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             return this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId].Has(in entity);
 
@@ -2144,19 +2036,8 @@ namespace ME.ECS {
         #endif
         public ref readonly TComponent ReadData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            
-            if (AllComponentTypes<TComponent>.isTag == true) {
-
-                TagComponentException.Throw(entity);
-
-            }
-            #endif
+            E.IS_ALIVE(in entity);
+            E.IS_TAG<TComponent>(in entity);
 
             if (AllComponentTypes<TComponent>.isBlittable == true) {
                 
@@ -2179,13 +2060,7 @@ namespace ME.ECS {
         #endif
         public IComponentBase ReadData(in Entity entity, int registryIndex) {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             return this.currentState.structComponents.list.arr[registryIndex].GetObject(entity);
 
@@ -2196,13 +2071,7 @@ namespace ME.ECS {
         #endif
         public UnsafeData ReadDataUnsafe(in Entity entity, int registryIndex) {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             var reg = this.currentState.structComponents.list.arr[registryIndex];
             return reg.CreateObjectUnsafe(in entity);
@@ -2214,28 +2083,10 @@ namespace ME.ECS {
         #endif
         public ref TComponent GetData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
 
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
+            E.IS_TAG<TComponent>(in entity);
             
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            
-            if (AllComponentTypes<TComponent>.isTag == true) {
-
-                TagComponentException.Throw(entity);
-
-            }
-            #endif
-
             if (AllComponentTypes<TComponent>.isBlittable == true) {
                 
                 // Inline all manually
@@ -2274,21 +2125,8 @@ namespace ME.ECS {
         #endif
         public void SetData<TComponent>(in Entity entity, in TComponent data) where TComponent : struct, IStructComponent {
 
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
 
             if (AllComponentTypes<TComponent>.isBlittable == true) {
                 
@@ -2305,7 +2143,7 @@ namespace ME.ECS {
             }
 
         }
-
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -2339,21 +2177,8 @@ namespace ME.ECS {
         #endif
         internal void SetData<TComponent>(ref StructComponentsContainer container, in Entity entity, in TComponent data, ComponentLifetime lifetime, tfloat secondsLifetime, bool addTaskOnly = false) where TComponent : unmanaged, IStructComponent {
             
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
 
             if (lifetime == ComponentLifetime.Infinite) {
 
@@ -2401,21 +2226,8 @@ namespace ME.ECS {
         #endif
         public void RemoveData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
 
-            #if WORLD_STATE_CHECK
-            if (this.isActive == true && this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-                
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
 
             if (AllComponentTypes<TComponent>.isBlittable == true) {
              
@@ -2436,21 +2248,8 @@ namespace ME.ECS {
         #endif
         public void SetData(in Entity entity, in IComponentBase data, int dataIndex) {
 
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
 
             // Inline all manually
             ref var reg = ref this.currentState.structComponents.list.arr[dataIndex];
@@ -2463,21 +2262,8 @@ namespace ME.ECS {
         #endif
         internal void SetData(in Entity entity, UnsafeData buffer, int dataIndex, StorageType storageType) {
 
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
 
             // Inline all manually
             ref var reg = ref this.currentState.structComponents.list.arr[dataIndex];
@@ -2490,21 +2276,8 @@ namespace ME.ECS {
         #endif
         public void RemoveData(in Entity entity, int dataIndex, StorageType storageType = StorageType.Default) {
 
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-                
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
 
             if (storageType == StorageType.Default) {
 

@@ -12,16 +12,10 @@
 
     [ComponentGroup(typeof(TransformComponentConstants.GroupInfo))]
     [ComponentOrder(5)]
-    public struct Nodes : IComponent, IVersioned, IComponentDisposable {
+    public struct Nodes : IComponent, IVersioned {
 
         public ME.ECS.Collections.IntrusiveList items;
         
-        void IComponentDisposable.OnDispose() {
-
-            this.items.Dispose();
-
-        }
-
     }
 
 }

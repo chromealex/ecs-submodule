@@ -89,13 +89,7 @@ namespace ME.ECS {
         #endif
         public void Set(in Entity entity, int index, tfloat time) {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             if (time <= 0f) return;
             var key = MathUtils.GetKey(entity.id, index);
@@ -117,13 +111,7 @@ namespace ME.ECS {
         #endif
         public tfloat Read(in Entity entity, int index) {
             
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             var key = MathUtils.GetKey(entity.id, index);
             if (this.values.TryGetValue(key, out var timer) == true) {
@@ -141,13 +129,7 @@ namespace ME.ECS {
         #endif
         public ref tfloat Get(in Entity entity, int index) {
             
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             var key = MathUtils.GetKey(entity.id, index);
             if (this.indexes.Contains(index) == false) this.indexes.Add(index);
@@ -160,13 +142,7 @@ namespace ME.ECS {
         #endif
         public bool Remove(in Entity entity, int index) {
             
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             var key = MathUtils.GetKey(entity.id, index);
             return this.values.Remove(key);
@@ -178,13 +154,7 @@ namespace ME.ECS {
         #endif
         public bool RemoveAll(in Entity entity) {
             
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             var result = false;
             foreach (var index in this.indexes) {

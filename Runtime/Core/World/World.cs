@@ -173,16 +173,7 @@ namespace ME.ECS {
 
         private static int registryWorldId = 0;
 
-        public int id {
-            #if INLINE_METHODS
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
-            get;
-            #if INLINE_METHODS
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
-            private set;
-        }
+        public int id { get; private set; }
 
         private State resetState;
         private bool hasResetState;
@@ -697,15 +688,9 @@ namespace ME.ECS {
         #endif
         public float3 GetRandomInSphere(float3 center, tfloat maxRadius) {
         
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            RandomUtils.ThreadCheck(this);
+            E.IS_LOGIC_STEP(this);
+            E.IS_WORLD_THREAD();
+            
             return this.currentState.randomState.GetRandomInSphere(center, maxRadius);
             
         }
@@ -715,15 +700,9 @@ namespace ME.ECS {
         #endif
         public float2 GetRandomInCircle(float2 center, tfloat maxRadius) {
         
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            RandomUtils.ThreadCheck(this);
+            E.IS_LOGIC_STEP(this);
+            E.IS_WORLD_THREAD();
+            
             return this.currentState.randomState.GetRandomInCircle(center, maxRadius);
             
         }
@@ -739,15 +718,9 @@ namespace ME.ECS {
         /// <returns></returns>
         public int GetRandomRange(int from, int to) {
             
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            RandomUtils.ThreadCheck(this);
+            E.IS_LOGIC_STEP(this);
+            E.IS_WORLD_THREAD();
+            
             return this.currentState.randomState.GetRandomRange(from, to);
             
         }
@@ -763,15 +736,9 @@ namespace ME.ECS {
         /// <returns></returns>
         public tfloat GetRandomRange(tfloat from, tfloat to) {
         
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            RandomUtils.ThreadCheck(this);
+            E.IS_LOGIC_STEP(this);
+            E.IS_WORLD_THREAD();
+            
             return this.currentState.randomState.GetRandomRange(from, to);
             
         }
@@ -785,15 +752,9 @@ namespace ME.ECS {
         /// <returns></returns>
         public tfloat GetRandomValue() {
             
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+            E.IS_LOGIC_STEP(this);
+            E.IS_WORLD_THREAD();
 
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            RandomUtils.ThreadCheck(this);
             return this.currentState.randomState.GetRandomValue();
             
         }
@@ -809,13 +770,8 @@ namespace ME.ECS {
 
         public void SetSeed(uint seed) {
             
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
+            E.IS_LOGIC_STEP(this);
+            E.IS_WORLD_THREAD();
 
             this.seed = seed;
             this.currentState?.randomState.SetSeed(seed);
@@ -1344,22 +1300,10 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public void CopyFrom(in Entity from, in Entity to, bool copyHierarchy = true) {
-
-            #if WORLD_EXCEPTIONS
-            if (from.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(from);
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (to.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(to);
-                
-            }
-            #endif
+            
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in from);
+            E.IS_ALIVE(in to);
 
             {
                 // Clear entity
@@ -1446,22 +1390,9 @@ namespace ME.ECS {
         
         private ref Entity AddEntity_INTERNAL(string name = null, bool validate = true, EntityFlag flags = EntityFlag.None) {
             
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_THREAD_CHECK
-            if (WorldUtilities.IsWorldThread() == false) {
-
-                WrongThreadException.Throw("AddEntity");
-                
-            }
-            #endif
-
+            E.IS_LOGIC_STEP(this);
+            E.IS_WORLD_THREAD("AddEntity");
+            
             var isNew = (validate == true && this.currentState.storage.WillNew());
             ref var entity = ref this.currentState.storage.Alloc();
             if (validate == true) this.UpdateEntityOnCreate(in entity, isNew);
@@ -1537,13 +1468,7 @@ namespace ME.ECS {
 
         public bool RemoveEntity(in Entity entity, bool cleanUpHierarchy = true) {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-
-                EmptyEntityException.Throw(entity);
-
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             if (this.currentState.storage.Dealloc(in entity) == true) {
 

@@ -14,7 +14,7 @@ namespace ME.ECS {
 
         public static void InitTypeId() {
 
-            WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Nodes>(isVersioned: true, isSimple: true, isBlittable: false, isDisposable: true);
+            WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Nodes>(isVersioned: true, isSimple: true, isBlittable: true);
             WorldUtilities.InitComponentTypeId<ME.ECS.Transform.Container>(isVersioned: true, isSimple: true, isBlittable: true);
             
             Transform2DComponentsInitializer.InitTypeId();
@@ -24,7 +24,7 @@ namespace ME.ECS {
 
         public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
     
-            structComponentsContainer.ValidateDisposable<ME.ECS.Transform.Nodes>();
+            structComponentsContainer.ValidateBlittable<ME.ECS.Transform.Nodes>();
             structComponentsContainer.ValidateBlittable<ME.ECS.Transform.Container>();
 
             Transform2DComponentsInitializer.Init(ref structComponentsContainer);
@@ -34,7 +34,7 @@ namespace ME.ECS {
     
         public static void Init(in Entity entity) {
 
-            entity.ValidateDataDisposable<ME.ECS.Transform.Nodes>();
+            entity.ValidateDataBlittable<ME.ECS.Transform.Nodes>();
             entity.ValidateDataBlittable<ME.ECS.Transform.Container>();
             
             Transform2DComponentsInitializer.Init(in entity);

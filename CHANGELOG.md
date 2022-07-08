@@ -4,6 +4,7 @@
   * fix index out of range actions if planner has one action
   * Job replaced with static burst method
 * Runtime.Core: 
+  * Transform Nodes dispose fix
   * ENTITIES_GROUP_DISABLED define added
   * COMPONENTS_VERSION_NO_STATE_DISABLED define added
   * ENTITY_TIMERS_DISABLED define added

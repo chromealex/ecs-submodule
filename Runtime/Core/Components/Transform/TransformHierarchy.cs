@@ -32,6 +32,7 @@ namespace ME.ECS {
                     child.Remove<Container>();
                 }
                 nodes.items.Clear(destroyData: true);
+                nodes.items.Dispose();
 
             }
 

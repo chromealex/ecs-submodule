@@ -115,13 +115,7 @@ namespace ME.ECS {
 
         public override IComponentBase GetObject(Entity entity) {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             var index = entity.id;
             ref var bucket = ref this.components[index];
@@ -137,13 +131,7 @@ namespace ME.ECS {
 
         public override bool SetObject(in Entity entity, UnsafeData buffer, StorageType storageType) {
             
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             return DataBufferUtils.PushSet_INTERNAL(this.world, in entity, this, buffer.Read<TComponent>(), storageType);
 
@@ -151,13 +139,7 @@ namespace ME.ECS {
 
         public override bool SetObject(in Entity entity, IComponentBase data, StorageType storageType) {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
             return DataBufferUtils.PushSet_INTERNAL(this.world, in entity, this, (TComponent)data, storageType);
             

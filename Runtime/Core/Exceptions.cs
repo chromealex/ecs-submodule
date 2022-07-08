@@ -1,5 +1,64 @@
 namespace ME.ECS {
 
+    public static class E {
+
+        [System.Diagnostics.Conditional("WORLD_STATE_CHECK")]
+        public static void IS_NOT_LOGIC_STEP(World world) {
+            
+            if (world.isActive == true && world.HasStep(WorldStep.LogicTick) == true) {
+                
+                OutOfStateException.ThrowWorldStateCheckVisual();
+                
+            }
+            
+        }
+
+        [System.Diagnostics.Conditional("WORLD_STATE_CHECK")]
+        public static void IS_LOGIC_STEP(World world) {
+            
+            if (world.isActive == true && world.HasStep(WorldStep.LogicTick) == false && world.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            
+        }
+
+        [System.Diagnostics.Conditional("WORLD_EXCEPTIONS")]
+        public static void IS_TAG<TComponent>(in Entity entity) {
+            
+            if (AllComponentTypes<TComponent>.isTag == true) {
+
+                TagComponentException.Throw(entity);
+
+            }
+
+        }
+
+        [System.Diagnostics.Conditional("WORLD_EXCEPTIONS")]
+        public static void IS_ALIVE(in Entity entity) {
+            
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            
+        }
+
+        [System.Diagnostics.Conditional("WORLD_THREAD_CHECK")]
+        public static void IS_WORLD_THREAD([System.Runtime.CompilerServices.CallerMemberName] string methodName = "") {
+            
+            if (WorldUtilities.IsWorldThread() == false) {
+
+                WrongThreadException.Throw(methodName);
+                
+            }
+            
+        }
+
+    }
+    
     public class OutOfBoundsException : System.Exception {
 
         public OutOfBoundsException() : base("ME.ECS Exception") { }

@@ -35,14 +35,8 @@ namespace ME.ECS {
 
         private void RemoveMarkers() {
 
-            #if WORLD_STATE_CHECK
-            if (this.isActive == true && this.HasStep(WorldStep.LogicTick) == true) {
-                
-                OutOfStateException.ThrowWorldStateCheckVisual();
-                
-            }
-            #endif
-
+            E.IS_NOT_LOGIC_STEP(this);
+            
             foreach (var item in this.allExistMarkers) {
 
                 item.arr[this.id] = false;
@@ -53,13 +47,7 @@ namespace ME.ECS {
 
         public bool AddMarker<TMarker>(TMarker markerData) where TMarker : struct, IMarker {
 
-            #if WORLD_STATE_CHECK
-            if (this.isActive == true && this.HasStep(WorldStep.LogicTick) == true) {
-                
-                OutOfStateException.ThrowWorldStateCheckVisual();
-                
-            }
-            #endif
+            E.IS_NOT_LOGIC_STEP(this);
 
             ref var exists = ref World.MarkersDirectCache<TMarker>.exists;
             ref var cache = ref World.MarkersDirectCache<TMarker>.data;
@@ -118,6 +106,8 @@ namespace ME.ECS {
 
         public bool RemoveMarker<TMarker>() where TMarker : struct, IMarker {
             
+            E.IS_NOT_LOGIC_STEP(this);
+
             ref var exists = ref World.MarkersDirectCache<TMarker>.exists;
             if (this.id >= 0 && this.id < exists.Length && exists.arr[this.id] == true) {
 
