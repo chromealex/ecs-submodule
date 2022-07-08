@@ -1,4 +1,11 @@
-﻿using ME.ECS;
+﻿#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
+#else
+using Unity.Mathematics;
+using tfloat = System.Single;
+#endif
+using ME.ECS;
 using Unity.Jobs;
 using Unity.Burst;
 using ME.ECS.Buffers;
@@ -34,7 +41,7 @@ namespace ME.ECS.Essentials.Destroy.Systems {
         [BurstCompile(FloatPrecision.High, FloatMode.Deterministic, CompileSynchronously = true)]
         private struct Job : IJobParallelForFilterBag<FilterBag<DestroyByTime>> {
             
-            public float deltaTime;
+            public tfloat deltaTime;
 
             public void Execute(ref FilterBag<DestroyByTime> bag, int index) {
 

@@ -1,3 +1,4 @@
+#if !ENTITIES_GROUP_DISABLED
 namespace ME.ECS.Tests {
 
     public class Tests_Entities_EntitiesGroup {
@@ -207,3 +208,4 @@ namespace ME.ECS.Tests {
     }
 
 }
+#endif

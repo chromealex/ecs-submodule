@@ -19,18 +19,11 @@ namespace ME.ECS {
     public static class ECSTransform2DExtensions {
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalPosition2D(this in Entity child, in float2 position) => Worlds.currentWorld.SetData(in child, new Position2D() { value = position });
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalRotation2D(this in Entity child, tfloat rotation) => Worlds.currentWorld.SetData(in child, rotation.ToRotationStruct());
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalScale2D(this in Entity child, in float2 scale) => Worlds.currentWorld.SetData(in child, scale.ToScaleStruct());
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float2 GetLocalPosition2D(this in Entity child) => child.Read<Position2D>().ToVector2();
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static tfloat GetLocalRotation2D(this in Entity child) => child.Read<Rotation2D>().ToQuaternion2D();
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float2 GetLocalScale2D(this in Entity child) => child.Read<Scale2D>().ToVector2();
-        
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static Position2D ToPositionStruct(this in float2 v) => new Position2D() { value = v };
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float2 ToVector2(this in Position2D v) => v.value;
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static Rotation2D ToRotationStruct(this tfloat v) => new Rotation2D() { value = v };
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static tfloat ToQuaternion2D(this in Rotation2D v) => v.value;
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static Scale2D ToScaleStruct(this in float2 v) => new Scale2D() { value = v };
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float2 ToVector2(this in Scale2D v) => v.value;
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalRotation2D(this in Entity child, tfloat rotation) => Worlds.currentWorld.SetData(in child, new Rotation2D() { value = rotation });
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static void SetLocalScale2D(this in Entity child, in float2 scale) => Worlds.currentWorld.SetData(in child, new Scale2D() { value = scale });
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float2 GetLocalPosition2D(this in Entity child) => child.Read<Position2D>().value;
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static tfloat GetLocalRotation2D(this in Entity child) => child.Read<Rotation2D>().value;
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)] public static float2 GetLocalScale2D(this in Entity child) => child.Read<Scale2D>().value;
         
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         private static float2 GetInvScale_INTERNAL(in Entity entity) {
@@ -119,13 +112,13 @@ namespace ME.ECS {
         #endif
         public static float2 GetPosition2D(this in Entity child) {
 
-            var position = child.Read<Position2D>().ToVector2();
+            var position = child.Read<Position2D>().value;
             ref readonly var container = ref child.Read<Container>();
             while (container.entity.IsEmpty() == false) {
 
-                var angle = container.entity.Read<Rotation2D>().ToQuaternion2D();
+                var angle = container.entity.Read<Rotation2D>().value;
                 position = ECSTransform2DExtensions.Rotate(angle, ECSTransform2DExtensions.GetScale_INTERNAL(in container.entity) * position);
-                position += container.entity.Read<Position2D>().ToVector2();
+                position += container.entity.Read<Position2D>().value;
                 container = ref container.entity.Read<Container>();
 
             }
@@ -139,11 +132,11 @@ namespace ME.ECS {
         #endif
         public static tfloat GetRotation2D(this in Entity child) {
 
-            var worldRot = child.Read<Rotation2D>().ToQuaternion2D();
+            var worldRot = child.Read<Rotation2D>().value;
             ref readonly var container = ref child.Read<Container>();
             while (container.entity.IsEmpty() == false) {
 
-                worldRot = container.entity.Read<Rotation2D>().ToQuaternion2D() + worldRot;
+                worldRot = container.entity.Read<Rotation2D>().value + worldRot;
                 container = ref container.entity.Read<Container>();
 
             }
@@ -157,11 +150,11 @@ namespace ME.ECS {
         #endif
         public static float2 GetScale2D(this in Entity child) {
 
-            var scale = child.Read<Scale2D>().ToVector2();
+            var scale = child.Read<Scale2D>().value;
             ref readonly var container = ref child.Read<Container>();
             while (container.entity.IsEmpty() == false) {
 
-                scale *= container.entity.Read<Scale2D>().ToVector2();
+                scale *= container.entity.Read<Scale2D>().value;
                 container = ref container.entity.Read<Container>();
 
             }

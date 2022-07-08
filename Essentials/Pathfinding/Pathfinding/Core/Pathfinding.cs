@@ -108,16 +108,17 @@ namespace ME.ECS.Pathfinding {
 
         private struct CopyGraph : IArrayElementCopy<Graph> {
 
-            public void Copy(Graph @from, ref Graph to) {
+            public void Copy(in Graph @from, ref Graph to) {
                 
                 to.CopyFrom(from);
                 
             }
 
-            public void Recycle(Graph item) {
+            public void Recycle(ref Graph item) {
 
                 item.Recycle();
-                
+                item = null;
+
             }
 
         }
@@ -475,18 +476,11 @@ namespace ME.ECS.Pathfinding {
             
             for (int i = 0; i < tasks.Length; ++i) {
 
-                var item = tasks[i];
-                if (item.burstEnabled == true) {
-                    
-                    job.Execute(i);
-                    item.isValid = false;
-                    tasks[i] = item;
+                job.Execute(i);
 
-                }
-                
             }
             
-            var jobHandle = job.Schedule(tasks.Length, 64);
+            /*var jobHandle = job.Schedule(tasks.Length, 64);
             jobHandle.Complete();
             
             for (int i = 0; i < tasks.Length; ++i) {
@@ -499,7 +493,7 @@ namespace ME.ECS.Pathfinding {
 
                 }
                 
-            }
+            }*/
 
             results = Pathfinding.results;
 

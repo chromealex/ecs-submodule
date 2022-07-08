@@ -145,6 +145,13 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("BUFFER_SLICED_DISABLED", "Turn on to use Sliced Buffers which allows to add entities in Get<> API.", () => {
+                #if BUFFER_SLICED_DISABLED
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
             #if FILTERS_STORAGE_LEGACY
             new InitializerBase.DefineInfo("ARCHETYPE_SIZE_128", "Set archetype max bits size to 128 (Components in filters).", () => {
                 #if ARCHETYPE_SIZE_128
@@ -191,6 +198,34 @@ namespace ME.ECSEditor {
             }, true, InitializerBase.ConfigurationType.DebugAndRelease),
             new InitializerBase.DefineInfo("FIXED_POINT_MATH", "Fixed-Point Math.", () => {
                 #if FIXED_POINT_MATH
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("SHARED_COMPONENTS_DISABLED", "Disable shared components storage and entity shared API. Use this if you don't use this feature at all to speed up your runtime.", () => {
+                #if SHARED_COMPONENTS_DISABLED
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("ENTITY_TIMERS_DISABLED", "Disable timers storage and entity timers API. Use this if you don't use this feature at all to speed up your runtime.", () => {
+                #if ENTITY_TIMERS_DISABLED
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("COMPONENTS_VERSION_NO_STATE_DISABLED", "Disable components version no state storage and entity no state API. Use this if you don't use this feature at all to speed up your runtime.", () => {
+                #if COMPONENTS_VERSION_NO_STATE_DISABLED
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("ENTITIES_GROUP_DISABLED", "Disable entities group storage and entities group API. Use this if you don't use this feature at all to speed up your runtime.", () => {
+                #if ENTITIES_GROUP_DISABLED
                 return true;
                 #else
                 return false;

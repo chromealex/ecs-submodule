@@ -27,6 +27,7 @@
         [ME.ECS.Serializer.SerializeField]
         public int Capacity = ListCopyable<T>.DefaultCapacity;
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void CopyFrom(ListCopyable<T> other) {
 
             this.Count = other.Count;
@@ -34,7 +35,16 @@
             ArrayUtils.Copy(other.innerArray, ref this.innerArray);
 
         }
+        
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void CopyFrom<TCopy>(ListCopyable<T> other, TCopy copy) where TCopy : IArrayElementCopy<T> {
 
+            this.Count = other.Count;
+            this.Capacity = other.Capacity;
+            ArrayUtils.Copy(other.innerArray, ref this.innerArray, copy);
+
+        }
+        
         public void OnSpawn() {
 
             this.innerArray = PoolArray<T>.Spawn(this.Capacity);
@@ -220,6 +230,15 @@
             
             this.Count--;
             this.innerArray.arr[index] = this.innerArray.arr[this.Count];
+            this.innerArray.arr[this.Count] = default;
+            
+        }
+
+        public void RemoveAtFast(int index, out T moved) {
+            
+            this.Count--;
+            moved = this.innerArray.arr[this.Count];
+            this.innerArray.arr[index] = moved;
             this.innerArray.arr[this.Count] = default;
             
         }

@@ -147,6 +147,7 @@ namespace ME.ECS.DataConfigs {
                 }
                 if (this.structComponents[i] is IComponentStatic) continue;
                 
+                #if !SHARED_COMPONENTS_DISABLED
                 var isShared = (this.structComponents[i] is IComponentShared);
                 if (isShared == true) { // is shared?
 
@@ -160,7 +161,9 @@ namespace ME.ECS.DataConfigs {
 
                     }
 
-                } else {
+                } else
+                #endif
+                {
 
                     if (overrideIfExist == true || world.HasDataBit(in entity, dataIndex) == false) {
 

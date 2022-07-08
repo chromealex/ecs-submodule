@@ -4,8 +4,6 @@ namespace ME.ECS {
 
     public interface IComponentsBlittable {
 
-        
-
     }
     
     #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -35,15 +33,6 @@ namespace ME.ECS {
         public override bool IsNeedToDispose() {
 
             return false;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public override long GetVersion(in Entity entity) {
-
-            return this.components[entity.id].version;
 
         }
 
@@ -146,17 +135,6 @@ namespace ME.ECS {
 
             this.components = this.components.Resize(capacity, true, out var resized);
             base.Validate(capacity);
-            return resized;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public override bool Validate(in Entity entity) {
-
-            this.components = this.components.Resize(entity.id, true, out var resized);
-            base.Validate(entity);
             return resized;
 
         }

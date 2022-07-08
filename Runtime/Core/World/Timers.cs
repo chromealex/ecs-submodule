@@ -1,3 +1,4 @@
+#if !ENTITY_TIMERS_DISABLED
 #if FIXED_POINT_MATH
 using ME.ECS.Mathematics;
 using tfloat = sfloat;
@@ -200,3 +201,4 @@ namespace ME.ECS {
     }
 
 }
+#endif

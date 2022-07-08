@@ -1,3 +1,13 @@
+#if FIXED_POINT_MATH
+using math = ME.ECS.Mathematics.math;
+using float3 = ME.ECS.Mathematics.float3;
+using tfloat = sfloat;
+#else
+using math = Unity.Mathematics.math;
+using float3 = Unity.Mathematics.float3;
+using tfloat = System.Single;
+#endif
+
 namespace ME.ECS.Essentials.GOAP {
 
     using Collections;
@@ -10,13 +20,13 @@ namespace ME.ECS.Essentials.GOAP {
             // For planner
             internal int id;
             internal int parent;
-            internal float h;
+            internal tfloat h;
             internal bool isClosed;
             internal SpanArray<int> neighbours;
 
             // Public
             public GOAPGroupId groupId;
-            public float cost;
+            public tfloat cost;
             public Condition conditions;
             public Effect effects;
 

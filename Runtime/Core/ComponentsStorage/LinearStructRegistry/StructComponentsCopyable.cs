@@ -5,7 +5,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class StructComponentsCopyable<TComponent> : StructComponents<TComponent> where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
+    public sealed class StructComponentsCopyable<TComponent> : StructComponents<TComponent> where TComponent : struct, IStructCopyable<TComponent> {
 
         public override void Recycle() {
             
@@ -13,12 +13,12 @@ namespace ME.ECS {
 
         }
 
-        internal struct CopyItem : IArrayElementCopyWithIndex<Component<TComponent>> {
+        internal struct CopyItem : IArrayElementCopy<Component<TComponent>> {
 
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
-            public void Copy(int index, Component<TComponent> @from, ref Component<TComponent> to) {
+            public void Copy(in Component<TComponent> @from, ref Component<TComponent> to) {
 
                 var hasFrom = (from.state > 0);
                 var hasTo = (to.state > 0);
@@ -29,7 +29,6 @@ namespace ME.ECS {
 
                 if (hasFrom == false && hasTo == true) {
                     
-                    from.data.OnRecycle();
                     to.data.OnRecycle();
                     
                 } else {
@@ -43,7 +42,7 @@ namespace ME.ECS {
             #if INLINE_METHODS
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
-            public void Recycle(int index, ref Component<TComponent> item) {
+            public void Recycle(ref Component<TComponent> item) {
 
                 item.data.OnRecycle();
                 item = default;
@@ -52,21 +51,24 @@ namespace ME.ECS {
 
         }
 
-        internal struct ElementCopy : IArrayElementCopy<SharedGroupData> {
+        #if !SHARED_COMPONENTS_DISABLED
+        internal struct ElementCopy : IArrayElementCopy<SharedDataStorage<TComponent>> {
 
-            public void Copy(SharedGroupData @from, ref SharedGroupData to) {
+            public void Copy(in SharedDataStorage<TComponent> @from, ref SharedDataStorage<TComponent> to) {
                 
                 to.data.CopyFrom(from.data);
                 
             }
 
-            public void Recycle(SharedGroupData item) {
+            public void Recycle(ref SharedDataStorage<TComponent> item) {
                 
                 item.data.OnRecycle();
-                
+                item = default;
+
             }
 
         }
+        #endif
 
         public override bool IsNeedToDispose() {
 
@@ -95,15 +97,17 @@ namespace ME.ECS {
 
         public override void OnRecycle() {
 
-            if (this.sharedGroups.sharedGroups != null) {
+            #if !SHARED_COMPONENTS_DISABLED
+            if (this.sharedStorage.sharedGroups != null) {
 
-                foreach (var kv in this.sharedGroups.sharedGroups) {
+                foreach (var kv in this.sharedStorage.sharedGroups) {
 
                     kv.Value.data.OnRecycle();
 
                 }
 
             }
+            #endif
 
             var sparse = this.components.GetSparse();
             for (int i = 0; i < sparse.Length; ++i) {
@@ -139,10 +143,14 @@ namespace ME.ECS {
         public override void CopyFrom(StructRegistryBase other) {
 
             var _other = (StructComponents<TComponent>)other;
+            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
-            ArrayUtils.CopyWithIndex(_other.components, ref this.components, new CopyItem());
+            #endif
+            ArrayUtils.Copy(_other.components, ref this.components, new CopyItem());
 
-            if (AllComponentTypes<TComponent>.isShared == true) this.sharedGroups.CopyFrom(_other.sharedGroups, new ElementCopy());
+            #if !SHARED_COMPONENTS_DISABLED
+            if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.CopyFrom(ref this.sharedStorage, _other.sharedStorage, new ElementCopy());
+            #endif
             
         }
 

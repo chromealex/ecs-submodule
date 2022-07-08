@@ -9,7 +9,7 @@ namespace ME.ECSEditor {
         [UnityEditor.MenuItem("ME.ECS/Generators/Generate Filters...")]
         public static void GenerateFilters() {
 
-            const int count = 20;
+            const int count = 10;
             
             var asms = UnityEditor.AssetDatabase.FindAssets("t:asmdef ME.ECS");
             foreach (var asm in asms) {

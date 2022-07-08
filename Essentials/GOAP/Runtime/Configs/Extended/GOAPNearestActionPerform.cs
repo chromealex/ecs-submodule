@@ -20,7 +20,7 @@ namespace ME.ECS.Essentials.GOAP {
     public class GOAPNearestActionPerform : GOAPActionPerform {
 
         [Description("Find nearest object by this filter.")]
-        public FilterDataTypes nearestFilter;
+        public FilterDataTypesOptional nearestFilter;
         [ComponentDataTypeAttribute(ComponentDataTypeAttribute.Type.WithData)]
         [Tooltip("Apply this data on object which GOAP has found")]
         [FilterDataTypesLabelsAttribute("Add", "Remove")]

@@ -19,13 +19,13 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static NativeBufferArray<T> Spawn(int length, bool realSize = false, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
+        public static NativeBufferArray<T> Spawn(int length, bool realSize = false, Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent, Unity.Collections.NativeArrayOptions options = Unity.Collections.NativeArrayOptions.ClearMemory) {
 
             var arrSize = PoolArray<T>.GetSize(length);
-            var arr = new Unity.Collections.NativeArray<T>(arrSize, allocator);
+            var arr = new Unity.Collections.NativeArray<T>(arrSize, allocator, options);
             var size = (realSize == true ? arr.Length : length);
             var buffer = new NativeBufferArray<T>(arr, length/*, realSize == true ? arr.Length : -1*/);
-            NativeArrayUtils.Clear(buffer, 0, size);
+            if (options == Unity.Collections.NativeArrayOptions.ClearMemory) NativeArrayUtils.Clear(buffer, 0, size);
 
             return buffer;
 

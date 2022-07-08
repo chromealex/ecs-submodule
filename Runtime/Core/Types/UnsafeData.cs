@@ -122,12 +122,13 @@ namespace ME.ECS {
 
     public struct UnsafeDataCopy : IArrayElementCopy<UnsafeData> {
 
-        public void Copy(UnsafeData @from, ref UnsafeData to) {
+        public void Copy(in UnsafeData @from, ref UnsafeData to) {
             to.CopyFrom(in from);
         }
 
-        public void Recycle(UnsafeData item) {
+        public void Recycle(ref UnsafeData item) {
             item.Dispose();
+            item = default;
         }
 
     }

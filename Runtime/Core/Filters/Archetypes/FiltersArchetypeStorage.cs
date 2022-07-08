@@ -30,7 +30,7 @@ namespace ME.ECS.FiltersArchetype {
                 #if INLINE_METHODS
                 [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
                 #endif
-                public void Copy(Archetype @from, ref Archetype to) {
+                public void Copy(in Archetype @from, ref Archetype to) {
 
                     to.CopyFrom(in from);
 
@@ -39,9 +39,10 @@ namespace ME.ECS.FiltersArchetype {
                 #if INLINE_METHODS
                 [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
                 #endif
-                public void Recycle(Archetype item) {
+                public void Recycle(ref Archetype item) {
 
                     item.Recycle();
+                    item = default;
 
                 }
 
@@ -422,6 +423,7 @@ namespace ME.ECS.FiltersArchetype {
             #endif
             public void Remove(in Entity entity, int componentId) { }
 
+            #if !ENTITIES_GROUP_DISABLED
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
@@ -430,6 +432,7 @@ namespace ME.ECS.FiltersArchetype {
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
             public void Remove(in EntitiesGroup group, int componentId) { }
+            #endif
 
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -671,6 +674,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if !ENTITIES_GROUP_DISABLED
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public void Alloc(int count, ref EntitiesGroup group, Unity.Collections.Allocator allocator, bool copyMode) {
 
@@ -698,6 +702,7 @@ namespace ME.ECS.FiltersArchetype {
             group = new EntitiesGroup(from, from + count - 1, array, copyMode);
 
         }
+        #endif
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public ref Entity Alloc() {
@@ -866,6 +871,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if !ENTITIES_GROUP_DISABLED
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
@@ -891,6 +897,7 @@ namespace ME.ECS.FiltersArchetype {
             }
 
         }
+        #endif
 
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -1264,7 +1271,10 @@ namespace ME.ECS.FiltersArchetype {
                 var filterStaticData = world.GetFilterStaticData(filter.id);
                 if (filterStaticData.isCreated == false) continue;
                 
-                if (FiltersArchetypeStorage.IsEquals(filterStaticData.data.contains, filterBuilder.data.contains) == true &&
+                if (filterStaticData.data.withinTicks == filterBuilder.data.withinTicks &&
+                    filterStaticData.data.withinType == filterBuilder.data.withinType &&
+                    filterStaticData.data.withinMinChunkSize == filterBuilder.data.withinMinChunkSize &&
+                    FiltersArchetypeStorage.IsEquals(filterStaticData.data.contains, filterBuilder.data.contains) == true &&
                     FiltersArchetypeStorage.IsEquals(filterStaticData.data.notContains, filterBuilder.data.notContains) == true &&
                     FiltersArchetypeStorage.IsEquals(filterStaticData.data.notContainsShared, filterBuilder.data.notContainsShared) == true &&
                     FiltersArchetypeStorage.IsEquals(filterStaticData.data.containsShared, filterBuilder.data.containsShared) == true &&

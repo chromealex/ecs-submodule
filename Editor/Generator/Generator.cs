@@ -391,10 +391,18 @@ namespace ME.ECSEditor {
                     var isStatic = typeof(ME.ECS.IComponentStatic).IsAssignableFrom(type);
                     var isDisposable = typeof(ME.ECS.IComponentDisposable).IsAssignableFrom(type);
                     var isOneShot = typeof(ME.ECS.IComponentOneShot).IsAssignableFrom(type);
+                    #if !SHARED_COMPONENTS_DISABLED
                     var isShared = typeof(ME.ECS.IComponentShared).IsAssignableFrom(type);
+                    #else
+                    var isShared = false;
+                    #endif
                     var isVersioned = typeof(ME.ECS.IVersioned).IsAssignableFrom(type);
+                    #if !COMPONENTS_VERSION_NO_STATE_DISABLED
                     var isVersionedNoState = typeof(ME.ECS.IVersionedNoState).IsAssignableFrom(type);
-                    var isBlittable = isDisposable == false && isOneShot == false && Generator.HasManagedTypes(type, true, out _) == false;
+                    #else
+                    var isVersionedNoState = false;
+                    #endif
+                    var isBlittable = isDisposable == false && isOneShot == false && Generator.IsUnmanaged(type) == true;
                     var isSimple = true;
                     if (isCopyable == true ||
                         isDisposable == true ||
@@ -512,6 +520,27 @@ namespace ME.ECSEditor {
 
         }
 
+        public static bool IsUnmanaged(System.Type type) {
+            
+            bool answer;
+
+            if (!type.IsValueType) {
+                // not a struct -> false
+                answer = false;
+            } else if (type.IsPrimitive || type.IsPointer || type.IsEnum) {
+                // primitive, pointer or enum -> true
+                answer = true;
+            } else {
+                // otherwise check recursively
+                answer = type
+                         .GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)
+                         .All(f => IsUnmanaged(f.FieldType));
+            }
+
+            return answer;
+            
+        }
+        
         private static bool HasManagedTypes(System.Type type, bool checkForBlittable, out System.Reflection.FieldInfo failedFieldInfo) {
 
             failedFieldInfo = null;

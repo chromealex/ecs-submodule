@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using ME.ECS.Mathematics;
 
 namespace ME.ECS.Pathfinding {
 
@@ -30,7 +31,7 @@ namespace ME.ECS.Pathfinding {
         public BufferArray<byte> flowField;
         
         // For NavMesh processor
-        public ListCopyable<Vector3> navMeshPoints;
+        public ListCopyable<float3> navMeshPoints;
 
         public void Recycle() {
             
@@ -43,7 +44,7 @@ namespace ME.ECS.Pathfinding {
             
             if (this.cacheEnabled == false && this.flowField.arr != null) PoolArray<byte>.Recycle(ref this.flowField);
             
-            if (this.navMeshPoints != null) PoolListCopyable<Vector3>.Recycle(ref this.navMeshPoints);
+            if (this.navMeshPoints != null) PoolListCopyable<float3>.Recycle(ref this.navMeshPoints);
 
         }
 
@@ -70,7 +71,7 @@ namespace ME.ECS.Pathfinding {
             }
             
             if (other.navMeshPoints != null) {
-                path.navMeshPoints = PoolListCopyable<Vector3>.Spawn(other.navMeshPoints.Count);
+                path.navMeshPoints = PoolListCopyable<float3>.Spawn(other.navMeshPoints.Count);
                 path.navMeshPoints.AddRange(other.navMeshPoints);
             }
 

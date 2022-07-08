@@ -1,3 +1,4 @@
+#if !ENTITIES_GROUP_DISABLED
 using ME.ECS.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 
@@ -297,12 +298,15 @@ namespace ME.ECS {
                     }
                     if (this.structComponents[i] is IComponentStatic) continue;
 
+                    #if !SHARED_COMPONENTS_DISABLED
                     var isShared = (this.structComponents[i] is IComponentShared);
                     if (isShared == true) { // is shared?
 
                         throw new System.NotImplementedException("Set Shared for EntityGroups is not implemented");
 
-                    } else {
+                    } else
+                    #endif
+                    {
 
                         group.Set(this.structComponents[i], dataIndex);
 
@@ -353,7 +357,7 @@ namespace ME.ECS {
             var data = new Component<TComponent>() {
                 data = (TComponent)component,
                 state = 1,
-                version = ++this.maxVersion + 1,
+                version = 1,
             };
             var componentIndex = ComponentTypes<TComponent>.typeId;
             ref var archetypes = ref this.world.currentState.storage.archetypes;
@@ -382,7 +386,7 @@ namespace ME.ECS {
             var data = new Component<TComponent>() {
                 data = component,
                 state = 1,
-                version = ++this.maxVersion + 1,
+                version = 1,
             };
             var componentIndex = ComponentTypes<TComponent>.typeId;
             ref var archetypes = ref this.world.currentState.storage.archetypes;
@@ -565,3 +569,4 @@ namespace ME.ECS {
     }
 
 }
+#endif

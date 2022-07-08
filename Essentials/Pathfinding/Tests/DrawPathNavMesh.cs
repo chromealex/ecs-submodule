@@ -1,60 +1,63 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using ME.ECS;
-using UnityEngine;
+﻿using UnityEngine;
 using ME.ECS.Mathematics;
 
-public class DrawPathNavMesh : MonoBehaviour {
+namespace ME.ECS.Pathfinding.Tests {
 
-    public ME.ECS.Pathfinding.Pathfinding pathfinding;
-    public ME.ECS.Pathfinding.Constraint constraint;
-    public Transform to;
-    public bool useBurst;
+    public class DrawPathNavMesh : MonoBehaviour {
 
-    #if UNITY_EDITOR
-    public void OnDrawGizmos() {
+        public ME.ECS.Pathfinding.Pathfinding pathfinding;
+        public ME.ECS.Pathfinding.Constraint constraint;
+        public UnityEngine.Transform to;
+        public bool useBurst;
 
-        if (this.pathfinding == null || this.to == null) {
+        #if UNITY_EDITOR
+        public void OnDrawGizmos() {
 
-            return;
+            if (this.pathfinding == null || this.to == null) {
 
-        }
+                return;
 
-        //ME.ECS.Pathfinding.PathfindingFlowFieldProcessor.cacheEnabled = true;
+            }
 
-        var cons = ME.ECS.Pathfinding.Constraint.Empty;
-        cons.graphMask = this.constraint.graphMask;
-        var graph = this.pathfinding.GetNearest((float3)this.transform.position, this.constraint).graph;
-        var path = this.pathfinding.CalculatePath<ME.ECS.Pathfinding.PathModifierEmpty, ME.ECS.Pathfinding.PathfindingNavMeshProcessor>((float3)this.transform.position, (float3)this.to.position, this.constraint, graph, new ME.ECS.Pathfinding.PathModifierEmpty(), burstEnabled: this.useBurst);
-        if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete ||
-            path.result == ME.ECS.Pathfinding.PathCompleteState.CompletePartial) {
+            //ME.ECS.Pathfinding.PathfindingFlowFieldProcessor.cacheEnabled = true;
 
-            var fromNode = graph.GetNearest((float3)this.transform.position, this.constraint);
-            var toNode = graph.GetNearest((float3)this.to.position, this.constraint);
+            var cons = ME.ECS.Pathfinding.Constraint.Empty;
+            cons.graphMask = this.constraint.graphMask;
+            var graph = this.pathfinding.GetNearest((float3)this.transform.position, this.constraint).graph;
+            var path = this.pathfinding.CalculatePath<ME.ECS.Pathfinding.PathModifierEmpty, ME.ECS.Pathfinding.PathfindingNavMeshProcessor>(
+                (float3)this.transform.position, (float3)this.to.position, this.constraint, graph, new ME.ECS.Pathfinding.PathModifierEmpty(), burstEnabled: this.useBurst);
+            if (path.result == ME.ECS.Pathfinding.PathCompleteState.Complete ||
+                path.result == ME.ECS.Pathfinding.PathCompleteState.CompletePartial) {
 
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine((Vector3)fromNode.worldPosition, (Vector3)fromNode.worldPosition + Vector3.up * 10f);
+                var fromNode = graph.GetNearest((float3)this.transform.position, this.constraint);
+                var toNode = graph.GetNearest((float3)this.to.position, this.constraint);
 
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine((Vector3)toNode.worldPosition, (Vector3)toNode.worldPosition + Vector3.up * 10f);
+                Gizmos.color = Color.green;
+                Gizmos.DrawLine((Vector3)fromNode.worldPosition, (Vector3)fromNode.worldPosition + Vector3.up * 10f);
 
-            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawLine((Vector3)toNode.worldPosition, (Vector3)toNode.worldPosition + Vector3.up * 10f);
 
-                for (int i = 1; i < path.navMeshPoints.Count; ++i) {
+                {
 
-                    Gizmos.color = Color.white;
-                    var current = path.navMeshPoints[i - 1];
-                    var next = path.navMeshPoints[i];
-                    Gizmos.DrawLine(current, next);
+                    for (int i = 1; i < path.navMeshPoints.Count; ++i) {
+
+                        Gizmos.color = Color.white;
+                        var current = path.navMeshPoints[i - 1];
+                        var next = path.navMeshPoints[i];
+                        Gizmos.DrawLine((Vector3)current, (Vector3)next);
+
+                    }
 
                 }
 
             }
 
+            path.Recycle();
+
         }
-        path.Recycle();
+        #endif
 
     }
-    #endif
 
 }

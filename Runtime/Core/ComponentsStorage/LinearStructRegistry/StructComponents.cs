@@ -1,7 +1,7 @@
 namespace ME.ECS {
 
     using Collections;
-
+    
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -10,9 +10,7 @@ namespace ME.ECS {
     public partial class StructComponents<TComponent> : StructComponentsBase<TComponent> where TComponent : struct, IComponentBase {
 
         [ME.ECS.Serializer.SerializeField]
-        internal SparseSet<Component<TComponent>> components;
-        [ME.ECS.Serializer.SerializeField]
-        private long maxVersion;
+        internal BufferArraySliced<Component<TComponent>> components;
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -32,15 +30,6 @@ namespace ME.ECS {
         public override void Recycle() {
             
             PoolRegistries.Recycle(this);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public override long GetVersion(in Entity entity) {
-
-            return this.components[entity.id].version;
 
         }
 
@@ -93,21 +82,8 @@ namespace ME.ECS {
                 var v = (long)this.world.GetCurrentTick();
                 ref var data = ref this.components[entity.id];
                 data.version = v;
-                this.maxVersion = (v > this.maxVersion ? v : this.maxVersion);
             }
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public override void UpdateVersion(ref Component<TComponent> bucket) {
-
-            if (AllComponentTypes<TComponent>.isVersioned == true) {
-                bucket.version = this.world.GetCurrentTick();
-                this.maxVersion = (bucket.version > this.maxVersion ? bucket.version : this.maxVersion);
-            }
-
+            
         }
 
         #if INLINE_METHODS
@@ -122,7 +98,6 @@ namespace ME.ECS {
         public override void OnRecycle() {
 
             this.components = this.components.Dispose();
-            this.maxVersion = default;
             base.OnRecycle();
             
         }
@@ -134,17 +109,6 @@ namespace ME.ECS {
 
             var resized = ArrayUtils.Resize(capacity, ref this.components, resizeWithOffset: true);
             base.Validate(capacity);
-            return resized;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public override bool Validate(in Entity entity) {
-
-            var resized = ArrayUtils.Resize(entity.id, ref this.components, true);
-            base.Validate(entity);
             return resized;
 
         }
@@ -250,8 +214,6 @@ namespace ME.ECS {
                     this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
 
                 }
-                
-                this.components.Remove(index);
 
                 return true;
 
@@ -274,7 +236,6 @@ namespace ME.ECS {
             base.CopyFrom(other);
             var _other = (StructComponents<TComponent>)other;
             ArrayUtils.Copy(in _other.components, ref this.components);
-            this.maxVersion = _other.maxVersion;
 
         }
         

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 
@@ -48,7 +48,7 @@ namespace ME.ECS.Collections {
         #endif
         // Data
         [NativeDisableUnsafePtrRestriction]
-        private NativeArray<QuadElement<T>> elements;
+        private UnsafeList<QuadElement<T>>* elements;
 
         [NativeDisableUnsafePtrRestriction]
         private NativeArray<int> lookup;
@@ -98,11 +98,11 @@ namespace ME.ECS.Collections {
             this.nodes = new NativeArray<QuadNode>(
                 totalSize, allocator); //UnsafeList.Create(UnsafeUtility.SizeOf<QuadNode>(), UnsafeUtility.AlignOf<QuadNode>(), totalSize, allocator, NativeArrayOptions.ClearMemory);
 
-            this.elements = new NativeArray<QuadElement<T>>(initialElementsCapacity,
-                                                            allocator); //UnsafeList.Create(UnsafeUtility.SizeOf<QuadElement<T>>(), UnsafeUtility.AlignOf<QuadElement<T>>(), initialElementsCapacity, allocator);
+            this.elements = UnsafeList<QuadElement<T>>.Create(initialElementsCapacity, allocator);
         }
 
         public void ClearAndBulkInsert(NativeArray<QuadElement<T>> incomingElements, int incomingElementsLength) {
+
             // Always have to clear before bulk insert as otherwise the lookup and node allocations need to account
             // for existing data.
             this.Clear();
@@ -112,9 +112,9 @@ namespace ME.ECS.Collections {
             #endif
 
             // Resize if needed
-            if (this.elements.Length < this.elementsCount + incomingElementsLength) {
-                NativeArrayUtils.Resize(math.max(incomingElementsLength, this.elements.Length * 2), ref this.elements, this.allocator);
-                //this.elements.Resize(math.max(incomingElementsLength, this.elements.Capacity * 2), NativeArrayOptions.UninitializedMemory);
+            if (this.elements->Length < this.elementsCount + incomingElementsLength) {
+                //NativeArrayUtils.Resize(math.max(incomingElementsLength, this.elements.Length * 2), ref this.elements, this.allocator);
+                this.elements->Resize(math.max(incomingElementsLength, this.elements->Capacity * 2), NativeArrayOptions.UninitializedMemory);
             }
 
             // Prepare morton codes
@@ -122,6 +122,12 @@ namespace ME.ECS.Collections {
             var depthExtentsScaling = LookupTables.DepthLookup[this.maxDepth] / this.bounds.extents;
             for (var i = 0; i < incomingElementsLength; i++) {
                 var incPos = incomingElements[i].pos;
+
+                if (this.bounds.Contains(incPos) == false) {
+                    UnityEngine.Debug.LogError("NativeQuadTree element out of bounds");
+                    incPos = math.clamp(incPos, this.bounds.min, this.bounds.max);
+                }
+                
                 incPos -= this.bounds.center; // Offset by center
                 incPos.y = -incPos.y; // World -> array
                 var pos = (incPos + this.bounds.extents) * .5f; // Make positive
@@ -154,8 +160,8 @@ namespace ME.ECS.Collections {
                     var node = this.nodes[atIndex]; //UnsafeUtility.ReadArrayElement<QuadNode>(this.nodes->Ptr, atIndex);
                     if (node.isLeaf) {
                         // We found a leaf, add this element to it and move to the next element
-                        //UnsafeUtility.WriteArrayElement(this.elements->Ptr, node.firstChildIndex + node.count, incomingElements[i]);
-                        this.elements[node.firstChildIndex + node.count] = incomingElements[i];
+                        UnsafeUtility.WriteArrayElement(this.elements->Ptr, node.firstChildIndex + node.count, incomingElements[i]);
+                        //this.elements[node.firstChildIndex + node.count] = incomingElements[i];
                         node.count++;
                         this.nodes[atIndex] = node;
                         //UnsafeUtility.WriteArrayElement(this.nodes->Ptr, atIndex, node);
@@ -219,26 +225,26 @@ namespace ME.ECS.Collections {
             #endif
             //this.lookup.Clear();
             //this.nodes.Clear();
+            //this.elements.Clear();
             NativeArrayUtils.Clear(this.lookup);
             NativeArrayUtils.Clear(this.nodes);
-            NativeArrayUtils.Clear(this.elements);
-            //this.elements.Clear();
+            //NativeArrayUtils.Clear(this.elements);
             //UnsafeUtility.MemClear(this.lookup->Ptr, this.lookup->Capacity * UnsafeUtility.SizeOf<int>());
             //UnsafeUtility.MemClear(this.nodes->Ptr, this.nodes->Capacity * UnsafeUtility.SizeOf<QuadNode>());
-            //UnsafeUtility.MemClear(this.elements->Ptr, this.elements->Capacity * UnsafeUtility.SizeOf<QuadElement<T>>());
+            UnsafeUtility.MemClear(this.elements->Ptr, this.elements->Capacity * UnsafeUtility.SizeOf<QuadElement<T>>());
             this.elementsCount = 0;
         }
 
         public void Dispose() {
-            this.elements.Dispose();
-            this.elements = default;
+            //this.elements.Dispose();
+            //this.elements = default;
             this.lookup.Dispose();
             this.lookup = default;
             this.nodes.Dispose();
             this.nodes = default;
             this.isCreated = false;
-            //UnsafeList.Destroy(this.elements);
-            //this.elements = null;
+            UnsafeList<QuadElement<T>>.Destroy(this.elements);
+            this.elements = null;
             //UnsafeList.Destroy(this.lookup);
             //this.lookup = null;
             //UnsafeList.Destroy(this.nodes);

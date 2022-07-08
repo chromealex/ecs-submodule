@@ -91,6 +91,12 @@ namespace ME.ECS.Collections {
 
         }
 
+        public void Dispose() {
+
+            this.list.Dispose();
+
+        }
+
         /// <summary>
         /// Put entity data into array.
         /// </summary>

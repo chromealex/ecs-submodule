@@ -90,14 +90,14 @@ namespace ME.ECS.Pathfinding {
 
         private struct CopyNode : IArrayElementCopy<Node> {
 
-            public void Copy(Node from, ref Node to) {
+            public void Copy(in Node from, ref Node to) {
 
                 if (to == null) to = PoolClass<GridNode>.Spawn();
                 to.CopyFrom(from);
 
             }
 
-            public void Recycle(Node item) {
+            public void Recycle(ref Node item) {
 
                 var g = (GridNode)item;
                 PoolClass<GridNode>.Recycle(ref g);

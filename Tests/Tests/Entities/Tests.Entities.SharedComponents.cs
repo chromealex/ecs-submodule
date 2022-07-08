@@ -1,4 +1,4 @@
-﻿
+﻿#if !SHARED_COMPONENTS_DISABLED
 namespace ME.ECS.Tests {
 
     public class Tests_Entities_SharedComponents {
@@ -305,3 +305,4 @@ namespace ME.ECS.Tests {
     }
 
 }
+#endif

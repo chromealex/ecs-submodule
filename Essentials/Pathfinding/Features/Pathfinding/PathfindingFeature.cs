@@ -101,9 +101,11 @@ namespace ME.ECS.Pathfinding.Features {
                 oldPath.path.Dispose();
                 oldPath.path = default;
             }*/
+            var list = PoolListCopyable<float3>.Spawn(path.navMeshPoints.Count);
+            list.AddRange(path.navMeshPoints);
             entity.Set(new ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh() {
                 result = path.result,
-                path = new NativeDataBufferArray<UnityEngine.Vector3>(path.navMeshPoints.ToBufferArray()),
+                path = list,
             });
             entity.Set(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
 

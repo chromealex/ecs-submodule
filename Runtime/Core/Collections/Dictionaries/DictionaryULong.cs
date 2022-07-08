@@ -77,7 +77,7 @@ namespace ME.ECS.Collections {
 
             public T copy;
 
-            public void Copy(Entry @from, ref Entry to) {
+            public void Copy(in Entry @from, ref Entry to) {
                 
                 this.copy.Copy(from.value, ref to.value);
                 to.key = from.key;
@@ -86,10 +86,11 @@ namespace ME.ECS.Collections {
                 
             }
 
-            public void Recycle(Entry item) {
+            public void Recycle(ref Entry item) {
                 
-                this.copy.Recycle(item.value);
-                
+                this.copy.Recycle(ref item.value);
+                item = default;
+
             }
 
         }
@@ -215,7 +216,8 @@ namespace ME.ECS.Collections {
         public void Clear<TElementCopy>(TElementCopy copy) where TElementCopy : IArrayElementCopy<TValue> {
 
             foreach (var item in this) {
-                copy.Recycle(item.Value);
+                var val = item.Value;
+                copy.Recycle(ref val);
             }
 
             this.Clear();

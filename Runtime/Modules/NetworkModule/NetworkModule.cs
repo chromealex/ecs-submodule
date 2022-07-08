@@ -613,7 +613,13 @@ namespace ME.ECS.Network {
                 if (this.keyToObjects.TryGetValue(key, out var instance) == true) {
 
                     this.runCurrentEvent = historyEvent;
-                    methodInfo.Invoke(instance, historyEvent.parameters);
+                    try {
+                        methodInfo.Invoke(instance, historyEvent.parameters);
+                    } catch (System.Exception ex) {
+                        UnityEngine.Debug.LogException(ex);
+                        UnityEngine.Debug.LogError($"Object: {instance}, RpcID: {historyEvent.rpcId}, ObjId: {historyEvent.objId}, MethodInfo: {methodInfo.Name}");
+                    }
+
                     this.runCurrentEvent = default;
 
                 }

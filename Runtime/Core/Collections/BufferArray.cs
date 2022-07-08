@@ -11,10 +11,184 @@ namespace ME.ECS.Collections {
 
         int Count { get; }
         System.Array GetArray();
-        IBufferArray Resize(int newSize);
 
     }
 
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
+    public struct BufferArrayEnumerator<T> : IEnumerator<T> {
+
+        private readonly BufferArray<T> bufferArray;
+        private int index;
+
+        public BufferArrayEnumerator(BufferArray<T> bufferArray) {
+
+            this.bufferArray = bufferArray;
+            this.index = -1;
+
+        }
+
+        object IEnumerator.Current {
+            get {
+                throw new AllocationException();
+            }
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        T IEnumerator<T>.Current {
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            get {
+                return this.bufferArray.arr[this.index];
+            }
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public ref T Current {
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            get {
+                return ref this.bufferArray.arr[this.index];
+            }
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool MoveNext() {
+
+            ++this.index;
+            if (this.index >= this.bufferArray.Length) return false;
+            return true;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Reset() { }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Dispose() { }
+
+    }
+
+    public static class BufferArrayExt {
+    
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static BufferArray<T> Clamp<T>(this in BufferArray<T> src, int length) {
+
+            var delta = src.Length - length;
+            if (delta > 0) System.Array.Clear(src.arr, length, delta);
+            return new BufferArray<T>(src.arr, length);
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static BufferArray<T> Clamp<T, TCopy>(this in BufferArray<T> src, int length, TCopy copy) where TCopy : IArrayElementCopy<T> {
+
+            for (int i = length; i < src.Length; ++i) {
+                
+                copy.Recycle(ref src.arr[i]);
+                
+            }
+            return new BufferArray<T>(src.arr, length);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static IBufferArray Resize<T>(this in BufferArray<T> src, int newSize) {
+
+            var newArr = new T[newSize];
+            if (src.arr != null) System.Array.Copy(src.arr, newArr, newSize > src.Length ? src.Length : newSize);
+            return new BufferArray<T>(newArr, newSize);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static int IndexOf<T>(this in BufferArray<T> src, T instance) {
+
+            if (src.isCreated == false) return -1;
+
+            return System.Array.IndexOf(src.arr, instance);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static BufferArray<T> RemoveAt<T>(this in BufferArray<T> src, int index) {
+
+            var newLength = src.Length;
+            newLength--;
+
+            if (index < newLength) {
+
+                System.Array.Copy(src.arr, index + 1, src.arr, index, newLength - index);
+
+            }
+
+            return new BufferArray<T>(src.arr, newLength);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static BufferArray<T> RemoveAtUnsorted<T>(this in BufferArray<T> src, ref int index) {
+
+            src.arr[index] = src.arr[src.Length - 1];
+            --index;
+            return new BufferArray<T>(src.arr, src.Length - 1);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static BufferArray<T> Clear<T>(this in BufferArray<T> src) {
+
+            PoolArray<T>.Recycle(src);
+            return new BufferArray<T>(null, 0);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static BufferArray<T> Dispose<T>(this in BufferArray<T> src) {
+
+            PoolArray<T>.Recycle(src);
+            return new BufferArray<T>(null, 0);
+
+        }
+
+    }
+    
     /// <summary>
     /// BufferArray<T> for array pool
     /// Note: Beware of readonly instruction - it will readonly in build, but in editor it is non-readonly because of PropertyDrawer
@@ -118,6 +292,15 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public System.Array GetArray() {
+
+            return this.arr;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public BufferArray(T[] arr, int length, int realLength) {
 
             this.Length = length;
@@ -157,79 +340,57 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public IBufferArray Resize(int newSize) {
+        public BufferArrayEnumerator<T> GetEnumerator() {
 
-            var newArr = new T[newSize];
-            if (this.arr != null) System.Array.Copy(this.arr, newArr, newSize > this.Length ? this.Length : newSize);
-            return new BufferArray<T>(newArr, newSize);
+            return new BufferArrayEnumerator<T>(this);
 
         }
 
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public int IndexOf(T instance) {
-
-            if (this.isCreated == false) return -1;
-
-            return System.Array.IndexOf(this.arr, instance);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public BufferArray<T> RemoveAt(int index) {
-
-            var newLength = this.Length;
-            newLength--;
-
-            if (index < newLength) {
-
-                System.Array.Copy(this.arr, index + 1, this.arr, index, newLength - index);
-
+        /*public ref T this[int index] {
+            #if INLINE_METHODS
+[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+#endif
+            get {
+                return ref this.arr[index];
             }
+        }*/
 
-            return new BufferArray<T>(this.arr, newLength);
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static bool operator ==(BufferArray<T> e1, BufferArray<T> e2) {
+
+            return e1.arr.Equals(e2.arr);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public System.Array GetArray() {
+        public static bool operator !=(BufferArray<T> e1, BufferArray<T> e2) {
 
-            return this.arr;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public BufferArray<T> RemoveAtUnsorted(ref int index) {
-
-            this.arr[index] = this.arr[this.Length - 1];
-            --index;
-            return new BufferArray<T>(this.arr, this.Length - 1);
+            return !(e1 == e2);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArray<T> Clear() {
+        public bool Equals(BufferArray<T> other) {
 
-            PoolArray<T>.Recycle(this);
-            return new BufferArray<T>(null, 0);
+            return this == other;
 
         }
 
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public Enumerator GetEnumerator() {
-
-            return new Enumerator(this);
+        public override bool Equals(object other) {
+            
+            if (other is BufferArray<T> ent) {
+                
+                return this.Equals(ent);
+                
+            }
+            
+            return false;
 
         }
 
@@ -288,64 +449,6 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArray<T> Dispose() {
-
-            PoolArray<T>.Recycle(this);
-            return new BufferArray<T>(null, 0);
-
-        }
-
-        /*public ref T this[int index] {
-            #if INLINE_METHODS
-[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-            get {
-                return ref this.arr[index];
-            }
-        }*/
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static bool operator ==(BufferArray<T> e1, BufferArray<T> e2) {
-
-            return e1.arr.Equals(e2.arr);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static bool operator !=(BufferArray<T> e1, BufferArray<T> e2) {
-
-            return !(e1 == e2);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public bool Equals(BufferArray<T> other) {
-
-            return this == other;
-
-        }
-
-        public override bool Equals(object other) {
-            
-            if (other is BufferArray<T> ent) {
-                
-                return this.Equals(ent);
-                
-            }
-            
-            return false;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public override int GetHashCode() {
 
             if (this.arr == null) return 0;
@@ -361,85 +464,6 @@ namespace ME.ECS.Collections {
             }
 
             return "BufferArray<>[" + this.Length + "]:\n" + content;
-
-        }
-
-        #if ECS_COMPILE_IL2CPP_OPTIONS
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-        #endif
-        public struct Enumerator : IEnumerator<T> {
-
-            private readonly BufferArray<T> bufferArray;
-            private int index;
-
-            public Enumerator(BufferArray<T> bufferArray) {
-
-                this.bufferArray = bufferArray;
-                this.index = -1;
-
-            }
-
-            object IEnumerator.Current {
-                get {
-                    throw new AllocationException();
-                }
-            }
-
-            #if ECS_COMPILE_IL2CPP_OPTIONS
-            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
-            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
-            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-            #endif
-            T IEnumerator<T>.Current {
-                #if INLINE_METHODS
-                [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-                #endif
-                get {
-                    return this.bufferArray.arr[this.index];
-                }
-            }
-
-            #if ECS_COMPILE_IL2CPP_OPTIONS
-            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
-            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
-            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-            #endif
-            public ref T Current {
-                #if INLINE_METHODS
-                [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-                #endif
-                get {
-                    return ref this.bufferArray.arr[this.index];
-                }
-            }
-
-            #if ECS_COMPILE_IL2CPP_OPTIONS
-            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
-            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
-            [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-            #endif
-            #if INLINE_METHODS
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
-            public bool MoveNext() {
-
-                ++this.index;
-                if (this.index >= this.bufferArray.Length) return false;
-                return true;
-
-            }
-
-            #if INLINE_METHODS
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Reset() { }
-
-            #if INLINE_METHODS
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Dispose() { }
 
         }
 

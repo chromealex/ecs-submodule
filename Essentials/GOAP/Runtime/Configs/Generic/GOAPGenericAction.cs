@@ -1,3 +1,13 @@
+#if FIXED_POINT_MATH
+using math = ME.ECS.Mathematics.math;
+using float3 = ME.ECS.Mathematics.float3;
+using tfloat = sfloat;
+#else
+using math = Unity.Mathematics.math;
+using float3 = Unity.Mathematics.float3;
+using tfloat = System.Single;
+#endif
+
 using UnityEngine;
 
 namespace ME.ECS.Essentials.GOAP {
@@ -90,7 +100,7 @@ namespace ME.ECS.Essentials.GOAP {
 
         }
 
-        public bool RunFloat(GOAPActionModule[] items, in Entity agent, ActionEvent evt, out float result) {
+        public bool RunFloat(GOAPActionModule[] items, in Entity agent, ActionEvent evt, out tfloat result) {
 
             result = 0f;
             var found = false;
@@ -127,7 +137,7 @@ namespace ME.ECS.Essentials.GOAP {
         public virtual void Perform(in Entity agent) {
         }
 
-        public virtual float GetCost(in Entity agent) {
+        public virtual tfloat GetCost(in Entity agent) {
             return 1f;
         }
 
@@ -160,6 +170,11 @@ namespace ME.ECS.Essentials.GOAP {
         [SerializeReferenceButton]
         public GOAPActionModule[] items;
 
+        protected override void OnAwake() {
+            base.OnAwake();
+            this.DoActions(Entity.Null, ActionEvent.OnAwake);
+        }
+        
         private void DoActions(in Entity agent, ActionEvent evt) {
             new ModuleGroup().Run(this.items, in agent, evt);
         }
@@ -169,7 +184,7 @@ namespace ME.ECS.Essentials.GOAP {
             return new ModuleGroup().RunBool(this.items, in agent, evt, out result) == true;
         }
 
-        private bool DoActionsFloat(in Entity agent, ActionEvent evt, out float result) {
+        private bool DoActionsFloat(in Entity agent, ActionEvent evt, out tfloat result) {
             result = default;
             return new ModuleGroup().RunFloat(this.items, in agent, evt, out result);
         }
@@ -179,7 +194,7 @@ namespace ME.ECS.Essentials.GOAP {
             this.DoActions(in agent, ActionEvent.Perform);
         }
 
-        public override float GetCost(in Entity agent) {
+        public override tfloat GetCost(in Entity agent) {
             if (this.DoActionsFloat(in agent, ActionEvent.GetCost, out var result) == true) {
                 return result;
             }
