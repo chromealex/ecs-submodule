@@ -1,6 +1,7 @@
 # Version 2.6
-* Runtime.Core: STATIC_API_DISABLED define added
-* Editor.Generator: ReadStatic/TryReadStatic Entity API added
+* Runtime.Core:
+  * STATIC_API_DISABLED define added
+  * Static Entity API implemented
 
 08/07/2022
 # Version 2.5
