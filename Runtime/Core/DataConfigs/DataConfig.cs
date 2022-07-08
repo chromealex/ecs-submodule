@@ -119,6 +119,7 @@ namespace ME.ECS.DataConfigs {
         #region Public API
         public static void AddSource(in Entity entity, DataConfig config) {
             
+            #if !STATIC_API_DISABLED
             if (entity.Has<SourceConfig>() == true) {
                 
                 // We already has SourceConfig onto this entity,
@@ -127,7 +128,9 @@ namespace ME.ECS.DataConfigs {
                 if (configs.configs == null) configs.configs = PoolListCopyable<DataConfig>.Spawn(2);
                 configs.configs.Add(config);
 
-            } else {
+            } else
+            #endif
+            {
 
                 entity.Set(new SourceConfig() {
                     config = config,

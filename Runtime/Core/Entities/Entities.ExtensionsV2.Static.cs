@@ -1,4 +1,5 @@
-﻿#if ENABLE_IL2CPP
+﻿#if !STATIC_API_DISABLED
+#if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
 
@@ -24,6 +25,13 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        /// <summary>
+        /// Try read TComponent from any data configs which were applied onto entity
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="component"></param>
+        /// <typeparam name="TComponent"></typeparam>
+        /// <returns>True if config found</returns>
         public static bool TryReadStatic<TComponent>(this in Entity entity, out TComponent component) where TComponent : struct, IComponentStatic {
 
             component = default;
@@ -53,6 +61,12 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        /// <summary>
+        /// Check if TComponent exists in any data configs which were applied onto entity
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <typeparam name="TComponent"></typeparam>
+        /// <returns>True if found</returns>
         public static bool HasStatic<TComponent>(this in Entity entity) where TComponent : struct, IComponentStatic {
 
             // check if this component in SourceConfig
@@ -80,6 +94,12 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        /// <summary>
+        /// Reads TComponent from any data configs which were applied onto entity
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <typeparam name="TComponent"></typeparam>
+        /// <returns>Component or default if nothing found</returns>
         public static TComponent ReadStatic<TComponent>(this in Entity entity) where TComponent : struct, IComponentStatic {
 
             if (entity.TryReadStatic<TComponent>(out var component) == true) {
@@ -95,6 +115,12 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        /// <summary>
+        /// Register config which has TComponent from source
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="source">Source entity which has static TComponent</param>
+        /// <typeparam name="TComponent"></typeparam>
         public static void SetStatic<TComponent>(this in Entity entity, in Entity source) where TComponent : struct, IComponentStatic {
 
             if (entity.HasStatic<TComponent>() == true) return;
@@ -132,3 +158,4 @@ namespace ME.ECS {
     }
 
 }
+#endif

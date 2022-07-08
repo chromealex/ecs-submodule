@@ -9,6 +9,7 @@ namespace ME.ECS.DataConfigs {
 
     }
 
+    #if !STATIC_API_DISABLED
     [ComponentGroup("Data Config", GroupColor.Default, -100)]
     [ComponentOrder(1)]
     [ComponentHelp("Stores all applied configs except first applied (see SourceConfig component)")]
@@ -29,5 +30,6 @@ namespace ME.ECS.DataConfigs {
         }
 
     }
+    #endif
 
 }

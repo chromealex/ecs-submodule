@@ -231,6 +231,13 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            new InitializerBase.DefineInfo("STATIC_API_DISABLED", "Disable static API for entities. Use this if you don't use this feature at all to speed up your runtime.", () => {
+                #if STATIC_API_DISABLED
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
         };
         
         private bool settingsFoldOut {
