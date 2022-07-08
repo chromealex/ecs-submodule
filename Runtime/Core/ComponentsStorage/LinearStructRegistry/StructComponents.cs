@@ -10,7 +10,8 @@ namespace ME.ECS {
     public partial class StructComponents<TComponent> : StructComponentsBase<TComponent> where TComponent : struct, IComponentBase {
 
         [ME.ECS.Serializer.SerializeField]
-        internal BufferArraySliced<Component<TComponent>> components;
+        //internal BufferArraySliced<Component<TComponent>> components;
+        internal SparseSet<Component<TComponent>> components;
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

@@ -67,12 +67,12 @@ namespace ME.ECS.Collections {
 
         }
         
-        public SparseSet<T> CopyFrom<TCopy>(in SparseSet<T> other, TCopy copy) where TCopy : IArrayElementCopyWithIndex<T> {
+        public SparseSet<T> CopyFrom<TCopy>(in SparseSet<T> other, TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             this.isCreated = other.isCreated;
             //this.Length = other.Length;
             
-            ArrayUtils.CopyWithIndex(other.dense, ref this.dense, copy);
+            ArrayUtils.Copy(other.dense, ref this.dense, copy);
             ArrayUtils.Copy(in other.sparse, ref this.sparse);
             ArrayUtils.Copy(other.freeIndexes, ref this.freeIndexes);
             return this;

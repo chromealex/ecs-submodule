@@ -14,6 +14,44 @@ namespace ME.ECS.Collections {
     public static class BufferArraySlicedExt {
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static BufferArraySliced<T> PopLast<T>(this in BufferArraySliced<T> src, out T result) where T : struct {
+
+            var index = src.Length - 1;
+            var data = src.data;
+            if (index >= data.Length) {
+
+                // Look into tails
+                var tails = src.tails;
+                var arr = tails.arr;
+                index -= data.Length;
+                for (int i = 0, length = tails.Length; i < length; ++i) {
+
+                    ref var tail = ref arr[i];
+                    var len = tail.Length;
+                    if (index < len) {
+                        
+                        result = tail.arr[index];
+                        tail.arr[index] = default;
+                        tail = new BufferArray<T>(tail.arr, tail.Length - 1);
+                        return new BufferArraySliced<T>(src.data, tails);
+                        
+                    }
+                    index -= len;
+
+                }
+
+            }
+
+            {
+                result = data.arr[index];
+                data.arr[index] = default;
+                var newData = new BufferArray<T>(data.arr, data.Length - 1);
+                return new BufferArraySliced<T>(newData, src.tails);
+            }
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static BufferArraySliced<T> CopyFrom<T, TCopy>(this in BufferArraySliced<T> src, in BufferArraySliced<T> other, in TCopy copy) where TCopy : IArrayElementCopy<T> where T : struct {
 
             var data = src.data;

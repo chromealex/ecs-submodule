@@ -83,6 +83,26 @@ namespace ME.ECS {
             return result;
 
         }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static bool Resize<T>(int index, ref SparseSet<T> arr, bool resizeWithOffset = false) where T : struct {
+
+            if (index < arr.Length) return false;
+
+            var offset = (resizeWithOffset == true ? 2 : 1);
+            if (arr.isCreated == false) {
+
+                arr = new SparseSet<T>(index * offset + 1);
+
+            }
+
+            var newLength = index + 1;
+            arr.Validate(newLength);
+            return true;
+
+        }
 
     }
 

@@ -89,6 +89,56 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Copy<T, TCopy>(SparseSet<T> fromArr, ref SparseSet<T> arr, TCopy copy) where TCopy : IArrayElementCopy<T> where T : struct {
+
+            if (fromArr.isCreated == false) {
+
+                if (arr.isCreated == true) arr.Dispose();
+                arr = default;
+                return;
+
+            }
+
+            if (arr.isCreated == false || fromArr.Length != arr.Length) {
+
+                if (arr.isCreated == true) arr.Dispose();
+                arr = new SparseSet<T>(fromArr.Length);
+
+            }
+
+            arr = arr.CopyFrom(in fromArr, copy);
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Copy<T>(in ME.ECS.Collections.SparseSet<T> fromArr, ref ME.ECS.Collections.SparseSet<T> arr) where T : struct {
+
+            if (fromArr.isCreated == false) {
+
+                if (arr.isCreated == true) arr.Dispose();
+                arr = default;
+                return;
+
+            }
+
+            if (arr.isCreated == false || fromArr.Length != arr.Length) {
+
+                if (arr.isCreated == true) arr.Dispose();
+                arr = new SparseSet<T>(fromArr, fromArr.Length);
+
+            } else {
+
+                arr = arr.CopyFrom(in fromArr);
+
+            }
+
+        }
+
     }
 
 }
