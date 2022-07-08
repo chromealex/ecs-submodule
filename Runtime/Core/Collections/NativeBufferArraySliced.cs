@@ -67,7 +67,7 @@ namespace ME.ECS.Collections {
     public static unsafe class NativeBufferArraySlicedExt {
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static void* GetUnsafePtr<T>(this NativeBufferArraySliced<T> arr) where T : struct {
+        public static void* GetUnsafePtr<T>(this ref NativeBufferArraySliced<T> arr) where T : struct {
 
             return arr.data.GetUnsafePtr();
 
@@ -76,7 +76,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static NativeBufferArraySliced<T> CopyFrom<T, TCopy>(this NativeBufferArraySliced<T> arr, in NativeBufferArraySliced<T> other, in TCopy copy) where TCopy : IArrayElementCopy<T> where T : struct {
+        public static NativeBufferArraySliced<T> CopyFrom<T, TCopy>(this ref NativeBufferArraySliced<T> arr, in NativeBufferArraySliced<T> other, in TCopy copy) where TCopy : IArrayElementCopy<T> where T : struct {
 
             ref var data = ref arr.data;
             arr.isCreated = other.isCreated;
@@ -90,7 +90,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static NativeBufferArraySliced<T> CopyFrom<T>(this NativeBufferArraySliced<T> arr, in NativeBufferArraySliced<T> other) where T : struct {
+        public static NativeBufferArraySliced<T> CopyFrom<T>(this ref NativeBufferArraySliced<T> arr, in NativeBufferArraySliced<T> other) where T : struct {
 
             ref var data = ref arr.data;
             arr.isCreated = other.isCreated;
@@ -102,7 +102,7 @@ namespace ME.ECS.Collections {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static NativeBufferArraySliced<T> Clamp<T, TCopy>(this NativeBufferArraySliced<T> arr, int length, TCopy copy) where TCopy : IArrayElementCopy<T> where T : struct {
+        public static NativeBufferArraySliced<T> Clamp<T, TCopy>(this ref NativeBufferArraySliced<T> arr, int length, TCopy copy) where TCopy : IArrayElementCopy<T> where T : struct {
 
             var newArr = arr.Merge();
             for (int i = length; i < arr.Length; ++i) {
@@ -118,7 +118,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static NativeBufferArraySliced<T> Resize<T>(this NativeBufferArraySliced<T> arr, int index, bool resizeWithOffset, out bool result) where T : struct {
+        public static NativeBufferArraySliced<T> Resize<T>(this ref NativeBufferArraySliced<T> arr, int index, bool resizeWithOffset, out bool result) where T : struct {
 
             if (index >= arr.Length) {
 
@@ -162,7 +162,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static NativeBufferArraySliced<T> Merge<T>(this NativeBufferArraySliced<T> arr) where T : struct {
+        public static NativeBufferArraySliced<T> Merge<T>(this ref NativeBufferArraySliced<T> arr) where T : struct {
 
             if (arr.tails.isCreated == false || arr.tails.Length == 0) {
 
@@ -195,7 +195,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static NativeBufferArraySliced<T> Dispose<T>(this NativeBufferArraySliced<T> arr) where T : struct {
+        public static NativeBufferArraySliced<T> Dispose<T>(this ref NativeBufferArraySliced<T> arr) where T : struct {
 
             arr.data.Dispose();
             arr.data = default;

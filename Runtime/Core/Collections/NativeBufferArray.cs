@@ -178,7 +178,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static NativeBufferArray<T> RemoveAtUnsorted<T>(this NativeBufferArray<T> src, ref int index) where T : struct {
+        public static NativeBufferArray<T> RemoveAtUnsorted<T>(this ref NativeBufferArray<T> src, ref int index) where T : struct {
 
             var arr = src.arr;
             arr[index] = arr[src.Length - 1];
@@ -190,7 +190,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void Clear<T>(this NativeBufferArray<T> arr) where T : struct {
+        public static void Clear<T>(this ref NativeBufferArray<T> arr) where T : struct {
 
             NativeArrayUtils.Clear(arr.arr);
             
@@ -199,7 +199,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void Clear<T>(this NativeBufferArray<T> arr, int index, int length) where T : struct {
+        public static void Clear<T>(this ref NativeBufferArray<T> arr, int index, int length) where T : struct {
 
             NativeArrayUtils.Clear(arr.arr, index, length);
             
@@ -208,7 +208,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static NativeBufferArray<T> Dispose<T>(this NativeBufferArray<T> arr) where T : struct {
+        public static NativeBufferArray<T> Dispose<T>(this ref NativeBufferArray<T> arr) where T : struct {
 
             if (arr.isCreated == true) arr.arr.Dispose();
             return NativeBufferArray<T>.Empty;
@@ -216,7 +216,7 @@ namespace ME.ECS.Collections {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static NativeBufferArray<T> Clamp<T>(this NativeBufferArray<T> arr, int length) where T : struct {
+        public static NativeBufferArray<T> Clamp<T>(this ref NativeBufferArray<T> arr, int length) where T : struct {
 
             var delta = arr.Length - length;
             if (delta > 0) NativeArrayUtils.Clear(arr.arr, length, delta);
@@ -225,7 +225,7 @@ namespace ME.ECS.Collections {
         }
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static NativeBufferArray<T> Clamp<T, TCopy>(this NativeBufferArray<T> arr, int length, TCopy copy) where TCopy : IArrayElementCopy<T> where T : struct {
+        public static NativeBufferArray<T> Clamp<T, TCopy>(this ref NativeBufferArray<T> arr, int length, TCopy copy) where TCopy : IArrayElementCopy<T> where T : struct {
 
             for (int i = length; i < arr.Length; ++i) {
                 
