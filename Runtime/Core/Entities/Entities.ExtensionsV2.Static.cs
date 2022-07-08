@@ -1,0 +1,134 @@
+﻿#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
+#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
+#else
+using Unity.Mathematics;
+using tfloat = System.Single;
+#endif
+
+namespace ME.ECS {
+
+    using Collections;
+
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
+    public static partial class EntityExtensionsV2 {
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static bool TryReadStatic<TComponent>(this in Entity entity, out TComponent component) where TComponent : struct, IComponentStatic {
+
+            component = default;
+            
+            // check if this component in SourceConfig
+            if (entity.TryRead<ME.ECS.DataConfigs.SourceConfig>(out var sourceConfig) == true) {
+
+                if (sourceConfig.config.TryRead(out component) == true) return true;
+
+            }
+            
+            // check if this component in SourceConfigs
+            if (entity.TryRead<ME.ECS.DataConfigs.SourceConfigs>(out var sourceConfigs) == true) {
+
+                foreach (var config in sourceConfigs.configs) {
+                    
+                    if (config.TryRead(out component) == true) return true;
+                    
+                }
+                
+            }
+
+            return false;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static bool HasStatic<TComponent>(this in Entity entity) where TComponent : struct, IComponentStatic {
+
+            // check if this component in SourceConfig
+            if (entity.TryRead<ME.ECS.DataConfigs.SourceConfig>(out var sourceConfig) == true) {
+
+                if (sourceConfig.config.Has<TComponent>() == true) return true;
+
+            }
+            
+            // check if this component in SourceConfigs
+            if (entity.TryRead<ME.ECS.DataConfigs.SourceConfigs>(out var sourceConfigs) == true) {
+
+                foreach (var config in sourceConfigs.configs) {
+                    
+                    if (config.Has<TComponent>() == true) return true;
+                    
+                }
+                
+            }
+
+            return false;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static TComponent ReadStatic<TComponent>(this in Entity entity) where TComponent : struct, IComponentStatic {
+
+            if (entity.TryReadStatic<TComponent>(out var component) == true) {
+
+                return component;
+
+            }
+            
+            return default;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void SetStatic<TComponent>(this in Entity entity, in Entity source) where TComponent : struct, IComponentStatic {
+
+            if (entity.HasStatic<TComponent>() == true) return;
+            
+            // check if this component in SourceConfig
+            if (source.TryRead<ME.ECS.DataConfigs.SourceConfig>(out var sourceConfig) == true) {
+
+                if (sourceConfig.config.Has<TComponent>() == true) {
+
+                    ME.ECS.DataConfigs.DataConfig.AddSource(in entity, sourceConfig.config);
+                    return;
+                    
+                }
+
+            }
+            
+            // check if this component in SourceConfigs
+            if (source.TryRead<ME.ECS.DataConfigs.SourceConfigs>(out var sourceConfigs) == true) {
+
+                foreach (var config in sourceConfigs.configs) {
+                    
+                    if (config.Has<TComponent>() == true) {
+
+                        ME.ECS.DataConfigs.DataConfig.AddSource(in entity, config);
+                        return;
+                    
+                    }
+                    
+                }
+                
+            }
+            
+        }
+
+    }
+
+}

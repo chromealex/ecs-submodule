@@ -16,7 +16,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void Copy<T>(ListCopyable<T> fromArr, ref ListCopyable<T> arr) where T : struct {
+        public static void Copy<T>(ListCopyable<T> fromArr, ref ListCopyable<T> arr) {
 
             if (fromArr == null) {
 

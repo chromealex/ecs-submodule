@@ -1,3 +1,7 @@
+# Version 2.6
+* Editor.Generator: ReadStatic/TryReadStatic Entity API added
+
+08/07/2022
 # Version 2.5
 * Tests.Tests: MemoryAllocator tests added
 * Essentials.GOAP: 

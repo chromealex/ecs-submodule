@@ -364,7 +364,7 @@ namespace ME.ECSEditor {
 
                 }
 
-                listEntities = listEntities.OrderBy(x => {
+                /*listEntities = listEntities.OrderBy(x => {
                     
                     var attrs = x.GetCustomAttributes(typeof(ME.ECS.ComponentOrderAttribute), false);
                     if (attrs.Length > 0) {
@@ -375,7 +375,27 @@ namespace ME.ECSEditor {
                     
                     return 0;
                     
-                }).ThenBy(x => x.FullName).ToList();
+                }).ThenBy(x => x.FullName).ToList();*/
+                int GetOrder(System.Type type) {
+                
+                    var isCopyable = typeof(ME.ECS.ICopyableBase).IsAssignableFrom(type);
+                    var isStatic = typeof(ME.ECS.IComponentStatic).IsAssignableFrom(type);
+                    var isDisposable = typeof(ME.ECS.IComponentDisposable).IsAssignableFrom(type);
+                    var isOneShot = typeof(ME.ECS.IComponentOneShot).IsAssignableFrom(type);
+                    var isBlittable = isDisposable == false && isOneShot == false && Generator.IsUnmanaged(type) == true;
+
+                    if (isStatic == true) return 0;
+                    if (isBlittable == true) return 1;
+                    if (isDisposable == true) return 3;
+                    if (isCopyable == true) return 5;
+                    
+                    if (isOneShot == true) return 10;
+
+                    return int.MaxValue;
+
+                }
+                
+                listEntities = listEntities.OrderBy(GetOrder).ThenBy(x => x.FullName).ToList();
 
                 var linesOutput = new List<string>(100);
                 var linesOutput2 = new List<string>(100);
@@ -422,56 +442,60 @@ namespace ME.ECSEditor {
                         }
 
                     }
-                    
-                    var resItem = itemStr;
-                    resItem = resItem.Replace("#ISTAG#", hasFields == true ? "false" : "true");
-                    resItem = resItem.Replace("#ISSHARED#", isShared == true ? "true" : "false");
-                    resItem = resItem.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
-                    resItem = resItem.Replace("#ISBLITTABLE#", isBlittable == true ? "true" : "false");
-                    resItem = resItem.Replace("#TYPENAME#", entityType);
-                    resItem = resItem.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
-                    resItem = resItem.Replace("#BLITTABLE#", isBlittable == true ? "Blittable" : "");
-                    resItem = resItem.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
-                    resItem = resItem.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
-                    resItem = resItem.Replace("#CONTAINER#", isOneShot == true ? "noStateStructComponentsContainer" : "structComponentsContainer");
-                    resItem = resItem.Replace("\r\n", "\n");
-                    
-                    /*
-                    resItem = resItem.Replace("#PROJECTNAME#", asmName);
-                    resItem = resItem.Replace("#STATENAME#", asmName + "State");
-                    resItem = resItem.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
-                    resItem = resItem.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
-                    resItem = resItem.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
-                    resItem = resItem.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
-                    */
-                    
-                    linesOutput.Add(resItem);
 
-                    if (itemStr2 != null) {
+                    if (isStatic == false) {
 
-                        var resItem2 = itemStr2;
-                        resItem2 = resItem2.Replace("#TYPENAME#", entityType);
-                        resItem2 = resItem2.Replace("#ISTAG#", hasFields == true ? "false" : "true");
-                        resItem2 = resItem2.Replace("#ISSHARED#", isShared == true ? "true" : "false");
-                        resItem2 = resItem2.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
-                        resItem2 = resItem2.Replace("#ISBLITTABLE#", isBlittable == true ? "true" : "false");
-                        resItem2 = resItem2.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
-                        resItem2 = resItem2.Replace("#BLITTABLE#", isBlittable == true ? "Blittable" : "");
-                        resItem2 = resItem2.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
-                        resItem2 = resItem2.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
-                        resItem2 = resItem2.Replace("#CONTAINER#", isOneShot == true ? "noStateStructComponentsContainer" : "structComponentsContainer");
-                        resItem2 = resItem2.Replace("\r\n", "\n");
-                        
+                        var resItem = itemStr;
+                        resItem = resItem.Replace("#ISTAG#", hasFields == true ? "false" : "true");
+                        resItem = resItem.Replace("#ISSHARED#", isShared == true ? "true" : "false");
+                        resItem = resItem.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
+                        resItem = resItem.Replace("#ISBLITTABLE#", isBlittable == true ? "true" : "false");
+                        resItem = resItem.Replace("#TYPENAME#", entityType);
+                        resItem = resItem.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
+                        resItem = resItem.Replace("#BLITTABLE#", isBlittable == true ? "Blittable" : "");
+                        resItem = resItem.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
+                        resItem = resItem.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
+                        resItem = resItem.Replace("#CONTAINER#", isOneShot == true ? "noStateStructComponentsContainer" : "structComponentsContainer");
+                        resItem = resItem.Replace("\r\n", "\n");
+
                         /*
-                        resItem2 = resItem2.Replace("#PROJECTNAME#", asmName);
-                        resItem2 = resItem2.Replace("#STATENAME#", asmName + "State");
-                        resItem2 = resItem2.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
-                        resItem2 = resItem2.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
-                        resItem2 = resItem2.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
-                        resItem2 = resItem2.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
+                        resItem = resItem.Replace("#PROJECTNAME#", asmName);
+                        resItem = resItem.Replace("#STATENAME#", asmName + "State");
+                        resItem = resItem.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
+                        resItem = resItem.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
+                        resItem = resItem.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
+                        resItem = resItem.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
                         */
-                        
-                        linesOutput2.Add(resItem2);
+
+                        linesOutput.Add(resItem);
+
+                        if (itemStr2 != null) {
+
+                            var resItem2 = itemStr2;
+                            resItem2 = resItem2.Replace("#TYPENAME#", entityType);
+                            resItem2 = resItem2.Replace("#ISTAG#", hasFields == true ? "false" : "true");
+                            resItem2 = resItem2.Replace("#ISSHARED#", isShared == true ? "true" : "false");
+                            resItem2 = resItem2.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
+                            resItem2 = resItem2.Replace("#ISBLITTABLE#", isBlittable == true ? "true" : "false");
+                            resItem2 = resItem2.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
+                            resItem2 = resItem2.Replace("#BLITTABLE#", isBlittable == true ? "Blittable" : "");
+                            resItem2 = resItem2.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
+                            resItem2 = resItem2.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
+                            resItem2 = resItem2.Replace("#CONTAINER#", isOneShot == true ? "noStateStructComponentsContainer" : "structComponentsContainer");
+                            resItem2 = resItem2.Replace("\r\n", "\n");
+
+                            /*
+                            resItem2 = resItem2.Replace("#PROJECTNAME#", asmName);
+                            resItem2 = resItem2.Replace("#STATENAME#", asmName + "State");
+                            resItem2 = resItem2.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
+                            resItem2 = resItem2.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
+                            resItem2 = resItem2.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
+                            resItem2 = resItem2.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
+                            */
+
+                            linesOutput2.Add(resItem2);
+
+                        }
 
                     }
 
@@ -500,7 +524,7 @@ namespace ME.ECSEditor {
                         linesOutput3.Add(resItem3);
 
                     }
-                    
+
                 }
 
                 output = string.Join(string.Empty, linesOutput);
