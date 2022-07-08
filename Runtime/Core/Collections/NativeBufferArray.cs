@@ -105,17 +105,6 @@ namespace ME.ECS.Collections {
             
         }
 
-        public static unsafe void* GetUnsafePtr<T>(this ref NativeBufferArray<T> arr) where T : struct {
-            return arr.arr.GetUnsafePtr();
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static unsafe void* GetUnsafeReadOnlyPtr<T>(this ref NativeBufferArray<T> arr) where T : struct {
-            return arr.arr.GetUnsafeReadOnlyPtr();
-        }
-
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -205,16 +194,6 @@ namespace ME.ECS.Collections {
             
         }
 
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static NativeBufferArray<T> Dispose<T>(this NativeBufferArray<T> arr) where T : struct {
-
-            if (arr.isCreated == true) arr.arr.Dispose();
-            return NativeBufferArray<T>.Empty;
-
-        }
-
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static NativeBufferArray<T> Clamp<T>(this NativeBufferArray<T> arr, int length) where T : struct {
 
@@ -259,6 +238,30 @@ namespace ME.ECS.Collections {
         [ME.ECS.Serializer.SerializeFieldAttribute]
         public readonly int Length;
         public readonly bool isCreated => this.arr.IsCreated;
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public unsafe void* GetUnsafePtr() {
+            return this.arr.GetUnsafePtr();
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public unsafe void* GetUnsafeReadOnlyPtr() {
+            return this.arr.GetUnsafeReadOnlyPtr();
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public NativeBufferArray<T> Dispose() {
+
+            if (this.isCreated == true) this.arr.Dispose();
+            return NativeBufferArray<T>.Empty;
+
+        }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
