@@ -32,9 +32,9 @@ namespace ME.ECS.Collections {
         }
  
         [ME.ECS.Serializer.SerializeField]
-        private BufferArray<int> buckets;
+        private int[] buckets;
         [ME.ECS.Serializer.SerializeField]
-        private BufferArray<Entry> entries;
+        private Entry[] entries;
         [ME.ECS.Serializer.SerializeField]
         private int count;
         [ME.ECS.Serializer.SerializeField]
@@ -282,7 +282,7 @@ namespace ME.ECS.Collections {
  
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private int FindEntry(TKey key) {
-            if (this.buckets.isCreated == true) {
+            if (this.buckets != null) {
                 int hashCode = key.GetHashCode() & 0x7FFFFFFF;
                 for (int i = this.buckets[hashCode % this.buckets.Length]; i >= 0; i = this.entries[i].next) {
                     if (this.entries[i].hashCode == hashCode && this.entries[i].key == key) return i;
@@ -293,15 +293,15 @@ namespace ME.ECS.Collections {
  
         private void Initialize(int capacity) {
             int size = HashHelpers.GetPrime(capacity);
-            this.buckets = PoolArray<int>.Spawn(size);
+            this.buckets = new int[size];//PoolArray<int>.Spawn(size);
             for (int i = 0; i < this.buckets.Length; i++) this.buckets[i] = -1;
-            this.entries = PoolArray<Entry>.Spawn(size);
+            this.entries = new Entry[size];//PoolArray<Entry>.Spawn(size);
             this.freeList = -1;
         }
  
         private void Insert<TElementCopy>(TKey key, TValue value, bool add, TElementCopy copy) where TElementCopy : IArrayElementCopy<TValue> {
 
-            if (this.buckets.isCreated == false) {
+            if (this.buckets == null) {
                 this.Initialize(0);
             }
 
@@ -350,7 +350,7 @@ namespace ME.ECS.Collections {
 
         private ref TValue Insert(TKey key, TValue value, bool add) {
         
-            if (this.buckets.isCreated == false) this.Initialize(0);
+            if (this.buckets == null) this.Initialize(0);
             int hashCode = key.GetHashCode() & 0x7FFFFFFF;
             int targetBucket = hashCode % this.buckets.Length;
  
@@ -430,8 +430,8 @@ namespace ME.ECS.Collections {
         private void Resize(int newSize, bool forceNewHashCodes) {
             Contract.Assert(newSize >= this.entries.Length);
             
-            ArrayUtils.Resize(newSize - 1, ref this.buckets);
-            ArrayUtils.Resize(newSize - 1, ref this.entries);
+            Array.Resize(ref this.buckets, newSize);
+            Array.Resize(ref this.entries, newSize);
             
             for (int i = 0; i < this.buckets.Length; i++) this.buckets[i] = -1;
 
@@ -453,7 +453,7 @@ namespace ME.ECS.Collections {
  
         public bool Remove(TKey key) {
             
-            if (this.buckets.isCreated == true) {
+            if (this.buckets != null) {
                 int hashCode = key.GetHashCode() & 0x7FFFFFFF;
                 int bucket = hashCode % this.buckets.Length;
                 int last = -1;

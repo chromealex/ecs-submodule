@@ -58,7 +58,7 @@
 
 		public static HashSetCopyable<TValue> Spawn(int capacity = 4) {
 
-			return Pools.current.PoolSpawn(capacity, c => new HashSetCopyable<TValue>(capacity), (x) => ((HashSetCopyable<TValue>)x).Clear());
+			return Pools.current.PoolSpawn(capacity, c => new HashSetCopyable<TValue>(c), (x) => x.Clear());
 			
 		}
 
