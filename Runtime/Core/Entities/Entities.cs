@@ -317,7 +317,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity SetTimer(this in Entity entity, int index, tfloat time) {
+        public static Entity SetTimer(this in Entity entity, uint index, tfloat time) {
 
             Worlds.currentWorld.SetTimer(in entity, index, time);
             return entity;
@@ -327,7 +327,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static tfloat ReadTimer(this in Entity entity, int index) {
+        public static tfloat ReadTimer(this in Entity entity, uint index) {
 
             return Worlds.currentWorld.ReadTimer(in entity, index);
 
@@ -336,7 +336,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static ref tfloat GetTimer(this in Entity entity, int index) {
+        public static ref tfloat GetTimer(this in Entity entity, uint index) {
 
             return ref Worlds.currentWorld.GetTimer(in entity, index);
 
@@ -345,7 +345,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static bool RemoveTimer(this in Entity entity, int index) {
+        public static bool RemoveTimer(this in Entity entity, uint index) {
 
             return Worlds.currentWorld.RemoveTimer(in entity, index);
 

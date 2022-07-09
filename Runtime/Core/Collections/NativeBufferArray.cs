@@ -321,10 +321,10 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal NativeBufferArray(int length) {
+        internal NativeBufferArray(int length, Unity.Collections.NativeArrayOptions options = Unity.Collections.NativeArrayOptions.ClearMemory) {
 
             this.Length = length;
-            this.arr = new NativeArray<T>(length, Allocator.Persistent);
+            this.arr = new NativeArray<T>(length, Allocator.Persistent, options);
 
         }
 
@@ -374,7 +374,7 @@ namespace ME.ECS.Collections {
         internal NativeBufferArray(ListCopyable<T> arr) {
 
             this.Length = arr.Count;
-            this.arr = new NativeArray<T>(arr.innerArray.arr, Allocator.Persistent);
+            this.arr = new NativeArray<T>(arr.innerArray, Allocator.Persistent);
             
         }
 

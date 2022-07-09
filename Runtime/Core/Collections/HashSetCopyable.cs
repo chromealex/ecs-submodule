@@ -159,9 +159,9 @@ namespace ME.ECS.Collections {
         #endif
 
         [ME.ECS.Serializer.SerializeField]
-        private BufferArray<int> m_buckets;
+        private int[] m_buckets;
         [ME.ECS.Serializer.SerializeField]
-        private BufferArray<Slot> m_slots;
+        private Slot[] m_slots;
         [ME.ECS.Serializer.SerializeField]
         private int m_count;
         [ME.ECS.Serializer.SerializeField]
@@ -232,8 +232,8 @@ namespace ME.ECS.Collections {
             this.m_freeList = -1;
             this.m_version = 0;
 
-            this.m_buckets = new BufferArray<int>(null, 0);
-            this.m_slots = new BufferArray<Slot>(null, 0);
+            //this.m_buckets = new BufferArray<int>(null, 0);
+            //this.m_slots = new BufferArray<Slot>(null, 0);
 
         }
 
@@ -244,8 +244,10 @@ namespace ME.ECS.Collections {
             this.m_freeList = -1;
             this.m_version = 0;
 
-            PoolArray<int>.Recycle(ref this.m_buckets);
-            PoolArray<Slot>.Recycle(ref this.m_slots);
+            //PoolArray<int>.Recycle(ref this.m_buckets);
+            //PoolArray<Slot>.Recycle(ref this.m_slots);
+            ArrayUtils.Clear(this.m_buckets);
+            ArrayUtils.Clear(this.m_slots);
 
         }
 
@@ -341,8 +343,8 @@ namespace ME.ECS.Collections {
             if (this.m_lastIndex > 0) {
                 // clear the elements so that the gc can reclaim the references.
                 // clear only up to m_lastIndex for m_slots 
-                Array.Clear(this.m_slots.arr, 0, this.m_lastIndex);
-                Array.Clear(this.m_buckets.arr, 0, this.m_buckets.Length);
+                Array.Clear(this.m_slots, 0, this.m_lastIndex);
+                Array.Clear(this.m_buckets, 0, this.m_buckets.Length);
                 this.m_lastIndex = 0;
                 this.m_count = 0;
                 this.m_freeList = -1;
@@ -360,11 +362,11 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public bool Contains(T item) {
-            if (this.m_count > 0 && this.m_buckets.arr != null) {
+            if (this.m_count > 0 && this.m_buckets != null) {
                 var hashCode = this.m_comparer.GetHashCode(item) & HashSetCopyable<T>.Lower31BitMask; //this.InternalGetHashCode(item);
                 // see note at "HashSet" level describing why "- 1" appears in for loop
-                for (var i = this.m_buckets.arr[hashCode % this.m_buckets.Length] - 1; i >= 0; i = this.m_slots.arr[i].next) {
-                    if (this.m_slots.arr[i].hashCode == hashCode && this.m_comparer.Equals(this.m_slots.arr[i].value, item)) {
+                for (var i = this.m_buckets[hashCode % this.m_buckets.Length] - 1; i >= 0; i = this.m_slots[i].next) {
+                    if (this.m_slots[i].hashCode == hashCode && this.m_comparer.Equals(this.m_slots[i].value, item)) {
                         return true;
                     }
                 }
@@ -389,23 +391,23 @@ namespace ME.ECS.Collections {
         /// <param name="item">item to remove</param>
         /// <returns>true if removed; false if not (i.e. if the item wasn't in the HashSet)</returns>
         public bool Remove(T item) {
-            if (this.m_buckets.arr != null) {
+            if (this.m_buckets != null) {
                 var hashCode = this.InternalGetHashCode(item);
                 var bucket = hashCode % this.m_buckets.Length;
                 var last = -1;
-                for (var i = this.m_buckets.arr[bucket] - 1; i >= 0; last = i, i = this.m_slots.arr[i].next) {
-                    if (this.m_slots.arr[i].hashCode == hashCode && this.m_comparer.Equals(this.m_slots.arr[i].value, item)) {
+                for (var i = this.m_buckets[bucket] - 1; i >= 0; last = i, i = this.m_slots[i].next) {
+                    if (this.m_slots[i].hashCode == hashCode && this.m_comparer.Equals(this.m_slots[i].value, item)) {
                         if (last < 0) {
                             // first iteration; update buckets
-                            this.m_buckets.arr[bucket] = this.m_slots.arr[i].next + 1;
+                            this.m_buckets[bucket] = this.m_slots[i].next + 1;
                         } else {
                             // subsequent iterations; update 'next' pointers
-                            this.m_slots.arr[last].next = this.m_slots.arr[i].next;
+                            this.m_slots[last].next = this.m_slots[i].next;
                         }
 
-                        this.m_slots.arr[i].hashCode = -1;
-                        this.m_slots.arr[i].value = default(T);
-                        this.m_slots.arr[i].next = this.m_freeList;
+                        this.m_slots[i].hashCode = -1;
+                        this.m_slots[i].value = default(T);
+                        this.m_slots[i].next = this.m_freeList;
 
                         this.m_count--;
                         this.m_version++;
@@ -470,10 +472,10 @@ namespace ME.ECS.Collections {
         }
 
         public ref T GetValue(in T item) {
-            if (this.m_buckets.arr != null) {
+            if (this.m_buckets != null) {
                 var i = this.InternalIndexOf(item);
                 if (i >= 0) {
-                    return ref this.m_slots.arr[i].value;
+                    return ref this.m_slots[i].value;
                 }
             }
             throw new System.Data.NoNullAllowedException();
@@ -492,10 +494,10 @@ namespace ME.ECS.Collections {
         /// comparer functions indicate they are equal.
         /// </remarks>
         public bool TryGetValue(T equalValue, out T actualValue) {
-            if (this.m_buckets.arr != null) {
+            if (this.m_buckets != null) {
                 var i = this.InternalIndexOf(equalValue);
                 if (i >= 0) {
-                    actualValue = this.m_slots.arr[i].value;
+                    actualValue = this.m_slots[i].value;
                     return true;
                 }
             }
@@ -638,7 +640,7 @@ namespace ME.ECS.Collections {
 
             var numCopied = 0;
             for (var i = 0; i < this.m_lastIndex && numCopied < count; ++i) {
-                ref var slot = ref this.m_slots.arr[i];
+                ref var slot = ref this.m_slots[i];
                 if (slot.hashCode >= 0) {
                     array[arrayIndex + numCopied++] = slot.value;
                 }
@@ -657,9 +659,9 @@ namespace ME.ECS.Collections {
 
             var numRemoved = 0;
             for (var i = 0; i < this.m_lastIndex; i++) {
-                if (this.m_slots.arr[i].hashCode >= 0) {
+                if (this.m_slots[i].hashCode >= 0) {
                     // cache value in case delegate removes it
-                    var value = this.m_slots.arr[i].value;
+                    var value = this.m_slots[i].value;
                     if (match(value)) {
                         // check again that remove actually removed it
                         if (this.Remove(value)) {
@@ -684,9 +686,9 @@ namespace ME.ECS.Collections {
 
             var numRemoved = 0;
             for (var i = 0; i < this.m_lastIndex; i++) {
-                if (this.m_slots.arr[i].hashCode >= 0) {
+                if (this.m_slots[i].hashCode >= 0) {
                     // cache value in case delegate removes it
-                    var value = this.m_slots.arr[i].value;
+                    var value = this.m_slots[i].value;
                     if (match(state, value)) {
                         // check again that remove actually removed it
                         if (this.Remove(value)) {
@@ -723,11 +725,11 @@ namespace ME.ECS.Collections {
 
             var size = HashSetCopyableHashHelpers.GetPrime(capacity);
 
-            PoolArray<int>.Recycle(ref this.m_buckets);
-            PoolArray<Slot>.Recycle(ref this.m_slots);
+            //PoolArray<int>.Recycle(ref this.m_buckets);
+            //PoolArray<Slot>.Recycle(ref this.m_slots);
 
-            this.m_buckets = PoolArray<int>.Spawn(size);
-            this.m_slots = PoolArray<Slot>.Spawn(size);
+            this.m_buckets = new int[size];//new BufferArray<int>(new int[size], size);//PoolArray<int>.Spawn(size);
+            this.m_slots = new Slot[size]; //new BufferArray<Slot>(new Slot[size], size);//PoolArray<Slot>.Spawn(size);
         }
 
         /// <summary>
@@ -768,29 +770,29 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         private void SetCapacity(int newSize, bool forceNewHashCodes) {
-            var newSlots = PoolArray<Slot>.Spawn(newSize);
-            if (this.m_slots.arr != null) {
-                Array.Copy(this.m_slots.arr, 0, newSlots.arr, 0, this.m_lastIndex);
+            var newSlots = new Slot[newSize];//PoolArray<Slot>.Spawn(newSize);
+            if (this.m_slots != null) {
+                Array.Copy(this.m_slots, 0, newSlots, 0, this.m_lastIndex);
                 PoolArray<Slot>.Recycle(ref this.m_slots);
             }
 
             if (forceNewHashCodes) {
                 for (var i = 0; i < this.m_lastIndex; i++) {
-                    if (newSlots.arr[i].hashCode != -1) {
-                        newSlots.arr[i].hashCode = this.InternalGetHashCode(newSlots.arr[i].value);
+                    if (newSlots[i].hashCode != -1) {
+                        newSlots[i].hashCode = this.InternalGetHashCode(newSlots[i].value);
                     }
                 }
             }
 
-            var newBuckets = PoolArray<int>.Spawn(newSize);
-            if (this.m_buckets.arr != null) {
+            var newBuckets = new int[newSize];//PoolArray<int>.Spawn(newSize);
+            if (this.m_buckets != null) {
                 PoolArray<int>.Recycle(ref this.m_buckets);
             }
 
             for (var i = 0; i < this.m_lastIndex; i++) {
-                var bucket = newSlots.arr[i].hashCode % newSize;
-                newSlots.arr[i].next = newBuckets.arr[bucket] - 1;
-                newBuckets.arr[bucket] = i + 1;
+                var bucket = newSlots[i].hashCode % newSize;
+                newSlots[i].next = newBuckets[bucket] - 1;
+                newBuckets[bucket] = i + 1;
             }
 
             this.m_slots = newSlots;
@@ -807,7 +809,7 @@ namespace ME.ECS.Collections {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         private bool AddIfNotPresent(T value) {
-            if (this.m_buckets.arr == null) {
+            if (this.m_buckets == null) {
                 this.Initialize(0);
             }
 
@@ -816,8 +818,8 @@ namespace ME.ECS.Collections {
             #if FEATURE_RANDOMIZED_STRING_HASHING && !FEATURE_NETCORE
             int collisionCount = 0;
             #endif
-            for (var i = this.m_buckets.arr[hashCode % this.m_buckets.Length] - 1; i >= 0; i = this.m_slots.arr[i].next) {
-                if (this.m_slots.arr[i].hashCode == hashCode && this.m_comparer.Equals(this.m_slots.arr[i].value, value)) {
+            for (var i = this.m_buckets[hashCode % this.m_buckets.Length] - 1; i >= 0; i = this.m_slots[i].next) {
+                if (this.m_slots[i].hashCode == hashCode && this.m_comparer.Equals(this.m_slots[i].value, value)) {
                     return false;
                 }
                 #if FEATURE_RANDOMIZED_STRING_HASHING && !FEATURE_NETCORE
@@ -828,7 +830,7 @@ namespace ME.ECS.Collections {
             int index;
             if (this.m_freeList >= 0) {
                 index = this.m_freeList;
-                this.m_freeList = this.m_slots.arr[index].next;
+                this.m_freeList = this.m_slots[index].next;
             } else {
                 if (this.m_lastIndex == this.m_slots.Length) {
                     this.IncreaseCapacity();
@@ -840,10 +842,10 @@ namespace ME.ECS.Collections {
                 this.m_lastIndex++;
             }
 
-            this.m_slots.arr[index].hashCode = hashCode;
-            this.m_slots.arr[index].value = value;
-            this.m_slots.arr[index].next = this.m_buckets.arr[bucket] - 1;
-            this.m_buckets.arr[bucket] = index + 1;
+            this.m_slots[index].hashCode = hashCode;
+            this.m_slots[index].value = value;
+            this.m_slots[index].next = this.m_buckets[bucket] - 1;
+            this.m_buckets[bucket] = index + 1;
             this.m_count++;
             this.m_version++;
 
@@ -864,10 +866,10 @@ namespace ME.ECS.Collections {
         #endif
         private void AddValue(int index, int hashCode, T value) {
             var bucket = hashCode % this.m_buckets.Length;
-            this.m_slots.arr[index].hashCode = hashCode;
-            this.m_slots.arr[index].value = value;
-            this.m_slots.arr[index].next = this.m_buckets.arr[bucket] - 1;
-            this.m_buckets.arr[bucket] = index + 1;
+            this.m_slots[index].hashCode = hashCode;
+            this.m_slots[index].value = value;
+            this.m_slots[index].next = this.m_buckets[bucket] - 1;
+            this.m_buckets[bucket] = index + 1;
         }
 
         /// <summary>
@@ -927,8 +929,8 @@ namespace ME.ECS.Collections {
         #endif
         private void IntersectWithHashSetWithSameEC(HashSet<T> other) {
             for (var i = 0; i < this.m_lastIndex; i++) {
-                if (this.m_slots.arr[i].hashCode >= 0) {
-                    var item = this.m_slots.arr[i].value;
+                if (this.m_slots[i].hashCode >= 0) {
+                    var item = this.m_slots[i].value;
                     if (!other.Contains(item)) {
                         this.Remove(item);
                     }
@@ -947,8 +949,8 @@ namespace ME.ECS.Collections {
         #endif
         private int InternalIndexOf(T item) {
             var hashCode = this.InternalGetHashCode(item);
-            for (var i = this.m_buckets.arr[hashCode % this.m_buckets.Length] - 1; i >= 0; i = this.m_slots.arr[i].next) {
-                if (this.m_slots.arr[i].hashCode == hashCode && this.m_comparer.Equals(this.m_slots.arr[i].value, item)) {
+            for (var i = this.m_buckets[hashCode % this.m_buckets.Length] - 1; i >= 0; i = this.m_slots[i].next) {
+                if (this.m_slots[i].hashCode == hashCode && this.m_comparer.Equals(this.m_slots[i].value, item)) {
                     return i;
                 }
             }
@@ -992,8 +994,8 @@ namespace ME.ECS.Collections {
         private bool AddOrGetLocation(T value, out int location) {
             var hashCode = this.InternalGetHashCode(value);
             var bucket = hashCode % this.m_buckets.Length;
-            for (var i = this.m_buckets.arr[hashCode % this.m_buckets.Length] - 1; i >= 0; i = this.m_slots.arr[i].next) {
-                if (this.m_slots.arr[i].hashCode == hashCode && this.m_comparer.Equals(this.m_slots.arr[i].value, value)) {
+            for (var i = this.m_buckets[hashCode % this.m_buckets.Length] - 1; i >= 0; i = this.m_slots[i].next) {
+                if (this.m_slots[i].hashCode == hashCode && this.m_comparer.Equals(this.m_slots[i].value, value)) {
                     location = i;
                     return false; //already present
                 }
@@ -1002,7 +1004,7 @@ namespace ME.ECS.Collections {
             int index;
             if (this.m_freeList >= 0) {
                 index = this.m_freeList;
-                this.m_freeList = this.m_slots.arr[index].next;
+                this.m_freeList = this.m_slots[index].next;
             } else {
                 if (this.m_lastIndex == this.m_slots.Length) {
                     this.IncreaseCapacity();
@@ -1014,10 +1016,10 @@ namespace ME.ECS.Collections {
                 this.m_lastIndex++;
             }
 
-            this.m_slots.arr[index].hashCode = hashCode;
-            this.m_slots.arr[index].value = value;
-            this.m_slots.arr[index].next = this.m_buckets.arr[bucket] - 1;
-            this.m_buckets.arr[bucket] = index + 1;
+            this.m_slots[index].hashCode = hashCode;
+            this.m_slots[index].value = value;
+            this.m_slots[index].next = this.m_buckets[bucket] - 1;
+            this.m_buckets[bucket] = index + 1;
             this.m_count++;
             this.m_version++;
             location = index;
@@ -1125,8 +1127,8 @@ namespace ME.ECS.Collections {
 
             var index = 0;
             while (index < this.m_lastIndex) {
-                if (this.m_slots.arr[index].hashCode >= 0) {
-                    return this.m_slots.arr[index].value;
+                if (this.m_slots[index].hashCode >= 0) {
+                    return this.m_slots[index].value;
                 }
 
                 ++index;
@@ -1139,8 +1141,8 @@ namespace ME.ECS.Collections {
         public ref T Get(int index) {
 
             while (index < this.m_lastIndex) {
-                if (this.m_slots.arr[index].hashCode >= 0) {
-                    return ref this.m_slots.arr[index].value;
+                if (this.m_slots[index].hashCode >= 0) {
+                    return ref this.m_slots[index].value;
                 }
 
                 ++index;
@@ -1173,8 +1175,8 @@ namespace ME.ECS.Collections {
             [INLINE(256)]
             public bool MoveNext() {
                 while (this.index < this.set.m_lastIndex) {
-                    if (this.set.m_slots.arr[this.index].hashCode >= 0) {
-                        //this.current = this.set.m_slots.arr[this.index].value;
+                    if (this.set.m_slots[this.index].hashCode >= 0) {
+                        //this.current = this.set.m_slots[this.index].value;
                         this.index++;
                         return true;
                     }
@@ -1190,7 +1192,7 @@ namespace ME.ECS.Collections {
             public ref T Current {
                 [INLINE(256)]
                 get {
-                    return ref this.set.m_slots.arr[this.index - 1].value;
+                    return ref this.set.m_slots[this.index - 1].value;
                 }
             }
 

@@ -180,7 +180,7 @@ namespace ME.ECS {
             // Sort circles based on the distance to center
             var instance = PoolClass<Circle.CirclesComparer>.Spawn();
             instance.center = this.mPackingCenter;
-            System.Array.Sort(this.circles.innerArray.arr, 0, this.circles.Count, instance);
+            System.Array.Sort(this.circles.innerArray, 0, this.circles.Count, instance);
             PoolClass<Circle.CirclesComparer>.Recycle(ref instance);
 
             for (int k = 0; k < iterationCounter; ++k) {

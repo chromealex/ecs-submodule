@@ -87,7 +87,7 @@ namespace ME.ECS {
                         arr = arr.Clamp(fromArr.Length, copy);
                     } else {
                         // Length changed - resize
-                        NativeArrayUtils.Resize(fromArr.Length - 1, ref arr);
+                        NativeArrayUtils.Resize(fromArr.Length - 1, ref arr, options: Unity.Collections.NativeArrayOptions.UninitializedMemory);
                     }
                 }
                 
@@ -124,7 +124,7 @@ namespace ME.ECS {
                         arr = arr.Clamp(fromArr.Length);
                     } else {
                         // Length changed - resize
-                        NativeArrayUtils.Resize(fromArr.Length - 1, ref arr);
+                        NativeArrayUtils.Resize(fromArr.Length - 1, ref arr, options: Unity.Collections.NativeArrayOptions.UninitializedMemory);
                     }
                 }
 
@@ -234,14 +234,14 @@ namespace ME.ECS {
             if (arr.isCreated == false || fromArr.Length != arr.Length) {
 
                 if (arr.isCreated == false) {
-                    arr = new NativeBufferArraySliced<T>(fromArr.Length);
+                    arr = new NativeBufferArraySliced<T>(fromArr.Length, Unity.Collections.NativeArrayOptions.UninitializedMemory);
                 } else {
                     if (arr.Length > fromArr.Length) {
                         // Clamp to fromArr.Length
                         arr = arr.Clamp(fromArr.Length, copy);
                     } else {
                         // Length changed - resize
-                        arr.Resize(fromArr.Length - 1, resizeWithOffset: false, out _);
+                        arr.Resize(fromArr.Length - 1, resizeWithOffset: false, out _, options: Unity.Collections.NativeArrayOptions.UninitializedMemory);
                     }
                 }
                 
@@ -258,7 +258,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static bool Resize<T>(int index, ref NativeBufferArray<T> arr, bool resizeWithOffset = true) where T : struct {
+        public static bool Resize<T>(int index, ref NativeBufferArray<T> arr, bool resizeWithOffset = true, Unity.Collections.NativeArrayOptions options = Unity.Collections.NativeArrayOptions.ClearMemory) where T : struct {
 
             if (index < arr.Length) return false;
 
@@ -277,7 +277,7 @@ namespace ME.ECS {
             if (arr.isCreated == false) {
 
                 arr = PoolArrayNative<T>.Spawn(index * offset + 1, options: Unity.Collections.NativeArrayOptions.UninitializedMemory);
-                NativeArrayUtils.Clear(arr.arr, 0, newLength);
+                if (options == Unity.Collections.NativeArrayOptions.ClearMemory) NativeArrayUtils.Clear(arr.arr, 0, newLength);
                 arr = new NativeBufferArray<T>(arr.arr, newLength);
                 return true;
 
@@ -285,8 +285,11 @@ namespace ME.ECS {
 
             if (newLength <= arr.arr.Length) {
 
-                var delta = newLength - arr.Length;
-                if (delta > 0) NativeArrayUtils.Clear(arr.arr, arr.Length, delta);
+                if (options == Unity.Collections.NativeArrayOptions.ClearMemory) {
+                    var delta = newLength - arr.Length;
+                    if (delta > 0) NativeArrayUtils.Clear(arr.arr, arr.Length, delta);
+                }
+
                 arr = new NativeBufferArray<T>(arr.arr, newLength);
                 return false;
 
@@ -295,8 +298,11 @@ namespace ME.ECS {
             {
                 var newArr = PoolArrayNative<T>.Spawn(newLength, options: Unity.Collections.NativeArrayOptions.UninitializedMemory);
                 Unity.Collections.NativeArray<T>.Copy(arr.arr, 0, newArr.arr, 0, arr.Length);
-                var delta = newLength - arr.Length;
-                if (delta > 0) NativeArrayUtils.Clear(newArr.arr, arr.Length, delta);
+                if (options == Unity.Collections.NativeArrayOptions.ClearMemory) {
+                    var delta = newLength - arr.Length;
+                    if (delta > 0) NativeArrayUtils.Clear(newArr.arr, arr.Length, delta);
+                }
+
                 arr.Dispose();
                 arr = newArr;
             }

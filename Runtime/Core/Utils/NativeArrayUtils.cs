@@ -119,13 +119,13 @@ namespace ME.ECS {
 
             }
 
-            if (arr.IsCreated == false) arr = new Unity.Collections.NativeArray<T>(index * offset + 1, allocator);
+            if (arr.IsCreated == false) arr = new Unity.Collections.NativeArray<T>(index * offset + 1, allocator, Unity.Collections.NativeArrayOptions.UninitializedMemory);
             if (index < arr.Length) return false;
 
             var newLength = arr.Length * offset + 1;
             if (newLength == 0 || newLength <= index) newLength = index * offset + 1;
 
-            var newArr = new Unity.Collections.NativeArray<T>(newLength, allocator);
+            var newArr = new Unity.Collections.NativeArray<T>(newLength, allocator, Unity.Collections.NativeArrayOptions.UninitializedMemory);
             Unity.Collections.NativeArray<T>.Copy(arr, 0, newArr, 0, arr.Length);
             arr.Dispose();
             arr = newArr;

@@ -90,60 +90,6 @@ namespace ME.ECS.Buffers {
 
     }
 
-    internal sealed class ArrayPoolEventSource : System.Diagnostics.Tracing.EventSource {
-
-        internal static readonly ArrayPoolEventSource Log = new ArrayPoolEventSource();
-
-        [System.Diagnostics.Tracing.EventAttribute(1, Level = System.Diagnostics.Tracing.EventLevel.Verbose)]
-        internal unsafe void BufferRented(int bufferId, int bufferSize, int poolId, int bucketId) {
-            var data = stackalloc System.Diagnostics.Tracing.EventSource.EventData[4];
-            data->Size = 4;
-            data->DataPointer = (System.IntPtr)(void*)&bufferId;
-            data[1].Size = 4;
-            data[1].DataPointer = (System.IntPtr)(void*)&bufferSize;
-            data[2].Size = 4;
-            data[2].DataPointer = (System.IntPtr)(void*)&poolId;
-            data[3].Size = 4;
-            data[3].DataPointer = (System.IntPtr)(void*)&bucketId;
-            this.WriteEventCore(1, 4, data);
-        }
-
-        [System.Diagnostics.Tracing.EventAttribute(2, Level = System.Diagnostics.Tracing.EventLevel.Informational)]
-        internal unsafe void BufferAllocated(
-            int bufferId,
-            int bufferSize,
-            int poolId,
-            int bucketId,
-            BufferAllocatedReason reason) {
-            var data = stackalloc System.Diagnostics.Tracing.EventSource.EventData[5];
-            data->Size = 4;
-            data->DataPointer = (System.IntPtr)(void*)&bufferId;
-            data[1].Size = 4;
-            data[1].DataPointer = (System.IntPtr)(void*)&bufferSize;
-            data[2].Size = 4;
-            data[2].DataPointer = (System.IntPtr)(void*)&poolId;
-            data[3].Size = 4;
-            data[3].DataPointer = (System.IntPtr)(void*)&bucketId;
-            data[4].Size = 4;
-            data[4].DataPointer = (System.IntPtr)(void*)&reason;
-            this.WriteEventCore(2, 5, data);
-        }
-
-        [System.Diagnostics.Tracing.EventAttribute(3, Level = System.Diagnostics.Tracing.EventLevel.Verbose)]
-        internal void BufferReturned(int bufferId, int bufferSize, int poolId) {
-            this.WriteEvent(3, bufferId, bufferSize, poolId);
-        }
-
-        internal enum BufferAllocatedReason {
-
-            Pooled,
-            OverMaximumSize,
-            PoolExhausted,
-
-        }
-
-    }
-
     internal sealed class DefaultArrayPool<T> : ArrayPool<T> {
 
         private const int DefaultMaxArrayLength = 1048576;
@@ -201,13 +147,8 @@ namespace ME.ECS.Buffers {
                 return DefaultArrayPool<T>.s_emptyArray ?? (DefaultArrayPool<T>.s_emptyArray = new T[0]);
             }
 
-            if (ArrayPools.pools.Contains(this) == false) {
+            ArrayPools.pools.Add(this);
 
-                ArrayPools.pools.Add(this);
-
-            }
-
-            var log = ArrayPoolEventSource.Log;
             var index1 = Utilities.SelectBucketIndex(minimumLength);
             T[] objArray1;
             if (index1 < this._buckets.Length) {
@@ -215,10 +156,6 @@ namespace ME.ECS.Buffers {
                 do {
                     var objArray2 = this._buckets[index2].Rent();
                     if (objArray2 != null) {
-                        if (log.IsEnabled()) {
-                            log.BufferRented(objArray2.GetHashCode(), objArray2.Length, this.Id, this._buckets[index2].Id);
-                        }
-
                         return objArray2;
                     }
                 } while (++index2 < this._buckets.Length && index2 != index1 + 2);
@@ -226,16 +163,6 @@ namespace ME.ECS.Buffers {
                 objArray1 = new T[this._buckets[index1]._bufferLength];
             } else {
                 objArray1 = new T[minimumLength];
-            }
-
-            if (log.IsEnabled()) {
-                var hashCode = objArray1.GetHashCode();
-                var bucketId = -1;
-                log.BufferRented(hashCode, objArray1.Length, this.Id, bucketId);
-                log.BufferAllocated(hashCode, objArray1.Length, this.Id, bucketId,
-                                    index1 >= this._buckets.Length
-                                        ? ArrayPoolEventSource.BufferAllocatedReason.OverMaximumSize
-                                        : ArrayPoolEventSource.BufferAllocatedReason.PoolExhausted);
             }
 
             return objArray1;
@@ -259,12 +186,6 @@ namespace ME.ECS.Buffers {
                 this._buckets[index].Return(array);
             }
 
-            var log = ArrayPoolEventSource.Log;
-            if (!log.IsEnabled()) {
-                return;
-            }
-
-            log.BufferReturned(array.GetHashCode(), array.Length, this.Id);
         }
 
         private sealed class Bucket {
@@ -272,11 +193,9 @@ namespace ME.ECS.Buffers {
             internal readonly int _bufferLength;
             private readonly T[][] _buffers;
             private readonly int _poolId;
-            private SpinLock _lock;
             private int _index;
 
             internal Bucket(int bufferLength, int numberOfBuffers, int poolId) {
-                this._lock = new SpinLock(Debugger.IsAttached);
                 this._buffers = new T[numberOfBuffers][];
                 this._bufferLength = bufferLength;
                 this._poolId = poolId;
@@ -320,10 +239,6 @@ namespace ME.ECS.Buffers {
 
                 if (flag) {
                     objArray = new T[this._bufferLength];
-                    var log = ArrayPoolEventSource.Log;
-                    if (log.IsEnabled()) {
-                        log.BufferAllocated(objArray.GetHashCode(), this._bufferLength, this._poolId, this.Id, ArrayPoolEventSource.BufferAllocatedReason.Pooled);
-                    }
                 }
 
                 return objArray;

@@ -118,7 +118,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static NativeBufferArraySliced<T> Resize<T>(this ref NativeBufferArraySliced<T> arr, int index, bool resizeWithOffset, out bool result) where T : struct {
+        public static NativeBufferArraySliced<T> Resize<T>(this ref NativeBufferArraySliced<T> arr, int index, bool resizeWithOffset, out bool result, Unity.Collections.NativeArrayOptions options = Unity.Collections.NativeArrayOptions.ClearMemory) where T : struct {
 
             if (index >= arr.Length) {
 
@@ -145,7 +145,7 @@ namespace ME.ECS.Collections {
                 var size = arr.Length;
                 ArrayUtils.Resize(idx, ref tails, resizeWithOffset);
                 var bucketSize = index + NativeBufferArraySliced<T>.BUCKET_SIZE - size;
-                tails.arr[idx] = new NativeBufferArray<T>(bucketSize);//PoolArray<T>.Spawn(bucketSize, realSize: false);
+                tails.arr[idx] = new NativeBufferArray<T>(bucketSize, options);//PoolArray<T>.Spawn(bucketSize, realSize: false);
                 arr.tailsLength += bucketSize;
                 result = true;
                 arr.isCreated = true;
@@ -255,10 +255,10 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public NativeBufferArraySliced(int length) {
+        public NativeBufferArraySliced(int length, Unity.Collections.NativeArrayOptions options = Unity.Collections.NativeArrayOptions.ClearMemory) {
 
             this.isCreated = true;
-            this.data = new NativeBufferArray<T>(length);
+            this.data = new NativeBufferArray<T>(length, options);
             this.tails = default;
             this.tailsLength = 0;
 

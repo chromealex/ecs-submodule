@@ -339,7 +339,7 @@ namespace ME.ECS.Collections.V1 {
 
             if (this.allocatedIndex.TryGetValue(ptr.value, out var idx) == true) {
 
-                var pointer = this.allocated.innerArray.arr[idx];
+                var pointer = this.allocated.innerArray[idx];
                 {
                     if (pointer.prev != -1 && this.IsFree(pointer.prev, out var prevPointer, out var prevIdx) == true) {
                         // merge with prev pointer
@@ -349,7 +349,7 @@ namespace ME.ECS.Collections.V1 {
                         this.RemoveAtFast(this.free, prevIdx, this.freeIndex, prevPointer.index);
                         if (pointer.next != -1 && this.IsAlloc(pointer.next, out var nextPointer, out var nextIdx) == true) {
                             nextPointer.prev = pointer.index;
-                            this.allocated.innerArray.arr[nextIdx] = nextPointer;
+                            this.allocated.innerArray[nextIdx] = nextPointer;
                             this.allocatedIndex[nextPointer.index] = nextIdx;
                         }
                     }
@@ -363,7 +363,7 @@ namespace ME.ECS.Collections.V1 {
                         this.RemoveAtFast(this.free, nextIdx, this.freeIndex, nextPointer.index);
                         if (pointer.next != -1 && this.IsAlloc(pointer.next, out nextPointer, out nextIdx) == true) {
                             nextPointer.prev = pointer.index;
-                            this.allocated.innerArray.arr[nextIdx] = nextPointer;
+                            this.allocated.innerArray[nextIdx] = nextPointer;
                             this.allocatedIndex[nextPointer.index] = nextIdx;
                         }
                     }
@@ -401,7 +401,7 @@ namespace ME.ECS.Collections.V1 {
             var prevLength = 0L;
             if (this.allocatedIndex.TryGetValue(ptr.value, out var idx) == true) {
 
-                ref var pointer = ref this.allocated.innerArray.arr[idx];
+                ref var pointer = ref this.allocated.innerArray[idx];
                 // if we have the next block and its free
                 if (pointer.next != -1 && this.IsFree(pointer.next, out var nextBlock, out var nextIdx) == true) {
                     // use next block size
@@ -410,7 +410,7 @@ namespace ME.ECS.Collections.V1 {
                             this.freeIndex.Remove(nextBlock.index);
                             nextBlock.index += (int)(size - pointer.size);
                             nextBlock.size = size - pointer.size;
-                            this.free.innerArray.arr[nextIdx] = nextBlock;
+                            this.free.innerArray[nextIdx] = nextBlock;
                             this.freeIndex[nextBlock.index] = nextIdx;
 
                             pointer.size = size;
@@ -483,7 +483,7 @@ namespace ME.ECS.Collections.V1 {
             Block headBlock = default;
             for (int i = 0, cnt = this.free.Count; i < cnt; ++i) {
 
-                var ptr = this.free.innerArray.arr[i];
+                var ptr = this.free.innerArray[i];
                 if (size < ptr.size) {
 
                     return;
@@ -510,7 +510,7 @@ namespace ME.ECS.Collections.V1 {
             Block headBlock = default;
             for (int i = 0, cnt = this.free.Count; i < cnt; ++i) {
 
-                var ptr = this.free.innerArray.arr[i];
+                var ptr = this.free.innerArray[i];
                 if (size < ptr.size) {
 
                     var memPtr = new MemPtr(ptr.index);
@@ -525,7 +525,7 @@ namespace ME.ECS.Collections.V1 {
                             //isFree = true,
                         };
                         this.freeIndex.Remove(ptr.index);
-                        this.free.innerArray.arr[i] = freePointer;
+                        this.free.innerArray[i] = freePointer;
                         this.freeIndex[freePointer.index] = i;
                         //ptr.isFree = false;
                         ptr.next = freePointer.index;
@@ -613,7 +613,7 @@ namespace ME.ECS.Collections.V1 {
             this.length = newSize;
             this.data = (System.IntPtr)newData;
             var newBlockSize = newSize - headBlock.index;
-            this.free.innerArray.arr[headPointerIdx].size = newBlockSize;
+            this.free.innerArray[headPointerIdx].size = newBlockSize;
 
         }
 
@@ -625,7 +625,7 @@ namespace ME.ECS.Collections.V1 {
                 list.RemoveAtFast(index);
                 indexer.Remove(indexerValue);
             } else {
-                var last = list.innerArray.arr[targetIndex];
+                var last = list.innerArray[targetIndex];
                 list.RemoveAtFast(index);
                 indexer.Remove(indexerValue);
                 indexer[last.index] = index;
@@ -638,7 +638,7 @@ namespace ME.ECS.Collections.V1 {
 
             block = default;
             if (this.freeIndex.TryGetValue(index, out idx) == false) return false;
-            block = this.free.innerArray.arr[idx];
+            block = this.free.innerArray[idx];
             return true;
 
         }
@@ -648,7 +648,7 @@ namespace ME.ECS.Collections.V1 {
 
             block = default;
             if (this.allocatedIndex.TryGetValue(index, out idx) == false) return false;
-            block = this.allocated.innerArray.arr[idx];
+            block = this.allocated.innerArray[idx];
             return true;
 
         }

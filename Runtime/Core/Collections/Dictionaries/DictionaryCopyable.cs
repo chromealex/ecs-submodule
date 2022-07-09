@@ -17,7 +17,7 @@ namespace ME.ECS.Collections {
 
     [DebuggerDisplay("Count = {Count}")]
     //[Serializable]
-    public class DictionaryCopyable<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>, ISerializable {
+    public class DictionaryCopyable<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue> {
 
         private struct Entry {
 
@@ -46,14 +46,6 @@ namespace ME.ECS.Collections {
         private KeyCollection _keys;
         [ME.ECS.Serializer.SerializeField]
         private ValueCollection _values;
-
-        private Object _syncRoot;
-
-        // constants for serialization
-        private const String VersionName = "Version";
-        private const String HashSizeName = "HashSize"; // Must save buckets.Length
-        private const String KeyValuePairsName = "KeyValuePairs";
-        private const String ComparerName = "Comparer";
 
         public DictionaryCopyable() : this(0, null) { }
 
@@ -92,8 +84,7 @@ namespace ME.ECS.Collections {
 
         public KeyCollection Keys {
             get {
-                Contract.Ensures(Contract.Result<KeyCollection>() != null);
-                if (this._keys == null) {
+                if (this._keys.IsNull() == true) {
                     this._keys = new KeyCollection(this);
                 }
 
@@ -103,7 +94,7 @@ namespace ME.ECS.Collections {
 
         ICollection<TKey> IDictionary<TKey, TValue>.Keys {
             get {
-                if (this._keys == null) {
+                if (this._keys.IsNull() == true) {
                     this._keys = new KeyCollection(this);
                 }
 
@@ -113,7 +104,7 @@ namespace ME.ECS.Collections {
 
         IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys {
             get {
-                if (this._keys == null) {
+                if (this._keys.IsNull() == true) {
                     this._keys = new KeyCollection(this);
                 }
 
@@ -123,8 +114,7 @@ namespace ME.ECS.Collections {
 
         public ValueCollection Values {
             get {
-                Contract.Ensures(Contract.Result<ValueCollection>() != null);
-                if (this._values == null) {
+                if (this._values.IsNull() == true) {
                     this._values = new ValueCollection(this);
                 }
 
@@ -134,7 +124,7 @@ namespace ME.ECS.Collections {
 
         ICollection<TValue> IDictionary<TKey, TValue>.Values {
             get {
-                if (this._values == null) {
+                if (this._values.IsNull() == true) {
                     this._values = new ValueCollection(this);
                 }
 
@@ -144,7 +134,7 @@ namespace ME.ECS.Collections {
 
         IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values {
             get {
-                if (this._values == null) {
+                if (this._values.IsNull() == true) {
                     this._values = new ValueCollection(this);
                 }
 
@@ -180,27 +170,47 @@ namespace ME.ECS.Collections {
 
         public void CopyFrom(DictionaryCopyable<TKey, TValue> other) {
 
-            this.Clear();
-            foreach (var item in other) {
+            ArrayUtils.Copy(other._buckets, ref this._buckets);
+            ArrayUtils.Copy(other._entries, ref this._entries);
+            this._count = other._count;
+            this._version = other._version;
+            this._freeList = other._freeList;
+            this._freeCount = other._freeCount;
+            this._comparer = other._comparer;
+            
+        }
 
-                this.Add(item.Key, item.Value);
+        private struct EntryCopy<T> : IArrayElementCopy<Entry> where T : IArrayElementCopy<TValue> {
 
+            public T copy;
+
+            public void Copy(in Entry @from, ref Entry to) {
+                
+                this.copy.Copy(from.value, ref to.value);
+                to.key = from.key;
+                to.next = from.next;
+                to.hashCode = from.hashCode;
+                
             }
 
-            this._version = other._version;
+            public void Recycle(ref Entry item) {
+                
+                this.copy.Recycle(ref item.value);
+                item = default;
+
+            }
 
         }
 
         public void CopyFrom<TElementCopy>(DictionaryCopyable<TKey, TValue> other, TElementCopy copy) where TElementCopy : IArrayElementCopy<TValue> {
-
-            this.Clear(copy);
-            foreach (var item in other) {
-
-                this.Insert(item.Key, item.Value, true, copy);
-
-            }
-
+            
+            ArrayUtils.Copy(other._buckets, ref this._buckets);
+            ArrayUtils.Copy(other._entries, ref this._entries, new EntryCopy<TElementCopy>() { copy = copy });
+            this._count = other._count;
             this._version = other._version;
+            this._freeList = other._freeList;
+            this._freeCount = other._freeCount;
+            this._comparer = other._comparer;
 
         }
 
@@ -536,28 +546,6 @@ namespace ME.ECS.Collections {
 
         IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() {
             return new Enumerator(this, Enumerator.KeyValuePair);
-        }
-
-        [System.Security.SecurityCritical] // auto-generated_required
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context) {
-            if (info == null) {
-                throw new ArgumentNullException();
-            }
-
-            info.AddValue(DictionaryCopyable<TKey, TValue>.VersionName, this._version);
-
-            #if FEATURE_RANDOMIZED_STRING_HASHING
-            info.AddValue(ComparerName, HashHelpers.GetEqualityComparerForSerialization(comparer), typeof(IEqualityComparer<TKey>));
-            #else
-            info.AddValue(DictionaryCopyable<TKey, TValue>.ComparerName, this._comparer, typeof(IEqualityComparer<TKey>));
-            #endif
-
-            info.AddValue(DictionaryCopyable<TKey, TValue>.HashSizeName, this._buckets == null ? 0 : this._buckets.Length); //This is the length of the bucket array.
-            if (this._buckets != null) {
-                var array = new KeyValuePair<TKey, TValue>[this.Count];
-                this.CopyTo(array, 0);
-                info.AddValue(DictionaryCopyable<TKey, TValue>.KeyValuePairsName, array, typeof(KeyValuePair<TKey, TValue>[]));
-            }
         }
 
         private int FindEntry(TKey key) {
@@ -897,11 +885,7 @@ namespace ME.ECS.Collections {
 
         object ICollection.SyncRoot {
             get {
-                if (this._syncRoot == null) {
-                    System.Threading.Interlocked.CompareExchange<Object>(ref this._syncRoot, new Object(), null);
-                }
-
-                return this._syncRoot;
+                return null;
             }
         }
 
@@ -1097,10 +1081,12 @@ namespace ME.ECS.Collections {
 
         [DebuggerDisplay("Count = {Count}")]
         [Serializable]
-        public sealed class KeyCollection : ICollection<TKey>, ICollection, IReadOnlyCollection<TKey> {
+        public struct KeyCollection : ICollection<TKey>, ICollection, IReadOnlyCollection<TKey> {
 
             private DictionaryCopyable<TKey, TValue> dictionary;
 
+            public bool IsNull() => this.dictionary == null;
+            
             public KeyCollection(DictionaryCopyable<TKey, TValue> dictionary) {
                 if (dictionary == null) {
                     throw new ArgumentNullException();
@@ -1275,10 +1261,12 @@ namespace ME.ECS.Collections {
 
         [DebuggerDisplay("Count = {Count}")]
         [Serializable]
-        public sealed class ValueCollection : ICollection<TValue>, ICollection, IReadOnlyCollection<TValue> {
+        public struct ValueCollection : ICollection<TValue>, ICollection, IReadOnlyCollection<TValue> {
 
             private DictionaryCopyable<TKey, TValue> dictionary;
 
+            public bool IsNull() => this.dictionary == null;
+            
             public ValueCollection(DictionaryCopyable<TKey, TValue> dictionary) {
                 if (dictionary == null) {
                     throw new ArgumentNullException();

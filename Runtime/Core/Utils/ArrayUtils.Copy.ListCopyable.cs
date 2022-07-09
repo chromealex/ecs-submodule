@@ -16,6 +16,34 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void Copy<T>(ListCollection<T> fromArr, ref ListCollection<T> arr) {
+
+            if (fromArr.IsCreated == false) {
+
+                if (arr.IsCreated == true) {
+
+                    arr.Dispose();
+
+                }
+
+                arr = default;
+                return;
+
+            }
+
+            if (arr.IsCreated == false) {
+
+                arr = new ListCollection<T>(fromArr.Count);
+
+            }
+
+            arr.CopyFrom(fromArr);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void Copy<T>(ListCopyable<T> fromArr, ref ListCopyable<T> arr) {
 
             if (fromArr == null) {
@@ -132,7 +160,7 @@ namespace ME.ECS {
 
             }
 
-            System.Array.Copy(fromArr.innerArray.arr, sourceIndex, arr.arr, destIndex, length);
+            System.Array.Copy(fromArr.innerArray, sourceIndex, arr.arr, destIndex, length);
 
         }
 

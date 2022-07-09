@@ -1,19 +1,6 @@
-﻿namespace ME.ECS.Collections {
+namespace ME.ECS.Collections {
 
-    public interface IListCopyableBase {
-
-        void Add(object obj);
-        void Clear();
-
-    }
-    
-    #if ECS_COMPILE_IL2CPP_OPTIONS
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-    #endif
-    [System.Serializable]
-    public sealed class ListCopyable<T> : IPoolableSpawn, IPoolableRecycle, IListCopyableBase, System.Collections.Generic.ICollection<T> {
+    public struct ListCollection<T> : System.Collections.Generic.IEnumerable<T> {
 
         private const int DefaultCapacity = 8;
         private static bool isValueType;
@@ -25,64 +12,60 @@
 
         public bool IsReadOnly => false;
         [ME.ECS.Serializer.SerializeField]
-        public int Capacity = ListCopyable<T>.DefaultCapacity;
+        public int Capacity;
+
+        public bool IsCreated;
+
+        public void Dispose() {
+
+            this.innerArray = default;
+            this.Count = 0;
+            this.Capacity = 0;
+            this.IsCreated = false;
+
+        }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void CopyFrom(ListCopyable<T> other) {
+        public void CopyFrom(ListCollection<T> other) {
 
             this.Count = other.Count;
             this.Capacity = other.Capacity;
+            this.IsCreated = other.IsCreated;
             ArrayUtils.Copy(other.innerArray, ref this.innerArray);
 
         }
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void CopyFrom<TCopy>(ListCopyable<T> other, TCopy copy) where TCopy : IArrayElementCopy<T> {
+        public void CopyFrom<TCopy>(ListCollection<T> other, TCopy copy) where TCopy : IArrayElementCopy<T> {
 
             this.Count = other.Count;
             this.Capacity = other.Capacity;
+            this.IsCreated = other.IsCreated;
             ArrayUtils.Copy(other.innerArray, ref this.innerArray, copy);
 
         }
         
-        public void OnSpawn() {
-
-            //this.innerArray = PoolArray<T>.Spawn(this.Capacity);
-            this.Capacity = 0;
-            this.Initialize();
-
-        }
-
-        public void OnRecycle() {
-
-            //PoolArray<T>.Recycle(ref this.innerArray);
-            ArrayUtils.Clear(this.innerArray);
-            this.Capacity = 0;
-            this.Count = 0;
-
-        }
-        
-        public ListCopyable(T[] startArray) {
+        public ListCollection(T[] startArray) {
             this.innerArray = startArray;
             this.Count = this.innerArray.Length;
             this.Capacity = this.innerArray.Length;
+            this.IsCreated = true;
+            ListCollection<T>.isValueType = typeof(T).IsValueType;
         }
 
-        public ListCopyable(int startCapacity) {
+        public ListCollection(int startCapacity) {
             this.Capacity = startCapacity;
+            this.Count = 0;
             this.innerArray = new T[this.Capacity];
+            this.IsCreated = true;
 
             this.Initialize();
-        }
-
-        public ListCopyable() : this(ListCopyable<T>.DefaultCapacity) {
-            
         }
 
         private void Initialize() {
 
             this.Count = 0;
-            ListCopyable<T>.isValueType = typeof(T).IsValueType;
+            ListCollection<T>.isValueType = typeof(T).IsValueType;
             
         }
 
@@ -140,12 +123,6 @@
             
         }
 
-        void IListCopyableBase.Add(object obj) {
-            
-            this.Add((T)obj);
-            
-        }
-        
         public void Add(T item) {
             this.EnsureCapacity(this.Count + 1);
             this.innerArray[this.Count++] = item;
@@ -169,6 +146,16 @@
             this.Count += arrayLength;
             /*for (var i = 0; i < arrayLength; i++) {
                 this.innerArray[this.Count++] = items.arr[i];
+            }*/
+        }
+
+        public void AddRange(ListCollection<T> items) {
+            var arrayLength = items.Count;
+            this.EnsureCapacity(this.Count + arrayLength + 1);
+            System.Array.Copy(items.innerArray, 0, this.innerArray, this.Count, arrayLength);
+            this.Count += arrayLength;
+            /*for (var i = 0; i < arrayLength; i++) {
+                this.innerArray[this.Count++] = items[i];
             }*/
         }
 
@@ -306,7 +293,7 @@
 
         public void Clear() {
             
-            if (ListCopyable<T>.isValueType == false) {
+            if (ListCollection<T>.isValueType == false) {
 
                 System.Array.Clear(this.innerArray, 0, this.Capacity);
 
@@ -323,7 +310,7 @@
             this.Count = 0;
         }
 
-        public void CopyTo(ListCopyable<T> target) {
+        public void CopyTo(ListCollection<T> target) {
             System.Array.Copy(this.innerArray, 0, target.innerArray, 0, this.Count);
             target.Count = this.Count;
             target.Capacity = this.Capacity;
@@ -352,11 +339,11 @@
 
         public struct Enumerator : System.IDisposable, System.Collections.IEnumerator
         {
-            private ListCopyable<T> _list;
+            private ListCollection<T> _list;
             private int _index;
             private T _current;
 
-            internal Enumerator(ListCopyable<T> list)
+            internal Enumerator(ListCollection<T> list)
             {
                 this._list = list;
                 this._index = 0;
@@ -369,7 +356,7 @@
 
             public bool MoveNext()
             {
-                ListCopyable<T> list = this._list;
+                ListCollection<T> list = this._list;
                 if ((uint) this._index >= (uint) list.Count)
                     return false;
                 this._current = list.innerArray[this._index];

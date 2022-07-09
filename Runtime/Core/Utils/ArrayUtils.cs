@@ -621,6 +621,52 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Copy<T>(T[] fromArr, ref T[] arr) {
+
+            if (fromArr == null) {
+
+                arr = null;
+                return;
+
+            }
+
+            if (arr == null || fromArr.Length != arr.Length) {
+
+                arr = new T[fromArr.Length];
+
+            }
+
+            fromArr.CopyTo(arr, 0);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Copy<T, TCopy>(T[] fromArr, ref T[] arr, TCopy copy) where TCopy : IArrayElementCopy<T> {
+
+            if (fromArr == null) {
+
+                arr = null;
+                return;
+
+            }
+
+            if (arr == null || fromArr.Length != arr.Length) {
+
+                arr = new T[fromArr.Length];
+
+            }
+
+            for (int i = 0; i < fromArr.Length; ++i) {
+                copy.Copy(fromArr[i], ref arr[i]);
+            }
+            
+        }
+
     }
 
 }

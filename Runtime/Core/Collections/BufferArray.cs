@@ -401,7 +401,7 @@ namespace ME.ECS.Collections {
 
             var length = arr.Count;
             var buffer = PoolArray<T>.Spawn(length);
-            System.Array.Copy(arr.innerArray.arr, buffer.arr, length);
+            System.Array.Copy(arr.innerArray, buffer.arr, length);
 
             return buffer;
 

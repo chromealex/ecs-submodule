@@ -1946,7 +1946,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void SetTimer(in Entity entity, int index, tfloat time) {
+        public void SetTimer(in Entity entity, uint index, tfloat time) {
 
             E.IS_LOGIC_STEP(this);
             E.IS_ALIVE(in entity);
@@ -1958,7 +1958,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref tfloat GetTimer(in Entity entity, int index) {
+        public ref tfloat GetTimer(in Entity entity, uint index) {
 
             E.IS_LOGIC_STEP(this);
             E.IS_ALIVE(in entity);
@@ -1970,7 +1970,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public tfloat ReadTimer(in Entity entity, int index) {
+        public tfloat ReadTimer(in Entity entity, uint index) {
             
             E.IS_ALIVE(in entity);
 
@@ -1981,7 +1981,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public bool RemoveTimer(in Entity entity, int index) {
+        public bool RemoveTimer(in Entity entity, uint index) {
             
             E.IS_LOGIC_STEP(this);
             E.IS_ALIVE(in entity);
