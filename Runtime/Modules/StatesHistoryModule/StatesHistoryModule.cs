@@ -1015,21 +1015,23 @@ namespace ME.ECS.StatesHistory {
             
             if (this.prewarmed == false) {
                 
-                this.Prewarm();
+                this.Prewarm(this.world.GetCurrentTick());
                 this.prewarmed = true;
 
             }
 
         }
 
-        private void Prewarm() {
+        private void Prewarm(Tick tick) {
 
             //this.states.BeginSet();
-            /*for (uint i = 0; i < this.GetQueueCapacity(); ++i) {
+            for (uint i = 0; i < this.GetQueueCapacity(); ++i) {
                 
-                this.StoreState(i * this.GetTicksPerState(), isPrewarm: true);
+                this.StoreState(((uint)tick + 1u + i) * this.GetTicksPerState(), isPrewarm: true);
                 
-            }*/
+            }
+            
+            this.statesHistory.InvalidateEntriesAfterTick(tick);
             //this.states.EndSet();
 
         }
@@ -1074,7 +1076,7 @@ namespace ME.ECS.StatesHistory {
                 this.states.Set(tick, newState);*/
                 
                 var overwritedStateTick = this.statesHistory.Store(tick, this.world.GetState<TState>(), out var overwritedStateHash);
-                if (overwritedStateHash > 0) {
+                if (isPrewarm == false && overwritedStateHash > 0) {
 
                     var module = this.world.GetModule<ME.ECS.Network.NetworkModule<TState>>();
                     if (module != null && module.IsReverting() == false && overwritedStateTick > module.syncedTick) {

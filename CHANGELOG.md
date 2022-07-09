@@ -1,5 +1,6 @@
 # Version 2.6
 * Runtime.Core:
+  * States prewarming enabled
   * STATIC_API_DISABLED define added
   * Static Entity API implemented
 
