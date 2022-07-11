@@ -18,6 +18,42 @@ namespace ME.ECS {
             DebugAndRelease,
         }
 
+        public enum CodeSize {
+
+            Unknown = 0,
+            /// <summary>
+            /// Has static size without generics
+            /// </summary>
+            Light,
+            /// <summary>
+            /// Depends on components count, but contains not heavy/doesn't contains any generic instructions
+            /// </summary>
+            Normal,
+            /// <summary>
+            /// Depends on components count and contains heavy generic instructions
+            /// </summary>
+            Heavy,
+
+        }
+
+        public enum RuntimeSpeed {
+
+            Unknown = 0,
+            /// <summary>
+            /// Has no additional instructions at all at runtime 
+            /// </summary>
+            Light,
+            /// <summary>
+            /// Has additional light-weight instructions at runtime
+            /// </summary>
+            Normal,
+            /// <summary>
+            /// Has heavy instructions every tick
+            /// </summary>
+            Heavy,
+
+        }
+
         public struct DefineInfo {
 
             public string define;
@@ -25,14 +61,22 @@ namespace ME.ECS {
             public System.Func<bool> isActive;
             public bool showInList;
             public ConfigurationType configurationType;
+            public CodeSize codeSize;
+            public RuntimeSpeed runtimeSpeed;
+            public bool actualValue;
+            public string deprecatedVersion;
 
-            public DefineInfo(string define, string description, System.Func<bool> isActive, bool showInList, ConfigurationType configurationType) {
+            public DefineInfo(bool actualValue, string define, string description, System.Func<bool> isActive, bool showInList, ConfigurationType configurationType, CodeSize codeSize, RuntimeSpeed runtimeSpeed, string deprecatedVersion = null) {
 
+                this.actualValue = actualValue;
                 this.define = define;
                 this.description = description;
                 this.isActive = isActive;
                 this.showInList = showInList;
                 this.configurationType = configurationType;
+                this.codeSize = codeSize;
+                this.runtimeSpeed = runtimeSpeed;
+                this.deprecatedVersion = deprecatedVersion;
 
             }
 
@@ -46,7 +90,13 @@ namespace ME.ECS {
 
                 public bool enabled;
                 public string name;
-                
+
+                public bool IsActualEnabled(DefineInfo defineInfo) {
+
+                    return this.enabled == defineInfo.actualValue;
+
+                }
+
             }
 
             public string name;

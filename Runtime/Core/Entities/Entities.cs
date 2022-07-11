@@ -41,21 +41,25 @@ namespace ME.ECS {
 
     }
 
+    #if !FILTERS_LAMBDA_DISABLED
     public struct ComponentTypesLambda {
 
         public static System.Collections.Generic.Dictionary<int, System.Action<Entity>> itemsSet = new System.Collections.Generic.Dictionary<int, System.Action<Entity>>();
         public static System.Collections.Generic.Dictionary<int, System.Action<Entity>> itemsRemove = new System.Collections.Generic.Dictionary<int, System.Action<Entity>>();
 
     }
+    #endif
 
     public struct ComponentTypes<TComponent> {
 
         public static readonly Unity.Burst.SharedStatic<int> burstTypeId = Unity.Burst.SharedStatic<int>.GetOrCreate<ComponentTypes<TComponent>, int>();
         public static readonly Unity.Burst.SharedStatic<byte> burstIsFilterVersioned = Unity.Burst.SharedStatic<byte>.GetOrCreate<ComponentTypes<TComponent>, byte>();
-        public static readonly Unity.Burst.SharedStatic<byte> burstIsFilterLambda = Unity.Burst.SharedStatic<byte>.GetOrCreate<ComponentTypes<TComponent>, byte>();
         public static int typeId = -1;
         public static bool isFilterVersioned = false;
+        #if !FILTERS_LAMBDA_DISABLED
+        public static readonly Unity.Burst.SharedStatic<byte> burstIsFilterLambda = Unity.Burst.SharedStatic<byte>.GetOrCreate<ComponentTypes<TComponent>, byte>();
         public static bool isFilterLambda = false;
+        #endif
 
     }
 
@@ -148,6 +152,16 @@ namespace ME.ECS {
         public static Entity ValidateData<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase {
 
             Worlds.currentWorld.ValidateData<TComponent>(in entity, isTag);
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static Entity ValidateDataTag<TComponent>(this in Entity entity, bool isTag = true) where TComponent : struct, IComponentBase {
+
+            Worlds.currentWorld.ValidateDataTag<TComponent>(in entity);
             return entity;
 
         }

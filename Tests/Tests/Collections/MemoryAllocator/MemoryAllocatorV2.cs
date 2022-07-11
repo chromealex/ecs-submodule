@@ -491,7 +491,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V2 {
                 var arr = new MemArrayAllocator<MemPtr>();
                 arr.Resize(ref memBlock, typeId + 1);
                 ref var ptr = ref arr[in memBlock, typeId];
-                if (ptr != 0L) {
+                if (ptr == 0L) {
                     ptr = arr[in memBlock, typeId] = memBlock.Alloc<TestData>();
                 }
 

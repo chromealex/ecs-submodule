@@ -49,8 +49,11 @@ namespace ME.ECS {
             entity.ValidateDataOneShot<IsEntityOneShot>(true);
             entity.ValidateDataOneShot<IsEntityEmptyOneShot>(true);
             entity.ValidateDataBlittable<ME.ECS.Views.ViewComponent>(false);
+            entity.ValidateDataBlittable<ME.ECS.Collections.IntrusiveData>(false);
+            entity.ValidateDataBlittable<ME.ECS.Collections.IntrusiveSortedListData>(false);
             entity.ValidateDataBlittable<ME.ECS.Collections.IntrusiveListNode>(false);
             entity.ValidateDataBlittable<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
+            entity.ValidateDataBlittable<ME.ECS.Collections.IntrusiveHashSetData>(false);
 
             ME.ECS.DataConfigs.DataConfig.Init(in entity);
             TransformComponentsInitializer.Init(in entity);

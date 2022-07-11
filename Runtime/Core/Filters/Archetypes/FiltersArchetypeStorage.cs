@@ -920,9 +920,11 @@ namespace ME.ECS.FiltersArchetype {
 
             } else {
 
+                #if !FILTERS_LAMBDA_DISABLED
                 if (ComponentTypesLambda.itemsSet.TryGetValue(componentId, out var lambda) == true) {
                     lambda.Invoke(entity);
                 }
+                #endif
 
             }
 
@@ -933,9 +935,11 @@ namespace ME.ECS.FiltersArchetype {
         #endif
         public void Set(in Entity entity, int componentId, bool checkLambda) {
 
+            #if !FILTERS_LAMBDA_DISABLED
             if (checkLambda == true && ComponentTypesLambda.itemsSet.TryGetValue(componentId, out var lambda) == true) {
                 lambda.Invoke(entity);
             }
+            #endif
 
             if (this.forEachMode > 0) {
 
@@ -958,7 +962,12 @@ namespace ME.ECS.FiltersArchetype {
         #endif
         public void Set<T>(in Entity entity) where T : struct {
 
-            this.Set(in entity, ComponentTypes<T>.typeId, ComponentTypes<T>.isFilterLambda);
+            #if !FILTERS_LAMBDA_DISABLED
+            var checkLambda = ComponentTypes<T>.isFilterLambda;
+            #else
+            var checkLambda = false;
+            #endif
+            this.Set(in entity, ComponentTypes<T>.typeId, checkLambda);
 
         }
 
@@ -972,9 +981,11 @@ namespace ME.ECS.FiltersArchetype {
         #endif
         public void Remove(in Entity entity, int componentId, bool checkLambda) {
 
+            #if !FILTERS_LAMBDA_DISABLED
             if (checkLambda == true && ComponentTypesLambda.itemsRemove.TryGetValue(componentId, out var lambda) == true) {
                 lambda.Invoke(entity);
             }
+            #endif
 
             if (this.forEachMode > 0) {
 
@@ -997,7 +1008,12 @@ namespace ME.ECS.FiltersArchetype {
         #endif
         public void Remove<T>(in Entity entity) where T : struct {
 
-            this.Remove(in entity, ComponentTypes<T>.typeId, ComponentTypes<T>.isFilterLambda);
+            #if !FILTERS_LAMBDA_DISABLED
+            var checkLambda = ComponentTypes<T>.isFilterLambda;
+            #else
+            var checkLambda = false;
+            #endif
+            this.Remove(in entity, ComponentTypes<T>.typeId, checkLambda);
 
         }
 
@@ -1204,8 +1220,11 @@ namespace ME.ECS.FiltersArchetype {
                             arch.HasNotAll(filterStaticData.data.notContains) == true &&
                             arch.HasAnyPair(filterStaticData.data.anyPair2) == true &&
                             arch.HasAnyPair(filterStaticData.data.anyPair3) == true &&
-                            arch.HasAnyPair(filterStaticData.data.anyPair4) == true &&
-                            FiltersArchetypeStorage.CheckLambdas(in arch, filterStaticData.data.lambdas) == true) {
+                            arch.HasAnyPair(filterStaticData.data.anyPair4) == true
+                            #if !FILTERS_LAMBDA_DISABLED
+                            && FiltersArchetypeStorage.CheckLambdas(in arch, filterStaticData.data.lambdas) == true
+                            #endif
+                            ) {
 
                             item.archetypes.Add(archId);
                             item.archetypesList.Add(archId);
@@ -1221,13 +1240,15 @@ namespace ME.ECS.FiltersArchetype {
             }
 
         }
-
+        
+        #if !FILTERS_LAMBDA_DISABLED
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         private static bool CheckLambdas(in Archetype arch, ListCopyable<int> lambdas) {
 
             return arch.HasAll(lambdas);
 
         }
+        #endif
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         internal static bool CheckStaticShared(ListCopyable<int> containsShared, ListCopyable<int> notContainsShared) {
@@ -1282,8 +1303,11 @@ namespace ME.ECS.FiltersArchetype {
                     FiltersArchetypeStorage.IsEquals(filterStaticData.data.anyPair2, filterBuilder.data.anyPair2) == true &&
                     FiltersArchetypeStorage.IsEquals(filterStaticData.data.anyPair3, filterBuilder.data.anyPair3) == true &&
                     FiltersArchetypeStorage.IsEquals(filterStaticData.data.anyPair4, filterBuilder.data.anyPair4) == true &&
-                    FiltersArchetypeStorage.IsEquals(filterStaticData.data.connectedFilters, filterBuilder.data.connectedFilters) == true &&
-                    FiltersArchetypeStorage.IsEquals(filterStaticData.data.lambdas, filterBuilder.data.lambdas) == true) {
+                    FiltersArchetypeStorage.IsEquals(filterStaticData.data.connectedFilters, filterBuilder.data.connectedFilters) == true
+                    #if !FILTERS_LAMBDA_DISABLED
+                    && FiltersArchetypeStorage.IsEquals(filterStaticData.data.lambdas, filterBuilder.data.lambdas) == true
+                    #endif
+                    ) {
 
                     filterData = filter;
                     return true;

@@ -378,14 +378,28 @@ namespace ME.ECSEditor {
                 }).ThenBy(x => x.FullName).ToList();*/
                 int GetOrder(System.Type type) {
                 
+                    var hasFields = type.GetFields(System.Reflection.BindingFlags.Default | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 0;
                     var isCopyable = typeof(ME.ECS.ICopyableBase).IsAssignableFrom(type);
                     var isStatic = typeof(ME.ECS.IComponentStatic).IsAssignableFrom(type);
                     var isDisposable = typeof(ME.ECS.IComponentDisposable).IsAssignableFrom(type);
                     var isOneShot = typeof(ME.ECS.IComponentOneShot).IsAssignableFrom(type);
                     var isBlittable = isDisposable == false && isOneShot == false && Generator.IsUnmanaged(type) == true;
+                    var isBlittableForced = typeof(ME.ECS.IComponentBlittable).IsAssignableFrom(type);
+
+                    var isTag = false;
+                    if (isBlittableForced == false && hasFields == false && isStatic == false) {
+
+                        isBlittable = false;
+                        isCopyable = false;
+                        isOneShot = false;
+                        isDisposable = false;
+                        isTag = true;
+
+                    }
 
                     if (isStatic == true) return 0;
                     if (isBlittable == true) return 1;
+                    if (isTag == true) return 2;
                     if (isDisposable == true) return 3;
                     if (isCopyable == true) return 5;
                     
@@ -411,6 +425,7 @@ namespace ME.ECSEditor {
                     var isStatic = typeof(ME.ECS.IComponentStatic).IsAssignableFrom(type);
                     var isDisposable = typeof(ME.ECS.IComponentDisposable).IsAssignableFrom(type);
                     var isOneShot = typeof(ME.ECS.IComponentOneShot).IsAssignableFrom(type);
+                    var isBlittableForced = typeof(ME.ECS.IComponentBlittable).IsAssignableFrom(type);
                     #if !SHARED_COMPONENTS_DISABLED
                     var isShared = typeof(ME.ECS.IComponentShared).IsAssignableFrom(type);
                     #else
@@ -432,6 +447,17 @@ namespace ME.ECSEditor {
 
                     }
 
+                    var isTag = false;
+                    if (isBlittableForced == false && hasFields == false && isStatic == false) {
+
+                        isBlittable = false;
+                        isCopyable = false;
+                        isOneShot = false;
+                        isDisposable = false;
+                        isTag = true;
+
+                    }
+                    
                     if (isCopyable == false && hasFields == true && isStatic == false && isOneShot == false) {
                         
                         // Check for managed types
@@ -446,11 +472,12 @@ namespace ME.ECSEditor {
                     if (isStatic == false) {
 
                         var resItem = itemStr;
+                        resItem = resItem.Replace("#TYPENAME#", entityType);
                         resItem = resItem.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                         resItem = resItem.Replace("#ISSHARED#", isShared == true ? "true" : "false");
                         resItem = resItem.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
                         resItem = resItem.Replace("#ISBLITTABLE#", isBlittable == true ? "true" : "false");
-                        resItem = resItem.Replace("#TYPENAME#", entityType);
+                        resItem = resItem.Replace("#TAG#", isTag == true ? "Tag" : "");
                         resItem = resItem.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
                         resItem = resItem.Replace("#BLITTABLE#", isBlittable == true ? "Blittable" : "");
                         resItem = resItem.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
@@ -477,6 +504,7 @@ namespace ME.ECSEditor {
                             resItem2 = resItem2.Replace("#ISSHARED#", isShared == true ? "true" : "false");
                             resItem2 = resItem2.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
                             resItem2 = resItem2.Replace("#ISBLITTABLE#", isBlittable == true ? "true" : "false");
+                            resItem2 = resItem2.Replace("#TAG#", isTag == true ? "Tag" : "");
                             resItem2 = resItem2.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
                             resItem2 = resItem2.Replace("#BLITTABLE#", isBlittable == true ? "Blittable" : "");
                             resItem2 = resItem2.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");

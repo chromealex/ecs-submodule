@@ -12,7 +12,9 @@ namespace ME.ECS {
     public static class WorldUtilities {
 
         private static readonly System.Reflection.MethodInfo setComponentTypeIdMethodInfo = typeof(WorldUtilities).GetMethod(nameof(WorldUtilities.SetComponentTypeId));
+        #if !FILTERS_LAMBDA_DISABLED
         private static readonly System.Reflection.MethodInfo setComponentLambdaMethodInfo = typeof(WorldUtilities).GetMethod(nameof(WorldUtilities.SetComponentFilterLambda));
+        #endif
 
         public static bool IsMainThread() {
 
@@ -283,6 +285,7 @@ namespace ME.ECS {
 
         }
 
+        #if !FILTERS_LAMBDA_DISABLED
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -302,6 +305,7 @@ namespace ME.ECS {
             ComponentTypes<TComponent>.burstIsFilterLambda.Data = 1;
             
         }
+        #endif
         
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

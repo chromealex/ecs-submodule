@@ -1,4 +1,8 @@
 # Version 2.6
+* Runtime.Core: 
+  * FILTERS_LAMBDA_DISABLED define added
+  * Internal BufferUtils refactoring
+  * Components Tag storage implemented
 * Runtime.Core:
   * States prewarming enabled
   * STATIC_API_DISABLED define added

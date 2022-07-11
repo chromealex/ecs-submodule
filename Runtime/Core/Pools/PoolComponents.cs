@@ -19,6 +19,12 @@ namespace ME.ECS {
 			
 		}
 
+        public static StructComponentsTag<T> SpawnTag<T>() where T : struct, IComponentBase {
+
+            return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsTag<T>(), null);
+			
+        }
+
 		public static StructComponentsOneShot<T> SpawnOneShot<T>() where T : struct, IComponentBase, IComponentOneShot {
 
 			return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsOneShot<T>(), null);

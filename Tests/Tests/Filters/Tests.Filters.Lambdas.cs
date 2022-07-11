@@ -1,4 +1,4 @@
-
+#if !FILTERS_LAMBDA_DISABLED
 namespace ME.ECS.Tests {
 
     #if !FILTERS_STORAGE_LEGACY
@@ -280,3 +280,4 @@ namespace ME.ECS.Tests {
     #endif
 
 }
+#endif

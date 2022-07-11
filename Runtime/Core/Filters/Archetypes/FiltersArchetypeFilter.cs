@@ -255,7 +255,9 @@ namespace ME.ECS {
                 if (ComponentTypesRegistry.typeId.TryGetValue(type, out var index) == true) {
 
                     dataInternal.contains.Add(index);
+                    #if !FILTERS_LAMBDA_DISABLED
                     if (component.optional == true) Filter.CreateFromDataLambda(ref dataInternal, index, type, component.data, new UnsafeDataCheckLambdaInclude());
+                    #endif
 
                 }
 
@@ -268,7 +270,9 @@ namespace ME.ECS {
                 if (ComponentTypesRegistry.typeId.TryGetValue(type, out var index) == true) {
 
                     if (component.optional == true) {
+                        #if !FILTERS_LAMBDA_DISABLED
                         Filter.CreateFromDataLambda(ref dataInternal, index, type, component.data, new UnsafeDataCheckLambdaExclude());
+                        #endif
                     } else {
                         dataInternal.notContains.Add(index);
                     }
@@ -309,6 +313,7 @@ namespace ME.ECS {
 
         }
 
+        #if !FILTERS_LAMBDA_DISABLED
         private static void CreateFromDataLambda<T>(ref FilterInternalData data, int typeId, System.Type type, IComponentBase component, T equalsChecker) where T : struct, IEqualsChecker {
 
             ComponentTypesRegistry.allTypeId.TryGetValue(type, out var globalTypeId);
@@ -362,6 +367,7 @@ namespace ME.ECS {
             data.lambdas.Add(lambdaTypeId);
 
         }
+        #endif
 
         public struct FilterRange {
 
@@ -900,8 +906,10 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         internal ListCopyable<int> onChanged;
         
+        #if !FILTERS_LAMBDA_DISABLED
         [ME.ECS.Serializer.SerializeField]
         internal ListCopyable<int> lambdas;
+        #endif
 
         [ME.ECS.Serializer.SerializeField]
         internal ListCopyable<ConnectInfo> connectedFilters;
@@ -922,7 +930,9 @@ namespace ME.ECS {
             ArrayUtils.Copy(other.containsShared, ref this.containsShared);
             ArrayUtils.Copy(other.notContainsShared, ref this.notContainsShared);
             ArrayUtils.Copy(other.onChanged, ref this.onChanged);
+            #if !FILTERS_LAMBDA_DISABLED
             ArrayUtils.Copy(other.lambdas, ref this.lambdas);
+            #endif
             ArrayUtils.Copy(other.connectedFilters, ref this.connectedFilters);
             this.withinTicks = other.withinTicks;
             this.withinType = other.withinType;
@@ -942,7 +952,9 @@ namespace ME.ECS {
             PoolListCopyable<int>.Recycle(ref this.containsShared);
             PoolListCopyable<int>.Recycle(ref this.notContainsShared);
             PoolListCopyable<int>.Recycle(ref this.onChanged);
+            #if !FILTERS_LAMBDA_DISABLED
             PoolListCopyable<int>.Recycle(ref this.lambdas);
+            #endif
             PoolListCopyable<ConnectInfo>.Recycle(ref this.connectedFilters);
             this.withinTicks = default;
             this.withinType = default;
@@ -962,7 +974,9 @@ namespace ME.ECS {
                 containsShared = PoolListCopyable<int>.Spawn(4),
                 notContainsShared = PoolListCopyable<int>.Spawn(4),
                 onChanged = PoolListCopyable<int>.Spawn(4),
+                #if !FILTERS_LAMBDA_DISABLED
                 lambdas = PoolListCopyable<int>.Spawn(4),
+                #endif
                 connectedFilters = PoolListCopyable<ConnectInfo>.Spawn(0),
                 withinTicks = Tick.Zero,
                 withinType = WithinType.GroupByChunk,
@@ -1004,6 +1018,7 @@ namespace ME.ECS {
 
         internal FilterInternalData data;
 
+        #if !FILTERS_LAMBDA_DISABLED
         public FilterBuilder WithLambda<T, TComponent>() where T : struct, ILambda<TComponent> where TComponent : struct, IStructComponent {
 
             System.Action<Entity> setAction = (e) => {
@@ -1052,6 +1067,7 @@ namespace ME.ECS {
             return this.With<TComponent>();
 
         }
+        #endif
 
         public FilterBuilder Parent(InnerFilterBuilderDelegate parentFilter) {
 

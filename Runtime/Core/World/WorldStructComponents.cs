@@ -133,6 +133,8 @@ namespace ME.ECS {
 
     public interface IVersioned : IComponentBase { }
 
+    public interface IComponentBlittable : IComponentBase {}
+    
     #if !COMPONENTS_VERSION_NO_STATE_DISABLED
     public interface IVersionedNoState : IComponentBase { }
     #endif

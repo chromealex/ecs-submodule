@@ -52,11 +52,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static ref
-            //#if UNITY_EDITOR
-            readonly
-            //#endif
-            TComponent Read<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
+        public static ref readonly TComponent Read<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
 
             return ref Worlds.currentWorld.ReadData<TComponent>(in entity);
 

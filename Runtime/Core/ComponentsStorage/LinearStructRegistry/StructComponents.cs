@@ -12,6 +12,18 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         internal BufferArraySliced<Component<TComponent>> components;
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public override bool TryRead(in Entity entity, out TComponent component) {
+            ref var bucket = ref this.components[entity.id];
+            component = bucket.data;
+            return bucket.state > 0;
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public override ref Component<TComponent> Get(in Entity entity) {
+            return ref this.components[entity.id];
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
